@@ -76,6 +76,14 @@
                  write_priv=.*
                  state=present
 
+- name: configure push queue daemon (supervisor)
+  tags: supervisor
+  template: src=supervisor_push_queue.j2 dest="/etc/supervisor/conf.d/{{ project }}-push-queue.conf"
+
+- name: supervisor push queue task
+  tags: supervisor
+  supervisorctl: name={{ project }}_push_queue state=present
+
 - name: composer | install
   tags: vagrant
   shell: >

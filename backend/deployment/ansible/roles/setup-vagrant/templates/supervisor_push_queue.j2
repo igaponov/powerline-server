@@ -1,0 +1,8 @@
+[program:{{ project }}_push_queue]
+command=php /vagrant/backend/app/console rabbitmq:consumer -m=10 push_queue -e=dev
+autorestart=true
+user=vagrant
+startretries=1000000000
+redirect_stderr=false
+stdout_logfile=/var/log/supervisor/push_{{ project }}.log
+stdout_logfile_maxbytes=10MB
