@@ -148,6 +148,14 @@ class User implements UserInterface, \Serializable
     /**
      * @var string
      *
+     * @ORM\Column(name="email_hash", type="string", length=40)
+     * @Assert\NotBlank(groups={"registration", "profile"})
+     */
+    private $emailHash;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="zip", type="string", length=255, nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-profile", "api-leader-answers"})
@@ -848,7 +856,9 @@ class User implements UserInterface, \Serializable
      */
     public function setEmail($email)
     {
+        $email = $this->normalizeEmail($email);
         $this->email = $email;
+        $this->emailHash = sha1($email);
 
         return $this;
     }
@@ -861,6 +871,28 @@ class User implements UserInterface, \Serializable
     public function getEmail()
     {
         return $this->email;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEmailHash()
+    {
+        return $this->emailHash;
+    }
+
+    /**
+     * @param string $email
+     * @return string
+     */
+    private function normalizeEmail($email)
+    {
+        $email = strtolower($email);
+        list($local, $domain) = explode('@', $email);
+        $local = strstr($local, '+', true) ? : $local;
+        $local = str_replace('.', '', $local);
+
+        return $local.'@'.$domain;
     }
 
     /**

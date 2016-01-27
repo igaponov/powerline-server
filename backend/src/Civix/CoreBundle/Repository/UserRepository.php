@@ -474,4 +474,18 @@ class UserRepository extends EntityRepository
 
         return $query;
     }
+
+    public function getUsersByEmailHashes(array $hashes, $page, $limit)
+    {
+        $query = $this->createQueryBuilder('u');
+
+        $query
+            ->orderBy('u.id', 'ASC')
+            ->where($query->expr()->in('u.emailHash', $hashes));
+
+        $query->setMaxResults($limit);
+        $query->setFirstResult(($page - 1) * $limit);
+
+        return $query->getQuery()->getResult();
+    }
 }

@@ -95,4 +95,42 @@ class SearchController extends BaseController
 
         return $response;
     }
+
+    /**
+     * @Route("/friends", name="api_search_friends")
+     * @Method("GET")
+     *
+     * @ApiDoc(
+     *     resource=true,
+     *     description="Search friends by email's hash",
+     *     filters={
+     *         {"name"="emails", "dataType"="array"},
+     *         {"name"="limit", "dataType"="integer"},
+     *         {"name"="page", "dataType"="integer"}
+     *     },
+     *     statusCodes={
+     *         200="Returns list search items",
+     *         401="Authorization required",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     */
+    public function getFriendsAction(Request $request)
+    {
+        $response = new Response();
+        $response->headers->set('Content-Type', 'application/json');
+        $emails = array_filter($request->get('emails', array()), 'is_string');
+        $limit = $request->get('limit', 50);
+        $page = $request->get('page', 1);
+
+        if (!$emails) {
+            return $response;
+        }
+
+        $users = $this->getDoctrine()->getRepository('CivixCoreBundle:User')
+            ->getUsersByEmailHashes($emails, $page, $limit);
+        $response->setContent($this->jmsSerialization($users, array('api-info')));
+
+        return $response;
+    }
 }
