@@ -3,7 +3,7 @@
 namespace Civix\ApiBundle\Controller;
 
 use Cocur\Slugify\Slugify;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -405,6 +405,46 @@ class GroupController extends BaseController
     public function getGroupRequiredFields(Group $group)
     {
         $response = new Response($this->jmsSerialization($group->getFields(), ['api-groups-fields']));
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
+
+    /**
+     * @Route(
+     *     "/{group}/users",
+     *     requirements={"group"="\d+"},
+     *     name="api_group_users"
+     * )
+     * @Method("GET")
+     *
+     * @ApiDoc(
+     *     resource=true,
+     *     description="List of users from group",
+     *     filters={
+     *             {"name"="limit", "dataType"="integer"},
+     *             {"name"="page", "dataType"="integer"}
+     *     },
+     *     statusCodes={
+     *         200="Returns users",
+     *         400="Bad request",
+     *         401="Authorization required",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Request $request
+     * @param $group
+     * @return Response
+     */
+    public function getGroupUsersAction(Request $request, $group)
+    {
+        $limit = $request->query->get('limit', 50);
+        $page = $request->query->get('page', 1);
+        $users = $this->getDoctrine()->getRepository('CivixCoreBundle:User')
+            ->getUsersByGroup($group, $page, $limit);
+
+        $response = new Response($this->jmsSerialization($users, ['api-short-info']));
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;

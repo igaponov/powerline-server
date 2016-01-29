@@ -419,6 +419,23 @@ class UserRepository extends EntityRepository
         ;
     }
 
+    public function getUsersByGroup($groupId, $page, $limit)
+    {
+        $query = $this->createQueryBuilder('u');
+
+        $query->innerJoin('u.groups', 'gr');
+
+        $query
+            ->orderBy('u.id', 'ASC')
+            ->where('gr.group = :groupId')
+            ->setParameter('groupId', $groupId);
+
+        $query->setMaxResults($limit);
+        $query->setFirstResult(($page - 1) * $limit);
+
+        return $query->getQuery()->getResult();
+    }
+
     private function addUnfollowingFilter(QueryBuilder $qb, User $user)
     {
         $excludedIds = array_merge(array($user->getId()), $user->getFollowingIds());

@@ -55,7 +55,7 @@ class User implements UserInterface, \Serializable
      * @Serializer\Expose()
      * @Serializer\Groups({"api-profile", "api-info", "api-device", "api-comments", "api-settings", "api-full-info",
      *      "api-session", "api-petitions-list", "api-petitions-info", "api-activities", "api-search", "api-invites",
-     *      "api-invites-create", "api-follow-create", "api-leader-answers"}
+     *      "api-invites-create", "api-follow-create", "api-leader-answers", "api-short-info"}
      * )
      */
     private $id;
@@ -74,7 +74,7 @@ class User implements UserInterface, \Serializable
      * @Serializer\Expose()
      * @Serializer\Groups(
      *      {"api-profile", "api-info", "api-comments", "api-session", "api-full-info", "api-public",
-     *      "api-petitions-list", "api-petitions-info", "api-search", "api-invites", "api-leader-answers"}
+     *      "api-petitions-list", "api-petitions-info", "api-search", "api-invites", "api-leader-answers", "api-short-info"}
      * )
      * @Assert\NotBlank(groups={"registration", "profile"})
      * @Assert\Regex(pattern="/^[a-zA-Z0-9._-]+[a-zA-Z0-9]$/", match="true", groups={"registration", "profile"})
@@ -103,7 +103,7 @@ class User implements UserInterface, \Serializable
      * @Serializer\Expose()
      * @Serializer\Groups({
      *  "api-profile", "api-comments", "api-info", "api-petitions-list",
-     *  "api-petitions-info", "api-search", "api-full-info", "api-invites", "api-leader-answers"
+     *  "api-petitions-info", "api-search", "api-full-info", "api-invites", "api-leader-answers", "api-short-info"
      * })
      * @Serializer\SerializedName("first_name")
      * @Assert\NotBlank(groups={"registration", "profile"})
@@ -117,7 +117,7 @@ class User implements UserInterface, \Serializable
      * @Serializer\Expose()
      * @Serializer\Groups({
      *  "api-profile", "api-comments", "api-info", "api-petitions-list", 
-     *  "api-petitions-info", "api-search", "api-full-info", "api-invites", "api-leader-answers"
+     *  "api-petitions-info", "api-search", "api-full-info", "api-invites", "api-leader-answers", "api-short-info"
      * })
      * @Serializer\SerializedName("last_name")
      * @Assert\NotBlank(groups={"registration", "profile"})
