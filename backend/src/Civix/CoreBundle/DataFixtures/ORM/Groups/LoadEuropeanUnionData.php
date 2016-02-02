@@ -1,6 +1,6 @@
 <?php
 
-namespace Civix\CoreBundle\DataFixtures\ORM\States\Groups;
+namespace Civix\CoreBundle\DataFixtures\ORM\Groups;
 
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
@@ -11,7 +11,7 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Symfony\Component\Security\Core\Util\SecureRandom;
 
-class LoadEropeanUnionData implements FixtureInterface, OrderedFixtureInterface, ContainerAwareInterface
+class LoadEuropeanUnionData implements FixtureInterface, OrderedFixtureInterface, ContainerAwareInterface
 {
     const COMMON_STATE_GROUP_EMAIL = 'support@powerli.ne';
     /**
@@ -22,7 +22,7 @@ class LoadEropeanUnionData implements FixtureInterface, OrderedFixtureInterface,
 
     public function __construct()
     {
-        $this->dataFile = __DIR__.'/../european_union.csv';
+        $this->dataFile = __DIR__ . '/european_union.csv';
     }
 
     public function setContainer(ContainerInterface $container = null)
