@@ -118,6 +118,11 @@ class GroupManager
 
         $this->joinToGroup($user, $countryGroup);
 
+        $parentCountryGroup = $countryGroup->getParent();
+        if (!is_null($parentCountryGroup) && $parentCountryGroup->getLocationName() == Group::GROUP_LOCATION_NAME_EROPEAN_UNION) {
+            $this->joinToGroup($user, $parentCountryGroup);
+        }
+
         $state = $this->geocode->getState($query);
         if ($state) {
             $stateGroup = $repository->getStateGroup($state, $countryGroup);
