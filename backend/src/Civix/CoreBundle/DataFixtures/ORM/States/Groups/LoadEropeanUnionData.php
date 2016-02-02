@@ -37,7 +37,7 @@ class LoadEropeanUnionData implements FixtureInterface, OrderedFixtureInterface,
             'EU',
             'EU1',
             'European Union',
-            Group::GROUP_NAME_EROPEAN_UNION,
+            Group::GROUP_LOCATION_NAME_EROPEAN_UNION,
             Group::GROUP_TYPE_SPECIAL
         );
         $manager->persist($euGroup);
@@ -74,7 +74,7 @@ class LoadEropeanUnionData implements FixtureInterface, OrderedFixtureInterface,
 
     public function getOrder()
     {
-        return 2;
+        return 3;
     }
 
     private function creatGroup($username, $password, $officialName, $locationName, $groupType, $parent = null)
