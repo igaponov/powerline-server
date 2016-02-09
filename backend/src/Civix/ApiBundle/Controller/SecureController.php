@@ -2,7 +2,8 @@
 
 namespace Civix\ApiBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Civix\CoreBundle\Event\UserEvent;
+use Civix\CoreBundle\Event\UserEvents;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -12,7 +13,6 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\DeferredInvites;
 use Civix\CoreBundle\Model\User\UserCreator;
-use Civix\CoreBundle\Model\User\ChangePassword;
 use Civix\CoreBundle\Model\User\BetaRequest;
 
 /**
@@ -213,6 +213,7 @@ class SecureController extends BaseController
 
             $this->get('civix_core.email_sender')
                 ->sendRegistrationEmail($user);
+            $this->get('event_dispatcher')->dispatch(UserEvents::REGISTRATION, new UserEvent($user));
 
             return $response;
         }
