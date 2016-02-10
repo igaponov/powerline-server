@@ -217,9 +217,9 @@ class MicropetitionController extends BaseController
         $group = $entityManager->find('CivixCoreBundle:Group', $groupId);
 
         if ($micropetition == null || $micropetition->getUser() != $this->getUser()
-            || !$micropetition->getPublishStatus() || $group == null) {
+            || !$micropetition->getPublishStatus() || $group == null || $micropetition->getGroup() == $group) {
 
-            throw new UnauthorizedHttpException("Unauthorized");
+            throw new UnauthorizedHttpException("Not Authorized");
         }
 
         $answers = $entityManager
