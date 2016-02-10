@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use Civix\CoreBundle\Entity\Invites\UserToGroup;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -11,6 +12,7 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Micropetitions\Petition;
 use Civix\CoreBundle\Entity\Micropetitions\Answer;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class MicropetitionController extends BaseController
 {
@@ -182,6 +184,77 @@ class MicropetitionController extends BaseController
             $micropetition,
             array('api-petitions-info', 'api-petitions-create', 'api-petitions-get'))
         );
+
+        return $response;
+    }
+
+    /**
+     * @Route(
+     *      "/micro-petitions/{id}/invite/{group_id}",
+     *      name="api_micropetition_invite",
+     *      requirements={"id"="\d+", "group_id"="\d+"}
+     * )
+     * @Method("GET")
+     * @ApiDoc(
+     *      resource=true,
+     *      description="Invite the upvoter of petition to a group",
+     *      statusCodes={
+     *          200="Returns micropetition's info",
+     *          400="Bad Request",
+     *          401="Unauthorized Request",
+     *          405="Method Not Allowed"
+     *      }
+     * )
+     * @param Request $request
+     * @param Petition $micropetition
+     * @return Response
+     */
+    public function inviteToGroup(Request $request, Petition $micropetition)
+    {
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $groupId = $request->get('group_id');
+        $group = $entityManager->find('CivixCoreBundle:Group', $groupId);
+
+        if ($micropetition == null || $micropetition->getUser() != $this->getUser()
+            || !$micropetition->getPublishStatus() || $group == null) {
+
+            throw new UnauthorizedHttpException("Unauthorized");
+        }
+
+        $answers = $entityManager
+            ->getRepository('CivixCoreBundle:Micropetitions\Answer')
+            ->getUserWhoUpvote($micropetition);
+
+        if (count($answers) == 0) {
+            throw $this->createNotFoundException();
+        }
+
+        $results = [];
+        foreach ($answers as $item) {
+            $invite = $entityManager->getRepository(UserToGroup::class)->findOneBy(array(
+                'inviter' => $this->getUser(),
+                'user' => $item->getUser(),
+                'group' => $group
+            ));
+
+            if ($invite != null)
+                continue;
+
+            $invite = new UserToGroup();
+            $invite->setInviter($this->getUser());
+            $invite->merge($entityManager);
+            $invite->setGroup($group);
+            $invite->setUser($item->getUser());
+
+            $entityManager->persist($invite);
+            $entityManager->flush($invite);
+            $results[] = $invite;
+        }
+
+        $this->container->get('civix_core.invite_sender')->sendUserInvites($results);
+        $response = new Response($this->jmsSerialization($results, ['api-invites']), 200);
+        $response->headers->set('Content-Type', 'application/json');
 
         return $response;
     }
