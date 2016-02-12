@@ -31,7 +31,6 @@ class QuestionTest extends \PHPUnit_Framework_TestCase
         $question->addOption($this->createNewOption($question, 0));
 
         $this->assertEquals(0, $question->getMaxAnswers());
-
     }
     /**
      * @group question
@@ -106,7 +105,6 @@ class QuestionTest extends \PHPUnit_Framework_TestCase
         $option = new \Civix\CoreBundle\Entity\Poll\Option();
 
         for ($i=0; $i<$answersCount; $i++) {
-
             $answer = $this->getNewAnswer();
 
             $option->addAnswer($answer);

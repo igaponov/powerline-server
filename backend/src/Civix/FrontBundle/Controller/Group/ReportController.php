@@ -75,7 +75,8 @@ class ReportController extends Controller
         foreach ($group->getFields() as $field) {
             $header[] = $field->getFieldName();
         }
-        $header[] = 'Join date';$header[] = 'Followers';
+        $header[] = 'Join date';
+        $header[] = 'Followers';
 
         $data[] = $header;
         foreach ($members as $mr) {
@@ -102,14 +103,14 @@ class ReportController extends Controller
                 'fieldValues' => $fieldValues,
                 'package' => $this->get('civix_core.subscription_manager')->getPackage($this->getUser()),
             ]
-        );   
+        );
     }
 
     private function createCSVString(array $data)
     {
         $result = '';
         foreach ($data as $row) {
-            $result .= implode(',', array_map(function($item) {
+            $result .= implode(',', array_map(function ($item) {
                 return '"' . str_replace('"', '""', $item) . '"';
             }, $row)) . "\n";
         }

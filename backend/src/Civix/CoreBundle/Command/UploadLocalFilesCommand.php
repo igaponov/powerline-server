@@ -13,7 +13,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Gaufrette\Stream\Local as LocalStream;
 use Gaufrette\StreamMode;
 use Gaufrette\Adapter\MetadataSupporter;
-
 use Civix\CoreBundle\Entity\RepresentativeStorage;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Group;
@@ -82,7 +81,6 @@ class UploadLocalFilesCommand extends ContainerAwareCommand
         $images = $this->checkImages($educational);
 
         if ($input->getOption('dump')) {
-
             $output->writeln('<info>Next files ready to upload:</info>');
 
             /* @var \Civix\CoreBundle\Entity\RepresentativeStorage $item */
@@ -119,7 +117,6 @@ class UploadLocalFilesCommand extends ContainerAwareCommand
                     "{$item->getId()} {$item->getImage()->getPathname()}"
                 );
             }
-
         } else {
             $output->writeln('<info>RepresentativeStorage uploading:</info>');
             /* @var \Civix\CoreBundle\Entity\RepresentativeStorage $item */
@@ -155,7 +152,6 @@ class UploadLocalFilesCommand extends ContainerAwareCommand
                 $this->uploadImage($item, $output);
             }
         }
-
     }
 
     private function checkAvatars($items, Filesystem $filesystem, $localDir)
@@ -221,7 +217,6 @@ class UploadLocalFilesCommand extends ContainerAwareCommand
 
     private function doUpload(UploadedFile $file, $name, Filesystem $filesystem)
     {
-
         if ($filesystem->getAdapter() instanceof MetadataSupporter) {
             $filesystem->getAdapter()->setMetadata($name, array('contentType' => $file->getMimeType()));
         }

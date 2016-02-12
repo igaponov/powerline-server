@@ -48,7 +48,7 @@ class UrlConverter
     public static function wrapLinks($text)
     {
         $pattern = '/(?<=\s|^)(http:\/\/|https:\/\/)?(www\.)?[a-zA-Z0-9\-]{3,12}\.[a-zA-Z]{2,3}(\/\S*)?(?=[\s.,!?:;]|$)/';
-        return preg_replace_callback($pattern, function($matches) {
+        return preg_replace_callback($pattern, function ($matches) {
             return '<a href="' . htmlspecialchars($matches[0], ENT_QUOTES) .
                 '" target="_blank">' . htmlspecialchars($matches[0]) . '</a>';
         }, $text);

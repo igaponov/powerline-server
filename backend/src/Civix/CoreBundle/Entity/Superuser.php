@@ -208,7 +208,6 @@ class Superuser implements UserInterface
      */
     public function eraseCredentials()
     {
-
     }
 
     /**

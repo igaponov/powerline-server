@@ -97,5 +97,4 @@ class ActivityController extends BaseController
 
         return $this->createJSONResponse('[]', 201);
     }
-
 }

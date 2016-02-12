@@ -3,7 +3,6 @@
 namespace Civix\CoreBundle\Service;
 
 use Doctrine\ORM\EntityManager;
-
 use Civix\CoreBundle\Entity\UserInterface;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Stripe\Customer;
@@ -14,7 +13,6 @@ use Civix\CoreBundle\Entity\Stripe\Charge;
 use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Subscription\Subscription;
-
 use Stripe\Error;
 
 class Stripe
@@ -209,7 +207,7 @@ class Stripe
                     $ss->coupon = $coupon;
                 }
                 $ss->save();
-            } catch( Error\InvalidRequest $e) {
+            } catch (Error\InvalidRequest $e) {
                 if (404 === $e->getHttpStatus()) {
                     $subscription->stripeReset();
                 }
@@ -253,7 +251,7 @@ class Stripe
                 ->retrieve($subscription->getStripeId());
             $ss->cancel(['at_period_end' => true]);
             $subscription->syncStripeData($ss);
-        } catch( Error\InvalidRequest $e) {
+        } catch (Error\InvalidRequest $e) {
             if (404 === $e->getHttpStatus()) {
                 $subscription->stripeReset();
             }
@@ -276,7 +274,7 @@ class Stripe
             $ss = $stripeCustomer->subscriptions
                 ->retrieve($subscription->getStripeId());
             $subscription->syncStripeData($ss);
-        } catch(Error\InvalidRequest $e) {
+        } catch (Error\InvalidRequest $e) {
             if (404 === $e->getHttpStatus()) {
                 $subscription->stripeReset();
             }

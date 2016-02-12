@@ -109,14 +109,12 @@ class Notification
             } else {
                 return;
             }
-
         }
 
         $endpoint->setArn($result['EndpointArn']);
 
         $this->em->persist($endpoint);
         $this->em->flush($endpoint);
-
     }
 
     private function getPlatformArn(Model\AbstractEndpoint $endpoint)

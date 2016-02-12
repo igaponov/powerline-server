@@ -10,7 +10,6 @@ use Behat\Gherkin\Node\TableNode;
 use Buzz\Browser;
 use Buzz\Client\Curl;
 use Buzz\Message\Response;
-
 use PHPUnit_Framework_Assert as Assert;
 
 /**

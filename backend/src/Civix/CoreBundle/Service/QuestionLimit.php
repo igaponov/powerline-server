@@ -18,7 +18,6 @@ class QuestionLimit
     {
         $this->entityManager = $entityManager;
         $this->session = $session;
-
     }
 
     /**
@@ -29,7 +28,7 @@ class QuestionLimit
      */
     public function checkQuestionLimit(CheckingLimits $entityQuestionOwner)
     {
-         //check limits of question
+        //check limits of question
         if (!$this->checkLimits($entityQuestionOwner)) {
             $this->session->getFlashBag()->add('error', self::QUESTION_LIMIT_ERROR);
 

@@ -8,7 +8,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\District;
-
 use Civix\CoreBundle\Entity\User;
 
 class CiceroUserUpdateCommand extends ContainerAwareCommand

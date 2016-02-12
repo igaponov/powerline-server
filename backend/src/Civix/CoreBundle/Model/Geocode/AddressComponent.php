@@ -14,7 +14,7 @@ class AddressComponent
      */
     private $shortName;
 
-    function __construct($longName = '', $shortName = '')
+    public function __construct($longName = '', $shortName = '')
     {
         $this->longName = $longName;
         $this->shortName = $shortName;

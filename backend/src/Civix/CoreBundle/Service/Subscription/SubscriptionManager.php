@@ -15,7 +15,6 @@ use Civix\BalancedBundle\Entity\PaymentHistory;
 use Civix\CoreBundle\Entity\Customer\Customer;
 use Civix\CoreBundle\Entity\Group;
 
-
 class SubscriptionManager
 {
     /**
@@ -78,7 +77,7 @@ class SubscriptionManager
                 ->setPackageType(Subscription::PACKAGE_TYPE_FREE)
                 ->setUserEntity($user)
             ;
-        } else if ($subscription->isSyncNeeded()) {
+        } elseif ($subscription->isSyncNeeded()) {
             return $this->stripe->syncSubscription($subscription);
         }
 

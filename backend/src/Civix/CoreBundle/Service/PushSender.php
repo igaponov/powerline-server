@@ -79,7 +79,6 @@ class PushSender
             }
 
             $this->entityManager->clear();
-
         } while ($users);
     }
 
@@ -94,7 +93,7 @@ class PushSender
         foreach ($users as $recipient) {
             $this->send($recipient,
                 "Boosted: {$this->preview($microPetition->getPetitionBody())}",
-                self::TYPE_PUSH_MICRO_PETITION, ['id' => $microPetitionId,]);
+                self::TYPE_PUSH_MICRO_PETITION, ['id' => $microPetitionId, ]);
         }
     }
 
@@ -164,7 +163,7 @@ class PushSender
                     ['id' => $socialActivity->getId(), 'target' => $socialActivity->getTarget()]
                 );
             }
-        } else if ($socialActivity->getFollowing()) {
+        } elseif ($socialActivity->getFollowing()) {
             $recipients = $this->entityManager
                 ->getRepository('CivixCoreBundle:User')
                 ->getUsersByFollowingForPush($socialActivity->getFollowing());

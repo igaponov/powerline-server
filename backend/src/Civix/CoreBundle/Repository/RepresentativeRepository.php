@@ -19,7 +19,7 @@ class RepresentativeRepository extends EntityRepository
      */
     public function getQueryRepresentativeByStatus($status)
     {
-         return $this->getQueryBuilderReprByStatus($status)
+        return $this->getQueryBuilderReprByStatus($status)
                 ->getQuery();
     }
 
@@ -110,7 +110,6 @@ class RepresentativeRepository extends EntityRepository
             ->setParameter('representativeId', $representative->getId())
             ->getQuery()
             ->execute();
-
     }
 
     public function getRepresentativeInformation($representativeId = 0, $storageId = 0)
@@ -119,7 +118,6 @@ class RepresentativeRepository extends EntityRepository
         $representativeId = (int) $representativeId;
 
         if (0 < $representativeId) {
-
             $info = $this->getEntityManager()
                 ->createQuery('
                     SELECT r, s
@@ -129,9 +127,7 @@ class RepresentativeRepository extends EntityRepository
                 ')
             ->setParameter('id', $representativeId)
             ->getOneOrNullResult();
-
         } elseif (0 < $storageId) {
-
             $info = $this->getEntityManager()
                 ->createQuery('
                     SELECT r, s
@@ -169,7 +165,6 @@ class RepresentativeRepository extends EntityRepository
 
     public function findByQuery($query, User $user)
     {
-
         $userDistrictIds = $user->getDistrictsIds();
 
         $qb = $this->getEntityManager()->createQueryBuilder();

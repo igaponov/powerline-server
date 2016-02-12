@@ -241,10 +241,10 @@ class RepresentativeController extends Controller
      */
     public function municipalAction()
     {
-         $this->get('session')->set('groupid_to_switch', $this->getUser()->getLocalGroup()->getId());
-         $this->get('session')->set('switch_representative', $this->getUser()->getId());
+        $this->get('session')->set('groupid_to_switch', $this->getUser()->getLocalGroup()->getId());
+        $this->get('session')->set('switch_representative', $this->getUser()->getId());
 
-         return $this->redirect($this->generateUrl('civix_account_switch'));
+        return $this->redirect($this->generateUrl('civix_account_switch'));
     }
 
     private function getQuestionDetails($id)

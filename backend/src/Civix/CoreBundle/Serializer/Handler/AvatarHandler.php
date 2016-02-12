@@ -4,7 +4,6 @@ namespace Civix\CoreBundle\Serializer\Handler;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonSerializationVisitor;
 use JMS\Serializer\JsonDeserializationVisitor;
-
 use Civix\CoreBundle\Serializer\Type\Avatar;
 
 class AvatarHandler implements SubscribingHandlerInterface
@@ -14,7 +13,6 @@ class AvatarHandler implements SubscribingHandlerInterface
 
     public static function getSubscribingMethods()
     {
-
     }
 
     public function __construct(
@@ -32,7 +30,6 @@ class AvatarHandler implements SubscribingHandlerInterface
         if (!$avatar->isPrivacy()) {
             if ($avatar->getEntity()->getAvatar()) {
                 return $this->serviceVich->asset($avatar->getEntity(), 'avatar');
-
             } else {
                 return $scheme . $avatar->getEntity()->getDefaultAvatar();
             }

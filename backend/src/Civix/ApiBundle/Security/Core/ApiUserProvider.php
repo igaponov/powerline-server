@@ -57,7 +57,6 @@ class ApiUserProvider implements UserProviderInterface
                 ->getRepository('CivixCoreBundle:' . ucfirst($session->getUserType()))
                 ->find($session->getUserId());
         }
-
     }
 
     /**

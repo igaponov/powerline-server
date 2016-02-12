@@ -28,14 +28,14 @@ class MicroPetition extends Activity
 
     public function setPetitionId($id)
     {
-         $this->petitionId = $id;
+        $this->petitionId = $id;
 
-         return $this;
+        return $this;
     }
 
     public function getPetitionId()
     {
-         return $this->petitionId;
+        return $this->petitionId;
     }
 
     public function getEntity()

@@ -12,7 +12,7 @@ class CiceroApiMock extends CiceroApi
     public function __call($name, $arguments)
     {
         if (method_exists($this, $name)) {
-            return call_user_func(array('parent',$name), $arguments);
+            return call_user_func(array('parent', $name), $arguments);
         }
     }
 }

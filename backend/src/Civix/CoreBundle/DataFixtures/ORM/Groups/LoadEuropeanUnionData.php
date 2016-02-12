@@ -65,9 +65,9 @@ class LoadEuropeanUnionData implements FixtureInterface, OrderedFixtureInterface
         $allUsers = $manager->getRepository(User::class)
             ->findAll();
         foreach ($allUsers as $currentUser) {
-             $this->container->get('civix_core.group_manager')
+            $this->container->get('civix_core.group_manager')
                 ->autoJoinUser($currentUser);
-             $manager->persist($currentUser);
+            $manager->persist($currentUser);
         }
         $manager->flush();
     }

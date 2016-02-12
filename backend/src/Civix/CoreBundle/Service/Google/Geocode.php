@@ -75,4 +75,4 @@ class Geocode
             return json_decode($result, true);
         }
     }
-} 
+}

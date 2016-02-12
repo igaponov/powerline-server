@@ -15,7 +15,7 @@ use Civix\CoreBundle\Entity\State;
  */
 class LoadStateData implements FixtureInterface, OrderedFixtureInterface, ContainerAwareInterface
 {
-     /**
+    /**
      * @var ContainerInterface
      */
     private $container;

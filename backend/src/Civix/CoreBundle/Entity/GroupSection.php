@@ -55,7 +55,6 @@ class GroupSection
     public function getId()
     {
         return $this->id;
-        
     }
 
     /**

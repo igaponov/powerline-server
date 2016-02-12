@@ -457,7 +457,7 @@ class MenuBuilder extends AbstractNavbarMenuBuilder
         ;
 
         // TODO: make XSS safe $icon contents escaping
-        switch(true){
+        switch (true) {
             case isset($icon['icon'])||isset($icon['glyphicon']):
                 $this->addIcon($dropdown, $icon);
                 break;

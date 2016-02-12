@@ -7,7 +7,6 @@ use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
-
 use Civix\CoreBundle\Entity\UserInterface;
 
 /**
@@ -136,7 +135,7 @@ abstract class Account implements AccountInterface
 
     public function updateBankAccounts($bankAccounts)
     {
-        $this->bankAccounts = json_encode(array_map(function($bankAccount) {
+        $this->bankAccounts = json_encode(array_map(function ($bankAccount) {
             return [
                 'id'        => $bankAccount->id,
                 'last4'     => $bankAccount->last4,

@@ -4,7 +4,6 @@ namespace Civix\CoreBundle\Repository\Poll;
 
 use Civix\CoreBundle\Entity\Poll\Question\Petition;
 use Doctrine\ORM\EntityRepository;
-
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Poll\Answer;
 
@@ -92,7 +91,5 @@ class AnswerRepository extends EntityRepository
         return array_map(function (Answer $answer) {
             return $answer->getUser();
         }, $answers);
-
     }
-
 }

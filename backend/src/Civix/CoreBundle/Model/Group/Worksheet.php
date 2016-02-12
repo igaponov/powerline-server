@@ -86,7 +86,7 @@ class Worksheet
             $userFieldsIds = $this->getFieldsIds();
 
             if (!empty(array_diff($groupFieldsIds, $userFieldsIds))) {
-                 $context->addViolationAt('fields', 'Please to fill required fields', array(), null);
+                $context->addViolationAt('fields', 'Please to fill required fields', array(), null);
             }
         }
     }

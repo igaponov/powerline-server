@@ -9,10 +9,10 @@ use Civix\CoreBundle\Entity\Group;
 
 class LoadApprovalGroupData extends AbstractFixture implements FixtureInterface
 {
-	const GROUP_USERNAME = 'approval-group';
+    const GROUP_USERNAME = 'approval-group';
     const GROUP_PASSWORD = 'fakepassword';
     const GROUP_MANAGER_EMAIL = 'approval-group@example.com';
-	
+    
     public function load(ObjectManager $manager)
     {
         $group = new Group();

@@ -35,7 +35,6 @@ class LoadOptionData extends AbstractFixture implements FixtureInterface, Ordere
                     $manager->persist($option);
                 }
             }
-
         }
   
         $manager->flush();

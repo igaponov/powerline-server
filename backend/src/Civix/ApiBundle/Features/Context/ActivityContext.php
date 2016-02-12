@@ -3,12 +3,10 @@
 namespace Civix\ApiBundle\Features\Context;
 
 use PHPUnit_Framework_Assert as Assert;
-
 use Behat\Behat\Context\BehatContext;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Doctrine\ORM\EntityManager;
-
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Question\RepresentativeNews;
 use Civix\CoreBundle\Entity\Activities\Question as QuestionActivity;

@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityRepository;
 
 class LocalRepresentative extends AbstractType
 {
-     private $currentLocalGroup;
+    private $currentLocalGroup;
 
     public function __construct($group)
     {

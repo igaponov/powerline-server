@@ -44,7 +44,6 @@ class GroupController extends Controller
         $questionLimitForm->bind($this->getRequest());
 
         if ($questionLimitForm->isValid()) {
-
             $entityManager->persist($group);
             $entityManager->flush();
 
@@ -71,22 +70,20 @@ class GroupController extends Controller
         $csrfProvider = $this->get('form.csrf_provider');
 
         if ($csrfProvider->isCsrfTokenValid('remove_group_' . $group->getId(), $this->getRequest()->get('_token'))) {
-
             $slugify = new Slugify();
 
-            $groupName = $slugify->slugify($group->getOfficialName(),'');
+            $groupName = $slugify->slugify($group->getOfficialName(), '');
 
             $mailgun = $this->get('civix_core.mailgun')->listremoveAction($groupName);
 
-            if($mailgun['http_response_code'] != 200){
+            if ($mailgun['http_response_code'] != 200) {
                 $this->get('session')->getFlashBag()->add('error', 'Something went wrong removing the group from mailgun');
                 return $this->redirect($this->generateUrl('civix_front_superuser_manage_groups'));
-
             }
 
             try {
                 $this->get('civix_core.customer_manager')->removeCustomer($group);
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 $this->get('session')->getFlashBag()->add('error', $e->getMessage());
                 return $this->redirect($this->generateUrl('civix_front_superuser_manage_groups'));
             }
@@ -107,9 +104,9 @@ class GroupController extends Controller
      */
     public function switchToStateGroup($id)
     {
-         $this->get('session')->set('groupid_to_switch', $id);
+        $this->get('session')->set('groupid_to_switch', $id);
 
-         return $this->redirect($this->generateUrl('civix_account_switch'));
+        return $this->redirect($this->generateUrl('civix_account_switch'));
     }
 
     /**
@@ -170,7 +167,6 @@ class GroupController extends Controller
         $localGroupForm->bind($this->getRequest());
         
         if ($localGroupForm->isValid()) {
-
             $entityManager->persist($group);
             $entityManager->flush();
             

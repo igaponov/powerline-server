@@ -90,7 +90,6 @@ class RenewalSubscriptionDaemonCommand extends ContainerAwareCommand
                         } else {
                             $output->writeln("<info>Success. Transaction number: {$paymentHistory->getPublicId()}</info>");
                         }
-
                     } catch (\Exception $e) {
                         $output->writeln("<error>{$e->getMessage()}</error>");
                         $subscription->setExpiredAt($originalExpiredAt);
@@ -98,7 +97,6 @@ class RenewalSubscriptionDaemonCommand extends ContainerAwareCommand
                         $em->flush($subscription);
                     }
                 }
-
             } else {
                 pcntl_signal_dispatch();
                 if ($exit) {

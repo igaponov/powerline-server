@@ -123,7 +123,7 @@ class CommentController extends BaseController
         }
         if ($comment instanceof \Civix\CoreBundle\Entity\Poll\Comment) {
             $this->get('civix_core.social_activity_manager')->noticePollCommented($comment);
-        } else if ($comment instanceof Micropetitions\Comment) {
+        } elseif ($comment instanceof Micropetitions\Comment) {
             $this->get('civix_core.social_activity_manager')->noticeMicropetitionCommented($comment);
         }
 

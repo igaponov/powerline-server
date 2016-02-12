@@ -2,7 +2,6 @@
 
 namespace Civix\CoreBundle\Entity\Customer;
 
-
 interface CustomerAccessorInterface
 {
     /**
@@ -15,4 +14,4 @@ interface CustomerAccessorInterface
      * @return $this
      */
     public function setCustomer(Customer $customer);
-} 
+}

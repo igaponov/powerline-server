@@ -215,7 +215,6 @@ abstract class Announcement
         if (mb_strlen($text, 'utf-8') > 250) {
             $context->addViolationAt('content', 'The message too long');
         }
-
     }
 
     /**

@@ -9,7 +9,7 @@ use Civix\CoreBundle\Entity\Group;
 
 class Membership extends AbstractType
 {
-     /**
+    /**
      * Set form fields
      *
      * @param FormBuilderInterface $builder

@@ -148,7 +148,7 @@ class LoadScenarioCommand extends ContainerAwareCommand
                 
                 //generate
                 if (isset($scenarios[$scenarioNumber])) {
-                     //stop logging
+                    //stop logging
                     $this->getContainer()
                         ->get('doctrine')
                         ->getConnection()
@@ -198,7 +198,6 @@ class LoadScenarioCommand extends ContainerAwareCommand
         $connection = $entityManager->getConnection();
         $sqlQueries = file_get_contents($scenarioFile);
         $connection->executeQuery($sqlQueries);
-
     }
 
     private function runGenerator($scenarioConfig, $parts, $dataGenerator, $output)

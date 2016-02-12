@@ -137,7 +137,6 @@ class GroupRepository extends EntityRepository
             ->setParameter('groupId', $group->getId())
             ->getQuery()
             ->execute();
-
     }
 
     public function getTotalMembers(Group $group)
@@ -216,7 +215,7 @@ class GroupRepository extends EntityRepository
 
     public function cleanCommonGroups()
     {
-         return $this->getEntityManager()
+        return $this->getEntityManager()
             ->createQuery('DELETE FROM CivixCoreBundle:Group gr
                             WHERE gr.groupType=:type')
             ->setParameter('type', Group::GROUP_TYPE_COMMON)

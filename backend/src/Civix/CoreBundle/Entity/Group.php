@@ -680,7 +680,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      */
     public function unserialize($serialized)
     {
-        list (
+        list(
             $this->id,
         ) = unserialize($serialized);
     }

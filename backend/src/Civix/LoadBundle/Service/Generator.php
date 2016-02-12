@@ -279,7 +279,7 @@ class Generator
                     null,
                     rand(1, 10),
                     rand(1, 1000),
-                    rand(0,1),
+                    rand(0, 1),
                     'poll'
                 ]);
             }
@@ -300,7 +300,7 @@ class Generator
                     $questionCount,
                     rand(1, 10),
                     rand(1, 1000),
-                    rand(0,1),
+                    rand(0, 1),
                     'micropetition'
                 ]);
             }
@@ -355,6 +355,5 @@ class Generator
                 }
             }
         }
-
     }
 }

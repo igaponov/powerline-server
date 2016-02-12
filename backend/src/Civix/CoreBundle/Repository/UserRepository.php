@@ -198,7 +198,7 @@ class UserRepository extends EntityRepository
             ->orderBy('u.id', 'ASC');
 
         if ($limit) {
-             $query->setMaxResults($limit);
+            $query->setMaxResults($limit);
         }
 
         return $query->getQuery()->getResult();
@@ -273,7 +273,7 @@ class UserRepository extends EntityRepository
                 ->setParameter('startId', $startId);
 
         if ($limit) {
-             $query->setMaxResults($limit);
+            $query->setMaxResults($limit);
         }
 
         return $query->getQuery()->getResult();
@@ -307,7 +307,7 @@ class UserRepository extends EntityRepository
                 ->setParameter('startId', $startId);
 
         if ($limit) {
-             $query->setMaxResults($limit);
+            $query->setMaxResults($limit);
         }
 
         return $query->getQuery()->getResult();
@@ -327,7 +327,6 @@ class UserRepository extends EntityRepository
                 ->setParameter('userId', $userId)
                 ->getQuery()
                 ->getOneOrNullResult();
-                
     }
     
     public function getUsersByEmails($emails)
@@ -464,7 +463,6 @@ class UserRepository extends EntityRepository
             ->setUser($user);
 
         return $followEntity;
-
     }
 
     private function setCommonFilterForPush($query, $expr)

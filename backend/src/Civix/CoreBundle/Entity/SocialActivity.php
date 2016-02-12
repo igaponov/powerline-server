@@ -292,4 +292,4 @@ class SocialActivity
     {
         return SocialActivityConverter::toText($this);
     }
-} 
+}

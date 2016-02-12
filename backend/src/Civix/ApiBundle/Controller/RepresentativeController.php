@@ -17,7 +17,7 @@ use Civix\CoreBundle\Entity\RepresentativeStorage;
 class RepresentativeController extends BaseController
 {
 
-     /**
+    /**
      * @Route("/", name="api_my_representatives")
      * @Method("GET")
      *

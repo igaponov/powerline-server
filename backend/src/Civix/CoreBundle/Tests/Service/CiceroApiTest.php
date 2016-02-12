@@ -197,6 +197,5 @@ class CiceroApiTest extends WebTestCase
             44926,
             'Should return correct storage id (44926)'
         );
-
     }
 }

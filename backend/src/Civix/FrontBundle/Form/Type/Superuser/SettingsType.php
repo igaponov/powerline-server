@@ -7,7 +7,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Civix\FrontBundle\Form\Model\CoreSettings;
 
-
 class SettingsType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -30,4 +29,4 @@ class SettingsType extends AbstractType
             'csrf_field_name' => '_token'
         ]);
     }
-} 
+}

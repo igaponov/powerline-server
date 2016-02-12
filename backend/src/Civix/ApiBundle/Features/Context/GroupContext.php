@@ -40,7 +40,7 @@ class GroupContext extends BehatContext
      */
     public function iCallGetApiGroupsInfoIdWhereIdIsIdOfGroup($username)
     {
-         /* @var $em EntityManager */
+        /* @var $em EntityManager */
         $em = $this->getMainContext()->getEntityManager();
 
         $group = $em->getRepository(Group::class)->findOneByUsername($username);
@@ -52,7 +52,7 @@ class GroupContext extends BehatContext
      */
     public function iCallGetApiGroupsIdPermissionsWhereIdIsIdOfGroup($username)
     {
-         /* @var $em EntityManager */
+        /* @var $em EntityManager */
         $em = $this->getMainContext()->getEntityManager();
 
         $group = $em->getRepository(Group::class)->findOneByUsername($username);
@@ -64,7 +64,7 @@ class GroupContext extends BehatContext
      */
     public function iCallPostApiGroupsIdPermissionsWhereIdIsIdOfGroupWithData($username, PyStringNode $string)
     {
-         /* @var $em EntityManager */
+        /* @var $em EntityManager */
         $em = $this->getMainContext()->getEntityManager();
 
         $group = $em->getRepository(Group::class)

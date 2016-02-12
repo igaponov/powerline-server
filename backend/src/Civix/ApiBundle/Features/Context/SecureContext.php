@@ -3,7 +3,6 @@
 namespace Civix\ApiBundle\Features\Context;
 
 use PHPUnit_Framework_Assert as Assert;
-
 use Behat\Behat\Context\BehatContext;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
@@ -167,5 +166,4 @@ class SecureContext extends BehatContext
 
         return $user->getToken();
     }
-
 }

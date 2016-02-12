@@ -61,12 +61,11 @@ class GroupController extends Controller
 
                 $slugify = new Slugify();
 
-                $groupName = $slugify->slugify($group->getOfficialName(),'');
+                $groupName = $slugify->slugify($group->getOfficialName(), '');
 
-                $mailgun = $this->get('civix_core.mailgun')->listcreateAction($groupName,$group->getOfficialDescription(),$group->getManagerEmail(),$group->getManagerFirstName().' '.$group->getManagerLastName());
+                $mailgun = $this->get('civix_core.mailgun')->listcreateAction($groupName, $group->getOfficialDescription(), $group->getManagerEmail(), $group->getManagerFirstName().' '.$group->getManagerLastName());
 
-                if($mailgun['http_response_code'] != 200){
-
+                if ($mailgun['http_response_code'] != 200) {
                     return $this->render('CivixFrontBundle:Group:error.html.twig');
                 }
 
@@ -259,7 +258,6 @@ class GroupController extends Controller
             return array(
                 'inviteForm' => $inviteForm->createView(),
             );
-
         }
         
         $packLimitState = $this->container->get('civix_core.package_handler')

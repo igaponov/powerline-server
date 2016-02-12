@@ -9,7 +9,6 @@ use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\BalancedBundle\Entity\PaymentHistory;
 use Civix\BalancedBundle\Model\BalancedUserInterface;
 
-
 class PaymentHistoryRepository extends EntityRepository
 {
     public function findNotPaidOut(Question $question)

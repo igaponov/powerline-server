@@ -24,7 +24,7 @@ abstract class AnnouncementController extends Controller
      * @Template("CivixFrontBundle:Announcement:index.html.twig")
      */
     public function indexAction(Request $request)
-    {       
+    {
         /* @var $announcementRepository \Civix\CoreBundle\Repository\AnnouncementRepository */
         $announcementRepository = $this->getDoctrine()->getRepository('CivixCoreBundle:Announcement');
 

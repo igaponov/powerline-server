@@ -19,7 +19,7 @@ class Subscription
     const PACKAGE_TYPE_PLATINUM = 40;
     const PACKAGE_TYPE_COMMERCIAL = 50;
 
-    static public $labels = [
+    public static $labels = [
         self::PACKAGE_TYPE_FREE => 'Free',
         self::PACKAGE_TYPE_SILVER => 'Silver',
         self::PACKAGE_TYPE_GOLD => 'Gold',
@@ -27,7 +27,7 @@ class Subscription
         self::PACKAGE_TYPE_COMMERCIAL => 'Commercial',
     ];
 
-    static public $stripePlansByType = [
+    public static $stripePlansByType = [
         self::PACKAGE_TYPE_SILVER => 'silver',
         self::PACKAGE_TYPE_GOLD => 'gold',
         self::PACKAGE_TYPE_PLATINUM => 'platinum',
@@ -387,7 +387,6 @@ class Subscription
 
         $this->enabled = 'active' === $this->stripeData['status'] &&
             !$this->stripeData['cancel_at_period_end'];
-
     }
 
     public function stripeReset()

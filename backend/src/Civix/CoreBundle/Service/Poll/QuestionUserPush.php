@@ -73,7 +73,6 @@ class QuestionUserPush
                     $limitUser
                 );
         }
-
     }
 
     private function getUsersBySuperuser($startId, $limitUser)

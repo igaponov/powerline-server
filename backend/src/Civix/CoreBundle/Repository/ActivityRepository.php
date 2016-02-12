@@ -337,11 +337,9 @@ class ActivityRepository extends EntityRepository
 
     public function updateOwnerRepresentative(Representative $owner)
     {
-
     }
 
     public function updateOwnerAdmin(Superuser $owner)
     {
-
     }
 }

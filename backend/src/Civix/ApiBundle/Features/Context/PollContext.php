@@ -5,7 +5,6 @@ namespace Civix\ApiBundle\Features\Context;
 use Behat\Behat\Context\BehatContext;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
-
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Poll\Question;

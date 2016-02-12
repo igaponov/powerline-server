@@ -14,7 +14,7 @@ class UserFollowRepository extends EntityRepository
 {
     public function getFollowersByFStatus($user, $status)
     {
-         return $this->createQueryBuilder('uf')
+        return $this->createQueryBuilder('uf')
                 ->where('uf.user = :user')
                 ->andWhere('uf.status = :status')
                 ->setParameter('user', $user)
@@ -26,7 +26,7 @@ class UserFollowRepository extends EntityRepository
 
     public function getFollowingByFStatus($user, $status)
     {
-         return $this->createQueryBuilder('uf')
+        return $this->createQueryBuilder('uf')
                 ->where('uf.follower = :user')
                 ->andWhere('uf.status = :status')
                 ->setParameter('user', $user)
@@ -85,7 +85,6 @@ class UserFollowRepository extends EntityRepository
             ->getQuery()
             ->getResult()
         ;
-
     }
 
     public function findActiveFollower(User $user, User $follower)

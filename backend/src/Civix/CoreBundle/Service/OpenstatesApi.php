@@ -91,7 +91,7 @@ class OpenstatesApi extends ServiceApi
         
         foreach ($responseObjects as $singleCommittee) {
             if (isset($singleCommittee->committee)) {
-                   $committee[] = new CommitteeAdapter($singleCommittee);
+                $committee[] = new CommitteeAdapter($singleCommittee);
             }
         }
 

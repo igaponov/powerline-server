@@ -140,7 +140,6 @@ class MicropetitionController extends Controller
         $petitionConfigForm->handleRequest($this->getRequest());
 
         if ($petitionConfigForm->isValid()) {
-
             $entityManager->persist($currentGroup);
             $entityManager->flush();
 

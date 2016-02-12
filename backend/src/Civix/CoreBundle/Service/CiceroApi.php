@@ -286,7 +286,6 @@ class CiceroApi extends ServiceApi
             } else {
                 $districts[] = $storeRepr->getDistrict();
             }
-
         }
 
         //add nonlegislative districts to current district

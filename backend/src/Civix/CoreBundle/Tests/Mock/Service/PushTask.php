@@ -4,7 +4,6 @@ namespace Civix\CoreBundle\Tests\Mock\Service;
 
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
-
 use Civix\CoreBundle\Service\PushTask as Base;
 
 class PushTask extends Base

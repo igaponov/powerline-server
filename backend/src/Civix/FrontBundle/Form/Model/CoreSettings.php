@@ -63,7 +63,7 @@ class CoreSettings
      */
     private $micropetition_expire_interval_3;
 
-    function __construct(Settings $settings)
+    public function __construct(Settings $settings)
     {
         $this->settings = $settings;
 
@@ -156,4 +156,4 @@ class CoreSettings
 
         return $this;
     }
-} 
+}

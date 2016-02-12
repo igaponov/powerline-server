@@ -50,7 +50,7 @@ class UserGroupRepository extends EntityRepository
      */
     public function isJoinedUser(Group $group, User $user)
     {
-         return $this->getEntityManager()->createQueryBuilder()
+        return $this->getEntityManager()->createQueryBuilder()
                 ->select('gu')
                 ->from('CivixCoreBundle:UserGroup', 'gu')
                 ->where('gu.user = :user')

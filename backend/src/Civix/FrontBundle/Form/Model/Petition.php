@@ -21,7 +21,6 @@ class Petition
     {
         $this->petition = $petition;
         $this->educationalContext = new EducationalContext($petition);
-
     }
 
     public function getPetition()

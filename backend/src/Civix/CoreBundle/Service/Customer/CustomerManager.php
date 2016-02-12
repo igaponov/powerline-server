@@ -82,7 +82,10 @@ class CustomerManager
             $this->removeCard($card);
         }
 
-        try {$this->bp->unstoreCustomer($customer);} catch (\Exception $e) {}
+        try {
+            $this->bp->unstoreCustomer($customer);
+        } catch (\Exception $e) {
+        }
 
 
         $this->entityManager->remove($customer);
@@ -91,7 +94,10 @@ class CustomerManager
 
     public function removeCard(Card $card)
     {
-        try {$this->bp->unstoreCard($card);} catch (\Exception $e) {}
+        try {
+            $this->bp->unstoreCard($card);
+        } catch (\Exception $e) {
+        }
 
         $this->entityManager->remove($card);
         $this->entityManager->flush($card);

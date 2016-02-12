@@ -79,7 +79,7 @@ class PetitionManager
             $this->errors[] = 'User is already answered this micropetition';
 
             return false;
-        } else if ($answer) {
+        } elseif ($answer) {
             $this->entityManager->remove($answer);
         }
 
@@ -96,7 +96,7 @@ class PetitionManager
         //check if need to publish to activity
         if ($userPetition->getPublishStatus() == UserPetition::STATUS_USER) {
             if ($this->checkIfNeedPublish($userPetition)) {
-                 $this->activityUpdate->publishMicroPetitionToActivity($userPetition, true);
+                $this->activityUpdate->publishMicroPetitionToActivity($userPetition, true);
             }
         }
 

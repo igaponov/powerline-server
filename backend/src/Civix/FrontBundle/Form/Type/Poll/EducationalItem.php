@@ -43,7 +43,6 @@ class EducationalItem extends AbstractType
             'required' => false,
             'label_render' => false,
         ));
-
     }
 
     /**

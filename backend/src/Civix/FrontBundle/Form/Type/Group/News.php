@@ -3,7 +3,7 @@ namespace Civix\FrontBundle\Form\Type\Group;
 
 use Symfony\Component\Form\FormBuilderInterface;
 use Civix\FrontBundle\Form\Type\Poll\EducationalContext;
-use  Civix\FrontBundle\Form\Type\Representative\News as NewsType;
+use Civix\FrontBundle\Form\Type\Representative\News as NewsType;
 use Civix\CoreBundle\Entity\Group;
 
 /**

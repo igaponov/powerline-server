@@ -21,7 +21,6 @@ class PaymentRequest
     {
         $this->paymentRequest = $paymentRequest;
         $this->educationalContext = new EducationalContext($paymentRequest);
-
     }
 
     public function getPaymentRequest()

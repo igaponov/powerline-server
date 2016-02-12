@@ -31,4 +31,4 @@ class BusinessPaymentAccount extends AbstractType
             'csrf_field_name' => '_token'
         ]);
     }
-} 
+}

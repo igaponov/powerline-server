@@ -24,7 +24,6 @@ class QueryLogging implements SQLLogger
 
     public function stopQuery()
     {
-        
     }
 
     public function __destruct()

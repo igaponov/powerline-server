@@ -32,4 +32,4 @@ class PersonalPaymentAccount extends AbstractType
             'csrf_field_name' => '_token'
         ));
     }
-} 
+}

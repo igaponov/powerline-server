@@ -9,11 +9,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
 use Civix\CoreBundle\Entity\Poll\Answer;
-
 use Civix\CoreBundle\Service\Stripe;
 use Civix\CoreBundle\Entity\Stripe\Charge;
 use Civix\CoreBundle\Entity\Stripe\Customer;
-
 
 class ChargePaymentRequestCommand extends ContainerAwareCommand
 {

@@ -66,12 +66,12 @@ class InviteSender
 
         $slugify = new Slugify();
 
-        $groupName = $slugify->slugify($group->getOfficialName(),'');
+        $groupName = $slugify->slugify($group->getOfficialName(), '');
 
         /** @var $user \Civix\CoreBundle\Entity\User */
         foreach ($users as $user) {
             if (!$group->getInvites()->contains($user) && !$group->getUsers()->contains($user)) {
-                $this->mailgun->listaddmemberAction($groupName,$user->getEmail(),$user->getUsername());
+                $this->mailgun->listaddmemberAction($groupName, $user->getEmail(), $user->getUsername());
                 $user->addInvite($group);
                 $invites[] = $user;
                 $usersEmails[] = $user->getEmail();

@@ -264,7 +264,6 @@ class PollController extends BaseController
             $response->setStatusCode(400)
                 ->setContent(json_encode(array('errors' => $this->transformErrors($errors))));
         } else {
-
             if ($question instanceof PaymentRequest && !$question->getIsCrowdfunding() &&
                 $answer->getCurrentPaymentAmount()) {
                 $this->get('civix_core.stripe')->chargeToPaymentRequest($question, $answer, $user);

@@ -271,7 +271,6 @@ abstract class PaymentRequestController extends Controller
             if (intval($request->get('user_count')) !== count($users)) {
                 $this->get('session')->getFlashBag()->add('notice', 'Users amount has changed. Please review.');
             } else {
-
                 try {
                     $this->get('civix_core.stripe')
                         ->chargeUser($this->getUser(), $amount, 'PowerlinePay', 'Powerline Payment:  Payment Request Publishing');

@@ -34,7 +34,7 @@ class Settings
         self::DEFAULT_EXPIRE_INTERVAL => 10,
     ];
 
-    function __construct(EntityManager $em)
+    public function __construct(EntityManager $em)
     {
         $this->em = $em;
         $this->load();

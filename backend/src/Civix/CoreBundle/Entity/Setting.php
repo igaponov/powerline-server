@@ -33,7 +33,7 @@ class Setting
      */
     private $value;
 
-    function __construct($key = null, $value = null)
+    public function __construct($key = null, $value = null)
     {
         $this->key = $key;
         $this->value = $value;
@@ -95,4 +95,4 @@ class Setting
 
         return $this;
     }
-} 
+}

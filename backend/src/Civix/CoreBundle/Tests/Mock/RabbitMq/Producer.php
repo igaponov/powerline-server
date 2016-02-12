@@ -8,11 +8,9 @@ class Producer extends BaseProducer
 {
     public function __construct()
     {
-
     }
 
     public function publish($msgBody, $routingKey = '')
     {
-
     }
 }

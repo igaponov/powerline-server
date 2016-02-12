@@ -21,7 +21,6 @@ class Question
     {
         $this->question = $question;
         $this->educationalContext = new EducationalContext($question);
-
     }
 
     public function getQuestion()

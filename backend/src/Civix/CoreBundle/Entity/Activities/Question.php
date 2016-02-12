@@ -22,14 +22,14 @@ class Question extends Activity
 
     public function setQuestionId($id)
     {
-         $this->questionId = $id;
+        $this->questionId = $id;
 
-         return $this;
+        return $this;
     }
 
     public function getQuestionId()
     {
-         return $this->questionId;
+        return $this->questionId;
     }
 
     public function getEntity()

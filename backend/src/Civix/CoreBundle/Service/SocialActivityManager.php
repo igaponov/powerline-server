@@ -13,7 +13,6 @@ use Civix\CoreBundle\Entity\Micropetitions\Petition as Micropetition;
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Micropetitions;
-
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\Micropetitions\Comment as MicropetitionComment;
 use Civix\CoreBundle\Entity\Poll\Comment;
@@ -203,7 +202,7 @@ class SocialActivityManager
                 'type' => $micropetition->getType(),
                 'label' => $micropetition->getType() === $micropetition::TYPE_QUORUM ? 'post' : 'petition',
             ];
-        } else if ($comment instanceof Comment) {
+        } elseif ($comment instanceof Comment) {
             $question = $comment->getQuestion();
             $target = [
                 'id' => $question->getId(),
@@ -232,7 +231,7 @@ class SocialActivityManager
                 $this->em->persist($socialActivity);
                 $this->em->flush($socialActivity);
                 $this->pt->addToQueue('sendSocialActivity', [$socialActivity->getId()]);
-            } else if ($this->em->getRepository(UserFollow::class)->findActiveFollower($user, $recipient)) {
+            } elseif ($this->em->getRepository(UserFollow::class)->findActiveFollower($user, $recipient)) {
                 $socialActivity = (new SocialActivity(SocialActivity::TYPE_COMMENT_MENTIONED, $user, null))
                     ->setTarget($target)
                     ->setRecipient($recipient)
@@ -247,7 +246,7 @@ class SocialActivityManager
     private function preparePreview($text = '')
     {
         if (mb_strlen($text) > self::PREVIEW_LENGTH) {
-            return mb_substr($text, 0 , 20, 'utf8') . '...';
+            return mb_substr($text, 0, 20, 'utf8') . '...';
         }
 
         return $text;

@@ -5,7 +5,6 @@ namespace Civix\CoreBundle\Entity\Group;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
-
 use Civix\CoreBundle\Entity\User;
 
 /**
@@ -17,7 +16,7 @@ use Civix\CoreBundle\Entity\User;
  */
 class GroupField
 {
-     /**
+    /**
      * @var integer
      *
      * @ORM\Column(name="id", type="integer")

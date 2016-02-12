@@ -791,7 +791,6 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
      */
     public function eraseCredentials()
     {
-
     }
 
     /**
@@ -943,7 +942,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
      */
     public function getStorageId()
     {
-         return $this->storageId;
+        return $this->storageId;
     }
 
     /**

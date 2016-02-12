@@ -13,7 +13,6 @@ use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Validator\Constrains\ConstrainsFacebookToken;
 
-
 /**
  * User
  *
@@ -1389,7 +1388,6 @@ class User implements UserInterface, \Serializable
      */
     public function eraseCredentials()
     {
-
     }
 
     public function generateToken()
@@ -1569,7 +1567,7 @@ class User implements UserInterface, \Serializable
      */
     public function unserialize($serialized)
     {
-        list (
+        list(
             $this->id,
         ) = unserialize($serialized);
     }

@@ -8,11 +8,11 @@
 
 namespace Civix\CoreBundle\Service\Mailgun;
 
-
 use Mailgun\Mailgun;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class MailgunApi {
+class MailgunApi
+{
 
     public $APIURL = "api.mailgun.net" ;
     public $GROUPEMAIL = '@powerlinegroups.com' ;
@@ -21,7 +21,7 @@ class MailgunApi {
     public $private_key;
     public $container;
 
-    function __construct($public_key,$private_key, ContainerInterface $container)
+    public function __construct($public_key, $private_key, ContainerInterface $container)
     {
         $this->public_key = $public_key;
         $this->private_key = $private_key;
@@ -29,16 +29,15 @@ class MailgunApi {
     }
 
 
-    public function listcreateAction($listname,$description,$email,$name)
+    public function listcreateAction($listname, $description, $email, $name)
     {
-
-        $mailgun = new Mailgun($this->private_key,$this->APIURL,"v3",true);
-        $publicmailgun = new Mailgun($this->public_key,$this->APIURL,"v3",true);
+        $mailgun = new Mailgun($this->private_key, $this->APIURL, "v3", true);
+        $publicmailgun = new Mailgun($this->public_key, $this->APIURL, "v3", true);
 
         $validation = $publicmailgun->get("address/validate", array('address' => $listname.$this->GROUPEMAIL));
-        $validationresponse = json_decode(json_encode($validation),true);
+        $validationresponse = json_decode(json_encode($validation), true);
 
-        if($validationresponse['http_response_code'] == 200 AND $validationresponse['http_response_body']['is_valid'] === false){
+        if ($validationresponse['http_response_code'] == 200 and $validationresponse['http_response_body']['is_valid'] === false) {
             return $validationresponse;
         }
         $result = $mailgun->post("lists", array(
@@ -49,37 +48,34 @@ class MailgunApi {
 
         $result = $this->JsonResponse($result);
 
-        if($result['http_response_code'] == 200){
-
-            $this->listaddmemberAction($listname,$email,$name);
-
+        if ($result['http_response_code'] == 200) {
+            $this->listaddmemberAction($listname, $email, $name);
         }
 
         return $result;
-
     }
 
-    public function listaddmemberAction($listname,$address,$name)
+    public function listaddmemberAction($listname, $address, $name)
     {
         $logger = $this->container->get('logger');
 
 
-        $mailgun = new Mailgun($this->private_key,$this->APIURL,"v3",true);
+        $mailgun = new Mailgun($this->private_key, $this->APIURL, "v3", true);
 
         $listAddress = $listname.$this->GROUPEMAIL;
 
         $checkresult = $mailgun->get("lists", array(
             'address'     => ''.$listAddress,
         ));
-        $decodedresult = json_decode(json_encode($checkresult),true);
+        $decodedresult = json_decode(json_encode($checkresult), true);
         $count = $decodedresult['http_response_body']['total_count'];
 
         $logger->info('Testing adding member '.$address);
-        if($decodedresult['http_response_code'] != 200){
-           $result = $this->listcreateAction($listname,' the list '.$listname,$address,$name);
+        if ($decodedresult['http_response_code'] != 200) {
+            $result = $this->listcreateAction($listname, ' the list '.$listname, $address, $name);
             $logger->info('adding list '.$address. ' '.serialize($result));
         }
-            $result = $mailgun->post("lists/$listAddress/members", array(
+        $result = $mailgun->post("lists/$listAddress/members", array(
                 'address'     => ''.$address,
                 'name'        => ''.$name,
                 'subscribed'  => true,
@@ -90,13 +86,11 @@ class MailgunApi {
 
 
         return $this->JsonResponse($result);
-
     }
 
-    public function listremovememberAction($listname,$address)
+    public function listremovememberAction($listname, $address)
     {
-
-        $mailgun = new Mailgun($this->private_key,$this->APIURL,"v3",true);
+        $mailgun = new Mailgun($this->private_key, $this->APIURL, "v3", true);
 
         $listAddress = $listname.$this->GROUPEMAIL;
         $listMember = ''.$address;
@@ -104,16 +98,14 @@ class MailgunApi {
         $checkresult = $mailgun->get("lists", array(
             'address'     => ''.$listAddress,
         ));
-        $decodedresult = json_decode(json_encode($checkresult),true);
+        $decodedresult = json_decode(json_encode($checkresult), true);
         $count = $decodedresult['http_response_body']['total_count'];
 
-        if($count == 0){
-            $result = $this->listcreateAction($listname,' the list '.$listname,$address,' ');
+        if ($count == 0) {
+            $result = $this->listcreateAction($listname, ' the list '.$listname, $address, ' ');
 
-            if($result['http_response_code'] != 200){
-
+            if ($result['http_response_code'] != 200) {
                 return $this->JsonResponse($result);
-
             }
         }
 
@@ -121,24 +113,22 @@ class MailgunApi {
             'address'     => ''.$address,
         ));
 
-        $decodedresult = json_decode(json_encode($checkadress),true);
+        $decodedresult = json_decode(json_encode($checkadress), true);
         $count = $decodedresult['http_response_body']['total_count'];
 
-        if($count > 0){
+        if ($count > 0) {
             $result = $mailgun->delete("lists/$listAddress/members/$listMember");
-        }else{
-            $result = $this->listcreateAction($listname,'new list '.$listname,$address,' ');
+        } else {
+            $result = $this->listcreateAction($listname, 'new list '.$listname, $address, ' ');
         }
 
 
         return $this->JsonResponse($result);
-
     }
 
     public function listremoveAction($listname)
     {
-
-        $mailgun = new Mailgun($this->private_key,$this->APIURL,"v3",true);
+        $mailgun = new Mailgun($this->private_key, $this->APIURL, "v3", true);
 
         $listAddress = $listname.$this->GROUPEMAIL;
 
@@ -146,12 +136,10 @@ class MailgunApi {
 
 
         return $this->JsonResponse($result);
-
     }
 
-    public function JsonResponse($result){
-
-        return json_decode(json_encode($result),true);
+    public function JsonResponse($result)
+    {
+        return json_decode(json_encode($result), true);
     }
-
 }

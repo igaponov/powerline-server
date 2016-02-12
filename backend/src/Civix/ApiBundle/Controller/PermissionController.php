@@ -40,6 +40,6 @@ class PermissionController extends BaseController
             $entityManager->flush($userGroup);
         }
         
-        return $this->createJSONResponse($this->jmsSerialization($userGroup, ['api-info','api-permissions']));
+        return $this->createJSONResponse($this->jmsSerialization($userGroup, ['api-info', 'api-permissions']));
     }
 }

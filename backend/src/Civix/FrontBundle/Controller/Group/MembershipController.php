@@ -44,7 +44,6 @@ class MembershipController extends Controller
         $membershipForm->bind($this->getRequest());
 
         if ($membershipForm->isValid()) {
-
             if ($currentGroup->getMembershipControl() == Group::GROUP_MEMBERSHIP_PUBLIC) {
                 $entityManager->getRepository('CivixCoreBundle:UserGroup')
                     ->setApprovedAllUsersInGroup($currentGroup);

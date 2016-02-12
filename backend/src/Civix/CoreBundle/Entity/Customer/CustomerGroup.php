@@ -11,7 +11,7 @@ use Civix\CoreBundle\Entity\Customer\Customer;
  */
 class CustomerGroup extends Customer
 {
-     /**
+    /**
      * @ORM\OneToOne(targetEntity="\Civix\CoreBundle\Entity\Group")
      * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="CASCADE")
      */

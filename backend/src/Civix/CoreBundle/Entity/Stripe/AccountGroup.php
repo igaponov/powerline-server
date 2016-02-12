@@ -10,7 +10,7 @@ use Civix\CoreBundle\Entity\Group;
  */
 class AccountGroup extends Account
 {
-     /**
+    /**
      * @ORM\OneToOne(targetEntity="\Civix\CoreBundle\Entity\Group")
      * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="CASCADE")
      */

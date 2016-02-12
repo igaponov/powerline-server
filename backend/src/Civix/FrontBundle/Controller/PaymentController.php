@@ -51,9 +51,9 @@ abstract class PaymentController extends Controller
         if ('POST' === $request->getMethod()) {
             if (intval($request->get('amount')) !== $amount) {
                 $this->get('session')->getFlashBag()->add('notice', 'Emails amount has changed. Please review.');
-            } else if ($amount < 50) {
+            } elseif ($amount < 50) {
                 $this->get('session')->getFlashBag()->add('notice', 'Amount must be at least 50 cents.');
-            } else if ($form->submit($request)->isValid()) {
+            } elseif ($form->submit($request)->isValid()) {
                 $entityManager = $this->getDoctrine()->getManager();
 
                 $charge = $this->get('civix_core.stripe')
@@ -126,7 +126,6 @@ abstract class PaymentController extends Controller
                     return $this->redirect(
                         $this->generateUrl("civix_front_{$this->getUser()->getType()}_petition_index")
                     );
-
                 } catch (\Balanced\Errors\DuplicateAccountEmailAddress $ex) {
                     $this->get('session')->getFlashBag()
                         ->add('error', 'User with this email exist in balanced system.');

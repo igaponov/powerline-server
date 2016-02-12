@@ -43,4 +43,4 @@ class PRPayoutType extends AbstractType
             'show_legend' => false,
         ]);
     }
-} 
+}

@@ -54,7 +54,6 @@ class BalancedPayment
             $payment->setData(json_encode($debitData));
             $payment->setState($debitData->status);
             $payment->setBalancedUri($debitData->href);
-           
         } else {
             $payment->setData(json_encode([
                 'created_at' => (new \DateTime('now'))->format('d-m-Y H:i:s'),

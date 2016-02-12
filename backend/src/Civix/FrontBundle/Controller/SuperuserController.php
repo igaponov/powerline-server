@@ -339,7 +339,6 @@ class SuperuserController extends Controller
         if ($csrfProvider->isCsrfTokenValid('remove_representative_' . $representative->getId(),
             $this->getRequest()->get('_token'))
         ) {
-
             $entityManager
                     ->getRepository('CivixCoreBundle:Representative')
                     ->removeRepresentative($representative);
@@ -350,7 +349,6 @@ class SuperuserController extends Controller
         }
 
         return $this->redirect($this->generateUrl('civix_front_superuser_manage_representatives'));
-
     }
 
     /**
@@ -395,7 +393,6 @@ class SuperuserController extends Controller
         $questionLimitForm->bind($this->getRequest());
 
         if ($questionLimitForm->isValid()) {
-
             $entityManager->persist($questionLimit);
             $entityManager->flush();
 
@@ -452,7 +449,6 @@ class SuperuserController extends Controller
         $questionLimitForm->bind($this->getRequest());
 
         if ($questionLimitForm->isValid()) {
-
             $entityManager->persist($representative);
             $entityManager->flush();
 
@@ -484,7 +480,6 @@ class SuperuserController extends Controller
         $csrfProvider = $this->get('form.csrf_provider');
 
         if ($csrfProvider->isCsrfTokenValid('remove_user_' . $user->getId(), $this->getRequest()->get('_token'))) {
-
             $entityManager
                     ->getRepository('CivixCoreBundle:User')
                     ->removeUser($user);
