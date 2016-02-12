@@ -3,7 +3,7 @@ namespace Civix\CoreBundle\Tests\Entity\Poll;
 
 use Civix\CoreBundle\Entity\Poll\Question\Representative;
 
-class GroupControllerTest extends \PHPUnit_Framework_TestCase
+class QuestionTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @group question
