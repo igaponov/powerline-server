@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "e448f8aa87940826b07f2710793bc266",
-    "content-hash": "9095c9595490d8e473334370ba3c1ac4",
+    "hash": "21f0c22eb1ac98fd5df32a58c163b60e",
+    "content-hash": "d1213facac5936b6e3d53e2d069212fa",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -172,7 +172,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cocur/slugify/zipball/ac7b0737bba7a7204c1845ed1a4e0286cc7ac81f",
+                "url": "https://api.github.com/repos/cocur/slugify/zipball/35087aed21516e13946a944a981a889ff04b5005",
                 "reference": "e64b82956d127a93a34fe8c04095354fd4411199",
                 "shasum": ""
             },
@@ -997,7 +997,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/migrations/zipball/360ad927e2593deca126379a330704605ad0eeac",
+                "url": "https://api.github.com/repos/doctrine/migrations/zipball/7ab492c6a65ebe7c0f4665bf96320bef4fb31b70",
                 "reference": "a4f14d3a3d397104e557ec65d1a4e43bb86e4ddf",
                 "shasum": ""
             },
@@ -1332,6 +1332,40 @@
             "time": "2014-01-28 22:29:15"
         },
         {
+            "name": "imgix/imgix-php",
+            "version": "1.0.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/imgix/imgix-php.git",
+                "reference": "74b873e533c6a154ac3108d1c4af8dfc38ca8e28"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/imgix/imgix-php/zipball/74b873e533c6a154ac3108d1c4af8dfc38ca8e28",
+                "reference": "74b873e533c6a154ac3108d1c4af8dfc38ca8e28",
+                "shasum": ""
+            },
+            "require": {
+                "jakeasmith/http_build_url": "^1.0",
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Imgix\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "description": "A PHP client library for generating URLs with imgix.",
+            "keywords": [
+                "imgix"
+            ],
+            "time": "2015-06-23 00:14:02"
+        },
+        {
             "name": "incenteev/composer-parameter-handler",
             "version": "v2.1.0",
             "target-dir": "Incenteev/ParameterHandler",
@@ -1382,6 +1416,42 @@
                 "parameters management"
             ],
             "time": "2013-12-07 10:10:39"
+        },
+        {
+            "name": "jakeasmith/http_build_url",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jakeasmith/http_build_url.git",
+                "reference": "15bdd686e5178ddfa3e88de60fa585adffb292bb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jakeasmith/http_build_url/zipball/15bdd686e5178ddfa3e88de60fa585adffb292bb",
+                "reference": "15bdd686e5178ddfa3e88de60fa585adffb292bb",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~3.7"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/http_build_url.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jake A. Smith",
+                    "email": "theman@jakeasmith.com"
+                }
+            ],
+            "description": "Provides functionality for http_build_url() to environments without pecl_http.",
+            "time": "2015-05-06 12:27:20"
         },
         {
             "name": "jdorn/sql-formatter",
@@ -3908,12 +3978,12 @@
             "version": "v2.0.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/videlalvaro/php-amqplib.git",
+                "url": "https://github.com/php-amqplib/php-amqplib.git",
                 "reference": "682e3365f51c455f7a0bd32173d79922416fe9f0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/videlalvaro/php-amqplib/zipball/682e3365f51c455f7a0bd32173d79922416fe9f0",
+                "url": "https://api.github.com/repos/php-amqplib/php-amqplib/zipball/682e3365f51c455f7a0bd32173d79922416fe9f0",
                 "reference": "682e3365f51c455f7a0bd32173d79922416fe9f0",
                 "shasum": ""
             },

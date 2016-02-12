@@ -292,4 +292,14 @@ class SocialActivity
     {
         return SocialActivityConverter::toText($this);
     }
+
+    public function getTitle()
+    {
+        return SocialActivityConverter::toTitle($this);
+    }
+
+    public function getImage()
+    {
+        return SocialActivityConverter::toImage($this);
+    }
 } 

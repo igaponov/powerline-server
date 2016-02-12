@@ -58,3 +58,4 @@ parameters:
     mailgun_private: private_key
 
     auto_invite_group_id: 1
+    imgix.domain:  powerline-dev.imgix.net

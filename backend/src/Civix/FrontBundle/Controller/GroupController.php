@@ -269,7 +269,7 @@ class GroupController extends Controller
             $invites = $this->container->get('civix_core.invite_sender')
                     ->saveInvites($emails, $this->getUser());
 
-            $this->container->get('civix_core.invite_sender')->send($invites);
+            $this->container->get('civix_core.invite_sender')->send($invites, $this->getUser());
 
             $this->get('session')->getFlashBag()->add('success', 'Invites have been successfully sent');
         } else {

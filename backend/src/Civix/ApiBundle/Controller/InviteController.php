@@ -38,7 +38,7 @@ class InviteController extends BaseController
     {
         $em = $this->getDoctrine()->getManager();
         /* @var Invites\BaseInvite $invite */
-        $invites = $this->jmsDeserialization($request->getContent(), 'array<' . Invites\BaseInvite::class . '>',
+        $invites = $this->jmsDeserialization($request->getContent(), 'array<' . Invites\UserToGroup::class . '>',
             ['api-invites-create']);
         $results = [];
         foreach ($invites as $invite) {
@@ -51,7 +51,7 @@ class InviteController extends BaseController
                 $results[] = $invite;
             }
         }
-        $this->container->get('civix_core.invite_sender')->sendUserInvites($results);
+        $this->container->get('civix_core.invite_sender')->sendUserToGroupInvites($results);
 
         $response = new Response($this->jmsSerialization($results, ['api-invites']), 201);
         $response->headers->set('Content-Type', 'application/json');

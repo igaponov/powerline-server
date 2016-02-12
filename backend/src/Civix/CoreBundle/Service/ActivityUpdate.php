@@ -1,8 +1,7 @@
 <?php
 namespace Civix\CoreBundle\Service;
 
-use Civix\CoreBundle\Entity\Superuser;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Civix\CoreBundle\Entity\UserInterface;
 use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Comment;
@@ -20,19 +19,21 @@ use Civix\CoreBundle\Entity\Activities\PaymentRequest as ActivityPaymentRequest;
 use Civix\CoreBundle\Entity\Activities\CrowdfundingPaymentRequest as ActivityCrowdfundingPaymentRequest;
 use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\ActivityCondition;
-use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\GroupSection;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Micropetitions\Petition as MicroPetition;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
-use Civix\CoreBundle\Service\PushTask;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\ValidatorInterface;
 
 class ActivityUpdate
 {
     protected $entityManager;
     protected $pushSender;
+    /**
+     * @var ValidatorInterface
+     */
     protected $validator;
     /**
      * @var Settings
@@ -79,7 +80,8 @@ class ActivityUpdate
         //send push notifications
         $this->pushSender->addToQueue('sendPushPublishQuestion', [
             $question->getId(),
-            "Answer: {$this->preview($question->getSubject())}"
+            "{$question->getUser()->getOfficialName()} Poll",
+            $question->getSubject()
         ]);
 
         $this->entityManager->persist($activity);
@@ -190,7 +192,8 @@ class ActivityUpdate
         //send push notifications
         $this->pushSender->addToQueue('sendPushPublishQuestion', array(
             $petition->getId(),
-            "Sign: {$petition->getPetitionTitle()}"
+            "Sign: {$petition->getPetitionTitle()}",
+            "Sign: {$petition->getPetitionBody()}",
         ));
 
         $this->entityManager->persist($activity);
@@ -236,7 +239,8 @@ class ActivityUpdate
             'sendPushPublishQuestion',
             [
                 $paymentRequest->getId(),
-                "Donate: {$paymentRequest->getTitle()}"
+                "{$paymentRequest->getUser()->getOfficialName()} Fundraiser",
+                $paymentRequest->getTitle()
             ]
         );
 
@@ -268,6 +272,7 @@ class ActivityUpdate
             'sendPushPublishQuestion',
             [
                 $event->getId(),
+                "{$event->getUser()->getOfficialName()} Event",
                 "RSVP: {$event->getTitle()}"
             ]
         );
@@ -320,6 +325,8 @@ class ActivityUpdate
                 return $activity->setImageSrc($ec->getPreviewSrc());
             }
         }
+
+        return $activity;
     }
 
     private function createActivityConditionsForQuestion(Activity $activity, Question $question)
@@ -339,6 +346,10 @@ class ActivityUpdate
         }
     }
 
+    /**
+     * @param Activity $activity
+     * @param array|ArrayCollection $users
+     */
     private function createActivityConditionsForUsers(Activity $activity, array $users)
     {
         $condition = new ActivityCondition($activity);
