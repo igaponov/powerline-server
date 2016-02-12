@@ -52,7 +52,7 @@ class PetitionManager
     public function answerToPetitition(UserPetition $userPetition, User $user, $optionId)
     {
         $this->errors = [];
-        $currentDate  = new \DateTime();
+        $currentDate = new \DateTime();
 
         if ($userPetition->getExpireAt() <= $currentDate) {
             $this->errors[] = 'You could not answer to expired micropetition';
@@ -73,7 +73,7 @@ class PetitionManager
         $answer = $this->entityManager->getRepository('CivixCoreBundle:Micropetitions\Answer')
             ->findOneBy(array(
                 'petition' => $userPetition,
-                'user' => $user
+                'user' => $user,
             ));
         if ($answer && $answer->getOptionId() !== 3) {
             $this->errors[] = 'User is already answered this micropetition';
@@ -113,11 +113,12 @@ class PetitionManager
     }
 
     /**
-     * One user can create only 5 micropetition in one group per month
+     * One user can create only 5 micropetition in one group per month.
      * 
-     * @param \Civix\CoreBundle\Entity\User $user
+     * @param \Civix\CoreBundle\Entity\User  $user
      * @param \Civix\CoreBundle\Entity\Group $petitionGroup
-     * @return boolean
+     *
+     * @return bool
      */
     public function checkPetitionLimitPerMonth(User $user, Group $petitionGroup)
     {
@@ -125,16 +126,16 @@ class PetitionManager
             ->getRepository('CivixCoreBundle:Micropetitions\Petition')
             ->getCountPerMonthPetitionByOwner($user, $petitionGroup);
 
-        return ($currentPetitionCount < $petitionGroup->getPetitionPerMonth());
+        return $currentPetitionCount < $petitionGroup->getPetitionPerMonth();
     }
 
     /**
      * Check count answers from group of petition. If it greater than 10% group's followers
-     * than need to publish to actitvity
+     * than need to publish to actitvity.
      *  
      * @param \Civix\CoreBundle\Entity\Micropetitions\Petition $petition
      * 
-     * @return boolean
+     * @return bool
      */
     public function checkIfNeedPublish(UserPetition $petition)
     {
@@ -160,9 +161,9 @@ class PetitionManager
             /* @var $option  \Civix\CoreBundle\Entity\Poll\Option */
             $stat = array(
                 'option' => $option['value'],
-                'percent_answer'  => $sum > 0 ? round($option['votes_count'] / $sum * 100) : 0,
+                'percent_answer' => $sum > 0 ? round($option['votes_count'] / $sum * 100) : 0,
                 'percent_width' => $max > 0 ? round($option['votes_count'] / $max * 100) : 0,
-                'color' => current($colors)
+                'color' => current($colors),
             );
 
             if (1 > $stat['percent_width']) {

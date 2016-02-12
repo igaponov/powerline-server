@@ -7,7 +7,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Answer entity
+ * Answer entity.
  *
  * @ORM\Table(name="poll_answers")
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Poll\AnswerRepository")
@@ -18,9 +18,9 @@ class Answer
 {
     const PRIVACY_PUBLIC = 0;
     const PRIVACY_PRIVATE = 1;
-    
+
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -45,7 +45,7 @@ class Answer
      * @Serializer\Groups({"api-poll"})
      */
     private $option;
-    
+
     /**
      * @ORM\Column(name="option_id", type="integer")
      * @Serializer\Expose()
@@ -69,7 +69,7 @@ class Answer
     private $comment;
 
     /**
-     * @var integer
+     * @var int
      *
      * @Serializer\Expose()
      * @Serializer\Groups({"api-leader-answers"})
@@ -78,55 +78,55 @@ class Answer
     private $payment_amount;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="privacy", type="integer")
      */
     private $privacy = self::PRIVACY_PUBLIC;
 
     /**
-     * @var \DateTime $createdAt
+     * @var \DateTime
      *
      * @Serializer\Expose()
      * @Serializer\Groups({"api-leader-answers"})
      * @ORM\Column(name="created_at", type="datetime", nullable=true)
      */
     private $createdAt;
-    
+
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
         return $this->id;
     }
-    
+
     /**
-     * Set privacy
+     * Set privacy.
      *
-     * @param integer $privacy
+     * @param int $privacy
      *
      * @return UserFollow
      */
     public function setPrivacy($privacy)
     {
         $this->privacy = $privacy == self::PRIVACY_PRIVATE ? self::PRIVACY_PRIVATE : self::PRIVACY_PUBLIC;
-        
+
         return $this;
     }
 
     /**
-     * Get privacy
+     * Get privacy.
      *
-     * @return integer
+     * @return int
      */
     public function getPrivacy()
     {
         return $this->privacy;
     }
-    
+
     /**
      * @Serializer\VirtualProperty
      * @Serializer\Groups({"api-info"})
@@ -137,9 +137,10 @@ class Answer
         return $this->privacy === self::PRIVACY_PUBLIC ? $this->user : null;
     }
     /**
-     * Set user
+     * Set user.
      *
-     * @param  \Civix\CoreBundle\Entity\User $user
+     * @param \Civix\CoreBundle\Entity\User $user
+     *
      * @return Answer
      */
     public function setUser(\Civix\CoreBundle\Entity\User $user = null)
@@ -150,7 +151,7 @@ class Answer
     }
 
     /**
-     * Get user
+     * Get user.
      *
      * @return \Civix\CoreBundle\Entity\User
      */
@@ -160,9 +161,10 @@ class Answer
     }
 
     /**
-     * Set comment
+     * Set comment.
      *
-     * @param  string $comment
+     * @param string $comment
+     *
      * @return Answer
      */
     public function setComment($comment)
@@ -173,7 +175,7 @@ class Answer
     }
 
     /**
-     * Get comment
+     * Get comment.
      *
      * @return string
      */
@@ -183,9 +185,10 @@ class Answer
     }
 
     /**
-     * Set question
+     * Set question.
      *
-     * @param  \Civix\CoreBundle\Entity\Poll\Question $question
+     * @param \Civix\CoreBundle\Entity\Poll\Question $question
+     *
      * @return Answer
      */
     public function setQuestion(\Civix\CoreBundle\Entity\Poll\Question $question = null)
@@ -196,7 +199,7 @@ class Answer
     }
 
     /**
-     * Get question
+     * Get question.
      *
      * @return \Civix\CoreBundle\Entity\Poll\Question
      */
@@ -206,9 +209,10 @@ class Answer
     }
 
     /**
-     * Set option
+     * Set option.
      *
-     * @param  \Civix\CoreBundle\Entity\Poll\Option $option
+     * @param \Civix\CoreBundle\Entity\Poll\Option $option
+     *
      * @return Answer
      */
     public function setOption(\Civix\CoreBundle\Entity\Poll\Option $option = null)
@@ -220,7 +224,7 @@ class Answer
     }
 
     /**
-     * Get option
+     * Get option.
      *
      * @return \Civix\CoreBundle\Entity\Poll\Option
      */
@@ -231,6 +235,7 @@ class Answer
 
     /**
      * @param int $payment_amount
+     *
      * @return $this
      */
     public function setPaymentAmount($payment_amount)
@@ -269,7 +274,7 @@ class Answer
     }
 
     /**
-     * Set createdAt
+     * Set createdAt.
      *
      * @param \DateTime $createdAt
      *
@@ -283,7 +288,7 @@ class Answer
     }
 
     /**
-     * Get createdAt
+     * Get createdAt.
      *
      * @return \DateTime
      */

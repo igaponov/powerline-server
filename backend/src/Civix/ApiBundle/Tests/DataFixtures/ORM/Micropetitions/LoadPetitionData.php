@@ -8,7 +8,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Civix\CoreBundle\Entity\Micropetitions\Petition;
 
 /**
- * LoadQuestionData
+ * LoadQuestionData.
  */
 class LoadPetitionData extends AbstractFixture implements FixtureInterface
 {
@@ -18,7 +18,7 @@ class LoadPetitionData extends AbstractFixture implements FixtureInterface
         $user = $this->getReference('user-mobile1');
         $expireDate = new \DateTime();
         $expireDate->add(new \DateInterval('P10D'));
-        
+
         $micropetition = new Petition();
         $micropetition->setTitle('Title');
         $micropetition->setPetitionBody('Text of petition');
@@ -28,9 +28,9 @@ class LoadPetitionData extends AbstractFixture implements FixtureInterface
         $micropetition->setPublishStatus(Petition::STATUS_USER);
         $micropetition->setExpireAt($expireDate);
         $micropetition->setUserExpireInterval(2);
-        
+
         $this->addReference('petition1', $micropetition);
-        
+
         $manager->persist($micropetition);
         $manager->flush();
     }

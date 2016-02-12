@@ -41,7 +41,7 @@ abstract class QuestionController extends Controller
 
         return [
             'pagination' => $pagination,
-            'token' => $this->getToken()
+            'token' => $this->getToken(),
         ];
     }
 
@@ -64,7 +64,7 @@ abstract class QuestionController extends Controller
 
         return [
             'pagination' => $pagination,
-            'token' => $this->getToken()
+            'token' => $this->getToken(),
         ];
     }
 
@@ -86,10 +86,10 @@ abstract class QuestionController extends Controller
 
         return [
             'pagination' => $pagination,
-            'token' => $this->getToken()
+            'token' => $this->getToken(),
         ];
     }
-    
+
     /**
      * @Route("/new")
      * @Template("CivixFrontBundle:Question:new.html.twig")
@@ -98,7 +98,7 @@ abstract class QuestionController extends Controller
     {
         $questionClass = $this->getQuestionClass();
         $questionFormClass = $this->getQuestionFormClass();
-        $question = new $questionClass;
+        $question = new $questionClass();
         $questionForm = $this->createForm(new $questionFormClass($this->getDoctrine(),
             $this->getUser()), new QuestionModel($question)
         );
@@ -114,17 +114,17 @@ abstract class QuestionController extends Controller
                 }
 
                 /**
-                 * @var $educationalContext \Civix\FrontBundle\Form\Model\EducationalContext
+                 * @var \Civix\FrontBundle\Form\Model\EducationalContext
                  */
                 $educationalContext = $questionForm->getData()->getEducationalContext();
                 $question->clearEducationalContext();
-                
+
                 foreach ($educationalContext->getItems() as $item) {
                     if ($item->getImageFile()) {
                         $this->container->get('vich_uploader.storage')->upload($item);
                     }
                     /**
-                     * @var $entity \Civix\CoreBundle\Entity\Poll\EducationalContext
+                     * @var \Civix\CoreBundle\Entity\Poll\EducationalContext
                      */
                     $entity = $item->createEntity();
                     if ($entity) {
@@ -143,14 +143,14 @@ abstract class QuestionController extends Controller
                 );
             }
         }
-        
+
         return [
             'questionForm' => $questionForm->createView(),
-            'isShowGroupSection' => $this->isShowGroupSections($question)
+            'isShowGroupSection' => $this->isShowGroupSections($question),
         ];
     }
 
-     /**
+    /**
      * @Route("/edit/{id}", requirements={"id"="\d+"})
      * @ParamConverter("question", class="CivixCoreBundle:Poll\Question")
      * @Template("CivixFrontBundle:Question:edit.html.twig")
@@ -166,7 +166,7 @@ abstract class QuestionController extends Controller
         $questionForm = $this->createForm(new $questionFormClass($this->getDoctrine(),
             $this->getUser()), new QuestionModel($question)
         );
-        
+
         if ('POST' === $request->getMethod()) {
             $optionForRemove = $question->getOptions()->toArray();
 
@@ -196,7 +196,7 @@ abstract class QuestionController extends Controller
                         $this->container->get('vich_uploader.storage')->upload($item);
                     }
                     /**
-                     * @var $entity \Civix\CoreBundle\Entity\Poll\EducationalContext
+                     * @var \Civix\CoreBundle\Entity\Poll\EducationalContext
                      */
                     $entity = $item->createEntity();
                     if ($entity) {
@@ -218,7 +218,7 @@ abstract class QuestionController extends Controller
 
         return [
             'questionForm' => $questionForm->createView(),
-            'isShowGroupSection' => $this->isShowGroupSections($question)
+            'isShowGroupSection' => $this->isShowGroupSections($question),
         ];
     }
 
@@ -241,8 +241,8 @@ abstract class QuestionController extends Controller
                 ->getRepository('CivixCoreBundle:HashTag')->addForQuestion($question);
             $expireDate = new \DateTime();
             $expireDate->add(
-                new \DateInterval('P' . $this->get('civix_core.settings')->get(Settings::POLL_EXPIRE_INTERVAL)
-                        ->getValue() . 'D')
+                new \DateInterval('P'.$this->get('civix_core.settings')->get(Settings::POLL_EXPIRE_INTERVAL)
+                        ->getValue().'D')
             );
             $question->setExpireAt($expireDate);
 
@@ -308,10 +308,10 @@ abstract class QuestionController extends Controller
 
         return [
             'statistics' => $statistics,
-            'pagination' => $pagination
+            'pagination' => $pagination,
         ];
     }
-    
+
     /**
      * @return string
      */

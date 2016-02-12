@@ -3,7 +3,6 @@
 namespace Civix\CoreBundle\Tests\Service;
 
 use Liip\FunctionalTestBundle\Test\WebTestCase;
-use Civix\CoreBundle\Service\CiceroApi;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\District;
 
@@ -28,7 +27,7 @@ class CiceroApiTest extends WebTestCase
     }
 
     /**
-     * Test method GetRepresentativeByLocation
+     * Test method GetRepresentativeByLocation.
      *
      * @group cicero
      */
@@ -36,7 +35,7 @@ class CiceroApiTest extends WebTestCase
     {
         $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadInitRepresentativeData'
+            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadInitRepresentativeData',
         ));
 
         $mock = $this->getMock('Civix\CoreBundle\Service\CiceroApi',
@@ -65,7 +64,7 @@ class CiceroApiTest extends WebTestCase
             '',
             false
         );
-        
+
         $vichUploader = $this->getMock('Vich\UploaderBundle\Templating\Helper\UploaderHelper',
             array('asset'),
             array(),
@@ -75,7 +74,7 @@ class CiceroApiTest extends WebTestCase
         $vichUploader->expects($this->any())
             ->method('asset')
             ->will($this->returnValue(null));
-        
+
         $fileSystem = $this->getMockBuilder('Knp\Bundle\GaufretteBundle\FilesystemMap')
             ->disableOriginalConstructor()
             ->getMock();
@@ -85,7 +84,7 @@ class CiceroApiTest extends WebTestCase
         $logger = $this->getMockBuilder('Symfony\Bridge\Monolog\Logger')
             ->disableOriginalConstructor()
             ->getMock();
-        
+
         static::$kernel->getContainer()->set('knp_gaufrette.filesystem_map', $fileSystem);
         static::$kernel->getContainer()->set('vich_uploader.storage.gaufrette', $storage);
 
@@ -114,7 +113,7 @@ class CiceroApiTest extends WebTestCase
     }
 
     /**
-     * Test method UpdateByRepresentativeInfo
+     * Test method UpdateByRepresentativeInfo.
      *
      * @group cicero
      */
@@ -122,7 +121,7 @@ class CiceroApiTest extends WebTestCase
     {
         $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadInitRepresentativeData'
+            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadInitRepresentativeData',
         ));
 
         $mock = $this->getMock('Civix\CoreBundle\Service\CiceroApi',
@@ -131,7 +130,7 @@ class CiceroApiTest extends WebTestCase
             '',
             false
         );
-        
+
         $ciceroCallsMock = $this->getMock('Civix\CoreBundle\Service\CiceroCalls',
             array('getResponse'),
             array(),
@@ -162,7 +161,7 @@ class CiceroApiTest extends WebTestCase
         $vichUploader->expects($this->any())
             ->method('asset')
             ->will($this->returnValue(null));
-        
+
         $fileSystem = $this->getMockBuilder('Knp\Bundle\GaufretteBundle\FilesystemMap')
             ->disableOriginalConstructor()
             ->getMock();
@@ -172,17 +171,17 @@ class CiceroApiTest extends WebTestCase
         $logger = $this->getMockBuilder('Symfony\Bridge\Monolog\Logger')
             ->disableOriginalConstructor()
             ->getMock();
-        
+
         static::$kernel->getContainer()->set('knp_gaufrette.filesystem_map', $fileSystem);
         static::$kernel->getContainer()->set('vich_uploader.storage.gaufrette', $storage);
-        
+
         $mock->setCropImage($this->getMock('Civix\CoreBundle\Service\CropImage'));
         $mock->setVichService($vichUploader);
         $mock->setEntityManager(static::$kernel->getContainer()->get('doctrine.orm.entity_manager'));
         $mock->setCongressApi($congressMock);
         $mock->setOpenstatesApi($openstatesApi);
         $mock->setLogger($logger);
-        
+
         $ciceroCallsMock->expects($this->any())
                    ->method('getResponse')
                    ->will($this->returnValue($this->responseRepresentative));

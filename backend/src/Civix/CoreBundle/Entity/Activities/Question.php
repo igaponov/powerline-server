@@ -16,7 +16,8 @@ class Question extends Activity
 {
     /**
      * @ORM\Column(name="question_id", type="integer")
-     * @var integer
+     *
+     * @var int
      */
     protected $questionId;
 
@@ -36,7 +37,7 @@ class Question extends Activity
     {
         return array(
             'type' => 'question',
-            'id' => $this->getQuestionId()
+            'id' => $this->getQuestionId(),
         );
     }
 }

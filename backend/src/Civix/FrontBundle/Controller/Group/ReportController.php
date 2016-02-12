@@ -10,7 +10,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Civix\FrontBundle\Controller\ReportContoller as Controller;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
-use Civix\CoreBundle\Entity\Group\GroupField;
 use Civix\CoreBundle\Entity\Group;
 
 /**
@@ -69,7 +68,6 @@ class ReportController extends Controller
             ->getMembershipReportQuery($this->getUser(), UserGroup::STATUS_ACTIVE)
             ->getResult();
 
-
         $data = [];
         $header = ['Name', 'Address', 'Email', 'Phone Number', 'Facebook'];
         foreach ($group->getFields() as $field) {
@@ -84,7 +82,7 @@ class ReportController extends Controller
         }
 
         $response = new Response($this->createCSVString($data));
-        $filename = "membership_".$date->format("Y_m_d_His").".csv";
+        $filename = 'membership_'.$date->format('Y_m_d_His').'.csv';
         $response->headers->set('Content-Type', 'text/csv');
         $response->headers->set('Content-Disposition', 'attachment; filename='.$filename);
 
@@ -111,9 +109,10 @@ class ReportController extends Controller
         $result = '';
         foreach ($data as $row) {
             $result .= implode(',', array_map(function ($item) {
-                return '"' . str_replace('"', '""', $item) . '"';
-            }, $row)) . "\n";
+                return '"'.str_replace('"', '""', $item).'"';
+            }, $row))."\n";
         }
+
         return $result;
     }
 }

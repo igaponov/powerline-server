@@ -21,14 +21,13 @@ class BusinessPaymentAccount extends AbstractType
         return 'business_payment_account_form';
     }
 
-
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults([
             'data_class' => 'Civix\FrontBundle\Form\Model\PaymentAccountSettings',
             'validation_groups' => ['business'],
             'csrf_protection' => true,
-            'csrf_field_name' => '_token'
+            'csrf_field_name' => '_token',
         ]);
     }
 }

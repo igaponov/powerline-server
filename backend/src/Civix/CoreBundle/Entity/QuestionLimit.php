@@ -6,14 +6,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Default question's limit for representative and group
+ * Default question's limit for representative and group.
  *
  * @ORM\Entity
  * @ORM\Table(name="question_limits")
  */
 class QuestionLimit
 {
-
     const TYPE_QUESTION_REPRESENTATIVE = 1;
     const TYPE_QUESTION_GROUP = 2;
 
@@ -26,6 +25,7 @@ class QuestionLimit
 
     /**
      * @ORM\Column(type="smallint", unique=true)
+     *
      * @var type
      */
     protected $questionType;
@@ -38,14 +38,15 @@ class QuestionLimit
      *      message="The value cannot contain a non-numerical symbols"
      * )
      * @ORM\Column(type="integer")
-     * @var Integer
+     *
+     * @var int
      */
     protected $questionLimit;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -53,9 +54,10 @@ class QuestionLimit
     }
 
     /**
-     * Set questionType
+     * Set questionType.
      *
-     * @param  integer       $questionType
+     * @param int $questionType
+     *
      * @return QuestionLimit
      */
     public function setQuestionType($questionType)
@@ -66,9 +68,9 @@ class QuestionLimit
     }
 
     /**
-     * Get questionType
+     * Get questionType.
      *
-     * @return integer
+     * @return int
      */
     public function getQuestionType()
     {
@@ -76,9 +78,10 @@ class QuestionLimit
     }
 
     /**
-     * Set limitValue
+     * Set limitValue.
      *
-     * @param  integer       $limitValue
+     * @param int $limitValue
+     *
      * @return QuestionLimit
      */
     public function setQuestionLimit($limitValue)
@@ -89,9 +92,9 @@ class QuestionLimit
     }
 
     /**
-     * Get limitValue
+     * Get limitValue.
      *
-     * @return integer
+     * @return int
      */
     public function getQuestionLimit()
     {

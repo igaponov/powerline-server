@@ -40,7 +40,7 @@ class Transaction
     private $data;
 
     /**
-     * @var \DateTime $createdAt
+     * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      */
@@ -52,9 +52,9 @@ class Transaction
     }
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -62,22 +62,23 @@ class Transaction
     }
 
     /**
-     * Set referencePayment
+     * Set referencePayment.
      *
      * @param string $referencePayment
+     *
      * @return Transaction
      */
     public function setReferencePayment($referencePayment)
     {
         $this->referencePayment = $referencePayment;
-    
+
         return $this;
     }
 
     /**
-     * Get referencePayment
+     * Get referencePayment.
      *
-     * @return string 
+     * @return string
      */
     public function getReferencePayment()
     {
@@ -85,22 +86,23 @@ class Transaction
     }
 
     /**
-     * Set data
+     * Set data.
      *
      * @param string $data
+     *
      * @return Transaction
      */
     public function setData($data)
     {
         $this->data = $data;
-    
+
         return $this;
     }
 
     /**
-     * Get data
+     * Get data.
      *
-     * @return string 
+     * @return string
      */
     public function getData()
     {
@@ -108,22 +110,23 @@ class Transaction
     }
 
     /**
-     * Set customer
+     * Set customer.
      *
      * @param \Civix\CoreBundle\Entity\Customer\Customer $customer
+     *
      * @return Transaction
      */
     public function setCustomer(\Civix\CoreBundle\Entity\Customer\Customer $customer)
     {
         $this->customer = $customer;
-    
+
         return $this;
     }
 
     /**
-     * Get customer
+     * Get customer.
      *
-     * @return \Civix\CoreBundle\Entity\Customer\Customer 
+     * @return \Civix\CoreBundle\Entity\Customer\Customer
      */
     public function getCustomer()
     {
@@ -143,22 +146,23 @@ class Transaction
     }
 
     /**
-     * Set createdAt
+     * Set createdAt.
      *
      * @param \DateTime $createdAt
+     *
      * @return Transaction
      */
     public function setCreatedAt($createdAt)
     {
         $this->createdAt = $createdAt;
-    
+
         return $this;
     }
 
     /**
-     * Get createdAt
+     * Get createdAt.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreatedAt()
     {

@@ -17,7 +17,7 @@ class CrowdfundingPaymentRequest extends Question
     {
         return array(
             'type' => 'crowdfunding-payment-request',
-            'id' => $this->getQuestionId()
+            'id' => $this->getQuestionId(),
         );
     }
 }

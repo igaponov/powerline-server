@@ -4,7 +4,6 @@ namespace Civix\CoreBundle\Service;
 
 use Civix\CoreBundle\Entity\SocialActivity;
 use Doctrine\ORM\EntityManager;
-use Civix\CoreBundle\Service\PushTask;
 use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Group;
@@ -72,7 +71,7 @@ class SocialActivityManager
                 'id' => $micropetition->getId(),
                 'title' => $micropetition->getTitle(),
                 'type' => $micropetition->getType(),
-                'body' => $micropetition->getPetitionBody()
+                'body' => $micropetition->getPetitionBody(),
             ])
         ;
         $this->em->persist($socialActivity);
@@ -176,7 +175,7 @@ class SocialActivityManager
     {
         $target = [
             'id' => $group->getId(),
-            'type' => 'group'
+            'type' => 'group',
         ];
         /** @var User $user */
         foreach ($group->getUsers() as $user) {
@@ -246,7 +245,7 @@ class SocialActivityManager
     private function preparePreview($text = '')
     {
         if (mb_strlen($text) > self::PREVIEW_LENGTH) {
-            return mb_substr($text, 0, 20, 'utf8') . '...';
+            return mb_substr($text, 0, 20, 'utf8').'...';
         }
 
         return $text;

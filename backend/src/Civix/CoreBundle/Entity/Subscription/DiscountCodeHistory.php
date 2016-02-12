@@ -13,12 +13,12 @@ class DiscountCodeHistory
 {
     const STATUS_APPLIED_ONLY = 0;
     const STATUS_PAYED = 1;
-    
-   /**
-    * @ORM\Id
-    * @ORM\GeneratedValue(strategy="AUTO")
-    * @ORM\Column(type="integer")
-    */
+
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\Column(type="integer")
+     */
     private $id;
 
     /**
@@ -39,16 +39,16 @@ class DiscountCodeHistory
      * @ORM\Column(name="status", type="smallint")
      */
     private $status;
-    
+
     /**
-     * @var \DateTime $createdAt
+     * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      */
     private $createdAt;
 
     /**
-     * @var \DateTime $updatedAt
+     * @var \DateTime
      *
      * @ORM\Column(name="updated_at", type="datetime")
      */
@@ -60,11 +60,11 @@ class DiscountCodeHistory
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
     }
-    
+
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -72,22 +72,23 @@ class DiscountCodeHistory
     }
 
     /**
-     * Set status
+     * Set status.
      *
-     * @param integer $status
+     * @param int $status
+     *
      * @return DiscountCodeHistory
      */
     public function setStatus($status)
     {
         $this->status = $status;
-    
+
         return $this;
     }
 
     /**
-     * Get status
+     * Get status.
      *
-     * @return integer 
+     * @return int
      */
     public function getStatus()
     {
@@ -95,22 +96,23 @@ class DiscountCodeHistory
     }
 
     /**
-     * Set createdAt
+     * Set createdAt.
      *
      * @param \DateTime $createdAt
+     *
      * @return DiscountCodeHistory
      */
     public function setCreatedAt($createdAt)
     {
         $this->createdAt = $createdAt;
-    
+
         return $this;
     }
 
     /**
-     * Get createdAt
+     * Get createdAt.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreatedAt()
     {
@@ -118,22 +120,23 @@ class DiscountCodeHistory
     }
 
     /**
-     * Set updatedAt
+     * Set updatedAt.
      *
      * @param \DateTime $updatedAt
+     *
      * @return DiscountCodeHistory
      */
     public function setUpdatedAt($updatedAt)
     {
         $this->updatedAt = $updatedAt;
-    
+
         return $this;
     }
 
     /**
-     * Get updatedAt
+     * Get updatedAt.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getUpdatedAt()
     {
@@ -141,22 +144,23 @@ class DiscountCodeHistory
     }
 
     /**
-     * Set code
+     * Set code.
      *
      * @param \Civix\CoreBundle\Entity\Subscription\DiscountCode $code
+     *
      * @return DiscountCodeHistory
      */
     public function setCode(\Civix\CoreBundle\Entity\Subscription\DiscountCode $code = null)
     {
         $this->code = $code;
-    
+
         return $this;
     }
 
     /**
-     * Get code
+     * Get code.
      *
-     * @return \Civix\CoreBundle\Entity\Subscription\DiscountCode 
+     * @return \Civix\CoreBundle\Entity\Subscription\DiscountCode
      */
     public function getCode()
     {
@@ -164,20 +168,21 @@ class DiscountCodeHistory
     }
 
     /**
-     * Set customer
+     * Set customer.
      *
      * @param \Civix\CoreBundle\Entity\Customer\Customerp $customer
+     *
      * @return DiscountCodeHistory
      */
     public function setCustomer(\Civix\CoreBundle\Entity\Customer\Customer $customer = null)
     {
         $this->customer = $customer;
-    
+
         return $this;
     }
 
     /**
-     * Get group
+     * Get group.
      *
      * @return \Civix\CoreBundle\Entity\Customer\Customer
      */

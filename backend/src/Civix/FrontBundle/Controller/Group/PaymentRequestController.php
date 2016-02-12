@@ -3,10 +3,7 @@
 namespace Civix\FrontBundle\Controller\Group;
 
 use Civix\FrontBundle\Controller\PaymentRequestController as Controller;
-use Civix\CoreBundle\Entity\Poll\Question\Petition;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpFoundation\Request;
 
 /**

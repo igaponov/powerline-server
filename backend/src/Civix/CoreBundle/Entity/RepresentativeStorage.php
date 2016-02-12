@@ -7,10 +7,9 @@ use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Civix\CoreBundle\Serializer\Type\Avatar;
-use Civix\CoreBundle\Entity\District;
 
 /**
- * RepresentativeStorage
+ * RepresentativeStorage.
  *
  * @ORM\Table(name="representatives_storage", indexes={
  *      @ORM\Index(name="repst_firstName_ind", columns={"firstName"}),
@@ -27,7 +26,7 @@ class RepresentativeStorage
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_representative.png';
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="storage_id", type="integer")
      * @ORM\Id
@@ -159,7 +158,7 @@ class RepresentativeStorage
      */
     private $addressLine3;
 
-     /**
+    /**
      * @var string
      * @ORM\Column(name="avatar_src", type="string", length=255)
      */
@@ -172,13 +171,14 @@ class RepresentativeStorage
      * )
      * @Vich\UploadableField(mapping="avatar_representative", fileNameProperty="avatarFileName")
      *
-     * @var File $avatar
+     * @var File
      */
     private $avatar;
 
     /**
      * @ORM\Column(name="avatar_file_name", type="string", nullable=true)
-     * @var string $avatarFileName
+     *
+     * @var string
      */
     private $avatarFileName;
 
@@ -187,7 +187,8 @@ class RepresentativeStorage
      * @Serializer\Groups({"api-representatives-list", "api-info", "api-search"})
      * @Serializer\Type("Avatar")
      * @Serializer\Accessor(getter="getAvatarPath")
-     * @var string $avatarFilePath
+     *
+     * @var string
      */
     private $avatarFilePath;
 
@@ -279,14 +280,15 @@ class RepresentativeStorage
 
     /**
      * @ORM\Column(name="updated_at", type="datetime")
+     *
      * @var \DateTime
      */
     private $updatedAt;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -296,15 +298,15 @@ class RepresentativeStorage
     public function getAddress()
     {
         $address = '';
-        $address.= $this->addressLine1 ? $this->addressLine1 : '';
-        $address.= $this->addressLine2 ? ' ' . $this->addressLine2 : '';
-        $address.= $this->addressLine3 ? ' ' . $this->addressLine3 : '';
+        $address .= $this->addressLine1 ? $this->addressLine1 : '';
+        $address .= $this->addressLine2 ? ' '.$this->addressLine2 : '';
+        $address .= $this->addressLine3 ? ' '.$this->addressLine3 : '';
 
         return $address;
     }
 
     /**
-     * Set firstName
+     * Set firstName.
      *
      * @param string $firstName
      *
@@ -318,7 +320,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Get firstName
+     * Get firstName.
      *
      * @return string
      */
@@ -328,7 +330,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Set lastName
+     * Set lastName.
      *
      * @param string $lastName
      *
@@ -342,7 +344,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Get lastName
+     * Get lastName.
      *
      * @return string
      */
@@ -352,7 +354,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Set officialTitle
+     * Set officialTitle.
      *
      * @param string $officialTitle
      *
@@ -366,7 +368,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Get officialTitle
+     * Get officialTitle.
      *
      * @return string
      */
@@ -376,7 +378,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Get phone number
+     * Get phone number.
      *
      * @return string
      */
@@ -386,7 +388,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Set phone number
+     * Set phone number.
      *
      * @param string $phone
      *
@@ -400,7 +402,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Get fax number
+     * Get fax number.
      *
      * @return string
      */
@@ -410,7 +412,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Set fax number
+     * Set fax number.
      *
      * @param string $fax
      *
@@ -424,7 +426,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Get email
+     * Get email.
      *
      * @return string
      */
@@ -434,7 +436,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Set email
+     * Set email.
      *
      * @param string $email
      *
@@ -448,7 +450,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Get website url
+     * Get website url.
      *
      * @return string
      */
@@ -458,7 +460,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Set website url
+     * Set website url.
      *
      * @param string $url
      *
@@ -472,7 +474,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Get country
+     * Get country.
      *
      * @return string
      */
@@ -482,7 +484,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Set country
+     * Set country.
      *
      * @param string $country
      *
@@ -496,7 +498,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Get state
+     * Get state.
      *
      * @return string
      */
@@ -504,11 +506,11 @@ class RepresentativeStorage
     {
         return $this->state;
     }
-    
-        /**
-     * Get city
+
+    /**
+     * Get city.
      *
-     * @return string 
+     * @return string
      */
     public function getCity()
     {
@@ -516,9 +518,10 @@ class RepresentativeStorage
     }
 
     /**
-     * Set state
+     * Set state.
      *
      * @param \Civix\CoreBundle\Entity\State $state
+     *
      * @return RepresentativeStorage
      */
     public function setState(\Civix\CoreBundle\Entity\State $state = null)
@@ -529,20 +532,21 @@ class RepresentativeStorage
     }
 
     /**
-     * Set representative
+     * Set representative.
      *
      * @param \Civix\CoreBundle\Entity\Representative $representative
+     *
      * @return RepresentativeStorage
      */
     public function setRepresentative(\Civix\CoreBundle\Entity\Representative $representative = null)
     {
         $this->representative = $representative;
-    
+
         return $this;
     }
 
     /**
-     * Set city
+     * Set city.
      *
      * @param string $city
      *
@@ -556,7 +560,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Get address1
+     * Get address1.
      *
      * @return string
      */
@@ -566,7 +570,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Set address1
+     * Set address1.
      *
      * @param string $address1
      *
@@ -580,7 +584,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Get address2
+     * Get address2.
      *
      * @return string
      */
@@ -590,7 +594,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Set address1
+     * Set address1.
      *
      * @param string $address2
      *
@@ -604,7 +608,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Get address3
+     * Get address3.
      *
      * @return string
      */
@@ -614,7 +618,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Set address1
+     * Set address1.
      *
      * @param string $address3
      *
@@ -628,9 +632,9 @@ class RepresentativeStorage
     }
 
     /**
-     * Set storageId
+     * Set storageId.
      *
-     * @param integer $storageId
+     * @param int $storageId
      *
      * @return RepresentativeStorage
      */
@@ -642,9 +646,9 @@ class RepresentativeStorage
     }
 
     /**
-     * Get storageId
+     * Get storageId.
      *
-     * @return integer
+     * @return int
      */
     public function getStorageId()
     {
@@ -652,9 +656,9 @@ class RepresentativeStorage
     }
 
     /**
-     * Get districtId
+     * Get districtId.
      *
-     * @return integer
+     * @return int
      */
     public function getDistrictId()
     {
@@ -662,9 +666,9 @@ class RepresentativeStorage
     }
 
     /**
-     * Get district type name by district type id
+     * Get district type name by district type id.
      *
-     * @return String
+     * @return string
      */
     public function getDistrictTypeName()
     {
@@ -689,7 +693,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Set avatar
+     * Set avatar.
      *
      * @param string $avatar
      *
@@ -703,7 +707,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Get avatar
+     * Get avatar.
      *
      * @return string
      */
@@ -713,7 +717,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Get default avatar
+     * Get default avatar.
      *
      * @return string
      */
@@ -723,7 +727,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Set avatarFileName
+     * Set avatarFileName.
      *
      * @param string $avatarFileName
      *
@@ -737,7 +741,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Get avatarFileName
+     * Get avatarFileName.
      *
      * @return string
      */
@@ -747,7 +751,7 @@ class RepresentativeStorage
     }
 
     /**
-     * Get avatarPath
+     * Get avatarPath.
      *
      * @return \Civix\CoreBundle\Model\Avatar
      */
@@ -766,9 +770,10 @@ class RepresentativeStorage
     }
 
     /**
-     * Set district
+     * Set district.
      *
      * @param \Civix\CoreBundle\Entity\District $district
+     *
      * @return RepresentativeStorage
      */
     public function setDistrict(\Civix\CoreBundle\Entity\District $district = null)
@@ -779,9 +784,9 @@ class RepresentativeStorage
     }
 
     /**
-     * Get district
+     * Get district.
      *
-     * @return \Civix\CoreBundle\Entity\District 
+     * @return \Civix\CoreBundle\Entity\District
      */
     public function getDistrict()
     {
@@ -798,22 +803,23 @@ class RepresentativeStorage
         return 'representative';
     }
     /**
-     * Set party
+     * Set party.
      *
      * @param string $party
+     *
      * @return RepresentativeStorage
      */
     public function setParty($party)
     {
         $this->party = $party;
-    
+
         return $this;
     }
 
     /**
-     * Get party
+     * Get party.
      *
-     * @return string 
+     * @return string
      */
     public function getParty()
     {
@@ -821,22 +827,23 @@ class RepresentativeStorage
     }
 
     /**
-     * Set birthday
+     * Set birthday.
      *
      * @param \DateTime $birthday
+     *
      * @return RepresentativeStorage
      */
     public function setBirthday($birthday)
     {
         $this->birthday = $birthday;
-    
+
         return $this;
     }
 
     /**
-     * Get birthday
+     * Get birthday.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getBirthday()
     {
@@ -844,22 +851,23 @@ class RepresentativeStorage
     }
 
     /**
-     * Set startTerm
+     * Set startTerm.
      *
      * @param \DateTime $startTerm
+     *
      * @return RepresentativeStorage
      */
     public function setStartTerm($startTerm)
     {
         $this->startTerm = $startTerm;
-    
+
         return $this;
     }
 
     /**
-     * Get startTerm
+     * Get startTerm.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getStartTerm()
     {
@@ -867,22 +875,23 @@ class RepresentativeStorage
     }
 
     /**
-     * Set endTerm
+     * Set endTerm.
      *
      * @param \DateTime $endTerm
+     *
      * @return RepresentativeStorage
      */
     public function setEndTerm($endTerm)
     {
         $this->endTerm = $endTerm;
-    
+
         return $this;
     }
 
     /**
-     * Get endTerm
+     * Get endTerm.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getEndTerm()
     {
@@ -890,22 +899,23 @@ class RepresentativeStorage
     }
 
     /**
-     * Set facebook
+     * Set facebook.
      *
      * @param string $facebook
+     *
      * @return RepresentativeStorage
      */
     public function setFacebook($facebook)
     {
         $this->facebook = $facebook;
-    
+
         return $this;
     }
 
     /**
-     * Get facebook
+     * Get facebook.
      *
-     * @return string 
+     * @return string
      */
     public function getFacebook()
     {
@@ -913,22 +923,23 @@ class RepresentativeStorage
     }
 
     /**
-     * Set youtube
+     * Set youtube.
      *
      * @param string $youtube
+     *
      * @return RepresentativeStorage
      */
     public function setYoutube($youtube)
     {
         $this->youtube = $youtube;
-    
+
         return $this;
     }
 
     /**
-     * Get youtube
+     * Get youtube.
      *
-     * @return string 
+     * @return string
      */
     public function getYoutube()
     {
@@ -936,22 +947,23 @@ class RepresentativeStorage
     }
 
     /**
-     * Set twitter
+     * Set twitter.
      *
      * @param string $twitter
+     *
      * @return RepresentativeStorage
      */
     public function setTwitter($twitter)
     {
         $this->twitter = $twitter;
-    
+
         return $this;
     }
 
     /**
-     * Get twitter
+     * Get twitter.
      *
-     * @return string 
+     * @return string
      */
     public function getTwitter()
     {
@@ -959,22 +971,23 @@ class RepresentativeStorage
     }
 
     /**
-     * Set openstateId
+     * Set openstateId.
      *
      * @param string $openstateId
+     *
      * @return RepresentativeStorage
      */
     public function setOpenstateId($openstateId)
     {
         $this->openstateId = $openstateId;
-    
+
         return $this;
     }
 
     /**
-     * Get openstateId
+     * Get openstateId.
      *
-     * @return string 
+     * @return string
      */
     public function getOpenstateId()
     {
@@ -982,9 +995,10 @@ class RepresentativeStorage
     }
 
     /**
-     * Set updatedAt
+     * Set updatedAt.
      *
      * @param \DateTime $updatedAt
+     *
      * @return RepresentativeStorage
      */
     public function setUpdatedAt($updatedAt)
@@ -995,9 +1009,9 @@ class RepresentativeStorage
     }
 
     /**
-     * Get updatedAt
+     * Get updatedAt.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getUpdatedAt()
     {
@@ -1019,6 +1033,6 @@ class RepresentativeStorage
             return $this->state->getCode();
         }
 
-        return null;
+        return;
     }
 }

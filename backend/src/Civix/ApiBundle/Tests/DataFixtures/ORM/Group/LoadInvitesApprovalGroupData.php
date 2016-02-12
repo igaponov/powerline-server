@@ -12,7 +12,7 @@ class LoadInvitesApprovalGroupData extends AbstractFixture implements FixtureInt
     {
         $user = $this->getReference('user-mobile1');
         $user->addInvite($this->getReference('approval-group'));
-        
+
         $manager->persist($user);
         $manager->flush();
     }

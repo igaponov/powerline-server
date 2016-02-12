@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\FrontBundle\Form\Type\Poll;
 
 use Symfony\Component\Form\FormBuilderInterface;
@@ -6,7 +7,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 class PaymentRequestGroup extends PaymentRequest
 {
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options

@@ -17,7 +17,7 @@ class LeaderEvent extends Question
     {
         return [
             'type' => 'leader-event',
-            'id' => $this->getQuestionId()
+            'id' => $this->getQuestionId(),
         ];
     }
 }

@@ -11,11 +11,9 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class State
 {
-
     /**
      * @ORM\Id
      * @ORM\Column(name="code", type="string", length=2, unique=true)
-     *
      */
     protected $code;
 
@@ -35,7 +33,7 @@ class State
      * @ORM\OneToMany(targetEntity="RepresentativeStorage", mappedBy="state")
      */
     protected $stRepresentatives;
-    
+
     public function __construct()
     {
         $this->localGroups = new ArrayCollection();
@@ -43,7 +41,7 @@ class State
     }
 
     /**
-     * Get id
+     * Get id.
      *
      * @return string
      */
@@ -53,9 +51,10 @@ class State
     }
 
     /**
-     * Set code
+     * Set code.
      *
-     * @param  string $code
+     * @param string $code
+     *
      * @return State
      */
     public function setCode($code)
@@ -66,7 +65,7 @@ class State
     }
 
     /**
-     * Get code
+     * Get code.
      *
      * @return string
      */
@@ -76,9 +75,10 @@ class State
     }
 
     /**
-     * Set name
+     * Set name.
      *
-     * @param  string $name
+     * @param string $name
+     *
      * @return State
      */
     public function setName($name)
@@ -89,7 +89,7 @@ class State
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */
@@ -104,9 +104,10 @@ class State
     }
 
     /**
-     * Add localGroups
+     * Add localGroups.
      *
      * @param \Civix\CoreBundle\Entity\Group $localGroups
+     *
      * @return State
      */
     public function addLocalGroup(\Civix\CoreBundle\Entity\Group $localGroups)
@@ -117,7 +118,7 @@ class State
     }
 
     /**
-     * Remove localGroups
+     * Remove localGroups.
      *
      * @param \Civix\CoreBundle\Entity\Group $localGroups
      */
@@ -127,9 +128,9 @@ class State
     }
 
     /**
-     * Get localGroups
+     * Get localGroups.
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getLocalGroups()
     {
@@ -137,20 +138,21 @@ class State
     }
 
     /**
-     * Add stRepresentatives
+     * Add stRepresentatives.
      *
      * @param \Civix\CoreBundle\Entity\RepresentativeStorage $stRepresentatives
+     *
      * @return State
      */
     public function addStRepresentative(\Civix\CoreBundle\Entity\RepresentativeStorage $stRepresentatives)
     {
         $this->stRepresentatives[] = $stRepresentatives;
-    
+
         return $this;
     }
 
     /**
-     * Remove stRepresentatives
+     * Remove stRepresentatives.
      *
      * @param \Civix\CoreBundle\Entity\RepresentativeStorage $stRepresentatives
      */
@@ -160,9 +162,9 @@ class State
     }
 
     /**
-     * Get stRepresentatives
+     * Get stRepresentatives.
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getStRepresentatives()
     {

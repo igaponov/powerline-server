@@ -7,7 +7,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * Field's values entity
+ * Field's values entity.
  *
  * @ORM\Table(name="groups_fields_values")
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Group\FieldValueRepository")
@@ -19,7 +19,7 @@ use JMS\Serializer\Annotation as Serializer;
 class FieldValue
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -55,9 +55,9 @@ class FieldValue
     private $user;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -65,22 +65,23 @@ class FieldValue
     }
 
     /**
-     * Set fieldValue
+     * Set fieldValue.
      *
      * @param string $fieldValue
+     *
      * @return FieldValue
      */
     public function setFieldValue($fieldValue)
     {
         $this->fieldValue = $fieldValue;
-    
+
         return $this;
     }
 
     /**
-     * Get fieldValue
+     * Get fieldValue.
      *
-     * @return string 
+     * @return string
      */
     public function getFieldValue()
     {
@@ -88,22 +89,23 @@ class FieldValue
     }
 
     /**
-     * Set field
+     * Set field.
      *
      * @param \Civix\CoreBundle\Entity\Group\GroupField $field
+     *
      * @return FieldValue
      */
     public function setField(\Civix\CoreBundle\Entity\Group\GroupField $field = null)
     {
         $this->field = $field;
-    
+
         return $this;
     }
 
     /**
-     * Get field
+     * Get field.
      *
-     * @return \Civix\CoreBundle\Entity\Group\GroupField 
+     * @return \Civix\CoreBundle\Entity\Group\GroupField
      */
     public function getField()
     {
@@ -111,22 +113,23 @@ class FieldValue
     }
 
     /**
-     * Set user
+     * Set user.
      *
      * @param \Civix\CoreBundle\Entity\User $user
+     *
      * @return FieldValue
      */
     public function setUser(\Civix\CoreBundle\Entity\User $user = null)
     {
         $this->user = $user;
-    
+
         return $this;
     }
 
     /**
-     * Get user
+     * Get user.
      *
-     * @return \Civix\CoreBundle\Entity\User 
+     * @return \Civix\CoreBundle\Entity\User
      */
     public function getUser()
     {

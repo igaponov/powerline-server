@@ -4,7 +4,6 @@ namespace Civix\CoreBundle\Repository\Subscription;
 
 use Doctrine\ORM\EntityRepository;
 use Civix\CoreBundle\Entity\Subscription\DiscountCode;
-use Civix\CoreBundle\Entity\Subscription\Subscription;
 
 class DiscountRepository extends EntityRepository
 {

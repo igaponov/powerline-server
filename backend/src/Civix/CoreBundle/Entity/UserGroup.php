@@ -7,7 +7,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Entity\Group\GroupField;
 
 /**
- * User follower
+ * User follower.
  *
  * @ORM\Table(
  *      name="users_groups",
@@ -49,7 +49,7 @@ class UserGroup
     private $group;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="group_id", type="integer", nullable=true)
      */
@@ -63,12 +63,11 @@ class UserGroup
     private $createdAt;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="status", type="smallint")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-info", "api-groups"})
-     * 
      */
     private $status;
 
@@ -76,7 +75,6 @@ class UserGroup
      * @Serializer\Expose()
      * @Serializer\Groups({"api-permissions"})
      * @ORM\Column(name="permissions_name", type="boolean", options={"default" = false})
-     *
      */
     private $permissionsName;
 
@@ -84,6 +82,7 @@ class UserGroup
      * @Serializer\Expose()
      * @Serializer\Groups({"api-permissions"})
      * @ORM\Column(name="permissions_contacts", type="boolean", options={"default" = false})
+     *
      * @deprecated
      */
     private $permissionsContacts;
@@ -92,7 +91,6 @@ class UserGroup
      * @Serializer\Expose()
      * @Serializer\Groups({"api-permissions"})
      * @ORM\Column(name="permissions_address", type="boolean", options={"default" = false})
-     *
      */
     private $permissionsAddress;
 
@@ -100,7 +98,6 @@ class UserGroup
      * @Serializer\Expose()
      * @Serializer\Groups({"api-permissions"})
      * @ORM\Column(name="permissions_email", type="boolean", options={"default" = false})
-     *
      */
     private $permissionsEmail;
 
@@ -108,7 +105,6 @@ class UserGroup
      * @Serializer\Expose()
      * @Serializer\Groups({"api-permissions"})
      * @ORM\Column(name="permissions_phone", type="boolean", options={"default" = false})
-     *
      */
     private $permissionsPhone;
 
@@ -116,7 +112,6 @@ class UserGroup
      * @Serializer\Expose()
      * @Serializer\Groups({"api-permissions"})
      * @ORM\Column(name="permissions_responses", type="boolean", options={"default" = false})
-     *
      */
     private $permissionsResponses;
 
@@ -128,7 +123,7 @@ class UserGroup
      * @ORM\Column(name="permissions_approved_at", type="datetime", nullable=true)
      */
     private $permissionsApprovedAt;
-    
+
     public function __construct(User $user, Group $group)
     {
         $this->setUser($user);
@@ -141,7 +136,7 @@ class UserGroup
         } else {
             $this->setStatus(self::STATUS_ACTIVE);
         }
-        
+
         $this->setPermissionsName(false);
         $this->setPermissionsContacts(false);
         $this->setPermissionsEmail(false);
@@ -151,9 +146,9 @@ class UserGroup
     }
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -161,22 +156,23 @@ class UserGroup
     }
 
     /**
-     * Set status
+     * Set status.
      *
-     * @param integer $status
+     * @param int $status
+     *
      * @return UserGroup
      */
     public function setStatus($status)
     {
         $this->status = $status;
-    
+
         return $this;
     }
 
     /**
-     * Get status
+     * Get status.
      *
-     * @return integer 
+     * @return int
      */
     public function getStatus()
     {
@@ -184,22 +180,23 @@ class UserGroup
     }
 
     /**
-     * Set user
+     * Set user.
      *
      * @param \Civix\CoreBundle\Entity\User $user
+     *
      * @return UserGroup
      */
     public function setUser(\Civix\CoreBundle\Entity\User $user)
     {
         $this->user = $user;
-    
+
         return $this;
     }
 
     /**
-     * Get user
+     * Get user.
      *
-     * @return \Civix\CoreBundle\Entity\User 
+     * @return \Civix\CoreBundle\Entity\User
      */
     public function getUser()
     {
@@ -207,22 +204,23 @@ class UserGroup
     }
 
     /**
-     * Set group
+     * Set group.
      *
      * @param \Civix\CoreBundle\Entity\Group $group
+     *
      * @return UserGroup
      */
     public function setGroup(\Civix\CoreBundle\Entity\Group $group)
     {
         $this->group = $group;
-    
+
         return $this;
     }
 
     /**
-     * Get group
+     * Get group.
      *
-     * @return \Civix\CoreBundle\Entity\Group 
+     * @return \Civix\CoreBundle\Entity\Group
      */
     public function getGroup()
     {
@@ -239,6 +237,7 @@ class UserGroup
 
     /**
      * @param int $group_id
+     *
      * @return $this
      */
     public function setGroupId($group_id)
@@ -249,22 +248,23 @@ class UserGroup
     }
 
     /**
-     * Set createAt
+     * Set createAt.
      *
      * @param \DateTime $createdAt
+     *
      * @return UserGroup
      */
     public function setCreatedAt($createdAt)
     {
         $this->createdAt = $createdAt;
-    
+
         return $this;
     }
 
     /**
-     * Get createAt
+     * Get createAt.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreatedAt()
     {
@@ -272,22 +272,23 @@ class UserGroup
     }
 
     /**
-     * Set permissionsName
+     * Set permissionsName.
      *
-     * @param boolean $permissionsName
+     * @param bool $permissionsName
+     *
      * @return UserGroup
      */
     public function setPermissionsName($permissionsName)
     {
         $this->permissionsName = $permissionsName;
-    
+
         return $this;
     }
 
     /**
-     * Get permissionsName
+     * Get permissionsName.
      *
-     * @return boolean 
+     * @return bool
      */
     public function getPermissionsName()
     {
@@ -295,22 +296,23 @@ class UserGroup
     }
 
     /**
-     * Set permissionsContacts
+     * Set permissionsContacts.
      *
-     * @param boolean $permissionsContacts
+     * @param bool $permissionsContacts
+     *
      * @return UserGroup
      */
     public function setPermissionsContacts($permissionsContacts)
     {
         $this->permissionsContacts = $permissionsContacts;
-    
+
         return $this;
     }
 
     /**
-     * Get permissionsContacts
+     * Get permissionsContacts.
      *
-     * @return boolean 
+     * @return bool
      */
     public function getPermissionsContacts()
     {
@@ -318,22 +320,23 @@ class UserGroup
     }
 
     /**
-     * Set permissionsResponses
+     * Set permissionsResponses.
      *
-     * @param boolean $permissionsResponses
+     * @param bool $permissionsResponses
+     *
      * @return UserGroup
      */
     public function setPermissionsResponses($permissionsResponses)
     {
         $this->permissionsResponses = $permissionsResponses;
-    
+
         return $this;
     }
 
     /**
-     * Get permissionsResponses
+     * Get permissionsResponses.
      *
-     * @return boolean 
+     * @return bool
      */
     public function getPermissionsResponses()
     {
@@ -350,6 +353,7 @@ class UserGroup
 
     /**
      * @param mixed $permissionsAddress
+     *
      * @return $this
      */
     public function setPermissionsAddress($permissionsAddress)
@@ -369,6 +373,7 @@ class UserGroup
 
     /**
      * @param mixed $permissionsEmail
+     *
      * @return $this
      */
     public function setPermissionsEmail($permissionsEmail)
@@ -388,6 +393,7 @@ class UserGroup
 
     /**
      * @param mixed $permissionsPhone
+     *
      * @return $this
      */
     public function setPermissionsPhone($permissionsPhone)
@@ -398,22 +404,23 @@ class UserGroup
     }
 
     /**
-     * Set permissionsApprovedAt
+     * Set permissionsApprovedAt.
      *
      * @param \DateTime $permissionsApprovedAt
+     *
      * @return UserGroup
      */
     public function setPermissionsApprovedAt($permissionsApprovedAt)
     {
         $this->permissionsApprovedAt = $permissionsApprovedAt;
-    
+
         return $this;
     }
 
     /**
-     * Get permissionsApprovedAt
+     * Get permissionsApprovedAt.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getPermissionsApprovedAt()
     {
@@ -426,7 +433,7 @@ class UserGroup
             return $this;
         }
         foreach ($group->getRequiredPermissions() as $permissionKey) {
-            $method = 'set' . (str_replace('_', '', $permissionKey));
+            $method = 'set'.(str_replace('_', '', $permissionKey));
             $this->$method(true);
         }
 

@@ -72,23 +72,23 @@ class Stripe
 
         $sa = \Stripe\Account::retrieve($account->getStripeId());
 
-        $sa->bank_account     = $dto->source;
-        $sa->email            = $user->getEmail();
+        $sa->bank_account = $dto->source;
+        $sa->email = $user->getEmail();
         $sa->default_currency = $dto->currency;
 
-        $sa->legal_entity->type          = $dto->type;
-        $sa->legal_entity->first_name    = $dto->first_name;
-        $sa->legal_entity->last_name     = $dto->last_name;
-        $sa->legal_entity->ssn_last_4    = $dto->ssn_last_4;
+        $sa->legal_entity->type = $dto->type;
+        $sa->legal_entity->first_name = $dto->first_name;
+        $sa->legal_entity->last_name = $dto->last_name;
+        $sa->legal_entity->ssn_last_4 = $dto->ssn_last_4;
         $sa->legal_entity->business_name = $dto->business_name;
 
         $sa->legal_entity->address = [
-            'line1'       => $dto->address_line1,
-            'line2'       => $dto->address_line2 ?: null,
-            'city'        => $dto->city,
-            'state'       => $dto->state,
+            'line1' => $dto->address_line1,
+            'line2' => $dto->address_line2 ?: null,
+            'city' => $dto->city,
+            'state' => $dto->state,
             'postal_code' => $dto->postal_code,
-            'country'     => $dto->country,
+            'country' => $dto->country,
         ];
 
         $sa->save();
@@ -144,15 +144,15 @@ class Stripe
         $amount = $answer->getCurrentPaymentAmount() * 100;
 
         $sc = \Stripe\Charge::create([
-            'amount'               => $amount,
-            'application_fee'      => ceil($amount * 0.021 + 50),
-            'currency'             => 'usd',
-            'customer'               => $customer->getStripeId(),
-            'statement_descriptor' => 'PowerlinePay-' .
+            'amount' => $amount,
+            'application_fee' => ceil($amount * 0.021 + 50),
+            'currency' => 'usd',
+            'customer' => $customer->getStripeId(),
+            'statement_descriptor' => 'PowerlinePay-'.
                                         $this->getAppearsOnStatement($paymentRequest->getUser()),
-            'destination'          => $account->getStripeId(),
-            'description'          => 'Powerline Payment: (' . $paymentRequest->getUser()->getOfficialName()
-                                        . ') - (' . $paymentRequest->getTitle() .')',
+            'destination' => $account->getStripeId(),
+            'description' => 'Powerline Payment: ('.$paymentRequest->getUser()->getOfficialName()
+                                        .') - ('.$paymentRequest->getTitle().')',
         ]);
 
         $charge->updateStripeData($sc);
@@ -167,11 +167,11 @@ class Stripe
         $charge = new Charge($customer);
 
         $sc = \Stripe\Charge::create([
-            'amount'               => $amount,
-            'currency'             => 'usd',
-            'customer'             => $customer->getStripeId(),
+            'amount' => $amount,
+            'currency' => 'usd',
+            'customer' => $customer->getStripeId(),
             'statement_descriptor' => $statement,
-            'description'          => $description,
+            'description' => $description,
         ]);
 
         $charge->updateStripeData($sc);
@@ -213,14 +213,14 @@ class Stripe
                 }
                 $ss = $stripeCustomer->subscriptions
                     ->create([
-                        'plan'   => $subscription->getPlanId(),
+                        'plan' => $subscription->getPlanId(),
                         'coupon' => $coupon,
                     ]);
             }
         } else {
             $ss = $stripeCustomer->subscriptions
                 ->create([
-                    'plan'   => $subscription->getPlanId(),
+                    'plan' => $subscription->getPlanId(),
                     'coupon' => $coupon,
                 ]);
         }
@@ -288,9 +288,9 @@ class Stripe
     public function getCoupons($limit, $after = null, $before = null)
     {
         return \Stripe\Coupon::all([
-            'limit'          => $limit,
+            'limit' => $limit,
             'starting_after' => $after,
-            'ending_before'  => $before,
+            'ending_before' => $before,
         ]);
     }
 
@@ -298,7 +298,7 @@ class Stripe
     {
         $entityClass = Customer::getEntityClassByUser($user);
         /* @var $customer CustomerInterface */
-        $customer = new $entityClass;
+        $customer = new $entityClass();
         $customer->setUser($user);
 
         $response = \Stripe\Customer::create([
@@ -318,13 +318,13 @@ class Stripe
     {
         $entityClass = Account::getEntityClassByUser($user);
         /* @var $account AccountInterface */
-        $account = new $entityClass;
+        $account = new $entityClass();
         $account->setUser($user);
 
         $response = \Stripe\Account::create([
-            'managed'      => true,
-            'metadata'     => ['id' => $user->getId(), 'type' => $user->getType()],
-            'email'        => $user->getEmail(),
+            'managed' => true,
+            'metadata' => ['id' => $user->getId(), 'type' => $user->getType()],
+            'email' => $user->getEmail(),
         ]);
 
         $account

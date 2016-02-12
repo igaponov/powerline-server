@@ -13,7 +13,7 @@ class LoadAnnouncementData  extends AbstractFixture implements FixtureInterface,
     public function load(ObjectManager $manager)
     {
         $representative = $this->getReference('representative1');
-        
+
         $announcement = new RepresentativeAnnouncement();
         $announcement->setUser($representative);
         $announcement->setContent('test');
@@ -28,7 +28,7 @@ class LoadAnnouncementData  extends AbstractFixture implements FixtureInterface,
 
         $this->addReference('announcementPublished1', $announcementPublished);
         $manager->persist($announcementPublished);
-        
+
         $manager->flush();
     }
 

@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Civix\CoreBundle\Entity\Group;
 
 /**
- * LoadGroupData
+ * LoadGroupData.
  */
 class LoadGroupData extends AbstractFixture implements FixtureInterface, ContainerAwareInterface
 {
@@ -43,7 +43,7 @@ class LoadGroupData extends AbstractFixture implements FixtureInterface, Contain
 
         $manager->persist($group);
         $manager->flush();
-        
+
         $this->addReference('group', $group);
     }
 }

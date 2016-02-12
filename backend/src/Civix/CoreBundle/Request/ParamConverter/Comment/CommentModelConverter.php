@@ -16,11 +16,11 @@ class CommentModelConverter implements ParamConverterInterface
         if (!$configuration->getName()) {
             return false;
         }
-        
+
         if (!$configuration->getClass()) {
             return false;
         }
- 
+
         return $configuration->getClass() === 'Civix\CoreBundle\Model\Comment\CommentModelInterface';
     }
 

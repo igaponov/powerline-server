@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\CoreBundle\Serializer\Handler;
 
 use JMS\Serializer\Handler\SubscribingHandlerInterface;

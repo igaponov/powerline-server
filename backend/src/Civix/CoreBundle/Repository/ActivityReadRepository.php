@@ -41,7 +41,7 @@ class ActivityReadRepository extends EntityRepository
     {
         return !empty($this->findBy([
             'activityId' => $item->getActivityId(),
-            'user' => $item->getUser()
+            'user' => $item->getUser(),
         ]));
     }
 }

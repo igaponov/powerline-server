@@ -6,13 +6,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\ORM\EntityManager;
 use Civix\CoreBundle\Service\Stripe;
 use Civix\CoreBundle\Service\EmailSender;
-use Civix\CoreBundle\Service\Subscription\DiscountCodeManager;
 use Civix\CoreBundle\Entity\Subscription\Subscription;
 use Civix\CoreBundle\Entity\Subscription\DiscountCode;
 use Civix\CoreBundle\Model\Subscription\Package;
-use Civix\CoreBundle\Entity\Customer\Card;
-use Civix\BalancedBundle\Entity\PaymentHistory;
-use Civix\CoreBundle\Entity\Customer\Customer;
 use Civix\CoreBundle\Entity\Group;
 
 class SubscriptionManager
@@ -36,7 +32,7 @@ class SubscriptionManager
      * @var DiscountCodeManager
      */
     private $dm;
-    
+
     private $packageKeyToClass = [
         Subscription::PACKAGE_TYPE_FREE => 'Free',
         Subscription::PACKAGE_TYPE_SILVER => 'Silver',
@@ -63,16 +59,17 @@ class SubscriptionManager
 
     /**
      * @param UserInterface $user
+     *
      * @return Subscription
      */
     public function getSubscription(UserInterface $user)
     {
         $subscription = $this->em->getRepository(Subscription::class)->findOneBy([
-            $user->getType() => $user
+            $user->getType() => $user,
         ]);
 
         if (!$subscription) {
-            $subscription = new Subscription;
+            $subscription = new Subscription();
             $subscription
                 ->setPackageType(Subscription::PACKAGE_TYPE_FREE)
                 ->setUserEntity($user)
@@ -86,6 +83,7 @@ class SubscriptionManager
 
     /**
      * @param UserInterface $user
+     *
      * @return Package\Package
      */
     public function getPackage(UserInterface $user)
@@ -145,20 +143,21 @@ class SubscriptionManager
 
     public function getPackagePrice($packageType, DiscountCode $discount = null)
     {
-        $percents = ($discount)?$discount->getPercents():0;
-        
-        return $this->prices[$packageType] - ($this->prices[$packageType]*$percents/100);
+        $percents = ($discount) ? $discount->getPercents() : 0;
+
+        return $this->prices[$packageType] - ($this->prices[$packageType] * $percents / 100);
     }
-    
+
     /**
      * @param $typeId
+     *
      * @return Package\Package
      */
     private function createPackageObject($typeId)
     {
-        $class = '\\Civix\\CoreBundle\\Model\\Subscription\\Package\\' .
+        $class = '\\Civix\\CoreBundle\\Model\\Subscription\\Package\\'.
             $this->packageKeyToClass[$typeId];
 
-        return new $class;
+        return new $class();
     }
 }

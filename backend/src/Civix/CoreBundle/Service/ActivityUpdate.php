@@ -1,8 +1,7 @@
 <?php
+
 namespace Civix\CoreBundle\Service;
 
-use Civix\CoreBundle\Entity\Superuser;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Comment;
@@ -20,13 +19,10 @@ use Civix\CoreBundle\Entity\Activities\PaymentRequest as ActivityPaymentRequest;
 use Civix\CoreBundle\Entity\Activities\CrowdfundingPaymentRequest as ActivityCrowdfundingPaymentRequest;
 use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\ActivityCondition;
-use Civix\CoreBundle\Entity\Representative;
-use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\GroupSection;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Micropetitions\Petition as MicroPetition;
 use Doctrine\ORM\EntityManager;
-use Civix\CoreBundle\Service\PushTask;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class ActivityUpdate
@@ -53,13 +49,13 @@ class ActivityUpdate
     public function publishQuestionToActivity(Question $question)
     {
         $errors = $this->validator->validate($question, array('publish'));
-        if (count($errors)!=0) {
+        if (count($errors) != 0) {
             return $errors;
         }
 
         //update question
         $publishDate = new \DateTime('now');
-        
+
         $question->setPublishedAt($publishDate);
         $this->entityManager->persist($question);
 
@@ -70,7 +66,7 @@ class ActivityUpdate
         $activity->setDescription($question->getSubject());
         $activity->setSentAt($publishDate);
         $activity->setExpireAt($question->getExpireAt());
-        $userMethod = 'set'. $this->getClassName($question);
+        $userMethod = 'set'.$this->getClassName($question);
         $activity->$userMethod($question->getUser());
         $this->setImage($activity, $question);
 
@@ -79,7 +75,7 @@ class ActivityUpdate
         //send push notifications
         $this->pushSender->addToQueue('sendPushPublishQuestion', [
             $question->getId(),
-            "Answer: {$this->preview($question->getSubject())}"
+            "Answer: {$this->preview($question->getSubject())}",
         ]);
 
         $this->entityManager->persist($activity);
@@ -94,7 +90,7 @@ class ActivityUpdate
         //update petition
         if ($isPublic) {
             $expireDate = new \DateTime('now');
-            $expireDate->add(new \DateInterval('P' . $petition->getUserExpireInterval() . 'D'));
+            $expireDate->add(new \DateInterval('P'.$petition->getUserExpireInterval().'D'));
             $petition->setExpireAt($expireDate);
             $petition->setPublishStatus(MicroPetition::STATUS_PUBLISH);
             $this->entityManager->persist($petition);
@@ -138,7 +134,7 @@ class ActivityUpdate
     {
         $expireDate = new \DateTime('now');
         $expireDate->add(
-            new \DateInterval('P' . $this->settings->get(Settings::DEFAULT_EXPIRE_INTERVAL)->getValue() . 'D')
+            new \DateInterval('P'.$this->settings->get(Settings::DEFAULT_EXPIRE_INTERVAL)->getValue().'D')
         );
 
         $activity = new ActivityLeaderNews();
@@ -147,7 +143,7 @@ class ActivityUpdate
         $activity->setDescription(strip_tags($news->getSubjectParsed()));
         $activity->setSentAt($news->getPublishedAt());
         $activity->setExpireAt($expireDate);
-        $method = 'set' . ucfirst($news->getUser()->getType());
+        $method = 'set'.ucfirst($news->getUser()->getType());
         $activity->$method($news->getUser());
         $this->setImage($activity, $news);
 
@@ -157,7 +153,7 @@ class ActivityUpdate
             'sendPushPublishQuestion',
             [
                 $news->getId(),
-                "Discuss: {$this->preview($news->getSubject())}"
+                "Discuss: {$this->preview($news->getSubject())}",
             ]
         );
 
@@ -172,7 +168,7 @@ class ActivityUpdate
     {
         $expireDate = new \DateTime('now');
         $expireDate->add(
-            new \DateInterval('P' . $this->settings->get(Settings::DEFAULT_EXPIRE_INTERVAL)->getValue() . 'D')
+            new \DateInterval('P'.$this->settings->get(Settings::DEFAULT_EXPIRE_INTERVAL)->getValue().'D')
         );
         $activity = new ActivityPetition();
         $activity->setQuestionId($petition->getId())
@@ -181,7 +177,7 @@ class ActivityUpdate
             ->setExpireAt($expireDate)
             ->setSentAt($petition->getPublishedAt());
 
-        $userMethod = 'set'. ucfirst($petition->getUser()->getType());
+        $userMethod = 'set'.ucfirst($petition->getUser()->getType());
         $activity->$userMethod($petition->getUser());
         $this->setImage($activity, $petition);
 
@@ -190,7 +186,7 @@ class ActivityUpdate
         //send push notifications
         $this->pushSender->addToQueue('sendPushPublishQuestion', array(
             $petition->getId(),
-            "Sign: {$petition->getPetitionTitle()}"
+            "Sign: {$petition->getPetitionTitle()}",
         ));
 
         $this->entityManager->persist($activity);
@@ -207,7 +203,7 @@ class ActivityUpdate
             $activity = new ActivityPaymentRequest();
             $expireDate = new \DateTime('now');
             $expireDate->add(
-                new \DateInterval('P' . $this->settings->get(Settings::DEFAULT_EXPIRE_INTERVAL)->getValue() . 'D')
+                new \DateInterval('P'.$this->settings->get(Settings::DEFAULT_EXPIRE_INTERVAL)->getValue().'D')
             );
             $activity->setExpireAt($expireDate);
         }
@@ -218,7 +214,7 @@ class ActivityUpdate
             ->setDescription($paymentRequest->getSubject())
             ->setSentAt($paymentRequest->getPublishedAt())
         ;
-        $method = 'set' . ucfirst($paymentRequest->getUser()->getType());
+        $method = 'set'.ucfirst($paymentRequest->getUser()->getType());
         $activity->$method($paymentRequest->getUser());
         $this->setImage($activity, $paymentRequest);
 
@@ -236,7 +232,7 @@ class ActivityUpdate
             'sendPushPublishQuestion',
             [
                 $paymentRequest->getId(),
-                "Donate: {$paymentRequest->getTitle()}"
+                "Donate: {$paymentRequest->getTitle()}",
             ]
         );
 
@@ -249,7 +245,7 @@ class ActivityUpdate
         //update event       
         $event->setPublishedAt($publishedAt);
         $this->entityManager->persist($event);
-        
+
          //create activity
         $activity = new ActivityLeaderEvent();
         $activity->setQuestionId($event->getId());
@@ -257,18 +253,18 @@ class ActivityUpdate
         $activity->setDescription($event->getSubject());
         $activity->setSentAt($publishedAt);
         $activity->setExpireAt($event->getStartedAt());
-        $userMethod = 'set'. $this->getClassName($event->getUser());
+        $userMethod = 'set'.$this->getClassName($event->getUser());
         $activity->$userMethod($event->getUser());
         $this->setImage($activity, $event);
-        
+
         $this->cm->addPollRootComment($event, $event->getSubject());
-        
+
         //send push notifications
         $this->pushSender->addToQueue(
             'sendPushPublishQuestion',
             [
                 $event->getId(),
-                "RSVP: {$event->getTitle()}"
+                "RSVP: {$event->getTitle()}",
             ]
         );
 
@@ -278,7 +274,7 @@ class ActivityUpdate
 
         return $activity;
     }
-    
+
     public function updateResponsesQuestion(Question $question)
     {
         if ($question instanceof LeaderNews) {
@@ -297,7 +293,7 @@ class ActivityUpdate
 
     public function updateOwnerData(UserInterface $owner)
     {
-        $this->entityManager->getRepository('CivixCoreBundle:Activity')->{'updateOwner' . $owner->getType()}($owner);
+        $this->entityManager->getRepository('CivixCoreBundle:Activity')->{'updateOwner'.$owner->getType()}($owner);
     }
 
     public function updateEntityRateCount(Comment $comment)
@@ -327,7 +323,7 @@ class ActivityUpdate
         if ($activity->getRepresentative() && $activity->getRepresentative()->getDistrict()) {
             $this->createRepresentativeActivityConditions($activity);
         } elseif ($activity->getGroup()) {
-            if (($question instanceof GroupSectionInterface) && $question->getGroupSections()->count()>0) {
+            if (($question instanceof GroupSectionInterface) && $question->getGroupSections()->count() > 0) {
                 foreach ($question->getGroupSections() as $section) {
                     $this->createGroupSectionActivityConditions($activity, $section);
                 }
@@ -380,7 +376,7 @@ class ActivityUpdate
         $this->entityManager->persist($condition);
         $this->entityManager->flush($condition);
     }
-    
+
     private function createUserActivityConditions(Activity $activity, User $user)
     {
         $condition = new ActivityCondition($activity);
@@ -401,13 +397,13 @@ class ActivityUpdate
     {
         $className = explode('\\', get_class($object));
 
-        return $className[count($className)-1];
+        return $className[count($className) - 1];
     }
 
     private function preview($text)
     {
         if (mb_strlen($text) > 50) {
-            return mb_substr($text, 0, 50) . '...';
+            return mb_substr($text, 0, 50).'...';
         }
 
         return $text;

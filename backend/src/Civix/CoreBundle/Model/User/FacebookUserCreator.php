@@ -24,7 +24,7 @@ class FacebookUserCreator extends DefaultUserCreator implements UserCreatorInter
         if ($request->get('birth')) {
             $user->setBirth(new \DateTime($request->get('birth')));
         }
-        
+
         $user->generateToken();
         $user->setPassword($user->getToken());
 

@@ -11,7 +11,7 @@ abstract class Package
 
     public function getGroupSizeLimitation()
     {
-        return null;
+        return;
     }
 
     public function isGroupJoinManagementAvailable()
@@ -28,7 +28,7 @@ abstract class Package
     {
         return 5;
     }
-        
+
     public function getSumForPetitionInvites()
     {
         return 0;

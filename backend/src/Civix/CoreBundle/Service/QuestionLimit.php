@@ -11,7 +11,7 @@ class QuestionLimit
     protected $entityManager;
     protected $session;
 
-        /**
+    /**
      * @param ContainerInterface $container
      */
     public function __construct(\Doctrine\ORM\EntityManager $entityManager, $session)
@@ -21,10 +21,11 @@ class QuestionLimit
     }
 
     /**
-     * Check  if representative or group may to ask question, set error message in session
+     * Check  if representative or group may to ask question, set error message in session.
      * 
      * @param \Civix\CoreBundle\Entity\CheckingLimits $entityQuestionOwner
-     * @return boolean
+     *
+     * @return bool
      */
     public function checkQuestionLimit(CheckingLimits $entityQuestionOwner)
     {
@@ -39,10 +40,11 @@ class QuestionLimit
     }
 
     /**
-     * Check if representative or group may to ask question
+     * Check if representative or group may to ask question.
      *
-     * @param  \Civix\CoreBundle\Entity\CheckingLimits $entityQuestionOwner
-     * @return boolean
+     * @param \Civix\CoreBundle\Entity\CheckingLimits $entityQuestionOwner
+     *
+     * @return bool
      */
     public function checkLimits(CheckingLimits $entityQuestionOwner)
     {
@@ -57,13 +59,13 @@ class QuestionLimit
         if (is_null($individualQuestionLimit)) {
             $individualQuestionLimit = $this->entityManager->getRepository('CivixCoreBundle:QuestionLimit')
                     ->findOneByQuestionType(
-                        constant('Civix\CoreBundle\Entity\QuestionLimit::TYPE_QUESTION_' .
+                        constant('Civix\CoreBundle\Entity\QuestionLimit::TYPE_QUESTION_'.
                             strtoupper($ownerClass))
                     )
                     ->getQuestionLimit();
         }
 
-        return ($countOfQuestion < $individualQuestionLimit);
+        return $countOfQuestion < $individualQuestionLimit;
     }
 
     private function getClassName($object)

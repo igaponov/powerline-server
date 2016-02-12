@@ -20,21 +20,21 @@ class OpenstatesUpdateCommand extends ContainerAwareCommand
     {
         $openstatesService = $this->getContainer()->get('civix_core.openstates_api');
         $entityManager = $this->getContainer()->get('doctrine.orm.entity_manager');
-        
+
         $output->writeln('Get all storage representative without link openstates api');
         $representatives = $entityManager->getRepository(RepresentativeStorage::class)
             ->getSTRepresenativeWithoutLink();
-        
+
         foreach ($representatives as $representative) {
             $openstatesService->updateReprStorageProfile($representative);
             $entityManager->persist($representative);
-            
-            $output->writeln('Update representative ' . $representative->getFirstName().
+
+            $output->writeln('Update representative '.$representative->getFirstName().
                 ' '.$representative->getLastName().', set openstateID = '.$representative->getOpenstateId());
         }
-        
+
         $entityManager->flush();
-        
+
         $output->writeln('Update complete');
     }
 }

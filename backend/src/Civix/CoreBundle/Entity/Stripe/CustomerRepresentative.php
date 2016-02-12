@@ -27,7 +27,7 @@ class CustomerRepresentative extends Customer
     public function setUser(Representative $user = null)
     {
         $this->user = $user;
-        
+
         return $this;
     }
 }

@@ -4,7 +4,6 @@ namespace Civix\CoreBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Civix\CoreBundle\Entity\User;
 
 /**
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\ActivityReadRepository")
@@ -17,7 +16,7 @@ use Civix\CoreBundle\Entity\User;
 class ActivityRead
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Id
      * @ORM\Column(type="integer")
@@ -26,7 +25,7 @@ class ActivityRead
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="activity_id", type="integer")
      * @Serializer\Expose()
@@ -59,6 +58,7 @@ class ActivityRead
 
     /**
      * @param int $id
+     *
      * @return $this
      */
     public function setId($id)
@@ -78,6 +78,7 @@ class ActivityRead
 
     /**
      * @param int $activityId
+     *
      * @return $this
      */
     public function setActivityId($activityId)
@@ -97,6 +98,7 @@ class ActivityRead
 
     /**
      * @param User $user
+     *
      * @return $this
      */
     public function setUser(User $user)
@@ -116,6 +118,7 @@ class ActivityRead
 
     /**
      * @param \DateTime $createdAt
+     *
      * @return $this
      */
     public function setCreatedAt(\DateTime $createdAt)

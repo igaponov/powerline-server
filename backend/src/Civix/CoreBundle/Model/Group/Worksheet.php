@@ -29,7 +29,7 @@ class Worksheet
      */
     private $fields;
 
-     /**
+    /**
      * @Serializer\Expose()
      * @Serializer\Groups({"api-group-passcode"})
      * @Serializer\Type("string")
@@ -43,7 +43,7 @@ class Worksheet
     {
         $this->fields = new ArrayCollection();
     }
-    
+
     public function getFields()
     {
         return $this->fields;
@@ -59,7 +59,7 @@ class Worksheet
                 return $fieldValue->getField()->getId();
         })->toArray();
     }
-    
+
     public function getPasscode()
     {
         return $this->passcode;
@@ -78,7 +78,7 @@ class Worksheet
     {
         $this->group = $group;
     }
-    
+
     public function isCorrectRequiredFields(ExecutionContextInterface $context)
     {
         if ($this->group->getFillFieldsRequired()) {

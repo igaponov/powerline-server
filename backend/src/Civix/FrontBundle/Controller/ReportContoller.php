@@ -23,7 +23,7 @@ abstract class ReportContoller extends Controller
     {
         return $this->getQuestionList($request, $this->getQuestionClass());
     }
-    
+
     /**
      * @Route("/{id}",  requirements={"id"="\d+"})
      * @Method({"GET"})
@@ -63,7 +63,7 @@ abstract class ReportContoller extends Controller
     {
         return $this->getQuestionList($request, $this->getPaymentRequestClass());
     }
-    
+
     /**
      * @Route("/payment-requests/{id}",  requirements={"id"="\d+"})
      * @Method({"GET"})
@@ -73,7 +73,7 @@ abstract class ReportContoller extends Controller
     {
         return $this->getQuestionDetails($payment, $this->getPaymentRequestClass());
     }
-    
+
     abstract public function getQuestionClass();
     abstract public function getEventClass();
     abstract public function getPaymentRequestClass();
@@ -81,12 +81,12 @@ abstract class ReportContoller extends Controller
     private function getQuestionList(Request $request, $class)
     {
         try {
-            $query =  $this->getDoctrine()->getRepository('CivixCoreBundle:Poll\Question')
+            $query = $this->getDoctrine()->getRepository('CivixCoreBundle:Poll\Question')
                 ->getPublishedQuestionQuery($this->getUser(), $class);
         } catch (LogicException $e) {
             throw $this->createNotFoundException();
         }
-        
+
         $pagination = $this->get('knp_paginator')->paginate(
             $query,
             $request->get('page', 1),
@@ -98,7 +98,7 @@ abstract class ReportContoller extends Controller
             'token' => $this->getToken(),
         ];
     }
-    
+
     private function getQuestionDetails(Question $question, $class)
     {
         try {
@@ -107,18 +107,18 @@ abstract class ReportContoller extends Controller
         } catch (LogicException $e) {
             throw $this->createNotFoundException();
         }
-            
+
         if (!$questionDetails) {
             throw $this->createNotFoundException();
         }
         $statistics = $question->getStatistic(['#7ac768', '#ba3830', '#4fb0f3', '#dbfa08', '#08fac4']);
-        
+
         return [
             'statistics' => $statistics,
-            'question' => $questionDetails
+            'question' => $questionDetails,
         ];
     }
-    
+
     /**
      * @return string
      */

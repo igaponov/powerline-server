@@ -6,12 +6,10 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- *
  * @Vich\Uploadable
  */
 class EducationalItem
 {
-
     /**
      * @Assert\File(
      *     maxSize="10M",

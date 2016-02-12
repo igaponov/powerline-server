@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Civix\CoreBundle\Entity\Representative;
 
 /**
- * LoadRepresentativeData
+ * LoadRepresentativeData.
  */
 class LoadInitRepresentativeData extends AbstractFixture implements FixtureInterface, ContainerAwareInterface, OrderedFixtureInterface
 {

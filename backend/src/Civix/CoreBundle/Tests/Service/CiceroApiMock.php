@@ -5,7 +5,7 @@ namespace Civix\CoreBundle\Tests\Service;
 use Civix\CoreBundle\Service\CiceroApi;
 
 /**
- * Class for access to private methods of CiceroApi
+ * Class for access to private methods of CiceroApi.
  */
 class CiceroApiMock extends CiceroApi
 {

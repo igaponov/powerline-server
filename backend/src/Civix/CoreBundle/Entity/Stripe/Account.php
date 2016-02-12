@@ -3,7 +3,6 @@
 namespace Civix\CoreBundle\Entity\Stripe;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
@@ -58,6 +57,7 @@ abstract class Account implements AccountInterface
 
     /**
      * @param mixed $id
+     *
      * @return $this
      */
     public function setId($id)
@@ -77,6 +77,7 @@ abstract class Account implements AccountInterface
 
     /**
      * @param mixed $stripeId
+     *
      * @return $this
      */
     public function setStripeId($stripeId)
@@ -96,6 +97,7 @@ abstract class Account implements AccountInterface
 
     /**
      * @param mixed $secretKey
+     *
      * @return $this
      */
     public function setSecretKey($secretKey)
@@ -115,6 +117,7 @@ abstract class Account implements AccountInterface
 
     /**
      * @param mixed $publishableKey
+     *
      * @return $this
      */
     public function setPublishableKey($publishableKey)
@@ -137,11 +140,11 @@ abstract class Account implements AccountInterface
     {
         $this->bankAccounts = json_encode(array_map(function ($bankAccount) {
             return [
-                'id'        => $bankAccount->id,
-                'last4'     => $bankAccount->last4,
+                'id' => $bankAccount->id,
+                'last4' => $bankAccount->last4,
                 'bank_name' => $bankAccount->bank_name,
-                'country'   => $bankAccount->country,
-                'currency'  => $bankAccount->currency,
+                'country' => $bankAccount->country,
+                'currency' => $bankAccount->currency,
             ];
         }, $bankAccounts));
     }

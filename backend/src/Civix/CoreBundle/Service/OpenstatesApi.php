@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\CoreBundle\Service;
 
 use Civix\CoreBundle\Service\API\ServiceApi;
@@ -12,7 +13,7 @@ class OpenstatesApi extends ServiceApi
 
     const API_METHOD_LEGISLATORS = 'legislators/';
     const API_METHOD_BILLS = 'bills/';
-    
+
     private $apiKey;
 
     public function __construct($apikey)
@@ -25,13 +26,13 @@ class OpenstatesApi extends ServiceApi
         $getParameters = array(
             'first_name' => $firstName,
             'last_name' => $lastName,
-            'apikey' => $this->apiKey
+            'apikey' => $this->apiKey,
         );
         if (!empty($state)) {
             $getParameters['state'] = $state;
         }
         $representativesArray = $this->getResponse(
-            self::API_URL . self::API_METHOD_LEGISLATORS,
+            self::API_URL.self::API_METHOD_LEGISLATORS,
             $getParameters
         );
 
@@ -81,14 +82,14 @@ class OpenstatesApi extends ServiceApi
     }
 
     /**
-     * 
      * @param array $responseObjects
-     * @return Array of CommitteeAdapter
+     *
+     * @return array of CommitteeAdapter
      */
     private function convertToCommitteeAdapter($responseObjects)
     {
         $committee = array();
-        
+
         foreach ($responseObjects as $singleCommittee) {
             if (isset($singleCommittee->committee)) {
                 $committee[] = new CommitteeAdapter($singleCommittee);
@@ -101,10 +102,10 @@ class OpenstatesApi extends ServiceApi
     private function getCommiteeMembershipFromApi($openStateId)
     {
         $representative = $this->getResponse(
-            self::API_URL . self::API_METHOD_LEGISLATORS . $openStateId . '/',
+            self::API_URL.self::API_METHOD_LEGISLATORS.$openStateId.'/',
             array(
                 'apikey' => $this->apiKey,
-                'fields' => 'roles'
+                'fields' => 'roles',
             )
         );
         if (isset($representative->roles)) {
@@ -117,13 +118,13 @@ class OpenstatesApi extends ServiceApi
     private function getBillsBySponsorIdFromApi($openStateId)
     {
         return $this->getResponse(
-            self::API_URL . self::API_METHOD_BILLS,
+            self::API_URL.self::API_METHOD_BILLS,
             array(
                 'apikey' => $this->apiKey,
                 'search_window' => 'term',
                 'sponsor_id' => $openStateId,
                 'per_page' => 5,
-                'fields' => 'sources,title'
+                'fields' => 'sources,title',
             )
         );
     }

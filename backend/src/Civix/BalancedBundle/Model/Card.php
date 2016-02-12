@@ -56,7 +56,7 @@ class Card
 
         return $this;
     }
-    
+
     /**
      * Get card number.
      *
@@ -80,9 +80,10 @@ class Card
     }
 
     /**
-     * Set cvv
+     * Set cvv.
      *
-     * @param  string     $cvv
+     * @param string $cvv
+     *
      * @return CreditCard
      */
     public function setCvv($cvv)
@@ -93,7 +94,7 @@ class Card
     }
 
     /**
-     * Get cvv
+     * Get cvv.
      *
      * @return string
      */

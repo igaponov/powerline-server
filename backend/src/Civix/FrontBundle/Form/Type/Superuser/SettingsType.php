@@ -26,7 +26,7 @@ class SettingsType extends AbstractType
         $resolver->setDefaults([
             'data_class' => 'Civix\FrontBundle\Form\Model\CoreSettings',
             'csrf_protection' => true,
-            'csrf_field_name' => '_token'
+            'csrf_field_name' => '_token',
         ]);
     }
 }

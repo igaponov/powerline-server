@@ -6,7 +6,7 @@ use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Civix\ApiBundle\Security\Authentication\Token\ApiToken;
-use \Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManager;
 use Civix\CoreBundle\Entity\Session;
 
 class ApiUserProvider implements UserProviderInterface
@@ -27,7 +27,7 @@ class ApiUserProvider implements UserProviderInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function refreshUser(UserInterface $user)
     {
@@ -54,13 +54,13 @@ class ApiUserProvider implements UserProviderInterface
 
         if ($session) {
             return $this->em
-                ->getRepository('CivixCoreBundle:' . ucfirst($session->getUserType()))
+                ->getRepository('CivixCoreBundle:'.ucfirst($session->getUserType()))
                 ->find($session->getUserId());
         }
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function supportsClass($class)
     {

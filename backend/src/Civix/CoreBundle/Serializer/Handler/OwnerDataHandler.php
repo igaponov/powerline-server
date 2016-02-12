@@ -7,7 +7,6 @@ use Symfony\Component\HttpFoundation\Request;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\JsonSerializationVisitor;
-use JMS\Serializer\JsonDeserializationVisitor;
 use Civix\CoreBundle\Serializer\Type\OwnerData;
 
 class OwnerDataHandler implements SubscribingHandlerInterface
@@ -42,14 +41,14 @@ class OwnerDataHandler implements SubscribingHandlerInterface
 
     public function serialize(JsonSerializationVisitor $visitor, OwnerData $owner, array $type)
     {
-        $scheme = $this->request->getScheme() . '://' . $this->request->getHttpHost();
+        $scheme = $this->request->getScheme().'://'.$this->request->getHttpHost();
 
         $data = $owner->getData();
 
         if ($owner->getAvatarFileName()) {
             $data['avatar_file_path'] = $this->uh->asset($owner, 'avatar');
         } else {
-            $data['avatar_file_path'] = $scheme . $owner->getDefaultAvatar();
+            $data['avatar_file_path'] = $scheme.$owner->getDefaultAvatar();
         }
 
         return $data;

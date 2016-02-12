@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\FrontBundle\Form\Type\Poll;
 
 use Symfony\Component\Form\AbstractType;
@@ -6,12 +7,12 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 /**
- * Option form type
+ * Option form type.
  */
 class PaymentOption extends AbstractType
 {
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -21,18 +22,18 @@ class PaymentOption extends AbstractType
         $builder
             ->add('payment_amount', null, [
                 'required' => false,
-                'attr' => ['class' => 'payment-amount']
+                'attr' => ['class' => 'payment-amount'],
             ])
             ->add('value', null, ['label' => 'Description'])
             ->add('isUserAmount', null, [
                 'label' => 'User Amount',
-                'attr' => ['class' => 'is-user-amount']
+                'attr' => ['class' => 'is-user-amount'],
             ])
         ;
     }
 
     /**
-     * Get unique name for form
+     * Get unique name for form.
      *
      * @return string
      */
@@ -42,7 +43,7 @@ class PaymentOption extends AbstractType
     }
 
     /**
-     * Set default form option
+     * Set default form option.
      *
      * @param OptionsResolverInterface $resolver
      */

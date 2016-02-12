@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping\JoinColumn;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * Representative petition entity
+ * Representative petition entity.
  *
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Poll\PaymentRequestRepository")
  * @Serializer\ExclusionPolicy("all")
@@ -24,13 +24,14 @@ class RepresentativePaymentRequest extends PaymentRequest
 
     public function getType()
     {
-        return 'representative_' . parent::getType();
+        return 'representative_'.parent::getType();
     }
 
     /**
-     * Set user
+     * Set user.
      *
-     * @param  \Civix\CoreBundle\Entity\Representative $user
+     * @param \Civix\CoreBundle\Entity\Representative $user
+     *
      * @return Representative
      */
     public function setUser(\Civix\CoreBundle\Entity\Representative $user = null)
@@ -41,7 +42,7 @@ class RepresentativePaymentRequest extends PaymentRequest
     }
 
     /**
-     * Get user
+     * Get user.
      *
      * @return \Civix\CoreBundle\Entity\Representative
      */

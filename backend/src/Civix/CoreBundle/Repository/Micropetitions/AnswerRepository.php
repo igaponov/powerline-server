@@ -52,7 +52,7 @@ class AnswerRepository extends EntityRepository
             ->getQuery()
             ->getOneOrNullResult();
 
-        return isset($calcResult['groupAnswers'])?(int) $calcResult['groupAnswers']:0;
+        return isset($calcResult['groupAnswers']) ? (int) $calcResult['groupAnswers'] : 0;
     }
 
     public function findLastByUser(User $user)

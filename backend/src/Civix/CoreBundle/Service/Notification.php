@@ -58,7 +58,7 @@ class Notification
             $this->sns->publish(array(
                 'TargetArn' => $endpoint->getArn(),
                 'MessageStructure' => 'json',
-                'Message' => $endpoint->getPlatformMessage($message, $type, $entityData)
+                'Message' => $endpoint->getPlatformMessage($message, $type, $entityData),
             ));
         } catch (Exception\SnsException $e) {
             if ($e instanceof Exception\EndpointDisabledException || $e instanceof Exception\NotFoundException) {
@@ -78,7 +78,7 @@ class Notification
     private function removeEndpoint(Model\AbstractEndpoint $endpoint)
     {
         $this->sns->deleteEndpoint(array(
-            'EndpointArn' => $endpoint->getArn()
+            'EndpointArn' => $endpoint->getArn(),
         ));
         $this->em->remove($endpoint);
         $this->em->flush($endpoint);
@@ -90,7 +90,7 @@ class Notification
             $result = $this->sns->createPlatformEndpoint([
                 'PlatformApplicationArn' => $this->getPlatformArn($endpoint),
                 'Token' => $endpoint->getToken(),
-                'CustomUserData' => $endpoint->getUser()->getId()
+                'CustomUserData' => $endpoint->getUser()->getId(),
             ]);
         } catch (\Aws\Sns\Exception\InvalidParameterException $e) {
             if (preg_match(
@@ -99,12 +99,12 @@ class Notification
                 $matches
             )) {
                 $this->sns->deleteEndpoint(array(
-                    'EndpointArn' => $matches[1]
+                    'EndpointArn' => $matches[1],
                 ));
                 $result = $this->sns->createPlatformEndpoint([
                     'PlatformApplicationArn' => $this->getPlatformArn($endpoint),
                     'Token' => $endpoint->getToken(),
-                    'CustomUserData' => $endpoint->getUser()->getId()
+                    'CustomUserData' => $endpoint->getUser()->getId(),
                 ]);
             } else {
                 return;

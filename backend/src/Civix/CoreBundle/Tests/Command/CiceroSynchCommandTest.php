@@ -33,7 +33,7 @@ class CiceroSynchCommandTest extends WebTestCase
     {
         $executor = $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData'
+            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
         ));
 
         $representative = $executor->getReferenceRepository()->getReference('vice_president');
@@ -74,7 +74,7 @@ class CiceroSynchCommandTest extends WebTestCase
         $executor = $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData'
+            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData',
         ));
 
         $representativeSt = $executor->getReferenceRepository()->getReference('vice_president');
@@ -132,7 +132,7 @@ class CiceroSynchCommandTest extends WebTestCase
     {
         $executor = $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData'
+            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
         ));
 
         $representative = $executor->getReferenceRepository()->getReference('vice_president');
@@ -140,7 +140,7 @@ class CiceroSynchCommandTest extends WebTestCase
         $officialName = $representative->getOfficialTitle();
         $avatarSrc = $representative->getAvatarSrc();
         $districtId = $representative->getDistrictId();
-    
+
         $container = $this->getContainerForCheck($this->responseRepresentativeTitle);
         $commandTester = $this->getCommandTester($container);
 
@@ -173,14 +173,14 @@ class CiceroSynchCommandTest extends WebTestCase
         $executor = $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData'
+            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData',
         ));
 
         $representativeSt = $executor->getReferenceRepository()->getReference('vice_president');
         $lastUpdatedAt = $representativeSt->getUpdatedAt();
         $officialName = $representativeSt->getOfficialTitle();
         $districtId = $representativeSt->getDistrictId();
-    
+
         $container = $this->getContainerForCheck($this->responseRepresentativeTitle);
         $commandTester = $this->getCommandTester($container);
 
@@ -219,7 +219,7 @@ class CiceroSynchCommandTest extends WebTestCase
     {
         $executor = $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData'
+            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
         ));
 
         $representative = $executor->getReferenceRepository()->getReference('vice_president');
@@ -260,7 +260,7 @@ class CiceroSynchCommandTest extends WebTestCase
         $executor = $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData'
+            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData',
         ));
 
         $representative = $executor->getReferenceRepository()->getReference('vice_president');
@@ -302,7 +302,7 @@ class CiceroSynchCommandTest extends WebTestCase
     {
         $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData'
+            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
         ));
 
         $container = $this->getContainerForCheck($this->responseRepresentativeNotFound);
@@ -330,7 +330,7 @@ class CiceroSynchCommandTest extends WebTestCase
         $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData'
+            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData',
         ));
 
         $container = $this->getContainerForCheck($this->responseRepresentativeNotFound);
@@ -359,7 +359,7 @@ class CiceroSynchCommandTest extends WebTestCase
             'District should be null'
         );
     }
-    
+
     private function getCommandTester($container)
     {
         $application = new Application();
@@ -369,7 +369,7 @@ class CiceroSynchCommandTest extends WebTestCase
         $command->setContainer($container);
         $commandTester = new CommandTester($command);
         $commandTester->execute(array('command' => $command->getName()));
-        
+
         return $commandTester;
     }
 
@@ -377,7 +377,7 @@ class CiceroSynchCommandTest extends WebTestCase
     {
         static::$kernel = static::createKernel();
         static::$kernel->boot();
-        
+
         $ciceroMock = $this->getMock('Civix\CoreBundle\Service\CiceroCalls',
             array('getResponse'),
             array(),
@@ -408,7 +408,7 @@ class CiceroSynchCommandTest extends WebTestCase
         $storage = $this->getMockBuilder('Vich\UploaderBundle\Storage\GaufretteStorage')
             ->disableOriginalConstructor()
             ->getMock();
-        
+
         $container = static::$kernel->getContainer();
         $container->set('civix_core.cicero_calls', $ciceroMock);
         $container->set('civix_core.openstates_api', $openstateServiceMock);

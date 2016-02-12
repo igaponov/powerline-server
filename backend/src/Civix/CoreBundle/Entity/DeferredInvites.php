@@ -5,7 +5,7 @@ namespace Civix\CoreBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Deferred Invites
+ * Deferred Invites.
  *
  * @ORM\Table(name="deferred_invites", uniqueConstraints={
  *      @ORM\UniqueConstraint(name="unique_group", columns={"group_id", "email"})
@@ -18,9 +18,9 @@ class DeferredInvites
 {
     const STATUS_ACTIVE = 0;
     const STATUS_INACTIVE = 1;
-    
+
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -29,7 +29,7 @@ class DeferredInvites
     private $id;
 
     /**
-     * @var \DateTime $dateCreate
+     * @var \DateTime
      *
      * @ORM\Column(name="date_create", type="datetime")
      */
@@ -49,16 +49,16 @@ class DeferredInvites
     private $email;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="status", type="smallint", options={"default" = 0})
      */
     private $status = self::STATUS_ACTIVE;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -72,9 +72,9 @@ class DeferredInvites
     {
         $this->setDateCreate(new \DateTime());
     }
-    
+
     /**
-     * Set date create
+     * Set date create.
      *
      * @param \DateTime $date
      *
@@ -88,7 +88,7 @@ class DeferredInvites
     }
 
     /**
-     * Get date create
+     * Get date create.
      *
      * @return \DateTime
      */
@@ -98,7 +98,7 @@ class DeferredInvites
     }
 
     /**
-     * Set group
+     * Set group.
      *
      * @param \Civix\CoreBundle\Entity\Group $group
      *
@@ -112,7 +112,7 @@ class DeferredInvites
     }
 
     /**
-     * Get group
+     * Get group.
      *
      * @return \Civix\CoreBundle\Entity\Group
      */
@@ -122,7 +122,7 @@ class DeferredInvites
     }
 
     /**
-     * Set email
+     * Set email.
      *
      * @param $email
      *
@@ -136,7 +136,7 @@ class DeferredInvites
     }
 
     /**
-     * Get email
+     * Get email.
      *
      * @return string
      */

@@ -22,7 +22,7 @@ use Civix\CoreBundle\Entity\User;
 class PollController extends BaseController
 {
     /**
-     * Get Question by ID
+     * Get Question by ID.
      *
      * @Route("/question/{question_id}", requirements={"question_id"="\d+"}, name="api_question_get")
      * @Method("GET")
@@ -56,7 +56,7 @@ class PollController extends BaseController
     }
 
     /**
-     * Get Questions by representative
+     * Get Questions by representative.
      *
      * @Route(
      *      "/question/representative/{id}",
@@ -90,7 +90,7 @@ class PollController extends BaseController
     }
 
     /**
-     * Get Questions by group
+     * Get Questions by group.
      *
      * @Route("/question/group/{id}", requirements={"id"="\d+"}, name="api_question_get_by_group")
      * @Method("GET")
@@ -120,7 +120,7 @@ class PollController extends BaseController
     }
 
     /**
-     * Get question answers
+     * Get question answers.
      *
      * @Route(
      *      "/question/{question}/answers/influence",
@@ -152,11 +152,10 @@ class PollController extends BaseController
         $result = array(
             'answers' => $answers,
             'avatar_friend_hidden' => $this->getRequest()->getScheme()
-                . '://'
-                . $this->getRequest()->getHttpHost()
-                . \Civix\CoreBundle\Entity\User::SOMEONE_AVATAR,
+                .'://'
+                .$this->getRequest()->getHttpHost()
+                .\Civix\CoreBundle\Entity\User::SOMEONE_AVATAR,
         );
-
 
         $response = new Response($this->jmsSerialization($result, array('api-answer', 'api-info')));
         $response->headers->set('Content-Type', 'application/json');
@@ -165,7 +164,7 @@ class PollController extends BaseController
     }
 
     /**
-     * Get question answers
+     * Get question answers.
      *
      * @Route(
      *      "/question/{question}/answers/influence/outside",
@@ -197,9 +196,9 @@ class PollController extends BaseController
         $result = array(
             'answers' => $answers,
             'avatar_someone' => $this->getRequest()->getScheme()
-                . '://'
-                . $this->getRequest()->getHttpHost()
-                . \Civix\CoreBundle\Entity\User::SOMEONE_AVATAR,
+                .'://'
+                .$this->getRequest()->getHttpHost()
+                .\Civix\CoreBundle\Entity\User::SOMEONE_AVATAR,
         );
 
         $response = new Response($this->jmsSerialization($result, array('api-answer')));
@@ -209,7 +208,7 @@ class PollController extends BaseController
     }
 
     /**
-     * Add new Answer
+     * Add new Answer.
      *
      * @Route("/question/{question_id}/answer/add", requirements={"question_id"="\d+"}, name="api_answer_add")
      * @Method("POST")
@@ -231,7 +230,7 @@ class PollController extends BaseController
         if (is_null($option) || $option->getQuestion()->getId() !== $question->getId()) {
             throw new BadRequestHttpException('Wrong option ID');
         }
-        
+
         $isCanAnswer = $this->get('civix_core.poll.answer_manager')->checkAccessAnswer($user, $question);
         if (!$isCanAnswer) {
             throw new AccessDeniedHttpException();
@@ -241,7 +240,7 @@ class PollController extends BaseController
         $answer = $entityManager->getRepository('CivixCoreBundle:Poll\Answer')
             ->findOneBy(array(
                 'option' => $option,
-                'user' => $user
+                'user' => $user,
             ));
         if (!is_null($answer)) {
             throw new BadRequestHttpException('User is already answered this question');
@@ -289,7 +288,8 @@ class PollController extends BaseController
     }
 
     /**
-     * Add rate to comment
+     * Add rate to comment.
+     *
      * @Route(
      *      "/comments/rate/{id}/{action}",
      *      requirements={"id"="\d+", "action"="up|down|delete"},
@@ -310,7 +310,7 @@ class PollController extends BaseController
     public function rateCommentAction(\Civix\CoreBundle\Entity\BaseComment $comment, $action)
     {
         $user = $this->getUser();
-        $rateActionConstant = 'Civix\CoreBundle\Entity\Poll\CommentRate::RATE_' . strtoupper($action);
+        $rateActionConstant = 'Civix\CoreBundle\Entity\Poll\CommentRate::RATE_'.strtoupper($action);
 
         if ($comment->getUser() == $user) {
             throw new BadRequestHttpException('You can\'t rate your comment');

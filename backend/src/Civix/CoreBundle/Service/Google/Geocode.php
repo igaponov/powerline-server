@@ -37,6 +37,7 @@ class Geocode
      * @param string $query
      * @param string $component
      * @param string $type
+     *
      * @return AddressComponent
      */
     private function getAddressComponent($query, $type)
@@ -58,7 +59,7 @@ class Geocode
 
     private function getResult($query)
     {
-        return $this->getResponse($this->url . '?' . http_build_query(['address' => $query]));
+        return $this->getResponse($this->url.'?'.http_build_query(['address' => $query]));
     }
 
     private function getResponse($url)

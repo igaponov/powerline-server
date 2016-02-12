@@ -6,7 +6,6 @@ use Doctrine\ORM\EntityRepository;
 use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
 use Civix\CoreBundle\Entity\Poll\Question\GroupPaymentRequest;
 use Civix\CoreBundle\Entity\Poll\Question\RepresentativePaymentRequest;
-use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -35,7 +34,7 @@ class PaymentRequestRepository extends EntityRepository
 
     public function getPublishedPaymentRequestsQuery(UserInterface $user)
     {
-        $className = ucfirst($user->getType()) . 'PaymentRequest';
+        $className = ucfirst($user->getType()).'PaymentRequest';
 
         return $this->getEntityManager()
             ->createQueryBuilder()
@@ -51,7 +50,7 @@ class PaymentRequestRepository extends EntityRepository
 
     public function getNewPaymentRequestsQuery(UserInterface $user)
     {
-        $className = ucfirst($user->getType()) . 'PaymentRequest';
+        $className = ucfirst($user->getType()).'PaymentRequest';
 
         return $this->getEntityManager()
             ->createQueryBuilder()
@@ -93,7 +92,7 @@ class PaymentRequestRepository extends EntityRepository
             ->where('pr.isCrowdfunding = 1')
             ->andWhere('pr.crowdfundingDeadline < :now')
             ->andWhere('pr.isCrowdfundingCompleted IS NULL')
-            ->setParameter('now', new \DateTime)
+            ->setParameter('now', new \DateTime())
             ->getQuery()->getResult();
     }
 }

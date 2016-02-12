@@ -6,7 +6,6 @@ use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Superuser;
 use Civix\CoreBundle\Entity\Group;
 use Doctrine\ORM\QueryBuilder;
-use Doctrine\ORM\Query;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Civix\CoreBundle\Entity\User;
@@ -50,10 +49,10 @@ class ActivityRepository extends EntityRepository
                 'act.expireAt > :now OR act INSTANCE OF CivixCoreBundle:Activities\Petition
                 OR act INSTANCE OF CivixCoreBundle:Activities\PaymentRequest')
             ->setParameter('start', $start->format('Y-m-d H:i:s'))
-            ->setParameter('userDistrictsIds', empty($districtsIds)?false:$districtsIds)
-            ->setParameter('userGroupsIds', empty($activeGroups)?false:$activeGroups)
-            ->setParameter('userFollowingIds', empty($userFollowingIds)?false:$userFollowingIds)
-            ->setParameter('userGroupSectionIds', empty($sectionsIds)?false:$sectionsIds)
+            ->setParameter('userDistrictsIds', empty($districtsIds) ? false : $districtsIds)
+            ->setParameter('userGroupsIds', empty($activeGroups) ? false : $activeGroups)
+            ->setParameter('userFollowingIds', empty($userFollowingIds) ? false : $userFollowingIds)
+            ->setParameter('userGroupSectionIds', empty($sectionsIds) ? false : $sectionsIds)
             ->setParameter('now', new \DateTime())
             ->setParameter('user', $user)
             ->orderBy('act.sentAt', 'DESC')
@@ -62,12 +61,13 @@ class ActivityRepository extends EntityRepository
     }
 
     /**
-     * Find activities by user
+     * Find activities by user.
      *
-     * @param User $user
+     * @param User      $user
      * @param \DateTime $start
      * @param $offset
      * @param $limit
+     *
      * @return array
      */
     public function findActivitiesByUser(User $user, \DateTime $start, $offset, $limit)
@@ -100,10 +100,10 @@ class ActivityRepository extends EntityRepository
                     ':user MEMBER OF act_c.users'
                 )
             )
-            ->setParameter('userDistrictsIds', empty($districtsIds)?false:$districtsIds)
-            ->setParameter('userGroupsIds', empty($activeGroups)?false:$activeGroups)
-            ->setParameter('userFollowingIds', empty($userFollowingIds)?false:$userFollowingIds)
-            ->setParameter('userGroupSectionIds', empty($sectionsIds)?false:$sectionsIds)
+            ->setParameter('userDistrictsIds', empty($districtsIds) ? false : $districtsIds)
+            ->setParameter('userGroupsIds', empty($activeGroups) ? false : $activeGroups)
+            ->setParameter('userFollowingIds', empty($userFollowingIds) ? false : $userFollowingIds)
+            ->setParameter('userGroupSectionIds', empty($sectionsIds) ? false : $sectionsIds)
             ->setParameter('user', $user)
             ->setParameter('start', $start->format('Y-m-d H:i:s'))
             ->orderBy('act.sentAt', 'DESC')
@@ -123,12 +123,13 @@ class ActivityRepository extends EntityRepository
     }
 
     /**
-     * Return the count of activities by user
+     * Return the count of activities by user.
      *
      * Not Implemented Yet
      *
-     * @param User $user
+     * @param User      $user
      * @param \DateTime $start
+     *
      * @return array
      */
     public function findActivitiesByUserCount(User $user, \DateTime $start)
@@ -161,21 +162,22 @@ class ActivityRepository extends EntityRepository
                     ':user MEMBER OF act_c.users'
                 )
             )
-            ->setParameter('userDistrictsIds', empty($districtsIds)?false:$districtsIds)
-            ->setParameter('userGroupsIds', empty($activeGroups)?false:$activeGroups)
-            ->setParameter('userFollowingIds', empty($userFollowingIds)?false:$userFollowingIds)
-            ->setParameter('userGroupSectionIds', empty($sectionsIds)?false:$sectionsIds)
+            ->setParameter('userDistrictsIds', empty($districtsIds) ? false : $districtsIds)
+            ->setParameter('userGroupsIds', empty($activeGroups) ? false : $activeGroups)
+            ->setParameter('userFollowingIds', empty($userFollowingIds) ? false : $userFollowingIds)
+            ->setParameter('userGroupSectionIds', empty($sectionsIds) ? false : $sectionsIds)
             ->setParameter('user', $user)
             ->setParameter('start', $start->format('Y-m-d H:i:s'))
             ->getQuery()->getSingleScalarResult();
     }
 
     /**
-     * return an array of activities that are read
+     * return an array of activities that are read.
      *
-     * @param User $user
+     * @param User      $user
      * @param \Datetime $start
-     * @param array $activites
+     * @param array     $activites
+     *
      * @return mixed
      */
     public function getReadItems(User $user, \Datetime $start, array $activites)
@@ -187,15 +189,17 @@ class ActivityRepository extends EntityRepository
                 $activity->setRead(true);
             }
         }
+
         return $activities;
     }
 
     /**
-     * Find activities by Following the user
+     * Find activities by Following the user.
      *
      * @param User $following
      * @param $offset
      * @param $limit
+     *
      * @return array
      */
     public function findActivitiesByFollowing(User $following, $offset, $limit)
@@ -231,9 +235,9 @@ class ActivityRepository extends EntityRepository
             ->setParameter('question', $question)
             ->getSingleScalarResult()
         ;
-        
+
         //representative news auto add new comment after creation
-        $count--;
+        --$count;
 
         $this->getEntityManager()
             ->createQuery('UPDATE Civix\CoreBundle\Entity\Activities\LeaderNews rn

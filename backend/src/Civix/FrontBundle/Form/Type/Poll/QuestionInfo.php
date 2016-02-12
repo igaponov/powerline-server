@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\FrontBundle\Form\Type\Poll;
 
 use Symfony\Component\Form\AbstractType;
@@ -9,7 +10,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
 use Civix\CoreBundle\Entity\Representative;
 
 /**
- * Question form type
+ * Question form type.
  */
 class QuestionInfo extends AbstractType
 {
@@ -23,7 +24,7 @@ class QuestionInfo extends AbstractType
     }
 
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -45,7 +46,7 @@ class QuestionInfo extends AbstractType
         $builder->add('reportRecipientGroup', 'choice', array(
            'label' => 'Representative',
            'required' => false,
-           'choices' => $this->getOfficialTitlesOptions($representative)
+           'choices' => $this->getOfficialTitlesOptions($representative),
         ));
 
         $builder->add('reportRecipient', 'entity', array(
@@ -54,12 +55,12 @@ class QuestionInfo extends AbstractType
            'required' => false,
            'query_builder' => function (EntityRepository $er) use ($representative) {
                 return $er->getQueryBuilderReprByStatus(Representative::STATUS_ACTIVE, $representative);
-           }
+           },
         ));
     }
 
     /**
-     * Get unique name for form
+     * Get unique name for form.
      *
      * @return string
      */
@@ -69,14 +70,14 @@ class QuestionInfo extends AbstractType
     }
 
     /**
-     * Set default form option
+     * Set default form option.
      *
      * @param OptionsResolverInterface $resolver
      */
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => 'Civix\CoreBundle\Entity\Poll\Question'
+            'data_class' => 'Civix\CoreBundle\Entity\Poll\Question',
         ]);
     }
 

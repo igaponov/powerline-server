@@ -7,15 +7,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
-use \JMS\Serializer\Annotation as Serializer;
+use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Serializer\Type\Avatar;
 use Civix\CoreBundle\Model\CropAvatarInterface;
-use Civix\CoreBundle\Entity\CheckingLimits;
-use Civix\CoreBundle\Entity\RepresentativeStorage;
-use Civix\CoreBundle\Entity\Group;
 
 /**
- * Representative
+ * Representative.
  *
  * @ORM\Table(
  *      name="representatives",
@@ -39,7 +36,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     const STATUS_ACTIVE = 1;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -69,7 +66,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
      */
     private $firstName;
 
-     /**
+    /**
      * @var string
      *
      * @ORM\Column(name="lastname", type="string", length=255)
@@ -83,18 +80,21 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
 
     /**
      * @ORM\Column(name="username", type="string", length=255, nullable=true, unique=true)
+     *
      * @var string
      */
     private $username;
 
     /**
      * @ORM\Column(name="password", type="string", length=255, nullable=true)
+     *
      * @var string
      */
     private $password;
 
     /**
      * @ORM\Column(name="salt", type="string", length=255, nullable=true)
+     *
      * @var string
      */
     private $salt;
@@ -107,13 +107,14 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
      * )
      * @Vich\UploadableField(mapping="avatar_image", fileNameProperty="avatarFileName")
      *
-     * @var File $avatar
+     * @var File
      */
     private $avatar;
 
     /**
      * @ORM\Column(name="avatar_file_name", type="string", nullable=true)
-     * @var string $avatarFileName
+     *
+     * @var string
      */
     private $avatarFileName;
 
@@ -123,7 +124,8 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
      *      "api-search", "api-poll-public"})
      * @Serializer\Type("Avatar")
      * @Serializer\Accessor(getter="getAvatarSrc")
-     * @var string $avatarFilePath
+     *
+     * @var string
      */
     private $avatarFilePath;
 
@@ -135,13 +137,14 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
      * )
      * @Vich\UploadableField(mapping="avatar_source_image", fileNameProperty="avatarSourceFileName")
      *
-     * @var File $avatarSource
+     * @var File
      */
     private $avatarSource;
 
     /**
      * @ORM\Column(name="avatar_source_file_name", type="string", nullable=true)
-     * @var string $avatarSourceFileName
+     *
+     * @var string
      */
     private $avatarSourceFileName;
 
@@ -173,7 +176,6 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     private $country;
 
     /**
-     *
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\State", cascade="persist")
      * @ORM\JoinColumn(name="state", referencedColumnName="code", nullable=true, onDelete="SET NULL")
      * @Assert\NotBlank(groups={"registration"})
@@ -218,14 +220,13 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     private $officialPhone;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="status", type="smallint")
      */
     private $status;
 
     /**
-     *
      * @ORM\Column(name="email", type="string", length=50)
      * @Assert\NotBlank(groups={"registration"})
      * @Assert\Email(groups={"registration"})
@@ -265,7 +266,8 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
 
     /**
      * @ORM\Column(name="storage_id", type="integer", nullable=true, unique=true)
-     * @var Integer
+     *
+     * @var int
      * @Serializer\Expose()
      * @Serializer\Groups({"api-activities", "api-poll", "api-search", "api-info", "api-poll-public"})
      */
@@ -281,6 +283,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
 
     /**
      * @ORM\Column(name="upd_storage_at", type="date", nullable=true)
+     *
      * @var \DateTime
      */
     private $storageUpdateAt;
@@ -291,22 +294,24 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
      *      message="The value cannot contain a non-numerical symbols"
      * )
      * @ORM\Column(name="questions_limit", type="integer", nullable=true)
-     * @var Integer
+     *
+     * @var int
      */
     private $questionLimit;
 
     /**
      * @ORM\Column(name="is_nonlegislative", type="integer", nullable=true)
-     * @var Integer 
+     *
+     * @var int
      */
     private $isNonLegislative;
 
-     /**
+    /**
      * @ORM\ManyToOne(targetEntity="Group", inversedBy="localRepresentatives", cascade="persist")
      * @ORM\JoinColumn(name="local_group", referencedColumnName="id", nullable=true, onDelete="SET NULL")
      */
     private $localGroup;
-   
+
     public function __construct()
     {
         $this->setCountry('US');
@@ -315,7 +320,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get type
+     * Get type.
      *
      * @return string
      */
@@ -325,7 +330,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get avatarSrc
+     * Get avatarSrc.
      *
      * @return \Civix\CoreBundle\Model\Avatar
      */
@@ -339,23 +344,21 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Serializes the representative
+     * Serializes the representative.
      *
      * @return string
      */
     public function serialize()
     {
         return serialize(array(
-                $this->id
+                $this->id,
             ));
     }
 
     /**
-     * Unserializes the representative
+     * Unserializes the representative.
      *
      * @param string $serialized
-     *
-     * @return void
      */
     public function unserialize($serialized)
     {
@@ -365,9 +368,9 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -375,7 +378,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */
@@ -389,7 +392,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get fax
+     * Get fax.
      *
      * @return string
      */
@@ -403,7 +406,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set fax
+     * Set fax.
      *
      * @param string $fax
      */
@@ -415,7 +418,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get website
+     * Get website.
      *
      * @return string
      */
@@ -429,7 +432,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set website
+     * Set website.
      *
      * @param string $website
      */
@@ -441,7 +444,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set name
+     * Set name.
      *
      * @param string $name
      *
@@ -454,8 +457,8 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
         return $this;
     }
 
-        /**
-     * Get name
+    /**
+     * Get name.
      *
      * @return string
      */
@@ -468,8 +471,8 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
         return $this->lastName;
     }
 
-     /**
-     * Set name
+    /**
+     * Set name.
      *
      * @param string $name
      *
@@ -483,7 +486,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */
@@ -492,8 +495,8 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
         return $this->username;
     }
 
-     /**
-     * Set username
+    /**
+     * Set username.
      *
      * @param string $username
      *
@@ -507,7 +510,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set password
+     * Set password.
      *
      * @param string $password
      *
@@ -521,7 +524,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get password
+     * Get password.
      *
      * @return string
      */
@@ -531,7 +534,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get salt
+     * Get salt.
      *
      * @return string
      */
@@ -541,9 +544,9 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get user Roles
+     * Get user Roles.
      *
-     * @return Array
+     * @return array
      */
     public function getRoles()
     {
@@ -551,7 +554,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get username
+     * Get username.
      *
      * @return string
      */
@@ -564,18 +567,18 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
         return $this->officialTitle;
     }
 
-     /**
-     * Get username
+    /**
+     * Get username.
      *
      * @return string
      */
     public function getOfficialName()
     {
-        return $this->getFirstName() . ' ' . $this->getLastName();
+        return $this->getFirstName().' '.$this->getLastName();
     }
 
-     /**
-     * Set officialTitle
+    /**
+     * Set officialTitle.
      *
      * @param string $officialTitle
      *
@@ -589,7 +592,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set country of address
+     * Set country of address.
      *
      * @param string $country
      *
@@ -603,7 +606,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get country of address
+     * Get country of address.
      *
      * @return string
      */
@@ -613,7 +616,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set state of country
+     * Set state of country.
      *
      * @param string $state
      *
@@ -627,7 +630,8 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get state of country
+     * Get state of country.
+     *
      * @return string
      */
     public function getState()
@@ -646,11 +650,12 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
             return $this->state->getCode();
         }
 
-        return null;
+        return;
     }
 
     /**
-     * Set city
+     * Set city.
+     *
      * @param string $city
      *
      * @return \Civix\CoreBundle\Entity\Representative
@@ -663,7 +668,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get city
+     * Get city.
      *
      * @return string
      */
@@ -678,7 +683,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set officialAddress
+     * Set officialAddress.
      *
      * @param string $officialAddress
      *
@@ -692,7 +697,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get officialAddress
+     * Get officialAddress.
      *
      * @return string
      */
@@ -706,7 +711,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set officialPhone
+     * Set officialPhone.
      *
      * @param string $officialPhone
      *
@@ -720,7 +725,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get officialPhone
+     * Get officialPhone.
      *
      * @return string
      */
@@ -734,9 +739,9 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set status
+     * Set status.
      *
-     * @param integer $status
+     * @param int $status
      *
      * @return Representative
      */
@@ -748,9 +753,9 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get status
+     * Get status.
      *
-     * @return integer
+     * @return int
      */
     public function getStatus()
     {
@@ -758,7 +763,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get email
+     * Get email.
      *
      * @return string
      */
@@ -771,8 +776,8 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
         return $this->email;
     }
 
-     /**
-     * Set email
+    /**
+     * Set email.
      *
      * @param string $email
      *
@@ -786,19 +791,18 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Erase credentials
-     *
+     * Erase credentials.
      */
     public function eraseCredentials()
     {
     }
 
     /**
-     * Compare users
+     * Compare users.
      *
      * @param UserInterface $user
      *
-     * @return Bool
+     * @return bool
      */
     public function equals(UserInterface $user)
     {
@@ -806,7 +810,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set salt
+     * Set salt.
      *
      * @param string $salt
      *
@@ -820,7 +824,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set avatar
+     * Set avatar.
      *
      * @param string $avatar
      *
@@ -834,7 +838,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get avatar
+     * Get avatar.
      *
      * @return string
      */
@@ -844,7 +848,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get default avatar
+     * Get default avatar.
      *
      * @return string
      */
@@ -854,7 +858,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set avatarFileName
+     * Set avatarFileName.
      *
      * @param string $avatarFileName
      *
@@ -868,7 +872,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get avatarFileName
+     * Get avatarFileName.
      *
      * @return string
      */
@@ -878,7 +882,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set avatarSourceFileName
+     * Set avatarSourceFileName.
      *
      * @param string $avatarSourceFileName
      *
@@ -892,7 +896,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get avatarSourceFileName
+     * Get avatarSourceFileName.
      *
      * @return string
      */
@@ -902,7 +906,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set avatarSource
+     * Set avatarSource.
      *
      * @param string $avatarSource
      *
@@ -916,7 +920,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get avatarSource
+     * Get avatarSource.
      *
      * @return string
      */
@@ -926,8 +930,9 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get DistrictId
-     * @return Integer
+     * Get DistrictId.
+     *
+     * @return int
      */
     public function getDistrictId()
     {
@@ -936,9 +941,10 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
         return $district ? $district->getId() : null;
     }
 
-     /**
-     * Get StorageId
-     * @return Integer
+    /**
+     * Get StorageId.
+     *
+     * @return int
      */
     public function getStorageId()
     {
@@ -946,8 +952,9 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set StorageId
-     * @param Integer $storageId
+     * Set StorageId.
+     *
+     * @param int $storageId
      *
      * @return \Civix\CoreBundle\Entity\Representative
      */
@@ -960,7 +967,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set avatarFilePath
+     * Set avatarFilePath.
      *
      * @param string $avatarFilePath
      *
@@ -974,7 +981,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get avatarFilePath
+     * Get avatarFilePath.
      *
      * @return string
      */
@@ -983,8 +990,8 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
         return $this->avatarFilePath;
     }
 
-     /**
-     * Set storage update date
+    /**
+     * Set storage update date.
      *
      * @param \DateTime $updateDate
      *
@@ -998,7 +1005,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get storage update date
+     * Get storage update date.
      *
      * @return \DateTime
      */
@@ -1008,9 +1015,9 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get limit of question
+     * Get limit of question.
      *
-     * @return Integer
+     * @return int
      */
     public function getQuestionLimit()
     {
@@ -1018,7 +1025,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set limit of question
+     * Set limit of question.
      *
      * @return \Civix\CoreBundle\Entity\Representative
      */
@@ -1030,9 +1037,9 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get Non-Legislative District relation
+     * Get Non-Legislative District relation.
      *
-     * @return Integer
+     * @return int
      */
     public function getIsNonLegislative()
     {
@@ -1040,7 +1047,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set Non-Legislative District relation
+     * Set Non-Legislative District relation.
      *
      * @return \Civix\CoreBundle\Entity\Representative
      */
@@ -1052,7 +1059,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get representative storage
+     * Get representative storage.
      *
      * @return \Civix\CoreBundle\Entity\RepresentativeStorage
      */
@@ -1063,13 +1070,13 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
 
     public function __toString()
     {
-        return $this->firstName . ' ' . $this->lastName . ' ('.$this->officialTitle.')';
+        return $this->firstName.' '.$this->lastName.' ('.$this->officialTitle.')';
     }
 
     /**
-     * Check is representative in local district
+     * Check is representative in local district.
      *
-     * @return boolean
+     * @return bool
      */
     public function isLocalLeader()
     {
@@ -1083,35 +1090,37 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set representativeStorage
+     * Set representativeStorage.
      *
      * @param \Civix\CoreBundle\Entity\RepresentativeStorage $representativeStorage
+     *
      * @return Representative
      */
     public function setRepresentativeStorage(RepresentativeStorage $representativeStorage = null)
     {
         $this->representativeStorage = $representativeStorage;
-    
+
         return $this;
     }
 
     /**
-     * Set localGroup
+     * Set localGroup.
      *
      * @param \Civix\CoreBundle\Entity\Group $localGroup
+     *
      * @return Representative
      */
     public function setLocalGroup(Group $localGroup = null)
     {
         $this->localGroup = $localGroup;
-    
+
         return $this;
     }
 
     /**
-     * Get localGroup
+     * Get localGroup.
      *
-     * @return \Civix\CoreBundle\Entity\Group 
+     * @return \Civix\CoreBundle\Entity\Group
      */
     public function getLocalGroup()
     {
@@ -1119,32 +1128,33 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Check if representative can to admin local group
+     * Check if representative can to admin local group.
      * 
-     * @return boolean
+     * @return bool
      */
     public function isLocalAdmin()
     {
-        return ($this->getLocalGroup() instanceof Group);
+        return $this->getLocalGroup() instanceof Group;
     }
 
     /**
-     * Set district
+     * Set district.
      *
      * @param \Civix\CoreBundle\Entity\District $district
+     *
      * @return Representative
      */
     public function setDistrict(\Civix\CoreBundle\Entity\District $district = null)
     {
         $this->district = $district;
-    
+
         return $this;
     }
 
     /**
-     * Get district
+     * Get district.
      *
-     * @return \Civix\CoreBundle\Entity\District 
+     * @return \Civix\CoreBundle\Entity\District
      */
     public function getDistrict()
     {
@@ -1163,7 +1173,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
             return $this->getRepresentativeStorage()->getBirthday();
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -1178,7 +1188,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
             return $this->getRepresentativeStorage()->getStartTerm();
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -1193,7 +1203,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
             return $this->getRepresentativeStorage()->getEndTerm();
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -1207,7 +1217,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
             return $this->getRepresentativeStorage()->getFacebook();
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -1221,7 +1231,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
             return $this->getRepresentativeStorage()->getTwitter();
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -1235,7 +1245,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
             return $this->getRepresentativeStorage()->getYoutube();
         }
 
-        return null;
+        return;
     }
 
     public function getAddressArray()
@@ -1246,7 +1256,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
             'line2' => '',
             'state' => $this->getOfficialState(),
             'postal_code' => '',
-            'country_code' => 'US'
+            'country_code' => 'US',
         ];
     }
 }

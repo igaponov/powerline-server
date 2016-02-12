@@ -7,7 +7,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 class QuestionGroup extends Question
 {
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options

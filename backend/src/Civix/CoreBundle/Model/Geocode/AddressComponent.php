@@ -30,6 +30,7 @@ class AddressComponent
 
     /**
      * @param string $longName
+     *
      * @return $this
      */
     public function setLongName($longName)
@@ -49,6 +50,7 @@ class AddressComponent
 
     /**
      * @param string $shortName
+     *
      * @return $this
      */
     public function setShortName($shortName)

@@ -12,7 +12,7 @@ abstract class CommentRepository extends EntityRepository
 
     public function getCommentsByEntityId($entityId, $user)
     {
-        $commentEntityField = 'com.' . $this->getCommentEntityField();
+        $commentEntityField = 'com.'.$this->getCommentEntityField();
         $comments = new ArrayCollection();
         $commentsObjs = $this->getEntityManager()->createQueryBuilder()
             ->select('com, u, q, r.rateValue ')

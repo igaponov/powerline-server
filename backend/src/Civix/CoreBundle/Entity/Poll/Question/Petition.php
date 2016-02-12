@@ -12,9 +12,7 @@ use JMS\Serializer\Annotation as Serializer;
  */
 abstract class Petition extends Question
 {
-
     /**
-     *
      * @ORM\Column(name="is_outsiders_sign", type="boolean")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll", "api-leader-poll"})
@@ -22,7 +20,6 @@ abstract class Petition extends Question
     protected $isOutsidersSign;
 
     /**
-     *
      * @ORM\Column(name="petition_title", type="string")
      * @Assert\NotBlank(groups={"petition-manage"})
      * @Serializer\Expose()
@@ -31,7 +28,6 @@ abstract class Petition extends Question
     protected $petitionTitle;
 
     /**
-     *
      * @ORM\Column(name="petition_body", type="text")
      * @Assert\NotBlank(groups={"petition-manage"})
      * @Serializer\Expose()
@@ -40,9 +36,10 @@ abstract class Petition extends Question
     protected $petitionBody;
 
     /**
-     * Set isOutsidersSign
+     * Set isOutsidersSign.
      *
-     * @param boolean $isOutsidersSign
+     * @param bool $isOutsidersSign
+     *
      * @return GroupPetition
      */
     public function setIsOutsidersSign($isOutsidersSign)
@@ -53,9 +50,9 @@ abstract class Petition extends Question
     }
 
     /**
-     * Get isOutsidersSign
+     * Get isOutsidersSign.
      *
-     * @return boolean
+     * @return bool
      */
     public function getIsOutsidersSign()
     {
@@ -63,9 +60,10 @@ abstract class Petition extends Question
     }
 
     /**
-     * Set petitionTitle
+     * Set petitionTitle.
      *
      * @param string $petitionTitle
+     *
      * @return GroupPetition
      */
     public function setPetitionTitle($petitionTitle)
@@ -76,7 +74,7 @@ abstract class Petition extends Question
     }
 
     /**
-     * Get petitionTitle
+     * Get petitionTitle.
      *
      * @return string
      */
@@ -86,9 +84,10 @@ abstract class Petition extends Question
     }
 
     /**
-     * Set petitionBody
+     * Set petitionBody.
      *
      * @param string $petitionBody
+     *
      * @return GroupPetition
      */
     public function setPetitionBody($petitionBody)
@@ -99,7 +98,7 @@ abstract class Petition extends Question
     }
 
     /**
-     * Get petitionBody
+     * Get petitionBody.
      *
      * @return string
      */

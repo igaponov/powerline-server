@@ -28,7 +28,7 @@ class QuestionUserPush
     {
         $users = array();
         $methodName = 'getUsersBy'.$this->questionOwner;
-        
+
         if (method_exists($this, $methodName)) {
             $users = $this->$methodName($startId, $limitUser);
         }
@@ -42,8 +42,8 @@ class QuestionUserPush
             ->getRepository('CivixCoreBundle:User')
             ->getUsersByDistrictForPush(
                 $this->question->getUser()->getDistrictId(),
-                ($this->question instanceof RepresentativeNews)?
-                PushSender::TYPE_PUSH_NEWS:
+                ($this->question instanceof RepresentativeNews) ?
+                PushSender::TYPE_PUSH_NEWS :
                 PushSender::TYPE_PUSH_ACTIVITY,
                 $startId,
                 $limitUser
@@ -53,7 +53,7 @@ class QuestionUserPush
     private function getUsersByGroup($startId, $limitUser)
     {
         if (($this->question instanceof GroupSectionInterface) &&
-            $this->question->getGroupSections()->count()>0
+            $this->question->getGroupSections()->count() > 0
         ) {
             return $this->entityManager
                 ->getRepository('CivixCoreBundle:User')
@@ -86,6 +86,6 @@ class QuestionUserPush
     {
         $className = explode('\\', get_class($object));
 
-        return $className[count($className)-1];
+        return $className[count($className) - 1];
     }
 }

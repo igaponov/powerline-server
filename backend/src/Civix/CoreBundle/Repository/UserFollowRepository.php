@@ -7,8 +7,7 @@ use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Entity\User;
 
 /**
- * UserFollowRepository
- *
+ * UserFollowRepository.
  */
 class UserFollowRepository extends EntityRepository
 {
@@ -66,7 +65,7 @@ class UserFollowRepository extends EntityRepository
     public function findByUser(User $user)
     {
         $qb = $this->getEntityManager()->createQueryBuilder();
-        $pendingStart = new \DateTime;
+        $pendingStart = new \DateTime();
         $pendingStart->sub(new \DateInterval('P6M'));
 
         return $qb->select('uf, f, u')
@@ -76,7 +75,7 @@ class UserFollowRepository extends EntityRepository
             ->where('uf.user = :user AND uf.status = :active')
             ->orWhere('uf.follower = :user AND uf.status = :active')
             ->orWhere('(uf.user = :user OR uf.follower = :user)'
-                . ' AND uf.status = :pending AND uf.dateCreate > :pendingStart')
+                .' AND uf.status = :pending AND uf.dateCreate > :pendingStart')
             ->setParameter('active', UserFollow::STATUS_ACTIVE)
             ->setParameter('pending', UserFollow::STATUS_PENDING)
             ->setParameter('pendingStart', $pendingStart)
@@ -90,9 +89,9 @@ class UserFollowRepository extends EntityRepository
     public function findActiveFollower(User $user, User $follower)
     {
         return $this->findOneBy([
-            'user'     => $user,
+            'user' => $user,
             'follower' => $follower,
-            'status'   => UserFollow::STATUS_ACTIVE
+            'status' => UserFollow::STATUS_ACTIVE,
         ]);
     }
 

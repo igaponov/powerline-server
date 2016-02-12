@@ -21,7 +21,6 @@ use Civix\CoreBundle\Entity\UserGroup;
  */
 class GroupController extends BaseController
 {
-
     /**
      * @Route("/", name="api_groups")
      * @Method("GET")
@@ -51,7 +50,7 @@ class GroupController extends BaseController
 
         if (count($groups) > 4) {
             return $this->createJSONResponse(json_encode([
-                'error' => 'You have reached a limit for creating groups'
+                'error' => 'You have reached a limit for creating groups',
             ]), 403);
         }
 
@@ -85,7 +84,7 @@ class GroupController extends BaseController
         $mailgun = $this->get('civix_core.mailgun')->listaddmemberAction($groupName, $this->getUser()->getEmail(), $this->getUser()->getFirstName().' '.$this->getUser()->getLastName());
 
         if ($mailgun['http_response_code'] != 200) {
-            $this->createJSONResponse(json_encode(['error' => 'cannot add owner\'s email to mailgun list']), 403) ;
+            $this->createJSONResponse(json_encode(['error' => 'cannot add owner\'s email to mailgun list']), 403);
         }
         $this->get('civix_core.group_manager')
             ->joinToGroup($this->getUser(), $group);
@@ -165,11 +164,11 @@ class GroupController extends BaseController
         $response = new Response();
         $response->headers->set('Content-Type', 'application/json');
         $responseContentArray = [];
-        
+
         //check invites
         $isNeedToCheckPasscode = $this->get('civix_core.group_manager')
                 ->isNeedCheckPasscode($group, $user);
-        
+
         $serializerGroups = [];
         if ($group->getFillFieldsRequired()) {
             $serializerGroups[] = 'api-group-field';
@@ -243,13 +242,10 @@ class GroupController extends BaseController
                     $entityManager->persist($entity);
                 }
             }
-            
+
                 $entityManager->persist($changedUser);
                 $entityManager->flush();
             }
-
-
-
 
         //check status of join
         $userGroup = $entityManager
@@ -259,6 +255,7 @@ class GroupController extends BaseController
 
             $response->setContent(json_encode($responseContentArray));
         }
+
         return $response;
     }
 
@@ -275,7 +272,7 @@ class GroupController extends BaseController
     {
         $response = new Response();
         $response->headers->set('Content-Type', 'application/json');
-        $successRespContent = json_encode(['success'=>'ok']);
+        $successRespContent = json_encode(['success' => 'ok']);
 
         $this->get('civix_core.group_manager')->unjoinGroup($this->getUser(), $group);
 
@@ -293,10 +290,9 @@ class GroupController extends BaseController
             $response->setContent($successRespContent);
         }
 
-
         return $response;
     }
-    
+
     /**
      * @Route("/info/{group}", requirements={"group"="\d+"}, name="api_group_information")
      * @Method("GET")
@@ -424,6 +420,7 @@ class GroupController extends BaseController
      *
      * @param Request $request
      * @param $group
+     *
      * @return Response
      */
     public function getGroupUsersAction(Request $request, $group)

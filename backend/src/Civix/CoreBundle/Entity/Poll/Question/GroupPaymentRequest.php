@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 
 /**
- * Group petition entity
+ * Group petition entity.
  *
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Poll\PaymentRequestRepository")
  * @Serializer\ExclusionPolicy("all")
@@ -27,13 +27,14 @@ class GroupPaymentRequest extends PaymentRequest implements GroupSectionInterfac
 
     public function getType()
     {
-        return 'group_' . parent::getType();
+        return 'group_'.parent::getType();
     }
 
     /**
-     * Set user
+     * Set user.
      *
-     * @param  \Civix\CoreBundle\Entity\Group $user
+     * @param \Civix\CoreBundle\Entity\Group $user
+     *
      * @return Group
      */
     public function setUser(\Civix\CoreBundle\Entity\Group $user = null)
@@ -44,7 +45,7 @@ class GroupPaymentRequest extends PaymentRequest implements GroupSectionInterfac
     }
 
     /**
-     * Get user
+     * Get user.
      *
      * @return \Civix\CoreBundle\Entity\Group
      */

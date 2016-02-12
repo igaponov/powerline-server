@@ -53,7 +53,7 @@ class CiceroSynchCommand extends ContainerAwareCommand
 
             $isUpdated = $this->getContainer()->get('civix_core.representative_storage_manager')
                 ->synchronizeRepresentative($storageRepresentative);
-            
+
             if (!$isUpdated) {
                 $output->writeln(
                     '<error>'.$storageRepresentative->getFirstName().' '.

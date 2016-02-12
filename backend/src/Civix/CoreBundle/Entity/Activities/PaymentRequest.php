@@ -17,7 +17,7 @@ class PaymentRequest extends Question
     {
         return array(
             'type' => 'payment-request',
-            'id' => $this->getQuestionId()
+            'id' => $this->getQuestionId(),
         );
     }
 }

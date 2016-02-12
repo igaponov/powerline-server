@@ -27,7 +27,7 @@ class AccountRepresentative extends Account
     public function setUser(Representative $user = null)
     {
         $this->user = $user;
-        
+
         return $this;
     }
 }

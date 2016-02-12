@@ -4,11 +4,9 @@ namespace Civix\ApiBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Group;
 
@@ -17,7 +15,6 @@ use Civix\CoreBundle\Entity\Group;
  */
 class SearchController extends BaseController
 {
-
     /**
      * @Route("", name="api_search")
      * @Method("GET")

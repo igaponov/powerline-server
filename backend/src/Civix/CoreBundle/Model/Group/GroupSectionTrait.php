@@ -5,9 +5,10 @@ namespace Civix\CoreBundle\Model\Group;
 trait GroupSectionTrait
 {
     /**
-     * Add group section
+     * Add group section.
      *
      * @param \Civix\CoreBundle\Entity\GroupSection $section
+     *
      * @return Group
      */
     public function addGroupSection(\Civix\CoreBundle\Entity\GroupSection $section)
@@ -20,7 +21,7 @@ trait GroupSectionTrait
     }
 
     /**
-     * Remove section
+     * Remove section.
      *
      * @param \Civix\CoreBundle\Entity\GroupSection $section
      */
@@ -28,7 +29,7 @@ trait GroupSectionTrait
     {
         $this->groupSections->removeElement($section);
     }
-    
+
     public function getGroupSections()
     {
         return $this->groupSections;

@@ -10,27 +10,27 @@ class CoreSettings
     public static $fields = [
         Settings::POLL_EXPIRE_INTERVAL => [
             'integer',
-            'Question expire interval (days)'
+            'Question expire interval (days)',
         ],
         Settings::MICROPETITION_EXPIRE_INTERVAL_0 => [
             'integer',
-            'Micropetition expire interval for groups (days)'
+            'Micropetition expire interval for groups (days)',
         ],
         Settings::MICROPETITION_EXPIRE_INTERVAL_3 => [
             'integer',
-            'Micropetition expire interval for towns (days)'
+            'Micropetition expire interval for towns (days)',
         ],
         Settings::MICROPETITION_EXPIRE_INTERVAL_2 => [
             'integer',
-            'Micropetition expire interval for states (days)'
+            'Micropetition expire interval for states (days)',
         ],
         Settings::MICROPETITION_EXPIRE_INTERVAL_1 => [
             'integer',
-            'Micropetition expire interval for countries (days)'
+            'Micropetition expire interval for countries (days)',
         ],
         Settings::DEFAULT_EXPIRE_INTERVAL => [
             'integer',
-            'Default expire interval (days)'
+            'Default expire interval (days)',
         ],
     ];
 
@@ -91,6 +91,7 @@ class CoreSettings
 
     /**
      * @param mixed $micropetition_expire_interval_0
+     *
      * @return $this
      */
     public function setMicropetitionExpireInterval0($micropetition_expire_interval_0)
@@ -110,6 +111,7 @@ class CoreSettings
 
     /**
      * @param mixed $micropetition_expire_interval_1
+     *
      * @return $this
      */
     public function setMicropetitionExpireInterval1($micropetition_expire_interval_1)
@@ -129,6 +131,7 @@ class CoreSettings
 
     /**
      * @param mixed $micropetition_expire_interval_2
+     *
      * @return $this
      */
     public function setMicropetitionExpireInterval2($micropetition_expire_interval_2)
@@ -148,6 +151,7 @@ class CoreSettings
 
     /**
      * @param mixed $micropetition_expire_interval_3
+     *
      * @return $this
      */
     public function setMicropetitionExpireInterval3($micropetition_expire_interval_3)

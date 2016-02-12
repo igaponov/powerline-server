@@ -3,7 +3,6 @@
 namespace Civix\FrontBundle\Controller\Group;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Security\Core\SecurityContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -52,14 +51,14 @@ class SectionsController extends Controller
             return $this->redirect($this->generateUrl('civix_front_group_subscription_index'));
         }
         $sections = $this->getDoctrine()->getRepository('CivixCoreBundle:GroupSection')->findBy(array(
-            'group' => $this->getUser()
+            'group' => $this->getUser(),
         ));
 
         if (count($sections) > 4) {
             throw new AccessDeniedHttpException();
         }
 
-        $form = $this->createForm(new SectionFormType, new GroupSection());
+        $form = $this->createForm(new SectionFormType(), new GroupSection());
 
         if ('POST' === $request->getMethod()) {
             if ($form->submit($request)->isValid()) {
@@ -71,13 +70,13 @@ class SectionsController extends Controller
                 $manager->flush();
 
                 return $this->redirect($this->generateUrl('civix_front_group_sections_view', array(
-                    'id' => $section->getId()
+                    'id' => $section->getId(),
                 )));
             }
         }
 
         return array(
-            'form' => $form->createView()
+            'form' => $form->createView(),
         );
     }
 
@@ -97,7 +96,7 @@ class SectionsController extends Controller
             throw $this->createNotFoundException();
         }
 
-        $form = $this->createForm(new SectionFormType, $section);
+        $form = $this->createForm(new SectionFormType(), $section);
 
         if ('POST' === $request->getMethod()) {
             if ($form->submit($request)->isValid()) {
@@ -107,7 +106,7 @@ class SectionsController extends Controller
                 $manager->flush();
 
                 return $this->redirect($this->generateUrl('civix_front_group_sections_view', array(
-                    'id' => $section->getId()
+                    'id' => $section->getId(),
                 )));
             }
         }
@@ -115,7 +114,7 @@ class SectionsController extends Controller
         return array(
             'form' => $form->createView(),
             'section' => $section,
-            'token' => $this->getToken()
+            'token' => $this->getToken(),
         );
     }
 
@@ -154,7 +153,7 @@ class SectionsController extends Controller
         return array(
             'section' => $section,
             'token' => $this->getToken(),
-            'pagination' => $pagination
+            'pagination' => $pagination,
         );
     }
 
@@ -180,7 +179,7 @@ class SectionsController extends Controller
         $manager->flush();
 
         return $this->redirect($this->generateUrl('civix_front_group_sections_view', array(
-            'id' => $section->getId()
+            'id' => $section->getId(),
         )));
     }
 
@@ -206,7 +205,7 @@ class SectionsController extends Controller
         $manager->flush();
 
         return $this->redirect($this->generateUrl('civix_front_group_sections_view', array(
-            'id' => $section->getId()
+            'id' => $section->getId(),
         )));
     }
 

@@ -6,6 +6,7 @@ class Tags
 {
     /**
      * @param string $text
+     *
      * @return array
      */
     public static function parseHashTags($text)
@@ -22,13 +23,14 @@ class Tags
 
         return array(
             'parsed' => $result,
-            'original' => $matches[2]
+            'original' => $matches[2],
         );
     }
 
     public static function parseMentionTags($text)
     {
         preg_match_all('/@([a-zA-Z0-9._-]+[a-zA-Z0-9])/', $text, $matches);
+
         return $matches[1];
     }
 

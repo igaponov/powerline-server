@@ -6,7 +6,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class Petition
 {
-
     /**
      * @Assert\Valid()
      */

@@ -9,7 +9,7 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 class GroupField extends AbstractType
 {
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -19,12 +19,12 @@ class GroupField extends AbstractType
         $builder->add('fieldName', null, array(
                 'widget_control_group' => false,
                 'label_render' => false,
-                'attr' => array('class' => 'span10 editable-question-option')
+                'attr' => array('class' => 'span10 editable-question-option'),
             ));
     }
 
     /**
-     * Get unique name for form
+     * Get unique name for form.
      *
      * @return string
      */
@@ -34,7 +34,7 @@ class GroupField extends AbstractType
     }
 
     /**
-     * Set default form option
+     * Set default form option.
      *
      * @param OptionsResolverInterface $resolver
      */

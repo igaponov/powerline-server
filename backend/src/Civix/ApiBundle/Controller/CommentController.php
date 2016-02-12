@@ -10,7 +10,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Civix\CoreBundle\Model\Comment\CommentModelFactory;
 use Civix\CoreBundle\Model\Comment\CommentModelInterface;
 use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
 use Civix\CoreBundle\Entity\Poll\Question;
@@ -19,7 +18,7 @@ use Civix\CoreBundle\Entity\Micropetitions;
 class CommentController extends BaseController
 {
     /**
-     * Get list comments
+     * Get list comments.
      * 
      * @Route(
      *      "/{typeEntity}/{entityId}/comments/",
@@ -63,7 +62,7 @@ class CommentController extends BaseController
     }
 
     /**
-     * Add comment
+     * Add comment.
      * 
      * @Route(
      *      "/{typeEntity}/{entityId}/comments/",
@@ -95,7 +94,7 @@ class CommentController extends BaseController
             $commentModel->getRepositoryName(),
             ['api-comments-add', 'api-comments-parent']
         );
-        
+
         $parentComment = $entityManager
             ->getRepository($commentModel->getRepositoryName())
             ->find($comment->getParentComment());
@@ -103,7 +102,7 @@ class CommentController extends BaseController
         if (is_null($parentComment)) {
             throw new BadRequestHttpException('Incorrect parent comment');
         }
-        
+
         $entityForComment = $commentModel->getEntityForComment($parentComment);
         if ($entityForComment->getId() != $entityId) {
             throw new NotFoundHttpException('Not found');
@@ -115,7 +114,7 @@ class CommentController extends BaseController
         $comment->setParentComment($parentComment);
         $comment->setUser($this->getUser());
         $commentModel->setEntityForComment($entityForComment, $comment);
-        
+
         $this->get('civix_core.poll.comment_manager')->addComment($comment);
 
         if ($entityForComment instanceof LeaderNews) {
@@ -136,9 +135,9 @@ class CommentController extends BaseController
 
         return $response;
     }
-    
+
     /**
-     * Get question comments
+     * Get question comments.
      *
      * @Route(
      *      "/poll/comments/{questionId}",
@@ -156,6 +155,7 @@ class CommentController extends BaseController
      *         405="Method Not Allowed"
      *     }
      * )
+     *
      * @deprecated Use getCommentsAction
      */
     public function commentsByQuestionAction($questionId)
@@ -173,7 +173,7 @@ class CommentController extends BaseController
     }
 
     /**
-     * Add question comments
+     * Add question comments.
      *
      * @Route(
      *      "/poll/comments/add/{id}",
@@ -192,6 +192,7 @@ class CommentController extends BaseController
      *         405="Method Not Allowed"
      *     }
      * )
+     *
      * @deprecated Use getCommentsAction
      */
     public function addCommentToQuestion(Request $request, \Civix\CoreBundle\Entity\Poll\Question $question)

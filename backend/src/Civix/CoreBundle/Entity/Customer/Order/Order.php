@@ -27,28 +27,28 @@ abstract class Order
     protected $id;
 
     /**
-     * @var string $balancedUri
+     * @var string
      *
      * @ORM\Column(name="balanced_uri", type="string", length=255)
      */
     protected $balancedUri;
 
     /**
-     * @var \DateTime $updatedAt
+     * @var \DateTime
      *
      * @ORM\Column(name="updated_at", type="datetime", nullable=true)
      */
     protected $updatedAt;
 
     /**
-     * @var string $publicId
+     * @var string
      *
      * @ORM\Column(name="public_id", type="string", length=255, nullable=true)
      */
     private $publicId;
 
     /**
-     * @var \DateTime $createdAt
+     * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      */
@@ -61,6 +61,7 @@ abstract class Order
 
     /**
      * @param string $balancedUri
+     *
      * @return $this
      */
     public function setBalancedUri($balancedUri)
@@ -80,6 +81,7 @@ abstract class Order
 
     /**
      * @param \DateTime $createdAt
+     *
      * @return $this
      */
     public function setCreatedAt($createdAt)
@@ -99,6 +101,7 @@ abstract class Order
 
     /**
      * @param mixed $id
+     *
      * @return $this
      */
     public function setId($id)
@@ -118,6 +121,7 @@ abstract class Order
 
     /**
      * @param \DateTime $updatedAt
+     *
      * @return $this
      */
     public function setUpdatedAt($updatedAt)
@@ -154,6 +158,7 @@ abstract class Order
 
     /**
      * @param string $publicId
+     *
      * @return $this
      */
     public function setPublicId($publicId)

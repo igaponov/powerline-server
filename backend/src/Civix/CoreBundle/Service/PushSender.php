@@ -5,9 +5,6 @@ namespace Civix\CoreBundle\Service;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\Superuser;
-use Civix\CoreBundle\Entity\Poll\Question\RepresentativeNews;
-use Civix\CoreBundle\Service\Notification;
 use Civix\CoreBundle\Entity\Micropetitions\Petition as Micropetition;
 use Civix\CoreBundle\Entity\Notification\AbstractEndpoint;
 use Civix\CoreBundle\Entity\SocialActivity;
@@ -32,9 +29,9 @@ class PushSender
     const TYPE_PUSH_NEWS = 'leader_news';
     const TYPE_PUSH_EVENT = 'leader_event';
     const TYPE_PUSH_SOCIAL_ACTIVITY = 'social_activity';
-    
+
     const MAX_USERS_PER_QUERY = 5000;
-    
+
     protected $entityManager;
     protected $questionUsersPush;
     protected $notification;
@@ -54,7 +51,7 @@ class PushSender
 
     public function sendPushPublishQuestion($questionId, $messageBody = self::QUESTION_PUSH_MESSAGE)
     {
-        /** @var $petition \Civix\CoreBundle\Entity\Poll\Question */
+        /* @var $petition \Civix\CoreBundle\Entity\Poll\Question */
         $question = $this->entityManager
             ->getRepository('CivixCoreBundle:Poll\Question')
             ->find($questionId);
@@ -93,7 +90,7 @@ class PushSender
         foreach ($users as $recipient) {
             $this->send($recipient,
                 "Boosted: {$this->preview($microPetition->getPetitionBody())}",
-                self::TYPE_PUSH_MICRO_PETITION, ['id' => $microPetitionId, ]);
+                self::TYPE_PUSH_MICRO_PETITION, ['id' => $microPetitionId]);
         }
     }
 
@@ -130,7 +127,7 @@ class PushSender
         $user = $this->entityManager
             ->getRepository('CivixCoreBundle:User')
             ->getUserForPush($userId);
-        
+
         if ($user instanceof User) {
             $this->send($user, self::INVITE_PUSH_MESSAGE, self::TYPE_PUSH_INVITE);
         }
@@ -147,7 +144,7 @@ class PushSender
             ->find($followerId);
 
         if ($user instanceof User && $follower) {
-            $this->send($user, $follower->getFullName() . ' wants to follow you', self::TYPE_PUSH_INFLUENCE);
+            $this->send($user, $follower->getFullName().' wants to follow you', self::TYPE_PUSH_INFLUENCE);
         }
     }
 
@@ -179,7 +176,7 @@ class PushSender
             }
         }
     }
-    
+
     public function send(User $recipient, $messageBody, $type, $entityData = null)
     {
         $endpoints = $this->entityManager->getRepository(AbstractEndpoint::class)->findByUser($recipient);
@@ -195,7 +192,7 @@ class PushSender
     private function preview($text)
     {
         if (mb_strlen($text) > 50) {
-            return mb_substr($text, 0, 50) . '...';
+            return mb_substr($text, 0, 50).'...';
         }
 
         return $text;

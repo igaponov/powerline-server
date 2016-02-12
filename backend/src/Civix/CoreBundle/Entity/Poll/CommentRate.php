@@ -41,16 +41,16 @@ class CommentRate
     private $rateValue;
 
     /**
-     * @var \DateTime $createdAt
+     * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      */
     private $createdAt;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -58,9 +58,9 @@ class CommentRate
     }
 
     /**
-     * Set rateValue
+     * Set rateValue.
      *
-     * @param integer $rateValue
+     * @param int $rateValue
      * 
      * @return CommentRate
      */
@@ -72,9 +72,9 @@ class CommentRate
     }
 
     /**
-     * Get rateValue
+     * Get rateValue.
      *
-     * @return integer 
+     * @return int
      */
     public function getRateValue()
     {
@@ -82,7 +82,7 @@ class CommentRate
     }
 
     /**
-     * Set comment
+     * Set comment.
      *
      * @param BaseComment $comment
      * 
@@ -96,7 +96,7 @@ class CommentRate
     }
 
     /**
-     * Get comment
+     * Get comment.
      *
      * @return BaseComment
      */
@@ -106,7 +106,7 @@ class CommentRate
     }
 
     /**
-     * Set user
+     * Set user.
      *
      * @param \Civix\CoreBundle\Entity\User $user
      * 
@@ -120,9 +120,9 @@ class CommentRate
     }
 
     /**
-     * Get user
+     * Get user.
      *
-     * @return \Civix\CoreBundle\Entity\User 
+     * @return \Civix\CoreBundle\Entity\User
      */
     public function getUser()
     {
@@ -138,7 +138,7 @@ class CommentRate
     }
 
     /**
-     * Set createdAt
+     * Set createdAt.
      *
      * @param \DateTime $createdAt
      *
@@ -152,7 +152,7 @@ class CommentRate
     }
 
     /**
-     * Get createdAt
+     * Get createdAt.
      *
      * @return \DateTime
      */

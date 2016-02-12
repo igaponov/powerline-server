@@ -13,22 +13,23 @@ use Civix\CoreBundle\Entity\Announcement;
 class GroupAnnouncement extends Announcement
 {
     /**
-     * Set group
+     * Set group.
      *
      * @param \Civix\CoreBundle\Entity\Group $group
+     *
      * @return GroupAnnouncement
      */
     public function setUser(\Civix\CoreBundle\Entity\Group $group = null)
     {
         $this->group = $group;
-    
+
         return $this;
     }
 
     /**
-     * Get group
+     * Get group.
      *
-     * @return \Civix\CoreBundle\Entity\Group 
+     * @return \Civix\CoreBundle\Entity\Group
      */
     public function getUser()
     {

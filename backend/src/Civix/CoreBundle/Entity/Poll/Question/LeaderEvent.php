@@ -27,7 +27,7 @@ abstract class LeaderEvent extends Question
      * @Serializer\Groups({"api-poll", "api-leader-poll"})
      */
     protected $isAllowOutsiders = false;
-    
+
     /**
      * @var \DateTime
      *
@@ -51,9 +51,10 @@ abstract class LeaderEvent extends Question
     protected $finishedAt;
 
     /**
-     * Set event title
+     * Set event title.
      *
      * @param string $title
+     *
      * @return LeaderEvent
      */
     public function setTitle($title)
@@ -64,7 +65,7 @@ abstract class LeaderEvent extends Question
     }
 
     /**
-     * Get Leader Event title
+     * Get Leader Event title.
      *
      * @return string
      */
@@ -85,8 +86,9 @@ abstract class LeaderEvent extends Question
         return $this->isAllowOutsiders;
     }
 
-   /**
+    /**
      * @param \DateTime $startedAt
+     *
      * @return $this
      */
     public function setStartedAt($startedAt)

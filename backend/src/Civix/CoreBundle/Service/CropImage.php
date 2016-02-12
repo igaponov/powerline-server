@@ -3,7 +3,7 @@
 namespace Civix\CoreBundle\Service;
 
 /**
- * Image crop class
+ * Image crop class.
  *
  * @author Valentin Shevko <valentin.shevko@intellectsoft.org>
  */
@@ -56,7 +56,7 @@ class CropImage
 
         //get new image size
         $newImageSize = max(array($width, $height));
-        $ratio = $width/$height;
+        $ratio = $width / $height;
         $newHeigth = $height;
         $newWidth = $width;
 
@@ -65,10 +65,10 @@ class CropImage
             $newImageSize = $maxSize;
             if ($ratio < 1) {
                 $newHeigth = $maxSize;
-                $newWidth = $newHeigth*$ratio;
+                $newWidth = $newHeigth * $ratio;
             } else {
                 $newWidth = $maxSize;
-                $newHeigth = $newWidth*$ratio;
+                $newHeigth = $newWidth * $ratio;
             }
         }
 
@@ -76,8 +76,8 @@ class CropImage
 
         imagecolorallocate($newImageResource, 0, 0, 0);
 
-        $insertCoordX = ($newImageSize - $newWidth)/2;
-        $insertCoordY = ($newImageSize - $newHeigth)/2;
+        $insertCoordX = ($newImageSize - $newWidth) / 2;
+        $insertCoordY = ($newImageSize - $newHeigth) / 2;
 
         imagecopyresampled($newImageResource, $srcImageResource, $insertCoordX,
             $insertCoordY, 0, 0, $newWidth, $newHeigth, $width, $height
@@ -90,11 +90,12 @@ class CropImage
     }
 
     /**
-     * Get image resource by path
+     * Get image resource by path.
      *
      * @param string $imagePath Image path
      *
      * @return resource
+     *
      * @throws \Exception
      */
     protected function getImageResource($imagePath)
@@ -122,7 +123,7 @@ class CropImage
     }
 
     /**
-     * Save image from resource
+     * Save image from resource.
      *
      * @param resource $imageResource Image resource
      * @param string   $savePath      Path for save
@@ -152,7 +153,7 @@ class CropImage
     }
 
     /**
-     * Create image resource
+     * Create image resource.
      *
      * @param int    $width  New image resource width
      * @param int    $height New image resource height
@@ -165,7 +166,7 @@ class CropImage
         $image = imagecreatetruecolor($width, $height);
 
         // preserve transparency
-        if ($type == "gif" or $type == "png") {
+        if ($type == 'gif' or $type == 'png') {
             imagecolortransparent($image, imagecolorallocatealpha($image, 0, 0, 0, 127));
             imagealphablending($image, false);
             imagesavealpha($image, true);
@@ -175,10 +176,10 @@ class CropImage
     }
 
     /**
-     *  Create image resource with white image background
+     *  Create image resource with white image background.
      *
-     * @param Integer $width
-     * @param Integer $height
+     * @param int $width
+     * @param int $height
      *
      * @return resource
      */
@@ -192,7 +193,7 @@ class CropImage
     }
 
     /**
-     * Get image type by image path
+     * Get image type by image path.
      *
      * @param string $imagePath
      *
@@ -200,7 +201,7 @@ class CropImage
      */
     protected function getImageType($imagePath)
     {
-        $type = strtolower(substr(strrchr($imagePath, "."), 1));
+        $type = strtolower(substr(strrchr($imagePath, '.'), 1));
         if (stristr($type, '?')) {
             $type = stristr($type, '?', true);
         }

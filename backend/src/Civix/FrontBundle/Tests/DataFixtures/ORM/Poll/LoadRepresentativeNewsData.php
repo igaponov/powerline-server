@@ -20,7 +20,7 @@ class LoadRepresentativeNewsData extends AbstractFixture implements FixtureInter
 
         $this->addReference('representativeNews1', $news);
         $manager->persist($news);
-        
+
         //published
         $newsPublished = new RepresentativeNews();
         $newsPublished->setUser($representative);
@@ -33,9 +33,9 @@ class LoadRepresentativeNewsData extends AbstractFixture implements FixtureInter
     }
 
     /**
-     * Get the order of this fixture
+     * Get the order of this fixture.
      *
-     * @return integer
+     * @return int
      */
     public function getOrder()
     {

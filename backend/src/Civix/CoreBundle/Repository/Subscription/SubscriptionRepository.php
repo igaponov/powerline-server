@@ -3,7 +3,6 @@
 namespace Civix\CoreBundle\Repository\Subscription;
 
 use Doctrine\ORM\EntityRepository;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Civix\CoreBundle\Entity\Subscription\Subscription;
 
 class SubscriptionRepository extends EntityRepository

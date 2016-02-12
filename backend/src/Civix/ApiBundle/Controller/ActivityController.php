@@ -2,7 +2,6 @@
 
 namespace Civix\ApiBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -45,7 +44,7 @@ class ActivityController extends BaseController
         $offset = $request->query->get('offset', 0);
         $limit = $request->query->get('limit', 10);
 
-        $start = new \DateTime;
+        $start = new \DateTime();
         $start->sub(new \DateInterval('P30D'));
 
         if ($request->query->has('following')) {
@@ -59,7 +58,7 @@ class ActivityController extends BaseController
             $userFollow = $this->getDoctrine()
                 ->getRepository('CivixCoreBundle:UserFollow')->findOneBy([
                     'user' => $following,
-                    'follower' => $this->getUser()
+                    'follower' => $this->getUser(),
                 ]);
             if (!$following || !$userFollow ||
                 $userFollow->getStatus() !== $userFollow::STATUS_ACTIVE) {
@@ -75,7 +74,7 @@ class ActivityController extends BaseController
         }
 
         $response = $this->createJSONResponse($this->jmsSerialization($activities, ['api-activities']));
-        $response->headers->set('Server-Time', (new \DateTime)->format('D, d M Y H:i:s O'));
+        $response->headers->set('Server-Time', (new \DateTime())->format('D, d M Y H:i:s O'));
 
         return $response;
     }
@@ -87,7 +86,7 @@ class ActivityController extends BaseController
     public function saveReadAction(Request $request)
     {
         $items = $this->jmsDeserialization($request->getContent(),
-            'array<' . ActivityRead::class . '>', ['api-activities']);
+            'array<'.ActivityRead::class.'>', ['api-activities']);
 
         /* @var ActivityRead $item */
         foreach ($items as $item) {

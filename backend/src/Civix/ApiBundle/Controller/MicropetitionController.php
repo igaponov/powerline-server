@@ -44,14 +44,14 @@ class MicropetitionController extends BaseController
         $response->headers->set('Content-Type', 'application/json');
 
         /**
-        * @var $newPetition \Civix\CoreBundle\Entity\Micropetitions\Petition
-        */
+         * @var \Civix\CoreBundle\Entity\Micropetitions\Petition
+         */
         $newPetition = $this->jmsDeserialization($request->getContent(),
             'Civix\CoreBundle\Entity\Micropetitions\Petition', array('api-petitions-create'));
         if ($newPetition->getType() !== Petition::TYPE_LONG_PETITION) {
             $newPetition->setTitle(''); //title should be removed in the future
         }
-        
+
         $errors = $this->getValidator()->validate($newPetition);
 
         if (count($errors) > 0) {
@@ -75,7 +75,7 @@ class MicropetitionController extends BaseController
             }
 
             $interval = $this->get('civix_core.settings')
-                ->get('micropetition_expire_interval_' . $petitionGroup->getGroupType())->getValue();
+                ->get('micropetition_expire_interval_'.$petitionGroup->getGroupType())->getValue();
             $newPetition = $micropetitionService
                 ->createPetitionInterval($newPetition, $petitionGroup, $this->getUser(), $interval);
 
@@ -97,6 +97,7 @@ class MicropetitionController extends BaseController
     /**
      * @Route("/micro-petitions", name="api_micropetition_list")
      * @Method("GET")
+     *
      * @deprecated
      * @ApiDoc(
      *      resource=true,
@@ -215,7 +216,7 @@ class MicropetitionController extends BaseController
             ->answerToPetitition($micropetition, $this->getUser(), $optionId);
         if (!$answer) {
             $response->setStatusCode(400)->setContent(json_encode(array(
-                'errors'=>$micropetitionService->getErrors()))
+                'errors' => $micropetitionService->getErrors(), ))
             );
         } else {
             $micropetitionService->recalcVoicesForPetitions($micropetition);

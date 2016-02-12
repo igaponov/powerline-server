@@ -61,7 +61,7 @@ class DiscountHistoryRepository extends EntityRepository
                 ->orderBy('dh.createdAt', 'ASC')
                 ->getQuery()
                 ->getOneOrNullResult();
-        
-        return ($history)?$history->getCode():null;
+
+        return ($history) ? $history->getCode() : null;
     }
 }

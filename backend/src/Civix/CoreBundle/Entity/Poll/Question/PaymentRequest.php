@@ -15,7 +15,6 @@ use JMS\Serializer\Annotation as Serializer;
 abstract class PaymentRequest extends Question
 {
     /**
-     *
      * @ORM\Column(name="title", type="string")
      * @Assert\NotBlank(groups={"payment-manage"})
      * @Serializer\Expose()
@@ -24,7 +23,6 @@ abstract class PaymentRequest extends Question
     protected $title;
 
     /**
-     *
      * @ORM\Column(name="is_crowdfunding", type="boolean", nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
@@ -32,7 +30,7 @@ abstract class PaymentRequest extends Question
     protected $isCrowdfunding;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="crowdfunding_goal_amount", type="integer", nullable=true)
      * @Serializer\Expose()
@@ -50,7 +48,6 @@ abstract class PaymentRequest extends Question
     protected $crowdfundingDeadline;
 
     /**
-     *
      * @ORM\Column(name="is_crowdfunding_completed", type="boolean", nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
@@ -58,7 +55,7 @@ abstract class PaymentRequest extends Question
     protected $isCrowdfundingCompleted;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="crowdfunding_pledged_amount", type="integer", nullable=true)
      * @Serializer\Expose()
@@ -85,6 +82,7 @@ abstract class PaymentRequest extends Question
 
     /**
      * @param mixed $title
+     *
      * @return $this
      */
     public function setTitle($title)
@@ -104,6 +102,7 @@ abstract class PaymentRequest extends Question
 
     /**
      * @param \DateTime $crowdfundingDeadline
+     *
      * @return $this
      */
     public function setCrowdfundingDeadline($crowdfundingDeadline)
@@ -128,6 +127,7 @@ abstract class PaymentRequest extends Question
 
     /**
      * @param mixed $isCrowdfunding
+     *
      * @return $this
      */
     public function setIsCrowdfunding($isCrowdfunding)
@@ -147,6 +147,7 @@ abstract class PaymentRequest extends Question
 
     /**
      * @param int $crowdfundingGoalAmount
+     *
      * @return $this
      */
     public function setCrowdfundingGoalAmount($crowdfundingGoalAmount)
@@ -178,7 +179,7 @@ abstract class PaymentRequest extends Question
 
     public function getType()
     {
-        return 'payment_request' . ($this->getIsCrowdfunding() ? '_crowdfunding' : '');
+        return 'payment_request'.($this->getIsCrowdfunding() ? '_crowdfunding' : '');
     }
 
     public function getIsAllowOutsiders()
@@ -188,6 +189,7 @@ abstract class PaymentRequest extends Question
 
     /**
      * @param int $crowdfundingPledgedAmount
+     *
      * @return $this
      */
     public function setCrowdfundingPledgedAmount($crowdfundingPledgedAmount)
@@ -207,6 +209,7 @@ abstract class PaymentRequest extends Question
 
     /**
      * @param mixed $isCrowdfundingCompleted
+     *
      * @return $this
      */
     public function setIsCrowdfundingCompleted($isCrowdfundingCompleted)

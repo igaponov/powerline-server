@@ -10,7 +10,6 @@ use JMS\Serializer\DeserializationContext;
 
 class BaseController extends Controller
 {
-
     protected function createJSONResponse($content = '', $status = 200)
     {
         $response = new Response($content, $status);
@@ -34,7 +33,7 @@ class BaseController extends Controller
             /* @var $error \Symfony\Component\Validator\ConstraintViolation */
             $result[] = array(
                 'property' => $error->getPropertyPath(),
-                'message' => $error->getMessage()
+                'message' => $error->getMessage(),
             );
         }
 

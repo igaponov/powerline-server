@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\FrontBundle\Form\Type\Group;
 
 use Symfony\Component\Form\FormBuilderInterface;
@@ -7,7 +8,7 @@ use Civix\FrontBundle\Form\Type\Representative\News as NewsType;
 use Civix\CoreBundle\Entity\Group;
 
 /**
- * Group news form
+ * Group news form.
  */
 class News extends NewsType
 {
@@ -22,7 +23,7 @@ class News extends NewsType
     }
 
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options

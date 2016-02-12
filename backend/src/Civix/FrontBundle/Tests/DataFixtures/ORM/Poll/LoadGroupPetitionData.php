@@ -21,17 +21,17 @@ class LoadGroupPetitionData extends AbstractFixture implements FixtureInterface,
 
         $this->addReference('groupPetition1', $petition);
         $manager->persist($petition);
-        
+
         //outsider sign petition
         $publicPetition = new GroupPetition();
         $publicPetition->setUser($group);
         $publicPetition->setPetitionBody('test');
         $publicPetition->setPetitionTitle('test_public');
         $publicPetition->setIsOutsidersSign(true);
-        
+
         $this->addReference('groupPublicPetition1', $publicPetition);
         $manager->persist($publicPetition);
-        
+
         //published
         $petitionPublished = new GroupPetition();
         $petitionPublished->setUser($group);

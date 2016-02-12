@@ -28,7 +28,7 @@ class PackageHandler
     public function getPackageStateForInvites(UserInterface $user)
     {
         $package = $this->sm->getPackage($user);
-        
+
         $invitesCount = $this->em->getRepository('CivixCoreBundle:DeferredInvites')
             ->getInvitesCount($user);
 
@@ -42,7 +42,7 @@ class PackageHandler
     public function getPackageStateForGroupDivisions(UserInterface $user)
     {
         $package = $this->sm->getPackage($user);
-        
+
         $groupDivisionsCount = $this->em->getRepository('CivixCoreBundle:GroupSection')
             ->getDivisionsCount($user);
 
@@ -56,17 +56,16 @@ class PackageHandler
     public function getPackageStateForAnnouncement(UserInterface $user)
     {
         $package = $this->sm->getPackage($user);
-        
+
         $announcementCount = $this->em->getRepository('CivixCoreBundle:Announcement')
             ->getAnnouncementCountPerMonth($user);
-        
+
         $limitObj = new PackageLimitState();
         $limitObj->setLimitValue($package->getAnnouncementLimitation());
         $limitObj->setCurrentValue($announcementCount);
 
         return $limitObj;
     }
-
 
     public function getPackageStateForMicropetition(UserInterface $user)
     {
@@ -81,6 +80,7 @@ class PackageHandler
 
     /**
      * @param Group $group
+     *
      * @return PackageLimitState
      */
     public function getPackageStateForGroupSize(Group $group)

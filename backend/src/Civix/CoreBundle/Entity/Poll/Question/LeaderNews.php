@@ -9,7 +9,6 @@ use Civix\CoreBundle\Entity\Poll\Question;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- *
  * @Assert\Callback(methods={"isSubjectValid"})
  * @Serializer\ExclusionPolicy("all")
  */
@@ -25,22 +24,23 @@ abstract class LeaderNews extends Question
     protected $subjectParsed;
 
     /**
-     * Set subjectParsed
+     * Set subjectParsed.
      *
      * @param string $subjectParsed
+     *
      * @return $this
      */
     public function setSubjectParsed($subjectParsed)
     {
         $this->subjectParsed = $subjectParsed;
-    
+
         return $this;
     }
 
     /**
-     * Get subjectParsed
+     * Get subjectParsed.
      *
-     * @return string 
+     * @return string
      */
     public function getSubjectParsed()
     {
@@ -49,6 +49,7 @@ abstract class LeaderNews extends Question
 
     /**
      * @param string $subject
+     *
      * @return $this
      */
     public function setSubject($subject)

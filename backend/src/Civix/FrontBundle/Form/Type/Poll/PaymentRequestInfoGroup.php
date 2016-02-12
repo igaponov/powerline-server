@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\FrontBundle\Form\Type\Poll;
 
 use Symfony\Component\Form\FormBuilderInterface;
@@ -12,9 +13,9 @@ class PaymentRequestInfoGroup extends PaymentRequestInfo
     {
         $this->group = $group;
     }
-    
+
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -22,14 +23,14 @@ class PaymentRequestInfoGroup extends PaymentRequestInfo
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         parent::buildForm($builder, $options);
-        
+
         $builder->add('groupSections', 'entity', [
            'label' => false,
            'class' => 'CivixCoreBundle:GroupSection',
            'choices' => $this->group->getGroupSections(),
            'required' => false,
            'expanded' => true,
-           'multiple' => true
+           'multiple' => true,
         ]);
     }
 }

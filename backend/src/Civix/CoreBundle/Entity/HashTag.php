@@ -5,7 +5,7 @@ namespace Civix\CoreBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * HashTag
+ * HashTag.
  *
  * @ORM\Table(name="hash_tags", indexes={
  *      @ORM\Index(name="hash_tag_name_ind", columns={"name"})
@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 class HashTag
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -31,7 +31,6 @@ class HashTag
     private $name;
 
     /**
-     *
      * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\Micropetitions\Petition", inversedBy="hashTags")
      * @ORM\JoinTable(name="hash_tags_petitions",
      *      joinColumns={@ORM\JoinColumn(name="hash_tag_id", referencedColumnName="id", onDelete="CASCADE")},
@@ -41,7 +40,6 @@ class HashTag
     private $petitions;
 
     /**
-     *
      * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\Poll\Question", inversedBy="hashTags")
      * @ORM\JoinTable(name="hash_tags_questions",
      *      joinColumns={@ORM\JoinColumn(name="hash_tag_id", referencedColumnName="id", onDelete="CASCADE")},
@@ -51,9 +49,9 @@ class HashTag
     private $questions;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -61,29 +59,30 @@ class HashTag
     }
 
     /**
-     * Set name
+     * Set name.
      *
      * @param string $name
+     *
      * @return HashTag
      */
     public function setName($name)
     {
         $this->name = $name;
-    
+
         return $this;
     }
 
     /**
-     * Get name
+     * Get name.
      *
-     * @return string 
+     * @return string
      */
     public function getName()
     {
         return $this->name;
     }
     /**
-     * Constructor
+     * Constructor.
      */
     public function __construct($name = null)
     {
@@ -91,22 +90,23 @@ class HashTag
         $this->questions = new \Doctrine\Common\Collections\ArrayCollection();
         $this->setName($name);
     }
-    
+
     /**
-     * Add petitions
+     * Add petitions.
      *
      * @param \Civix\CoreBundle\Entity\Micropetitions\Petition $petitions
+     *
      * @return HashTag
      */
     public function addPetition(\Civix\CoreBundle\Entity\Micropetitions\Petition $petitions)
     {
         $this->petitions[] = $petitions;
-    
+
         return $this;
     }
 
     /**
-     * Remove petitions
+     * Remove petitions.
      *
      * @param \Civix\CoreBundle\Entity\Micropetitions\Petition $petitions
      */
@@ -116,9 +116,9 @@ class HashTag
     }
 
     /**
-     * Get petitions
+     * Get petitions.
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getPetitions()
     {
@@ -126,20 +126,21 @@ class HashTag
     }
 
     /**
-     * Add questions
+     * Add questions.
      *
      * @param \Civix\CoreBundle\Entity\Poll\Question $question
+     *
      * @return HashTag
      */
     public function addQuestion(\Civix\CoreBundle\Entity\Poll\Question $question)
     {
         $this->questions[] = $question;
-    
+
         return $this;
     }
 
     /**
-     * Remove questions
+     * Remove questions.
      *
      * @param \Civix\CoreBundle\Entity\Poll\Question $question
      */
@@ -149,9 +150,9 @@ class HashTag
     }
 
     /**
-     * Get questions
+     * Get questions.
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getQuestions()
     {

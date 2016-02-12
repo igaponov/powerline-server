@@ -15,19 +15,19 @@ class PRPayoutType extends AbstractType
     public function __construct(BankAccount $bankAccount = null, Card $card = null)
     {
         if ($bankAccount) {
-            $this->choices['bank'] = 'Bank Account (' . $bankAccount->getName() . ')';
+            $this->choices['bank'] = 'Bank Account ('.$bankAccount->getName().')';
         }
         if ($card) {
-            $this->choices['card'] = 'Debit Card (' . $card->getName() . ')';
+            $this->choices['card'] = 'Debit Card ('.$card->getName().')';
         }
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('to', 'choice', [
-            'choices'   => $this->choices,
-            'required'  => true,
-            'label' => 'Account'
+            'choices' => $this->choices,
+            'required' => true,
+            'label' => 'Account',
         ]);
     }
 

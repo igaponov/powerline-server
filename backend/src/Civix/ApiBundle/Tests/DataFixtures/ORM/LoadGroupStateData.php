@@ -31,7 +31,7 @@ class LoadGroupStateData extends AbstractFixture implements FixtureInterface
         );
         $this->addReference('group-state', $stateGroup);
         $manager->persist($stateGroup);
-        
+
         $manager->flush();
     }
 

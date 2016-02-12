@@ -25,21 +25,21 @@ class PermissionController extends BaseController
         if (!$userGroup) {
             throw $this->createNotFoundException();
         }
-        
+
         if ('POST' === $request->getMethod()) {
             $model = $this->jmsDeserialization($request->getContent(), UserGroup::class, ['api-permissions']);
-            
+
             $userGroup->setPermissionsName($model->getPermissionsName());
             $userGroup->setPermissionsAddress($model->getPermissionsAddress());
             $userGroup->setPermissionsEmail($model->getPermissionsEmail());
             $userGroup->setPermissionsPhone($model->getPermissionsPhone());
             $userGroup->setPermissionsResponses($model->getPermissionsResponses());
             $userGroup->setPermissionsApprovedAt(new \DateTime());
-            
+
             $entityManager->persist($userGroup);
             $entityManager->flush($userGroup);
         }
-        
+
         return $this->createJSONResponse($this->jmsSerialization($userGroup, ['api-info', 'api-permissions']));
     }
 }

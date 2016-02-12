@@ -7,7 +7,6 @@ use Doctrine\ORM\EntityManager;
 
 class Settings
 {
-
     const MICROPETITION_EXPIRE_INTERVAL_0 = 'micropetition_expire_interval_0';
     const MICROPETITION_EXPIRE_INTERVAL_1 = 'micropetition_expire_interval_1';
     const MICROPETITION_EXPIRE_INTERVAL_2 = 'micropetition_expire_interval_2';

@@ -5,24 +5,19 @@ namespace Civix\FrontBundle\Controller;
 use Cocur\Slugify\Slugify;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Security\Core\SecurityContext;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\Poll\Question\Group as Question;
-use Civix\CoreBundle\Entity\Activity;
 use Civix\FrontBundle\Form\Type\CropImage;
 use Civix\FrontBundle\Form\Type\Group\Registration;
 use Civix\FrontBundle\Form\Type\Group\Profile;
 use Civix\FrontBundle\Form\Type\Group\Avatar;
-use Civix\FrontBundle\Form\Type\Poll\Question as QuestionType;
-use Civix\FrontBundle\Form\Model\Question as QuestionModel;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Email;
 
 /**
- * Group controller
+ * Group controller.
  *
  * @author Valentin Shevko <valentin.shevko@intellectsoft.org>
  */
@@ -82,7 +77,7 @@ class GroupController extends Controller
             }
         }
 
-        return $this->render('CivixFrontBundle:Group:registration.html.twig', array('form'=>$form->createView()));
+        return $this->render('CivixFrontBundle:Group:registration.html.twig', array('form' => $form->createView()));
     }
 
     /**
@@ -106,7 +101,7 @@ class GroupController extends Controller
         return array(
             'last_username' => $session->get(SecurityContext::LAST_USERNAME),
             'error' => $error,
-            'csrf_token' => $csrfToken
+            'csrf_token' => $csrfToken,
         );
     }
 
@@ -122,8 +117,8 @@ class GroupController extends Controller
         $profileForm = $this->createForm(new Profile(), $group);
 
         return array(
-            'avatarForm'  => $avatarForm->createView(),
-            'profileForm' => $profileForm->createView()
+            'avatarForm' => $avatarForm->createView(),
+            'profileForm' => $profileForm->createView(),
         );
     }
 
@@ -150,7 +145,7 @@ class GroupController extends Controller
 
         return array(
             'avatarForm' => $this->createForm(new Avatar(), $group)->createView(),
-            'profileForm' => $form->createView()
+            'profileForm' => $form->createView(),
         );
     }
 
@@ -169,7 +164,7 @@ class GroupController extends Controller
             $cropImageForm = $this->createForm(new CropImage());
             $group->setAvatar($group->getAvatarSource());
             $this->get('vich_uploader.storage')->upload($group);
-     
+
             /** @var $entityManager \Doctrine\ORM\EntityManager */
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($group);
@@ -177,14 +172,14 @@ class GroupController extends Controller
 
             return $this->render('CivixFrontBundle:Group:cropAvatar.html.twig', array(
                     'avatarForm' => $avatarForm->createView(),
-                    'cropImageForm' => $cropImageForm->createView()
+                    'cropImageForm' => $cropImageForm->createView(),
                 ));
         } else {
             $profileForm = $this->createForm(new Profile(), $group);
 
             return $this->render('CivixFrontBundle:Group:editProfile.html.twig', array(
                     'avatarForm' => $avatarForm->createView(),
-                    'profileForm' => $profileForm->createView()
+                    'profileForm' => $profileForm->createView(),
                 ));
         }
     }
@@ -200,7 +195,7 @@ class GroupController extends Controller
         $cropImageForm = $this->createForm(new CropImage());
         $cropImageForm->bind($this->getRequest());
         $cropData = $cropImageForm->getData();
-      
+
         $this->get('civix_core.crop_avatar')
             ->crop($group, $cropData['x'], $cropData['y'], $cropData['w'], $cropData['h']);
 
@@ -209,7 +204,7 @@ class GroupController extends Controller
         $entityManager->persist($group);
         $entityManager->flush();
         $this->get('civix_core.activity_update')->updateOwnerData($group);
-        
+
         $this->get('session')->getFlashBag()->add('notice', 'Avatar have been successfully saved');
 
         return $this->redirect($this->generateUrl('civix_front_group_edit_profile'));
@@ -222,13 +217,13 @@ class GroupController extends Controller
      */
     public function inviteAction()
     {
-        $inviteForm = $this->createForm(new \Civix\FrontBundle\Form\Type\Group\Invite);
+        $inviteForm = $this->createForm(new \Civix\FrontBundle\Form\Type\Group\Invite());
 
         return array(
             'inviteForm' => $inviteForm->createView(),
         );
     }
-    
+
     /**
      * @Route("/invite/send", name="civix_front_group_send_invite")
      * @Method({"POST"})
@@ -239,7 +234,7 @@ class GroupController extends Controller
         $entityManager = $this->getDoctrine()->getManager();
         $formData = $this->getRequest()->get('invite');
         $emails = array_map('trim', explode(',', $formData['emails']));
-        
+
         $errorList = $this->get('validator')
                 ->validateValue($emails, new All(array(new Email())));
 
@@ -249,20 +244,20 @@ class GroupController extends Controller
                 $badEmails[] = $error->getInvalidValue();
             }
 
-            $inviteForm = $this->createForm(new \Civix\FrontBundle\Form\Type\Group\Invite);
+            $inviteForm = $this->createForm(new \Civix\FrontBundle\Form\Type\Group\Invite());
             $inviteForm->bind($this->getRequest());
-            
+
             $this->get('session')->getFlashBag()
-                ->add('error', 'Not a valid email address: ' . implode(',', $badEmails));
+                ->add('error', 'Not a valid email address: '.implode(',', $badEmails));
 
             return array(
                 'inviteForm' => $inviteForm->createView(),
             );
         }
-        
+
         $packLimitState = $this->container->get('civix_core.package_handler')
             ->getPackageStateForInvites($this->getUser());
-        
+
         if ($packLimitState->isAllowedWith(count($emails))) {
             $invites = $this->container->get('civix_core.invite_sender')
                     ->saveInvites($emails, $this->getUser());
@@ -274,7 +269,6 @@ class GroupController extends Controller
             $this->get('session')->getFlashBag()->add('danger', 'Invites\' limit has been exceeded');
         }
 
-        
         return $this->redirect($this->generateUrl('civix_front_group_invite'));
     }
 }

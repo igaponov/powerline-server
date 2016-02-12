@@ -26,7 +26,7 @@ class AnswerManager
     public function setVisibleAnswersForRecipent(Answer $answer)
     {
         /**
-         * @var \Civix\CoreBundle\Entity\Poll\Question $question
+         * @var \Civix\CoreBundle\Entity\Poll\Question
          */
         $question = $answer->getQuestion();
 
@@ -76,20 +76,20 @@ class AnswerManager
         if ($questionOwner instanceof Group) {
             $userGroup = $this->entityManager->getRepository('CivixCoreBundle:UserGroup')
                 ->isJoinedUser($questionOwner, $user);
-            
+
             if ($userGroup instanceof UserGroup &&
                 $userGroup->getStatus() == UserGroup::STATUS_ACTIVE
             ) {
                 return true;
             }
-            
+
             return false;
         }
 
         if ($questionOwner instanceof Representative) {
             $userDistricts = $user->getDistrictsIds();
 
-            if (array_search($questionOwner->getDistrictId(), $userDistricts)!==false) {
+            if (array_search($questionOwner->getDistrictId(), $userDistricts) !== false) {
                 return true;
             }
 

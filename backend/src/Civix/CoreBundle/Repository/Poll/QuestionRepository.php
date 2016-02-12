@@ -8,17 +8,17 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\Superuser;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Answer;
 
 class QuestionRepository extends EntityRepository
 {
     /**
-     * Find question by ID considering seeking user
+     * Find question by ID considering seeking user.
      *
-     * @param  int   $id
-     * @param  User  $user
+     * @param int  $id
+     * @param User $user
+     *
      * @return array
      */
     public function findAsUser($id, $user)
@@ -73,10 +73,10 @@ class QuestionRepository extends EntityRepository
         $resetTimeDate = new \DateTime($currentDate->format('Y-m-d'));
         $startOfMonth = $resetTimeDate->modify('first day of this month');
 
-        $questionCount =  $this->getEntityManager()
+        $questionCount = $this->getEntityManager()
                 ->createQueryBuilder()
                 ->select('count(q) as questionCount')
-                ->from('CivixCoreBundle:Poll\Question\\' . $type, 'q')
+                ->from('CivixCoreBundle:Poll\Question\\'.$type, 'q')
                 ->where('q.user = :user')
                 ->andWhere('q.publishedAt >= :startOfMonth')
                 ->andWhere('q.publishedAt <= :endOfMonth')
@@ -86,12 +86,12 @@ class QuestionRepository extends EntityRepository
                 ->getQuery()
                 ->getOneOrNullResult();
 
-        return isset($questionCount['questionCount'])?(int) $questionCount['questionCount']:0;
+        return isset($questionCount['questionCount']) ? (int) $questionCount['questionCount'] : 0;
     }
 
     public function getPublishedLeaderNewsQuery(UserInterface $user)
     {
-        $className = ucfirst($user->getType()) . 'News';
+        $className = ucfirst($user->getType()).'News';
 
         return $this->getEntityManager()
             ->createQueryBuilder()
@@ -107,7 +107,7 @@ class QuestionRepository extends EntityRepository
 
     public function getNewLeaderNewsQuery(UserInterface $user)
     {
-        $className = ucfirst($user->getType()) . 'News';
+        $className = ucfirst($user->getType()).'News';
 
         return $this->getEntityManager()
             ->createQueryBuilder()
@@ -221,7 +221,7 @@ class QuestionRepository extends EntityRepository
             ->getQuery()
         ;
     }
-    
+
     public function getPublishedQuestionWithAnswers($id, $questionClass)
     {
         return $this->getEntityManager()
@@ -236,9 +236,10 @@ class QuestionRepository extends EntityRepository
             ->getQuery()->getOneOrNullResult()
         ;
     }
-    
+
     /**
      * @param UserInterface $user
+     *
      * @return string
      */
     private function getPetitionRepositoryName(UserInterface $user)

@@ -17,7 +17,7 @@ class LocalRepresentative extends AbstractType
     }
 
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -34,24 +34,24 @@ class LocalRepresentative extends AbstractType
             'required' => false,
             'query_builder' => function (EntityRepository $er) use ($group) {
                 return $er->getQueryBuilderLocalRepr($group);
-            }
+            },
         ));
     }
 
     /**
-     * Set default form option
+     * Set default form option.
      *
      * @param OptionsResolverInterface $resolver
      */
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Civix\CoreBundle\Entity\Group'
+            'data_class' => 'Civix\CoreBundle\Entity\Group',
         ));
     }
 
     /**
-     * Get unique name for form
+     * Get unique name for form.
      *
      * @return string
      */

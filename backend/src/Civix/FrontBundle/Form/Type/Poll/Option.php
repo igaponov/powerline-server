@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\FrontBundle\Form\Type\Poll;
 
 use Symfony\Component\Form\AbstractType;
@@ -6,12 +7,12 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 /**
- * Option form type
+ * Option form type.
  */
 class Option extends AbstractType
 {
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -21,12 +22,12 @@ class Option extends AbstractType
         $builder->add('value', null, array(
                 'widget_control_group' => false,
                 'label_render' => false,
-                'attr' => array('class' => 'span10 editable-question-option')
+                'attr' => array('class' => 'span10 editable-question-option'),
             ));
     }
 
     /**
-     * Get unique name for form
+     * Get unique name for form.
      *
      * @return string
      */
@@ -36,7 +37,7 @@ class Option extends AbstractType
     }
 
     /**
-     * Set default form option
+     * Set default form option.
      *
      * @param OptionsResolverInterface $resolver
      */

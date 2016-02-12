@@ -20,7 +20,7 @@ class AnswerRepository extends EntityRepository
                 ->setParameter('questionId', $questionId)
                 ->getQuery();
     }
-    
+
     public function getAnswersByInfluence(\Civix\CoreBundle\Entity\User $follower, $questionId)
     {
         return $this->getEntityManager()
@@ -38,7 +38,7 @@ class AnswerRepository extends EntityRepository
                 ->getQuery()
                 ->getResult();
     }
-    
+
     public function getAnswersByNotInfluence($follower, $questionId, $maxResults = 5)
     {
         return $this->getEntityManager()
@@ -77,7 +77,7 @@ class AnswerRepository extends EntityRepository
 
     public function findSignedUsersByPetition(Petition $petition)
     {
-        $answers =  $this->getEntityManager()
+        $answers = $this->getEntityManager()
             ->createQueryBuilder()
             ->select('a, u')
             ->from(Answer::class, 'a')

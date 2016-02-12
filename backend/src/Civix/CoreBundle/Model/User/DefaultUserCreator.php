@@ -8,7 +8,7 @@ use Civix\CoreBundle\Entity\User;
 class DefaultUserCreator implements UserCreatorInterface
 {
     protected $validationGroups;
-    
+
     public function __construct()
     {
         $this->validationGroups = array('registration');

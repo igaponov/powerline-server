@@ -23,30 +23,29 @@ class District
     const NATIONAL_EXEC = 8;
 
     /**
-    * @ORM\Id
-    * @ORM\GeneratedValue(strategy="NONE")
-    * @ORM\Column(type="integer")
-    */
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="NONE")
+     * @ORM\Column(type="integer")
+     */
     private $id;
 
     /**
-    * @var string
-    *
-    * @ORM\Column(name="label", type="string", length=250)
-    */
+     * @var string
+     *
+     * @ORM\Column(name="label", type="string", length=250)
+     */
     private $label;
 
     /**
-    * @var integer
-    *
-    * @ORM\Column(name="district_type", type="integer")
-    */
+     * @var int
+     *
+     * @ORM\Column(name="district_type", type="integer")
+     */
     private $districtType;
 
     /**
-    *
-    * @var Array
-    */
+     * @var array
+     */
     private $districtNames = array(
            self::LOCAL => 'Local',
            self::LOCAL_EXEC => 'Town Council',
@@ -55,12 +54,12 @@ class District
            self::STATE_EXEC => 'Office of the Governor',
            self::NATIONAL_LOWER => 'US House',
            self::NATIONAL_UPPER => 'US Senate',
-           self::NATIONAL_EXEC => 'Office of the President'
+           self::NATIONAL_EXEC => 'Office of the President',
     );
 
     /**
-    * @ORM\ManyToMany(targetEntity="User", mappedBy="districts")
-    */
+     * @ORM\ManyToMany(targetEntity="User", mappedBy="districts")
+     */
     private $users;
 
     public function __construct($id = null, $label = null, $districtType = null)
@@ -72,9 +71,10 @@ class District
     }
 
     /**
-     * Set id
+     * Set id.
      *
-     * @param integer $id
+     * @param int $id
+     *
      * @return District
      */
     public function setId($id)
@@ -85,9 +85,9 @@ class District
     }
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -95,9 +95,10 @@ class District
     }
 
     /**
-     * Set label
+     * Set label.
      *
      * @param string $label
+     *
      * @return District
      */
     public function setLabel($label)
@@ -108,9 +109,9 @@ class District
     }
 
     /**
-     * Get label
+     * Get label.
      *
-     * @return string 
+     * @return string
      */
     public function getLabel()
     {
@@ -118,9 +119,9 @@ class District
     }
 
     /**
-     * Set districtType
+     * Set districtType.
      *
-     * @param integer $districtType
+     * @param int $districtType
      *
      * @return District
      */
@@ -132,9 +133,9 @@ class District
     }
 
     /**
-     * Get districtType
+     * Get districtType.
      *
-     * @return integer
+     * @return int
      */
     public function getDistrictType()
     {
@@ -142,37 +143,38 @@ class District
     }
 
     /**
-     * Get district type name by district type id
+     * Get district type name by district type id.
      *
-     * @return String
+     * @return string
      */
     public function getDistrictTypeName()
     {
         $districtType = $this->getDistrictType();
 
-        return isset($this->districtNames[$districtType])?$this->districtNames[$districtType]:false;
+        return isset($this->districtNames[$districtType]) ? $this->districtNames[$districtType] : false;
     }
 
     public function __toString()
     {
         return (string) $this->getId();
     }
-    
+
     /**
-     * Add users
+     * Add users.
      *
      * @param \Civix\CoreBundle\Entity\User $users
+     *
      * @return District
      */
     public function addUser(\Civix\CoreBundle\Entity\User $users)
     {
         $this->users[] = $users;
-    
+
         return $this;
     }
 
     /**
-     * Remove users
+     * Remove users.
      *
      * @param \Civix\CoreBundle\Entity\User $users
      */
@@ -182,9 +184,9 @@ class District
     }
 
     /**
-     * Get users
+     * Get users.
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getUsers()
     {

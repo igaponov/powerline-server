@@ -22,14 +22,13 @@ class PersonalPaymentAccount extends AbstractType
         return 'personal_payment_account_form';
     }
 
-
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
             'data_class' => 'Civix\FrontBundle\Form\Model\PaymentAccountSettings',
             'validation_groups' => ['personal'],
             'csrf_protection' => true,
-            'csrf_field_name' => '_token'
+            'csrf_field_name' => '_token',
         ));
     }
 }

@@ -12,7 +12,7 @@ class LoadAnswerData extends AbstractFixture implements FixtureInterface
     public function load(ObjectManager $manager)
     {
         $question = $this->getReference('petition1');
-        
+
         $answers = array(
             array(
                 'reference' => 'micropetition-answer1',
@@ -35,19 +35,19 @@ class LoadAnswerData extends AbstractFixture implements FixtureInterface
                 'option' => 2,
             ),
         );
-        
+
         foreach ($answers as $data) {
             $answer = new Answer();
-            
+
             $answer
                 ->setUser($data['user'])
                 ->setOptionId($data['option'])
                 ->setPetition($question);
-            
+
             $this->addReference($data['reference'], $answer);
             $manager->persist($answer);
         }
-        
+
         $manager->flush();
     }
 }

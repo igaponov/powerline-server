@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * User follower
+ * User follower.
  *
  * @ORM\Table(
  *      name="users_follow",
@@ -25,7 +25,7 @@ class UserFollow
     const STATUS_ACTIVE = 1;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -36,7 +36,7 @@ class UserFollow
     private $id;
 
     /**
-     * @var \DateTime $dateCreate
+     * @var \DateTime
      *
      * @ORM\Column(name="date_create", type="datetime")
      * @Serializer\Expose()
@@ -45,7 +45,7 @@ class UserFollow
     private $dateCreate;
 
     /**
-     * @var \DateTime $dateApproval
+     * @var \DateTime
      *
      * @ORM\Column(name="date_approval", type="datetime", nullable=true)
      * @Serializer\Expose()
@@ -70,7 +70,7 @@ class UserFollow
     private $follower;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="status", type="integer")
      * @Serializer\Expose()
@@ -79,9 +79,9 @@ class UserFollow
     private $status;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -89,9 +89,9 @@ class UserFollow
     }
 
     /**
-     * Set status
+     * Set status.
      *
-     * @param integer $status
+     * @param int $status
      *
      * @return UserFollow
      */
@@ -103,9 +103,9 @@ class UserFollow
     }
 
     /**
-     * Get status
+     * Get status.
      *
-     * @return integer
+     * @return int
      */
     public function getStatus()
     {
@@ -113,7 +113,7 @@ class UserFollow
     }
 
     /**
-     * Set date create
+     * Set date create.
      *
      * @param \DateTime $date
      *
@@ -127,7 +127,7 @@ class UserFollow
     }
 
     /**
-     * Get date create
+     * Get date create.
      *
      * @return \DateTime
      */
@@ -137,7 +137,7 @@ class UserFollow
     }
 
     /**
-     * Set date approval
+     * Set date approval.
      *
      * @param \DateTime $date
      *
@@ -151,7 +151,7 @@ class UserFollow
     }
 
     /**
-     * Get date approval
+     * Get date approval.
      *
      * @return \DateTime
      */
@@ -161,7 +161,7 @@ class UserFollow
     }
 
     /**
-     * Set user
+     * Set user.
      *
      * @param \Civix\CoreBundle\Entity\User $user
      *
@@ -175,7 +175,7 @@ class UserFollow
     }
 
     /**
-     * Get user
+     * Get user.
      *
      * @return \Civix\CoreBundle\Entity\User
      */
@@ -185,7 +185,7 @@ class UserFollow
     }
 
     /**
-     * Set follower
+     * Set follower.
      *
      * @param \Civix\CoreBundle\Entity\User $follower
      *
@@ -199,7 +199,7 @@ class UserFollow
     }
 
     /**
-     * Get follower
+     * Get follower.
      *
      * @return \Civix\CoreBundle\Entity\User
      */

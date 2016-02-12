@@ -12,7 +12,7 @@ class LoadInvitesPasscodeGroupData extends AbstractFixture implements FixtureInt
     {
         $user = $this->getReference('user-mobile1');
         $user->addInvite($this->getReference('passcode-group'));
-        
+
         $manager->persist($user);
         $manager->flush();
     }

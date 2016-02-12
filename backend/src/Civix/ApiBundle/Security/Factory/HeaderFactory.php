@@ -11,7 +11,7 @@ class HeaderFactory implements SecurityFactoryInterface
 {
     public function create(ContainerBuilder $container, $id, $config, $userProvider, $defaultEntryPoint)
     {
-        $providerId = 'security.authentication.provider.header.'. $id;
+        $providerId = 'security.authentication.provider.header.'.$id;
         $container
             ->setDefinition($providerId, new DefinitionDecorator('api.security.authentication.provider'))
         ;

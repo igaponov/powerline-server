@@ -1,11 +1,12 @@
 <?php
+
 namespace Civix\FrontBundle\Form\Type\Poll;
 
 use Symfony\Component\Form\FormBuilderInterface;
 use Civix\CoreBundle\Entity\Group;
 
 /**
- * Leader Event info form type
+ * Leader Event info form type.
  */
 class LeaderEventInfoGroup extends LeaderEventInfo
 {
@@ -17,7 +18,7 @@ class LeaderEventInfoGroup extends LeaderEventInfo
     }
 
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -25,14 +26,14 @@ class LeaderEventInfoGroup extends LeaderEventInfo
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         parent::buildForm($builder, $options);
-        
+
         $builder->add('groupSections', 'entity', [
            'label' => false,
            'class' => 'CivixCoreBundle:GroupSection',
            'choices' => $this->group->getGroupSections(),
            'required' => false,
            'expanded' => true,
-           'multiple' => true
+           'multiple' => true,
         ]);
     }
 }

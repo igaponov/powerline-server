@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\CoreBundle\Entity;
 
 interface CheckingLimits

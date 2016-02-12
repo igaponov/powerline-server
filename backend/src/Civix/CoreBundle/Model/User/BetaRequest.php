@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\CoreBundle\Model\User;
 
 use Symfony\Component\Validator\Constraints as Assert;
@@ -32,6 +33,7 @@ class BetaRequest
 
     /**
      * @param string $company
+     *
      * @return self
      */
     public function setCompany($company)
@@ -51,6 +53,7 @@ class BetaRequest
 
     /**
      * @param string $email
+     *
      * @return self
      */
     public function setEmail($email)

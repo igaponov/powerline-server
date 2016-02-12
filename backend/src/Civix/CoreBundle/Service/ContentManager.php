@@ -28,7 +28,7 @@ class ContentManager
         $mentions = Tags::parseMentionTags($content);
 
         foreach ($mentions as $username) {
-            $tag = '@' . $username;
+            $tag = '@'.$username;
             if (!isset($replacements[$tag])) {
                 $user = $this->userRepo->findOneByUsername($username);
                 if ($user) {

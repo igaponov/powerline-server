@@ -7,17 +7,17 @@ use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 
 /**
- * LoadInvitesData
+ * LoadInvitesData.
  */
 class LoadInvitesData extends AbstractFixture implements FixtureInterface
 {
     public function load(ObjectManager $manager)
     {
         $user = $this->getReference('user-mobile1');
-        
+
         $user->addInvite($this->getReference('group-group1'))
             ->addInvite($this->getReference('group-group2'));
-        
+
         $manager->persist($user);
 
         $manager->flush();

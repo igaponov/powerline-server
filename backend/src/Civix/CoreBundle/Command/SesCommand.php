@@ -5,10 +5,9 @@ namespace Civix\CoreBundle\Command;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Aws\Ses\SesClient;
-use \Aws\Ses\Exception\SesException;
+use Aws\Ses\Exception\SesException;
 
 class SesCommand extends ContainerAwareCommand
 {
@@ -36,7 +35,7 @@ class SesCommand extends ContainerAwareCommand
         $params = array(
             'Source' => $this->getContainer()->getParameter('mailer_from'),
             'Destination' => array(
-                'ToAddresses' => array($input->getArgument('email'))
+                'ToAddresses' => array($input->getArgument('email')),
             ),
             'Message' => array(
                 'Subject' => array(
@@ -44,10 +43,10 @@ class SesCommand extends ContainerAwareCommand
                 ),
                 'Body' => array(
                     'Text' => array(
-                        'Data' => $input->getArgument('message')
-                    )
+                        'Data' => $input->getArgument('message'),
+                    ),
                 ),
-            )
+            ),
         );
 
         try {

@@ -9,7 +9,6 @@ use Doctrine\ORM\EntityManager;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
-use Civix\CoreBundle\Entity\Micropetitions\Petition;
 
 class GroupContext extends BehatContext
 {
@@ -29,7 +28,7 @@ class GroupContext extends BehatContext
             if ('RequiredPermissions' === $row['property']) {
                 $row['value'] = explode(',', $row['value']);
             }
-            $method = 'set' . $row['property'];
+            $method = 'set'.$row['property'];
             $group->{$method}($row['value']);
         }
         $em->flush($group);
@@ -72,7 +71,7 @@ class GroupContext extends BehatContext
 
         $this->getMainContext()->callWithData('/api/groups/'.$group->getId().'/permissions', $string);
     }
-    
+
     /**
      * @Given /^There are micropetitions:$/
      */
@@ -92,7 +91,7 @@ class GroupContext extends BehatContext
                 'user_expire_interval' => 7,
                 'type' => $row['type'],
                 'petition_body' => $row['body'],
-                'title' => $row['title']
+                'title' => $row['title'],
             ])));
         }
     }

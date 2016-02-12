@@ -4,25 +4,18 @@ namespace Civix\FrontBundle\Controller;
 
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Security\Core\SecurityContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Civix\FrontBundle\Form\Model\PaymentRequest as PaymentRequestFormModel;
 use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
 use Civix\CoreBundle\Entity\Poll\Question\Petition;
 use Civix\CoreBundle\Entity\Poll\Option;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\Customer\Order\PaymentRequestOrder;
-use Civix\BalancedBundle\Entity\PaymentHistory;
-use Civix\FrontBundle\Form\Type\Order\PRPayoutType;
 use Civix\CoreBundle\Entity\Stripe\Charge;
-use Civix\CoreBundle\Entity\Stripe\Card;
 
 abstract class PaymentRequestController extends Controller
 {
@@ -69,7 +62,7 @@ abstract class PaymentRequestController extends Controller
             'paginationPublished' => $paginationPublished,
             'paginationNew' => $paginationNew,
             'token' => $this->getToken(),
-            'hasPaymentAccount' => $this->get('civix_core.stripe')->hasPayoutAccount($this->getUser())
+            'hasPaymentAccount' => $this->get('civix_core.stripe')->hasPayoutAccount($this->getUser()),
         ];
     }
 
@@ -105,7 +98,6 @@ abstract class PaymentRequestController extends Controller
         ];
     }
 
-
     /**
      * @Route("/new")
      * @Template("CivixFrontBundle:PaymentRequest:new.html.twig")
@@ -114,7 +106,7 @@ abstract class PaymentRequestController extends Controller
     {
         $class = $this->getClassName();
         $formClass = $this->getPaymentRequestFormClass();
-        $paymentRequest = new $class;
+        $paymentRequest = new $class();
         $form = $this->createForm(new $formClass($this->getUser()), new PaymentRequestFormModel($paymentRequest));
 
         if ('POST' === $request->getMethod()) {
@@ -133,7 +125,7 @@ abstract class PaymentRequestController extends Controller
                         $this->get('vich_uploader.storage')->upload($item);
                     }
                     /**
-                     * @var $entity \Civix\CoreBundle\Entity\Poll\EducationalContext
+                     * @var \Civix\CoreBundle\Entity\Poll\EducationalContext
                      */
                     $entity = $item->createEntity();
                     if ($entity) {
@@ -151,7 +143,7 @@ abstract class PaymentRequestController extends Controller
                 if ($request->get('petition')) {
                     return $this->redirect(
                         $this->generateUrl("civix_front_{$this->getUser()->getType()}_paymentrequest_followup", [
-                            'petition' => $request->get('petition')
+                            'petition' => $request->get('petition'),
                         ])
                     );
                 }
@@ -164,7 +156,7 @@ abstract class PaymentRequestController extends Controller
 
         return [
             'form' => $form->createView(),
-            'isShowGroupSection' => $this->isShowGroupSections($paymentRequest)
+            'isShowGroupSection' => $this->isShowGroupSections($paymentRequest),
         ];
     }
 
@@ -197,7 +189,7 @@ abstract class PaymentRequestController extends Controller
                         $this->get('vich_uploader.storage')->upload($item);
                     }
                     /**
-                     * @var $entity \Civix\CoreBundle\Entity\Poll\EducationalContext
+                     * @var \Civix\CoreBundle\Entity\Poll\EducationalContext
                      */
                     $entity = $item->createEntity();
                     if ($entity) {
@@ -220,7 +212,7 @@ abstract class PaymentRequestController extends Controller
         return [
             'form' => $form->createView(),
             'paymentRequest' => $paymentRequest,
-            'isShowGroupSection' => $this->isShowGroupSections($paymentRequest)
+            'isShowGroupSection' => $this->isShowGroupSections($paymentRequest),
         ];
     }
 
@@ -265,7 +257,7 @@ abstract class PaymentRequestController extends Controller
 
         $users = $this->getDoctrine()->getRepository(Answer::class)->findSignedUsersByPetition($petition);
         $amount = $package->getTargetedPetitionFundraisingPrice() * count($users);
-        $form = $this->createForm('form', null, ['label' => ($amount / 100) . '$']);
+        $form = $this->createForm('form', null, ['label' => ($amount / 100).'$']);
 
         if ('POST' === $request->getMethod() && $form->submit($request)->isValid()) {
             if (intval($request->get('user_count')) !== count($users)) {
@@ -279,7 +271,7 @@ abstract class PaymentRequestController extends Controller
 
                     return $this->redirect($this->generateUrl(
                         "civix_front_{$this->getUser()->getType()}_paymentrequest_publishfollowup", [
-                        'id' => $id, 'petition' => $petition->getId()
+                        'id' => $id, 'petition' => $petition->getId(),
                     ]));
                 }
 
@@ -349,12 +341,12 @@ abstract class PaymentRequestController extends Controller
             ->getRepository(Charge::class)
             ->getAmountForPaymentRequest($paymentRequest->getId());
 
-
         return ['amount' => $amount];
     }
 
     /**
      * @param $id
+     *
      * @return PaymentRequest
      */
     protected function getPaymentRequest($id)
@@ -369,7 +361,7 @@ abstract class PaymentRequestController extends Controller
 
     protected function getClassName()
     {
-        $className = ucfirst($this->getUser()->getType()) . 'PaymentRequest';
+        $className = ucfirst($this->getUser()->getType()).'PaymentRequest';
 
         return "Civix\\CoreBundle\\Entity\\Poll\\Question\\{$className}";
     }

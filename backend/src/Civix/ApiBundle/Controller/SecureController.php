@@ -2,7 +2,6 @@
 
 namespace Civix\ApiBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -12,7 +11,6 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\DeferredInvites;
 use Civix\CoreBundle\Model\User\UserCreator;
-use Civix\CoreBundle\Model\User\ChangePassword;
 use Civix\CoreBundle\Model\User\BetaRequest;
 
 /**
@@ -42,7 +40,7 @@ class SecureController extends BaseController
     {
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('CivixCoreBundle:User')->findOneBy(array(
-            'username' => $request->get('username')
+            'username' => $request->get('username'),
         ));
 
         if (!$user) {
@@ -60,7 +58,7 @@ class SecureController extends BaseController
 
             return $response;
         }
-        
+
         throw new \Symfony\Component\HttpKernel\Exception\HttpException(400);
     }
 
@@ -152,7 +150,7 @@ class SecureController extends BaseController
 
         $userCreator = UserCreator::createUserFromRequest($request);
         $user = $userCreator->create($request);
-        
+
         //registration from facebook (from website)
         if (is_null($validatorGroups)) {
             $validatorGroups = $userCreator->getValidationGroups();
@@ -257,7 +255,7 @@ class SecureController extends BaseController
         if (!$isTokenCorrect) {
             throw new \Symfony\Component\HttpKernel\Exception\HttpException(400);
         }
-        
+
         $user = $this->getDoctrine()->getManager()
             ->getRepository('CivixCoreBundle:User')
             ->getUserByFacebookId($request->get('facebook_id'));
@@ -288,21 +286,20 @@ class SecureController extends BaseController
     {
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('CivixCoreBundle:User')->findOneBy(array(
-            'email' => $request->get('email')
+            'email' => $request->get('email'),
         ));
         if (!$user) {
             throw new \Symfony\Component\HttpKernel\Exception\HttpException(404);
         }
-        
+
         $response = new Response();
         $response->headers->set('Content-Type', 'application/json');
 
         //check reset expiration
         if (!$this->get('civix_core.user_manager')->checkResetInterval($user)) {
-            $response->setStatusCode(400)->setContent(json_encode(array('errors' =>
-                array(array(
-                    'message' => 'The password for this user has already been requested within the last 24 hours.'
-                    )
+            $response->setStatusCode(400)->setContent(json_encode(array('errors' => array(array(
+                    'message' => 'The password for this user has already been requested within the last 24 hours.',
+                    ),
                 )))
             );
 
@@ -315,16 +312,16 @@ class SecureController extends BaseController
         $user->setResetPasswordAt(new \DateTime());
         $em->persist($user);
         $em->flush($user);
-        
+
         //send mail
         $this->get('civix_core.email_sender')->sendResetPasswordEmail(
             $user->getEmail(),
             array(
                 'name' => $user->getOfficialName(),
-                'link' => $this->getWebDomain() . '/#/reset-password/'. $resetPasswordToken
+                'link' => $this->getWebDomain().'/#/reset-password/'.$resetPasswordToken,
             )
         );
-        $response->setContent(json_encode(array('status'=>'ok')))->setStatusCode(200);
+        $response->setContent(json_encode(array('status' => 'ok')))->setStatusCode(200);
 
         return $response;
     }
@@ -351,7 +348,7 @@ class SecureController extends BaseController
 
         $response = new Response();
         $response->headers->set('Content-Type', 'application/json');
-        $response->setContent(json_encode(array('status'=>'ok')))->setStatusCode(200);
+        $response->setContent(json_encode(array('status' => 'ok')))->setStatusCode(200);
 
         return $response;
     }
@@ -400,8 +397,8 @@ class SecureController extends BaseController
             $user->setResetPasswordAt(null);
             $em->persist($user);
             $em->flush();
-            
-            $response->setContent(json_encode(array('status'=>'ok')))->setStatusCode(200);
+
+            $response->setContent(json_encode(array('status' => 'ok')))->setStatusCode(200);
 
             return $response;
         }
@@ -444,7 +441,7 @@ class SecureController extends BaseController
             throw new \Symfony\Component\HttpKernel\Exception\HttpException(404);
         }
         $user = $this->getDoctrine()->getManager()->getRepository('CivixCoreBundle:User')->findOneBy(array(
-            'resetPasswordToken' => $token
+            'resetPasswordToken' => $token,
         ));
         if (!$user) {
             throw new \Symfony\Component\HttpKernel\Exception\HttpException(404);
@@ -458,6 +455,6 @@ class SecureController extends BaseController
         $request = $this->getRequest();
         $host = $request->getHttpHost();
 
-        return $request->getScheme() . '://' .  str_replace('api.', '', $host);
+        return $request->getScheme().'://'.str_replace('api.', '', $host);
     }
 }

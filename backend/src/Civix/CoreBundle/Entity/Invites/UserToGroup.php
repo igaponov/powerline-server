@@ -39,6 +39,7 @@ class UserToGroup extends BaseInvite
 
     /**
      * @param \Civix\CoreBundle\Entity\Group $group
+     *
      * @return $this
      */
     public function setGroup(Group $group = null)
@@ -58,6 +59,7 @@ class UserToGroup extends BaseInvite
 
     /**
      * @param \Civix\CoreBundle\Entity\User $inviter
+     *
      * @return $this
      */
     public function setInviter($inviter)

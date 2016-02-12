@@ -22,7 +22,6 @@ class OwnerData
 
     private $avatarFileName;
 
-
     public function __construct($data)
     {
         if (empty($data)) {
@@ -44,6 +43,7 @@ class OwnerData
 
     /**
      * @param array $data
+     *
      * @return $this
      */
     public function setData($data)
@@ -63,6 +63,7 @@ class OwnerData
 
     /**
      * @param mixed $avatar
+     *
      * @return $this
      */
     public function setAvatar($avatar)
@@ -82,6 +83,7 @@ class OwnerData
 
     /**
      * @param mixed $avatarFileName
+     *
      * @return $this
      */
     public function setAvatarFileName($avatarFileName)
@@ -94,7 +96,7 @@ class OwnerData
     public function getDefaultAvatar()
     {
         if (!empty($this->data['type'])) {
-            $method = 'getDefaultAvatarFor' . $this->data['type'];
+            $method = 'getDefaultAvatarFor'.$this->data['type'];
             if (method_exists($this, $method)) {
                 return $this->$method();
             }

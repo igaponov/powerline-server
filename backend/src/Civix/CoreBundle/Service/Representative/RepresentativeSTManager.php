@@ -10,7 +10,7 @@ class RepresentativeSTManager
     private $entityManager;
     private $ciceroService;
     private $ciceroStorageService;
-    
+
     public function __construct(
         \Doctrine\ORM\EntityManager $entityManager,
         \Civix\CoreBundle\Service\CiceroApi $ciceroStorageService,
@@ -25,7 +25,8 @@ class RepresentativeSTManager
      * Synchronize $storageRepresentative with Cicero representative.
      * 
      * @param \Civix\CoreBundle\Entity\RepresentativeStorage $storageRepresentative
-     * @return boolean
+     *
+     * @return bool
      */
     public function synchronizeRepresentative(RepresentativeStorage $storageRepresentative)
     {
@@ -59,7 +60,7 @@ class RepresentativeSTManager
             }
             $this->entityManager->remove($storageRepresentative);
             $this->entityManager->flush($storageRepresentative);
-            
+
             return false;
         }
 

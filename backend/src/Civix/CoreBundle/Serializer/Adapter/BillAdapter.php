@@ -47,6 +47,6 @@ class BillAdapter
             return $this->billObj->sources[0]->url;
         }
 
-        return null;
+        return;
     }
 }

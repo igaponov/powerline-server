@@ -9,8 +9,7 @@ use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\User;
 
 /**
- * RepresentativeRepository
- *
+ * RepresentativeRepository.
  */
 class RepresentativeRepository extends EntityRepository
 {
@@ -174,9 +173,9 @@ class RepresentativeRepository extends EntityRepository
             ->leftJoin('rs.district', 'd')
             ->where($qb->expr()->in('rs.district', $userDistrictIds ? $userDistrictIds : array(0)))
             ->andWhere($qb->expr()->orX(
-                $qb->expr()->like('rs.officialTitle', $qb->expr()->literal('%' . $query . '%')),
-                $qb->expr()->like('rs.firstName', $qb->expr()->literal('%' . $query . '%')),
-                $qb->expr()->like('rs.lastName', $qb->expr()->literal('%' . $query . '%'))
+                $qb->expr()->like('rs.officialTitle', $qb->expr()->literal('%'.$query.'%')),
+                $qb->expr()->like('rs.firstName', $qb->expr()->literal('%'.$query.'%')),
+                $qb->expr()->like('rs.lastName', $qb->expr()->literal('%'.$query.'%'))
             ))
             ->orderBy('d.districtType')
             ->getQuery()->getResult()
@@ -189,9 +188,9 @@ class RepresentativeRepository extends EntityRepository
             ->where($qb->expr()->in('r.district', $userDistrictIds ? $userDistrictIds : array(0)))
             ->andWhere('r.isNonLegislative = 1')
             ->andWhere($qb->expr()->orX(
-                $qb->expr()->like('r.officialTitle', $qb->expr()->literal('%' . $query . '%')),
-                $qb->expr()->like('r.firstName', $qb->expr()->literal('%' . $query . '%')),
-                $qb->expr()->like('r.lastName', $qb->expr()->literal('%' . $query . '%'))
+                $qb->expr()->like('r.officialTitle', $qb->expr()->literal('%'.$query.'%')),
+                $qb->expr()->like('r.firstName', $qb->expr()->literal('%'.$query.'%')),
+                $qb->expr()->like('r.lastName', $qb->expr()->literal('%'.$query.'%'))
             ))
             ->orderBy('d.districtType')
             ->getQuery()->getResult()

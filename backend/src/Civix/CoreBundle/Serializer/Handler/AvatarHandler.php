@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\CoreBundle\Serializer\Handler;
 
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
@@ -25,23 +26,23 @@ class AvatarHandler implements SubscribingHandlerInterface
 
     public function serialize(JsonSerializationVisitor $visitor, Avatar $avatar, array $type)
     {
-        $scheme = $this->serviceRequest->getScheme() . '://' . $this->serviceRequest->getHttpHost();
+        $scheme = $this->serviceRequest->getScheme().'://'.$this->serviceRequest->getHttpHost();
 
         if (!$avatar->isPrivacy()) {
             if ($avatar->getEntity()->getAvatar()) {
                 return $this->serviceVich->asset($avatar->getEntity(), 'avatar');
             } else {
-                return $scheme . $avatar->getEntity()->getDefaultAvatar();
+                return $scheme.$avatar->getEntity()->getDefaultAvatar();
             }
         }
 
-        return $scheme . \Civix\CoreBundle\Entity\User::SOMEONE_AVATAR;
+        return $scheme.\Civix\CoreBundle\Entity\User::SOMEONE_AVATAR;
     }
 
     /**
      * @param JsonDeserializationVisitor $visitor
      * @param $avatar
-     * @param array       $type
+     * @param array $type
      * 
      * @return string|null return base64 string or null
      */

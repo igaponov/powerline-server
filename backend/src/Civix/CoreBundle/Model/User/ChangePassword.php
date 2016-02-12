@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\CoreBundle\Model\User;
 
 use Symfony\Component\Validator\Constraints as Assert;
@@ -34,7 +35,7 @@ class ChangePassword
 
         return $this;
     }
-    
+
     public function getPasswordConfim()
     {
         return $this->passwordConfirm;

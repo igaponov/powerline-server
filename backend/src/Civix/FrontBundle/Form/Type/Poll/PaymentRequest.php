@@ -1,23 +1,23 @@
 <?php
+
 namespace Civix\FrontBundle\Form\Type\Poll;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Civix\FrontBundle\Form\Type\Poll\EducationalContext;
 
 class PaymentRequest extends AbstractType
 {
     protected $user;
-    
+
     public function __construct(UserInterface $user = null)
     {
         $this->user = $user;
     }
 
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -29,7 +29,7 @@ class PaymentRequest extends AbstractType
     }
 
     /**
-     * Get unique name for form
+     * Get unique name for form.
      *
      * @return string
      */
@@ -39,7 +39,7 @@ class PaymentRequest extends AbstractType
     }
 
     /**
-     * Set default form option
+     * Set default form option.
      *
      * @param OptionsResolverInterface $resolver
      */
@@ -49,7 +49,7 @@ class PaymentRequest extends AbstractType
             'data_class' => 'Civix\FrontBundle\Form\Model\PaymentRequest',
             'csrf_protection' => true,
             'csrf_field_name' => '_token',
-            'validation_groups' => ['payment-manage']
+            'validation_groups' => ['payment-manage'],
         ]);
     }
 }

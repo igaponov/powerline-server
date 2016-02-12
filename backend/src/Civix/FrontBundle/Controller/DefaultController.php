@@ -7,7 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
 /**
- * Controller for index page
+ * Controller for index page.
  */
 class DefaultController extends Controller
 {
@@ -48,9 +48,9 @@ class DefaultController extends Controller
                     'group' => 'civix_front_group_membership',
                     'representative' => 'civix_front_representative_paymentsettings_index',
                     'superuser' => 'civix_front_superuser_settings_states',
-                ]
+                ],
             ],
-            'logoutPath' => $logoutPath
+            'logoutPath' => $logoutPath,
         ];
     }
 }

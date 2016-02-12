@@ -24,7 +24,7 @@ class SettingsController extends Controller
     public function statesListAction(Request $request)
     {
         $settingsForm = $this->createForm(new SettingsType(), new CoreSettings($this->get('civix_core.settings')));
-        $query =  $this->getDoctrine()
+        $query = $this->getDoctrine()
             ->getRepository('CivixCoreBundle:State')
             ->getStatesWithSTRepresentative();
 
@@ -39,6 +39,7 @@ class SettingsController extends Controller
             if ($settingsForm->submit($request)->isValid()) {
                 $settingsForm->getData()->save();
                 $this->get('session')->getFlashBag()->add('notice', 'The settings have been updated.');
+
                 return $this->redirect($this->generateUrl('civix_front_superuser_settings_states'));
             }
         }
@@ -48,7 +49,7 @@ class SettingsController extends Controller
             'settingsForm' => $settingsForm->createView(),
         ];
     }
-    
+
     /**
      * @Route("/states/{state}", name="civix_front_superuser_settings_states_update")
      * @Method({"POST"})
@@ -57,9 +58,9 @@ class SettingsController extends Controller
     public function statesUpdateAction(State $state)
     {
         $csrfProvider = $this->get('form.csrf_provider');
-        
+
         if ($csrfProvider->isCsrfTokenValid(
-            'state_repr_update_' . $state->getCode(), $this->getRequest()->get('_token')
+            'state_repr_update_'.$state->getCode(), $this->getRequest()->get('_token')
         )) {
             $this->get('civix_core.queue_task')
                 ->addToQueue(

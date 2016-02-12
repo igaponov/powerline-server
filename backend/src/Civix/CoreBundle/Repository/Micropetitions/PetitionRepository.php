@@ -13,7 +13,7 @@ class PetitionRepository extends EntityRepository
     public function getMyGroupsMicropitions(User $user)
     {
         $entityManager = $this->getEntityManager();
-        
+
         $activeGroups = $entityManager
             ->getRepository('CivixCoreBundle:UserGroup')
             ->getSubQueryGroupByJoinStatus()
@@ -30,7 +30,7 @@ class PetitionRepository extends EntityRepository
                 ->where('p.expireAt >= :currentDate')
                 ->andWhere('p.group IN (:userGroups)')
                 ->setParameter('currentDate', new \DateTime())
-                ->setParameter('userGroups', empty($activeGroups)?0:$activeGroups)
+                ->setParameter('userGroups', empty($activeGroups) ? 0 : $activeGroups)
                 ->getQuery()
                 ->getResult();
     }
@@ -60,7 +60,7 @@ class PetitionRepository extends EntityRepository
         $resetTimeDate = new \DateTime($currentDate->format('Y-m-d'));
         $startOfMonth = $resetTimeDate->modify('first day of this month');
 
-        $petitionCount =  $this->getEntityManager()
+        $petitionCount = $this->getEntityManager()
                 ->createQueryBuilder()
                 ->select('count(p) as petitionCount')
                 ->from('CivixCoreBundle:Micropetitions\Petition', 'p')
@@ -75,7 +75,7 @@ class PetitionRepository extends EntityRepository
                 ->getQuery()
                 ->getOneOrNullResult();
 
-        return isset($petitionCount['petitionCount'])?(int) $petitionCount['petitionCount']:0;
+        return isset($petitionCount['petitionCount']) ? (int) $petitionCount['petitionCount'] : 0;
     }
 
     public function getPetitionForUser($petitionId, User $user)

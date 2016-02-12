@@ -24,19 +24,19 @@ class AnswerModelConverter implements ParamConverterInterface
         if (!$configuration->getName()) {
             return false;
         }
-        
+
         if (!($options = $configuration->getOptions())) {
             return false;
         }
-        
+
         if (!isset($options['entityId']) || !isset($options['typeEntity'])) {
             return false;
         }
-        
+
         if (!$configuration->getClass()) {
             return false;
         }
- 
+
         return $configuration->getClass() === 'Civix\CoreBundle\Model\Answer\AnswerModelInterface';
     }
 
@@ -54,11 +54,11 @@ class AnswerModelConverter implements ParamConverterInterface
         $entityForAnswer = $this->entityManager
             ->getRepository($answerModel->getPollClass())
             ->findOneById($entityId);
-        
+
         if (!$entityForAnswer) {
             throw new NotFoundHttpException('Not found');
         }
-        
+
         $answerModel->setPollEntity($entityForAnswer);
 
         $request->attributes->set($configuration->getName(), $answerModel);

@@ -7,7 +7,6 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Entity\Invites\UserToGroup;
 use Doctrine\ORM\EntityManager;
-use Civix\CoreBundle\Model\Geocode\AddressComponent;
 use Civix\CoreBundle\Service\Google\Geocode;
 
 class GroupManager
@@ -23,7 +22,7 @@ class GroupManager
     private $geocode;
 
     private $permissionPriority = [
-        'permissions_name', 'permissions_address', 'permissions_email', 'permissions_phone', 'permissions_responses'
+        'permissions_name', 'permissions_address', 'permissions_email', 'permissions_phone', 'permissions_responses',
     ];
 
     public function __construct(EntityManager $entityManager, Geocode $geocode)
@@ -73,29 +72,29 @@ class GroupManager
     }
 
     /**
-     * Check if $group not fixed (may to join and unjoin without limiations)
+     * Check if $group not fixed (may to join and unjoin without limiations).
      * 
      * @param \Civix\CoreBundle\Entity\Group $group
      * 
-     * @return boolean
+     * @return bool
      */
     public function isCommonGroup(Group $group)
     {
-        return ($group->getGroupType() === Group::GROUP_TYPE_COMMON);
+        return $group->getGroupType() === Group::GROUP_TYPE_COMMON;
     }
 
-     /**
-     * Check if $group private (need passcode) and not invited user
+    /**
+     * Check if $group private (need passcode) and not invited user.
      * 
      * @param \Civix\CoreBundle\Entity\Group $group
      * 
-     * @return boolean
+     * @return bool
      */
     public function isNeedCheckPasscode(Group $group, User $user)
     {
-        return ($group->getMembershipControl() === Group::GROUP_MEMBERSHIP_PASSCODE &&
+        return $group->getMembershipControl() === Group::GROUP_MEMBERSHIP_PASSCODE &&
             !$user->getInvites()->contains($group)
-        );
+        ;
     }
 
     public function autoJoinUser(User $user)
@@ -152,10 +151,10 @@ class GroupManager
     {
         $oldSumPriorityValue = 0;
         $newSumPriorityValue = 0;
-        
+
         $previousPermissions = $oldGroup->getRequiredPermissions();
         $newPermissions = $newGroup->getRequiredPermissions();
-        
+
         foreach ($this->permissionPriority as $priority => $key) {
             $oldSumPriorityValue += $this->calcPriorityValue(
                 $previousPermissions, $key, $priority
@@ -184,6 +183,6 @@ class GroupManager
 
     private function calcPriorityValue($permissions, $key, $priority)
     {
-        return (array_search($key, $permissions)!==false?1:0) * pow(10, $priority);
+        return (array_search($key, $permissions) !== false ? 1 : 0) * pow(10, $priority);
     }
 }

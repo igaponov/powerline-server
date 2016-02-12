@@ -4,7 +4,6 @@ namespace Civix\CoreBundle\Entity\Customer;
 
 use Doctrine\ORM\Mapping as ORM;
 use Civix\CoreBundle\Entity\Representative;
-use Civix\CoreBundle\Entity\Customer\Customer;
 
 /**
  * @ORM\Entity
@@ -18,7 +17,7 @@ class CustomerRepresentative extends Customer
     private $user;
 
     /**
-     * Get user
+     * Get user.
      *
      * @return \Civix\CoreBundle\Entity\Representative
      */
@@ -30,7 +29,7 @@ class CustomerRepresentative extends Customer
     public function setUser(Representative $user = null)
     {
         $this->user = $user;
-        
+
         return $this;
     }
 

@@ -23,6 +23,7 @@ class BalancedPaymentCalls
 
     /**
      * @param $url
+     *
      * @return \Balanced\Customer
      */
     public function getCustomer($url)
@@ -47,6 +48,7 @@ class BalancedPaymentCalls
 
     /**
      * @param $uri
+     *
      * @return \Balanced\BankAccount
      */
     public function getBankAccount($uri)
@@ -72,6 +74,7 @@ class BalancedPaymentCalls
 
     /**
      * @param $uri
+     *
      * @return \Balanced\Card
      */
     public function getCard($uri)
@@ -91,7 +94,7 @@ class BalancedPaymentCalls
 
         return $card->debit($amount, $appearsOnStatement, $description, $meta);
     }
-    
+
     public function getDebit($uri)
     {
         return \Balanced\Debit::get($uri);
@@ -104,6 +107,7 @@ class BalancedPaymentCalls
 
     /**
      * @param $uri
+     *
      * @return \Balanced\Order
      */
     public function getOrder($uri)

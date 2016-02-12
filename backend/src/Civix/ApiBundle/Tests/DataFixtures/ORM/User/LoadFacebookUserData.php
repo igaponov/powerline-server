@@ -18,14 +18,14 @@ class LoadFacebookUserData extends AbstractFixture implements FixtureInterface
 
         foreach ($users as $key => $data) {
             $user = new User();
-            
+
             $user->setUsername($data['username'])
-                ->setEmail($data['username'] . '@example.com')
+                ->setEmail($data['username'].'@example.com')
                 ->setPassword('fakepassword')
-                ->setFacebookId('1000000000'. $key);
+                ->setFacebookId('1000000000'.$key);
 
             $this->addReference('user-'.$data['username'], $user);
-            
+
             $manager->persist($user);
         }
 

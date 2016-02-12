@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Setting
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -49,6 +49,7 @@ class Setting
 
     /**
      * @param int $id
+     *
      * @return $this
      */
     public function setId($id)
@@ -68,6 +69,7 @@ class Setting
 
     /**
      * @param string $key
+     *
      * @return $this
      */
     public function setKey($key)
@@ -87,6 +89,7 @@ class Setting
 
     /**
      * @param string $value
+     *
      * @return $this
      */
     public function setValue($value)

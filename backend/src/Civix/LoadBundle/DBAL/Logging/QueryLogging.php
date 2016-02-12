@@ -7,7 +7,7 @@ use Doctrine\DBAL\Logging\SQLLogger;
 class QueryLogging implements SQLLogger
 {
     private $fileHandle;
-    
+
     public function __construct($fileName)
     {
         $this->fileHandle = fopen($fileName, 'w');
@@ -18,8 +18,8 @@ class QueryLogging implements SQLLogger
         fwrite($this->fileHandle, serialize(array(
             'sql' => $sql,
             'params' => $params,
-            'types' => $types
-        )) . "\n");
+            'types' => $types,
+        ))."\n");
     }
 
     public function stopQuery()

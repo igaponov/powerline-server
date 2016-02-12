@@ -10,8 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Civix\CoreBundle\Entity\State;
 
 /**
- * Load state data
- *
+ * Load state data.
  */
 class LoadStateData implements FixtureInterface, OrderedFixtureInterface, ContainerAwareInterface
 {

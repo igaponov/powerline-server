@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 
 /**
- * Group event entity
+ * Group event entity.
  *
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Poll\LeaderEventRepository")
  * @Serializer\ExclusionPolicy("all")
@@ -31,9 +31,10 @@ class GroupEvent extends LeaderEvent implements GroupSectionInterface
     }
 
     /**
-     * Set user
+     * Set user.
      *
-     * @param  \Civix\CoreBundle\Entity\Group $user
+     * @param \Civix\CoreBundle\Entity\Group $user
+     *
      * @return Group
      */
     public function setUser(\Civix\CoreBundle\Entity\Group $user = null)
@@ -44,7 +45,7 @@ class GroupEvent extends LeaderEvent implements GroupSectionInterface
     }
 
     /**
-     * Get user
+     * Get user.
      *
      * @return \Civix\CoreBundle\Entity\Group
      */

@@ -8,14 +8,14 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Civix\CoreBundle\Entity\Poll\Answer;
 
 /**
- * LoadAnswerData
+ * LoadAnswerData.
  */
 class LoadAnswerData extends AbstractFixture implements FixtureInterface
 {
     public function load(ObjectManager $manager)
     {
         $question = $this->getReference('question1');
-        
+
         $answers = array(
             array(
                 'reference' => 'answer1',
@@ -46,20 +46,20 @@ class LoadAnswerData extends AbstractFixture implements FixtureInterface
                 'option' => $this->getReference('option-option1'),
             ),
         );
-        
+
         foreach ($answers as $data) {
             $answer = new Answer();
-            
+
             $answer->setComment($data['comment'])
                 ->setPrivacy($data['privacy'])
                 ->setUser($data['user'])
                 ->setOption($data['option'])
                 ->setQuestion($question);
-            
+
             $this->addReference($data['reference'], $answer);
             $manager->persist($answer);
         }
-        
+
         $manager->flush();
     }
 }

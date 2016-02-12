@@ -12,7 +12,7 @@ use Civix\CoreBundle\Serializer\Type\Image;
 use Civix\CoreBundle\Entity\Representative;
 
 /**
- * Question entity
+ * Question entity.
  *
  * @ORM\Table(name="poll_questions")
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Poll\QuestionRepository")
@@ -40,7 +40,7 @@ use Civix\CoreBundle\Entity\Representative;
 abstract class Question
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -101,7 +101,7 @@ abstract class Question
     private $educationalContext;
 
     /**
-     * @var \DateTime $createdAt
+     * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      * @Serializer\Expose()
@@ -111,14 +111,14 @@ abstract class Question
     private $createdAt;
 
     /**
-     * @var \DateTime $updatedAt
+     * @var \DateTime
      *
      * @ORM\Column(name="updated_at", type="datetime")
      */
     private $updatedAt;
 
     /**
-     * @var \DateTime $expireAt
+     * @var \DateTime
      *
      * @ORM\Column(name="expire_at", type="datetime", nullable=true)
      * @Serializer\Expose()
@@ -128,7 +128,7 @@ abstract class Question
     private $expireAt;
 
     /**
-     * @var \DateTime $publishedAt
+     * @var \DateTime
      *
      * @ORM\Column(name="published_at", type="datetime", nullable=true)
      * @Serializer\Expose()
@@ -157,9 +157,8 @@ abstract class Question
     private $reportRecipient;
 
     /**
-     * @var String
+     * @var string
      * @ORM\Column(name="report_recipient_group", type="string", nullable=true)
-     *
      */
     private $reportRecipientGroup;
 
@@ -168,7 +167,7 @@ abstract class Question
      * @Serializer\Expose()
      * @Serializer\Groups({"api-activities", "api-poll"})
      *
-     * @var integer
+     * @var int
      */
     protected $answersCount;
 
@@ -184,7 +183,7 @@ abstract class Question
      *          @ORM\JoinColumn(name="representative_id", referencedColumnName="id", onDelete="CASCADE")
      *      }
      * )
-    */
+     */
     private $recipients;
 
     /**
@@ -211,7 +210,7 @@ abstract class Question
     protected $groupSections;
 
     /**
-     * Constructor
+     * Constructor.
      */
     public function __construct()
     {
@@ -229,7 +228,7 @@ abstract class Question
 
     /**
      * Return true if question answered
-     * Can be used when question fetch by findAsUser() method
+     * Can be used when question fetch by findAsUser() method.
      *
      * @return bool
      */
@@ -239,7 +238,7 @@ abstract class Question
     }
 
     /**
-     * Can be used when question fetch by findAsUser() method
+     * Can be used when question fetch by findAsUser() method.
      *
      * @Serializer\Groups({"api-poll"})
      * @Serializer\VirtualProperty
@@ -251,9 +250,9 @@ abstract class Question
     }
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -261,7 +260,7 @@ abstract class Question
     }
 
     /**
-     * Set subject
+     * Set subject.
      *
      * @param string $subject
      *
@@ -275,7 +274,7 @@ abstract class Question
     }
 
     /**
-     * Get subject
+     * Get subject.
      *
      * @return string
      */
@@ -293,7 +292,7 @@ abstract class Question
     }
 
     /**
-     * Set createdAt
+     * Set createdAt.
      *
      * @param \DateTime $createdAt
      *
@@ -307,7 +306,7 @@ abstract class Question
     }
 
     /**
-     * Get createdAt
+     * Get createdAt.
      *
      * @return \DateTime
      */
@@ -326,7 +325,7 @@ abstract class Question
     }
 
     /**
-     * Set updatedAt
+     * Set updatedAt.
      *
      * @param \DateTime $updatedAt
      *
@@ -340,7 +339,7 @@ abstract class Question
     }
 
     /**
-     * Get updatedAt
+     * Get updatedAt.
      *
      * @return \DateTime
      */
@@ -350,7 +349,7 @@ abstract class Question
     }
 
     /**
-     * Set publishedAt
+     * Set publishedAt.
      *
      * @param \DateTime $publishedAt
      *
@@ -364,7 +363,7 @@ abstract class Question
     }
 
     /**
-     * Get publishedAt
+     * Get publishedAt.
      *
      * @return \DateTime
      */
@@ -383,6 +382,7 @@ abstract class Question
 
     /**
      * @param \DateTime $expireAt
+     *
      * @return $this
      */
     public function setExpireAt(\DateTime $expireAt)
@@ -393,9 +393,9 @@ abstract class Question
     }
 
     /**
-     * Set answers_count
+     * Set answers_count.
      *
-     * @param integer $answersCount
+     * @param int $answersCount
      *
      * @return Question
      */
@@ -407,9 +407,9 @@ abstract class Question
     }
 
     /**
-     * Get answers_count
+     * Get answers_count.
      *
-     * @return integer
+     * @return int
      */
     public function getAnswersCount()
     {
@@ -417,7 +417,7 @@ abstract class Question
     }
 
     /**
-     * Add options
+     * Add options.
      *
      * @param Option $options
      *
@@ -433,7 +433,7 @@ abstract class Question
     }
 
     /**
-     * Remove options
+     * Remove options.
      *
      * @param Option $options
      */
@@ -443,7 +443,7 @@ abstract class Question
     }
 
     /**
-     * Get options
+     * Get options.
      *
      * @return \Doctrine\Common\Collections\Collection
      */
@@ -453,7 +453,7 @@ abstract class Question
     }
 
     /**
-     * Get educationalContext
+     * Get educationalContext.
      *
      * @return \Doctrine\Common\Collections\ArrayCollection
      */
@@ -463,7 +463,7 @@ abstract class Question
     }
 
     /**
-     * Add educationalText
+     * Add educationalText.
      *
      * @return Question
      */
@@ -475,7 +475,7 @@ abstract class Question
     }
 
     /**
-     * Remove educationalText
+     * Remove educationalText.
      */
     public function removeEducationalText(\Civix\CoreBundle\Entity\Poll\EducationalContext $educationalContext)
     {
@@ -483,7 +483,7 @@ abstract class Question
     }
 
     /**
-     * hotfix: detach education context item for form update
+     * hotfix: detach education context item for form update.
      */
     public function clearEducationalContext()
     {
@@ -494,9 +494,10 @@ abstract class Question
     }
 
     /**
-     * Add answers
+     * Add answers.
      *
-     * @param  \Civix\CoreBundle\Entity\Poll\Answer $answers
+     * @param \Civix\CoreBundle\Entity\Poll\Answer $answers
+     *
      * @return Question
      */
     public function addAnswer(\Civix\CoreBundle\Entity\Poll\Answer $answers)
@@ -507,7 +508,7 @@ abstract class Question
     }
 
     /**
-     * Remove answers
+     * Remove answers.
      *
      * @param \Civix\CoreBundle\Entity\Poll\Answer $answers
      */
@@ -517,7 +518,7 @@ abstract class Question
     }
 
     /**
-     * Get answers
+     * Get answers.
      *
      * @return \Doctrine\Common\Collections\Collection
      */
@@ -556,9 +557,9 @@ abstract class Question
             /* @var $option  \Civix\CoreBundle\Entity\Poll\Option */
             $stat = array(
                 'option' => $option,
-                'percent_answer'  => $sum > 0 ? round($option->getAnswers()->count() / $sum * 100) : 0,
+                'percent_answer' => $sum > 0 ? round($option->getAnswers()->count() / $sum * 100) : 0,
                 'percent_width' => $max > 0 ? round($option->getAnswers()->count() / $max * 100) : 0,
-                'color' => current($colors)
+                'color' => current($colors),
             );
 
             if (1 > $stat['percent_width']) {
@@ -649,20 +650,21 @@ abstract class Question
     }
 
     /**
-     * Add hashTags
+     * Add hashTags.
      *
      * @param \Civix\CoreBundle\Entity\HashTag $hashTags
+     *
      * @return Question
      */
     public function addHashTag(\Civix\CoreBundle\Entity\HashTag $hashTags)
     {
         $this->hashTags[] = $hashTags;
-    
+
         return $this;
     }
 
     /**
-     * Remove hashTags
+     * Remove hashTags.
      *
      * @param \Civix\CoreBundle\Entity\HashTag $hashTags
      */
@@ -672,9 +674,9 @@ abstract class Question
     }
 
     /**
-     * Get hashTags
+     * Get hashTags.
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getHashTags()
     {
@@ -682,22 +684,23 @@ abstract class Question
     }
 
     /**
-     * Set cachedHashTags
+     * Set cachedHashTags.
      *
      * @param array $cachedHashTags
+     *
      * @return Question
      */
     public function setCachedHashTags($cachedHashTags)
     {
         $this->cachedHashTags = $cachedHashTags;
-    
+
         return $this;
     }
 
     /**
-     * Get cachedHashTags
+     * Get cachedHashTags.
      *
-     * @return array 
+     * @return array
      */
     public function getCachedHashTags()
     {
@@ -710,6 +713,6 @@ abstract class Question
                 return $section->getId();
         })->toArray();
 
-        return empty($sectionsIds)?false:$sectionsIds;
+        return empty($sectionsIds) ? false : $sectionsIds;
     }
 }

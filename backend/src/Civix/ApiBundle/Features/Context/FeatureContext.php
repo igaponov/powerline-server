@@ -1,12 +1,11 @@
 <?php
+
 namespace Civix\ApiBundle\Features\Context;
 
 use Symfony\Component\HttpKernel\KernelInterface;
 use Behat\Symfony2Extension\Context\KernelAwareInterface;
 use Behat\Behat\Context\BehatContext;
-use Behat\Behat\Exception\PendingException;
 use Behat\Gherkin\Node\PyStringNode;
-use Behat\Gherkin\Node\TableNode;
 use Buzz\Browser;
 use Buzz\Client\Curl;
 use Buzz\Message\Response;
@@ -92,7 +91,7 @@ class FeatureContext extends BehatContext //MinkContext if you want to test web
     }
 
     /**
-     * Return doctrine manager instance
+     * Return doctrine manager instance.
      *
      * @return \Doctrine\Common\Persistence\ObjectManager
      */
@@ -150,7 +149,7 @@ class FeatureContext extends BehatContext //MinkContext if you want to test web
             Assert::assertEquals($status, $this->getLastResponse()->getStatusCode());
         } catch (\PHPUnit_Framework_ExpectationFailedException $e) {
             $class = get_class($e);
-            throw new $class($e->getMessage() . "\n" . $this->getLastResponse()->getContent(),
+            throw new $class($e->getMessage()."\n".$this->getLastResponse()->getContent(),
                 $e->getComparisonFailure());
         }
     }
@@ -192,7 +191,7 @@ class FeatureContext extends BehatContext //MinkContext if you want to test web
 
     public function getAbsoluteUrl($url)
     {
-        return $this->parameters['base_url'] . $url;
+        return $this->parameters['base_url'].$url;
     }
 
     public function setHeader($key, $value)

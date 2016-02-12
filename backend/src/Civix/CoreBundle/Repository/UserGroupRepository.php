@@ -44,8 +44,10 @@ class UserGroupRepository extends EntityRepository
 
     /**
      * @param Group $group
-     * @param User $user
+     * @param User  $user
+     *
      * @return UserGroup|null
+     *
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function isJoinedUser(Group $group, User $user)

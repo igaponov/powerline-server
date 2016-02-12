@@ -13,7 +13,7 @@ use JMS\Serializer\Annotation as Serializer;
 class Session
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -39,7 +39,7 @@ class Session
     private $userType;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="user_id", type="integer")
      */
@@ -70,6 +70,7 @@ class Session
 
     /**
      * @param mixed $id
+     *
      * @return $this
      */
     public function setId($id)
@@ -89,6 +90,7 @@ class Session
 
     /**
      * @param mixed $token
+     *
      * @return $this
      */
     public function setToken($token)
@@ -108,6 +110,7 @@ class Session
 
     /**
      * @param mixed $userType
+     *
      * @return $this
      */
     public function setUserType($userType)
@@ -127,6 +130,7 @@ class Session
 
     /**
      * @param mixed $userId
+     *
      * @return $this
      */
     public function setUserId($userId)
@@ -146,6 +150,7 @@ class Session
 
     /**
      * @param \DateTime $createdAt
+     *
      * @return $this
      */
     public function setCreatedAt(\DateTime $createdAt)
@@ -170,6 +175,6 @@ class Session
             $bytes = hash('sha256', uniqid(mt_rand(), true), true);
         }
 
-        $this->setToken('s_' . base_convert(bin2hex($bytes), 16, 36));
+        $this->setToken('s_'.base_convert(bin2hex($bytes), 16, 36));
     }
 }

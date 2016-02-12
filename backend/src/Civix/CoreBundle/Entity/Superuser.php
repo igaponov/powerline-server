@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Serializer\Type\Avatar;
 
 /**
- * Superuser Entity
+ * Superuser Entity.
  *
  * @ORM\Table(name="superusers")
  * @ORM\Entity()
@@ -27,29 +27,32 @@ class Superuser implements UserInterface
 
     /**
      * @ORM\Column(name="username", type="string", length=255, nullable=true, unique=true)
+     *
      * @var string
      */
     private $username;
 
     /**
      * @ORM\Column(name="password", type="string", length=255, nullable=true)
+     *
      * @var string
      */
     private $password;
 
-     /**
+    /**
      * @ORM\Column(name="salt", type="string", length=255, nullable=true)
+     *
      * @var string
      */
     private $salt;
 
-     /**
+    /**
      * @ORM\Column(name="email", type="string", length=255)
      */
     private $email;
 
     /**
-     * @var File $avatar
+     * @var File
      */
     private $avatar;
 
@@ -58,7 +61,8 @@ class Superuser implements UserInterface
      * @Serializer\Groups({"api-activities", "api-poll","api-groups"})
      * @Serializer\Type("Avatar")
      * @Serializer\Accessor(getter="getAvatarSrc")
-     * @var string $avatarFilePath
+     *
+     * @var string
      */
     private $avatarFilePath;
 
@@ -86,10 +90,10 @@ class Superuser implements UserInterface
         $this->salt = base_convert(sha1(uniqid(mt_rand(), true)), 16, 36);
     }
 
-     /**
-     * Get id
+    /**
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -97,7 +101,7 @@ class Superuser implements UserInterface
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */
@@ -106,8 +110,8 @@ class Superuser implements UserInterface
         return $this->username;
     }
 
-     /**
-     * Set username
+    /**
+     * Set username.
      *
      * @param string $username
      *
@@ -121,7 +125,7 @@ class Superuser implements UserInterface
     }
 
     /**
-     * Set password
+     * Set password.
      *
      * @param string $password
      *
@@ -135,7 +139,7 @@ class Superuser implements UserInterface
     }
 
     /**
-     * Get password
+     * Get password.
      *
      * @return string
      */
@@ -145,7 +149,7 @@ class Superuser implements UserInterface
     }
 
     /**
-     * Set salt
+     * Set salt.
      *
      * @param string $salt
      *
@@ -159,7 +163,7 @@ class Superuser implements UserInterface
     }
 
     /**
-     * Get salt
+     * Get salt.
      *
      * @return string
      */
@@ -169,7 +173,7 @@ class Superuser implements UserInterface
     }
 
     /**
-     * Get email
+     * Get email.
      *
      * @return string
      */
@@ -178,8 +182,8 @@ class Superuser implements UserInterface
         return $this->email;
     }
 
-     /**
-     * Set email
+    /**
+     * Set email.
      *
      * @param string $email
      *
@@ -193,9 +197,9 @@ class Superuser implements UserInterface
     }
 
     /**
-     * Get user Roles
+     * Get user Roles.
      *
-     * @return Array
+     * @return array
      */
     public function getRoles()
     {
@@ -203,15 +207,14 @@ class Superuser implements UserInterface
     }
 
     /**
-     * Erase credentials
-     *
+     * Erase credentials.
      */
     public function eraseCredentials()
     {
     }
 
     /**
-     * Get officialName
+     * Get officialName.
      *
      * @return string
      */
@@ -221,7 +224,7 @@ class Superuser implements UserInterface
     }
 
     /**
-     * Get avatar
+     * Get avatar.
      *
      * @return string
      */
@@ -231,7 +234,7 @@ class Superuser implements UserInterface
     }
 
     /**
-     * Get default avatar
+     * Get default avatar.
      *
      * @return string
      */
@@ -241,7 +244,7 @@ class Superuser implements UserInterface
     }
 
     /**
-     * Get avatarSrc
+     * Get avatarSrc.
      *
      * @return \Civix\CoreBundle\Model\Avatar
      */

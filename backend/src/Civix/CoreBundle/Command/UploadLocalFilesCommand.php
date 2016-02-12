@@ -56,7 +56,7 @@ class UploadLocalFilesCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /**
+        /*
          * @var EntityManager $em
          */
         $this->em = $em = $this->getContainer()->get('doctrine.orm.entity_manager');
@@ -113,7 +113,7 @@ class UploadLocalFilesCommand extends ContainerAwareCommand
 
             /* @var \Civix\CoreBundle\Entity\Poll\EducationalContext $item */
             foreach ($images as $item) {
-                $output->writeln("<comment>EducationalContext:</comment> ".
+                $output->writeln('<comment>EducationalContext:</comment> '.
                     "{$item->getId()} {$item->getImage()->getPathname()}"
                 );
             }
@@ -157,13 +157,13 @@ class UploadLocalFilesCommand extends ContainerAwareCommand
     private function checkAvatars($items, Filesystem $filesystem, $localDir)
     {
         $result = [];
-        $localPath = $this->getContainer()->getParameter('kernel.root_dir') . '/../web/images' . $localDir;
+        $localPath = $this->getContainer()->getParameter('kernel.root_dir').'/../web/images'.$localDir;
 
         foreach ($items as $item) {
             /** @var File $avatar */
             $avatar = $item->getAvatar();
             if ($avatar && !$filesystem->has($avatar->getFilename()) &&
-                @file_exists($localPath . $avatar->getFilename())
+                @file_exists($localPath.$avatar->getFilename())
             ) {
                 $result[] = $item;
             }
@@ -175,7 +175,7 @@ class UploadLocalFilesCommand extends ContainerAwareCommand
     private function checkImages($items)
     {
         $result = [];
-        $localPath = $this->getContainer()->getParameter('kernel.root_dir') . '/../web/images/educational/';
+        $localPath = $this->getContainer()->getParameter('kernel.root_dir').'/../web/images/educational/';
         /* @var Filesystem $filesystem */
         $filesystem = $this->getContainer()->get('gaufrette.educational_image_fs_filesystem');
 
@@ -183,7 +183,7 @@ class UploadLocalFilesCommand extends ContainerAwareCommand
         foreach ($items as $context) {
             if ($context->getType() === $context::IMAGE_TYPE &&
                 !$filesystem->has($context->getImage()->getFilename()) &&
-                @file_exists($localPath . $context->getImage()->getFilename())) {
+                @file_exists($localPath.$context->getImage()->getFilename())) {
                 $result[] = $context;
             }
         }
@@ -193,12 +193,11 @@ class UploadLocalFilesCommand extends ContainerAwareCommand
 
     private function uploadAvatar(File $file, $localDir, Filesystem $filesystem, OutputInterface $output)
     {
-        $localPath = $this->getContainer()->getParameter('kernel.root_dir') . '/../web/images' . $localDir;
+        $localPath = $this->getContainer()->getParameter('kernel.root_dir').'/../web/images'.$localDir;
 
-        $fileUpload = new UploadedFile($localPath . $file->getFilename(), $file->getFilename());
+        $fileUpload = new UploadedFile($localPath.$file->getFilename(), $file->getFilename());
 
-
-        $output->writeln('<comment>upload: </comment> ' . $fileUpload->getPathname());
+        $output->writeln('<comment>upload: </comment> '.$fileUpload->getPathname());
         $this->doUpload($fileUpload, $file->getFilename(), $filesystem);
     }
 
@@ -206,12 +205,11 @@ class UploadLocalFilesCommand extends ContainerAwareCommand
     {
         /* @var Filesystem $filesystem */
         $filesystem = $this->getContainer()->get('gaufrette.educational_image_fs_filesystem');
-        $localPath = $this->getContainer()->getParameter('kernel.root_dir') . '/../web/images/educational/';
+        $localPath = $this->getContainer()->getParameter('kernel.root_dir').'/../web/images/educational/';
         $file = $context->getImage();
-        $fileUpload = new UploadedFile($localPath . $file->getFilename(), $file->getFilename());
+        $fileUpload = new UploadedFile($localPath.$file->getFilename(), $file->getFilename());
 
-
-        $output->writeln('<comment>upload: </comment> ' . $fileUpload->getPathname());
+        $output->writeln('<comment>upload: </comment> '.$fileUpload->getPathname());
         $this->doUpload($fileUpload, $file->getFilename(), $filesystem);
     }
 

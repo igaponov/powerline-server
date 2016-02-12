@@ -8,10 +8,9 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\Group\GroupField;
 
 /**
- * LoadGroupData
+ * LoadGroupData.
  */
 class LoadGroupData extends AbstractFixture implements FixtureInterface, ContainerAwareInterface
 {
@@ -36,16 +35,16 @@ class LoadGroupData extends AbstractFixture implements FixtureInterface, Contain
 
         foreach ($groups as $data) {
             $group = new Group();
-            
+
             $encoder = $factory->getEncoder($group);
             $password = $encoder->encodePassword($data['username'], $group->getSalt());
-            
+
             $group->setUsername($data['username'])
-                ->setManagerEmail($data['username'] . '@example.com')
+                ->setManagerEmail($data['username'].'@example.com')
                 ->setPassword($password);
 
             $this->addReference('group-'.$data['username'], $group);
-            
+
             $manager->persist($group);
         }
 

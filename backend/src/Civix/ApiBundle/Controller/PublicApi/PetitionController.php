@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\ApiBundle\Controller\PublicApi;
 
 use Symfony\Component\HttpFoundation\Response;

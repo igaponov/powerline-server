@@ -3,7 +3,6 @@
 namespace Civix\FrontBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Security\Core\SecurityContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -14,7 +13,6 @@ use Civix\FrontBundle\Form\Model\Petition as PetitionFormModel;
 use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 use Civix\CoreBundle\Entity\Poll\Question\Petition;
 use Civix\CoreBundle\Entity\Poll\Option;
-use Civix\CoreBundle\Service\Payments\BalancedPayment;
 
 abstract class PetitionController extends Controller
 {
@@ -91,7 +89,7 @@ abstract class PetitionController extends Controller
                         $this->get('vich_uploader.storage')->upload($item);
                     }
                     /**
-                     * @var $entity \Civix\CoreBundle\Entity\Poll\EducationalContext
+                     * @var \Civix\CoreBundle\Entity\Poll\EducationalContext
                      */
                     $entity = $item->createEntity();
                     if ($entity) {
@@ -114,7 +112,7 @@ abstract class PetitionController extends Controller
 
         return [
             'form' => $form->createView(),
-            'isShowGroupSection' => $this->isShowGroupSections($petition)
+            'isShowGroupSection' => $this->isShowGroupSections($petition),
         ];
     }
 
@@ -128,7 +126,7 @@ abstract class PetitionController extends Controller
         if ($petition->getUser() !== $this->getUser() || $petition->getPublishedAt()) {
             throw $this->createNotFoundException();
         }
-        
+
         $petitionFormClass = $this->getPetitionFormClass();
         $form = $this->createForm(new $petitionFormClass($this->getUser()), new PetitionFormModel($petition));
 
@@ -147,7 +145,7 @@ abstract class PetitionController extends Controller
                         $this->get('vich_uploader.storage')->upload($item);
                     }
                     /**
-                     * @var $entity \Civix\CoreBundle\Entity\Poll\EducationalContext
+                     * @var \Civix\CoreBundle\Entity\Poll\EducationalContext
                      */
                     $entity = $item->createEntity();
                     if ($entity) {
@@ -167,7 +165,7 @@ abstract class PetitionController extends Controller
         return [
             'form' => $form->createView(),
             'petition' => $petition,
-            'isShowGroupSection' => $this->isShowGroupSections($petition)
+            'isShowGroupSection' => $this->isShowGroupSections($petition),
         ];
     }
 

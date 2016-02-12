@@ -3,8 +3,6 @@
 namespace Civix\CoreBundle\Service;
 
 use Civix\CoreBundle\Service\Mailgun\MailgunApi;
-use Civix\CoreBundle\Service\PushTask;
-use Civix\CoreBundle\Service\EmailSender;
 use Civix\CoreBundle\Entity\DeferredInvites;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
@@ -20,7 +18,7 @@ class InviteSender
     private $entityManager;
     private $from;
     private $mailgun;
-    
+
     public function __construct(
         EmailSender $emailSender,
         PushTask $pushTask,
@@ -91,7 +89,7 @@ class InviteSender
 
     public function sendInviteForPetition($answers, Group $group)
     {
-        /** @var $signedUser \Civix\CoreBundle\Entity\User */
+        /* @var $signedUser \Civix\CoreBundle\Entity\User */
         foreach ($answers as $signedUserAnswer) {
             $signedUser = $signedUserAnswer->getUser();
             if (!$group->getInvites()->contains($signedUser) && !$group->getUsers()->contains($signedUser)) {
@@ -111,7 +109,7 @@ class InviteSender
             ->getRepository('CivixCoreBundle:DeferredInvites')
             ->findOneBy(array(
                     'email' => $email,
-                    'group' => $group
+                    'group' => $group,
             ));
         if (!($differedEntity instanceof DeferredInvites)) {
             $differedEntity = new DeferredInvites();

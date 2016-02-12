@@ -3,7 +3,6 @@
 namespace Civix\ApiBundle\Features\Context;
 
 use Behat\Behat\Context\BehatContext;
-use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Group;
@@ -25,15 +24,15 @@ class PollContext extends BehatContext
         $em = $this->getEm();
         $hash = $table->getHash();
         foreach ($hash as $row) {
-            $class = 'Civix\\CoreBundle\\Entity\\Poll\\Question\\' . $row['type'];
+            $class = 'Civix\\CoreBundle\\Entity\\Poll\\Question\\'.$row['type'];
             /* @var $entity \Civix\CoreBundle\Entity\Poll\Question */
-            $entity = new $class;
+            $entity = new $class();
             $entity->setSubject($row['subject']);
             $entity->setPublishedAt(new \DateTime());
             $expire = new \DateTime();
             $expire->add(new \DateInterval('P1D'));
             $entity->setExpireAt($expire);
-            $entity->setUser($em->getRepository('Civix\\CoreBundle\\Entity\\' . $row['owner'])
+            $entity->setUser($em->getRepository('Civix\\CoreBundle\\Entity\\'.$row['owner'])
                 ->findOneByUsername($row['username']));
             foreach (range(1, 2) as $value) {
                 $option = new Option();
@@ -86,7 +85,7 @@ class PollContext extends BehatContext
                 'group_id' => $group->getId(),
                 'user_expire_interval' => 7,
                 'type' => 'quorum',
-                'petition_body' => $post
+                'petition_body' => $post,
             ]),
             $this->getAuthHeader($username)
         );
@@ -105,7 +104,7 @@ class PollContext extends BehatContext
 
         $parentComment = $em->getRepository(MicropetitionComment::class)->findOneBy([
             'petition' => $micropetition,
-            'parentComment' => null
+            'parentComment' => null,
         ]);
 
         $this->getMainContext()->callPost(
