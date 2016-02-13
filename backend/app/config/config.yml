@@ -61,9 +61,15 @@ doctrine:
 
     orm:
         auto_generate_proxy_classes: %kernel.debug%
-        auto_mapping: true
         resolve_target_entities:
             Civix\BalancedBundle\Model\BalancedUserInterface: Civix\CoreBundle\Entity\Customer\Customer
+        entity_managers:
+            default:
+                auto_mapping: true
+                filters:
+                    softdeleteable:
+                        class: Gedmo\SoftDeleteable\Filter\SoftDeleteableFilter
+                        enabled: true
 
 # Swiftmailer Configuration
 swiftmailer:
@@ -194,3 +200,10 @@ civix_balanced:
     api_key: %balanced_payment_api_key%
     user_class: Civix\CoreBundle\Entity\Customer\Customer
     marketplace_user_id: %balanced_payment_marketplace_user_id%
+
+stof_doctrine_extensions:
+    default_locale: en_US
+    orm:
+        default:
+            timestampable: true
+            softdeleteable: true

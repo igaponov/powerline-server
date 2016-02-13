@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use Civix\CoreBundle\Entity\BaseComment;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -224,6 +225,113 @@ class CommentController extends BaseController
         }
 
         $response = new Response($this->jmsSerialization($comment, ['api-comments', 'api-comments-parent']));
+
+        return $response;
+    }
+
+    /**
+     * Update comment
+     *
+     * @Route(
+     *      "/{typeEntity}/{entityId}/comments/{id}",
+     *      requirements={
+     *          "entityId"="\d+",
+     *          "typeEntity"="poll|micro-petitions",
+     *          "id"="\d+"
+     *      },
+     *      name="api_comments_update"
+     * )
+     * @Method("PUT")
+     * @ParamConverter(
+     *      "commentModel",
+     *      class="Civix\CoreBundle\Model\Comment\CommentModelInterface",
+     *      options={"typeEntity":"typeEntity"}
+     * )
+     * @ApiDoc(
+     *     resource=true,
+     *     description="Update comment (polls or micropetitions)",
+     *     statusCodes={
+     *         200="Returns updated comment",
+     *         401="Authorization required",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     */
+    public function putCommentAction(Request $request, CommentModelInterface $commentModel, $entityId)
+    {
+        $entityManager = $this->getDoctrine()->getManager();
+        /* @var \Civix\CoreBundle\Entity\BaseComment $updated */
+        $updated = $this->jmsDeserialization(
+            $request->getContent(),
+            $commentModel->getRepositoryName(),
+            ['api-comments-update']
+        );
+
+        $this->validate($updated, ['api-comments-update']);
+        /** @var BaseComment $comment */
+        $comment = $entityManager->getRepository($commentModel->getRepositoryName())
+            ->find($request->get('id'));
+        if (!$comment || $commentModel->getEntityForComment($comment)->getId() != $entityId || $this->getUser() !== $comment->getUser()) {
+            throw $this->createNotFoundException();
+        }
+        $comment->setCommentBody($updated->getCommentBody());
+        $comment->setPrivacy($updated->getPrivacy());
+
+        $this->get('civix_core.poll.comment_manager')->saveComment($comment);
+
+        $response = new Response($this->jmsSerialization(
+            $comment,
+            ['api-comments']
+        ));
+
+        return $response;
+    }
+
+    /**
+     * Delete comment
+     *
+     * @Route(
+     *      "/{typeEntity}/{entityId}/comments/{id}",
+     *      requirements={
+     *          "entityId"="\d+",
+     *          "typeEntity"="poll|micro-petitions",
+     *          "id"="\d+"
+     *      },
+     *      name="api_comments_delete"
+     * )
+     * @Method("DELETE")
+     * @ParamConverter(
+     *      "commentModel",
+     *      class="Civix\CoreBundle\Model\Comment\CommentModelInterface",
+     *      options={"typeEntity":"typeEntity"}
+     * )
+     * @ApiDoc(
+     *     resource=true,
+     *     description="Delete comment (polls or micropetitions)",
+     *     statusCodes={
+     *         200="Returns comment",
+     *         401="Authorization required",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     */
+    public function deleteCommentAction(Request $request, CommentModelInterface $commentModel, $entityId)
+    {
+        $entityManager = $this->getDoctrine()->getManager();
+        /** @var BaseComment $comment */
+        $comment = $entityManager->getRepository($commentModel->getRepositoryName())
+            ->find($request->get('id'));
+        if (!$comment || $commentModel->getEntityForComment($comment)->getId() != $entityId || $this->getUser() !== $comment->getUser()) {
+            throw $this->createNotFoundException();
+        }
+        $comment->setCommentBody('Deleted by author');
+
+        $this->get('civix_core.poll.comment_manager')->saveComment($comment);
+
+        $response = new Response($this->jmsSerialization(
+            $comment,
+            ['api-comments']
+        ));
 
         return $response;
     }

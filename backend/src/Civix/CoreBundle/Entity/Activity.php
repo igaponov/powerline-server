@@ -3,15 +3,12 @@
 namespace Civix\CoreBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
+use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
-use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\Superuser;
-use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Serializer\Type\OwnerData;
 use Civix\CoreBundle\Serializer\Type\Image;
@@ -31,6 +28,8 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  *      "crowdfunding-payment-request" = "Civix\CoreBundle\Entity\Activities\CrowdfundingPaymentRequest",
  *      "leader-event" = "Civix\CoreBundle\Entity\Activities\LeaderEvent"
  * })
+ * @ORM\HasLifecycleCallbacks()
+ * @Gedmo\SoftDeleteable(fieldName="deletedAt")
  * @Serializer\ExclusionPolicy("all")
  * @Vich\Uploadable
  */
@@ -192,6 +191,23 @@ abstract class Activity
      *
      */
     protected $image;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="updated_at", type="datetime")
+     * @Gedmo\Timestampable(on="update")
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-activities"})
+     */
+    private $updatedAt;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="deleted_at", type="datetime", nullable=true)
+     */
+    private $deletedAt;
 
     public function __construct()
     {
@@ -645,5 +661,43 @@ abstract class Activity
         }
 
         return Activities\Question::class;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getUpdatedAt()
+    {
+        return $this->updatedAt;
+    }
+
+    /**
+     * @param \DateTime $updatedAt
+     * @return Activity
+     */
+    public function setUpdatedAt($updatedAt)
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getDeletedAt()
+    {
+        return $this->deletedAt;
+    }
+
+    /**
+     * @param \DateTime $deletedAt
+     * @return Activity
+     */
+    public function setDeletedAt($deletedAt)
+    {
+        $this->deletedAt = $deletedAt;
+
+        return $this;
     }
 }
