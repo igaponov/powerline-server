@@ -23,7 +23,15 @@ class GroupManager
     private $geocode;
 
     private $permissionPriority = [
-        'permissions_name', 'permissions_address', 'permissions_email', 'permissions_phone', 'permissions_responses'
+        'permissions_name',
+        'permissions_address',
+        'permissions_city',
+        'permissions_state',
+        'permissions_country',
+        'permissions_zip_code',
+        'permissions_email',
+        'permissions_phone',
+        'permissions_responses'
     ];
 
     public function __construct(EntityManager $entityManager, Geocode $geocode)

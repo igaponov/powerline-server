@@ -99,6 +99,38 @@ class UserGroup
     /**
      * @Serializer\Expose()
      * @Serializer\Groups({"api-permissions"})
+     * @ORM\Column(name="permissions_city", type="boolean", options={"default" = false})
+     *
+     */
+    private $permissionsCity;
+
+    /**
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-permissions"})
+     * @ORM\Column(name="permissions_state", type="boolean", options={"default" = false})
+     *
+     */
+    private $permissionsState;
+
+    /**
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-permissions"})
+     * @ORM\Column(name="permissions_country", type="boolean", options={"default" = false})
+     *
+     */
+    private $permissionsCountry;
+
+    /**
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-permissions"})
+     * @ORM\Column(name="permissions_zip_code", type="boolean", options={"default" = false})
+     *
+     */
+    private $permissionsZipCode;
+
+    /**
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-permissions"})
      * @ORM\Column(name="permissions_email", type="boolean", options={"default" = false})
      *
      */
@@ -452,5 +484,97 @@ class UserGroup
         $result[] = $user->getFollowers()->count();
 
         return $result;
+    }
+
+    /**
+     * Set permissionsCity
+     *
+     * @param boolean $permissionsCity
+     * @return UserGroup
+     */
+    public function setPermissionsCity($permissionsCity)
+    {
+        $this->permissionsCity = $permissionsCity;
+    
+        return $this;
+    }
+
+    /**
+     * Get permissionsCity
+     *
+     * @return boolean 
+     */
+    public function getPermissionsCity()
+    {
+        return $this->permissionsCity;
+    }
+
+    /**
+     * Set permissionsState
+     *
+     * @param boolean $permissionsState
+     * @return UserGroup
+     */
+    public function setPermissionsState($permissionsState)
+    {
+        $this->permissionsState = $permissionsState;
+    
+        return $this;
+    }
+
+    /**
+     * Get permissionsState
+     *
+     * @return boolean 
+     */
+    public function getPermissionsState()
+    {
+        return $this->permissionsState;
+    }
+
+    /**
+     * Set permissionsCountry
+     *
+     * @param boolean $permissionsCountry
+     * @return UserGroup
+     */
+    public function setPermissionsCountry($permissionsCountry)
+    {
+        $this->permissionsCountry = $permissionsCountry;
+    
+        return $this;
+    }
+
+    /**
+     * Get permissionsCountry
+     *
+     * @return boolean 
+     */
+    public function getPermissionsCountry()
+    {
+        return $this->permissionsCountry;
+    }
+
+    /**
+     * Set permissionsZipCode
+     *
+     * @param boolean $permissionsZipCode
+     * @return UserGroup
+     */
+    public function setPermissionsZipCode($permissionsZipCode)
+    {
+        $this->permissionsZipCode = $permissionsZipCode;
+    
+        return $this;
+    }
+
+    /**
+     * Get permissionsZipCode
+     *
+     * @return boolean 
+     */
+    public function getPermissionsZipCode()
+    {
+        return $this->permissionsZipCode;
     }
 }
