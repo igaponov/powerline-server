@@ -42,7 +42,7 @@ class BaseComment
     /**
      * @ORM\Column(name="comment_body", type="text")
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-comments", "api-comments-add"})
+     * @Serializer\Groups({"api-comments", "api-comments-add", "api-comments-update"})
      * @Assert\NotBlank()
      * @Assert\Length(max=500)
      */
@@ -120,7 +120,7 @@ class BaseComment
      *
      * @ORM\Column(name="privacy", type="integer")
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-comments", "api-comments-add"})
+     * @Serializer\Groups({"api-comments", "api-comments-add", "api-comments-update"})
      */
     private $privacy = self::PRIVACY_PUBLIC;
 

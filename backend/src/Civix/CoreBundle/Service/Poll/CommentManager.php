@@ -81,7 +81,7 @@ class CommentManager
                 ->setParentComment($parent)
             ;
 
-            return $this->saveNewComment($comment);
+            return $this->saveComment($comment);
         }
     }
 
@@ -92,7 +92,7 @@ class CommentManager
         $comment->setCommentBody($micropetition->getPetitionBody());
         $comment->setUser($micropetition->getUser());
 
-        return $this->saveNewComment($comment);
+        return $this->saveComment($comment);
     }
 
     public function addPollRootComment(Question $question, $message = '')
@@ -103,15 +103,15 @@ class CommentManager
             ->setCommentBody($message)
         ;
 
-        return $this->saveNewComment($comment);
+        return $this->saveComment($comment);
     }
 
     public function addComment(BaseComment $comment)
     {
-        return $this->saveNewComment($comment, true);
+        return $this->saveComment($comment, true);
     }
 
-    private function saveNewComment(BaseComment $comment, $notify = false)
+    public function saveComment(BaseComment $comment, $notify = false)
     {
         $this->em->persist($comment);
         $users = $this->cm->handleCommentContent($comment);
