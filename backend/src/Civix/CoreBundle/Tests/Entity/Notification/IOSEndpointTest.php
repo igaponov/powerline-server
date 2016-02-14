@@ -12,9 +12,9 @@ class IOSEndpointTest extends \PHPUnit_Framework_TestCase
     public function testPlatformMessage()
     {
         $endpoint = new IOSEndpoint;
-        $this->assertEquals($endpoint->getPlatformMessage('test_message', 'test_type', null),
+        $this->assertEquals($endpoint->getPlatformMessage('test_title', 'test_message', 'test_type', null, null),
             '{"APNS":"{\"aps\":{\"alert\":\"test_message\",\"entity\":\"null\",'.
-            '\"type\":\"test_type\",\"sound\":\"default\"}}"}'
+            '\"type\":\"test_type\",\"sound\":\"default\",\"title\":\"test_title\",\"image\":null}}"}'
         );
     }
 }

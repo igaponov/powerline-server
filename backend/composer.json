@@ -45,7 +45,8 @@
         "stripe/stripe-php": "2.*",
         "mailgun/mailgun-php": "~1.7.2",
         "cocur/slugify": "dev-master",
-        "stof/doctrine-extensions-bundle": "~1.2"
+        "stof/doctrine-extensions-bundle": "~1.2",
+        "imgix/imgix-php": "^1.0"
     },
     "require-dev": {
         "phing/phing": "2.5.*",

@@ -52,13 +52,13 @@ class Notification
         $this->addEndpoint($newEndpoint);
     }
 
-    public function send($message, $type, $entityData, Model\AbstractEndpoint $endpoint)
+    public function send($title, $message, $type, $entityData, $image, Model\AbstractEndpoint $endpoint)
     {
         try {
             $this->sns->publish(array(
                 'TargetArn' => $endpoint->getArn(),
                 'MessageStructure' => 'json',
-                'Message' => $endpoint->getPlatformMessage($message, $type, $entityData)
+                'Message' => $endpoint->getPlatformMessage($title, $message, $type, $entityData, $image)
             ));
         } catch (Exception\SnsException $e) {
             if ($e instanceof Exception\EndpointDisabledException || $e instanceof Exception\NotFoundException) {

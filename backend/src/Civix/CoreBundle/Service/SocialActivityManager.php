@@ -220,6 +220,7 @@ class SocialActivityManager
         $target['user_id'] = $user->getId();
         $target['first_name'] = $user->getFirstName();
         $target['last_name'] = $user->getLastName();
+        $target['image'] = $user->getAvatarFileName();
 
         foreach ($recipients as $recipient) {
             if ($group instanceof Group &&
