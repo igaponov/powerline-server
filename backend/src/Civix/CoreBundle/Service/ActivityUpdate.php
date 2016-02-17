@@ -2,6 +2,7 @@
 namespace Civix\CoreBundle\Service;
 
 use Civix\CoreBundle\Entity\UserInterface;
+use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Comment;
@@ -298,6 +299,19 @@ class ActivityUpdate
     public function updateResponsesPetition(MicroPetition $petition)
     {
         $this->entityManager->getRepository('CivixCoreBundle:Activity')->updateResponseCountMicroPetition($petition);
+    }
+
+    public function updateAuthorActivity(MicroPetition $petition, User $answerer)
+    {
+        if ($petition->getUser()->getIsNotifOwnPostChanged()) {
+            $socialActivity = new SocialActivity(
+                SocialActivity::TYPE_OWN_POST_VOTED,
+                $answerer,
+                $petition->getGroup()
+            );
+            $socialActivity->setRecipient($petition->getUser());
+            $this->pushSender->addToQueue('sendSocialActivity', [$socialActivity->getId()]);
+        }
     }
 
     public function updateOwnerData(UserInterface $owner)

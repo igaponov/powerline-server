@@ -17,6 +17,8 @@ class SocialActivityConverter
         SocialActivity::TYPE_COMMENT_REPLIED => 'getCommentReplied',
         SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED => 'getGroupPermissionsChanged',
         SocialActivity::TYPE_COMMENT_MENTIONED => 'getCommentMentioned',
+        SocialActivity::TYPE_OWN_POST_COMMENTED => 'getOwnPostCommented',
+        SocialActivity::TYPE_OWN_POST_VOTED => 'getOwnPostVoted',
     ];
 
     public static function toHTML(SocialActivity $entity)
@@ -258,5 +260,47 @@ class SocialActivityConverter
     {
         return '<p><strong>'. htmlspecialchars($entity->getTarget()['first_name'])
             . '</strong> mentioned you in a comment</p>';
+    }
+
+    private static function getOwnPostCommentedText(SocialActivity $entity)
+    {
+        return $entity->getFollowing()->getFullName().' commented on your post';
+    }
+
+    private static function getOwnPostCommentedTitle(SocialActivity $entity)
+    {
+        return $entity->getFollowing()->getFullName();
+    }
+
+    private static function getOwnPostCommentedImage(SocialActivity $entity)
+    {
+        return $entity->getFollowing()->getAvatarFileName();
+    }
+
+    private static function getOwnPostCommentedHTML(SocialActivity $entity)
+    {
+        return '<p><strong>'. htmlspecialchars($entity->getFollowing()->getFullName())
+        . '</strong> commented on your post</p>';
+    }
+
+    private static function getOwnPostVotedText(SocialActivity $entity)
+    {
+        return $entity->getFollowing()->getFullName().' voted on your post';
+    }
+
+    private static function getOwnPostVotedTitle(SocialActivity $entity)
+    {
+        return $entity->getFollowing()->getFullName();
+    }
+
+    private static function getOwnPostVotedImage(SocialActivity $entity)
+    {
+        return $entity->getFollowing()->getAvatarFileName();
+    }
+
+    private static function getOwnPostVotedHTML(SocialActivity $entity)
+    {
+        return '<p><strong>'. htmlspecialchars($entity->getFollowing()->getFullName())
+        . '</strong> voted on your post</p>';
     }
 }

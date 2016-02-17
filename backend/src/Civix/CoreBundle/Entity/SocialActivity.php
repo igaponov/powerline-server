@@ -23,6 +23,8 @@ class SocialActivity
     const TYPE_FOLLOW_MICROPETITION_COMMENTED = 'follow-micropetitionCommented';
     const TYPE_GROUP_PERMISSIONS_CHANGED = 'groupPermissions-changed';
     const TYPE_COMMENT_MENTIONED = 'comment-mentioned';
+    const TYPE_OWN_POST_COMMENTED = 'own-post-commented';
+    const TYPE_OWN_POST_VOTED = 'own-post-voted';
 
     /**
      * @ORM\Id

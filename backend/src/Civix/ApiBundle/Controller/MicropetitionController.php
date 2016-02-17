@@ -286,7 +286,7 @@ class MicropetitionController extends BaseController
 
         $optionId = $request->get('option_id');
         $answer = $micropetitionService
-            ->answerToPetitition($micropetition, $this->getUser(), $optionId);
+            ->answerToPetition($micropetition, $this->getUser(), $optionId);
         if (!$answer) {
             $response->setStatusCode(400)->setContent(json_encode(array(
                 'errors'=>$micropetitionService->getErrors()))
