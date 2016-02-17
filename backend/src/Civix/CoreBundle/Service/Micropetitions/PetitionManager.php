@@ -49,7 +49,7 @@ class PetitionManager
         return $userPetition;
     }
 
-    public function answerToPetitition(UserPetition $userPetition, User $user, $optionId)
+    public function answerToPetition(UserPetition $userPetition, User $user, $optionId)
     {
         $this->errors = [];
         $currentDate  = new \DateTime();
@@ -92,6 +92,7 @@ class PetitionManager
 
         //update response count activity for this petition
         $this->activityUpdate->updateResponsesPetition($userPetition);
+        $this->activityUpdate->updateAuthorActivity($userPetition, $user);
 
         //check if need to publish to activity
         if ($userPetition->getPublishStatus() == UserPetition::STATUS_USER) {
@@ -101,6 +102,13 @@ class PetitionManager
         }
 
         return $answer;
+    }
+
+    public function unsignPetition(UserPetition $userPetition, Answer $answer)
+    {
+        $this->entityManager->remove($answer);
+        $this->entityManager->flush();
+        $this->activityUpdate->updateAuthorActivity($userPetition, $answer->getUser());
     }
 
     public function recalcVoicesForPetitions(UserPetition $petition)

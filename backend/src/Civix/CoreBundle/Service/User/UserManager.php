@@ -55,7 +55,7 @@ class UserManager
         $settings = array(
             'DoNotDisturb', 'IsNotifQuestions', 'IsNotifDiscussions',
             'IsNotifMessages', 'IsNotifMicroFollowing', 'IsNotifMicroGroup',
-            'IsNotifScheduled', 'ScheduledFrom', 'ScheduledTo'
+            'IsNotifScheduled', 'IsNotifOwnPostChanged', 'ScheduledFrom', 'ScheduledTo'
         );
 
         foreach ($settings as $setting) {
