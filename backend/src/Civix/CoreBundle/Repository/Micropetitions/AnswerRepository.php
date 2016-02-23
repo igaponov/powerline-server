@@ -55,6 +55,22 @@ class AnswerRepository extends EntityRepository
         return isset($calcResult['groupAnswers']) ? (int) $calcResult['groupAnswers'] : 0;
     }
 
+    /**
+     * @param Petition $petition
+     * @return array Entity\Micropetitions\Answer
+     */
+    public function getUserWhoUpvote(Petition $petition)
+    {
+        $result = $this->getEntityManager()
+            ->getRepository(Answer::class)
+            ->findBy(array(
+                'petitionId' => $petition->getId(),
+                'optionId' => Petition::OPTION_ID_UPVOTE
+            ));
+
+        return $result;
+    }
+
     public function findLastByUser(User $user)
     {
         $start = new \DateTime();

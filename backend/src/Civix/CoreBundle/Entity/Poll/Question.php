@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity\Poll;
 
+use Civix\CoreBundle\Entity\UserInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping\InheritanceType;
@@ -224,6 +225,10 @@ abstract class Question
     }
 
     abstract public function getType();
+
+    /**
+     * @return UserInterface
+     */
     abstract public function getUser();
 
     /**

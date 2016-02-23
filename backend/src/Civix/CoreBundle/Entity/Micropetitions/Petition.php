@@ -22,6 +22,10 @@ class Petition
     const TYPE_OPEN_LETTER = 'open letter';
     const TYPE_LONG_PETITION = 'long petition';
 
+    const OPTION_ID_UPVOTE = 1;
+    const OPTION_ID_DOWNVOTE = 2;
+    const OPTION_ID_IGNORE = 3;
+
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
@@ -433,13 +437,13 @@ class Petition
     {
         if (!$this->options) {
             $this->options = [
-                ['id' => 1, 'value' => 'Upvote', 'votes_count' => 0],
-                ['id' => 2, 'value' => 'Downvote', 'votes_count' => 0],
+                ['id' => self::OPTION_ID_UPVOTE, 'value' => 'Upvote', 'votes_count' => 0],
+                ['id' => self::OPTION_ID_DOWNVOTE, 'value' => 'Downvote', 'votes_count' => 0]
             ];
         }
 
         if ($this->getPublishStatus() === self::STATUS_PUBLISH && !isset($this->options[2])) {
-            $this->options[] = ['id' => 3, 'value' => 'Ignore', 'votes_count' => 0];
+            $this->options[] = ['id' => self::OPTION_ID_IGNORE, 'value' => 'Ignore', 'votes_count' => 0];
         }
 
         return $this->options;

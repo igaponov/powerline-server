@@ -98,8 +98,9 @@ class AnswersController extends BaseController
             throw $this->createNotFoundException();
         }
 
-        $em->remove($answer);
-        $em->flush();
+        $micropetitionService = $this->get('civix_core.poll.micropetition_manager');
+        $micropetitionService->unsignPetition($microPetition, $answer);
+
         $response = new Response(json_encode(array('status' => 'ok')));
         $response->headers->set('Content-Type', 'application/json');
 

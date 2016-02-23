@@ -2,13 +2,12 @@
 
 namespace Civix\CoreBundle\Service;
 
+use Civix\CoreBundle\Entity\Invites\UserToGroup;
 use Civix\CoreBundle\Service\Mailgun\MailgunApi;
 use Civix\CoreBundle\Entity\DeferredInvites;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\Invites\BaseInvite;
 use Cocur\Slugify\Slugify;
-use Mailgun\Mailgun;
 
 class InviteSender
 {
@@ -31,22 +30,22 @@ class InviteSender
         $this->mailgun = $mailgunApi;
     }
 
-    public function send(array $invites)
+    public function send(array $invites, Group $group)
     {
         foreach ($invites as $invite) {
             if ($invite instanceof User) {
-                $this->pushTask->addToQueue('sendInvitePush', array($invite->getId()));
+                $this->pushTask->addToQueue('sendInvitePush', array($invite->getId(), $group->getId()));
             } elseif ($invite instanceof DeferredInvites) {
                 $this->emailSender->sendInviteFromGroup($invite->getEmail(), $invite->getGroup());
             }
         }
     }
 
-    public function sendUserInvites(array $invites)
+    public function sendUserToGroupInvites(array $invites)
     {
-        /* @var $invite BaseInvite */
+        /* @var $invite UserToGroup */
         foreach ($invites as $invite) {
-            $this->pushTask->addToQueue('sendInvitePush', array($invite->getUser()->getId()));
+            $this->pushTask->addToQueue('sendInvitePush', array($invite->getUser()->getId(), $invite->getGroup()->getId()));
         }
     }
 
@@ -95,7 +94,7 @@ class InviteSender
             if (!$group->getInvites()->contains($signedUser) && !$group->getUsers()->contains($signedUser)) {
                 $signedUser->addInvite($group);
                 if ($signedUser->getIsRegistrationComplete()) {
-                    $this->pushTask->addToQueue('sendInvitePush', array($signedUser->getId()));
+                    $this->pushTask->addToQueue('sendInvitePush', array($signedUser->getId(), $group->getId()));
                 } else {
                     $this->emailSender->sendInviteFromGroup($signedUser->getEmail(), $group);
                 }

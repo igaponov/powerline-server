@@ -9,14 +9,14 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class AndroidEndpoint extends AbstractEndpoint
 {
-    public function getPlatformMessage($message, $type, $entityData)
+    public function getPlatformMessage($title, $message, $type, $entityData, $image)
     {
         return json_encode(array('GCM' => json_encode(array('data' => array(
             'message' => $message,
             'type' => $type,
             'entity' => json_encode($entityData),
-            'title' => $type,
-            'image' => 'www/images/notification_image.jpg',
+            'title' => $title,
+            'image' => $image,
         )))));
     }
 }

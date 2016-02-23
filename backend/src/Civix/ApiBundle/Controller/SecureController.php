@@ -2,6 +2,8 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use Civix\CoreBundle\Event\UserEvent;
+use Civix\CoreBundle\Event\UserEvents;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -211,6 +213,7 @@ class SecureController extends BaseController
 
             $this->get('civix_core.email_sender')
                 ->sendRegistrationEmail($user);
+            $this->get('event_dispatcher')->dispatch(UserEvents::REGISTRATION, new UserEvent($user));
 
             return $response;
         }

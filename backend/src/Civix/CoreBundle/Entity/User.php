@@ -542,6 +542,16 @@ class User implements UserInterface, \Serializable
     private $isNotifScheduled;
 
     /**
+     * Whether user should receive messages
+     * when somebody vote or comment on the post he authored
+     *
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-profile", "api-settings"})
+     * @ORM\Column(type="boolean", options={"default" = true})
+     */
+    private $isNotifOwnPostChanged;
+
+    /**
      * @Serializer\Expose()
      * @Serializer\Groups({"api-profile", "api-settings"})
      * @Serializer\Type("DateTime<'D, d M Y H:i:s O'>")
@@ -1841,7 +1851,30 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set scheduleFrom.
+     * Set isNotifOwnPostChanged
+     *
+     * @return mixed
+     */
+    public function getIsNotifOwnPostChanged()
+    {
+        return $this->isNotifOwnPostChanged;
+    }
+
+    /**
+     * Set isNotifOwnPostChanged
+     *
+     * @param mixed $isNotifOwnPostChanged
+     * @return User
+     */
+    public function setIsNotifOwnPostChanged($isNotifOwnPostChanged)
+    {
+        $this->isNotifOwnPostChanged = $isNotifOwnPostChanged;
+
+        return $this;
+    }
+
+    /**
+     * Set scheduleFrom
      *
      * @param \DateTime $scheduleFrom
      *

@@ -2,6 +2,8 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use Civix\CoreBundle\Entity\Invites\UserToGroup;
+use Civix\CoreBundle\Entity\Activities\MicroPetition;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -11,6 +13,7 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Micropetitions\Petition;
 use Civix\CoreBundle\Entity\Micropetitions\Answer;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class MicropetitionController extends BaseController
 {
@@ -189,6 +192,77 @@ class MicropetitionController extends BaseController
 
     /**
      * @Route(
+     *      "/micro-petitions/{id}/invite/{group_id}",
+     *      name="api_micropetition_invite",
+     *      requirements={"id"="\d+", "group_id"="\d+"}
+     * )
+     * @Method("GET")
+     * @ApiDoc(
+     *      resource=true,
+     *      description="Invite the upvoter of petition to a group",
+     *      statusCodes={
+     *          200="Returns micropetition's info",
+     *          400="Bad Request",
+     *          401="Unauthorized Request",
+     *          405="Method Not Allowed"
+     *      }
+     * )
+     * @param Request $request
+     * @param Petition $micropetition
+     * @return Response
+     */
+    public function inviteToGroup(Request $request, Petition $micropetition)
+    {
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $groupId = $request->get('group_id');
+        $group = $entityManager->find('CivixCoreBundle:Group', $groupId);
+
+        if ($micropetition == null || $micropetition->getUser() != $this->getUser()
+            || !$micropetition->getPublishStatus() || $group == null || $micropetition->getGroup() == $group) {
+
+            throw new UnauthorizedHttpException("Not Authorized");
+        }
+
+        $answers = $entityManager
+            ->getRepository('CivixCoreBundle:Micropetitions\Answer')
+            ->getUserWhoUpvote($micropetition);
+
+        if (count($answers) == 0) {
+            throw $this->createNotFoundException();
+        }
+
+        $results = [];
+        foreach ($answers as $item) {
+            $invite = $entityManager->getRepository(UserToGroup::class)->findOneBy(array(
+                'inviter' => $this->getUser(),
+                'user' => $item->getUser(),
+                'group' => $group
+            ));
+
+            if ($invite != null)
+                continue;
+
+            $invite = new UserToGroup();
+            $invite->setInviter($this->getUser());
+            $invite->merge($entityManager);
+            $invite->setGroup($group);
+            $invite->setUser($item->getUser());
+
+            $entityManager->persist($invite);
+            $entityManager->flush($invite);
+            $results[] = $invite;
+        }
+
+        $this->container->get('civix_core.invite_sender')->sendUserInvites($results);
+        $response = new Response($this->jmsSerialization($results, ['api-invites']), 200);
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
+
+    /**
+     * @Route(
      *      "/micro-petitions/{id}/answers/{option_id}",
      *      requirements={"id"="\d+", "option_id"="\d+"},
      *      name="api_micropetition_choice"
@@ -213,7 +287,7 @@ class MicropetitionController extends BaseController
 
         $optionId = $request->get('option_id');
         $answer = $micropetitionService
-            ->answerToPetitition($micropetition, $this->getUser(), $optionId);
+            ->answerToPetition($micropetition, $this->getUser(), $optionId);
         if (!$answer) {
             $response->setStatusCode(400)->setContent(json_encode(array(
                 'errors' => $micropetitionService->getErrors(), ))
@@ -234,5 +308,83 @@ class MicropetitionController extends BaseController
     {
         return new Response($this->jmsSerialization($this->getDoctrine()->getRepository(Answer::class)
             ->findLastByUser($this->getUser()), array('api-answers-list')));
+    }
+
+    /**
+     * @Route(
+     *     "/micro-petitions/{id}",
+     *     name="api_micropetition_update",
+     *     requirements={"id"="\d+"}
+     * )
+     * @Method("PUT")
+     * @ApiDoc(
+     *     resource=true,
+     *     description="Update micropetition by ID",
+     *     statusCodes={
+     *         200="Returns micropetition's info",
+     *         400="Bad Request",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     */
+    public function putMicropetitionAction(Request $request, MicroPetition $microPetition)
+    {
+        $manager = $this->getDoctrine()
+            ->getManager();
+        $response = new Response();
+        $response->headers->set('Content-Type', 'application/json');
+        if ($this->getUser() !== $microPetition->getUser()) {
+            throw $this->createNotFoundException();
+        }
+        /** @var MicroPetition $updated */
+        $updated = $this->jmsDeserialization(
+            $request->getContent(),
+            'Civix\CoreBundle\Entity\Activities\MicroPetition',
+            array("api-activities")
+        );
+        $microPetition->setTitle($updated->getTitle());
+        $microPetition->setDescription($updated->getDescription());
+        $microPetition->setExpireAt($updated->getExpireAt());
+        $this->validate($microPetition, array('api-activities'));
+        $manager->persist($microPetition);
+        $manager->flush();
+        $response->setContent(
+            $this->jmsSerialization(
+                $microPetition,
+                array('api-activities')
+            )
+        );
+
+        return $response;
+    }
+
+    /**
+     * @Route(
+     *     "/micro-petitions/{id}",
+     *     name="api_micropetition_delete",
+     *     requirements={"id"="\d+"}
+     * )
+     * @Method("DELETE")
+     * @ApiDoc(
+     *     resource=true,
+     *     description="Delete micropetition by ID",
+     *     statusCodes={
+     *         204="Returns null",
+     *         400="Bad Request",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     */
+    public function deleteMicropetitionAction(MicroPetition $microPetition)
+    {
+        if ($this->getUser() !== $microPetition->getUser()) {
+            throw $this->createNotFoundException();
+        }
+        $manager = $this->getDoctrine()
+            ->getManager();
+        $manager->remove($microPetition);
+        $manager->flush();
+
+        return new Response('', 204);
     }
 }

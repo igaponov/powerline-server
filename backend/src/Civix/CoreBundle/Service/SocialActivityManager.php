@@ -157,7 +157,6 @@ class SocialActivityManager
             ->setTarget($target)
         ;
         $this->em->persist($socialActivity);
-        $this->em->flush($socialActivity);
 
         if ($comment->getParentComment()->getUser()
             && $comment->getUser() !== $comment->getParentComment()->getUser()) {
@@ -167,8 +166,21 @@ class SocialActivityManager
                 ->setRecipient($comment->getParentComment()->getUser())
             ;
             $this->em->persist($socialActivity2);
-            $this->em->flush($socialActivity2);
         }
+
+        if ($micropetition->getUser()->getIsNotifOwnPostChanged()) {
+            $socialActivity3 = new SocialActivity(
+                SocialActivity::TYPE_OWN_POST_COMMENTED,
+                $comment->getUser(),
+                $micropetition->getGroup()
+            );
+                $socialActivity->setTarget($target)
+                ->setRecipient($micropetition->getUser())
+            ;
+            $this->em->persist($socialActivity3);
+            $this->pt->addToQueue('sendSocialActivity', [$socialActivity3->getId()]);
+        }
+        $this->em->flush();
     }
 
     public function noticeGroupsPermissionsChanged(Group $group)
@@ -218,6 +230,7 @@ class SocialActivityManager
         $target['user_id'] = $user->getId();
         $target['first_name'] = $user->getFirstName();
         $target['last_name'] = $user->getLastName();
+        $target['image'] = $user->getAvatarFileName();
 
         foreach ($recipients as $recipient) {
             if ($group instanceof Group &&

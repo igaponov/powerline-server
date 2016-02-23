@@ -32,6 +32,7 @@ class AppKernel extends Kernel
             new Vich\UploaderBundle\VichUploaderBundle(),
             new RMS\PushNotificationsBundle\RMSPushNotificationsBundle(),
             new OldSound\RabbitMqBundle\OldSoundRabbitMqBundle(),
+            new Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle(),
             
             new Civix\FrontBundle\CivixFrontBundle(),
             new Civix\CoreBundle\CivixCoreBundle(),

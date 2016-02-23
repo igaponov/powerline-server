@@ -18,7 +18,11 @@ class Permissions extends AbstractType
                         'label' => 'Ask for permission',
                         'choices' => [
                             'permissions_name' => 'Name',
-                            'permissions_address' => 'Address',
+                            'permissions_address' => 'Street Address',
+                            'permissions_city' => 'City',
+                            'permissions_state' => 'State',
+                            'permissions_country' => 'Country',
+                            'permissions_zip_code' => 'Zip Code',
                             'permissions_email' => 'Email',
                             'permissions_phone' => 'Phone Number',
                             'permissions_responses' => 'Responses',

@@ -11,9 +11,9 @@ class AndroidEndpointTest extends \PHPUnit_Framework_TestCase
      */
     public function testPlatformMessage()
     {
-        $endpoint = new AndroidEndpoint();
-        $this->assertEquals($endpoint->getPlatformMessage('test_message', 'test_type', null),
-            '{"GCM":"{\"data\":{\"message\":\"test_message\",\"type\":\"test_type\",\"entity\":\"null\"}}"}'
+        $endpoint = new AndroidEndpoint;
+        $this->assertEquals($endpoint->getPlatformMessage('test_title', 'test_message', 'test_type', null, null),
+            '{"GCM":"{\"data\":{\"message\":\"test_message\",\"type\":\"test_type\",\"entity\":\"null\",\"title\":\"test_title\",\"image\":null}}"}'
         );
     }
 }
