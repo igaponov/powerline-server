@@ -8,6 +8,5 @@ class AMQPConnection extends Connection
 {
     public function __construct()
     {
-
     }
 }

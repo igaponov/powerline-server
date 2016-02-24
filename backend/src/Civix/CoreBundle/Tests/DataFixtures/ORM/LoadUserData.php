@@ -10,11 +10,10 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Civix\CoreBundle\Entity\User;
 
 /**
- * LoadSuperuserData
+ * LoadSuperuserData.
  */
 class LoadUserData implements FixtureInterface, ContainerAwareInterface, OrderedFixtureInterface
 {
-
     /**
      * @var ContainerInterface
      */
@@ -37,7 +36,7 @@ class LoadUserData implements FixtureInterface, ContainerAwareInterface, Ordered
         foreach ($users as $data) {
             $user = new User();
             $user->setUsername($data['username']);
-            $user->setEmail($data['username'] . '@example.com');
+            $user->setEmail($data['username'].'@example.com');
 
             $encoder = $factory->getEncoder($user);
             $password = $encoder->encodePassword($data['username'], $user->getSalt());

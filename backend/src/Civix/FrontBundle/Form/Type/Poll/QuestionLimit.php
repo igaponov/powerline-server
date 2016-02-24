@@ -9,7 +9,7 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 class QuestionLimit extends AbstractType
 {
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -20,7 +20,7 @@ class QuestionLimit extends AbstractType
     }
 
     /**
-     * Get unique name for form
+     * Get unique name for form.
      *
      * @return string
      */
@@ -30,7 +30,7 @@ class QuestionLimit extends AbstractType
     }
 
     /**
-     * Set default form option
+     * Set default form option.
      *
      * @param OptionsResolverInterface $resolver
      */
@@ -38,7 +38,7 @@ class QuestionLimit extends AbstractType
     {
         $resolver->setDefaults(array(
             'csrf_protection' => true,
-            'csrf_field_name' => '_token'
+            'csrf_field_name' => '_token',
         ));
     }
 }

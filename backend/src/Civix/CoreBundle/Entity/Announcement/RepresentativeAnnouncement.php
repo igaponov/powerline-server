@@ -12,11 +12,11 @@ use Civix\CoreBundle\Entity\Announcement;
  */
 class RepresentativeAnnouncement extends Announcement
 {
-
     /**
-     * Set representative
+     * Set representative.
      *
      * @param \Civix\CoreBundle\Entity\Representative $representative
+     *
      * @return Announcement
      */
     public function setUser(\Civix\CoreBundle\Entity\Representative $representative = null)
@@ -27,9 +27,9 @@ class RepresentativeAnnouncement extends Announcement
     }
 
     /**
-     * Get representative
+     * Get representative.
      *
-     * @return \Civix\CoreBundle\Entity\Representative 
+     * @return \Civix\CoreBundle\Entity\Representative
      */
     public function getUser()
     {

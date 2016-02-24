@@ -6,7 +6,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class Question
 {
-
     /**
      * @Assert\Valid()
      */
@@ -21,7 +20,6 @@ class Question
     {
         $this->question = $question;
         $this->educationalContext = new EducationalContext($question);
-
     }
 
     public function getQuestion()

@@ -18,7 +18,7 @@ class NewsController extends Controller
 
         return 'Civix\FrontBundle\Form\Type\Group\News';
     }
-    
+
     /**
      * @return string
      */

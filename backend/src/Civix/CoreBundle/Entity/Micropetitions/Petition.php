@@ -3,9 +3,6 @@
 namespace Civix\CoreBundle\Entity\Micropetitions;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\InheritanceType;
-use Doctrine\ORM\Mapping\DiscriminatorColumn;
-use Doctrine\ORM\Mapping\DiscriminatorMap;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Serializer\Type\Image;
@@ -39,7 +36,6 @@ class Petition
     private $id;
 
     /**
-     *
      * @ORM\Column(name="title", type="string")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-petitions-create", "api-petitions-list", "api-leader-micropetition"})
@@ -47,7 +43,6 @@ class Petition
     private $title;
 
     /**
-     *
      * @ORM\Column(name="petition", type="text")
      * @Assert\NotBlank()
      * @Serializer\Expose()
@@ -79,7 +74,6 @@ class Petition
     private $link;
 
     /**
-     * 
      * @ORM\Column(name="is_outsiders_sign", type="boolean")
      * @Assert\Type(type="boolean")
      * @Serializer\Expose()
@@ -88,7 +82,7 @@ class Petition
     private $isOutsidersSign;
 
     /**
-     * @var \DateTime $createdAt
+     * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      * @Serializer\Expose()
@@ -98,7 +92,7 @@ class Petition
     private $createdAt;
 
     /**
-     * @var \DateTime $expireAt
+     * @var \DateTime
      *
      * @ORM\Column(name="expire_at", type="datetime")
      * @Serializer\Expose()
@@ -113,7 +107,7 @@ class Petition
      * @Serializer\Expose()
      * @Serializer\Groups({"api-petitions-create"})
      * 
-     * @var integer
+     * @var int
      */
     private $userExpireInterval;
 
@@ -129,7 +123,8 @@ class Petition
      * @ORM\Column(name="publish_status", type="integer")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-petitions-list", "api-petitions-info", "api-leader-micropetition"})
-     * @var integer
+     *
+     * @var int
      */
     private $publishStatus;
 
@@ -153,7 +148,7 @@ class Petition
      * @ORM\OneToMany(targetEntity="Comment", mappedBy="petition", cascade={"remove","persist"})
      */
     private $comments;
-    
+
     /**
      * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\HashTag", mappedBy="petitions")
      */
@@ -201,9 +196,9 @@ class Petition
     }
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -211,22 +206,23 @@ class Petition
     }
 
     /**
-     * Set title
+     * Set title.
      *
      * @param string $title
+     *
      * @return Petition
      */
     public function setTitle($title)
     {
         $this->title = $title;
-    
+
         return $this;
     }
 
     /**
-     * Get title
+     * Get title.
      *
-     * @return string 
+     * @return string
      */
     public function getTitle()
     {
@@ -234,22 +230,23 @@ class Petition
     }
 
     /**
-     * Set petitionBody
+     * Set petitionBody.
      *
      * @param string $petitionBody
+     *
      * @return Petition
      */
     public function setPetitionBody($petitionBody)
     {
         $this->petitionBody = $petitionBody;
-    
+
         return $this;
     }
 
     /**
-     * Get petitionBody
+     * Get petitionBody.
      *
-     * @return string 
+     * @return string
      */
     public function getPetitionBody()
     {
@@ -257,22 +254,23 @@ class Petition
     }
 
     /**
-     * Set link
+     * Set link.
      *
      * @param string $link
+     *
      * @return Petition
      */
     public function setLink($link)
     {
         $this->link = $link;
-    
+
         return $this;
     }
 
     /**
-     * Get link
+     * Get link.
      *
-     * @return string 
+     * @return string
      */
     public function getLink()
     {
@@ -280,22 +278,23 @@ class Petition
     }
 
     /**
-     * Set isOutsidersSign
+     * Set isOutsidersSign.
      *
-     * @param boolean $isOutsidersSign
+     * @param bool $isOutsidersSign
+     *
      * @return Petition
      */
     public function setIsOutsidersSign($isOutsidersSign)
     {
         $this->isOutsidersSign = $isOutsidersSign;
-    
+
         return $this;
     }
 
     /**
-     * Get isOutsidersSign
+     * Get isOutsidersSign.
      *
-     * @return boolean 
+     * @return bool
      */
     public function getIsOutsidersSign()
     {
@@ -303,22 +302,23 @@ class Petition
     }
 
     /**
-     * Set createdAt
+     * Set createdAt.
      *
      * @param \DateTime $createdAt
+     *
      * @return Petition
      */
     public function setCreatedAt($createdAt)
     {
         $this->createdAt = $createdAt;
-    
+
         return $this;
     }
 
     /**
-     * Get createdAt
+     * Get createdAt.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreatedAt()
     {
@@ -326,9 +326,10 @@ class Petition
     }
 
     /**
-     * Set expireAt
+     * Set expireAt.
      *
      * @param \DateTime $expireAt
+     *
      * @return Petition
      */
     public function setExpireAt($expireAt)
@@ -339,9 +340,9 @@ class Petition
     }
 
     /**
-     * Get expireAt
+     * Get expireAt.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getExpireAt()
     {
@@ -349,22 +350,23 @@ class Petition
     }
 
     /**
-     * Set group
+     * Set group.
      *
      * @param \Civix\CoreBundle\Entity\Group $group
+     *
      * @return Petition
      */
     public function setGroup(\Civix\CoreBundle\Entity\Group $group = null)
     {
         $this->group = $group;
-    
+
         return $this;
     }
 
     /**
-     * Get group
+     * Get group.
      *
-     * @return \Civix\CoreBundle\Entity\Group 
+     * @return \Civix\CoreBundle\Entity\Group
      */
     public function getGroup()
     {
@@ -372,9 +374,10 @@ class Petition
     }
 
     /**
-     * Set user
+     * Set user.
      *
-     * @param  \Civix\CoreBundle\Entity\User $user
+     * @param \Civix\CoreBundle\Entity\User $user
+     *
      * @return Petition
      */
     public function setUser(\Civix\CoreBundle\Entity\User $user = null)
@@ -385,7 +388,7 @@ class Petition
     }
 
     /**
-     * Get user
+     * Get user.
      *
      * @return \Civix\CoreBundle\Entity\User
      */
@@ -447,9 +450,10 @@ class Petition
     }
 
     /**
-     * Set type
+     * Set type.
      *
-     * @param  string             $type
+     * @param string $type
+     *
      * @return Petition
      */
     public function setType($type)
@@ -460,7 +464,7 @@ class Petition
     }
 
     /**
-     * Get type
+     * Get type.
      *
      * @return string
      */
@@ -501,12 +505,11 @@ class Petition
         }
     }
 
-
     /**
      * Return option id if petition answered
-     * Can be used when petition fetch by getPetitionForUser() method
+     * Can be used when petition fetch by getPetitionForUser() method.
      *
-     * @return integer
+     * @return int
      */
     public function getAnswerId()
     {
@@ -514,7 +517,7 @@ class Petition
             return $this->getAnswers()->first()->getOptionId();
         }
 
-        return null;
+        return;
     }
 
     public function getResponsesCount()
@@ -550,7 +553,7 @@ class Petition
         }
 
         return round((
-                $this->getGroup()->getUsers()->count() * $currentPercent)/100
+                $this->getGroup()->getUsers()->count() * $currentPercent) / 100
         );
     }
 
@@ -560,20 +563,21 @@ class Petition
     }
 
     /**
-     * Add answers
+     * Add answers.
      *
      * @param \Civix\CoreBundle\Entity\Micropetitions\Answer $answers
+     *
      * @return Petition
      */
     public function addAnswer(\Civix\CoreBundle\Entity\Micropetitions\Answer $answers)
     {
         $this->answers[] = $answers;
-    
+
         return $this;
     }
 
     /**
-     * Remove answers
+     * Remove answers.
      *
      * @param \Civix\CoreBundle\Entity\Micropetitions\Answer $answers
      */
@@ -583,20 +587,21 @@ class Petition
     }
 
     /**
-     * Add hashTags
+     * Add hashTags.
      *
      * @param \Civix\CoreBundle\Entity\HashTag $hashTags
+     *
      * @return Petition
      */
     public function addHashTag(\Civix\CoreBundle\Entity\HashTag $hashTags)
     {
         $this->hashTags[] = $hashTags;
-    
+
         return $this;
     }
 
     /**
-     * Remove hashTags
+     * Remove hashTags.
      *
      * @param \Civix\CoreBundle\Entity\HashTag $hashTags
      */
@@ -606,9 +611,9 @@ class Petition
     }
 
     /**
-     * Get hashTags
+     * Get hashTags.
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getHashTags()
     {
@@ -616,22 +621,23 @@ class Petition
     }
 
     /**
-     * Set cachedHashTags
+     * Set cachedHashTags.
      *
      * @param array $cachedHashTags
+     *
      * @return Petition
      */
     public function setCachedHashTags($cachedHashTags)
     {
         $this->cachedHashTags = $cachedHashTags;
-    
+
         return $this;
     }
 
     /**
-     * Get cachedHashTags
+     * Get cachedHashTags.
      *
-     * @return array 
+     * @return array
      */
     public function getCachedHashTags()
     {

@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\FrontBundle\Form\Type\Representative;
 
 use Symfony\Component\Form\AbstractType;
@@ -7,12 +8,12 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Civix\FrontBundle\Form\Type\Poll\EducationalContext;
 
 /**
- * Representative news form
+ * Representative news form.
  */
 class News extends AbstractType
 {
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -24,7 +25,7 @@ class News extends AbstractType
     }
 
     /**
-     * Get unique name for form
+     * Get unique name for form.
      *
      * @return string
      */
@@ -34,7 +35,7 @@ class News extends AbstractType
     }
 
     /**
-     * Set default form option
+     * Set default form option.
      *
      * @param OptionsResolverInterface $resolver
      */
@@ -43,7 +44,7 @@ class News extends AbstractType
         $resolver->setDefaults(array(
             'data_class' => 'Civix\FrontBundle\Form\Model\Question',
             'csrf_protection' => true,
-            'csrf_field_name' => '_token'
+            'csrf_field_name' => '_token',
         ));
     }
 }

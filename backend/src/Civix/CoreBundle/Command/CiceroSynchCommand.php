@@ -8,7 +8,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Civix\CoreBundle\Entity\Representative;
 use Doctrine\ORM\EntityManager;
-
 use Civix\CoreBundle\Entity\RepresentativeStorage;
 
 class CiceroSynchCommand extends ContainerAwareCommand
@@ -54,7 +53,7 @@ class CiceroSynchCommand extends ContainerAwareCommand
 
             $isUpdated = $this->getContainer()->get('civix_core.representative_storage_manager')
                 ->synchronizeRepresentative($storageRepresentative);
-            
+
             if (!$isUpdated) {
                 $output->writeln(
                     '<error>'.$storageRepresentative->getFirstName().' '.

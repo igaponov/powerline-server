@@ -9,7 +9,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 
 /**
- * Group question entity
+ * Group question entity.
  *
  * @ORM\Entity()
  * @Serializer\ExclusionPolicy("all")
@@ -17,7 +17,7 @@ use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 class Group extends Question implements GroupSectionInterface
 {
     use \Civix\CoreBundle\Model\Group\GroupSectionTrait;
-    
+
     /**
      * @ORM\ManyToOne(targetEntity="\Civix\CoreBundle\Entity\Group")
      * @JoinColumn(name="group_id", onDelete="CASCADE")
@@ -32,9 +32,10 @@ class Group extends Question implements GroupSectionInterface
     }
 
     /**
-     * Set user
+     * Set user.
      *
-     * @param  \Civix\CoreBundle\Entity\Group $user
+     * @param \Civix\CoreBundle\Entity\Group $user
+     *
      * @return Group
      */
     public function setUser(\Civix\CoreBundle\Entity\Group $user = null)
@@ -45,7 +46,7 @@ class Group extends Question implements GroupSectionInterface
     }
 
     /**
-     * Get user
+     * Get user.
      *
      * @return \Civix\CoreBundle\Entity\Group
      */

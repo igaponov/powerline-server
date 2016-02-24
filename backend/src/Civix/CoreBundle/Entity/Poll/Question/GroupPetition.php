@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 
 /**
- * Group petition entity
+ * Group petition entity.
  *
  * @ORM\Entity()
  * @Serializer\ExclusionPolicy("all")
@@ -24,16 +24,17 @@ class GroupPetition extends Petition implements GroupSectionInterface
      * @Serializer\Groups({"api-poll", "api-leader-poll"})
      */
     private $user;
-   
+
     public function getType()
     {
         return 'group_petition';
     }
 
     /**
-     * Set user
+     * Set user.
      *
-     * @param  \Civix\CoreBundle\Entity\Group $user
+     * @param \Civix\CoreBundle\Entity\Group $user
+     *
      * @return Group
      */
     public function setUser(\Civix\CoreBundle\Entity\Group $user = null)
@@ -44,7 +45,7 @@ class GroupPetition extends Petition implements GroupSectionInterface
     }
 
     /**
-     * Get user
+     * Get user.
      *
      * @return \Civix\CoreBundle\Entity\Group
      */

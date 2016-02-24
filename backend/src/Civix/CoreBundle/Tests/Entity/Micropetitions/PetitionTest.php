@@ -21,7 +21,7 @@ class PetitionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, $petition->getQuorumCount());
 
         /* 10 users in a group */
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 10; ++$i) {
             $userGroup = new UserGroup(new User(), $group);
             $group->addUser($userGroup);
         }
@@ -32,7 +32,7 @@ class PetitionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(3, $petition->getQuorumCount());
 
         /* 112 users in a group (33 to quorum for 30%)*/
-        for ($i = 0; $i < 102; $i++) {
+        for ($i = 0; $i < 102; ++$i) {
             $userGroup = new UserGroup(new User(), $group);
             $group->addUser($userGroup);
         }

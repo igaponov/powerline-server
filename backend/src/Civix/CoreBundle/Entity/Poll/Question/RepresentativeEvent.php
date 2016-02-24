@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping\JoinColumn;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * Representative event entity
+ * Representative event entity.
  *
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Poll\LeaderEventRepository")
  * @Serializer\ExclusionPolicy("all")
@@ -28,9 +28,10 @@ class RepresentativeEvent extends LeaderEvent
     }
 
     /**
-     * Set user
+     * Set user.
      *
-     * @param  \Civix\CoreBundle\Entity\Representative $user
+     * @param \Civix\CoreBundle\Entity\Representative $user
+     *
      * @return Representative
      */
     public function setUser(\Civix\CoreBundle\Entity\Representative $user = null)
@@ -41,7 +42,7 @@ class RepresentativeEvent extends LeaderEvent
     }
 
     /**
-     * Get user
+     * Get user.
      *
      * @return \Civix\CoreBundle\Entity\Representative
      */

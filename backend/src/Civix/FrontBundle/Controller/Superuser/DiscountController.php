@@ -23,14 +23,14 @@ class DiscountController extends Controller
      */
     public function indexAction(Request $request)
     {
-        $limit  = 30;
-        $after  = $request->query->get('after', null);
+        $limit = 30;
+        $after = $request->query->get('after', null);
         $before = $request->query->get('before', null);
-        
+
         return [
-            'limit'   => $limit,
-            'after'   => $after,
-            'before'  => $before,
+            'limit' => $limit,
+            'after' => $after,
+            'before' => $before,
             'coupons' => $this->get('civix_core.stripe')->getCoupons(
                 $limit,
                 $after,
@@ -43,6 +43,7 @@ class DiscountController extends Controller
     /**
      * @Route("/new")
      * @Template("CivixFrontBundle:Discount:new.html.twig")
+     *
      * @deprecated
      */
     public function newAction(Request $request)
@@ -63,15 +64,16 @@ class DiscountController extends Controller
                 );
             }
         }
-        
+
         return [
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ];
     }
 
     /**
      * @Route("/edit/{id}", requirements={"id"="\d+"})
      * @Template("CivixFrontBundle:Discount:edit.html.twig")
+     *
      * @deprecated
      */
     public function editAction(DiscountCode $code, Request $request)
@@ -91,14 +93,15 @@ class DiscountController extends Controller
                 );
             }
         }
-        
+
         return [
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ];
     }
 
     /**
      * @Route("/delete/{id}", requirements={"id"="\d+"})
+     *
      * @deprecated
      */
     public function deleteAction(DiscountCode $code, Request $request)
@@ -115,7 +118,7 @@ class DiscountController extends Controller
             $this->generateUrl('civix_front_superuser_discount_index')
         );
     }
-    
+
     protected function getToken()
     {
         return $this->get('form.csrf_provider')->generateCsrfToken('discount_codes');

@@ -17,7 +17,7 @@ class Petition extends Question
     {
         return array(
             'type' => 'petition',
-            'id' => $this->getQuestionId()
+            'id' => $this->getQuestionId(),
         );
     }
 }

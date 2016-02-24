@@ -4,7 +4,6 @@ namespace Civix\CoreBundle\Service\Customer;
 
 use Civix\BalancedBundle\Service\BalancedPaymentManager;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Customer\Customer;
 use Civix\CoreBundle\Entity\Customer\BankAccount;
@@ -28,6 +27,7 @@ class CustomerManager
 
     /**
      * @param UserInterface $user
+     *
      * @return Customer
      */
     public function getCustomerByUser(UserInterface $user)
@@ -82,8 +82,10 @@ class CustomerManager
             $this->removeCard($card);
         }
 
-        try {$this->bp->unstoreCustomer($customer);} catch (\Exception $e) {}
-
+        try {
+            $this->bp->unstoreCustomer($customer);
+        } catch (\Exception $e) {
+        }
 
         $this->entityManager->remove($customer);
         $this->entityManager->flush($customer);
@@ -91,21 +93,24 @@ class CustomerManager
 
     public function removeCard(Card $card)
     {
-        try {$this->bp->unstoreCard($card);} catch (\Exception $e) {}
+        try {
+            $this->bp->unstoreCard($card);
+        } catch (\Exception $e) {
+        }
 
         $this->entityManager->remove($card);
         $this->entityManager->flush($card);
     }
 
-
     /**
      * @param UserInterface $user
+     *
      * @return Customer
      */
     public function createCustomer(UserInterface $user)
     {
         $customerClass = $this->getCustomerClass($user);
-        $customer = new $customerClass;
+        $customer = new $customerClass();
         $customer->setUser($user);
 
         return $customer;
@@ -141,6 +146,7 @@ class CustomerManager
 
     /**
      * @param Customer $customer
+     *
      * @return BankAccount
      */
     public function getBankAccount(Customer $customer)
@@ -150,6 +156,7 @@ class CustomerManager
 
     /**
      * @param Customer $customer
+     *
      * @return Card
      */
     public function getCard(Customer $customer)
@@ -159,6 +166,6 @@ class CustomerManager
 
     private function getCustomerClass(UserInterface $user)
     {
-        return '\Civix\CoreBundle\Entity\Customer\Customer' . ucfirst($user->getType());
+        return '\Civix\CoreBundle\Entity\Customer\Customer'.ucfirst($user->getType());
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Civix\ApiBundle\Controller;
 
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -11,7 +10,6 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Civix\CoreBundle\Entity\Poll\Question\Petition;
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Micropetitions\Petition as MicroPetition;
-use Civix\CoreBundle\Entity\Micropetitions\Answer as MicroAnswer;
 use Civix\BalancedBundle\Entity\PaymentHistory;
 use Civix\CoreBundle\Entity\Stripe\Charge;
 use Civix\CoreBundle\Entity\Stripe\Customer;
@@ -19,7 +17,7 @@ use Civix\CoreBundle\Entity\Stripe\Customer;
 class AnswersController extends BaseController
 {
     /**
-     * Unsign petition answer
+     * Unsign petition answer.
      *
      * @Route(
      *      "/petition/{id}/answers/{answerId}",
@@ -49,7 +47,7 @@ class AnswersController extends BaseController
 
         $answer = $em->getRepository('CivixCoreBundle:Poll\Answer')->findOneBy(array(
             'user' => $this->getUser(),
-            'question' => $petition
+            'question' => $petition,
         ));
 
         if (!$answer || $answerId != $answer->getOption()->getId()) {
@@ -64,7 +62,7 @@ class AnswersController extends BaseController
     }
 
     /**
-     * Unsign petition answer
+     * Unsign petition answer.
      *
      * @Route(
      *      "/micro-petitions/{id}/answers/{answerId}",
@@ -93,7 +91,7 @@ class AnswersController extends BaseController
 
         $answer = $em->getRepository('CivixCoreBundle:Micropetitions\Answer')->findOneBy(array(
             'user' => $this->getUser(),
-            'petition' => $microPetition
+            'petition' => $microPetition,
         ));
 
         if (!$answer || $answerId != $answer->getOptionId()) {
@@ -112,6 +110,7 @@ class AnswersController extends BaseController
     /**
      * @Route("/answers/payment-history/{id}")
      * @Method("GET")
+     *
      * @deprecated
      */
     public function paymentHistory(Answer $answer)

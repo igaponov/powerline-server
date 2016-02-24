@@ -14,12 +14,13 @@ class MicroPetition extends Activity
 {
     /**
      * @ORM\Column(name="petition_id", type="integer")
-     * @var integer
+     *
+     * @var int
      */
     protected $petitionId;
 
     /**
-     * @var integer
+     * @var int
      * @ORM\Column(name="quorum", type="integer")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-activities"})
@@ -28,14 +29,14 @@ class MicroPetition extends Activity
 
     public function setPetitionId($id)
     {
-         $this->petitionId = $id;
+        $this->petitionId = $id;
 
-         return $this;
+        return $this;
     }
 
     public function getPetitionId()
     {
-         return $this->petitionId;
+        return $this->petitionId;
     }
 
     public function getEntity()
@@ -43,7 +44,7 @@ class MicroPetition extends Activity
         return array(
             'type' => 'micro-petition',
             'id' => $this->getPetitionId(),
-            'group_id' => $this->getGroup() ? $this->getGroup()->getId() : null
+            'group_id' => $this->getGroup() ? $this->getGroup()->getId() : null,
         );
     }
 

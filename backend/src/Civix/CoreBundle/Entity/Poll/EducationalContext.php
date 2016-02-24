@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\CoreBundle\Entity\Poll;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -7,7 +8,7 @@ use Civix\CoreBundle\Serializer\Type\Image;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
- * EducationalText entity
+ * EducationalText entity.
  *
  * @ORM\Table(name="poll_educational_context")
  * @ORM\Entity()
@@ -16,12 +17,12 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  */
 class EducationalContext
 {
-    const VIDEO_TYPE = "video";
-    const IMAGE_TYPE = "image";
-    const TEXT_TYPE = "text";
+    const VIDEO_TYPE = 'video';
+    const IMAGE_TYPE = 'image';
+    const TEXT_TYPE = 'text';
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -56,7 +57,6 @@ class EducationalContext
     private $question;
 
     /**
-     *
      * @Vich\UploadableField(mapping="educational_image", fileNameProperty="text")
      *
      * @Serializer\Expose()
@@ -64,14 +64,13 @@ class EducationalContext
      * @Serializer\Type("Image")
      * @Serializer\SerializedName("imageSrc")
      * @Serializer\Accessor(getter="getImageSrc")
-     *
      */
     private $image;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -79,9 +78,10 @@ class EducationalContext
     }
 
     /**
-     * Set text
+     * Set text.
      *
-     * @param  string             $text
+     * @param string $text
+     *
      * @return EducationalContext
      */
     public function setText($text)
@@ -92,7 +92,7 @@ class EducationalContext
     }
 
     /**
-     * Get text
+     * Get text.
      *
      * @return string
      */
@@ -102,9 +102,10 @@ class EducationalContext
     }
 
     /**
-     * Set type
+     * Set type.
      *
-     * @param  string             $type
+     * @param string $type
+     *
      * @return EducationalContext
      */
     public function setType($type)
@@ -115,7 +116,7 @@ class EducationalContext
     }
 
     /**
-     * Get type
+     * Get type.
      *
      * @return string
      */
@@ -125,9 +126,10 @@ class EducationalContext
     }
 
     /**
-     * Set question
+     * Set question.
      *
-     * @param  Question $question
+     * @param Question $question
+     *
      * @return Option
      */
     public function setQuestion(Question $question = null)
@@ -138,7 +140,7 @@ class EducationalContext
     }
 
     /**
-     * Get question
+     * Get question.
      *
      * @return Question
      */
@@ -165,7 +167,7 @@ class EducationalContext
 
     public function getImageSrc()
     {
-        return $this->type === $this::IMAGE_TYPE ? new Image($this, 'image'): null;
+        return $this->type === $this::IMAGE_TYPE ? new Image($this, 'image') : null;
     }
 
     public function hasPreviewImage()
@@ -179,7 +181,7 @@ class EducationalContext
             return $this->text;
         }
         if ($this->type === $this::VIDEO_TYPE && $this->text) {
-            return 'https://img.youtube.com/vi/' . $this->getYoutubeId($this->text) . '/0.jpg';
+            return 'https://img.youtube.com/vi/'.$this->getYoutubeId($this->text).'/0.jpg';
         }
     }
 

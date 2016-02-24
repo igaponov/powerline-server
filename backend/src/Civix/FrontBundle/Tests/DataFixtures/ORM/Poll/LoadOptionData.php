@@ -9,7 +9,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Civix\CoreBundle\Entity\Poll\Option;
 
 /**
- * LoadOptionData
+ * LoadOptionData.
  */
 class LoadOptionData extends AbstractFixture implements FixtureInterface, OrderedFixtureInterface
 {
@@ -20,10 +20,10 @@ class LoadOptionData extends AbstractFixture implements FixtureInterface, Ordere
             array('value' => 'option1'),
             array('value' => 'option2'),
         );
-        
+
         foreach ($questionData as $key => $questionSubject) {
             $question = $this->getReference($questionSubject);
-            
+
             foreach ($options as $optionKey => $data) {
                 if ($key <= $optionKey) {
                     $option = new Option();
@@ -35,9 +35,8 @@ class LoadOptionData extends AbstractFixture implements FixtureInterface, Ordere
                     $manager->persist($option);
                 }
             }
-
         }
-  
+
         $manager->flush();
     }
 

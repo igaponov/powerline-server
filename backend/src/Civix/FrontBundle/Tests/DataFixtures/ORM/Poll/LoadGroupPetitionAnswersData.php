@@ -10,7 +10,7 @@ use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Option;
 
 /**
- * LoadGroupPetitionAnswersData
+ * LoadGroupPetitionAnswersData.
  */
 class LoadGroupPetitionAnswersData extends AbstractFixture implements FixtureInterface, OrderedFixtureInterface
 {
@@ -18,7 +18,7 @@ class LoadGroupPetitionAnswersData extends AbstractFixture implements FixtureInt
     {
         $petition = $this->getReference('groupPetitionPublished1');
         $user1 = $this->getReference('user-mobile1');
-        
+
         $signOption = new Option();
         $signOption->setValue('sign');
         $petition->addOption($signOption);
@@ -31,7 +31,7 @@ class LoadGroupPetitionAnswersData extends AbstractFixture implements FixtureInt
         $answer->setComment('Test comment');
         $answer->setOption($signOption);
         $manager->persist($answer);
-        
+
         $petition->addAnswer($answer);
         $manager->persist($petition);
         $manager->flush();

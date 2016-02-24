@@ -22,13 +22,12 @@ class BankAccount implements CustomerAccessorInterface
     protected $id;
 
     /**
-     * @var string $name
+     * @var string
      *
      * @ORM\Column(name="name", type="string", length=100)
      * @Assert\NotNull
      * @Serializer\Expose()
      * @Serializer\Groups({"api-account-manage"})
-     *
      */
     protected $name;
 
@@ -39,14 +38,14 @@ class BankAccount implements CustomerAccessorInterface
     protected $customer;
 
     /**
-     * @var boolean $enabled
+     * @var bool
      *
      * @ORM\Column(name="verified", type="boolean")
      */
     protected $verified;
 
     /**
-     * @var string $balancedUri
+     * @var string
      *
      * @ORM\Column(name="balanced_uri", type="string", length=255)
      * @Serializer\Expose()
@@ -55,14 +54,14 @@ class BankAccount implements CustomerAccessorInterface
     protected $balancedUri;
 
     /**
-     * @var \DateTime $updatedAt
+     * @var \DateTime
      *
      * @ORM\Column(name="updated_at", type="datetime", nullable=true)
      */
     protected $updatedAt;
 
     /**
-     * @var \DateTime $createdAt
+     * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      */
@@ -83,6 +82,7 @@ class BankAccount implements CustomerAccessorInterface
 
     /**
      * @param $name
+     *
      * @return $this
      */
     public function setName($name)
@@ -94,6 +94,7 @@ class BankAccount implements CustomerAccessorInterface
 
     /**
      * @param $balancedUri
+     *
      * @return $this
      */
     public function setBalancedUri($balancedUri)
@@ -121,6 +122,7 @@ class BankAccount implements CustomerAccessorInterface
 
     /**
      * @param $updatedAt
+     *
      * @return $this
      */
     public function setUpdatedAt($updatedAt)
@@ -140,6 +142,7 @@ class BankAccount implements CustomerAccessorInterface
 
     /**
      * @param $createdAt
+     *
      * @return $this
      */
     public function setCreatedAt($createdAt)
@@ -151,6 +154,7 @@ class BankAccount implements CustomerAccessorInterface
 
     /**
      * @param mixed $customer
+     *
      * @return $this
      */
     public function setCustomer(Customer $customer)
@@ -169,7 +173,8 @@ class BankAccount implements CustomerAccessorInterface
     }
 
     /**
-     * @param boolean $verified
+     * @param bool $verified
+     *
      * @return $this
      */
     public function setVerified($verified)
@@ -180,7 +185,7 @@ class BankAccount implements CustomerAccessorInterface
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function getVerified()
     {
@@ -205,6 +210,7 @@ class BankAccount implements CustomerAccessorInterface
 
     /**
      * @param mixed $id
+     *
      * @return $this
      */
     public function setId($id)

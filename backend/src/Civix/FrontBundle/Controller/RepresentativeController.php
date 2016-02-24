@@ -4,22 +4,17 @@ namespace Civix\FrontBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Security\Core\SecurityContext;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Civix\FrontBundle\Form\Type\Representative\Registration;
 use Civix\FrontBundle\Form\Type\Representative\Profile;
 use Civix\FrontBundle\Form\Type\Representative\Avatar;
-use Civix\FrontBundle\Form\Type\Poll\Question as QuestionType;
-use Civix\FrontBundle\Form\Model\Question as QuestionModel;
 use Civix\FrontBundle\Form\Type\CropImage;
 use Civix\CoreBundle\Entity\Representative;
-use Civix\CoreBundle\Entity\Poll\Question\Representative as Question;
-use Civix\CoreBundle\Entity\Activity;
 
 /**
- * Representative controller
+ * Representative controller.
  */
 class RepresentativeController extends Controller
 {
@@ -71,7 +66,7 @@ class RepresentativeController extends Controller
         }
 
         return $this->render('CivixFrontBundle:Representative:registration.html.twig',
-            array('form'=>$form->createView())
+            array('form' => $form->createView())
         );
     }
 
@@ -93,7 +88,7 @@ class RepresentativeController extends Controller
         return $this->render('CivixFrontBundle:Representative:login.html.twig', array(
             'last_username' => $this->get('request')->getSession()->get(SecurityContext::LAST_USERNAME),
             'error' => $error,
-            'csrf_token' => $csrfToken
+            'csrf_token' => $csrfToken,
         ));
     }
 
@@ -109,8 +104,8 @@ class RepresentativeController extends Controller
         $profileForm = $this->createForm(new Profile(), $representative);
 
         return array(
-            'avatarForm'  => $avatarForm->createView(),
-            'profileForm' => $profileForm->createView()
+            'avatarForm' => $avatarForm->createView(),
+            'profileForm' => $profileForm->createView(),
         );
     }
 
@@ -137,7 +132,7 @@ class RepresentativeController extends Controller
 
         return array(
             'avatarForm' => $this->createForm(new Avatar(), $representative)->createView(),
-            'profileForm' => $form->createView()
+            'profileForm' => $form->createView(),
         );
     }
 
@@ -164,14 +159,14 @@ class RepresentativeController extends Controller
 
             return $this->render('CivixFrontBundle:Representative:cropAvatar.html.twig', array(
                 'avatarForm' => $avatarForm->createView(),
-                'cropImageForm' => $cropImageForm->createView()
+                'cropImageForm' => $cropImageForm->createView(),
             ));
         } else {
             $profileForm = $this->createForm(new Profile(), $representative);
 
             return $this->render('CivixFrontBundle:Representative:editProfile.html.twig', array(
                 'avatarForm' => $avatarForm->createView(),
-                'profileForm' => $profileForm->createView()
+                'profileForm' => $profileForm->createView(),
             ));
         }
     }
@@ -194,7 +189,7 @@ class RepresentativeController extends Controller
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($representative);
         $entityManager->flush();
-        
+
         $this->get('session')->getFlashBag()->add('notice', 'Avatar have been successfully saved');
 
         return $this->redirect($this->generateUrl('civix_front_representative_edit_profile'));
@@ -220,11 +215,11 @@ class RepresentativeController extends Controller
         );
 
         return array(
-            'pagination' => $pagination
+            'pagination' => $pagination,
         );
     }
 
-     /**
+    /**
      * @Route("/incoming-answers/{id}", name="civix_front_representative_incoming_answers_details")
      * @Method({"GET"})
      * @Template()
@@ -234,17 +229,17 @@ class RepresentativeController extends Controller
         return $this->getQuestionDetails($id);
     }
 
-     /**
+    /**
      * @Route("/municipal", name="civix_front_representative_municipal")
      * @Method({"GET"})
      * @Template()
      */
     public function municipalAction()
     {
-         $this->get('session')->set('groupid_to_switch', $this->getUser()->getLocalGroup()->getId());
-         $this->get('session')->set('switch_representative', $this->getUser()->getId());
+        $this->get('session')->set('groupid_to_switch', $this->getUser()->getLocalGroup()->getId());
+        $this->get('session')->set('switch_representative', $this->getUser()->getId());
 
-         return $this->redirect($this->generateUrl('civix_account_switch'));
+        return $this->redirect($this->generateUrl('civix_account_switch'));
     }
 
     private function getQuestionDetails($id)
@@ -269,7 +264,7 @@ class RepresentativeController extends Controller
 
         return array(
             'statistics' => $statistics,
-            'pagination' => $pagination
+            'pagination' => $pagination,
         );
     }
 }

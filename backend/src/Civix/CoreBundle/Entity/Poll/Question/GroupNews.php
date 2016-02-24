@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 
 /**
- * Representative news entity
+ * Representative news entity.
  *
  * @ORM\Entity()
  * @Serializer\ExclusionPolicy("all")
@@ -16,7 +16,7 @@ use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 class GroupNews extends LeaderNews  implements GroupSectionInterface
 {
     use \Civix\CoreBundle\Model\Group\GroupSectionTrait;
-    
+
     /**
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Group")
      * @JoinColumn(name="group_id", onDelete="CASCADE")
@@ -31,9 +31,10 @@ class GroupNews extends LeaderNews  implements GroupSectionInterface
     }
 
     /**
-     * Set user
+     * Set user.
      *
-     * @param  \Civix\CoreBundle\Entity\Group $user
+     * @param \Civix\CoreBundle\Entity\Group $user
+     *
      * @return $this
      */
     public function setUser(\Civix\CoreBundle\Entity\Group $user = null)
@@ -44,7 +45,7 @@ class GroupNews extends LeaderNews  implements GroupSectionInterface
     }
 
     /**
-     * Get user
+     * Get user.
      *
      * @return \Civix\CoreBundle\Entity\Group
      */

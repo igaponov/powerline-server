@@ -7,7 +7,6 @@ use Doctrine\ORM\EntityManager;
 
 class Settings
 {
-
     const MICROPETITION_EXPIRE_INTERVAL_0 = 'micropetition_expire_interval_0';
     const MICROPETITION_EXPIRE_INTERVAL_1 = 'micropetition_expire_interval_1';
     const MICROPETITION_EXPIRE_INTERVAL_2 = 'micropetition_expire_interval_2';
@@ -34,7 +33,7 @@ class Settings
         self::DEFAULT_EXPIRE_INTERVAL => 10,
     ];
 
-    function __construct(EntityManager $em)
+    public function __construct(EntityManager $em)
     {
         $this->em = $em;
         $this->load();

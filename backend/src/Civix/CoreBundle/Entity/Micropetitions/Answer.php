@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * Micropetitions Answer entity
+ * Micropetitions Answer entity.
  *
  * @ORM\Table(name="micropetitions_answers")
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Micropetitions\AnswerRepository")
@@ -53,7 +53,7 @@ class Answer
     private $petition;
 
     /**
-     * @var \DateTime $createdAt
+     * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      * @Serializer\Expose()
@@ -61,9 +61,9 @@ class Answer
      */
     private $createdAt;
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -71,22 +71,23 @@ class Answer
     }
 
     /**
-     * Set optionId
+     * Set optionId.
      *
-     * @param integer $optionId
+     * @param int $optionId
+     *
      * @return Answer
      */
     public function setOptionId($optionId)
     {
         $this->optionId = $optionId;
-    
+
         return $this;
     }
 
     /**
-     * Get optionId
+     * Get optionId.
      *
-     * @return integer 
+     * @return int
      */
     public function getOptionId()
     {
@@ -94,22 +95,23 @@ class Answer
     }
 
     /**
-     * Set user
+     * Set user.
      *
      * @param \Civix\CoreBundle\Entity\User $user
+     *
      * @return Answer
      */
     public function setUser(\Civix\CoreBundle\Entity\User $user = null)
     {
         $this->user = $user;
-    
+
         return $this;
     }
 
     /**
-     * Get user
+     * Get user.
      *
-     * @return \Civix\CoreBundle\Entity\User 
+     * @return \Civix\CoreBundle\Entity\User
      */
     public function getUser()
     {
@@ -117,22 +119,23 @@ class Answer
     }
 
     /**
-     * Set petition
+     * Set petition.
      *
      * @param \Civix\CoreBundle\Entity\Micropetitions\Petition $petition
+     *
      * @return Answer
      */
     public function setPetition(\Civix\CoreBundle\Entity\Micropetitions\Petition $petition = null)
     {
         $this->petition = $petition;
-    
+
         return $this;
     }
 
     /**
-     * Get petition
+     * Get petition.
      *
-     * @return \Civix\CoreBundle\Entity\Micropetitions\Petition 
+     * @return \Civix\CoreBundle\Entity\Micropetitions\Petition
      */
     public function getPetition()
     {
@@ -140,22 +143,23 @@ class Answer
     }
 
     /**
-     * Set createdAt
+     * Set createdAt.
      *
      * @param \DateTime $createdAt
+     *
      * @return Petition
      */
     public function setCreatedAt($createdAt)
     {
         $this->createdAt = $createdAt;
-    
+
         return $this;
     }
 
     /**
-     * Get createdAt
+     * Get createdAt.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreatedAt()
     {

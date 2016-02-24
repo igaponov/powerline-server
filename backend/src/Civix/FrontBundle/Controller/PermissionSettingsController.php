@@ -6,7 +6,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Civix\FrontBundle\Form\Type\Settings\Permissions;
 
 class PermissionSettingsController extends Controller
@@ -21,7 +20,7 @@ class PermissionSettingsController extends Controller
         $entityManager = $this->getDoctrine()->getManager();
         $permissionForm = $this->createForm(new Permissions(), $user);
         $oldGroup = clone $user;
-        
+
         if ('POST' === $request->getMethod() && $permissionForm->submit($request)->isValid()) {
             $shouldNotify = $this->get('civix_core.group_manager')->isMorePermissions($oldGroup, $user);
             $user->setPermissionsChangedAt(new \DateTime());
@@ -33,7 +32,7 @@ class PermissionSettingsController extends Controller
         }
 
         return [
-            'form' => $permissionForm->createView()
+            'form' => $permissionForm->createView(),
         ];
     }
 }

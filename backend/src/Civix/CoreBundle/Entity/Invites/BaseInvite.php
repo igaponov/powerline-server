@@ -26,7 +26,7 @@ use Civix\CoreBundle\Entity\User;
 abstract class BaseInvite
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -48,6 +48,7 @@ abstract class BaseInvite
 
     /**
      * @param \Civix\CoreBundle\Entity\User $user
+     *
      * @return $this
      */
     public function setUser(User $user = null)
@@ -67,6 +68,7 @@ abstract class BaseInvite
 
     /**
      * @param int $id
+     *
      * @return $this
      */
     public function setId($id)

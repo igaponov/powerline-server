@@ -10,7 +10,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Civix\FrontBundle\Controller\ReportContoller as Controller;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
-use Civix\CoreBundle\Entity\Group\GroupField;
 use Civix\CoreBundle\Entity\Group;
 
 /**
@@ -69,13 +68,13 @@ class ReportController extends Controller
             ->getMembershipReportQuery($this->getUser(), UserGroup::STATUS_ACTIVE)
             ->getResult();
 
-
         $data = [];
         $header = ['Name', 'Address', 'Email', 'Phone Number', 'Facebook'];
         foreach ($group->getFields() as $field) {
             $header[] = $field->getFieldName();
         }
-        $header[] = 'Join date';$header[] = 'Followers';
+        $header[] = 'Join date';
+        $header[] = 'Followers';
 
         $data[] = $header;
         foreach ($members as $mr) {
@@ -83,7 +82,7 @@ class ReportController extends Controller
         }
 
         $response = new Response($this->createCSVString($data));
-        $filename = "membership_".$date->format("Y_m_d_His").".csv";
+        $filename = 'membership_'.$date->format('Y_m_d_His').'.csv';
         $response->headers->set('Content-Type', 'text/csv');
         $response->headers->set('Content-Disposition', 'attachment; filename='.$filename);
 
@@ -102,17 +101,18 @@ class ReportController extends Controller
                 'fieldValues' => $fieldValues,
                 'package' => $this->get('civix_core.subscription_manager')->getPackage($this->getUser()),
             ]
-        );   
+        );
     }
 
     private function createCSVString(array $data)
     {
         $result = '';
         foreach ($data as $row) {
-            $result .= implode(',', array_map(function($item) {
-                return '"' . str_replace('"', '""', $item) . '"';
-            }, $row)) . "\n";
+            $result .= implode(',', array_map(function ($item) {
+                return '"'.str_replace('"', '""', $item).'"';
+            }, $row))."\n";
         }
+
         return $result;
     }
 }

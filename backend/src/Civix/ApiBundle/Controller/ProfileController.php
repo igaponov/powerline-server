@@ -2,17 +2,13 @@
 
 namespace Civix\ApiBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserFollow;
-use Civix\CoreBundle\Model\DeviceContext;
-use Civix\CoreBundle\Model\DeviceTokenInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 
 /**
@@ -61,7 +57,7 @@ class ProfileController extends BaseController
     {
         $userFollow = $this->getDoctrine()->getRepository(UserFollow::class)->findOneBy([
             'user' => $user,
-            'follower' => $this->getUser()
+            'follower' => $this->getUser(),
         ]);
 
         $isFollowing = $userFollow && $userFollow->getStatus() === UserFollow::STATUS_ACTIVE;
@@ -79,6 +75,7 @@ class ProfileController extends BaseController
      * )
      * @Method("POST")
      * @ParamConverter("targetUser", class="CivixCoreBundle:User")
+     *
      * @deprecated
      */
     public function followAction(Request $request, $status, User $targetUser)
@@ -89,11 +86,11 @@ class ProfileController extends BaseController
 
         $response = new Response();
         $response->headers->set('Content-Type', 'application/json');
-        
+
         if ($user === $targetUser) {
             return $response->setStatusCode(405);
         }
-        
+
         $follow = $entityManager->getRepository('CivixCoreBundle:User')
             ->$status($user, $targetUser);
         if ($follow) {
@@ -101,7 +98,7 @@ class ProfileController extends BaseController
             if ('follow' === $status) {
                 $this->get('civix_core.social_activity_manager')->sendUserFollowRequest($follow);
             }
-            $response->setContent(json_encode(array('success'=>'ok')));
+            $response->setContent(json_encode(array('success' => 'ok')));
         } else {
             $response->setStatusCode(405);
         }
@@ -158,7 +155,7 @@ class ProfileController extends BaseController
     {
         $following = $this->getDoctrine()->getRepository('CivixCoreBundle:UserFollow')->findOneBy(array(
             'user' => $targetUser,
-            'follower' => $this->getUser()
+            'follower' => $this->getUser(),
         ));
         if (!$following) {
             throw $this->createNotFoundException();
@@ -173,6 +170,7 @@ class ProfileController extends BaseController
     /**
      * @Route("/last-following")
      * @Method("GET")
+     *
      * @deprecated
      */
     public function getLastApprovedFollowing(Request $request)
@@ -212,7 +210,7 @@ class ProfileController extends BaseController
         /** @var User $user */
         $user = $this->get('security.context')->getToken()->getUser();
         $entityManager = $this->getDoctrine()->getManager();
-        $user->setAvatarPath($this->getDomain() . '/images/avatars/');
+        $user->setAvatarPath($this->getDomain().'/images/avatars/');
 
         $response = new Response();
         $response->headers->set('Content-Type', 'application/json');
@@ -290,7 +288,7 @@ class ProfileController extends BaseController
         );
 
         $this->get('civix_core.user_manager')->updateSettings($user, $userSetting);
- 
+
         $entityManager->persist($user);
         $entityManager->flush();
         $response->setContent($this->jmsSerialization($user, array('api-profile')));
@@ -319,7 +317,7 @@ class ProfileController extends BaseController
         $excludeIds = $this->getUser()->getFollowingIds();
 
         $facebookUsers = $entityManager->getRepository('CivixCoreBundle:User')
-                ->getFacebookUsers((array)$ids, $excludeIds);
+                ->getFacebookUsers((array) $ids, $excludeIds);
 
         $response = new Response($this->jmsSerialization($facebookUsers, array('api-info')));
         $response->headers->set('Content-Type', 'application/json');
@@ -409,6 +407,6 @@ class ProfileController extends BaseController
     {
         $request = $this->getRequest();
 
-        return $request->getScheme() . '://' .$request->getHttpHost();
+        return $request->getScheme().'://'.$request->getHttpHost();
     }
 }

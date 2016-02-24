@@ -7,7 +7,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Civix\FrontBundle\Form\Model\CoreSettings;
 
-
 class SettingsType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -27,7 +26,7 @@ class SettingsType extends AbstractType
         $resolver->setDefaults([
             'data_class' => 'Civix\FrontBundle\Form\Model\CoreSettings',
             'csrf_protection' => true,
-            'csrf_field_name' => '_token'
+            'csrf_field_name' => '_token',
         ]);
     }
-} 
+}

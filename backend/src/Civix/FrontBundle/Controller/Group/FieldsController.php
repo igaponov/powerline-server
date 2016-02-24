@@ -3,7 +3,6 @@
 namespace Civix\FrontBundle\Controller\Group;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -25,7 +24,7 @@ class FieldsController extends Controller
 
         return array(
             'package' => $this->get('civix_core.subscription_manager')->getPackage($this->getUser()),
-            'requiredFieldsForm' => $requiredFieldsForm->createView()
+            'requiredFieldsForm' => $requiredFieldsForm->createView(),
         );
     }
 
@@ -70,7 +69,7 @@ class FieldsController extends Controller
 
         return array(
             'package' => $this->get('civix_core.subscription_manager')->getPackage($this->getUser()),
-            'requiredFieldsForm' => $requiredFieldsForm->createView()
+            'requiredFieldsForm' => $requiredFieldsForm->createView(),
         );
     }
 }

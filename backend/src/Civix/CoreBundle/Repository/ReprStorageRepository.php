@@ -3,7 +3,6 @@
 namespace Civix\CoreBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
-use Civix\CoreBundle\Entity\User;
 
 class ReprStorageRepository extends EntityRepository
 {

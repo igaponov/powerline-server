@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\CoreBundle\Service;
 
 use Symfony\Component\Templating\EngineInterface;
@@ -66,7 +67,7 @@ class EmailSender
             array(
                 'name' => $group->getOfficialName(),
                 'username' => $group->getUsername(),
-                'password' => $plainPassword
+                'password' => $plainPassword,
             )
         );
         $this->mailer->send($message);
@@ -81,7 +82,7 @@ class EmailSender
             array(
                 'name' => $group->getOfficialName(),
                 'username' => $group->getUsername(),
-                'password' => $plainPassword
+                'password' => $plainPassword,
             )
         );
         $this->mailer->send($message);
@@ -105,9 +106,9 @@ class EmailSender
             $representative->getEmail(),
             'CivixFrontBundle:Superuser:email/representative_approved.html.twig',
             array(
-                    'name' => $representative->getFirstName() .' ' .$representative->getLastName(),
+                    'name' => $representative->getFirstName().' '.$representative->getLastName(),
                     'username' => $username,
-                    'password' => $password
+                    'password' => $password,
             )
         );
         $this->mailer->send($message);
@@ -150,7 +151,7 @@ class EmailSender
                 'paymentRequest' => $paymentRequest,
                 'user' => $user,
                 'transaction_number' => $history->getPublicId(),
-                'order_number' => $history->getOrderId()
+                'order_number' => $history->getOrderId(),
             ]
         );
         $this->mailer->send($message);
@@ -159,7 +160,7 @@ class EmailSender
     public function sendSubscriptionCharged(PaymentHistory $history, UserInterface $user, $subscription)
     {
         $message = $this->createMessage(
-            'Powerline Payment: ' . $history->getPublicId(),
+            'Powerline Payment: '.$history->getPublicId(),
             $user->getEmail(),
             'CivixCoreBundle:Email:subscription_charged.html.twig',
             compact('user', 'history', 'subscription')
@@ -170,7 +171,7 @@ class EmailSender
     public function sendPaymentRequestPublishingCharged(PaymentHistory $history, UserInterface $user)
     {
         $message = $this->createMessage(
-            'Powerline Payment: ' . $history->getPublicId(),
+            'Powerline Payment: '.$history->getPublicId(),
             $user->getEmail(),
             'CivixCoreBundle:Email:payment_request_publishing_charged.html.twig',
             compact('user', 'history')
@@ -181,7 +182,7 @@ class EmailSender
     public function sendTransactionInfo(PaymentHistory $history, UserInterface $user,  $description = '')
     {
         $message = $this->createMessage(
-            'Powerline Payment: ' . $history->getPublicId(),
+            'Powerline Payment: '.$history->getPublicId(),
             $user->getEmail(),
             'CivixCoreBundle:Email:transaction-info.html.twig',
             compact('user', 'history', 'description')
@@ -198,7 +199,7 @@ class EmailSender
             [
                 'paymentRequest' => $paymentRequest,
                 'user' => $user,
-                'domain' => $this->domain
+                'domain' => $this->domain,
             ]
         );
         $this->mailer->send($message);
@@ -208,14 +209,13 @@ class EmailSender
                                                   $marketplaceAmount, $customerAmount)
     {
         $message = $this->createMessage(
-            'Powerline Payout: ' . $history->getPublicId(),
+            'Powerline Payout: '.$history->getPublicId(),
             $paymentRequest->getUser()->getEmail(),
             'CivixCoreBundle:Email:payment_request_payout.html.twig',
             compact('history', 'paymentRequest', 'marketplaceAmount', 'customerAmount')
         );
         $this->mailer->send($message);
     }
-
 
     private function createMessage($subject, $emailTo, $templatePath, $templateParams, $mailFrom = null)
     {

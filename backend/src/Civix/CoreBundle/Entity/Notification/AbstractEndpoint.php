@@ -29,7 +29,7 @@ use Civix\CoreBundle\Entity\User;
 abstract class AbstractEndpoint
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -67,6 +67,7 @@ abstract class AbstractEndpoint
 
     /**
      * @param string $arn
+     *
      * @return self
      */
     public function setArn($arn)
@@ -86,6 +87,7 @@ abstract class AbstractEndpoint
 
     /**
      * @param int $id
+     *
      * @return self
      */
     public function setId($id)
@@ -105,6 +107,7 @@ abstract class AbstractEndpoint
 
     /**
      * @param string $token
+     *
      * @return self
      */
     public function setToken($token)
@@ -124,6 +127,7 @@ abstract class AbstractEndpoint
 
     /**
      * @param User $user
+     *
      * @return self
      */
     public function setUser(User $user)

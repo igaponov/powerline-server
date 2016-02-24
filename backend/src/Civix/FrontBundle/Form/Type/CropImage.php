@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\FrontBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
@@ -6,12 +7,12 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 /**
- * Crop image form type
+ * Crop image form type.
  */
 class CropImage extends AbstractType
 {
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -25,7 +26,7 @@ class CropImage extends AbstractType
     }
 
     /**
-     * Get unique name for form
+     * Get unique name for form.
      *
      * @return string
      */
@@ -35,7 +36,7 @@ class CropImage extends AbstractType
     }
 
     /**
-     * Set default form option
+     * Set default form option.
      *
      * @param OptionsResolverInterface $resolver
      */

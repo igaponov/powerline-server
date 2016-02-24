@@ -15,7 +15,7 @@ use Civix\CoreBundle\Entity\Announcement;
 abstract class AnnouncementController extends Controller
 {
     abstract protected function getAnnouncementClass();
-    
+
     abstract protected function getSendPushMethodName();
 
     /**
@@ -24,7 +24,7 @@ abstract class AnnouncementController extends Controller
      * @Template("CivixFrontBundle:Announcement:index.html.twig")
      */
     public function indexAction(Request $request)
-    {       
+    {
         /* @var $announcementRepository \Civix\CoreBundle\Repository\AnnouncementRepository */
         $announcementRepository = $this->getDoctrine()->getRepository('CivixCoreBundle:Announcement');
 
@@ -70,7 +70,7 @@ abstract class AnnouncementController extends Controller
     {
         $class = $this->getAnnouncementClass();
         $announcement = new $class();
-        $form = $this->createForm(new AnnouncementFormType, $announcement);
+        $form = $this->createForm(new AnnouncementFormType(), $announcement);
 
         if ('POST' === $request->getMethod()) {
             if ($form->bind($request)->isValid()) {
@@ -88,7 +88,7 @@ abstract class AnnouncementController extends Controller
         }
 
         return array(
-            'form' => $form->createView()
+            'form' => $form->createView(),
         );
     }
 
@@ -102,8 +102,8 @@ abstract class AnnouncementController extends Controller
         if ($announcement->getUser() !== $this->getUser() || $announcement->getPublishedAt()) {
             throw $this->createNotFoundException();
         }
-        
-        $form = $this->createForm(new AnnouncementFormType, $announcement);
+
+        $form = $this->createForm(new AnnouncementFormType(), $announcement);
 
         if ('POST' === $request->getMethod()) {
             if ($form->bind($request)->isValid()) {
@@ -120,7 +120,7 @@ abstract class AnnouncementController extends Controller
 
         return array(
             'form' => $form->createView(),
-            'announcement' => $announcement
+            'announcement' => $announcement,
         );
     }
 
@@ -140,7 +140,7 @@ abstract class AnnouncementController extends Controller
 
         return $this->redirect($this->generateUrl('civix_front_'.$this->getUser()->getType().'_announcement_index'));
     }
-    
+
     /**
      * @Route("/publish/{id}", requirements={"id"="\d+"})
      */
@@ -150,10 +150,10 @@ abstract class AnnouncementController extends Controller
             $request->get('token') !== $this->getToken()) {
             throw new AccessDeniedHttpException();
         }
-        
+
         $packLimitState = $this->get('civix_core.package_handler')
             ->getPackageStateForAnnouncement($this->getUser());
-        
+
         if ($packLimitState->isAllowedWith()) {
             $announcement->setPublishedAt(new \DateTime());
             $this->getDoctrine()->getManager()->flush();
@@ -168,7 +168,7 @@ abstract class AnnouncementController extends Controller
 
         return $this->redirect($this->generateUrl('civix_front_'.$this->getUser()->getType().'_announcement_index'));
     }
-    
+
     /**
      * @return string
      */

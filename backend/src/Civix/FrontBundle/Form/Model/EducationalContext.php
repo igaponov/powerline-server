@@ -6,7 +6,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class EducationalContext
 {
-
     /**
      * @var \Civix\CoreBundle\Entity\Poll\Question
      */

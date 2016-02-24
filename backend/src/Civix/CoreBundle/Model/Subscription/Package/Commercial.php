@@ -6,21 +6,21 @@ class Commercial extends Package
 {
     public function getInviteByEmailLimitation()
     {
-        return null;
+        return;
     }
 
     public function getGroupDivisionLimitation()
     {
-        return null;
+        return;
     }
 
     public function getAnnouncementLimitation()
     {
-        return null;
+        return;
     }
 
     public function getMicropetitionLimitation()
     {
-        return null;
+        return;
     }
 }

@@ -57,7 +57,7 @@ abstract class LeaderEventController extends Controller
         return [
             'paginationPublished' => $paginationPublished,
             'paginationNew' => $paginationNew,
-            'token' => $this->getToken()
+            'token' => $this->getToken(),
         ];
     }
 
@@ -69,16 +69,16 @@ abstract class LeaderEventController extends Controller
     {
         $class = $this->getClassName();
         $formClass = $this->getLeaderEventFormClass();
-        
+
         //predefined options
         $optionValues = ['Yes, I will attend', 'No, I will not attend'];
-        $leaderEvent = new $class;
+        $leaderEvent = new $class();
         foreach ($optionValues as $optionTitle) {
             $option = new Option();
             $option->setValue($optionTitle);
             $leaderEvent->addOption($option);
         }
-        
+
         $form = $this->createForm(new $formClass($this->getUser()), new LeaderEventFormModel($leaderEvent));
 
         if ('POST' === $request->getMethod()) {
@@ -97,7 +97,7 @@ abstract class LeaderEventController extends Controller
                         $this->get('vich_uploader.storage')->upload($item);
                     }
                     /**
-                     * @var $entity \Civix\CoreBundle\Entity\Poll\EducationalContext
+                     * @var \Civix\CoreBundle\Entity\Poll\EducationalContext
                      */
                     $entity = $item->createEntity();
                     if ($entity) {
@@ -120,7 +120,7 @@ abstract class LeaderEventController extends Controller
 
         return [
             'form' => $form->createView(),
-            'isShowGroupSection' => $this->isShowGroupSections($leaderEvent)
+            'isShowGroupSection' => $this->isShowGroupSections($leaderEvent),
         ];
     }
 
@@ -153,7 +153,7 @@ abstract class LeaderEventController extends Controller
                         $this->get('vich_uploader.storage')->upload($item);
                     }
                     /**
-                     * @var $entity \Civix\CoreBundle\Entity\Poll\EducationalContext
+                     * @var \Civix\CoreBundle\Entity\Poll\EducationalContext
                      */
                     $entity = $item->createEntity();
                     if ($entity) {
@@ -176,7 +176,7 @@ abstract class LeaderEventController extends Controller
         return [
             'form' => $form->createView(),
             'leaderEvent' => $leaderEvent,
-            'isShowGroupSection' => $this->isShowGroupSections($leaderEvent)
+            'isShowGroupSection' => $this->isShowGroupSections($leaderEvent),
         ];
     }
 
@@ -231,14 +231,14 @@ abstract class LeaderEventController extends Controller
 
         return $this->redirect($this->generateUrl('civix_front_'.$this->getUser()->getType().'_leaderevent_index'));
     }
-    
+
     protected function getClassName()
     {
-        $className = ucfirst($this->getUser()->getType()) . 'Event';
+        $className = ucfirst($this->getUser()->getType()).'Event';
 
         return "Civix\\CoreBundle\\Entity\\Poll\\Question\\{$className}";
     }
-    
+
     /**
      * @return string
      */

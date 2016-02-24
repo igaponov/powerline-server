@@ -4,7 +4,6 @@ namespace Civix\FrontBundle\Controller\Group;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -88,7 +87,7 @@ class MicropetitionController extends Controller
 
         return array(
             'petition' => $petition,
-            'statistics' => $statistics
+            'statistics' => $statistics,
         );
     }
 
@@ -104,7 +103,7 @@ class MicropetitionController extends Controller
             $this->get('session')->getFlashBag()
                 ->add('danger', 'MicroPetition\'s configuration is not available for this subscription');
         }
-        
+
         $petitionConfigForm = $this->createForm(
             new PetitionConfig(),
             $this->getUser(),
@@ -114,7 +113,7 @@ class MicropetitionController extends Controller
         return [
             'petitionConfigForm' => $petitionConfigForm->createView(),
             'updatePath' => 'civix_front_petitions_config_save',
-            'isChangeConfig' => $isChangeConfig
+            'isChangeConfig' => $isChangeConfig,
         ];
     }
 
@@ -132,7 +131,7 @@ class MicropetitionController extends Controller
 
             return $this->redirect($this->generateUrl('civix_front_petitions'));
         }
-        
+
         $entityManager = $this->getDoctrine()->getManager();
         $currentGroup = $this->getUser();
 
@@ -140,7 +139,6 @@ class MicropetitionController extends Controller
         $petitionConfigForm->handleRequest($this->getRequest());
 
         if ($petitionConfigForm->isValid()) {
-
             $entityManager->persist($currentGroup);
             $entityManager->flush();
 
@@ -150,7 +148,7 @@ class MicropetitionController extends Controller
             return [
                 'petitionConfigForm' => $petitionConfigForm->createView(),
                 'updatePath' => 'civix_front_petitions_config_save',
-                'isChangeConfig' => $isChangeConfig
+                'isChangeConfig' => $isChangeConfig,
                 ];
         }
 

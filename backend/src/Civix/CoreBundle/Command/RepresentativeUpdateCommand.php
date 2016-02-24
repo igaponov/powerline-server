@@ -75,7 +75,7 @@ class RepresentativeUpdateCommand extends ContainerAwareCommand
                 $userManager->updateDistrictsIds($user);
                 $output->writeln(' Join to global groups for user '.$user->getFirstName().' '.$user->getLastName());
                 $groupManager->autoJoinUser($user);
-                
+
                 $entityManager->persist($user);
             }
         }

@@ -6,12 +6,12 @@ class Silver extends Package
 {
     public function getInviteByEmailLimitation()
     {
-        return null;
+        return;
     }
 
     public function getGroupDivisionLimitation()
     {
-        return null;
+        return;
     }
 
     public function getAnnouncementLimitation()
@@ -21,7 +21,7 @@ class Silver extends Package
 
     public function getMicropetitionLimitation()
     {
-        return null;
+        return;
     }
 
     public function getGroupSizeLimitation()

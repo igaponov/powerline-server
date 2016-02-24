@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * GroupSection
+ * GroupSection.
  *
  * @ORM\Table(name="group_sections")
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\GroupSectionRepository")
@@ -15,7 +15,7 @@ use JMS\Serializer\Annotation as Serializer;
 class GroupSection
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -48,61 +48,62 @@ class GroupSection
     private $group;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
         return $this->id;
-        
     }
 
     /**
-     * Set title
+     * Set title.
      *
      * @param string $title
+     *
      * @return GroupSection
      */
     public function setTitle($title)
     {
         $this->title = $title;
-    
+
         return $this;
     }
 
     /**
-     * Get title
+     * Get title.
      *
-     * @return string 
+     * @return string
      */
     public function getTitle()
     {
         return $this->title;
     }
     /**
-     * Constructor
+     * Constructor.
      */
     public function __construct()
     {
         $this->users = new \Doctrine\Common\Collections\ArrayCollection();
     }
-    
+
     /**
-     * Add users
+     * Add users.
      *
      * @param \Civix\CoreBundle\Entity\User $users
+     *
      * @return GroupSection
      */
     public function addUser(\Civix\CoreBundle\Entity\User $users)
     {
         $this->users[] = $users;
-    
+
         return $this;
     }
 
     /**
-     * Remove users
+     * Remove users.
      *
      * @param \Civix\CoreBundle\Entity\User $users
      */
@@ -112,9 +113,9 @@ class GroupSection
     }
 
     /**
-     * Get users
+     * Get users.
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getUsers()
     {
@@ -122,22 +123,23 @@ class GroupSection
     }
 
     /**
-     * Set group
+     * Set group.
      *
      * @param \Civix\CoreBundle\Entity\Group $group
+     *
      * @return GroupSection
      */
     public function setGroup(\Civix\CoreBundle\Entity\Group $group = null)
     {
         $this->group = $group;
-    
+
         return $this;
     }
 
     /**
-     * Get group
+     * Get group.
      *
-     * @return \Civix\CoreBundle\Entity\Group 
+     * @return \Civix\CoreBundle\Entity\Group
      */
     public function getGroup()
     {

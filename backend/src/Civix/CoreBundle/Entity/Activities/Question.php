@@ -16,27 +16,28 @@ class Question extends Activity
 {
     /**
      * @ORM\Column(name="question_id", type="integer")
-     * @var integer
+     *
+     * @var int
      */
     protected $questionId;
 
     public function setQuestionId($id)
     {
-         $this->questionId = $id;
+        $this->questionId = $id;
 
-         return $this;
+        return $this;
     }
 
     public function getQuestionId()
     {
-         return $this->questionId;
+        return $this->questionId;
     }
 
     public function getEntity()
     {
         return array(
             'type' => 'question',
-            'id' => $this->getQuestionId()
+            'id' => $this->getQuestionId(),
         );
     }
 }

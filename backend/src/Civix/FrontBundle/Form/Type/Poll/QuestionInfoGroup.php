@@ -16,7 +16,7 @@ class QuestionInfoGroup extends QuestionInfo
            'choices' => $this->user->getGroupSections(),
            'required' => false,
            'expanded' => true,
-           'multiple' => true
+           'multiple' => true,
         ]);
     }
 }

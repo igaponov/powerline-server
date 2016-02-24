@@ -79,13 +79,13 @@ class Charge
 
     public function updateStripeData(\Stripe\Charge $sc)
     {
-        $this->stripeId       = $sc->id;
-        $this->status         = $sc->status;
-        $this->amount         = $sc->amount;
-        $this->currency       = $sc->currency;
+        $this->stripeId = $sc->id;
+        $this->status = $sc->status;
+        $this->amount = $sc->amount;
+        $this->currency = $sc->currency;
         $this->applicationFee = $sc->application_fee;
-        $this->receiptNumber  = $sc->receipt_number;
-        $this->created        = $sc->created;
+        $this->receiptNumber = $sc->receipt_number;
+        $this->created = $sc->created;
     }
 
     public function getId()
@@ -102,10 +102,10 @@ class Charge
     {
         return [
             'receipt_number' => $this->receiptNumber,
-            'status'         => $this->status,
-            'amount'         => $this->amount,
-            'currency'       => $this->currency,
-            'created'        => $this->created,
+            'status' => $this->status,
+            'amount' => $this->amount,
+            'currency' => $this->currency,
+            'created' => $this->created,
         ];
     }
 }

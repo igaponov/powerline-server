@@ -10,12 +10,11 @@ use Civix\CoreBundle\Entity\QuestionLimit;
 
 /**
  *
- *
  */
 class LoadQuestionLimitData implements FixtureInterface, ContainerAwareInterface
 {
     const DEFAULT_QUESTION_LIMIT = 20;
-     /**
+    /**
      * @var ContainerInterface
      */
     private $container;
@@ -39,10 +38,10 @@ class LoadQuestionLimitData implements FixtureInterface, ContainerAwareInterface
     }
 
     /**
-     * Create Question's limit Object
+     * Create Question's limit Object.
      *
-     * @param integer $limitValue
-     * @param integer $type
+     * @param int $limitValue
+     * @param int $type
      * 
      * @return \Civix\CoreBundle\Entity\QuestionLimit
      */

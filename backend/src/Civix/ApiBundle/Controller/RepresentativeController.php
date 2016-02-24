@@ -2,7 +2,6 @@
 
 namespace Civix\ApiBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -16,8 +15,7 @@ use Civix\CoreBundle\Entity\RepresentativeStorage;
  */
 class RepresentativeController extends BaseController
 {
-
-     /**
+    /**
      * @Route("/", name="api_my_representatives")
      * @Method("GET")
      *
@@ -49,7 +47,7 @@ class RepresentativeController extends BaseController
             }, $nonLegislativeRepr);
             $reprByDistrict['Local'] = array(
                 'title' => 'Local',
-                'representatives' => $nonLegislativeRepr
+                'representatives' => $nonLegislativeRepr,
             );
         }
 
@@ -62,7 +60,7 @@ class RepresentativeController extends BaseController
             }
             if ($singleRepresentative->getRepresentative() && $singleRepresentative->getRepresentative()->getAvatar()) {
                 $singleRepresentative->getRepresentative()->setAvatarFilePath(
-                    $this->getDomain() . $this->get('vich_uploader.templating.helper.uploader_helper')
+                    $this->getDomain().$this->get('vich_uploader.templating.helper.uploader_helper')
                         ->asset($singleRepresentative->getRepresentative(), 'avatar'));
             }
             $reprByDistrict[$singleRepresentative->getDistrictTypeName()]['representatives'][] = $singleRepresentative;
@@ -80,7 +78,7 @@ class RepresentativeController extends BaseController
     {
         $request = $this->getRequest();
 
-        return $request->getScheme() . '://' .$request->getHttpHost();
+        return $request->getScheme().'://'.$request->getHttpHost();
     }
 
     /**

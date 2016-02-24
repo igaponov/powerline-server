@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\FrontBundle\Form\Type\Representative;
 
 use Symfony\Component\Form\AbstractType;
@@ -6,12 +7,12 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 /**
- * Representative avatar form
+ * Representative avatar form.
  */
 class Avatar extends AbstractType
 {
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -22,7 +23,7 @@ class Avatar extends AbstractType
     }
 
     /**
-     * Get unique name for form
+     * Get unique name for form.
      *
      * @return string
      */
@@ -32,14 +33,14 @@ class Avatar extends AbstractType
     }
 
     /**
-     * Set default form option
+     * Set default form option.
      *
      * @param OptionsResolverInterface $resolver
      */
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'validation_groups' => array('profile')
+            'validation_groups' => array('profile'),
         ));
     }
 }

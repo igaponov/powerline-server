@@ -3,12 +3,8 @@
 namespace Civix\BalancedBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Query;
-use Doctrine\ORM\QueryBuilder;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\BalancedBundle\Entity\PaymentHistory;
-use Civix\BalancedBundle\Model\BalancedUserInterface;
-
 
 class PaymentHistoryRepository extends EntityRepository
 {

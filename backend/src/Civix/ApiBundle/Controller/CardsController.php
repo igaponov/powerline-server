@@ -2,8 +2,6 @@
 
 namespace Civix\ApiBundle\Controller;
 
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -22,7 +20,7 @@ class CardsController extends BaseController
     {
         $dto = $this->getJson();
         if (empty($dto->source)) {
-            throw new BadRequestHttpException;
+            throw new BadRequestHttpException();
         }
         $this->get('civix_core.stripe')
             ->addCard($this->getUser(), $dto->source);

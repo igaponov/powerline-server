@@ -9,7 +9,7 @@ class LeaderEventRepository extends EntityRepository
 {
     public function getPublishedLeaderEventQuery(UserInterface $user)
     {
-        $className = ucfirst($user->getType()) . 'Event';
+        $className = ucfirst($user->getType()).'Event';
 
         return $this->getEntityManager()
             ->createQueryBuilder()
@@ -22,10 +22,10 @@ class LeaderEventRepository extends EntityRepository
             ->getQuery()
         ;
     }
-    
+
     public function getNewLeaderEventQuery(UserInterface $user)
     {
-        $className = ucfirst($user->getType()) . 'Event';
+        $className = ucfirst($user->getType()).'Event';
 
         return $this->getEntityManager()
             ->createQueryBuilder()

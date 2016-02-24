@@ -4,7 +4,6 @@ namespace Civix\FrontBundle\Controller\Group;
 
 use Cocur\Slugify\Slugify;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -27,13 +26,13 @@ class MemberController extends Controller
     {
         $entityManager = $this->getDoctrine()->getManager();
         /**
-         * @var $currentGroup \Civix\CoreBundle\Entity\Group
+         * @var \Civix\CoreBundle\Entity\Group
          */
         $currentGroup = $this->getUser();
-        
-        $status = ($currentGroup->getMembershipControl() == Group::GROUP_MEMBERSHIP_APPROVAL)?
-               $currentGroup->getMembershipControl():null;
-        
+
+        $status = ($currentGroup->getMembershipControl() == Group::GROUP_MEMBERSHIP_APPROVAL) ?
+               $currentGroup->getMembershipControl() : null;
+
         $query = $entityManager->getRepository('CivixCoreBundle:UserGroup')
             ->getUsersByGroupQuery($currentGroup, $status);
 
@@ -65,17 +64,17 @@ class MemberController extends Controller
 
         $csrfProvider = $this->get('form.csrf_provider');
         if ($csrfProvider->isCsrfTokenValid(
-            'remove_members_' . $user->getId(), $this->getRequest()->get('_token')
+            'remove_members_'.$user->getId(), $this->getRequest()->get('_token')
         )) {
-
             $slugify = new Slugify();
 
-            $groupName = $slugify->slugify($this->getUser()->getOfficialName(),'');
+            $groupName = $slugify->slugify($this->getUser()->getOfficialName(), '');
 
-            $mailgun = $this->get('civix_core.mailgun')->listremovememberAction($groupName,$this->getUser()->getEmail());
+            $mailgun = $this->get('civix_core.mailgun')->listremovememberAction($groupName, $this->getUser()->getEmail());
 
-            if($mailgun['http_response_code'] != 200) {
-                $this->get('session')->getFlashBag()->add('error' , 'cannot remove this user from mailgun list');
+            if ($mailgun['http_response_code'] != 200) {
+                $this->get('session')->getFlashBag()->add('error', 'cannot remove this user from mailgun list');
+
                 return $this->redirect($this->generateUrl('civix_front_group_members'));
             }
             $this->get('civix_core.group_manager')
@@ -128,25 +127,22 @@ class MemberController extends Controller
         $csrfProvider = $this->get('form.csrf_provider');
 
         if ($csrfProvider->isCsrfTokenValid(
-            'approve_members_' . $user->getId(), $this->getRequest()->get('_token')
+            'approve_members_'.$user->getId(), $this->getRequest()->get('_token')
         )) {
             $userGroup = $entityManager
                 ->getRepository('CivixCoreBundle:UserGroup')
                 ->isJoinedUser($this->getUser(), $user);
 
             if ($userGroup) {
-
                 $slugify = new Slugify();
-                $groupName = $slugify->slugify($userGroup->getGroup()->getOfficialName(),'');
+                $groupName = $slugify->slugify($userGroup->getGroup()->getOfficialName(), '');
 
-                $mailgun = $this->get('civix_core.mailgun')->listaddmemberAction($groupName,$userGroup->getUser()->getEmail(),$userGroup->getUser()->getFirstName().' '.$userGroup->getUser()->getLastName());
+                $mailgun = $this->get('civix_core.mailgun')->listaddmemberAction($groupName, $userGroup->getUser()->getEmail(), $userGroup->getUser()->getFirstName().' '.$userGroup->getUser()->getLastName());
 
+                if ($mailgun['http_response_code'] != 200) {
+                    $this->get('session')->getFlashBag()->add('error', 'cannot add user to mailgun list');
 
-                if($mailgun['http_response_code'] != 200){
-
-                    $this->get('session')->getFlashBag()->add('error' , 'cannot add user to mailgun list');
                     return $this->redirect($this->generateUrl('civix_front_group_manage_approvals'));
-
                 }
                 $userGroup->setStatus(UserGroup::STATUS_ACTIVE);
                 $entityManager->persist($userGroup);

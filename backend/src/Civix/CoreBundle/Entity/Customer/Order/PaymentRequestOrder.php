@@ -18,6 +18,7 @@ class PaymentRequestOrder extends Order
 
     /**
      * @param mixed $paymentRequest
+     *
      * @return $this
      */
     public function setPaymentRequest($paymentRequest)

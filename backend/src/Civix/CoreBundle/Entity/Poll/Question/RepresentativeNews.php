@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping\JoinColumn;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * Representative news entity
+ * Representative news entity.
  *
  * @ORM\Entity()
  * @Serializer\ExclusionPolicy("all")
@@ -28,9 +28,10 @@ class RepresentativeNews extends LeaderNews
     }
 
     /**
-     * Set user
+     * Set user.
      *
-     * @param  \Civix\CoreBundle\Entity\Representative $user
+     * @param \Civix\CoreBundle\Entity\Representative $user
+     *
      * @return Representative
      */
     public function setUser(\Civix\CoreBundle\Entity\Representative $user = null)
@@ -41,7 +42,7 @@ class RepresentativeNews extends LeaderNews
     }
 
     /**
-     * Get user
+     * Get user.
      *
      * @return \Civix\CoreBundle\Entity\Representative
      */

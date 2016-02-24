@@ -7,7 +7,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Entity\BaseComment;
 
 /**
- * Comments entity
+ * Comments entity.
  *
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Poll\CommentRepository")
  * @Serializer\ExclusionPolicy("all")
@@ -21,7 +21,7 @@ class Comment extends BaseComment
     private $question;
 
     /**
-     * Set question
+     * Set question.
      *
      * @param \Civix\CoreBundle\Entity\Poll\Question $question
      * 
@@ -35,9 +35,9 @@ class Comment extends BaseComment
     }
 
     /**
-     * Get question
+     * Get question.
      *
-     * @return \Civix\CoreBundle\Entity\Poll\Question 
+     * @return \Civix\CoreBundle\Entity\Poll\Question
      */
     public function getQuestion()
     {

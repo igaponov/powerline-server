@@ -3,12 +3,9 @@
 namespace Civix\ApiBundle\Features\Context;
 
 use PHPUnit_Framework_Assert as Assert;
-
 use Behat\Behat\Context\BehatContext;
-use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Doctrine\ORM\EntityManager;
-
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Question\RepresentativeNews;
 use Civix\CoreBundle\Entity\Activities\Question as QuestionActivity;
@@ -34,11 +31,11 @@ class ActivityContext extends BehatContext
         $diffSec = 0;
         foreach ($hash as $row) {
             /* @var $question Question */
-            $diffSec++;
+            ++$diffSec;
             $question = $em->getRepository(Question::class)->findOneBySubject($row['question']);
             $activity = $activityService->publishQuestionToActivity($question);
             Assert::assertInstanceOf(Activity::class, $activity);
-            $activity->getSentAt()->sub(new \DateInterval('PT' . (count($hash) - $diffSec) .'S'));
+            $activity->getSentAt()->sub(new \DateInterval('PT'.(count($hash) - $diffSec).'S'));
             $activity->setSentAt(clone $activity->getSentAt());
             $em->flush($activity);
             if (!empty($row['expired_interval_direction'])) {
@@ -64,7 +61,7 @@ class ActivityContext extends BehatContext
         $hash = $table->getHash();
         $diffSec = 0;
         foreach ($hash as $row) {
-            $diffSec++;
+            ++$diffSec;
             $news = new RepresentativeNews();
             $news->setUser($em->getRepository(Representative::class)
                 ->findOneByUsername($row['username']));
@@ -73,7 +70,7 @@ class ActivityContext extends BehatContext
             $em->persist($news);
             $em->flush($news);
             $activity = $activityService->publishLeaderNewsToActivity($news);
-            $activity->getSentAt()->sub(new \DateInterval('PT' . (count($hash) - $diffSec) .'S'));
+            $activity->getSentAt()->sub(new \DateInterval('PT'.(count($hash) - $diffSec).'S'));
             $activity->setSentAt(clone $activity->getSentAt());
             if (!empty($row['expired_interval_direction'])) {
                 $expired = new \DateTime();
@@ -96,7 +93,7 @@ class ActivityContext extends BehatContext
             ->findOneByUsername($following);
         $this->getMainContext()
             ->callGET($this->getAbsoluteUrl(
-                '/api/activities/?following=' . $following->getId()
+                '/api/activities/?following='.$following->getId()
             ), $this->getAuthHeader($username));
         Assert::assertEquals(200, $this->getLastResponse()->getStatusCode());
         Assert::assertContains($activity, $this->getLastResponseContent());
@@ -118,6 +115,6 @@ class ActivityContext extends BehatContext
             "<strong>$from<\/strong> mentioned you in a comment",
             $this->getLastResponseContent()
         );
-        Assert::assertContains('"tab":"' . $tab . '"', $this->getLastResponseContent());
+        Assert::assertContains('"tab":"'.$tab.'"', $this->getLastResponseContent());
     }
 }

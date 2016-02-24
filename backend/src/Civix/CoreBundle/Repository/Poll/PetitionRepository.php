@@ -59,7 +59,7 @@ class PetitionRepository extends EntityRepository
 
         $query = $this->getEntityManager()
             ->createQueryBuilder();
-        
+
         return $query
             ->select('a, u')
             ->from('CivixCoreBundle:Poll\Answer', 'a')

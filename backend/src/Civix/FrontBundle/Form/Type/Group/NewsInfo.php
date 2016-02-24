@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\FrontBundle\Form\Type\Group;
 
 use Symfony\Component\Form\FormBuilderInterface;
@@ -6,7 +7,7 @@ use Civix\FrontBundle\Form\Type\Representative\NewsInfo as NewsInfoType;
 use Civix\CoreBundle\Entity\Group;
 
 /**
- * Question form type
+ * Question form type.
  */
 class NewsInfo extends NewsInfoType
 {
@@ -21,7 +22,7 @@ class NewsInfo extends NewsInfoType
     }
 
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -36,7 +37,7 @@ class NewsInfo extends NewsInfoType
             'choices' => $this->user->getGroupSections(),
             'required' => false,
             'expanded' => true,
-            'multiple' => true
+            'multiple' => true,
         ]);
     }
 }

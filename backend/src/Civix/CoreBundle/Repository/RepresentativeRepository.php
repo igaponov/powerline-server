@@ -9,8 +9,7 @@ use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\User;
 
 /**
- * RepresentativeRepository
- *
+ * RepresentativeRepository.
  */
 class RepresentativeRepository extends EntityRepository
 {
@@ -19,7 +18,7 @@ class RepresentativeRepository extends EntityRepository
      */
     public function getQueryRepresentativeByStatus($status)
     {
-         return $this->getQueryBuilderReprByStatus($status)
+        return $this->getQueryBuilderReprByStatus($status)
                 ->getQuery();
     }
 
@@ -110,7 +109,6 @@ class RepresentativeRepository extends EntityRepository
             ->setParameter('representativeId', $representative->getId())
             ->getQuery()
             ->execute();
-
     }
 
     public function getRepresentativeInformation($representativeId = 0, $storageId = 0)
@@ -119,7 +117,6 @@ class RepresentativeRepository extends EntityRepository
         $representativeId = (int) $representativeId;
 
         if (0 < $representativeId) {
-
             $info = $this->getEntityManager()
                 ->createQuery('
                     SELECT r, s
@@ -129,9 +126,7 @@ class RepresentativeRepository extends EntityRepository
                 ')
             ->setParameter('id', $representativeId)
             ->getOneOrNullResult();
-
         } elseif (0 < $storageId) {
-
             $info = $this->getEntityManager()
                 ->createQuery('
                     SELECT r, s
@@ -169,7 +164,6 @@ class RepresentativeRepository extends EntityRepository
 
     public function findByQuery($query, User $user)
     {
-
         $userDistrictIds = $user->getDistrictsIds();
 
         $qb = $this->getEntityManager()->createQueryBuilder();
@@ -179,9 +173,9 @@ class RepresentativeRepository extends EntityRepository
             ->leftJoin('rs.district', 'd')
             ->where($qb->expr()->in('rs.district', $userDistrictIds ? $userDistrictIds : array(0)))
             ->andWhere($qb->expr()->orX(
-                $qb->expr()->like('rs.officialTitle', $qb->expr()->literal('%' . $query . '%')),
-                $qb->expr()->like('rs.firstName', $qb->expr()->literal('%' . $query . '%')),
-                $qb->expr()->like('rs.lastName', $qb->expr()->literal('%' . $query . '%'))
+                $qb->expr()->like('rs.officialTitle', $qb->expr()->literal('%'.$query.'%')),
+                $qb->expr()->like('rs.firstName', $qb->expr()->literal('%'.$query.'%')),
+                $qb->expr()->like('rs.lastName', $qb->expr()->literal('%'.$query.'%'))
             ))
             ->orderBy('d.districtType')
             ->getQuery()->getResult()
@@ -194,9 +188,9 @@ class RepresentativeRepository extends EntityRepository
             ->where($qb->expr()->in('r.district', $userDistrictIds ? $userDistrictIds : array(0)))
             ->andWhere('r.isNonLegislative = 1')
             ->andWhere($qb->expr()->orX(
-                $qb->expr()->like('r.officialTitle', $qb->expr()->literal('%' . $query . '%')),
-                $qb->expr()->like('r.firstName', $qb->expr()->literal('%' . $query . '%')),
-                $qb->expr()->like('r.lastName', $qb->expr()->literal('%' . $query . '%'))
+                $qb->expr()->like('r.officialTitle', $qb->expr()->literal('%'.$query.'%')),
+                $qb->expr()->like('r.firstName', $qb->expr()->literal('%'.$query.'%')),
+                $qb->expr()->like('r.lastName', $qb->expr()->literal('%'.$query.'%'))
             ))
             ->orderBy('d.districtType')
             ->getQuery()->getResult()

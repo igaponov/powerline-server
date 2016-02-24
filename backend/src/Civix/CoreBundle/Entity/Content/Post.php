@@ -4,7 +4,6 @@ namespace Civix\CoreBundle\Entity\Content;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\HttpFoundation\File\File;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Serializer\Type\Image;
@@ -35,7 +34,6 @@ class Post
     private $shortDescription;
 
     /**
-     *
      * @ORM\Column(name="title", type="string")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-post"})
@@ -71,12 +69,13 @@ class Post
 
     /**
      * @ORM\Column(type="boolean", name="is_published")
-     * @var Bool
+     *
+     * @var bool
      */
     private $isPublished;
-    
+
     /**
-     * @var \DateTime $createdAt
+     * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      * @Serializer\Expose()
@@ -86,18 +85,17 @@ class Post
     private $createdAt;
 
     /**
-     * @var \DateTime $updatedAt
+     * @var \DateTime
      *
      * @ORM\Column(name="updated_at", type="datetime")
      */
     private $updatedAt;
-    
+
     /**
-     * @var \DateTime $publishAt
+     * @var \DateTime
      *
      * @ORM\Column(name="published_at", type="datetime", nullable=true)
      */
-
     private $publishedAt;
 
     public function __construct()
@@ -106,11 +104,11 @@ class Post
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
     }
-    
+
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -118,22 +116,23 @@ class Post
     }
 
     /**
-     * Set short description
+     * Set short description.
      *
      * @param string $shortDescription
+     *
      * @return Post
      */
     public function setShortDescription($shortDescription)
     {
         $this->shortDescription = $shortDescription;
-    
+
         return $this;
     }
 
     /**
-     * Get short description
+     * Get short description.
      *
-     * @return string 
+     * @return string
      */
     public function getShortDescription()
     {
@@ -141,22 +140,23 @@ class Post
     }
 
     /**
-     * Set title
+     * Set title.
      *
      * @param string $title
+     *
      * @return Post
      */
     public function setTitle($title)
     {
         $this->title = $title;
-    
+
         return $this;
     }
 
     /**
-     * Get title
+     * Get title.
      *
-     * @return string 
+     * @return string
      */
     public function getTitle()
     {
@@ -164,22 +164,23 @@ class Post
     }
 
     /**
-     * Set content
+     * Set content.
      *
      * @param string $content
+     *
      * @return Post
      */
     public function setContent($content)
     {
         $this->content = $content;
-    
+
         return $this;
     }
 
     /**
-     * Get content
+     * Get content.
      *
-     * @return string 
+     * @return string
      */
     public function getContent()
     {
@@ -187,22 +188,23 @@ class Post
     }
 
     /**
-     * Set postImage
+     * Set postImage.
      *
      * @param string $postImage
+     *
      * @return Post
      */
     public function setPostImage($postImage)
     {
         $this->postImage = $postImage;
-    
+
         return $this;
     }
 
     /**
-     * Get postImage
+     * Get postImage.
      *
-     * @return string 
+     * @return string
      */
     public function getPostImage()
     {
@@ -225,9 +227,10 @@ class Post
     }
 
     /**
-     * Set isPublished
+     * Set isPublished.
      *
-     * @param boolean $isPublished
+     * @param bool $isPublished
+     *
      * @return Post
      */
     public function setIsPublished($isPublished)
@@ -238,32 +241,33 @@ class Post
     }
 
     /**
-     * Get isPublished
+     * Get isPublished.
      *
-     * @return boolean
+     * @return bool
      */
     public function getIsPublished()
     {
         return $this->isPublished;
     }
-    
+
     /**
-     * Set createdAt
+     * Set createdAt.
      *
      * @param \DateTime $createdAt
+     *
      * @return Post
      */
     public function setCreatedAt($createdAt)
     {
         $this->createdAt = $createdAt;
-    
+
         return $this;
     }
 
     /**
-     * Get createdAt
+     * Get createdAt.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreatedAt()
     {
@@ -271,22 +275,23 @@ class Post
     }
 
     /**
-     * Set updatedAt
+     * Set updatedAt.
      *
      * @param \DateTime $updatedAt
+     *
      * @return Post
      */
     public function setUpdatedAt($updatedAt)
     {
         $this->updatedAt = $updatedAt;
-    
+
         return $this;
     }
 
     /**
-     * Get updatedAt
+     * Get updatedAt.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getUpdatedAt()
     {
@@ -294,22 +299,23 @@ class Post
     }
 
     /**
-     * Set publishedAt
+     * Set publishedAt.
      *
      * @param \DateTime $publishedAt
+     *
      * @return Post
      */
     public function setPublishedAt($publishedAt)
     {
         $this->publishedAt = $publishedAt;
-    
+
         return $this;
     }
 
     /**
-     * Get publishedAt
+     * Get publishedAt.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getPublishedAt()
     {

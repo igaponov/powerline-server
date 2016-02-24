@@ -6,7 +6,6 @@ use Civix\CoreBundle\Parser\Tags;
 
 class TagsTest extends \PHPUnit_Framework_TestCase
 {
-
     /**
      * @group parser
      */

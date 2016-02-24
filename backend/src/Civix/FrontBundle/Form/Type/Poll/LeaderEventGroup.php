@@ -6,19 +6,18 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Civix\FrontBundle\Form\Type\Poll\EducationalContext;
 
 class LeaderEventGroup extends AbstractType
 {
     protected $user;
-    
+
     public function __construct(UserInterface $user = null)
     {
         $this->user = $user;
     }
 
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -30,7 +29,7 @@ class LeaderEventGroup extends AbstractType
     }
 
     /**
-     * Get unique name for form
+     * Get unique name for form.
      *
      * @return string
      */
@@ -40,7 +39,7 @@ class LeaderEventGroup extends AbstractType
     }
 
     /**
-     * Set default form option
+     * Set default form option.
      *
      * @param OptionsResolverInterface $resolver
      */
@@ -49,7 +48,7 @@ class LeaderEventGroup extends AbstractType
         $resolver->setDefaults([
             'data_class' => 'Civix\FrontBundle\Form\Model\LeaderEvent',
             'csrf_protection' => true,
-            'csrf_field_name' => '_token'
+            'csrf_field_name' => '_token',
         ]);
     }
 }

@@ -26,8 +26,7 @@ class Push implements ConsumerInterface
             if ($this->pushSender->send($message) === false) {
                 $this->logger
                     ->addError('Push notification hasn\'t been sent. DeviceID = '
-                        . $message->getDeviceIdentifier());
-
+                        .$message->getDeviceIdentifier());
             }
             if ('rms_push_notifications.os.ios' === $message->getTargetOS()) {
                 usleep(700000);

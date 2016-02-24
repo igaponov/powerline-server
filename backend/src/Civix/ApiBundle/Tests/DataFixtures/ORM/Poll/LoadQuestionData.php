@@ -8,7 +8,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Civix\CoreBundle\Entity\Poll\Question\Group as Question;
 
 /**
- * LoadQuestionData
+ * LoadQuestionData.
  */
 class LoadQuestionData extends AbstractFixture implements FixtureInterface
 {
@@ -17,9 +17,9 @@ class LoadQuestionData extends AbstractFixture implements FixtureInterface
         $question = new Question();
         $question->setSubject('question1');
         $question->setUser($this->getReference('group-group1'));
-        
+
         $this->addReference('question1', $question);
-        
+
         $manager->persist($question);
         $manager->flush();
     }

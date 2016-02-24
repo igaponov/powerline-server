@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\LoadBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -26,7 +27,7 @@ class LoadScenarioCommand extends ContainerAwareCommand
             'micropetitions',
             'socialActivities',
         ];
-        
+
         $this
             ->setName('load:scenario')
             ->setDescription('Load fake date for load testing')
@@ -63,12 +64,12 @@ class LoadScenarioCommand extends ContainerAwareCommand
                 $parts
             );
     }
-    
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $resourcePath = 'src/Civix/LoadBundle/Resources/scenarios/';
         $tokensOutput = 'src/Civix/LoadBundle/Resources/jmeter/';
-        $generateScenario = $resourcePath. 'generateScenario.sql';
+        $generateScenario = $resourcePath.'generateScenario.sql';
         $entityManager = $this->getContainer()->get('doctrine.orm.entity_manager');
         $dataGenerator = $this->getContainer()->get('civix_load.generator');
         $executeTime = 0;
@@ -117,19 +118,19 @@ class LoadScenarioCommand extends ContainerAwareCommand
                 'comments' => 500,
                 'micropetitions' => 100000,
                 'socialActivities' => 100,
-            ]
+            ],
         ];
-        
+
         if (!$input->getOption('append')) {
             //truncate database
             $dropArguments = array(
                 'command' => 'doctrine:schema:drop',
-                '--force' => true
+                '--force' => true,
             );
             $createArgument = array(
-                'command' => 'doctrine:schema:create'
+                'command' => 'doctrine:schema:create',
             );
-            
+
             $inputDrop = new ArrayInput($dropArguments);
             $inputCreate = new ArrayInput($createArgument);
 
@@ -142,13 +143,13 @@ class LoadScenarioCommand extends ContainerAwareCommand
 
         foreach ($optionsValues as $scenarioNumber) {
             if ($input->getOption($scenarioNumber)) {
-                $tokensFile = $tokensOutput. 'tokens'.$scenarioNumber.'.csv';
+                $tokensFile = $tokensOutput.'tokens'.$scenarioNumber.'.csv';
 
-                $output->writeln('Try to load scenario with '. $scenarioNumber . ' users');
-                
+                $output->writeln('Try to load scenario with '.$scenarioNumber.' users');
+
                 //generate
                 if (isset($scenarios[$scenarioNumber])) {
-                     //stop logging
+                    //stop logging
                     $this->getContainer()
                         ->get('doctrine')
                         ->getConnection()
@@ -176,7 +177,7 @@ class LoadScenarioCommand extends ContainerAwareCommand
         }
 
         $executeTime = microtime(true) - $timeStart;
-        $output->writeln('Loading complete. Execute time = '.$executeTime. ' seconds');
+        $output->writeln('Loading complete. Execute time = '.$executeTime.' seconds');
     }
 
     private function getTokensForJmeter($csvFile, $entityManager)
@@ -184,7 +185,7 @@ class LoadScenarioCommand extends ContainerAwareCommand
         $connection = $entityManager->getConnection();
         $tokens = $connection->fetchAll('SELECT token FROM `user` Limit 500');
         $csvHandle = fopen($csvFile, 'w');
-        
+
         if ($csvHandle) {
             foreach ($tokens as $singleRowToken) {
                 fputcsv($csvHandle, array_values($singleRowToken));
@@ -198,16 +199,15 @@ class LoadScenarioCommand extends ContainerAwareCommand
         $connection = $entityManager->getConnection();
         $sqlQueries = file_get_contents($scenarioFile);
         $connection->executeQuery($sqlQueries);
-
     }
 
     private function runGenerator($scenarioConfig, $parts, $dataGenerator, $output)
     {
         foreach ($parts as $part) {
-            $methodName = 'generate'. ucfirst($part);
+            $methodName = 'generate'.ucfirst($part);
             if (method_exists($dataGenerator, $methodName)) {
                 $dataGenerator->$methodName($scenarioConfig);
-                $output->writeln('Generation of '. $part .' is completed.');
+                $output->writeln('Generation of '.$part.' is completed.');
             }
         }
     }

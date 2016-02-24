@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\FrontBundle\Form\Type\Poll;
 
 use Symfony\Component\Form\AbstractType;
@@ -7,7 +8,7 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
- * Question form type
+ * Question form type.
  */
 class Question extends AbstractType
 {
@@ -21,7 +22,7 @@ class Question extends AbstractType
     }
 
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -33,7 +34,7 @@ class Question extends AbstractType
     }
 
     /**
-     * Get unique name for form
+     * Get unique name for form.
      *
      * @return string
      */
@@ -43,7 +44,7 @@ class Question extends AbstractType
     }
 
     /**
-     * Set default form option
+     * Set default form option.
      *
      * @param OptionsResolverInterface $resolver
      */
@@ -52,7 +53,7 @@ class Question extends AbstractType
         $resolver->setDefaults([
             'data_class' => 'Civix\FrontBundle\Form\Model\Question',
             'csrf_protection' => true,
-            'csrf_field_name' => '_token'
+            'csrf_field_name' => '_token',
         ]);
     }
 }

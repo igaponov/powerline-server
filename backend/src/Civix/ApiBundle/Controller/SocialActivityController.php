@@ -2,8 +2,6 @@
 
 namespace Civix\ApiBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -27,7 +25,7 @@ class SocialActivityController extends BaseController
             ),
             ['api-activities']
         ));
-        $response->headers->set('Server-Time', (new \DateTime)->format('D, d M Y H:i:s O'));
+        $response->headers->set('Server-Time', (new \DateTime())->format('D, d M Y H:i:s O'));
 
         return $response;
     }

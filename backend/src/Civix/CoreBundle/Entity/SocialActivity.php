@@ -5,8 +5,6 @@ namespace Civix\CoreBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Converters\SocialActivityConverter;
-use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\User;
 
 /**
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\SocialActivityRepository")
@@ -92,7 +90,7 @@ class SocialActivity
     private $target;
 
     /**
-     * @var boolean
+     * @var bool
      *
      * @Serializer\Expose()
      * @Serializer\Groups({"api-activities"})
@@ -113,11 +111,11 @@ class SocialActivity
         $this->type = $type;
         $this->following = $following;
         $this->group = $group;
-        $this->createdAt = new \DateTime;
+        $this->createdAt = new \DateTime();
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -125,7 +123,8 @@ class SocialActivity
     }
 
     /**
-     * @param integer $id
+     * @param int $id
+     *
      * @return $this
      */
     public function setId($id)
@@ -145,6 +144,7 @@ class SocialActivity
 
     /**
      * @param User $recipient
+     *
      * @return $this
      */
     public function setRecipient(User $recipient)
@@ -164,6 +164,7 @@ class SocialActivity
 
     /**
      * @param Group $group
+     *
      * @return $this
      */
     public function setGroup(Group $group)
@@ -183,6 +184,7 @@ class SocialActivity
 
     /**
      * @param string $type
+     *
      * @return $this
      */
     public function setType($type)
@@ -202,6 +204,7 @@ class SocialActivity
 
     /**
      * @param \DateTime $createdAt
+     *
      * @return $this
      */
     public function setCreatedAt(\DateTime $createdAt)
@@ -221,6 +224,7 @@ class SocialActivity
 
     /**
      * @param array $target
+     *
      * @return $this
      */
     public function setTarget($target)
@@ -231,7 +235,7 @@ class SocialActivity
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isIgnore()
     {
@@ -239,7 +243,8 @@ class SocialActivity
     }
 
     /**
-     * @param boolean $ignore
+     * @param bool $ignore
+     *
      * @return $this
      */
     public function setIgnore($ignore)
@@ -259,6 +264,7 @@ class SocialActivity
 
     /**
      * @param User $following
+     *
      * @return $this
      */
     public function setFollowing(User $following)

@@ -8,7 +8,7 @@ use Civix\CoreBundle\Model\CropAvatarInterface;
 use Civix\CoreBundle\Entity\User;
 
 /**
- * Avatar crop class
+ * Avatar crop class.
  *
  * @author Valentin Shevko <valentin.shevko@intellectsoft.org>
  */
@@ -31,9 +31,9 @@ class CropAvatar
     }
 
     /**
-     * Crop entity avatar
+     * Crop entity avatar.
      *
-     * @param Object   $entity
+     * @param object   $entity
      * @param int      $x
      * @param int      $y
      * @param int|null $w
@@ -52,7 +52,7 @@ class CropAvatar
             $this->serviceCropImage
                 ->crop($tempFile, $avatarSourcePath, 0, 0, $x, $y, self::AVATAR_WIDTH, self::AVATAR_HEIGHT, $w, $h);
         } catch (\Exception $exc) {
-            $this->logger->addError('Image '.  $avatarSourcePath . '. '.$exc->getMessage());
+            $this->logger->addError('Image '.$avatarSourcePath.'. '.$exc->getMessage());
         }
 
         $entity->setAvatarFileName($filename);
@@ -75,9 +75,9 @@ class CropAvatar
                 $size
             );
         } catch (\Exception $exc) {
-            $this->logger->addError('Image '.  $srcPath . '. '.$exc->getMessage());
+            $this->logger->addError('Image '.$srcPath.'. '.$exc->getMessage());
         }
-        
+
         $entity->setAvatarFileName($tempFile);
         $fileUpload = new UploadedFile($tempFile, $filename);
         $entity->setAvatar($fileUpload);

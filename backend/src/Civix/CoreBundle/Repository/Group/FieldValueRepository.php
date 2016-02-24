@@ -10,7 +10,7 @@ class FieldValueRepository extends EntityRepository
 {
     public function getFieldsValuesByUser(User $user, Group $group)
     {
-        $fieldIds = $group->getFillFieldsRequired()?$group->getFieldsIds():false;
+        $fieldIds = $group->getFillFieldsRequired() ? $group->getFieldsIds() : false;
 
         return $this->createQueryBuilder('fv')
             ->where('fv.user = :user')
@@ -24,7 +24,7 @@ class FieldValueRepository extends EntityRepository
 
     public function removeUserFields(User $user, Group $group)
     {
-        $fieldIds = $group->getFillFieldsRequired()?$group->getFieldsIds():false;
+        $fieldIds = $group->getFillFieldsRequired() ? $group->getFieldsIds() : false;
 
         return $this->getEntityManager()
           ->createQuery('DELETE FROM CivixCoreBundle:Group\FieldValue fv

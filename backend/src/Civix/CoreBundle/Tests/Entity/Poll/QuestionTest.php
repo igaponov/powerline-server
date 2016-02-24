@@ -1,9 +1,8 @@
 <?php
+
 namespace Civix\CoreBundle\Tests\Entity\Poll;
 
-use Civix\CoreBundle\Entity\Poll\Question\Representative;
-
-class GroupControllerTest extends \PHPUnit_Framework_TestCase
+class QuestionTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @group question
@@ -31,7 +30,6 @@ class GroupControllerTest extends \PHPUnit_Framework_TestCase
         $question->addOption($this->createNewOption($question, 0));
 
         $this->assertEquals(0, $question->getMaxAnswers());
-
     }
     /**
      * @group question
@@ -97,16 +95,16 @@ class GroupControllerTest extends \PHPUnit_Framework_TestCase
         return new \Civix\CoreBundle\Entity\Poll\Answer();
     }
     /**
-     * @param  \Civix\CoreBundle\Entity\Poll\Question $question
-     * @param  type                                   $answersCount
+     * @param \Civix\CoreBundle\Entity\Poll\Question $question
+     * @param type                                   $answersCount
+     *
      * @return \Civix\CoreBundle\Entity\Poll\Option
      */
     protected function createNewOption(\Civix\CoreBundle\Entity\Poll\Question $question, $answersCount = 0)
     {
         $option = new \Civix\CoreBundle\Entity\Poll\Option();
 
-        for ($i=0; $i<$answersCount; $i++) {
-
+        for ($i = 0; $i < $answersCount; ++$i) {
             $answer = $this->getNewAnswer();
 
             $option->addAnswer($answer);

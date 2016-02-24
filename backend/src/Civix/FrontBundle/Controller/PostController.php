@@ -52,7 +52,7 @@ abstract class PostController extends Controller
         return array(
             'paginationPublished' => $paginationPublished,
             'paginationNew' => $paginationNew,
-            'token' => $this->getToken()
+            'token' => $this->getToken(),
         );
     }
 
@@ -77,10 +77,9 @@ abstract class PostController extends Controller
         }
 
         return array(
-            'form' => $form->createView()
+            'form' => $form->createView(),
         );
     }
-
 
     /**
      * @Route("/{id}", requirements={"id"="\d+"})
@@ -103,7 +102,7 @@ abstract class PostController extends Controller
 
         return array(
             'form' => $form->createView(),
-            'post' => $post
+            'post' => $post,
         );
     }
 
@@ -127,14 +126,14 @@ abstract class PostController extends Controller
     {
         $post->setPublishedAt(new \DateTime());
         $post->setIsPublished(true);
-        
+
         $this->getDoctrine()->getManager()->persist($post);
         $this->getDoctrine()->getManager()->flush($post);
         $this->get('session')->getFlashBag()->add('notice', 'The post has been successfully published');
 
         return $this->redirect($this->generateUrl("civix_front_{$this->getUser()->getType()}_post_index"));
     }
-    
+
     /**
      * @return string
      */

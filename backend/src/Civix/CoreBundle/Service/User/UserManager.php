@@ -8,13 +8,13 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class UserManager
 {
     const USER_RESET_PASSWORD_INTERVAL_HOURS = 24;
-    
+
     private $entityManager;
     private $ciceroApi;
     private $groupManager;
     private $cropImageService;
     private $kernelRootDir;
-    
+
     public function __construct(
         \Doctrine\ORM\EntityManager $entityManager,
         \Civix\CoreBundle\Service\CiceroApi $ciceroApi,
@@ -107,7 +107,7 @@ class UserManager
             $img = imagecreatefromstring(base64_decode($new->getAvatarFileName()));
 
             if ($img != false) {
-                $filename = $user->getId() . '_' .uniqid() . '.jpeg';
+                $filename = $user->getId().'_'.uniqid().'.jpeg';
                 $temp_file = tempnam(sys_get_temp_dir(), 'avatar');
                 if (imagejpeg($img, $temp_file)) {
 
@@ -127,7 +127,7 @@ class UserManager
 
         $user->setIsRegistrationComplete(true);
     }
-    
+
     public function updateProfileDemographics(User $user, User $new)
     {
         $user->setSex($new->getSex());
@@ -161,7 +161,7 @@ class UserManager
         }
 
         $currentDate = new \DateTime();
-        $resetIntervalHours = ($currentDate->getTimestamp() - $lastResetDate->getTimestamp())/3600;
+        $resetIntervalHours = ($currentDate->getTimestamp() - $lastResetDate->getTimestamp()) / 3600;
 
         if ($resetIntervalHours >= 24) {
             return true;

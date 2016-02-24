@@ -3,7 +3,6 @@
 namespace Civix\FrontBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Security\Core\SecurityContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -20,7 +19,7 @@ abstract class NewsController extends Controller
      * @return string
      */
     abstract protected function getToken();
-    
+
     /**
      * @Route("/")
      * @Method({"GET"})
@@ -90,8 +89,8 @@ abstract class NewsController extends Controller
      */
     public function newAction(Request $request)
     {
-        $class = 'Civix\CoreBundle\Entity\Poll\Question\\' . ucfirst($this->getUser()->getType()) . 'News';
-        $news = new $class;
+        $class = 'Civix\CoreBundle\Entity\Poll\Question\\'.ucfirst($this->getUser()->getType()).'News';
+        $news = new $class();
         $formClass = $this->getNewsFormClass();
         $form = $this->createForm(new $formClass($this->getUser()), new NewsModel($news));
 
@@ -111,7 +110,7 @@ abstract class NewsController extends Controller
                         $this->container->get('vich_uploader.storage')->upload($item);
                     }
                     /**
-                     * @var $entity \Civix\CoreBundle\Entity\Poll\EducationalContext
+                     * @var \Civix\CoreBundle\Entity\Poll\EducationalContext
                      */
                     $entity = $item->createEntity();
                     if ($entity) {
@@ -125,7 +124,7 @@ abstract class NewsController extends Controller
                 $this->get('session')->getFlashBag()->add('notice', 'The news has been successfully saved');
 
                 return $this->redirect(
-                    $this->generateUrl('civix_front_' . $this->getUser()->getType() . '_news_index')
+                    $this->generateUrl('civix_front_'.$this->getUser()->getType().'_news_index')
                 );
             }
         }
@@ -133,7 +132,7 @@ abstract class NewsController extends Controller
         return array(
             'form' => $form->createView(),
             'owner' => $this->getUser()->getType(),
-            'isShowGroupSection' => $this->isShowGroupSections($news)
+            'isShowGroupSection' => $this->isShowGroupSections($news),
         );
     }
 
@@ -166,7 +165,7 @@ abstract class NewsController extends Controller
                         $this->container->get('vich_uploader.storage')->upload($item);
                     }
                     /**
-                     * @var $entity \Civix\CoreBundle\Entity\Poll\EducationalContext
+                     * @var \Civix\CoreBundle\Entity\Poll\EducationalContext
                      */
                     $entity = $item->createEntity();
                     if ($entity) {
@@ -180,7 +179,7 @@ abstract class NewsController extends Controller
                 $this->get('session')->getFlashBag()->add('notice', 'The news has been successfully updated');
 
                 return $this->redirect(
-                    $this->generateUrl('civix_front_' . $this->getUser()->getType() . '_news_index')
+                    $this->generateUrl('civix_front_'.$this->getUser()->getType().'_news_index')
                 );
             }
         }
@@ -189,7 +188,7 @@ abstract class NewsController extends Controller
             'form' => $form->createView(),
             'news' => $news,
             'owner' => $this->getUser()->getType(),
-            'isShowGroupSection' => $this->isShowGroupSections($news)
+            'isShowGroupSection' => $this->isShowGroupSections($news),
         );
     }
 
@@ -208,7 +207,7 @@ abstract class NewsController extends Controller
         $manager->flush();
         $this->get('session')->getFlashBag()->add('notice', 'The news has been successfully removed');
 
-        return $this->redirect($this->generateUrl('civix_front_' . $this->getUser()->getType() . '_news_index'));
+        return $this->redirect($this->generateUrl('civix_front_'.$this->getUser()->getType().'_news_index'));
     }
 
     /**
@@ -226,16 +225,17 @@ abstract class NewsController extends Controller
         $this->get('civix_core.activity_update')->publishLeaderNewsToActivity($news);
         $this->get('session')->getFlashBag()->add('notice', 'The news has been successfully published');
 
-        return $this->redirect($this->generateUrl('civix_front_' . $this->getUser()->getType() . '_news_index'));
+        return $this->redirect($this->generateUrl('civix_front_'.$this->getUser()->getType().'_news_index'));
     }
 
     /**
      * @param $id
+     *
      * @return LeaderNews
      */
     protected function getNews($id)
     {
-        $className = ucfirst($this->getUser()->getType()) . 'News';
+        $className = ucfirst($this->getUser()->getType()).'News';
         $news = $this->getDoctrine()->getRepository("CivixCoreBundle:Poll\\Question\\{$className}")->find($id);
         if (!$news) {
             throw $this->createNotFoundException();

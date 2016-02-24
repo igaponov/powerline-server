@@ -4,7 +4,6 @@ namespace Civix\FrontBundle\Form\Type\Settings;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 class Permissions extends AbstractType
 {
@@ -26,10 +25,10 @@ class Permissions extends AbstractType
                             'permissions_zip_code' => 'Zip Code',
                             'permissions_email' => 'Email',
                             'permissions_phone' => 'Phone Number',
-                            'permissions_responses' => 'Responses'
+                            'permissions_responses' => 'Responses',
                         ],
                         'multiple' => true,
-                        'expanded' => true
+                        'expanded' => true,
                     ]
                 )
             );

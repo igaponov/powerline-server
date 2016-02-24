@@ -7,7 +7,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Entity\BaseComment;
 
 /**
- * Micropetition comments entity
+ * Micropetition comments entity.
  *
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Micropetitions\CommentRepository")
  * @Serializer\ExclusionPolicy("all")
@@ -21,7 +21,7 @@ class Comment extends BaseComment
     private $petition;
 
     /**
-     * Set micropetition
+     * Set micropetition.
      *
      * @param \Civix\CoreBundle\Entity\Micropetitions\Petition $petition
      * 
@@ -35,9 +35,9 @@ class Comment extends BaseComment
     }
 
     /**
-     * Get micropetition
+     * Get micropetition.
      *
-     * @return \Civix\CoreBundle\Entity\Micropetitions\Petition 
+     * @return \Civix\CoreBundle\Entity\Micropetitions\Petition
      */
     public function getPetition()
     {

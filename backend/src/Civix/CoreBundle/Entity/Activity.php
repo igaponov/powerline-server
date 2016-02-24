@@ -35,7 +35,6 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  */
 abstract class Activity
 {
-
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
@@ -83,12 +82,12 @@ abstract class Activity
      */
     protected $expireAt;
 
-     /**
+    /**
      * @ORM\Column(name="responses_count", type="integer")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-activities"})
      *
-     * @var integer
+     * @var int
      */
     protected $responsesCount;
 
@@ -110,19 +109,19 @@ abstract class Activity
      */
     protected $representative;
 
-     /**
+    /**
      * @ORM\ManyToOne(targetEntity="\Civix\CoreBundle\Entity\Group")
      * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $group;
 
-     /**
+    /**
      * @ORM\ManyToOne(targetEntity="\Civix\CoreBundle\Entity\Superuser")
      * @ORM\JoinColumn(name="superuser_id", referencedColumnName="id")
      */
     protected $superuser;
 
-     /**
+    /**
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\User")
      * @ORM\JoinColumn(name="user_id",  referencedColumnName="id")
      */
@@ -149,12 +148,13 @@ abstract class Activity
 
     /**
      * @ORM\Column(name="is_outsiders", type="boolean", nullable=true)
-     * @var type 
+     *
+     * @var type
      */
     protected $isOutsiders;
 
     /**
-     * @var boolean
+     * @var bool
      * @Serializer\Expose()
      * @Serializer\Groups({"api-activities"})
      */
@@ -180,7 +180,6 @@ abstract class Activity
     protected $imageSrc;
 
     /**
-     *
      * @Vich\UploadableField(mapping="educational_image", fileNameProperty="imageSrc")
      *
      * @Serializer\Expose()
@@ -188,7 +187,6 @@ abstract class Activity
      * @Serializer\Type("Image")
      * @Serializer\SerializedName("image_src")
      * @Serializer\Accessor(getter="getActivityImage")
-     *
      */
     protected $image;
 
@@ -215,9 +213,9 @@ abstract class Activity
     }
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -225,7 +223,7 @@ abstract class Activity
     }
 
     /**
-     * Set title
+     * Set title.
      *
      * @param string $title
      *
@@ -239,7 +237,7 @@ abstract class Activity
     }
 
     /**
-     * Get title
+     * Get title.
      *
      * @return string
      */
@@ -249,7 +247,7 @@ abstract class Activity
     }
 
     /**
-     * Set description
+     * Set description.
      *
      * @param string $description
      *
@@ -263,7 +261,7 @@ abstract class Activity
     }
 
     /**
-     * Get description
+     * Get description.
      *
      * @return string
      */
@@ -273,7 +271,7 @@ abstract class Activity
     }
 
     /**
-     * Set sentAt
+     * Set sentAt.
      *
      * @param \DateTime $sentAt
      *
@@ -287,7 +285,7 @@ abstract class Activity
     }
 
     /**
-     * Get sentAt
+     * Get sentAt.
      *
      * @return \DateTime
      */
@@ -297,7 +295,7 @@ abstract class Activity
     }
 
     /**
-     * Set expireAt
+     * Set expireAt.
      *
      * @param \DateTime $expireAt
      *
@@ -311,7 +309,7 @@ abstract class Activity
     }
 
     /**
-     * Get expireAt
+     * Get expireAt.
      *
      * @return \DateTime
      */
@@ -321,9 +319,9 @@ abstract class Activity
     }
 
     /**
-     * Set responses_count
+     * Set responses_count.
      *
-     * @param integer $responsesCount
+     * @param int $responsesCount
      *
      * @return Activity
      */
@@ -335,9 +333,9 @@ abstract class Activity
     }
 
     /**
-     * Get responses_count
+     * Get responses_count.
      *
-     * @return integer
+     * @return int
      */
     public function getResponsesCount()
     {
@@ -361,7 +359,7 @@ abstract class Activity
         $this->superuser = $superuser;
         $this->owner = [
             'type' => 'admin',
-            'official_title' => 'The Global Forum'
+            'official_title' => 'The Global Forum',
         ];
     }
 
@@ -395,7 +393,7 @@ abstract class Activity
             'type' => $group->getType(),
             'group_type' => $group->getGroupType(),
             'official_title' => $group->getOfficialName(),
-            'avatar_file_path' => $group->getAvatarFileName()
+            'avatar_file_path' => $group->getAvatarFileName(),
         ];
     }
 
@@ -407,7 +405,7 @@ abstract class Activity
             'official_title' => '',
             'first_name' => $user->getFirstName(),
             'last_name' => $user->getLastName(),
-            'avatar_file_path' => $user->getAvatarFileName()
+            'avatar_file_path' => $user->getAvatarFileName(),
         ];
     }
 
@@ -441,7 +439,7 @@ abstract class Activity
     }
 
     /**
-     * Set isOutsiders 
+     * Set isOutsiders.
      *
      * @param \DateTime $expireAt
      *
@@ -455,9 +453,9 @@ abstract class Activity
     }
 
     /**
-     * Get isOutsiders
+     * Get isOutsiders.
      *
-     * @return boolean
+     * @return bool
      */
     public function getIsOutsiders()
     {
@@ -467,9 +465,9 @@ abstract class Activity
     abstract public function getEntity();
 
     /**
-     * Get representative
+     * Get representative.
      *
-     * @return \Civix\CoreBundle\Entity\Representative 
+     * @return \Civix\CoreBundle\Entity\Representative
      */
     public function getRepresentative()
     {
@@ -477,9 +475,9 @@ abstract class Activity
     }
 
     /**
-     * Get group
+     * Get group.
      *
-     * @return \Civix\CoreBundle\Entity\Group 
+     * @return \Civix\CoreBundle\Entity\Group
      */
     public function getGroup()
     {
@@ -487,9 +485,9 @@ abstract class Activity
     }
 
     /**
-     * Get superuser
+     * Get superuser.
      *
-     * @return \Civix\CoreBundle\Entity\Superuser 
+     * @return \Civix\CoreBundle\Entity\Superuser
      */
     public function getSuperuser()
     {
@@ -497,9 +495,9 @@ abstract class Activity
     }
 
     /**
-     * Get user
+     * Get user.
      *
-     * @return \Civix\CoreBundle\Entity\User 
+     * @return \Civix\CoreBundle\Entity\User
      */
     public function getUser()
     {
@@ -507,20 +505,21 @@ abstract class Activity
     }
 
     /**
-     * Add activityConditions
+     * Add activityConditions.
      *
      * @param \Civix\CoreBundle\Entity\ActivityCondition $activityConditions
+     *
      * @return Activity
      */
     public function addActivityCondition(\Civix\CoreBundle\Entity\ActivityCondition $activityConditions)
     {
         $this->activityConditions[] = $activityConditions;
-    
+
         return $this;
     }
 
     /**
-     * Remove activityConditions
+     * Remove activityConditions.
      *
      * @param \Civix\CoreBundle\Entity\ActivityCondition $activityConditions
      */
@@ -530,9 +529,9 @@ abstract class Activity
     }
 
     /**
-     * Get activityConditions
+     * Get activityConditions.
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getActivityConditions()
     {
@@ -540,7 +539,7 @@ abstract class Activity
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isRead()
     {
@@ -548,7 +547,8 @@ abstract class Activity
     }
 
     /**
-     * @param boolean $read
+     * @param bool $read
+     *
      * @return $this
      */
     public function setRead($read)
@@ -568,6 +568,7 @@ abstract class Activity
 
     /**
      * @param mixed $rateUp
+     *
      * @return $this
      */
     public function setRateUp($rateUp)
@@ -578,7 +579,7 @@ abstract class Activity
     }
 
     /**
-     * @return integer|null
+     * @return int|null
      */
     public function getRateDown()
     {
@@ -586,7 +587,8 @@ abstract class Activity
     }
 
     /**
-     * @param integer $rateDown
+     * @param int $rateDown
+     *
      * @return $this
      */
     public function setRateDown($rateDown)
@@ -606,6 +608,7 @@ abstract class Activity
 
     /**
      * @param mixed $imageSrc
+     *
      * @return $this
      */
     public function setImageSrc($imageSrc)
@@ -625,6 +628,7 @@ abstract class Activity
 
     /**
      * @param mixed $image
+     *
      * @return $this
      */
     public function setImage($image)
@@ -636,7 +640,7 @@ abstract class Activity
 
     public function getActivityImage()
     {
-        return $this->imageSrc ? new Image($this, 'image', $this->imageSrc): null;
+        return $this->imageSrc ? new Image($this, 'image', $this->imageSrc) : null;
     }
 
     public static function getActivityClassByEntity($question)

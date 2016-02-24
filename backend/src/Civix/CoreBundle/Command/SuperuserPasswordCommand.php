@@ -6,7 +6,6 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
-
 use Civix\CoreBundle\Entity\Superuser;
 
 class SuperuserPasswordCommand extends ContainerAwareCommand
@@ -26,7 +25,7 @@ class SuperuserPasswordCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $entityManager = $this->getContainer()->get('doctrine.orm.entity_manager');
-        
+
         $superuser = $entityManager->getRepository(Superuser::class)
                 ->findOneByUsername($input->getArgument('username'));
         if ($superuser) {
@@ -36,7 +35,7 @@ class SuperuserPasswordCommand extends ContainerAwareCommand
                 'New password:',
                 false
             );
-            
+
             $encoder = $this->getContainer()->get('security.encoder_factory')->getEncoder($superuser);
             $password = $encoder->encodePassword($newPassword, $superuser->getSalt());
             $superuser->setPassword($password);

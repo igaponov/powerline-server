@@ -15,7 +15,7 @@ class PackageLimitStateTest extends \PHPUnit_Framework_TestCase
         $packageLimitObj = new PackageLimitState();
         $packageLimitObj->setCurrentValue($currentValue);
         $packageLimitObj->setLimitValue($limit);
-        
+
         $this->assertEquals($hasLimit, $packageLimitObj->hasLimitation());
         $this->assertEquals($isAllowed, $packageLimitObj->isAllowedWith($addValue));
     }
@@ -29,11 +29,11 @@ class PackageLimitStateTest extends \PHPUnit_Framework_TestCase
         $packageLimitObj = new PackageLimitState();
         $packageLimitObj->setCurrentValue($currentValue);
         $packageLimitObj->setLimitValue($limit);
-        
+
         $this->assertEquals($hasLimit, $packageLimitObj->hasLimitation());
         $this->assertEquals($isAllowed, $packageLimitObj->isAllowed());
     }
-    
+
     public function dataLimits()
     {
         return [
@@ -49,7 +49,7 @@ class PackageLimitStateTest extends \PHPUnit_Framework_TestCase
             [4, null, 100, false, true],
             [0, -1, 0, true, false],
             [4, -1, 0,  true, false],
-            [4, -1, 100,  true, false]
+            [4, -1, 100,  true, false],
         ];
     }
 
@@ -64,7 +64,7 @@ class PackageLimitStateTest extends \PHPUnit_Framework_TestCase
             [0, null, false, true],
             [4, null, false, true],
             [0, -1, true, false],
-            [4, -1, true, false]
+            [4, -1, true, false],
         ];
     }
 }

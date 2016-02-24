@@ -4,8 +4,6 @@ namespace Civix\FrontBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-
 use Civix\CoreBundle\Entity\Group;
 
 class AccountController extends Controller
@@ -34,7 +32,7 @@ class AccountController extends Controller
     public function exitSwitchAction()
     {
         $backUrl = 'civix_front_superuser_state_groups';
-        
+
         if ($this->get('civix_core.account_manager')->isLocalSwitch()) {
             $backUrl = 'civix_front_representative';
         }

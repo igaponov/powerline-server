@@ -27,7 +27,7 @@ class QueueCommand extends ContainerAwareCommand
         $childPid = pcntl_fork();
 
         if ($childPid) {
-            $output->writeln('Creating of child fork has been succesfull finished with pid = ' . $childPid);
+            $output->writeln('Creating of child fork has been succesfull finished with pid = '.$childPid);
             exit();
         }
 
@@ -36,7 +36,7 @@ class QueueCommand extends ContainerAwareCommand
         $rabbitMQCommand = $this->getApplication()->find('rabbitmq:consumer');
         $arguments = array(
             'command' => 'rabbitmq:consumer',
-            'name' => 'push'
+            'name' => 'push',
         );
 
         $input = new ArrayInput($arguments);

@@ -19,7 +19,7 @@ class QuestionController extends Controller
     {
         return '\Civix\FrontBundle\Form\Type\Poll\Question';
     }
-    
+
     public function isCanPublishQuestion()
     {
         return $this->get('civix_core.question_limit')

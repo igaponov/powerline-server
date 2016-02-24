@@ -21,17 +21,17 @@ class LoadRepresentativePetitionData extends AbstractFixture implements FixtureI
 
         $this->addReference('representativePetition1', $petition);
         $manager->persist($petition);
-        
+
         //outsider sign petition
         $publicPetition = new RepresentativePetition();
         $publicPetition->setUser($representative);
         $publicPetition->setPetitionBody('test');
         $publicPetition->setPetitionTitle('test_public');
         $publicPetition->setIsOutsidersSign(true);
-        
+
         $this->addReference('representativePublicPetition1', $publicPetition);
         $manager->persist($publicPetition);
-        
+
         //published
         $petitionPublished = new RepresentativePetition();
         $petitionPublished->setUser($representative);

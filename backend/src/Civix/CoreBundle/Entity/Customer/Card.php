@@ -24,7 +24,7 @@ class Card implements CustomerAccessorInterface
     protected $id;
 
     /**
-     * @var string $name
+     * @var string
      *
      * @ORM\Column(name="name", type="string")
      * @Assert\NotNull
@@ -40,7 +40,7 @@ class Card implements CustomerAccessorInterface
     protected $customer;
 
     /**
-     * @var string $balancedUri
+     * @var string
      *
      * @ORM\Column(name="balanced_uri", type="string", length=255)
      * @Serializer\Expose()
@@ -49,21 +49,21 @@ class Card implements CustomerAccessorInterface
     protected $balancedUri;
 
     /**
-     * @var \DateTime $updatedAt
+     * @var \DateTime
      *
      * @ORM\Column(name="updated_at", type="datetime", nullable=true)
      */
     protected $updatedAt;
 
     /**
-     * @var \DateTime $createdAt
+     * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      */
     protected $createdAt;
 
     /**
-     * @var string $number
+     * @var string
      *
      * @ORM\Column(name="number", type="string", length=4, nullable=true)
      * @Serializer\Expose()
@@ -73,6 +73,7 @@ class Card implements CustomerAccessorInterface
 
     /**
      * @param string $balancedUri
+     *
      * @return $this
      */
     public function setBalancedUri($balancedUri)
@@ -92,6 +93,7 @@ class Card implements CustomerAccessorInterface
 
     /**
      * @param \DateTime $createdAt
+     *
      * @return $this
      */
     public function setCreatedAt($createdAt)
@@ -111,6 +113,7 @@ class Card implements CustomerAccessorInterface
 
     /**
      * @param mixed $customer
+     *
      * @return $this
      */
     public function setCustomer(Customer $customer)
@@ -130,6 +133,7 @@ class Card implements CustomerAccessorInterface
 
     /**
      * @param mixed $id
+     *
      * @return $this
      */
     public function setId($id)
@@ -149,6 +153,7 @@ class Card implements CustomerAccessorInterface
 
     /**
      * @param string $name
+     *
      * @return $this
      */
     public function setName($name)
@@ -168,6 +173,7 @@ class Card implements CustomerAccessorInterface
 
     /**
      * @param \DateTime $updatedAt
+     *
      * @return $this
      */
     public function setUpdatedAt($updatedAt)
@@ -212,6 +218,7 @@ class Card implements CustomerAccessorInterface
 
     /**
      * @param string $number
+     *
      * @return $this
      */
     public function setNumber($number)

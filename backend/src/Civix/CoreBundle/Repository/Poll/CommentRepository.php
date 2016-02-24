@@ -2,10 +2,7 @@
 
 namespace Civix\CoreBundle\Repository\Poll;
 
-use Doctrine\ORM\Query;
-use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Common\Collections\ArrayCollection;
-use Civix\CoreBundle\Entity\Poll\Comment;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Question\Petition;
 use Civix\CoreBundle\Repository\CommentRepository as BaseCommentRepository;
@@ -28,7 +25,6 @@ class CommentRepository extends BaseCommentRepository
             ->where('c.question = :question')
             ->setParameter('question', $question)
             ->getQuery()->getResult();
-        ;
 
         return $this->getEntityManager()->createQueryBuilder()
             ->select('c, u, ch, chu')

@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\FrontBundle\Form\DataTransformer;
 
 use Symfony\Component\Form\DataTransformerInterface;

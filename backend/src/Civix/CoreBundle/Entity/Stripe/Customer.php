@@ -3,11 +3,9 @@
 namespace Civix\CoreBundle\Entity\Stripe;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
-
 use Civix\CoreBundle\Entity\UserInterface;
 
 /**
@@ -50,6 +48,7 @@ abstract class Customer implements CustomerInterface
 
     /**
      * @param mixed $id
+     *
      * @return $this
      */
     public function setId($id)
@@ -69,6 +68,7 @@ abstract class Customer implements CustomerInterface
 
     /**
      * @param mixed $stripeId
+     *
      * @return $this
      */
     public function setStripeId($stripeId)
@@ -89,11 +89,11 @@ abstract class Customer implements CustomerInterface
 
     public function updateCards($cards)
     {
-        $this->cards = json_encode(array_map(function($card) {
+        $this->cards = json_encode(array_map(function ($card) {
             return [
-                'id'      => $card->id,
-                'last4'   => $card->last4,
-                'brand'   => $card->brand,
+                'id' => $card->id,
+                'last4' => $card->last4,
+                'brand' => $card->brand,
                 'funding' => $card->funding,
             ];
         }, $cards));

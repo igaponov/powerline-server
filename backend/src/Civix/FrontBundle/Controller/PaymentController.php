@@ -4,12 +4,10 @@ namespace Civix\FrontBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Civix\BalancedBundle\Form\Type\CardFormType;
 use Civix\BalancedBundle\Model\Card as CardModel;
 use Civix\CoreBundle\Entity\Poll\Question\Petition;
@@ -45,15 +43,14 @@ abstract class PaymentController extends Controller
         $amount = $emailCount * $this->get('civix_core.subscription_manager')->getPackage($this->getUser())
             ->getPetitionDataEmailPrice();
 
-        $form = $this->createForm('form', null, ['label' => 'Buy '.$emailCount.' email(s) ('. ($amount / 100) .'$)']);
-
+        $form = $this->createForm('form', null, ['label' => 'Buy '.$emailCount.' email(s) ('.($amount / 100).'$)']);
 
         if ('POST' === $request->getMethod()) {
             if (intval($request->get('amount')) !== $amount) {
                 $this->get('session')->getFlashBag()->add('notice', 'Emails amount has changed. Please review.');
-            } else if ($amount < 50) {
+            } elseif ($amount < 50) {
                 $this->get('session')->getFlashBag()->add('notice', 'Amount must be at least 50 cents.');
-            } else if ($form->submit($request)->isValid()) {
+            } elseif ($form->submit($request)->isValid()) {
                 $entityManager = $this->getDoctrine()->getManager();
 
                 $charge = $this->get('civix_core.stripe')
@@ -82,7 +79,7 @@ abstract class PaymentController extends Controller
                 }
             }
         }
- 
+
         return array(
             'petition' => $petition->getId(),
             'form' => $form->createView(),
@@ -90,7 +87,7 @@ abstract class PaymentController extends Controller
             'card' => $customer && count($customer->getCards()) ? $customer->getCards()[0] : null,
         );
     }
-    
+
     /**
      * @Route("/petitions/buy-outsiders/{petition}")
      * @ParamConverter(
@@ -126,19 +123,18 @@ abstract class PaymentController extends Controller
                     return $this->redirect(
                         $this->generateUrl("civix_front_{$this->getUser()->getType()}_petition_index")
                     );
-
                 } catch (\Balanced\Errors\DuplicateAccountEmailAddress $ex) {
                     $this->get('session')->getFlashBag()
                         ->add('error', 'User with this email exist in balanced system.');
                 } catch (\Balanced\Errors\Declined $ex) {
                     $this->get('session')->getFlashBag()
-                        ->add('error', 'The processor declined the debit. ' . $ex->description);
+                        ->add('error', 'The processor declined the debit. '.$ex->description);
                 } catch (\Balanced\Errors\NoFundingSource $ex) {
                     $this->get('session')->getFlashBag()
-                        ->add('error', 'The buyer has not active funding sources. '. $ex->description);
+                        ->add('error', 'The buyer has not active funding sources. '.$ex->description);
                 } catch (\Balanced\Errors\CannotDebit $ex) {
                     $this->get('session')->getFlashBag()
-                        ->add('error', 'The buyer has no debitable funding sources. ' . $ex->description);
+                        ->add('error', 'The buyer has no debitable funding sources. '.$ex->description);
                 } catch (\Balanced\Errors\Error $ex) {
                     $this->get('session')->getFlashBag()
                         ->add('error', $ex->description);
@@ -150,10 +146,10 @@ abstract class PaymentController extends Controller
             'formTitle' => '',
             'marketplaceToken' => $marketplaceToken,
             'petition' => $petition->getId(),
-            'form' => $form->createView()
+            'form' => $form->createView(),
         );
     }
- 
+
     /**
      * @Route("/petitions/transaction/success/emails/{reference}")
      * @Template("CivixFrontBundle:Payment:transactionSuccess.html.twig")
@@ -161,7 +157,7 @@ abstract class PaymentController extends Controller
     public function successAction($reference)
     {
         return array(
-            'reference' => $reference
+            'reference' => $reference,
         );
     }
 
@@ -181,7 +177,7 @@ abstract class PaymentController extends Controller
             'CivixFrontBundle:Petition:emails.csv.twig',
             array('data' => unserialize($transaction->getData()))
         );
-        $filename = "signed_".$transaction->getCreatedAt()->format("Y_m_d_His").".csv";
+        $filename = 'signed_'.$transaction->getCreatedAt()->format('Y_m_d_His').'.csv';
         $response->headers->set('Content-Type', 'text/csv');
         $response->headers->set('Content-Disposition', 'attachment; filename='.$filename);
 

@@ -10,7 +10,7 @@ class AccountManager
 {
     const ACCOUNT_TYPE_STATE = 'state';
     const ACCOUNT_TYPE_LOCAL = 'local';
-    
+
     protected $entityManager;
     protected $securityContext;
     protected $session;
@@ -53,10 +53,10 @@ class AccountManager
             //fire a login event
             $event = new InteractiveLoginEvent($this->serviceRequest, $token);
             $this->eventDispatcher->dispatch('security.interactive_login', $event);
-                
+
             return $token;
         }
- 
+
         return false;
     }
 

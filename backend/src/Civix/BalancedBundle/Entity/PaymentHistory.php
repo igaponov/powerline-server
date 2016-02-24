@@ -3,7 +3,6 @@
 namespace Civix\BalancedBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Civix\BalancedBundle\Model\BalancedUserInterface;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
@@ -22,7 +21,7 @@ class PaymentHistory
     const STATE_PENDING = 'pending';
 
     /**
-     * @var integer $id
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -31,7 +30,7 @@ class PaymentHistory
     private $id;
 
     /**
-     * @var string $publicId
+     * @var string
      *
      * @ORM\Column(name="public_id", type="string", length=255)
      * @Serializer\Expose()
@@ -40,7 +39,7 @@ class PaymentHistory
     private $publicId;
 
     /**
-     * @var string $publicId
+     * @var string
      *
      * @ORM\Column(name="order_id", type="string", length=255, nullable=true)
      * @Serializer\Expose()
@@ -61,7 +60,7 @@ class PaymentHistory
     private $toUser;
 
     /**
-     * @var decimal $amount
+     * @var decimal
      *
      * @ORM\Column(name="amount", type="float")
      * @Serializer\Expose()
@@ -70,41 +69,41 @@ class PaymentHistory
     private $amount;
 
     /**
-     * @var string $currency
+     * @var string
      *
      * @ORM\Column(name="currency", type="string", length=3)
      */
     private $currency;
 
     /**
-      * @ORM\Column(name="reference", type="string", length=255, nullable=true)
-      */
+     * @ORM\Column(name="reference", type="string", length=255, nullable=true)
+     */
     private $reference;
 
     /**
-      * @ORM\Column(name="data", type="text")
-      */
+     * @ORM\Column(name="data", type="text")
+     */
     private $data;
 
     /**
-      * @ORM\Column(name="state", type="string", length=10)
-      */
+     * @ORM\Column(name="state", type="string", length=10)
+     */
     private $state;
 
     /**
-      * @ORM\Column(name="balanced_uri", type="string", length=255, nullable=true)
-      */
+     * @ORM\Column(name="balanced_uri", type="string", length=255, nullable=true)
+     */
     private $balancedUri;
-    
+
     /**
-     * @var \DateTime $updatedAt
+     * @var \DateTime
      *
      * @ORM\Column(name="updated_at", type="datetime", nullable=true)
      */
     private $updatedAt;
 
     /**
-     * @var \DateTime $createdAt
+     * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      * @Serializer\Expose()
@@ -113,14 +112,14 @@ class PaymentHistory
     private $createdAt;
 
     /**
-     * @var integer $question_id
+     * @var int
      *
      * @ORM\Column(name="question_id", type="integer", nullable=true)
      */
     private $question_id;
 
     /**
-     * @var boolean
+     * @var bool
      *
      * @ORM\Column(name="paid_out", type="boolean", nullable=true)
      */
@@ -128,14 +127,14 @@ class PaymentHistory
 
     public function __construct()
     {
-        $this->currency = "USD"; //http://www.xe.com/iso4217.php
+        $this->currency = 'USD'; //http://www.xe.com/iso4217.php
         $this->setPublicId(self::generateToken());
     }
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -143,9 +142,10 @@ class PaymentHistory
     }
 
     /**
-     * Set publicId
+     * Set publicId.
      *
-     * @param  string  $publicId
+     * @param string $publicId
+     *
      * @return Payment
      */
     public function setPublicId($publicId)
@@ -156,7 +156,7 @@ class PaymentHistory
     }
 
     /**
-     * Get publicId
+     * Get publicId.
      *
      * @return string
      */
@@ -166,9 +166,10 @@ class PaymentHistory
     }
 
     /**
-     * Set amount
+     * Set amount.
      *
-     * @param  float   $amount
+     * @param float $amount
+     *
      * @return Payment
      */
     public function setAmount($amount)
@@ -179,7 +180,7 @@ class PaymentHistory
     }
 
     /**
-     * Get amount
+     * Get amount.
      *
      * @return float
      */
@@ -189,9 +190,10 @@ class PaymentHistory
     }
 
     /**
-     * Set currency
+     * Set currency.
      *
-     * @param  string  $currency
+     * @param string $currency
+     *
      * @return Payment
      */
     public function setCurrency($currency)
@@ -202,7 +204,7 @@ class PaymentHistory
     }
 
     /**
-     * Get currency
+     * Get currency.
      *
      * @return string
      */
@@ -320,11 +322,12 @@ class PaymentHistory
 
         return $this;
     }
-    
+
     /**
-     * Set createdAt
+     * Set createdAt.
      *
-     * @param  \DateTime $createdAt
+     * @param \DateTime $createdAt
+     *
      * @return Payment
      */
     public function setCreatedAt($createdAt)
@@ -335,7 +338,7 @@ class PaymentHistory
     }
 
     /**
-     * Get createdAt
+     * Get createdAt.
      *
      * @return \DateTime
      */
@@ -345,9 +348,10 @@ class PaymentHistory
     }
 
     /**
-     * Set updatedAt
+     * Set updatedAt.
      *
-     * @param  \DateTime $updatedAt
+     * @param \DateTime $updatedAt
+     *
      * @return Payment
      */
     public function setUpdatedAt($updatedAt)
@@ -358,7 +362,7 @@ class PaymentHistory
     }
 
     /**
-     * Get updatedAt
+     * Get updatedAt.
      *
      * @return \DateTime
      */
@@ -395,20 +399,22 @@ class PaymentHistory
     }
 
     /**
-     * Set balancedUri
+     * Set balancedUri.
      *
      * @param string $balancedUri
+     *
      * @return PaymentHistory
      */
     public function setBalancedUri($balancedUri)
     {
         $this->balancedUri = $balancedUri;
-    
+
         return $this;
     }
 
     /**
      * @param int $question_id
+     *
      * @return $this
      */
     public function setQuestionId($question_id)
@@ -437,7 +443,7 @@ class PaymentHistory
 
         return [
             'order' => $this->getOrderId(),
-            'status' => isset($data['status']) ? $data['status'] : null
+            'status' => isset($data['status']) ? $data['status'] : null,
         ];
     }
 
@@ -446,11 +452,10 @@ class PaymentHistory
         return json_decode($this->getData(), true);
     }
 
-
     /**
-     * Get balancedUri
+     * Get balancedUri.
      *
-     * @return string 
+     * @return string
      */
     public function getBalancedUri()
     {
@@ -474,6 +479,7 @@ class PaymentHistory
 
     /**
      * @param string $orderId
+     *
      * @return $this
      */
     public function setOrderId($orderId)
@@ -492,7 +498,7 @@ class PaymentHistory
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isPaidOut()
     {
@@ -500,7 +506,8 @@ class PaymentHistory
     }
 
     /**
-     * @param boolean $paidOut
+     * @param bool $paidOut
+     *
      * @return $this
      */
     public function setPaidOut($paidOut)
@@ -512,6 +519,6 @@ class PaymentHistory
 
     public static function generateToken()
     {
-        return  mb_strtoupper(substr(uniqid(), 10, 3)) . '-' . mt_rand(10000000, 99999999);
+        return  mb_strtoupper(substr(uniqid(), 10, 3)).'-'.mt_rand(10000000, 99999999);
     }
 }

@@ -17,7 +17,7 @@ class InviteSender
     private $entityManager;
     private $from;
     private $mailgun;
-    
+
     public function __construct(
         EmailSender $emailSender,
         PushTask $pushTask,
@@ -63,12 +63,12 @@ class InviteSender
 
         $slugify = new Slugify();
 
-        $groupName = $slugify->slugify($group->getOfficialName(),'');
+        $groupName = $slugify->slugify($group->getOfficialName(), '');
 
         /** @var $user \Civix\CoreBundle\Entity\User */
         foreach ($users as $user) {
             if (!$group->getInvites()->contains($user) && !$group->getUsers()->contains($user)) {
-                $this->mailgun->listaddmemberAction($groupName,$user->getEmail(),$user->getUsername());
+                $this->mailgun->listaddmemberAction($groupName, $user->getEmail(), $user->getUsername());
                 $user->addInvite($group);
                 $invites[] = $user;
                 $usersEmails[] = $user->getEmail();
@@ -88,7 +88,7 @@ class InviteSender
 
     public function sendInviteForPetition($answers, Group $group)
     {
-        /** @var $signedUser \Civix\CoreBundle\Entity\User */
+        /* @var $signedUser \Civix\CoreBundle\Entity\User */
         foreach ($answers as $signedUserAnswer) {
             $signedUser = $signedUserAnswer->getUser();
             if (!$group->getInvites()->contains($signedUser) && !$group->getUsers()->contains($signedUser)) {
@@ -108,7 +108,7 @@ class InviteSender
             ->getRepository('CivixCoreBundle:DeferredInvites')
             ->findOneBy(array(
                     'email' => $email,
-                    'group' => $group
+                    'group' => $group,
             ));
         if (!($differedEntity instanceof DeferredInvites)) {
             $differedEntity = new DeferredInvites();

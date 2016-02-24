@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\FrontBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
@@ -6,12 +7,12 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 /**
- * Announcement form
+ * Announcement form.
  */
 class Announcement extends AbstractType
 {
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -21,12 +22,12 @@ class Announcement extends AbstractType
         $builder->add('content', null, array(
             'label' => 'Message',
             'attr' => array('class' => 'span9'),
-            'help_inline' => 'Please be aware that the limit is 250 symbols. Long hyperlinks will be cut to 20 symbols.'
+            'help_inline' => 'Please be aware that the limit is 250 symbols. Long hyperlinks will be cut to 20 symbols.',
         ));
     }
 
     /**
-     * Get unique name for form
+     * Get unique name for form.
      *
      * @return string
      */
@@ -36,7 +37,7 @@ class Announcement extends AbstractType
     }
 
     /**
-     * Set default form option
+     * Set default form option.
      *
      * @param OptionsResolverInterface $resolver
      */

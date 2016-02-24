@@ -16,7 +16,8 @@ class LeaderNews extends Activity
 {
     /**
      * @ORM\Column(name="question_id", type="integer")
-     * @var integer
+     *
+     * @var int
      */
     protected $questionId;
 
@@ -36,7 +37,7 @@ class LeaderNews extends Activity
     {
         return array(
             'type' => 'leader-news',
-            'id' => $this->getQuestionId()
+            'id' => $this->getQuestionId(),
         );
     }
 }

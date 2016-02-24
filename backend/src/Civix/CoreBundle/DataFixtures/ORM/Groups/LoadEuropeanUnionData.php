@@ -22,7 +22,7 @@ class LoadEuropeanUnionData implements FixtureInterface, OrderedFixtureInterface
 
     public function __construct()
     {
-        $this->dataFile = __DIR__ . '/european_union.csv';
+        $this->dataFile = __DIR__.'/european_union.csv';
     }
 
     public function setContainer(ContainerInterface $container = null)
@@ -46,7 +46,7 @@ class LoadEuropeanUnionData implements FixtureInterface, OrderedFixtureInterface
         $dataFileHandler = fopen($this->dataFile, 'r');
         while (($csvRow = fgetcsv($dataFileHandler)) !== false) {
             $countryGroup = $this->creatGroup(
-                'european_union_' . $csvRow[1],
+                'european_union_'.$csvRow[1],
                 $csvRow[1].'1',
                 $csvRow[0],
                 $csvRow[1],
@@ -65,9 +65,9 @@ class LoadEuropeanUnionData implements FixtureInterface, OrderedFixtureInterface
         $allUsers = $manager->getRepository(User::class)
             ->findAll();
         foreach ($allUsers as $currentUser) {
-             $this->container->get('civix_core.group_manager')
+            $this->container->get('civix_core.group_manager')
                 ->autoJoinUser($currentUser);
-             $manager->persist($currentUser);
+            $manager->persist($currentUser);
         }
         $manager->flush();
     }

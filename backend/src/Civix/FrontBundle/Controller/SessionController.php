@@ -18,13 +18,13 @@ abstract class SessionController extends Controller
     {
         $user = $this->getUser();
         if (!$user) {
-            throw new AccessDeniedHttpException;
+            throw new AccessDeniedHttpException();
         }
         $em = $this->getDoctrine()->getManager();
 
         $sessions = $em->getRepository(Session::class)->findBy([
             'userType' => $user->getType(),
-            'userId'   => $user->getId(),
+            'userId' => $user->getId(),
         ], null, 1);
         if (empty($sessions)) {
             $session = new Session($user);

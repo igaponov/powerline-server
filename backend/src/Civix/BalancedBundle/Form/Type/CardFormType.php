@@ -12,23 +12,23 @@ class CardFormType extends AbstractType
     {
         $builder
             ->add('name', null, array(
-                'label' => 'Name'
+                'label' => 'Name',
             ))
             ->add('number', null, array(
                 'label' => 'Credit card number',
-                'max_length' => 16
+                'max_length' => 16,
             ))
             ->add('expirationMonth', null, array(
                 'label' => 'Expiration month',
-                'max_length' => 2
+                'max_length' => 2,
             ))
             ->add('expirationYear', null, array(
                 'label' => 'Expiration year',
-                'max_length' => 4
+                'max_length' => 4,
             ))
             ->add('cvv', null, array(
                 'label' => 'CVV',
-                'max_length' => 4
+                'max_length' => 4,
             ))
             ->add('balancedUri', 'hidden')
         ;

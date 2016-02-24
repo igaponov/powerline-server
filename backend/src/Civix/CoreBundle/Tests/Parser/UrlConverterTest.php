@@ -6,7 +6,6 @@ use Civix\CoreBundle\Parser\UrlConverter;
 
 class UrlConverterTest extends \PHPUnit_Framework_TestCase
 {
-
     /**
      * @group parser
      */
@@ -44,7 +43,7 @@ class UrlConverterTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateLinkLengthLimit()
     {
-        $this->assertContains('Test with link for ' .
+        $this->assertContains('Test with link for '.
             '<a href="http://www.example.very.long.link.com">www.example.very.lon...</a>',
             UrlConverter::convert('Test with link for www.example.very.long.link.com'),
             'should cut links');
@@ -66,7 +65,7 @@ class UrlConverterTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertContains('Test with link for &lt;script&gt; <a href="http://www.example.com">www.example.com</a>',
             UrlConverter::convert('Test with link for <script> www.example.com'));
-        $this->assertContains('Test with link for ' .
+        $this->assertContains('Test with link for '.
             '<a href="http://www.ex&lt;/a&gt;mple.com">www.ex&lt;/a&gt;mple.com</a>',
             UrlConverter::convert('Test with link for www.ex</a>mple.com'));
     }

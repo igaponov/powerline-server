@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\FrontBundle\Form\Type\Poll;
 
 use Symfony\Component\Form\AbstractType;
@@ -6,13 +7,12 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 /**
- * Educational Text form type
+ * Educational Text form type.
  */
 class EducationalContext extends AbstractType
 {
-
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -25,12 +25,12 @@ class EducationalContext extends AbstractType
             'allow_delete' => true,
             'prototype' => true,
             'by_reference' => false,
-            'label_render' => false
+            'label_render' => false,
         ));
     }
 
     /**
-     * Get unique name for form
+     * Get unique name for form.
      *
      * @return string
      */
@@ -40,7 +40,7 @@ class EducationalContext extends AbstractType
     }
 
     /**
-     * Set default form option
+     * Set default form option.
      *
      * @param OptionsResolverInterface $resolver
      */

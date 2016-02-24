@@ -7,7 +7,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * Option entity
+ * Option entity.
  *
  * @ORM\Table(name="poll_options")
  * @ORM\Entity()
@@ -16,7 +16,7 @@ use JMS\Serializer\Annotation as Serializer;
 class Option
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -37,7 +37,7 @@ class Option
     private $value;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="payment_amount", type="integer", nullable=true)
      * @Serializer\Expose()
@@ -46,7 +46,6 @@ class Option
     private $payment_amount;
 
     /**
-     *
      * @ORM\Column(name="is_user_amount", type="boolean", nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
@@ -73,7 +72,7 @@ class Option
     private $votesCount;
 
     /**
-     * Constructor
+     * Constructor.
      */
     public function __construct()
     {
@@ -81,7 +80,7 @@ class Option
     }
 
     /**
-     * Get votes count
+     * Get votes count.
      *
      * @return int
      */
@@ -91,9 +90,9 @@ class Option
     }
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -101,9 +100,10 @@ class Option
     }
 
     /**
-     * Set value
+     * Set value.
      *
-     * @param  string $value
+     * @param string $value
+     *
      * @return Option
      */
     public function setValue($value)
@@ -114,7 +114,7 @@ class Option
     }
 
     /**
-     * Get value
+     * Get value.
      *
      * @return string
      */
@@ -124,9 +124,10 @@ class Option
     }
 
     /**
-     * Set question
+     * Set question.
      *
-     * @param  Question $question
+     * @param Question $question
+     *
      * @return Option
      */
     public function setQuestion(Question $question = null)
@@ -137,7 +138,7 @@ class Option
     }
 
     /**
-     * Get question
+     * Get question.
      *
      * @return Question
      */
@@ -147,9 +148,10 @@ class Option
     }
 
     /**
-     * Add answers
+     * Add answers.
      *
-     * @param  \Civix\CoreBundle\Entity\Poll\Answer $answers
+     * @param \Civix\CoreBundle\Entity\Poll\Answer $answers
+     *
      * @return Option
      */
     public function addAnswer(\Civix\CoreBundle\Entity\Poll\Answer $answers)
@@ -160,7 +162,7 @@ class Option
     }
 
     /**
-     * Remove answers
+     * Remove answers.
      *
      * @param \Civix\CoreBundle\Entity\Poll\Answer $answers
      */
@@ -170,7 +172,7 @@ class Option
     }
 
     /**
-     * Get answers
+     * Get answers.
      *
      * @return \Doctrine\Common\Collections\Collection
      */
@@ -181,6 +183,7 @@ class Option
 
     /**
      * @param float $payment_amount
+     *
      * @return $this
      */
     public function setPaymentAmount($payment_amount)
@@ -200,6 +203,7 @@ class Option
 
     /**
      * @param mixed $isUserAmount
+     *
      * @return $this
      */
     public function setIsUserAmount($isUserAmount)

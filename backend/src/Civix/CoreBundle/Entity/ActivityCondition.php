@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * ActivityCondition
+ * ActivityCondition.
  *
  * @ORM\Table(name="activity_condition")
  * @ORM\Entity
@@ -14,7 +14,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 class ActivityCondition
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -23,40 +23,40 @@ class ActivityCondition
     private $id;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="group_id", type="integer", nullable=true)
      */
     private $groupId;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="district_id", type="integer", nullable=true)
      */
     private $districtId;
 
     /**
-     * @var boolean
+     * @var bool
      *
      * @ORM\Column(name="is_superuser", type="boolean", nullable=true)
      */
     private $isSuperuser;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="user_id", type="integer", nullable=true)
      */
     private $userId;
-    
+
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="group_section_id", type="integer", nullable=true)
      */
     private $groupSectionId;
-    
+
     /**
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Activity")
      * @ORM\JoinColumn(name="activity_id", referencedColumnName="id", onDelete="CASCADE")
@@ -73,7 +73,6 @@ class ActivityCondition
      */
     private $users;
 
-
     public function __construct(Activity $activity = null)
     {
         $this->setActivity($activity);
@@ -81,9 +80,9 @@ class ActivityCondition
     }
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -91,22 +90,23 @@ class ActivityCondition
     }
 
     /**
-     * Set groupId
+     * Set groupId.
      *
-     * @param integer $groupId
+     * @param int $groupId
+     *
      * @return ActivityCondition
      */
     public function setGroupId($groupId)
     {
         $this->groupId = $groupId;
-    
+
         return $this;
     }
 
     /**
-     * Get groupId
+     * Get groupId.
      *
-     * @return integer 
+     * @return int
      */
     public function getGroupId()
     {
@@ -114,22 +114,23 @@ class ActivityCondition
     }
 
     /**
-     * Set districtId
+     * Set districtId.
      *
-     * @param integer $districtId
+     * @param int $districtId
+     *
      * @return ActivityCondition
      */
     public function setDistrictId($districtId)
     {
         $this->districtId = $districtId;
-    
+
         return $this;
     }
 
     /**
-     * Get districtId
+     * Get districtId.
      *
-     * @return integer 
+     * @return int
      */
     public function getDistrictId()
     {
@@ -137,22 +138,23 @@ class ActivityCondition
     }
 
     /**
-     * Set isSuperuser
+     * Set isSuperuser.
      *
-     * @param boolean $isSuperuser
+     * @param bool $isSuperuser
+     *
      * @return ActivityCondition
      */
     public function setIsSuperuser($isSuperuser)
     {
         $this->isSuperuser = $isSuperuser;
-    
+
         return $this;
     }
 
     /**
-     * Get isSuperuser
+     * Get isSuperuser.
      *
-     * @return boolean 
+     * @return bool
      */
     public function getIsSuperuser()
     {
@@ -160,22 +162,23 @@ class ActivityCondition
     }
 
     /**
-     * Set userId
+     * Set userId.
      *
-     * @param integer $userId
+     * @param int $userId
+     *
      * @return ActivityCondition
      */
     public function setUserId($userId)
     {
         $this->userId = $userId;
-    
+
         return $this;
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
-     * @return integer 
+     * @return int
      */
     public function getUserId()
     {
@@ -193,24 +196,25 @@ class ActivityCondition
     {
         return $this->groupSectionId;
     }
-    
+
     /**
-     * Set activity
+     * Set activity.
      *
      * @param \Civix\CoreBundle\Entity\Activity $activity
+     *
      * @return ActivityCondition
      */
     public function setActivity(\Civix\CoreBundle\Entity\Activity $activity = null)
     {
         $this->activity = $activity;
-    
+
         return $this;
     }
 
     /**
-     * Get activity
+     * Get activity.
      *
-     * @return \Civix\CoreBundle\Entity\Activity 
+     * @return \Civix\CoreBundle\Entity\Activity
      */
     public function getActivity()
     {
@@ -219,6 +223,7 @@ class ActivityCondition
 
     /**
      * @param \Doctrine\Common\Collections\ArrayCollection $users
+     *
      * @return $this
      */
     public function setUsers($users)
@@ -238,6 +243,7 @@ class ActivityCondition
 
     /**
      * @param User $user
+     *
      * @return $this
      */
     public function addUsers(User $user)

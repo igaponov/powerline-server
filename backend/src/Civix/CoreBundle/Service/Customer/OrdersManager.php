@@ -5,7 +5,6 @@ namespace Civix\CoreBundle\Service\Customer;
 use Civix\CoreBundle\Exception\LogicException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Customer\Customer;
 use Civix\CoreBundle\Entity\Customer\Card;
 use Civix\CoreBundle\Entity\Customer\Order\Order;
@@ -83,9 +82,9 @@ class OrdersManager
         $debitData = $card->debits->create(array(
             'amount' => $answer->getCurrentPaymentAmount() * 100,
             'order' => $orderEntity->getBalancedUri(),
-            'appears_on_statement_as' => 'PowerlinePay-' . $this->getAppearsOnStatement($paymentRequest->getUser()),
-            'description' => 'Powerline Payment: (' . $paymentRequest->getUser()->getOfficialName()
-                . ') - (' . $paymentRequest->getTitle() .')',
+            'appears_on_statement_as' => 'PowerlinePay-'.$this->getAppearsOnStatement($paymentRequest->getUser()),
+            'description' => 'Powerline Payment: ('.$paymentRequest->getUser()->getOfficialName()
+                .') - ('.$paymentRequest->getTitle().')',
         ));
         $paymentHistory = $this->saveToPaymentHistory($debitData, $customerEntity,
             $this->cm->getCustomerByUser($paymentRequest->getUser()), $answer->getCurrentPaymentAmount(),

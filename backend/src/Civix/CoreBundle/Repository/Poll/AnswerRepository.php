@@ -4,7 +4,6 @@ namespace Civix\CoreBundle\Repository\Poll;
 
 use Civix\CoreBundle\Entity\Poll\Question\Petition;
 use Doctrine\ORM\EntityRepository;
-
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Poll\Answer;
 
@@ -21,7 +20,7 @@ class AnswerRepository extends EntityRepository
                 ->setParameter('questionId', $questionId)
                 ->getQuery();
     }
-    
+
     public function getAnswersByInfluence(\Civix\CoreBundle\Entity\User $follower, $questionId)
     {
         return $this->getEntityManager()
@@ -39,7 +38,7 @@ class AnswerRepository extends EntityRepository
                 ->getQuery()
                 ->getResult();
     }
-    
+
     public function getAnswersByNotInfluence($follower, $questionId, $maxResults = 5)
     {
         return $this->getEntityManager()
@@ -78,7 +77,7 @@ class AnswerRepository extends EntityRepository
 
     public function findSignedUsersByPetition(Petition $petition)
     {
-        $answers =  $this->getEntityManager()
+        $answers = $this->getEntityManager()
             ->createQueryBuilder()
             ->select('a, u')
             ->from(Answer::class, 'a')
@@ -92,7 +91,5 @@ class AnswerRepository extends EntityRepository
         return array_map(function (Answer $answer) {
             return $answer->getUser();
         }, $answers);
-
     }
-
 }

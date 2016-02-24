@@ -10,7 +10,7 @@ use Civix\CoreBundle\Entity\Customer\Card as CardEntity;
 class BalancedPayment
 {
     const PRICE_PUBLISH_PETITION = 50;
-    
+
     private $paymentManager;
     private $entityManager;
     private $marketPlaceToken;
@@ -45,8 +45,8 @@ class BalancedPayment
         //save transaction data
         $payment = new PaymentHistory();
         $payment->setFromUser($customer);
-        $payment->setAmount($amount/100);
-        
+        $payment->setAmount($amount / 100);
+
         if ($amount > 0) {
             $debitData = $this->paymentManager->debit($card, $customer, $amount, $statement, $description);
 
@@ -54,18 +54,17 @@ class BalancedPayment
             $payment->setData(json_encode($debitData));
             $payment->setState($debitData->status);
             $payment->setBalancedUri($debitData->href);
-           
         } else {
             $payment->setData(json_encode([
                 'created_at' => (new \DateTime('now'))->format('d-m-Y H:i:s'),
-                'amount' => 0
+                'amount' => 0,
             ]));
             $payment->setState(PaymentHistory::STATE_SUCCESS);
         }
-        
+
         $this->entityManager->persist($payment);
         $this->entityManager->flush($payment);
-        
+
         return $payment;
     }
 

@@ -2,7 +2,6 @@
 
 namespace Civix\ApiBundle\Controller\Leader;
 
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -50,16 +49,16 @@ class PollController extends BaseController
         $className = $prefix;
 
         if ('petition' === $type) {
-            $className = $prefix . 'Petition';
+            $className = $prefix.'Petition';
         }
         if ('news' === $type) {
-            $className = $prefix . 'News';
+            $className = $prefix.'News';
         }
         if ('payment_request' === $type) {
-            $className = $prefix . 'PaymentRequest';
+            $className = $prefix.'PaymentRequest';
         }
         if ('petition' === $type) {
-            $className = $prefix . 'Event';
+            $className = $prefix.'Event';
         }
 
         return "Civix\\CoreBundle\\Entity\\Poll\\Question\\{$className}";

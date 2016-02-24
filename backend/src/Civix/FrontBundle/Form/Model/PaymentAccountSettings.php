@@ -21,7 +21,7 @@ class PaymentAccountSettings
     private $birth;
 
     /**
-     * @var integer
+     * @var int
      *
      * @Assert\NotBlank(groups={"personal"})
      */
@@ -43,6 +43,7 @@ class PaymentAccountSettings
 
     /**
      * @param mixed $SSNLast4
+     *
      * @return $this
      */
     public function setSSNLast4($SSNLast4)
@@ -62,6 +63,7 @@ class PaymentAccountSettings
 
     /**
      * @param mixed $birth
+     *
      * @return $this
      */
     public function setBirth($birth)
@@ -81,6 +83,7 @@ class PaymentAccountSettings
 
     /**
      * @param mixed $name
+     *
      * @return $this
      */
     public function setName($name)
@@ -100,6 +103,7 @@ class PaymentAccountSettings
 
     /**
      * @param string $businessName
+     *
      * @return $this
      */
     public function setBusinessName($businessName)
@@ -119,6 +123,7 @@ class PaymentAccountSettings
 
     /**
      * @param string $ein
+     *
      * @return $this
      */
     public function setEin($ein)

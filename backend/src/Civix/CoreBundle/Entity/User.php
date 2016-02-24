@@ -9,13 +9,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Civix\CoreBundle\Serializer\Type\Avatar;
-use Civix\CoreBundle\Entity\UserFollow;
-use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Validator\Constrains\ConstrainsFacebookToken;
 
-
 /**
- * User
+ * User.
  *
  * @ORM\Table(name="user", indexes={
  *      @ORM\Index(name="ios_token", columns={"ios_token"}),
@@ -47,7 +44,7 @@ class User implements UserInterface, \Serializable
     const SOMEONE_AVATAR = '/bundles/civixfront/img/default_someone.png';
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -178,7 +175,6 @@ class User implements UserInterface, \Serializable
     /**
      * @Vich\UploadableField(mapping="avatar_image", fileNameProperty="avatarFileName")
      */
-
     private $avatar;
 
     /**
@@ -289,7 +285,7 @@ class User implements UserInterface, \Serializable
      * @Serializer\Groups({"api-profile", "api-leader-answers"})
      */
     private $orientation;
-    
+
     /**
      * @var string
      *
@@ -449,7 +445,7 @@ class User implements UserInterface, \Serializable
      * @deprecated Use Notification\AndroidEndpoint instead (Amazon SNS integration)
      *
      * @var string
-     *  
+     *              
      * @ORM\Column(name="android_token", type="string", length=255, nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-device"})
@@ -457,13 +453,11 @@ class User implements UserInterface, \Serializable
     private $androidDevice;
 
     /**
-     *
      * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\UserGroup", mappedBy="user", cascade={"remove", "persist"})
      */
     private $groups;
 
     /**
-     *
      * @ORM\ManyToMany(targetEntity="Group", inversedBy="invites", cascade={"remove"})
      * @ORM\JoinTable(name="notification_invites",
      *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")},
@@ -471,7 +465,7 @@ class User implements UserInterface, \Serializable
      * )
      */
     private $invites;
-    
+
     /**
      * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\UserFollow",
      *      mappedBy="follower", cascade={"remove","persist"}
@@ -485,7 +479,6 @@ class User implements UserInterface, \Serializable
     private $followers;
 
     /**
-     *
      * @ORM\ManyToMany(targetEntity="District", inversedBy="users", cascade={"remove"})
      * @ORM\JoinTable(name="users_districts",
      *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")},
@@ -495,7 +488,6 @@ class User implements UserInterface, \Serializable
     private $districts;
 
     /**
-     *
      * @ORM\ManyToMany(targetEntity="GroupSection", mappedBy="users")
      */
     private $groupSections;
@@ -626,17 +618,17 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
         return $this->id;
     }
-    
+
     /**
-     * Add invite
+     * Add invite.
      *
      * @param \Civix\CoreBundle\Entity\Group $group
      *
@@ -650,7 +642,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Remove invite
+     * Remove invite.
      *
      * @param \Civix\CoreBundle\Entity\Group $group
      */
@@ -660,7 +652,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get invites
+     * Get invites.
      *
      * @return \Doctrine\Common\Collections\Collection
      */
@@ -668,9 +660,9 @@ class User implements UserInterface, \Serializable
     {
         return $this->invites;
     }
-    
+
     /**
-     * Add following
+     * Add following.
      *
      * @param \Civix\CoreBundle\Entity\User $following
      *
@@ -684,7 +676,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Remove following
+     * Remove following.
      *
      * @param \Civix\CoreBundle\Entity\UserFollow $following
      */
@@ -694,7 +686,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get following
+     * Get following.
      *
      * @return \Doctrine\Common\Collections\Collection
      */
@@ -704,7 +696,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Add follower
+     * Add follower.
      *
      * @param \Civix\CoreBundle\Entity\User $follower
      *
@@ -718,7 +710,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Remove follower
+     * Remove follower.
      *
      * @param \Civix\CoreBundle\Entity\UserFollow $follower
      */
@@ -728,7 +720,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get followers
+     * Get followers.
      *
      * @return \Doctrine\Common\Collections\Collection
      */
@@ -738,7 +730,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set username
+     * Set username.
      *
      * @param string $username
      *
@@ -752,7 +744,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get username
+     * Get username.
      *
      * @return string
      */
@@ -762,7 +754,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set password
+     * Set password.
      *
      * @param string $password
      *
@@ -776,7 +768,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get password
+     * Get password.
      *
      * @return string
      */
@@ -786,7 +778,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set salt
+     * Set salt.
      *
      * @param string $salt
      *
@@ -800,7 +792,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get salt
+     * Get salt.
      *
      * @return string
      */
@@ -810,7 +802,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set firstName
+     * Set firstName.
      *
      * @param string $firstName
      *
@@ -824,7 +816,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get firstName
+     * Get firstName.
      *
      * @return string
      */
@@ -834,7 +826,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set lastName
+     * Set lastName.
      *
      * @param string $lastName
      *
@@ -848,7 +840,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get lastName
+     * Get lastName.
      *
      * @return string
      */
@@ -858,7 +850,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set email
+     * Set email.
      *
      * @param string $email
      *
@@ -874,7 +866,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get email
+     * Get email.
      *
      * @return string
      */
@@ -893,20 +885,21 @@ class User implements UserInterface, \Serializable
 
     /**
      * @param string $email
+     *
      * @return string
      */
     private function normalizeEmail($email)
     {
         $email = strtolower($email);
         list($local, $domain) = explode('@', $email);
-        $local = strstr($local, '+', true) ? : $local;
+        $local = strstr($local, '+', true) ?: $local;
         $local = str_replace('.', '', $local);
 
         return $local.'@'.$domain;
     }
 
     /**
-     * Set zip
+     * Set zip.
      *
      * @param string $zip
      *
@@ -920,7 +913,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get zip
+     * Get zip.
      *
      * @return string
      */
@@ -930,7 +923,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set avatar
+     * Set avatar.
      *
      * @param string $avatar
      *
@@ -944,7 +937,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get avatar
+     * Get avatar.
      *
      * @return string
      */
@@ -954,7 +947,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get default avatar
+     * Get default avatar.
      *
      * @return string
      */
@@ -976,7 +969,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set birth
+     * Set birth.
      *
      * @param \DateTime $birth
      *
@@ -990,7 +983,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get birth
+     * Get birth.
      *
      * @return \DateTime
      */
@@ -1000,7 +993,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set address1
+     * Set address1.
      *
      * @param string $address1
      *
@@ -1014,7 +1007,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get address1
+     * Get address1.
      *
      * @return string
      */
@@ -1024,7 +1017,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set address2
+     * Set address2.
      *
      * @param string $address2
      *
@@ -1038,7 +1031,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get address2
+     * Get address2.
      *
      * @return string
      */
@@ -1048,7 +1041,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set city
+     * Set city.
      *
      * @param string $city
      *
@@ -1062,7 +1055,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get city
+     * Get city.
      *
      * @return string
      */
@@ -1072,7 +1065,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set state
+     * Set state.
      *
      * @param string $state
      *
@@ -1086,7 +1079,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get state
+     * Get state.
      *
      * @return string
      */
@@ -1096,9 +1089,9 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get country
+     * Get country.
      *
-     * @return String
+     * @return string
      */
     public function getCountry()
     {
@@ -1106,9 +1099,9 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set country
+     * Set country.
      *
-     * @param String $country
+     * @param string $country
      *
      * @return \Civix\CoreBundle\Entity\User
      */
@@ -1120,7 +1113,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set phone
+     * Set phone.
      *
      * @param string $phone
      *
@@ -1134,7 +1127,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get phone
+     * Get phone.
      *
      * @return string
      */
@@ -1144,7 +1137,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set facebookLink
+     * Set facebookLink.
      *
      * @param string $facebookLink
      *
@@ -1158,7 +1151,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get facebookLink
+     * Get facebookLink.
      *
      * @return string
      */
@@ -1168,7 +1161,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set twitterLink
+     * Set twitterLink.
      *
      * @param string $twitterLink
      *
@@ -1182,7 +1175,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get twitterLink
+     * Get twitterLink.
      *
      * @return string
      */
@@ -1192,7 +1185,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set race
+     * Set race.
      *
      * @param string $race
      *
@@ -1206,7 +1199,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get race
+     * Get race.
      *
      * @return string
      */
@@ -1216,7 +1209,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set sex
+     * Set sex.
      *
      * @param string $sex
      *
@@ -1230,7 +1223,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get sex
+     * Get sex.
      *
      * @return string
      */
@@ -1240,7 +1233,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set maritalStatus
+     * Set maritalStatus.
      *
      * @param string $maritalStatus
      *
@@ -1254,7 +1247,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get maritalStatus
+     * Get maritalStatus.
      *
      * @return string
      */
@@ -1264,7 +1257,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set religion
+     * Set religion.
      *
      * @param string $religion
      *
@@ -1278,7 +1271,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get religion
+     * Get religion.
      *
      * @return string
      */
@@ -1288,7 +1281,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set employmentStatus
+     * Set employmentStatus.
      *
      * @param string $employmentStatus
      *
@@ -1302,7 +1295,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get employmentStatus
+     * Get employmentStatus.
      *
      * @return string
      */
@@ -1312,7 +1305,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set incomeLevel
+     * Set incomeLevel.
      *
      * @param string $incomeLevel
      *
@@ -1326,7 +1319,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get incomeLevel
+     * Get incomeLevel.
      *
      * @return string
      */
@@ -1336,7 +1329,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set educationLevel
+     * Set educationLevel.
      *
      * @param string $educationLevel
      *
@@ -1350,7 +1343,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get educationLevel
+     * Get educationLevel.
      *
      * @return string
      */
@@ -1360,7 +1353,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set token
+     * Set token.
      *
      * @param string $token
      *
@@ -1374,7 +1367,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get token
+     * Get token.
      *
      * @return string
      */
@@ -1384,9 +1377,9 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get user Roles
+     * Get user Roles.
      *
-     * @return Array
+     * @return array
      */
     public function getRoles()
     {
@@ -1394,12 +1387,10 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Erase credentials
-     *
+     * Erase credentials.
      */
     public function eraseCredentials()
     {
-
     }
 
     public function generateToken()
@@ -1417,11 +1408,11 @@ class User implements UserInterface, \Serializable
             $bytes = hash('sha256', uniqid(mt_rand(), true), true);
         }
 
-        $this->setToken(base_convert(bin2hex($bytes), 16, 36) . $this->getId());
+        $this->setToken(base_convert(bin2hex($bytes), 16, 36).$this->getId());
     }
 
     /**
-     * Get all districts ids
+     * Get all districts ids.
      *
      * @return array
      */
@@ -1431,11 +1422,11 @@ class User implements UserInterface, \Serializable
                 return $district->getId();
         })->toArray();
 
-        return empty($districtsIds)?false:$districtsIds;
+        return empty($districtsIds) ? false : $districtsIds;
     }
 
-     /**
-     * Set profile update date
+    /**
+     * Set profile update date.
      *
      * @param \DateTime $updateDate
      *
@@ -1449,7 +1440,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get profile update date
+     * Get profile update date.
      *
      * @return \DateTime
      */
@@ -1459,7 +1450,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get ios token device of user
+     * Get ios token device of user.
      * 
      * @return string
      */
@@ -1469,7 +1460,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set android token device of user
+     * Set android token device of user.
      * 
      * @param string $token
      * 
@@ -1483,7 +1474,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get android token device of user
+     * Get android token device of user.
      * 
      * @return string
      */
@@ -1493,7 +1484,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set android token device of user
+     * Set android token device of user.
      * 
      * @param string $token
      * 
@@ -1512,7 +1503,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Return joined to user groups
+     * Return joined to user groups.
      *
      * @return \Doctrine\Common\Collections\ArrayCollection
      */
@@ -1530,7 +1521,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Remove group
+     * Remove group.
      *
      * @param \Civix\CoreBundle\Entity\UserGroup $group
      */
@@ -1541,7 +1532,7 @@ class User implements UserInterface, \Serializable
 
     public function getLineAddress()
     {
-        return $this->address1 . ' ' . $this->address2;
+        return $this->address1.' '.$this->address2;
     }
 
     public function getGroupsIds()
@@ -1559,7 +1550,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Serializes the user
+     * Serializes the user.
      *
      * @return string
      */
@@ -1571,33 +1562,31 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Unserializes the user
+     * Unserializes the user.
      *
      * @param string $serialized
-     *
-     * @return void
      */
     public function unserialize($serialized)
     {
-        list (
-            $this->id,
-        ) = unserialize($serialized);
+        list(
+            $this->id) = unserialize($serialized);
     }
 
     /**
-     * Get officialName
+     * Get officialName.
      *
      * @return string
      */
     public function getOfficialName()
     {
-        return $this->firstName . ' ' . $this->lastName;
+        return $this->firstName.' '.$this->lastName;
     }
 
     /**
-     * Add districts
+     * Add districts.
      *
      * @param \Civix\CoreBundle\Entity\District $districts
+     *
      * @return User
      */
     public function addDistrict(\Civix\CoreBundle\Entity\District $district)
@@ -1610,7 +1599,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Remove districts
+     * Remove districts.
      *
      * @param \Civix\CoreBundle\Entity\District $districts
      */
@@ -1620,9 +1609,9 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get districts
+     * Get districts.
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getDistricts()
     {
@@ -1630,9 +1619,10 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Add section
+     * Add section.
      *
      * @param \Civix\CoreBundle\Entity\GroupSection $section
+     *
      * @return User
      */
     public function addGroupSection(\Civix\CoreBundle\Entity\GroupSection $section)
@@ -1645,7 +1635,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Remove section
+     * Remove section.
      *
      * @param \Civix\CoreBundle\Entity\GroupSection $section
      */
@@ -1655,9 +1645,9 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get section
+     * Get section.
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getGroupSections()
     {
@@ -1665,7 +1655,7 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get all group sections ids
+     * Get all group sections ids.
      *
      * @return array
      */
@@ -1675,26 +1665,27 @@ class User implements UserInterface, \Serializable
                 return $section->getId();
         })->toArray();
 
-        return empty($sectionsIds)?false:$sectionsIds;
+        return empty($sectionsIds) ? false : $sectionsIds;
     }
-    
+
     /**
-     * Set doNotDisturb
+     * Set doNotDisturb.
      *
-     * @param boolean $doNotDisturb
+     * @param bool $doNotDisturb
+     *
      * @return User
      */
     public function setDoNotDisturb($doNotDisturb)
     {
         $this->doNotDisturb = $doNotDisturb;
-    
+
         return $this;
     }
 
     /**
-     * Get doNotDisturb
+     * Get doNotDisturb.
      *
-     * @return boolean 
+     * @return bool
      */
     public function getDoNotDisturb()
     {
@@ -1702,22 +1693,23 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set isNotifQuestions
+     * Set isNotifQuestions.
      *
-     * @param boolean $isNotifQuestions
+     * @param bool $isNotifQuestions
+     *
      * @return User
      */
     public function setIsNotifQuestions($isNotifQuestions)
     {
         $this->isNotifQuestions = $isNotifQuestions;
-    
+
         return $this;
     }
 
     /**
-     * Get isNotifQuestions
+     * Get isNotifQuestions.
      *
-     * @return boolean 
+     * @return bool
      */
     public function getIsNotifQuestions()
     {
@@ -1725,22 +1717,23 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set isNotifDiscussions
+     * Set isNotifDiscussions.
      *
-     * @param boolean $isNotifDiscussions
+     * @param bool $isNotifDiscussions
+     *
      * @return User
      */
     public function setIsNotifDiscussions($isNotifDiscussions)
     {
         $this->isNotifDiscussions = $isNotifDiscussions;
-    
+
         return $this;
     }
 
     /**
-     * Get isNotifDiscussions
+     * Get isNotifDiscussions.
      *
-     * @return boolean 
+     * @return bool
      */
     public function getIsNotifDiscussions()
     {
@@ -1748,22 +1741,23 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set isNotifMessages
+     * Set isNotifMessages.
      *
-     * @param boolean $isNotifMessages
+     * @param bool $isNotifMessages
+     *
      * @return User
      */
     public function setIsNotifMessages($isNotifMessages)
     {
         $this->isNotifMessages = $isNotifMessages;
-    
+
         return $this;
     }
 
     /**
-     * Get isNotifMessages
+     * Get isNotifMessages.
      *
-     * @return boolean 
+     * @return bool
      */
     public function getIsNotifMessages()
     {
@@ -1771,22 +1765,23 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set isNotifMicroFollowing
+     * Set isNotifMicroFollowing.
      *
-     * @param boolean $isNotifMicroFollowing
+     * @param bool $isNotifMicroFollowing
+     *
      * @return User
      */
     public function setIsNotifMicroFollowing($isNotifMicroFollowing)
     {
         $this->isNotifMicroFollowing = $isNotifMicroFollowing;
-    
+
         return $this;
     }
 
     /**
-     * Get isNotifMicroFollowing
+     * Get isNotifMicroFollowing.
      *
-     * @return boolean 
+     * @return bool
      */
     public function getIsNotifMicroFollowing()
     {
@@ -1794,22 +1789,23 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set isNotifMicroGroup
+     * Set isNotifMicroGroup.
      *
-     * @param boolean $isNotifMicroGroup
+     * @param bool $isNotifMicroGroup
+     *
      * @return User
      */
     public function setIsNotifMicroGroup($isNotifMicroGroup)
     {
         $this->isNotifMicroGroup = $isNotifMicroGroup;
-    
+
         return $this;
     }
 
     /**
-     * Get isNotifMicroGroup
+     * Get isNotifMicroGroup.
      *
-     * @return boolean 
+     * @return bool
      */
     public function getIsNotifMicroGroup()
     {
@@ -1817,35 +1813,37 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Add groups
+     * Add groups.
      *
      * @param \Civix\CoreBundle\Entity\UserGroup $usergroup
+     *
      * @return User
      */
     public function addGroup(UserGroup $usergroup)
     {
         $this->groups[] = $usergroup;
-    
+
         return $this;
     }
 
     /**
-     * Set isNotifSchedule
+     * Set isNotifSchedule.
      *
-     * @param boolean $isNotifSchedule
+     * @param bool $isNotifSchedule
+     *
      * @return User
      */
     public function setIsNotifScheduled($isNotifSchedule)
     {
         $this->isNotifScheduled = $isNotifSchedule;
-    
+
         return $this;
     }
 
     /**
-     * Get isNotifSchedule
+     * Get isNotifSchedule.
      *
-     * @return boolean 
+     * @return bool
      */
     public function getIsNotifScheduled()
     {
@@ -1879,19 +1877,20 @@ class User implements UserInterface, \Serializable
      * Set scheduleFrom
      *
      * @param \DateTime $scheduleFrom
+     *
      * @return User
      */
     public function setScheduledFrom($scheduleFrom)
     {
         $this->scheduledFrom = $scheduleFrom;
-    
+
         return $this;
     }
 
     /**
-     * Get scheduleFrom
+     * Get scheduleFrom.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getScheduledFrom()
     {
@@ -1899,22 +1898,23 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set scheduleTo
+     * Set scheduleTo.
      *
      * @param \DateTime $scheduleTo
+     *
      * @return User
      */
     public function setScheduledTo($scheduleTo)
     {
         $this->scheduledTo = $scheduleTo;
-    
+
         return $this;
     }
 
     /**
-     * Get scheduleTo
+     * Get scheduleTo.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getScheduledTo()
     {
@@ -1922,22 +1922,23 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set orientation
+     * Set orientation.
      *
      * @param string $orientation
+     *
      * @return User
      */
     public function setOrientation($orientation)
     {
         $this->orientation = $orientation;
-    
+
         return $this;
     }
 
     /**
-     * Get orientation
+     * Get orientation.
      *
-     * @return string 
+     * @return string
      */
     public function getOrientation()
     {
@@ -1945,22 +1946,23 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set party
+     * Set party.
      *
      * @param string $party
+     *
      * @return User
      */
     public function setParty($party)
     {
         $this->party = $party;
-    
+
         return $this;
     }
 
     /**
-     * Get party
+     * Get party.
      *
-     * @return string 
+     * @return string
      */
     public function getParty()
     {
@@ -1968,22 +1970,23 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set philosophy
+     * Set philosophy.
      *
      * @param string $philosophy
+     *
      * @return User
      */
     public function setPhilosophy($philosophy)
     {
         $this->philosophy = $philosophy;
-    
+
         return $this;
     }
 
     /**
-     * Get philosophy
+     * Get philosophy.
      *
-     * @return string 
+     * @return string
      */
     public function getPhilosophy()
     {
@@ -1991,22 +1994,23 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set donor
+     * Set donor.
      *
      * @param string $donor
+     *
      * @return User
      */
     public function setDonor($donor)
     {
         $this->donor = $donor;
-    
+
         return $this;
     }
 
     /**
-     * Get donor
+     * Get donor.
      *
-     * @return string 
+     * @return string
      */
     public function getDonor()
     {
@@ -2014,22 +2018,23 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set registration
+     * Set registration.
      *
      * @param string $registration
+     *
      * @return User
      */
     public function setRegistration($registration)
     {
         $this->registration = $registration;
-    
+
         return $this;
     }
 
     /**
-     * Get registration
+     * Get registration.
      *
-     * @return string 
+     * @return string
      */
     public function getRegistration()
     {
@@ -2046,6 +2051,7 @@ class User implements UserInterface, \Serializable
 
     /**
      * @param string $slogan
+     *
      * @return $this
      */
     public function setSlogan($slogan)
@@ -2065,6 +2071,7 @@ class User implements UserInterface, \Serializable
 
     /**
      * @param string $bio
+     *
      * @return $this
      */
     public function setBio($bio)
@@ -2084,6 +2091,7 @@ class User implements UserInterface, \Serializable
 
     /**
      * @param array $interests
+     *
      * @return $this
      */
     public function setInterests($interests)
@@ -2094,9 +2102,10 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set facebookId
+     * Set facebookId.
      *
      * @param string $facebookId
+     *
      * @return User
      */
     public function setFacebookId($facebookId)
@@ -2107,9 +2116,9 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get facebookId
+     * Get facebookId.
      *
-     * @return string 
+     * @return string
      */
     public function getFacebookId()
     {
@@ -2117,9 +2126,10 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set facebookToken
+     * Set facebookToken.
      *
      * @param string $facebookToken
+     *
      * @return User
      */
     public function setFacebookToken($facebookToken)
@@ -2130,9 +2140,9 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Get facebookToken
+     * Get facebookToken.
      *
-     * @return string 
+     * @return string
      */
     public function getFacebookToken()
     {
@@ -2140,22 +2150,23 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set isRegistrationComplete
+     * Set isRegistrationComplete.
      *
-     * @param boolean $isRegistrationComplete
+     * @param bool $isRegistrationComplete
+     *
      * @return User
      */
     public function setIsRegistrationComplete($isRegistrationComplete)
     {
         $this->isRegistrationComplete = $isRegistrationComplete;
-    
+
         return $this;
     }
 
     /**
-     * Get isRegistrationComplete
+     * Get isRegistrationComplete.
      *
-     * @return boolean 
+     * @return bool
      */
     public function getIsRegistrationComplete()
     {
@@ -2172,6 +2183,7 @@ class User implements UserInterface, \Serializable
 
     /**
      * @param string $plainPassword
+     *
      * @return $this
      */
     public function setPlainPassword($plainPassword)
@@ -2198,22 +2210,23 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set resetPasswordAt
+     * Set resetPasswordAt.
      *
      * @param \DateTime $resetPasswordAt
+     *
      * @return User
      */
     public function setResetPasswordAt($resetPasswordAt)
     {
         $this->resetPasswordAt = $resetPasswordAt;
-    
+
         return $this;
     }
 
     /**
-     * Get resetPasswordAt
+     * Get resetPasswordAt.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getResetPasswordAt()
     {
@@ -2221,22 +2234,23 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * Set resetPasswordToken
+     * Set resetPasswordToken.
      *
      * @param string $resetPasswordToken
+     *
      * @return User
      */
     public function setResetPasswordToken($resetPasswordToken)
     {
         $this->resetPasswordToken = $resetPasswordToken;
-    
+
         return $this;
     }
 
     /**
-     * Get resetPasswordToken
+     * Get resetPasswordToken.
      *
-     * @return string 
+     * @return string
      */
     public function getResetPasswordToken()
     {
@@ -2259,7 +2273,7 @@ class User implements UserInterface, \Serializable
      */
     public function getFullName()
     {
-        return $this->getFirstName() . ' ' . $this->getLastName();
+        return $this->getFirstName().' '.$this->getLastName();
     }
 
     public function getAddressArray()
@@ -2270,12 +2284,12 @@ class User implements UserInterface, \Serializable
             'line2' => $this->getAddress2(),
             'state' => $this->getState(),
             'postal_code' => $this->getZip(),
-            'country_code' => $this->getCountry()
+            'country_code' => $this->getCountry(),
         ];
     }
 
     public function getAddressQuery()
     {
-        return $this->getAddress1() . ',' . $this->getCity() . ',' . $this->getState() . ',' . $this->getCountry();
+        return $this->getAddress1().','.$this->getCity().','.$this->getState().','.$this->getCountry();
     }
 }

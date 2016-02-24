@@ -65,11 +65,10 @@ class CommentManager
 
     public function addCommentByQuestionAnswer(Answer $answer)
     {
-
         $parent = $this->em->getRepository('CivixCoreBundle:Poll\Comment')
             ->findOneBy(array(
                 'question' => $answer->getQuestion(),
-                'parentComment' => null
+                'parentComment' => null,
             ));
 
         if ($answer->getComment()) {

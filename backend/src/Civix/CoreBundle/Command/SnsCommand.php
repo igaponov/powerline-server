@@ -50,9 +50,9 @@ class SnsCommand extends ContainerAwareCommand
     {
         $this->output = $output;
         $this->client = $client = SnsClient::factory(array(
-            'key'    => $this->getContainer()->getParameter('amazon_s3.key'),
+            'key' => $this->getContainer()->getParameter('amazon_s3.key'),
             'secret' => $this->getContainer()->getParameter('amazon_s3.secret'),
-            'region' => $this->getContainer()->getParameter('amazon_s3.region')
+            'region' => $this->getContainer()->getParameter('amazon_s3.region'),
         ));
 
         if ($input->getOption('list-android')) {
@@ -72,7 +72,7 @@ class SnsCommand extends ContainerAwareCommand
             if ($input->getOption('delete')) {
                 $output->writeln('<comment>Delete endpoint</comment>');
                 $client->deleteEndpoint(array(
-                    'EndpointArn' => $endpoint
+                    'EndpointArn' => $endpoint,
                 ));
             } else {
                 $testMessage = 'Test notification';
@@ -82,8 +82,8 @@ class SnsCommand extends ContainerAwareCommand
                         'MessageStructure' => 'json',
                         'Message' => json_encode(array(
                             'APNS' => json_encode(array('aps' => array('alert' => $testMessage))),
-                            'GCM' => json_encode(array('data' => array('message' => $testMessage)))
-                        ))
+                            'GCM' => json_encode(array('data' => array('message' => $testMessage))),
+                        )),
                     ));
                 } catch (\Aws\Sns\Exception\SnsException $e) {
                     $output->writeln("<error>{$e->getMessage()}</error>");
@@ -95,7 +95,7 @@ class SnsCommand extends ContainerAwareCommand
     private function showEndpoints($platformArn, $title = 'List of endpoints:')
     {
         $result = $this->client->listEndpointsByPlatformApplication(array(
-            'PlatformApplicationArn' =>  $platformArn
+            'PlatformApplicationArn' => $platformArn,
         ));
         $output = $this->output;
         $output->writeln("<comment>{$title}</comment>");

@@ -10,7 +10,6 @@ use Civix\CoreBundle\Serializer\Type\JoinStatus;
 
 class JoinStatusHandler implements SubscribingHandlerInterface
 {
-
     private $user;
 
     public static function getSubscribingMethods()

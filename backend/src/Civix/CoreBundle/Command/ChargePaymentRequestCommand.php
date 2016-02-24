@@ -4,16 +4,13 @@ namespace Civix\CoreBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
 use Civix\CoreBundle\Entity\Poll\Answer;
-
 use Civix\CoreBundle\Service\Stripe;
 use Civix\CoreBundle\Entity\Stripe\Charge;
 use Civix\CoreBundle\Entity\Stripe\Customer;
-
 
 class ChargePaymentRequestCommand extends ContainerAwareCommand
 {
@@ -45,8 +42,7 @@ class ChargePaymentRequestCommand extends ContainerAwareCommand
         }
 
         /** @var Stripe $stripe */
-        $stripe =  $this->getContainer()->get('civix_core.stripe');
-
+        $stripe = $this->getContainer()->get('civix_core.stripe');
 
         /** @var \Doctrine\ORM\EntityRepository $chargeRepository */
         $chargeRepository = $this->getContainer()->get('doctrine')->getRepository(Charge::class);
@@ -76,7 +72,6 @@ class ChargePaymentRequestCommand extends ContainerAwareCommand
                     'fromCustomer' => $customer,
                 ])
             ;
-
 
             if ($answer->getOption()->getPaymentAmount() && !$charge) {
                 try {

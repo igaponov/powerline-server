@@ -35,7 +35,7 @@ class PushSender
     const TYPE_PUSH_NEWS = 'leader_news';
     const TYPE_PUSH_EVENT = 'leader_event';
     const TYPE_PUSH_SOCIAL_ACTIVITY = 'social_activity';
-    
+
     const MAX_USERS_PER_QUERY = 5000;
 
     const IMAGE_WIDTH = 320;
@@ -103,7 +103,6 @@ class PushSender
             }
 
             $this->entityManager->clear();
-
         } while ($users);
     }
 
@@ -226,7 +225,7 @@ class PushSender
                     $this->getLinkByFilename($socialActivity->getImage())
                 );
             }
-        } else if ($socialActivity->getFollowing()) {
+        } elseif ($socialActivity->getFollowing()) {
             $recipients = $this->entityManager
                 ->getRepository('CivixCoreBundle:User')
                 ->getUsersByFollowingForPush($socialActivity->getFollowing());

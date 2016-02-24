@@ -21,7 +21,7 @@ class CiceroCalls extends ServiceApi
 
     private $user;
     private $token;
-    
+
     public function __construct($login, $password, Logger $logger)
     {
         $this->apiLogin = $login;
@@ -33,20 +33,20 @@ class CiceroCalls extends ServiceApi
 
     public function findRepresentativeByLocation($address, $city, $state, $country = 'US')
     {
-        $response = $this->getResponse(self::API_URL . self::OFFICIAL,
+        $response = $this->getResponse(self::API_URL.self::OFFICIAL,
             array(
                 'search_address' => $address,
                 'search_city' => $city,
                 'search_state' => $state,
-                'search_country' => empty($country)?'US':$country,
+                'search_country' => empty($country) ? 'US' : $country,
                 'user' => $this->user,
-                'token' => $this->token
+                'token' => $this->token,
             ),
             'GET'
         );
 
         if (!isset($response->response->results->candidates) ||
-                count($response->response->results->candidates)<1 ||
+                count($response->response->results->candidates) < 1 ||
                 $response->response->results->candidates[0]->count->total == 0
         ) {
             return false;
@@ -61,13 +61,13 @@ class CiceroCalls extends ServiceApi
 
     public function findRepresentativeByOfficialData($firstName, $lastName, $officialTitle)
     {
-        $response = $this->getResponse(self::API_URL . self::OFFICIAL,
+        $response = $this->getResponse(self::API_URL.self::OFFICIAL,
             array(
                 'first_name' => $firstName,
                 'last_name' => $lastName,
                 'title' => $officialTitle,
                 'user' => $this->user,
-                'token' => $this->token
+                'token' => $this->token,
             )
         );
 
@@ -84,23 +84,23 @@ class CiceroCalls extends ServiceApi
      * 
      * @param string $firstName
      * @param string $lastName
-     * @param integer $storageId
+     * @param int    $storageId
      * 
-     * @return boolean | object
+     * @return bool | object
      */
     public function findRepresentativeByNameAndId($firstName, $lastName, $storageId)
     {
-        $response = $this->getResponse(self::API_URL . self::OFFICIAL,
+        $response = $this->getResponse(self::API_URL.self::OFFICIAL,
             array(
                 'first_name' => $firstName,
                 'last_name' => $lastName,
                 'id' => $storageId,
                 'user' => $this->user,
-                'token' => $this->token
+                'token' => $this->token,
             )
         );
 
-        if (!isset($response->response->results->count) || $response->response->results->count->total <> 1) {
+        if (!isset($response->response->results->count) || $response->response->results->count->total != 1) {
             return false;
         }
 
@@ -109,17 +109,17 @@ class CiceroCalls extends ServiceApi
 
     public function findNonLegislativeDistricts()
     {
-        $response = $this->getResponse(self::API_URL . self::NONLEGISLATIVE_DISTRICT,
+        $response = $this->getResponse(self::API_URL.self::NONLEGISLATIVE_DISTRICT,
             array(
                 'user' => $this->user,
                 'token' => $this->token,
                 'lat' => $this->locationLat,
                 'lon' => $this->locationLon,
-                'type' => 'CENSUS'
+                'type' => 'CENSUS',
             ),
             'GET'
         );
-        
+
         if (isset($response->response->results) && isset($response->response->results->districts)) {
             return $response->response->results->districts;
         }
@@ -128,16 +128,16 @@ class CiceroCalls extends ServiceApi
     }
 
     /**
-     * Get current credit balance
+     * Get current credit balance.
      *
-     * @return Integer
+     * @return int
      */
     public function getCreditBalance()
     {
-        $response = $this->getResponse(self::API_URL . 'account/credits_remaining',
+        $response = $this->getResponse(self::API_URL.'account/credits_remaining',
             array(
                 'user' => $this->user,
-                'token' => $this->token
+                'token' => $this->token,
             ),
             'GET'
         );
@@ -150,10 +150,10 @@ class CiceroCalls extends ServiceApi
 
     protected function getApiToken()
     {
-        $response = $this->getResponse(self::API_URL . self::GET_TOKEN_SUFFIX,
+        $response = $this->getResponse(self::API_URL.self::GET_TOKEN_SUFFIX,
             array(
                  'username' => $this->apiLogin,
-                 'password' => $this->apiPassword
+                 'password' => $this->apiPassword,
              ),
             'POST'
         );

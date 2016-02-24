@@ -17,7 +17,7 @@ class LoadPetitionData extends AbstractFixture implements FixtureInterface
         $petition->setPetitionBody('Petition body');
         $petition->setUser($this->getReference('group-group1'));
         $petition->setPublishedAt(new \DateTime('now'));
-        
+
         $option = new Option();
         $option->setQuestion($petition)
             ->setValue('sign')
@@ -25,7 +25,7 @@ class LoadPetitionData extends AbstractFixture implements FixtureInterface
 
         $this->addReference('petition1', $petition);
         $this->addReference('petition-option1', $option);
-        
+
         $manager->persist($option);
         $manager->persist($petition);
         $manager->flush();

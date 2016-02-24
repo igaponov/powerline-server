@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Civix\CoreBundle\Entity\Superuser;
 
 /**
- * LoadSuperuserData
+ * LoadSuperuserData.
  */
 class LoadSuperuserData extends AbstractFixture implements FixtureInterface, ContainerAwareInterface
 {

@@ -1,10 +1,10 @@
 <?php
+
 namespace Civix\CoreBundle\Serializer\Handler;
 
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\JsonSerializationVisitor;
-
 use Civix\CoreBundle\Serializer\Type\Image;
 
 class ImageHandler implements SubscribingHandlerInterface

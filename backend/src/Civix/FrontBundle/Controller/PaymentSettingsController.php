@@ -5,14 +5,9 @@ namespace Civix\FrontBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Civix\CoreBundle\Controller\SerializerTrait;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Civix\CoreBundle\Entity\Customer\BankAccount;
-use Civix\CoreBundle\Entity\Customer\Card;
 use Civix\CoreBundle\Entity\Stripe\Customer;
 use Civix\CoreBundle\Entity\Stripe\Account;
 
@@ -50,7 +45,7 @@ abstract class PaymentSettingsController extends Controller
             'bankAccounts' => $bankAccounts,
             'cards' => $cards,
             'customer' => $customer,
-            'return_path' => $this->generateUrl('civix_front_' . $this->getUser()->getType() . '_paymentsettings_index')
+            'return_path' => $this->generateUrl('civix_front_'.$this->getUser()->getType().'_paymentsettings_index'),
         ];
     }
 
@@ -63,8 +58,8 @@ abstract class PaymentSettingsController extends Controller
         /* @var Customer $customer */
         $customer = $this->get('civix_core.customer_manager')
             ->getCustomerByUser($this->getUser());
-        $formClass = '\\Civix\\FrontBundle\\Form\\Type\\Settings\\' . ucfirst($type) . 'PaymentAccount';
-        $form = $this->createForm(new $formClass);
+        $formClass = '\\Civix\\FrontBundle\\Form\\Type\\Settings\\'.ucfirst($type).'PaymentAccount';
+        $form = $this->createForm(new $formClass());
 
         if ('POST' === $request->getMethod() && $form->submit($request)->isValid()) {
             $this->get('civix_balanced.payment_manager')->updateCustomer($customer, $form->getData());
@@ -72,7 +67,7 @@ abstract class PaymentSettingsController extends Controller
             $this->getDoctrine()->getManager()->flush($customer);
 
             return $this->redirect(
-                $this->generateUrl('civix_front_' . $this->getUser()->getType() . '_paymentsettings_index')
+                $this->generateUrl('civix_front_'.$this->getUser()->getType().'_paymentsettings_index')
             );
         }
 

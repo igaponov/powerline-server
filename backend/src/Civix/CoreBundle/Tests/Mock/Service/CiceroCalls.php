@@ -20,12 +20,10 @@ class CiceroCalls extends BaseCiceroCalls
 
     public function findRepresentativeByLocation()
     {
-
     }
 
     public function findRepresentativeByOfficialData()
     {
-
     }
 
     public function findRepresentativeByNameAndId()

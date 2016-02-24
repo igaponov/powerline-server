@@ -3,7 +3,6 @@
 namespace Civix\ApiBundle\Features\Context;
 
 use PHPUnit_Framework_Assert as Assert;
-
 use Behat\Behat\Context\BehatContext;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
@@ -27,12 +26,12 @@ class SecureContext extends BehatContext
             'password' => $password,
             'first_name' => $username,
             'last_name' => $username,
-            'email' => $username . '@civix.local',
+            'email' => $username.'@civix.local',
             'address1' => 'test',
             'city' => 'Ocean',
             'state' => 'NJ',
             'zip' => 'test',
-            'country' => 'US'
+            'country' => 'US',
         ])));
         $this->getMainContext()->responseStatusShouldBe(200);
     }
@@ -150,7 +149,7 @@ class SecureContext extends BehatContext
             ->setUser($user2)
             ->setFollower($user1)
             ->setStatus(UserFollow::STATUS_ACTIVE)
-            ->setDateCreate(new \DateTime)
+            ->setDateCreate(new \DateTime())
         ;
         $em->persist($userFollow);
         $em->flush($userFollow);
@@ -167,5 +166,4 @@ class SecureContext extends BehatContext
 
         return $user->getToken();
     }
-
 }

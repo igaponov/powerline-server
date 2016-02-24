@@ -9,8 +9,8 @@ use Civix\CoreBundle\Entity\Group;
 
 class Membership extends AbstractType
 {
-     /**
-     * Set form fields
+    /**
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -25,16 +25,16 @@ class Membership extends AbstractType
                 'choices' => array(
                     Group::GROUP_MEMBERSHIP_PUBLIC => 'Public (Open to all)',
                     Group::GROUP_MEMBERSHIP_APPROVAL => 'Private (requires approval)',
-                    Group::GROUP_MEMBERSHIP_PASSCODE => 'Private (requires passcode)'
+                    Group::GROUP_MEMBERSHIP_PASSCODE => 'Private (requires passcode)',
                 ),
-                'label'=> 'Membership Control'
+                'label' => 'Membership Control',
             )
         );
-        $builder->add('membershipPasscode', null, array('label'=> 'Passcode'));
+        $builder->add('membershipPasscode', null, array('label' => 'Passcode'));
     }
 
     /**
-     * Get unique name for form
+     * Get unique name for form.
      *
      * @return string
      */
@@ -44,7 +44,7 @@ class Membership extends AbstractType
     }
 
     /**
-     * Set default form option
+     * Set default form option.
      *
      * @param OptionsResolverInterface $resolver
      */
@@ -53,7 +53,7 @@ class Membership extends AbstractType
         $resolver->setDefaults(array(
             'data_class' => 'Civix\CoreBundle\Entity\Group',
             'csrf_protection' => true,
-            'csrf_field_name' => '_token'
+            'csrf_field_name' => '_token',
         ));
     }
 }

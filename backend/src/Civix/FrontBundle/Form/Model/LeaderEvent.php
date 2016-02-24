@@ -20,7 +20,6 @@ class LeaderEvent
     {
         $this->leaderEvent = $leaderEvent;
         $this->educationalContext = new EducationalContext($leaderEvent);
-
     }
 
     public function getLeaderEvent()

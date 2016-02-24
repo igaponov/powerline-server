@@ -9,7 +9,7 @@ class RepresentativeManager
     private $entityManager;
     private $encoderFactory;
     private $ciceroService;
-    
+
     public function __construct(
         \Doctrine\ORM\EntityManager $entityManager,
         \Symfony\Component\Security\Core\Encoder\EncoderFactory $encoder,
@@ -32,7 +32,7 @@ class RepresentativeManager
                 $representative->getLastName(),
                 $representative->getOfficialTitle()
             );
-        
+
         if (!$reprStorageObj) {
             //update database from api
             $district = $this->ciceroService->updateByRepresentativeInfo($representative);
@@ -67,7 +67,7 @@ class RepresentativeManager
     }
 
     /**
-     * Generate representative username by name and set new username
+     * Generate representative username by name and set new username.
      *
      * @param Representative $representative
      * @param int            $iteration
@@ -77,10 +77,10 @@ class RepresentativeManager
     public function generateRepresentativeUsername(Representative $representative, $iteration = 0)
     {
         // Generate canonical name
-        $name = $representative->getFirstName() . $representative->getLastName();
+        $name = $representative->getFirstName().$representative->getLastName();
         $name = preg_replace('/[^\w]/i', '', $name);
         $name = strtolower($name);
-        $name = $iteration ? ($name . $iteration) : $name;
+        $name = $iteration ? ($name.$iteration) : $name;
 
         $representByUsername = $this->entityManager
             ->getRepository('CivixCoreBundle:Representative')
@@ -96,7 +96,7 @@ class RepresentativeManager
     }
 
     /**
-     * Generate representative password and set to representative
+     * Generate representative password and set to representative.
      *
      * @param Representative $representative
      *

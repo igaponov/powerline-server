@@ -10,5 +10,4 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
  */
 class SubscriptionController extends Controller
 {
-
 }

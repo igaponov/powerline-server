@@ -9,7 +9,7 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 class GroupFields extends AbstractType
 {
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -28,7 +28,7 @@ class GroupFields extends AbstractType
     }
 
     /**
-     * Get unique name for form
+     * Get unique name for form.
      *
      * @return string
      */
@@ -38,7 +38,7 @@ class GroupFields extends AbstractType
     }
 
     /**
-     * Set default form option
+     * Set default form option.
      *
      * @param OptionsResolverInterface $resolver
      */
@@ -48,7 +48,7 @@ class GroupFields extends AbstractType
             'data_class' => 'Civix\CoreBundle\Entity\Group',
             'validation_groups' => array('fields'),
             'csrf_protection' => true,
-            'csrf_field_name' => '_token'
+            'csrf_field_name' => '_token',
         ));
     }
 }

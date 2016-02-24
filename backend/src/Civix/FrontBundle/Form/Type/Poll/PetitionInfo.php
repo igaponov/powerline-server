@@ -1,21 +1,18 @@
 <?php
+
 namespace Civix\FrontBundle\Form\Type\Poll;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
-use Doctrine\ORM\EntityRepository;
-use Symfony\Bridge\Doctrine\RegistryInterface;
-use Civix\CoreBundle\Entity\Representative;
 
 /**
- * Petition info form type
+ * Petition info form type.
  */
 class PetitionInfo extends AbstractType
 {
-
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -28,7 +25,7 @@ class PetitionInfo extends AbstractType
     }
 
     /**
-     * Get unique name for form
+     * Get unique name for form.
      *
      * @return string
      */
@@ -38,14 +35,14 @@ class PetitionInfo extends AbstractType
     }
 
     /**
-     * Set default form option
+     * Set default form option.
      *
      * @param OptionsResolverInterface $resolver
      */
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Civix\CoreBundle\Entity\Poll\Question\Petition'
+            'data_class' => 'Civix\CoreBundle\Entity\Poll\Question\Petition',
         ));
     }
 }

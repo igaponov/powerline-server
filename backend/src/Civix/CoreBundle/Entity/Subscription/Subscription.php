@@ -19,7 +19,7 @@ class Subscription
     const PACKAGE_TYPE_PLATINUM = 40;
     const PACKAGE_TYPE_COMMERCIAL = 50;
 
-    static public $labels = [
+    public static $labels = [
         self::PACKAGE_TYPE_FREE => 'Free',
         self::PACKAGE_TYPE_SILVER => 'Silver',
         self::PACKAGE_TYPE_GOLD => 'Gold',
@@ -27,7 +27,7 @@ class Subscription
         self::PACKAGE_TYPE_COMMERCIAL => 'Commercial',
     ];
 
-    static public $stripePlansByType = [
+    public static $stripePlansByType = [
         self::PACKAGE_TYPE_SILVER => 'silver',
         self::PACKAGE_TYPE_GOLD => 'gold',
         self::PACKAGE_TYPE_PLATINUM => 'platinum',
@@ -80,7 +80,7 @@ class Subscription
     private $nextPaymentAt;
 
     /**
-     * @var boolean
+     * @var bool
      *
      * @ORM\Column(name="enabled", type="boolean")
      */
@@ -112,7 +112,8 @@ class Subscription
     private $stripeSyncAt;
 
     /**
-     * @param boolean $enabled
+     * @param bool $enabled
+     *
      * @return $this
      */
     public function setEnabled($enabled)
@@ -123,7 +124,7 @@ class Subscription
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function getEnabled()
     {
@@ -132,6 +133,7 @@ class Subscription
 
     /**
      * @param \DateTime $expiredAt
+     *
      * @return $this
      */
     public function setExpiredAt($expiredAt)
@@ -151,6 +153,7 @@ class Subscription
 
     /**
      * @param \Civix\CoreBundle\Entity\Group $group
+     *
      * @return $this
      */
     public function setGroup($group)
@@ -170,6 +173,7 @@ class Subscription
 
     /**
      * @param int $id
+     *
      * @return $this
      */
     public function setId($id)
@@ -189,6 +193,7 @@ class Subscription
 
     /**
      * @param int $packageType
+     *
      * @return $this
      */
     public function setPackageType($packageType)
@@ -208,6 +213,7 @@ class Subscription
 
     /**
      * @param \Civix\CoreBundle\Entity\Representative $representative
+     *
      * @return $this
      */
     public function setRepresentative($representative)
@@ -227,6 +233,7 @@ class Subscription
 
     /**
      * @param Card $card
+     *
      * @return $this
      */
     public function setCard(Card $card = null)
@@ -246,6 +253,7 @@ class Subscription
 
     /**
      * @param \DateTime $nextPaymentAt
+     *
      * @return $this
      */
     public function setNextPaymentAt($nextPaymentAt)
@@ -273,6 +281,7 @@ class Subscription
 
     /**
      * @param mixed $stripeId
+     *
      * @return $this
      */
     public function setStripeId($stripeId)
@@ -292,6 +301,7 @@ class Subscription
 
     /**
      * @param mixed $stripeData
+     *
      * @return $this
      */
     public function setStripeData($stripeData)
@@ -311,6 +321,7 @@ class Subscription
 
     /**
      * @param mixed $stripeSyncAt
+     *
      * @return $this
      */
     public function setStripeSyncAt($stripeSyncAt)
@@ -336,11 +347,12 @@ class Subscription
 
     /**
      * @param UserInterface $entity
+     *
      * @return $this
      */
     public function setUserEntity(UserInterface $entity)
     {
-        $method = 'set' . ucfirst($entity->getType());
+        $method = 'set'.ucfirst($entity->getType());
         $this->$method($entity);
 
         return $this;
@@ -361,23 +373,23 @@ class Subscription
         $this->stripeId = $so->id;
 
         $this->stripeData = [
-            'status'               => $so->status,
+            'status' => $so->status,
             'cancel_at_period_end' => $so->cancel_at_period_end,
             'current_period_start' => $so->current_period_start,
-            'current_period_end'   => $so->current_period_end,
-            'ended_at'             => $so->ended_at,
-            'trial_start'          => $so->trial_start,
-            'trial_end'            => $so->trial_end,
-            'canceled_at'          => $so->canceled_at,
-            'quantity'             => $so->quantity,
-            'discount'             => $so->discount,
+            'current_period_end' => $so->current_period_end,
+            'ended_at' => $so->ended_at,
+            'trial_start' => $so->trial_start,
+            'trial_end' => $so->trial_end,
+            'canceled_at' => $so->canceled_at,
+            'quantity' => $so->quantity,
+            'discount' => $so->discount,
         ];
 
         $this->stripeSyncAt = $this->stripeData['current_period_end'] ?
             (new \DateTime())->setTimestamp($this->stripeData['current_period_end']) :
             null;
 
-        if ($this->stripeSyncAt && $this->stripeSyncAt < new \DateTime) {
+        if ($this->stripeSyncAt && $this->stripeSyncAt < new \DateTime()) {
             $this->stripeSyncAt = null;
         }
 
@@ -387,7 +399,6 @@ class Subscription
 
         $this->enabled = 'active' === $this->stripeData['status'] &&
             !$this->stripeData['cancel_at_period_end'];
-
     }
 
     public function stripeReset()
@@ -397,7 +408,6 @@ class Subscription
         $this->enabled = false;
         $this->stripeData = [];
     }
-
 
     public function isNotFree()
     {

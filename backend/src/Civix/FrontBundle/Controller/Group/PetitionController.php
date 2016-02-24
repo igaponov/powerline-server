@@ -29,7 +29,7 @@ class PetitionController extends Controller
 
         return '\Civix\FrontBundle\Form\Type\Poll\PetitionGroup';
     }
-    
+
     /**
      * @Route("/invite/{id}", requirements={"id"="\d+"})
      * @Template("CivixFrontBundle:Petition:invite.html.twig")
@@ -56,7 +56,7 @@ class PetitionController extends Controller
             $package = $this->get('civix_core.subscription_manager')
                 ->getPackage($this->getUser());
             $packageInviteAmount = $package->getSumForPetitionInvites();
-            
+
             if (0 < $packageInviteAmount) {
                 /* @var Customer $customer */
                 $customer = $this->get('civix_core.customer_manager')
@@ -67,9 +67,9 @@ class PetitionController extends Controller
 
                 if (!$card) {
                     return $this->redirect(
-                        $this->generateUrl('civix_front_' . $this->getUser()->getType() . '_paymentsettings_createcard', [
-                            'return_path' => $this->generateUrl('civix_front_' . $this->getUser()->getType() .
-                                    '_invite', ['id' => $petition->getId()])
+                        $this->generateUrl('civix_front_'.$this->getUser()->getType().'_paymentsettings_createcard', [
+                            'return_path' => $this->generateUrl('civix_front_'.$this->getUser()->getType().
+                                    '_invite', ['id' => $petition->getId()]),
                         ])
                     );
                 }
@@ -91,7 +91,7 @@ class PetitionController extends Controller
                     ];
                 }
             }
-            
+
             $this->get('civix_core.invite_sender')
                 ->sendInviteForPetition($answers, $group);
             $this->getDoctrine()->getManager()->persist($group);

@@ -10,7 +10,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Comments entity
+ * Comments entity.
  *
  * @ORM\Table(name="comments")
  * @ORM\Entity()
@@ -27,9 +27,9 @@ class BaseComment
 {
     const PRIVACY_PUBLIC = 0;
     const PRIVACY_PRIVATE = 1;
-    
+
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -56,7 +56,7 @@ class BaseComment
     private $commentBodyHtml;
 
     /**
-     * @var \DateTime $createdAt
+     * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      * @Serializer\Expose()
@@ -64,7 +64,7 @@ class BaseComment
      * @Serializer\Type("DateTime<'D, d M Y H:i:s O'>")
      */
     private $createdAt;
-    
+
     /**
      * @ORM\ManyToOne(targetEntity="BaseComment", inversedBy="childrenComments")
      * @ORM\JoinColumn(name="pid", referencedColumnName="id", onDelete="CASCADE")
@@ -92,7 +92,7 @@ class BaseComment
      * @ORM\OneToMany(targetEntity="\Civix\CoreBundle\Entity\Poll\CommentRate", mappedBy="comment")
      */
     private $rates;
-    
+
     /**
      * @ORM\Column(name="rate_sum", type="integer")
      * @Serializer\Expose()
@@ -108,15 +108,15 @@ class BaseComment
     private $ratesCount;
 
     /**
-    * @Serializer\Expose()
-    * @Serializer\Groups({"api-comments"})
-    */
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-comments"})
+     */
     private $rateStatus;
 
     private $isOwner;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="privacy", type="integer")
      * @Serializer\Expose()
@@ -132,9 +132,9 @@ class BaseComment
     }
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -142,7 +142,7 @@ class BaseComment
     }
 
     /**
-     * Set commentBody
+     * Set commentBody.
      *
      * @param string $commentBody
      * 
@@ -156,9 +156,9 @@ class BaseComment
     }
 
     /**
-     * Get commentBody
+     * Get commentBody.
      *
-     * @return string 
+     * @return string
      */
     public function getCommentBody()
     {
@@ -166,7 +166,7 @@ class BaseComment
     }
 
     /**
-     * Set parentComment
+     * Set parentComment.
      *
      * @param \Civix\CoreBundle\Entity\BaseComment $parentComment
      * 
@@ -180,9 +180,9 @@ class BaseComment
     }
 
     /**
-     * Get parentComment
+     * Get parentComment.
      *
-     * @return \Civix\CoreBundle\Entity\BaseComment 
+     * @return \Civix\CoreBundle\Entity\BaseComment
      */
     public function getParentComment()
     {
@@ -190,7 +190,7 @@ class BaseComment
     }
 
     /**
-     * Set user
+     * Set user.
      *
      * @param \Civix\CoreBundle\Entity\User $user
      * 
@@ -204,9 +204,9 @@ class BaseComment
     }
 
     /**
-     * Get user
+     * Get user.
      *
-     * @return \Civix\CoreBundle\Entity\User 
+     * @return \Civix\CoreBundle\Entity\User
      */
     public function getUser()
     {
@@ -226,7 +226,7 @@ class BaseComment
     }
 
     /**
-     * Set createdAt
+     * Set createdAt.
      *
      * @param \DateTime $createdAt
      *
@@ -240,7 +240,7 @@ class BaseComment
     }
 
     /**
-     * Get createdAt
+     * Get createdAt.
      *
      * @return \DateTime
      */
@@ -250,9 +250,9 @@ class BaseComment
     }
 
     /**
-     * Set crate sum
+     * Set crate sum.
      *
-     * @param integer $rateSum
+     * @param int $rateSum
      *
      * @return Comment
      */
@@ -264,9 +264,9 @@ class BaseComment
     }
 
     /**
-     * Get rate sum
+     * Get rate sum.
      *
-     * @return integer
+     * @return int
      */
     public function getRateSum()
     {
@@ -300,9 +300,9 @@ class BaseComment
     }
 
     /**
-     * Set privacy
+     * Set privacy.
      *
-     * @param integer $privacy
+     * @param int $privacy
      *
      * @return Comment
      */
@@ -314,9 +314,9 @@ class BaseComment
     }
 
     /**
-     * Get privacy
+     * Get privacy.
      *
-     * @return integer
+     * @return int
      */
     public function getPrivacy()
     {
@@ -349,7 +349,7 @@ class BaseComment
     public function getCommentPicture()
     {
         return $this->privacy === self::PRIVACY_PUBLIC ?
-            ($this->user instanceof User ? $this->user->getAvatarWithPath():null):
+            ($this->user instanceof User ? $this->user->getAvatarWithPath() : null):
             $this->user->getAvatarWithPath($this->privacy)
         ;
     }
@@ -365,20 +365,21 @@ class BaseComment
     }
 
     /**
-     * Add childrenComments
+     * Add childrenComments.
      *
      * @param \Civix\CoreBundle\Entity\BaseComment $childrenComments
+     *
      * @return Comment
      */
     public function addChildrenComment(\Civix\CoreBundle\Entity\BaseComment $childrenComments)
     {
         $this->childrenComments[] = $childrenComments;
-    
+
         return $this;
     }
 
     /**
-     * Remove childrenComments
+     * Remove childrenComments.
      *
      * @param \Civix\CoreBundle\Entity\BaseComment $childrenComments
      */
@@ -388,9 +389,9 @@ class BaseComment
     }
 
     /**
-     * Get childrenComments
+     * Get childrenComments.
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getChildrenComments()
     {
@@ -398,20 +399,21 @@ class BaseComment
     }
 
     /**
-     * Add rates
+     * Add rates.
      *
      * @param \Civix\CoreBundle\Entity\Poll\CommentRate $rates
+     *
      * @return Comment
      */
     public function addRate(\Civix\CoreBundle\Entity\Poll\CommentRate $rates)
     {
         $this->rates[] = $rates;
-    
+
         return $this;
     }
 
     /**
-     * Remove rates
+     * Remove rates.
      *
      * @param \Civix\CoreBundle\Entity\Poll\CommentRate $rates
      */
@@ -422,6 +424,7 @@ class BaseComment
 
     /**
      * @param mixed $ratesCount
+     *
      * @return $this
      */
     public function setRatesCount($ratesCount)
@@ -441,6 +444,7 @@ class BaseComment
 
     /**
      * @param mixed $commentBodyHtml
+     *
      * @return $this
      */
     public function setCommentBodyHtml($commentBodyHtml)

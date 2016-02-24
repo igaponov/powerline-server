@@ -9,7 +9,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Civix\CoreBundle\Entity\Poll\Question\Representative as Question;
 
 /**
- * LoadQuestionData
+ * LoadQuestionData.
  */
 class LoadQuestionData extends AbstractFixture implements FixtureInterface, OrderedFixtureInterface
 {
@@ -23,7 +23,7 @@ class LoadQuestionData extends AbstractFixture implements FixtureInterface, Orde
 
             $manager->persist($question);
         }
-        
+
         $manager->flush();
     }
 

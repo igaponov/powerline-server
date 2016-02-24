@@ -1,8 +1,8 @@
 <?php
+
 namespace Civix\CoreBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\QueryBuilder;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\UserGroup;
@@ -49,7 +49,7 @@ class GroupRepository extends EntityRepository
             ->leftJoin('g.users', 'u')
             ->where('g.groupType = :type')
             ->setParameters(array(
-                'type' => Group::GROUP_TYPE_COMMON
+                'type' => Group::GROUP_TYPE_COMMON,
             ))
             ->groupBy('g')
             ->orderBy('count_users', 'DESC')
@@ -79,7 +79,7 @@ class GroupRepository extends EntityRepository
             ->andWhere('g.createdAt > :limit_date')
             ->setParameters(array(
                 'type' => Group::GROUP_TYPE_COMMON,
-                'limit_date' => $limitDate
+                'limit_date' => $limitDate,
             ))
             ->orderBy('g.createdAt', 'DESC')
         ;
@@ -128,7 +128,7 @@ class GroupRepository extends EntityRepository
             ->execute();
 
         $this->getEntityManager()->getConnection()
-                ->delete('users_groups', array('group_id'=>$group->getId()));
+                ->delete('users_groups', array('group_id' => $group->getId()));
 
         $this->getEntityManager()
             ->createQueryBuilder()
@@ -137,7 +137,6 @@ class GroupRepository extends EntityRepository
             ->setParameter('groupId', $group->getId())
             ->getQuery()
             ->execute();
-
     }
 
     public function getTotalMembers(Group $group)
@@ -161,7 +160,7 @@ class GroupRepository extends EntityRepository
     {
         return $this->findOneBy(array(
             'id' => $id,
-            'groupType' => $type
+            'groupType' => $type,
         ));
     }
 
@@ -186,12 +185,11 @@ class GroupRepository extends EntityRepository
             ->setParameters(array(
                 'id' => $id,
                 'type' => Group::GROUP_TYPE_LOCAL,
-                'representativeId' => $representativeId
+                'representativeId' => $representativeId,
             ))
             ->getQuery()
             ->getOneOrNullResult();
     }
-
 
     public function cleanIncorrectLocalGroup()
     {
@@ -207,7 +205,7 @@ class GroupRepository extends EntityRepository
         $qb = $this->createQueryBuilder('g');
         $qb->leftJoin('g.users', 'u')
             ->where('u.user = :user')
-            ->andWhere($qb->expr()->like('g.officialName', $qb->expr()->literal('%' . $query . '%')))
+            ->andWhere($qb->expr()->like('g.officialName', $qb->expr()->literal('%'.$query.'%')))
             ->setParameter('user', $user)
         ;
 
@@ -216,7 +214,7 @@ class GroupRepository extends EntityRepository
 
     public function cleanCommonGroups()
     {
-         return $this->getEntityManager()
+        return $this->getEntityManager()
             ->createQuery('DELETE FROM CivixCoreBundle:Group gr
                             WHERE gr.groupType=:type')
             ->setParameter('type', Group::GROUP_TYPE_COMMON)
@@ -227,7 +225,7 @@ class GroupRepository extends EntityRepository
     {
         return $this->findOneBy([
             'locationName' => $country,
-            'groupType' => Group::GROUP_TYPE_COUNTRY
+            'groupType' => Group::GROUP_TYPE_COUNTRY,
         ]);
     }
 
@@ -236,7 +234,7 @@ class GroupRepository extends EntityRepository
         return $this->findOneBy([
             'locationName' => $state,
             'parent' => $countryGroup,
-            'groupType' => Group::GROUP_TYPE_STATE
+            'groupType' => Group::GROUP_TYPE_STATE,
         ]);
     }
 
@@ -245,7 +243,7 @@ class GroupRepository extends EntityRepository
         return $this->findOneBy([
             'locationName' => $location,
             'parent' => $stateGroup,
-            'groupType' => Group::GROUP_TYPE_LOCAL
+            'groupType' => Group::GROUP_TYPE_LOCAL,
         ]);
     }
 
@@ -256,7 +254,7 @@ class GroupRepository extends EntityRepository
             $group = new Group();
             $group
                 ->setGroupType(Group::GROUP_TYPE_COUNTRY)
-                ->setUsername($addressComponent->getShortName() . uniqid())
+                ->setUsername($addressComponent->getShortName().uniqid())
                 ->setOfficialName($addressComponent->getLongName())
                 ->setLocationName($addressComponent->getShortName())
                 ->setAcronym($addressComponent->getShortName())
@@ -279,7 +277,7 @@ class GroupRepository extends EntityRepository
             $group = new Group();
             $group
                 ->setGroupType(Group::GROUP_TYPE_STATE)
-                ->setUsername($addressComponent->getShortName() . uniqid())
+                ->setUsername($addressComponent->getShortName().uniqid())
                 ->setOfficialName($addressComponent->getLongName())
                 ->setLocationName($addressComponent->getShortName())
                 ->setParent($countryGroup)
@@ -302,7 +300,7 @@ class GroupRepository extends EntityRepository
             $group = new Group();
             $group
                 ->setGroupType(Group::GROUP_TYPE_LOCAL)
-                ->setUsername($addressComponent->getShortName() . uniqid())
+                ->setUsername($addressComponent->getShortName().uniqid())
                 ->setOfficialName($addressComponent->getLongName())
                 ->setLocationName($addressComponent->getShortName())
                 ->setParent($stateGroup)

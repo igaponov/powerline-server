@@ -28,18 +28,18 @@ class BalancedPaymentManager
         $marketplaceUserId,
         $debug
     ) {
-        $this->balancedPaymentCalls   = $balancedPaymentCalls;
-        $this->logger            = $logger;
-        $this->userClass         = $userClass;
+        $this->balancedPaymentCalls = $balancedPaymentCalls;
+        $this->logger = $logger;
+        $this->userClass = $userClass;
         $this->marketplaceUserId = $marketplaceUserId;
-        $this->debug             = $debug;
+        $this->debug = $debug;
     }
 
     public function createCustomer(BalancedUserInterface $user)
     {
         if ($this->debug) {
             $this->logger->info(
-                sprintf("[Balanced Payment] Create account for user email %s", $user->getEmail())
+                sprintf('[Balanced Payment] Create account for user email %s', $user->getEmail())
             );
         }
 
@@ -47,7 +47,7 @@ class BalancedPaymentManager
             ->createCustomer([
                 'email' => $user->getEmail(),
                 'name' => $user->getUser()->getOfficialName(),
-                'address' => $user->getUser()->getAddressArray()
+                'address' => $user->getUser()->getAddressArray(),
             ]);
         $user->setBalancedUri($data->href);
 
@@ -113,7 +113,7 @@ class BalancedPaymentManager
     {
         if ($this->debug) {
             $this->logger->info(
-                sprintf("[Balanced Payment] Adding card %d", $card->getName())
+                sprintf('[Balanced Payment] Adding card %d', $card->getName())
             );
         }
 
@@ -124,7 +124,7 @@ class BalancedPaymentManager
                     'number' => $card->getNumber(),
                     'cvv' => $card->getCvv(),
                     'month' => $card->getExpirationMonth(),
-                    'year' => $card->getExpirationYear()
+                    'year' => $card->getExpirationYear(),
                 )
             );
 
@@ -145,7 +145,7 @@ class BalancedPaymentManager
     ) {
         if ($this->debug) {
             $this->logger->info(
-                sprintf("[Balanced Payment] Creating a debit of %d from %d", $amount, $card->getName())
+                sprintf('[Balanced Payment] Creating a debit of %d from %d', $amount, $card->getName())
             );
         }
 

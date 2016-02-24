@@ -3,7 +3,6 @@
 namespace Civix\CoreBundle\Entity\Customer;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
@@ -43,9 +42,9 @@ abstract class Customer implements BalancedUserInterface
     protected $accountType;
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -74,6 +73,7 @@ abstract class Customer implements BalancedUserInterface
 
     /**
      * @param mixed $accountType
+     *
      * @return $this
      */
     public function setAccountType($accountType)

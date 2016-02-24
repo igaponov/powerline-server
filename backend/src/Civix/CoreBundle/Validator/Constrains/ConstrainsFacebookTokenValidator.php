@@ -9,7 +9,7 @@ use Civix\CoreBundle\Service\FacebookApi;
 class ConstrainsFacebookTokenValidator extends ConstraintValidator
 {
     private $facebookApi;
-    
+
     public function __construct(FacebookApi $facebookApi)
     {
         $this->facebookApi = $facebookApi;

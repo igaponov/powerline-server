@@ -17,8 +17,7 @@ use Civix\FrontBundle\Form\Type\Poll\QuestionLimit;
 use Civix\CoreBundle\Entity\QuestionLimit as DefaultQuestionLimit;
 
 /**
- * Superuser controller
- *
+ * Superuser controller.
  */
 class SuperuserController extends Controller
 {
@@ -43,7 +42,7 @@ class SuperuserController extends Controller
      */
     public function approvalsAction()
     {
-        $queryList =  $this->getDoctrine()
+        $queryList = $this->getDoctrine()
                 ->getRepository('CivixCoreBundle:Representative')
                 ->getQueryRepresentativeByStatus(Representative::STATUS_PENDING);
 
@@ -67,7 +66,7 @@ class SuperuserController extends Controller
                ->getRepository('CivixCoreBundle:Representative')->find($id);
 
         if ($representativeObj) {
-            $form =  $this->createForm(new RepresentativeEdit(), $representativeObj);
+            $form = $this->createForm(new RepresentativeEdit(), $representativeObj);
             $request = $this->getRequest();
 
             if ($request->getMethod() == 'POST') {
@@ -92,8 +91,8 @@ class SuperuserController extends Controller
         return array(
             'form' => $form->createView(),
             'form_title' => 'Edit representative',
-            'form_link' => $this->generateUrl('civix_front_superuser_representative_edit', array('id'=> $id)),
-            'back_link' => $this->generateUrl('civix_front_superuser_approvals')
+            'form_link' => $this->generateUrl('civix_front_superuser_representative_edit', array('id' => $id)),
+            'back_link' => $this->generateUrl('civix_front_superuser_approvals'),
         );
     }
 
@@ -109,14 +108,14 @@ class SuperuserController extends Controller
         if (!$representativeObj) {
             $this->get('session')->getFlashBag()->add('error', 'Representative is not found');
         }
-        
+
         $csrfProvider = $this->get('form.csrf_provider');
-        
+
         if ($csrfProvider->isCsrfTokenValid(
-            'representative_delete_' . $representativeObj->getId(), $this->getRequest()->get('_token')
+            'representative_delete_'.$representativeObj->getId(), $this->getRequest()->get('_token')
         )) {
             $entityManager = $this->getDoctrine()->getManager();
-            
+
             $entityManager->remove($representativeObj);
             $entityManager->flush();
 
@@ -141,11 +140,11 @@ class SuperuserController extends Controller
         if (!$representative) {
             $this->get('session')->getFlashBag()->add('error', 'Representative is not found');
         }
-        
+
         $csrfProvider = $this->get('form.csrf_provider');
-        
+
         if ($csrfProvider->isCsrfTokenValid(
-            'representative_approve_' . $representative->getId(), $this->getRequest()->get('_token')
+            'representative_approve_'.$representative->getId(), $this->getRequest()->get('_token')
         )) {
             $representativeManager = $this->get('civix_core.representative_manager');
             $newUsername = $representativeManager->generateRepresentativeUsername($representative);
@@ -167,7 +166,7 @@ class SuperuserController extends Controller
             //send notification
             $this->get('civix_core.email_sender')
                 ->sendToApprovedRepresentative($representative, $newUsername, $newPassword);
-            
+
             $this->get('session')->getFlashBag()->add('notice', 'Representative was approved');
         } else {
             $this->get('session')->getFlashBag()->add('error', 'Representative is not found');
@@ -194,7 +193,7 @@ class SuperuserController extends Controller
         return $this->render('CivixFrontBundle:Superuser:login.html.twig', array(
                 'last_username' => $this->get('request')->getSession()->get(SecurityContext::LAST_USERNAME),
                 'error' => $error,
-                'csrf_token' => $csrfToken
+                'csrf_token' => $csrfToken,
             ));
     }
 
@@ -205,7 +204,7 @@ class SuperuserController extends Controller
      */
     public function manageRepresentativesAction()
     {
-        $query =  $this->getDoctrine()
+        $query = $this->getDoctrine()
             ->getRepository('CivixCoreBundle:Representative')
             ->getQueryRepresentativeOrderedById();
 
@@ -217,7 +216,7 @@ class SuperuserController extends Controller
         );
 
         return array(
-            'pagination' => $pagination
+            'pagination' => $pagination,
         );
     }
 
@@ -228,7 +227,7 @@ class SuperuserController extends Controller
      */
     public function manageGroupsAction()
     {
-        $query =  $this->getDoctrine()
+        $query = $this->getDoctrine()
             ->getRepository('CivixCoreBundle:Group')
             ->getQueryGroupOrderedById();
 
@@ -240,7 +239,7 @@ class SuperuserController extends Controller
         );
 
         return array(
-            'pagination' => $pagination
+            'pagination' => $pagination,
         );
     }
 
@@ -251,7 +250,7 @@ class SuperuserController extends Controller
      */
     public function manageUsersAction()
     {
-        $query =  $this->getDoctrine()
+        $query = $this->getDoctrine()
             ->getRepository('CivixCoreBundle:User')
             ->getQueryUserOrderedById();
 
@@ -289,11 +288,11 @@ class SuperuserController extends Controller
             $user->getEmail(),
             array(
                 'name' => $user->getOfficialName(),
-                'link' => $this->getWebDomain() . '/#/reset-password/'. $resetPasswordToken
+                'link' => $this->getWebDomain().'/#/reset-password/'.$resetPasswordToken,
             )
         );
 
-        $this->get('session')->getFlashBag()->add('notice', 'The email has been sent to ' . $user->getEmail());
+        $this->get('session')->getFlashBag()->add('notice', 'The email has been sent to '.$user->getEmail());
 
         return $this->redirect($this->generateUrl('civix_front_superuser_manage_users'));
     }
@@ -305,7 +304,7 @@ class SuperuserController extends Controller
      */
     public function manageLimitsAction()
     {
-        $query =  $this->getDoctrine()
+        $query = $this->getDoctrine()
             ->getRepository('CivixCoreBundle:QuestionLimit')
             ->findAll();
 
@@ -317,7 +316,7 @@ class SuperuserController extends Controller
         );
 
         return array(
-            'pagination' => $pagination
+            'pagination' => $pagination,
         );
     }
     /**
@@ -336,10 +335,9 @@ class SuperuserController extends Controller
         /** @var $csrfProvider \Symfony\Component\Form\Extension\Csrf\CsrfProvider\SessionCsrfProvider */
         $csrfProvider = $this->get('form.csrf_provider');
 
-        if ($csrfProvider->isCsrfTokenValid('remove_representative_' . $representative->getId(),
+        if ($csrfProvider->isCsrfTokenValid('remove_representative_'.$representative->getId(),
             $this->getRequest()->get('_token'))
         ) {
-
             $entityManager
                     ->getRepository('CivixCoreBundle:Representative')
                     ->removeRepresentative($representative);
@@ -350,7 +348,6 @@ class SuperuserController extends Controller
         }
 
         return $this->redirect($this->generateUrl('civix_front_superuser_manage_representatives'));
-
     }
 
     /**
@@ -371,7 +368,7 @@ class SuperuserController extends Controller
         $questionLimitForm = $this->createForm(new QuestionLimit(), $questionLimit);
 
         return array(
-            'questionLimitForm' => $questionLimitForm->createView()
+            'questionLimitForm' => $questionLimitForm->createView(),
         );
     }
 
@@ -383,7 +380,7 @@ class SuperuserController extends Controller
     public function defaultLimitSaveAction($id)
     {
         $entityManager = $this->getDoctrine()->getManager();
-         /** @var $questionLimit QuestionLimit */
+        /** @var $questionLimit QuestionLimit */
         $questionLimit = $entityManager->getRepository('CivixCoreBundle:QuestionLimit')->find($id);
 
         if (!$questionLimit instanceof DefaultQuestionLimit) {
@@ -395,14 +392,13 @@ class SuperuserController extends Controller
         $questionLimitForm->bind($this->getRequest());
 
         if ($questionLimitForm->isValid()) {
-
             $entityManager->persist($questionLimit);
             $entityManager->flush();
 
             $this->get('session')->getFlashBag()->add('notice', 'Question\'s limit has been successfully saved');
         } else {
             return array(
-                'questionLimitForm' => $questionLimitForm->createView()
+                'questionLimitForm' => $questionLimitForm->createView(),
              );
         }
 
@@ -418,7 +414,7 @@ class SuperuserController extends Controller
     {
         $entityManager = $this->getDoctrine()->getManager();
         /** @var $representative Representative */
-        $representative= $entityManager->getRepository('CivixCoreBundle:Representative')->find($id);
+        $representative = $entityManager->getRepository('CivixCoreBundle:Representative')->find($id);
 
         if (!$representative instanceof Representative) {
             throw $this->createNotFoundException('The representative is not found');
@@ -428,7 +424,7 @@ class SuperuserController extends Controller
 
         return array(
             'questionLimitForm' => $questionLimitForm->createView(),
-            'updatePath' => 'civix_front_superuser_representative_limits_update'
+            'updatePath' => 'civix_front_superuser_representative_limits_update',
         );
     }
 
@@ -441,7 +437,7 @@ class SuperuserController extends Controller
     {
         $entityManager = $this->getDoctrine()->getManager();
         /** @var $representative Representative */
-        $representative= $entityManager->getRepository('CivixCoreBundle:Representative')->find($id);
+        $representative = $entityManager->getRepository('CivixCoreBundle:Representative')->find($id);
 
         if (!$representative instanceof Representative) {
             throw $this->createNotFoundException('The representative is not found');
@@ -452,7 +448,6 @@ class SuperuserController extends Controller
         $questionLimitForm->bind($this->getRequest());
 
         if ($questionLimitForm->isValid()) {
-
             $entityManager->persist($representative);
             $entityManager->flush();
 
@@ -460,7 +455,7 @@ class SuperuserController extends Controller
         } else {
             return array(
                 'questionLimitForm' => $questionLimitForm->createView(),
-                'updatePath' => 'civix_front_superuser_representative_limits_update'
+                'updatePath' => 'civix_front_superuser_representative_limits_update',
                 );
         }
 
@@ -483,8 +478,7 @@ class SuperuserController extends Controller
         /** @var $csrfProvider \Symfony\Component\Form\Extension\Csrf\CsrfProvider\SessionCsrfProvider */
         $csrfProvider = $this->get('form.csrf_provider');
 
-        if ($csrfProvider->isCsrfTokenValid('remove_user_' . $user->getId(), $this->getRequest()->get('_token'))) {
-
+        if ($csrfProvider->isCsrfTokenValid('remove_user_'.$user->getId(), $this->getRequest()->get('_token'))) {
             $entityManager
                     ->getRepository('CivixCoreBundle:User')
                     ->removeUser($user);
@@ -510,6 +504,6 @@ class SuperuserController extends Controller
         $request = $this->getRequest();
         $host = $request->getHttpHost();
 
-        return $request->getScheme() . '://' .  str_replace('admin.', '', $host);
+        return $request->getScheme().'://'.str_replace('admin.', '', $host);
     }
 }

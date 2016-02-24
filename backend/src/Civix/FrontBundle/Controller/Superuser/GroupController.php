@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\FrontBundle\Controller\Superuser;
 
 use Cocur\Slugify\Slugify;
@@ -27,7 +28,7 @@ class GroupController extends Controller
 
         return array(
             'questionLimitForm' => $questionLimitForm->createView(),
-            'updatePath' => 'civix_front_superuser_group_limits_update'
+            'updatePath' => 'civix_front_superuser_group_limits_update',
         );
     }
 
@@ -39,12 +40,11 @@ class GroupController extends Controller
     public function limitsGroupEditAction(Group $group)
     {
         $entityManager = $this->getDoctrine()->getManager();
-        
+
         $questionLimitForm = $this->createForm(new QuestionLimit(), $group);
         $questionLimitForm->bind($this->getRequest());
 
         if ($questionLimitForm->isValid()) {
-
             $entityManager->persist($group);
             $entityManager->flush();
 
@@ -52,7 +52,7 @@ class GroupController extends Controller
         } else {
             return array(
                 'questionLimitForm' => $questionLimitForm->createView(),
-                'updatePath' => 'civix_front_superuser_group_limits_update'
+                'updatePath' => 'civix_front_superuser_group_limits_update',
             );
         }
 
@@ -70,24 +70,24 @@ class GroupController extends Controller
         /** @var $csrfProvider \Symfony\Component\Form\Extension\Csrf\CsrfProvider\SessionCsrfProvider */
         $csrfProvider = $this->get('form.csrf_provider');
 
-        if ($csrfProvider->isCsrfTokenValid('remove_group_' . $group->getId(), $this->getRequest()->get('_token'))) {
-
+        if ($csrfProvider->isCsrfTokenValid('remove_group_'.$group->getId(), $this->getRequest()->get('_token'))) {
             $slugify = new Slugify();
 
-            $groupName = $slugify->slugify($group->getOfficialName(),'');
+            $groupName = $slugify->slugify($group->getOfficialName(), '');
 
             $mailgun = $this->get('civix_core.mailgun')->listremoveAction($groupName);
 
-            if($mailgun['http_response_code'] != 200){
+            if ($mailgun['http_response_code'] != 200) {
                 $this->get('session')->getFlashBag()->add('error', 'Something went wrong removing the group from mailgun');
-                return $this->redirect($this->generateUrl('civix_front_superuser_manage_groups'));
 
+                return $this->redirect($this->generateUrl('civix_front_superuser_manage_groups'));
             }
 
             try {
                 $this->get('civix_core.customer_manager')->removeCustomer($group);
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 $this->get('session')->getFlashBag()->add('error', $e->getMessage());
+
                 return $this->redirect($this->generateUrl('civix_front_superuser_manage_groups'));
             }
 
@@ -107,9 +107,9 @@ class GroupController extends Controller
      */
     public function switchToStateGroup($id)
     {
-         $this->get('session')->set('groupid_to_switch', $id);
+        $this->get('session')->set('groupid_to_switch', $id);
 
-         return $this->redirect($this->generateUrl('civix_account_switch'));
+        return $this->redirect($this->generateUrl('civix_account_switch'));
     }
 
     /**
@@ -123,7 +123,7 @@ class GroupController extends Controller
         $pagination = null;
 
         if ($countryGroup) {
-            $query =  $this->getDoctrine()
+            $query = $this->getDoctrine()
                 ->getRepository('CivixCoreBundle:Group')
                 ->getQueryCountryGroupChildren($countryGroup);
 
@@ -153,7 +153,7 @@ class GroupController extends Controller
 
         return array(
             'localGroupForm' => $localGroupForm->createView(),
-            'group' => $group
+            'group' => $group,
         );
     }
 
@@ -168,17 +168,16 @@ class GroupController extends Controller
 
         $localGroupForm = $this->createForm(new LocalRepresentative($group), $group);
         $localGroupForm->bind($this->getRequest());
-        
-        if ($localGroupForm->isValid()) {
 
+        if ($localGroupForm->isValid()) {
             $entityManager->persist($group);
             $entityManager->flush();
-            
+
             $this->get('session')->getFlashBag()->add('notice', 'Assign to local group is completed');
         } else {
             return array(
                 'localGroupForm' => $localGroupForm->createView(),
-                'group' => $group
+                'group' => $group,
             );
         }
 
@@ -199,8 +198,8 @@ class GroupController extends Controller
         }
 
         return array(
-            'selectedGroup'=> $parent,
-            'countryGroups' => $this->getCountryGroups()
+            'selectedGroup' => $parent,
+            'countryGroups' => $this->getCountryGroups(),
         );
     }
 
@@ -213,14 +212,14 @@ class GroupController extends Controller
     {
         return array(
             'selectedGroup' => null,
-            'countryGroups' => $this->getCountryGroups()
+            'countryGroups' => $this->getCountryGroups(),
         );
     }
 
     private function getCountryGroups()
     {
         return $this->getDoctrine()->getRepository(Group::class)->findBy([
-            'groupType' => Group::GROUP_TYPE_COUNTRY
+            'groupType' => Group::GROUP_TYPE_COUNTRY,
         ]);
     }
 }

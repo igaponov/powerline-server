@@ -21,7 +21,6 @@ use Civix\CoreBundle\Entity\UserGroup;
  */
 class GroupController extends BaseController
 {
-
     /**
      * @Route("/", name="api_groups")
      * @Method("GET")
@@ -51,7 +50,7 @@ class GroupController extends BaseController
 
         if (count($groups) > 4) {
             return $this->createJSONResponse(json_encode([
-                'error' => 'You have reached a limit for creating groups'
+                'error' => 'You have reached a limit for creating groups',
             ]), 403);
         }
 
@@ -72,24 +71,20 @@ class GroupController extends BaseController
 
         $slugify = new Slugify();
 
-        $groupName = $slugify->slugify($group->getOfficialName(),'');
+        $groupName = $slugify->slugify($group->getOfficialName(), '');
 
-        $mailgun = $this->get('civix_core.mailgun')->listcreateAction($groupName,$group->getOfficialDescription(),$group->getManagerEmail(),$group->getManagerFirstName().' '.$group->getManagerLastName());
+        $mailgun = $this->get('civix_core.mailgun')->listcreateAction($groupName, $group->getOfficialDescription(), $group->getManagerEmail(), $group->getManagerFirstName().' '.$group->getManagerLastName());
 
-        if($mailgun['http_response_code'] != 200){
-
-            return $this->createJSONResponse( json_encode(['error' => 'cannot add to mailgun list']),403);
-
+        if ($mailgun['http_response_code'] != 200) {
+            return $this->createJSONResponse(json_encode(['error' => 'cannot add to mailgun list']), 403);
         }
-            $em->persist($group);
-            $em->flush();
+        $em->persist($group);
+        $em->flush();
 
-        $mailgun = $this->get('civix_core.mailgun')->listaddmemberAction($groupName,$this->getUser()->getEmail(),$this->getUser()->getFirstName().' '.$this->getUser()->getLastName());
+        $mailgun = $this->get('civix_core.mailgun')->listaddmemberAction($groupName, $this->getUser()->getEmail(), $this->getUser()->getFirstName().' '.$this->getUser()->getLastName());
 
-        if($mailgun['http_response_code'] != 200){
-
-               $this->createJSONResponse(json_encode(['error' => 'cannot add owner\'s email to mailgun list']),403) ;
-
+        if ($mailgun['http_response_code'] != 200) {
+            $this->createJSONResponse(json_encode(['error' => 'cannot add owner\'s email to mailgun list']), 403);
         }
         $this->get('civix_core.group_manager')
             ->joinToGroup($this->getUser(), $group);
@@ -169,11 +164,11 @@ class GroupController extends BaseController
         $response = new Response();
         $response->headers->set('Content-Type', 'application/json');
         $responseContentArray = [];
-        
+
         //check invites
         $isNeedToCheckPasscode = $this->get('civix_core.group_manager')
                 ->isNeedCheckPasscode($group, $user);
-        
+
         $serializerGroups = [];
         if ($group->getFillFieldsRequired()) {
             $serializerGroups[] = 'api-group-field';
@@ -227,46 +222,40 @@ class GroupController extends BaseController
 
         $slugify = new Slugify();
 
-        $groupName = $slugify->slugify($group->getOfficialName(),'');
+        $groupName = $slugify->slugify($group->getOfficialName(), '');
 
-        $mailgun = $this->get('civix_core.mailgun')->listaddmemberAction($groupName,$this->getUser()->getEmail(),$this->getUser()->getFirstName().' '.$this->getUser()->getLastName());
+        $mailgun = $this->get('civix_core.mailgun')->listaddmemberAction($groupName, $this->getUser()->getEmail(), $this->getUser()->getFirstName().' '.$this->getUser()->getLastName());
 
-        if($mailgun['http_response_code'] != 200){
+        if ($mailgun['http_response_code'] != 200) {
             $response->setStatusCode(403)->setContent(
                 json_encode(['error' => 'cannot add to mailgun list'])
             );
-        }
-
-        else{
-
-        $changedUser = $this->get('civix_core.group_manager')
+        } else {
+            $changedUser = $this->get('civix_core.group_manager')
             ->joinToGroup($user, $group);
 
-        if ($changedUser instanceof User) {
-            //save fields values
+            if ($changedUser instanceof User) {
+                //save fields values
             if ($group->getFillFieldsRequired()) {
                 foreach ($worksheet->getFields() as $fieldValue) {
                     $entity = $entityManager->merge($fieldValue);
                     $entityManager->persist($entity);
                 }
             }
-            
-            $entityManager->persist($changedUser);
-            $entityManager->flush();
 
-        }
-
-
-
+                $entityManager->persist($changedUser);
+                $entityManager->flush();
+            }
 
         //check status of join
         $userGroup = $entityManager
             ->getRepository('CivixCoreBundle:UserGroup')
             ->isJoinedUser($group, $user);
-        $responseContentArray['status'] = $userGroup->getStatus();
+            $responseContentArray['status'] = $userGroup->getStatus();
 
-        $response->setContent(json_encode($responseContentArray));
-    }
+            $response->setContent(json_encode($responseContentArray));
+        }
+
         return $response;
     }
 
@@ -283,28 +272,27 @@ class GroupController extends BaseController
     {
         $response = new Response();
         $response->headers->set('Content-Type', 'application/json');
-        $successRespContent = json_encode(['success'=>'ok']);
+        $successRespContent = json_encode(['success' => 'ok']);
 
         $this->get('civix_core.group_manager')->unjoinGroup($this->getUser(), $group);
 
         $slugify = new Slugify();
 
-        $groupName = $slugify->slugify($group->getOfficialName(),'');
+        $groupName = $slugify->slugify($group->getOfficialName(), '');
 
-        $mailgun = $this->get('civix_core.mailgun')->listremovememberAction($groupName,$this->getUser()->getEmail());
+        $mailgun = $this->get('civix_core.mailgun')->listremovememberAction($groupName, $this->getUser()->getEmail());
 
-        if($mailgun['http_response_code'] != 200){
+        if ($mailgun['http_response_code'] != 200) {
             $response->setStatusCode(403)->setContent(
                 json_encode(['error' => 'cannot remove this user from mailgun list'])
             );
-        }else{
+        } else {
             $response->setContent($successRespContent);
         }
 
-
         return $response;
     }
-    
+
     /**
      * @Route("/info/{group}", requirements={"group"="\d+"}, name="api_group_information")
      * @Method("GET")
@@ -366,23 +354,20 @@ class GroupController extends BaseController
         }
         if ($status == 'approve') {
             if (false === $user->getGroups()->contains($group) && true === $user->getInvites()->contains($group)) {
-
                 $slugify = new Slugify();
 
-                $groupName = $slugify->slugify($group->getOfficialName(),'');
+                $groupName = $slugify->slugify($group->getOfficialName(), '');
 
-                $mailgun = $this->get('civix_core.mailgun')->listaddmemberAction($groupName,$this->getUser()->getEmail(),$this->getUser()->getFirstName().' '.$this->getUser()->getLastName());
+                $mailgun = $this->get('civix_core.mailgun')->listaddmemberAction($groupName, $this->getUser()->getEmail(), $this->getUser()->getFirstName().' '.$this->getUser()->getLastName());
 
-                if($mailgun['http_response_code'] != 200){
+                if ($mailgun['http_response_code'] != 200) {
                     $response->setStatusCode(403)->setContent(
                         json_encode(['error' => 'cannot add to mailgun list'])
                     );
-                }
-                else{
+                } else {
                     $this->get('civix_core.group_manager')
                         ->joinToGroup($user, $group, true);
                 }
-
             } else {
                 $response->setStatusCode(405);
             }
@@ -435,6 +420,7 @@ class GroupController extends BaseController
      *
      * @param Request $request
      * @param $group
+     *
      * @return Response
      */
     public function getGroupUsersAction(Request $request, $group)

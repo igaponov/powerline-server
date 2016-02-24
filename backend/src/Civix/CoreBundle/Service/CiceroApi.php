@@ -4,12 +4,9 @@ namespace Civix\CoreBundle\Service;
 
 use Civix\CoreBundle\Entity\RepresentativeStorage;
 use Civix\CoreBundle\Entity\Representative;
-use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\District;
 use Civix\CoreBundle\Service\API\ServiceApi;
-use Symfony\Component\Security\Core\Util\SecureRandom;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Doctrine\Common\Collections\ArrayCollection;
 
 class CiceroApi extends ServiceApi
 {
@@ -44,12 +41,13 @@ class CiceroApi extends ServiceApi
     }
 
     /**
-     * Get all representatives by address from api, save them, get districs ids
-     * @param string  $address   Address
-     * @param string  $city      City
-     * @param string  $state     State
-     * @param string  $country   Country
-     * @param boolean $onlyLocal Get only local districts
+     * Get all representatives by address from api, save them, get districs ids.
+     *
+     * @param string $address   Address
+     * @param string $city      City
+     * @param string $state     State
+     * @param string $country   Country
+     * @param bool   $onlyLocal Get only local districts
      *
      * @return array
      */
@@ -66,10 +64,11 @@ class CiceroApi extends ServiceApi
     }
 
     /**
-     * Get representative from api, save his, get district id
+     * Get representative from api, save his, get district id.
+     *
      * @param Representative $representative Representative object
      *
-     * @return integer
+     * @return int
      */
     public function updateByRepresentativeInfo(Representative $representative)
     {
@@ -88,9 +87,9 @@ class CiceroApi extends ServiceApi
 
     /**
      * Save representative from api in representative storage. 
-     * Set link between representative and representative storage
+     * Set link between representative and representative storage.
      * 
-     * @param Object         $resultApiCollection Object from Cicero API
+     * @param object         $resultApiCollection Object from Cicero API
      * @param Representative $representative      Representative object
      *
      * @return District
@@ -130,7 +129,7 @@ class CiceroApi extends ServiceApi
     {
         $this->vichService = $vichService;
     }
-    
+
     public function setCongressApi($congressService)
     {
         $this->congressService = $congressService;
@@ -140,7 +139,7 @@ class CiceroApi extends ServiceApi
     {
         $this->openstatesService = $openstatesService;
     }
-    
+
     public function setCiceroCalls($ciceroService)
     {
         $this->ciceroService = $ciceroService;
@@ -150,12 +149,12 @@ class CiceroApi extends ServiceApi
     {
         $this->logger = $logger;
     }
-    
+
     /**
-     * Change Representative Storage object according to object which was getten from Cicero Api
+     * Change Representative Storage object according to object which was getten from Cicero Api.
      * 
      * @param \Civix\CoreBundle\Entity\RepresentativeStorage $storeObj
-     * @param Object $repr Cicero Api object
+     * @param object                                         $repr     Cicero Api object
      * 
      * @return \Civix\CoreBundle\Entity\RepresentativeStorage
      */
@@ -200,7 +199,7 @@ class CiceroApi extends ServiceApi
 
         //social networks
         foreach ($repr->identifiers as $identificator) {
-            $socialType = strtolower(isset($identificator->identifier_type)?$identificator->identifier_type:'');
+            $socialType = strtolower(isset($identificator->identifier_type) ? $identificator->identifier_type : '');
             $socialMethod = 'set'.ucfirst($socialType);
             if (method_exists($storeObj, $socialMethod)) {
                 $storeObj->$socialMethod($identificator->identifier_value);
@@ -226,7 +225,7 @@ class CiceroApi extends ServiceApi
                         $fileUpload = new UploadedFile($temp_file, $storeObj->getAvatarFileName());
                         $storeObj->setAvatar($fileUpload);
                     } catch (\Exception $exc) {
-                        $this->logger->addError('Image '.  $storeObj->getAvatarSrc() . '. '.$exc->getMessage());
+                        $this->logger->addError('Image '.$storeObj->getAvatarSrc().'. '.$exc->getMessage());
                         $storeObj->setAvatarFileName(null);
                     }
                 }
@@ -243,8 +242,9 @@ class CiceroApi extends ServiceApi
     }
 
     /**
-     * Create Representative Storage object by object which was getten from Cicero Api
-     * @param Object $repr Cicero Api object
+     * Create Representative Storage object by object which was getten from Cicero Api.
+     *
+     * @param object $repr Cicero Api object
      *
      * @return \Civix\CoreBundle\Entity\RepresentativeStorage
      */
@@ -258,8 +258,9 @@ class CiceroApi extends ServiceApi
 
     /**
      * Get districts of user. Save representative in storage if need.
-     * @param Object  $resultApiCollection Object from Cicero API
-     * @param boolean $onlyLocal           Get only local districts
+     *
+     * @param object $resultApiCollection Object from Cicero API
+     * @param bool   $onlyLocal           Get only local districts
      *
      * @return array of districts
      */
@@ -286,7 +287,6 @@ class CiceroApi extends ServiceApi
             } else {
                 $districts[] = $storeRepr->getDistrict();
             }
-
         }
 
         //add nonlegislative districts to current district
@@ -299,9 +299,9 @@ class CiceroApi extends ServiceApi
 
     /**
      * Get nonlegilative districts with type CENSUS and subtype SUBDIVISION
-     * by coordinats
+     * by coordinats.
      *
-     * @return Array
+     * @return array
      */
     protected function getNonlegislaveDistricts()
     {
@@ -332,7 +332,7 @@ class CiceroApi extends ServiceApi
             //set district type (for Nonlegislave district type = LOCAL)
             if ($district->district_type != 'CENSUS') {
                 $currentDistrict->setDistrictType(
-                    constant('Civix\CoreBundle\Entity\District::' .
+                    constant('Civix\CoreBundle\Entity\District::'.
                         $district->district_type)
                 );
             } else {

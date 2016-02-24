@@ -4,12 +4,9 @@ namespace Civix\CoreBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 use Civix\CoreBundle\Service\Subscription\SubscriptionManager;
 use Civix\CoreBundle\Service\Customer\CustomerManager;
-use Civix\CoreBundle\Entity\Customer\Card;
 use Civix\CoreBundle\Entity\Customer\Customer;
 use Civix\CoreBundle\Entity\Subscription\Subscription;
 use Civix\CoreBundle\Entity\Subscription\DiscountCodeHistory;
@@ -40,7 +37,7 @@ class RenewalSubscriptionDaemonCommand extends ContainerAwareCommand
                     $exit = true;
                     break;
                 default:
-                    $output->writeln("<error>Unused signal</error>");
+                    $output->writeln('<error>Unused signal</error>');
             }
         };
 
@@ -70,7 +67,7 @@ class RenewalSubscriptionDaemonCommand extends ContainerAwareCommand
                     }
                     $originalExpiredAt = clone $subscription->getExpiredAt();
                     try {
-                        $output->writeln("<comment>Renew subscription: </comment>");
+                        $output->writeln('<comment>Renew subscription: </comment>');
                         $output->writeln("<info>{$subscription->getId()} {$subscription->getLabel()}</info>");
 
                         $subscription->setNextPaymentAt(clone $subscription->getExpiredAt());
@@ -79,18 +76,17 @@ class RenewalSubscriptionDaemonCommand extends ContainerAwareCommand
 
                         /* @var Customer $customer */
                         $customer = $cm->getCustomerByUser($subscription->getUserEntity());
-                        
+
                         $appliedDiscountCode = $em->getRepository(DiscountCodeHistory::class)
                             ->findAppropriateCode($customer, $subscription->getPackageType());
                         $paymentHistory = $sm->handleSubscriptionPurchase($subscription->getCard(), $customer, $subscription, $appliedDiscountCode);
                         if (!$paymentHistory->isSucceeded()) {
                             $subscription->setEnabled(false);
                             $em->flush($subscription);
-                            $output->writeln("<error>Cannot charge</error>");
+                            $output->writeln('<error>Cannot charge</error>');
                         } else {
                             $output->writeln("<info>Success. Transaction number: {$paymentHistory->getPublicId()}</info>");
                         }
-
                     } catch (\Exception $e) {
                         $output->writeln("<error>{$e->getMessage()}</error>");
                         $subscription->setExpiredAt($originalExpiredAt);
@@ -98,14 +94,13 @@ class RenewalSubscriptionDaemonCommand extends ContainerAwareCommand
                         $em->flush($subscription);
                     }
                 }
-
             } else {
                 pcntl_signal_dispatch();
                 if ($exit) {
                     $output->writeln('<info>Safe exit (waiting mode)</info>');
                     exit();
                 }
-                $output->writeln("<comment>Waiting...</comment>");
+                $output->writeln('<comment>Waiting...</comment>');
                 sleep(60);
             }
             $em->clear();

@@ -31,7 +31,7 @@ class HeaderAuthenticationListener implements ListenerInterface
         if ($request->headers->has('Token')) {
             $apiToken = new ApiToken();
             $apiToken->setToken($request->headers->get('Token'), 'user');
-        } else if ($request->headers->has('Authorization')) {
+        } elseif ($request->headers->has('Authorization')) {
             $isTokenAuth = preg_match(
                 '/^Bearer type="(?P<type>\S+?)"\s+token="(?P<token>\S+?)"$/i',
                 $request->headers->get('Authorization'),
@@ -56,7 +56,6 @@ class HeaderAuthenticationListener implements ListenerInterface
 
             $this->securityContext->setToken($authToken);
         } catch (AuthenticationException $failed) {
-
             $response = new Response();
             $response->setStatusCode(401, 'Incorrect Token.');
             $event->setResponse($response);

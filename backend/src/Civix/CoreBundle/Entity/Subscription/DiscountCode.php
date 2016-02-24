@@ -3,7 +3,6 @@
 namespace Civix\CoreBundle\Entity\Subscription;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\Util\SecureRandom;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
@@ -17,12 +16,12 @@ class DiscountCode
 {
     const STATUS_ACTIVE = 0;
     const STATUS_USED = 1;
-    
-   /**
-    * @ORM\Id
-    * @ORM\GeneratedValue(strategy="AUTO")
-    * @ORM\Column(type="integer")
-    */
+
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\Column(type="integer")
+     */
     private $id;
 
     /**
@@ -65,7 +64,7 @@ class DiscountCode
      * @ORM\Column(name="package_type", type="integer", nullable = true)
      */
     private $packageType;
-    
+
     /**
      * @var string
      *
@@ -74,19 +73,19 @@ class DiscountCode
     private $status;
 
     /**
-     * @var \DateTime $createdAt
+     * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      */
     private $createdAt;
 
     /**
-     * @var \DateTime $updatedAt
+     * @var \DateTime
      *
      * @ORM\Column(name="updated_at", type="datetime")
      */
     private $updatedAt;
-    
+
     public function __construct()
     {
         $this->status = self::STATUS_ACTIVE;
@@ -95,9 +94,9 @@ class DiscountCode
     }
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -105,22 +104,23 @@ class DiscountCode
     }
 
     /**
-     * Set code
+     * Set code.
      *
      * @param string $code
+     *
      * @return DiscountCode
      */
     public function setCode($code)
     {
         $this->code = $code;
-    
+
         return $this;
     }
 
     /**
-     * Get code
+     * Get code.
      *
-     * @return string 
+     * @return string
      */
     public function getCode()
     {
@@ -128,22 +128,23 @@ class DiscountCode
     }
 
     /**
-     * Set percents
+     * Set percents.
      *
-     * @param integer $percents
+     * @param int $percents
+     *
      * @return DiscountCode
      */
     public function setPercents($percents)
     {
         $this->percents = $percents;
-    
+
         return $this;
     }
 
     /**
-     * Get percents
+     * Get percents.
      *
-     * @return integer 
+     * @return int
      */
     public function getPercents()
     {
@@ -151,22 +152,23 @@ class DiscountCode
     }
 
     /**
-     * Set month
+     * Set month.
      *
-     * @param integer $month
+     * @param int $month
+     *
      * @return DiscountCode
      */
     public function setMonth($month)
     {
         $this->month = $month;
-    
+
         return $this;
     }
 
     /**
-     * Get month
+     * Get month.
      *
-     * @return integer 
+     * @return int
      */
     public function getMonth()
     {
@@ -174,22 +176,23 @@ class DiscountCode
     }
 
     /**
-     * Set maxUsers
+     * Set maxUsers.
      *
-     * @param integer $maxUsers
+     * @param int $maxUsers
+     *
      * @return DiscountCode
      */
     public function setMaxUsers($maxUsers)
     {
         $this->maxUsers = $maxUsers;
-    
+
         return $this;
     }
 
     /**
-     * Get maxUsers
+     * Get maxUsers.
      *
-     * @return integer 
+     * @return int
      */
     public function getMaxUsers()
     {
@@ -208,48 +211,48 @@ class DiscountCode
         return $this;
     }
 
-        
     /**
-     * Set status
+     * Set status.
      *
-     * @param integer $status
+     * @param int $status
+     *
      * @return DiscountCode
      */
     public function setStatus($status)
     {
         $this->status = $status;
-    
+
         return $this;
     }
 
     /**
-     * Get status
+     * Get status.
      *
-     * @return integer 
+     * @return int
      */
     public function getStatus()
     {
         return $this->status;
     }
 
-        
     /**
-     * Set createdAt
+     * Set createdAt.
      *
      * @param \DateTime $createdAt
+     *
      * @return Post
      */
     public function setCreatedAt($createdAt)
     {
         $this->createdAt = $createdAt;
-    
+
         return $this;
     }
 
     /**
-     * Get createdAt
+     * Get createdAt.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreatedAt()
     {
@@ -257,22 +260,23 @@ class DiscountCode
     }
 
     /**
-     * Set updatedAt
+     * Set updatedAt.
      *
      * @param \DateTime $updatedAt
+     *
      * @return Post
      */
     public function setUpdatedAt($updatedAt)
     {
         $this->updatedAt = $updatedAt;
-    
+
         return $this;
     }
 
     /**
-     * Get updatedAt
+     * Get updatedAt.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getUpdatedAt()
     {

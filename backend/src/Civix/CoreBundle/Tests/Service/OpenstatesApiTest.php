@@ -3,12 +3,11 @@
 namespace Civix\CoreBundle\Tests\Service;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Civix\CoreBundle\Service\OpenstatesApi;
 
 class OpenstatesApiTest extends WebTestCase
 {
     /**
-     * Test method getRepresentativeByName
+     * Test method getRepresentativeByName.
      *
      * @group openstates
      */
@@ -25,7 +24,7 @@ class OpenstatesApiTest extends WebTestCase
            ->will($this->returnValue(json_decode('[{"leg_id":12}]')));
         $legId = $openstatesMock->getRepresentativeByName('firstName', 'lastName');
         $this->assertEquals(12, $legId, 'Should be return correct id');
-        
+
         $openstatesMock = $this->getMock('Civix\CoreBundle\Service\OpenstatesApi',
             array('getResponse'),
             array(),
@@ -37,7 +36,7 @@ class OpenstatesApiTest extends WebTestCase
             ->will($this->returnValue(json_decode('[]')));
         $legId = $openstatesMock->getRepresentativeByName('firstName', 'lastName');
         $this->assertFalse($legId, 'Should be return false for empty array');
-        
+
         $openstatesMock = $this->getMock('Civix\CoreBundle\Service\OpenstatesApi',
             array('getResponse'),
             array(),

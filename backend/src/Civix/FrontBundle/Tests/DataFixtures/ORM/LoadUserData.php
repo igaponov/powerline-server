@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Civix\CoreBundle\Entity\User;
 
 /**
- * LoadUserData
+ * LoadUserData.
  */
 class LoadUserData extends AbstractFixture implements FixtureInterface, ContainerAwareInterface, OrderedFixtureInterface
 {
@@ -37,22 +37,22 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
             array('username' => 'mobile5'),
             array('username' => 'mobile6'),
         );
-        
+
         foreach ($users as $data) {
             $user = new User();
-            
+
             $encoder = $factory->getEncoder($user);
             $password = $encoder->encodePassword($data['username'], $user->getSalt());
-            
+
             $user->setUsername($data['username'])
-                ->setEmail($data['username'] . '@example.com')
+                ->setEmail($data['username'].'@example.com')
                 ->setPassword($password);
             if ('mobile1' === $data['username']) {
                 $user->setResetPasswordToken(sha1($data['username']));
             }
- 
+
             $this->addReference('user-'.$data['username'], $user);
-            
+
             $manager->persist($user);
         }
 

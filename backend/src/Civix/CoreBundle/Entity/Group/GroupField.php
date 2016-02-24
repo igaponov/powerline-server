@@ -5,11 +5,10 @@ namespace Civix\CoreBundle\Entity\Group;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
-
 use Civix\CoreBundle\Entity\User;
 
 /**
- * Field entity
+ * Field entity.
  *
  * @ORM\Table(name="groups_fields")
  * @ORM\Entity()
@@ -17,8 +16,8 @@ use Civix\CoreBundle\Entity\User;
  */
 class GroupField
 {
-     /**
-     * @var integer
+    /**
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -58,9 +57,9 @@ class GroupField
     }
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -68,22 +67,23 @@ class GroupField
     }
 
     /**
-     * Set fieldName
+     * Set fieldName.
      *
      * @param string $fieldName
+     *
      * @return GroupField
      */
     public function setFieldName($fieldName)
     {
         $this->fieldName = $fieldName;
-    
+
         return $this;
     }
 
     /**
-     * Get fieldName
+     * Get fieldName.
      *
-     * @return string 
+     * @return string
      */
     public function getFieldName()
     {
@@ -91,43 +91,45 @@ class GroupField
     }
 
     /**
-     * Set group
+     * Set group.
      *
      * @param \Civix\CoreBundle\Entity\Group $group
+     *
      * @return GroupField
      */
     public function setGroup(\Civix\CoreBundle\Entity\Group $group = null)
     {
         $this->group = $group;
-    
+
         return $this;
     }
 
     /**
-     * Get group
+     * Get group.
      *
-     * @return \Civix\CoreBundle\Entity\Group 
+     * @return \Civix\CoreBundle\Entity\Group
      */
     public function getGroup()
     {
         return $this->group;
     }
-    
+
     /**
-     * Add values
+     * Add values.
      *
      * @param \Civix\CoreBundle\Entity\Group\FieldValue $values
+     *
      * @return GroupField
      */
     public function addValue(\Civix\CoreBundle\Entity\Group\FieldValue $values)
     {
         $this->values[] = $values;
-    
+
         return $this;
     }
 
     /**
-     * Remove values
+     * Remove values.
      *
      * @param \Civix\CoreBundle\Entity\Group\FieldValue $values
      */
@@ -137,9 +139,9 @@ class GroupField
     }
 
     /**
-     * Get values
+     * Get values.
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getValues()
     {

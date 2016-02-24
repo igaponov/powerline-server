@@ -10,10 +10,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\ExecutionContextInterface;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Serializer\Type\Image;
-use Civix\CoreBundle\Entity\Representative;
 
 /**
- * Announcement
+ * Announcement.
  *
  * @ORM\Table(name="announcements")
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\AnnouncementRepository")
@@ -26,12 +25,11 @@ use Civix\CoreBundle\Entity\Representative;
  * })
  * @Assert\Callback(methods={"isContentValid"})
  * @Serializer\ExclusionPolicy("all")
- *
  */
 abstract class Announcement
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -96,11 +94,11 @@ abstract class Announcement
      * @Serializer\Accessor(getter="getUser")
      */
     private $user;
-    
+
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -108,23 +106,24 @@ abstract class Announcement
     }
 
     /**
-     * Set content
+     * Set content.
      *
      * @param string $content
+     *
      * @return Announcement
      */
     public function setContent($content)
     {
         $this->content = $content;
         $this->setContentParsed(\Civix\CoreBundle\Parser\UrlConverter::convert($content));
-    
+
         return $this;
     }
 
     /**
-     * Get content
+     * Get content.
      *
-     * @return string 
+     * @return string
      */
     public function getContent()
     {
@@ -132,22 +131,23 @@ abstract class Announcement
     }
 
     /**
-     * Set contentParsed
+     * Set contentParsed.
      *
      * @param string $contentParsed
+     *
      * @return Announcement
      */
     public function setContentParsed($contentParsed)
     {
         $this->contentParsed = $contentParsed;
-    
+
         return $this;
     }
 
     /**
-     * Get contentParsed
+     * Get contentParsed.
      *
-     * @return string 
+     * @return string
      */
     public function getContentParsed()
     {
@@ -155,22 +155,23 @@ abstract class Announcement
     }
 
     /**
-     * Set createdAt
+     * Set createdAt.
      *
      * @param \DateTime $createdAt
+     *
      * @return Announcement
      */
     public function setCreatedAt($createdAt)
     {
         $this->createdAt = $createdAt;
-    
+
         return $this;
     }
 
     /**
-     * Get createdAt
+     * Get createdAt.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreatedAt()
     {
@@ -178,22 +179,23 @@ abstract class Announcement
     }
 
     /**
-     * Set publishedAt
+     * Set publishedAt.
      *
      * @param \DateTime $publishedAt
+     *
      * @return Announcement
      */
     public function setPublishedAt($publishedAt)
     {
         $this->publishedAt = $publishedAt;
-    
+
         return $this;
     }
 
     /**
-     * Get publishedAt
+     * Get publishedAt.
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getPublishedAt()
     {
@@ -215,7 +217,6 @@ abstract class Announcement
         if (mb_strlen($text, 'utf-8') > 250) {
             $context->addViolationAt('content', 'The message too long');
         }
-
     }
 
     /**

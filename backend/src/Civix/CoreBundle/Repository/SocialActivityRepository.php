@@ -4,7 +4,6 @@ namespace Civix\CoreBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\SocialActivity;
 
 class SocialActivityRepository extends EntityRepository
 {

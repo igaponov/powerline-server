@@ -8,7 +8,7 @@ use Civix\CoreBundle\Entity\Poll\Question;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * Representative question entity
+ * Representative question entity.
  *
  * @ORM\Entity()
  * @Serializer\ExclusionPolicy("all")
@@ -29,9 +29,10 @@ class Representative extends Question
     }
 
     /**
-     * Set user
+     * Set user.
      *
-     * @param  \Civix\CoreBundle\Entity\Representative $user
+     * @param \Civix\CoreBundle\Entity\Representative $user
+     *
      * @return Representative
      */
     public function setUser(\Civix\CoreBundle\Entity\Representative $user = null)
@@ -42,7 +43,7 @@ class Representative extends Question
     }
 
     /**
-     * Get user
+     * Get user.
      *
      * @return \Civix\CoreBundle\Entity\Representative
      */

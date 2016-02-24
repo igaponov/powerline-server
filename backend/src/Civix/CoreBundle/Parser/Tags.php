@@ -2,11 +2,11 @@
 
 namespace Civix\CoreBundle\Parser;
 
-
 class Tags
 {
     /**
      * @param string $text
+     *
      * @return array
      */
     public static function parseHashTags($text)
@@ -23,13 +23,14 @@ class Tags
 
         return array(
             'parsed' => $result,
-            'original' => $matches[2]
+            'original' => $matches[2],
         );
     }
 
     public static function parseMentionTags($text)
     {
         preg_match_all('/@([a-zA-Z0-9._-]+[a-zA-Z0-9])/', $text, $matches);
+
         return $matches[1];
     }
 
@@ -37,7 +38,7 @@ class Tags
     {
         return preg_replace_callback(
             '/(?<!>)(@([a-zA-Z0-9._-]+[a-zA-Z0-9]))/',
-            function($matches) use ($replacements) {
+            function ($matches) use ($replacements) {
                 return isset($replacements[$matches[1]]) ? $replacements[$matches[1]] : $matches[1];
             },
             $text

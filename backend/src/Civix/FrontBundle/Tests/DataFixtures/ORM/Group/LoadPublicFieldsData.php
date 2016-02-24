@@ -16,17 +16,17 @@ class LoadPublicFieldsData extends AbstractFixture implements FixtureInterface
         $field1->setFieldName('field1');
         $field1->setGroup($group);
         $manager->persist($field1);
-        
+
         $field2 = new GroupField();
         $field2->setFieldName('field2');
         $field2->setGroup($group);
         $manager->persist($field2);
-        
+
         $group->addField($field1);
         $group->addField($field2);
         $group->updateFillFieldsRequired();
         $manager->persist($group);
-        
+
         $manager->flush();
 
         $this->addReference('group-field1', $field1);

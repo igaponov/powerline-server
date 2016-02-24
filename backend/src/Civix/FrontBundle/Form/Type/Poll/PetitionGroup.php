@@ -1,16 +1,16 @@
 <?php
+
 namespace Civix\FrontBundle\Form\Type\Poll;
 
 use Symfony\Component\Form\FormBuilderInterface;
-use Civix\FrontBundle\Form\Type\Poll\EducationalContext;
 
 /**
- * Petition form
+ * Petition form.
  */
 class PetitionGroup extends Petition
 {
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options

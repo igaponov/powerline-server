@@ -16,7 +16,7 @@ class UserManagerTest extends WebTestCase
             ->disableOriginalConstructor()
             ->setMethods(array('updateDistrictsIds'))
             ->getMock();
-        
+
         $user = new User();
 
         $user->setResetPasswordAt(null);
@@ -24,7 +24,7 @@ class UserManagerTest extends WebTestCase
 
         $user->setResetPasswordAt(new \DateTime());
         $this->assertFalse($userManager->checkResetInterval($user), 'False if reset password date is current date');
-        
+
         $yesterday = new \DateTime();
         $yesterday->sub(new \DateInterval('PT24H'));
         $user->setResetPasswordAt($yesterday);

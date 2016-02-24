@@ -1,4 +1,5 @@
 <?php
+
 namespace Civix\FrontBundle\Form\Type\Poll;
 
 use Symfony\Component\Form\AbstractType;
@@ -7,9 +8,8 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 class LeaderEventInfo extends AbstractType
 {
-
     /**
-     * Set form fields
+     * Set form fields.
      *
      * @param FormBuilderInterface $builder
      * @param array                $options
@@ -33,7 +33,7 @@ class LeaderEventInfo extends AbstractType
     }
 
     /**
-     * Get unique name for form
+     * Get unique name for form.
      *
      * @return string
      */
@@ -43,14 +43,14 @@ class LeaderEventInfo extends AbstractType
     }
 
     /**
-     * Set default form option
+     * Set default form option.
      *
      * @param OptionsResolverInterface $resolver
      */
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => 'Civix\CoreBundle\Entity\Poll\Question\LeaderEvent'
+            'data_class' => 'Civix\CoreBundle\Entity\Poll\Question\LeaderEvent',
         ]);
     }
 }

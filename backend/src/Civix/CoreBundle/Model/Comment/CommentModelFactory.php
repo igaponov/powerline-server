@@ -13,6 +13,6 @@ class CommentModelFactory
                 return new CommentMicropetitionModel();
         }
 
-        return null;
+        return;
     }
 }

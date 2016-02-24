@@ -8,13 +8,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Civix\CoreBundle\Entity\Subscription\Subscription;
-use Civix\CoreBundle\Entity\Customer\Card;
-use Civix\CoreBundle\Entity\Customer\Customer;
-use Civix\CoreBundle\Entity\Subscription\DiscountCodeHistory;
-use Civix\CoreBundle\Exception\Discount\BadCodeException;
-use Symfony\Component\Validator\Constraints\DateTime;
 
 abstract class SubscriptionController extends Controller
 {
@@ -52,14 +46,14 @@ abstract class SubscriptionController extends Controller
             $subscription->setPackageType($id);
             $this->get('civix_core.stripe')->handleSubscription($subscription, $form->getData()['coupon']);
 
-            return $this->redirect($this->generateUrl('civix_front_' . $this->getUser()->getType() .
+            return $this->redirect($this->generateUrl('civix_front_'.$this->getUser()->getType().
                 '_index'));
         }
 
         return [
-            'hasCard'       => $this->get('civix_core.stripe')->hasCard($this->getUser()),
-            'package'       => $this->get('civix_core.subscription_manager')->getPackagesInfo($subscription)[$id],
-            'form'          => $form->createView(),
+            'hasCard' => $this->get('civix_core.stripe')->hasCard($this->getUser()),
+            'package' => $this->get('civix_core.subscription_manager')->getPackagesInfo($subscription)[$id],
+            'form' => $form->createView(),
             'discountPrice' => $this->get('civix_core.subscription_manager')
                 ->getPackagePrice($id, $appliedDiscountCode),
         ];
@@ -75,7 +69,7 @@ abstract class SubscriptionController extends Controller
         $subscription = $this->get('civix_core.subscription_manager')->getSubscription($this->getUser());
         $this->get('civix_core.stripe')->cancelSubscription($subscription);
 
-        return $this->redirect($this->generateUrl('civix_front_' . $this->getUser()->getType() . '_index'));
+        return $this->redirect($this->generateUrl('civix_front_'.$this->getUser()->getType().'_index'));
     }
 
     /**
@@ -91,7 +85,7 @@ abstract class SubscriptionController extends Controller
     private function checkToken($token)
     {
         if ($token !== $this->getToken()) {
-            throw new AccessDeniedHttpException;
+            throw new AccessDeniedHttpException();
         }
     }
 

@@ -3,7 +3,6 @@
 namespace Civix\CoreBundle\Service;
 
 use Doctrine\ORM\EntityManager;
-
 use Civix\CoreBundle\Parser\Tags;
 use Civix\CoreBundle\Parser\UrlConverter;
 use Civix\CoreBundle\Entity\BaseComment;
@@ -24,11 +23,12 @@ class ContentManager
     {
         $content = $this->escape($comment->getCommentBody());
 
-        $replacements = []; $users = [];
+        $replacements = [];
+        $users = [];
         $mentions = Tags::parseMentionTags($content);
 
         foreach ($mentions as $username) {
-            $tag = '@' . $username;
+            $tag = '@'.$username;
             if (!isset($replacements[$tag])) {
                 $user = $this->userRepo->findOneByUsername($username);
                 if ($user) {
