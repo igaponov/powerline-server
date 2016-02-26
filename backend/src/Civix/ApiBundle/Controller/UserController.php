@@ -2,6 +2,10 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserGroup;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception as HttpException;
@@ -91,5 +95,50 @@ class UserController extends BaseController
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
+    }
+
+    /**
+     * @Route("/self/subscriptions")
+     * @Method("POST")
+     * 
+     * @ApiDoc(
+     *     resource=true,
+     *     description="Subscribe to activity",
+     *     statusCodes={
+     *         201="Returns null",
+     *         400="Bad Request",
+     *         404="Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function postUserSubscriptionAction(Request $request)
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $data = json_decode($request->getContent(), true);
+        if ($data && !empty($data['id'])) {
+            $petitionId = $data['id'];
+            /** @var EntityManager $em */
+            $em = $this->get('doctrine.orm.entity_manager');
+            $petition = $em->getRepository('CivixCoreBundle:Micropetitions\Petition')->find($petitionId);
+            $group = $petition->getGroup();
+
+        } else {
+            $petition = $group = null;
+        }
+        $func = function($i, UserGroup $userGroup) use($group) {
+            return $group->getId() == $userGroup->getId();
+        };
+        if (!$petition || !$user->getUserGroups()->exists($func)) {
+            throw $this->createNotFoundException();
+        }
+
+        $this->get('civix_core.user_manager')->subscribeToPetition($user, $petition);
+
+        return $this->createJSONResponse(null, 201);
     }
 }

@@ -2,6 +2,9 @@
 
 namespace Civix\CoreBundle\Entity\Micropetitions;
 
+use Civix\CoreBundle\Entity\User;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
@@ -187,6 +190,15 @@ class Petition
      * @Serializer\ReadOnly()
      */
     private $responsesCount;
+
+    /**
+     * @var ArrayCollection|User[]
+     *
+     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\User",
+     *     cascade={"persist"}, orphanRemoval=true, mappedBy="subscriptions")
+     * @ORM\JoinTable(name="petition_subscribers")
+     */
+    private $subscribers;
 
     public function __construct()
     {
@@ -613,7 +625,7 @@ class Petition
     /**
      * Get hashTags.
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return Collection
      */
     public function getHashTags()
     {
@@ -660,5 +672,38 @@ class Petition
     public function getComments()
     {
         return $this->comments;
+    }
+
+    /**
+     * Add subscribers
+     *
+     * @param User $subscribers
+     * @return Petition
+     */
+    public function addSubscriber(User $subscribers)
+    {
+        $this->subscribers[] = $subscribers;
+
+        return $this;
+    }
+
+    /**
+     * Remove subscribers
+     *
+     * @param User $subscribers
+     */
+    public function removeSubscriber(User $subscribers)
+    {
+        $this->subscribers->removeElement($subscribers);
+    }
+
+    /**
+     * Get subscribers
+     *
+     * @return Collection|User[]
+     */
+    public function getSubscribers()
+    {
+        return $this->subscribers;
     }
 }
