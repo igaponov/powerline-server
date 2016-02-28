@@ -174,6 +174,10 @@ class UserGroup
         $this->setPermissionsEmail(false);
         $this->setPermissionsPhone(false);
         $this->setPermissionsAddress(false);
+        $this->setPermissionsCity(false);
+        $this->setPermissionsState(false);
+        $this->setPermissionsCountry(false);
+        $this->setPermissionsZipCode(false);
         $this->setPermissionsResponses(false);
     }
 
