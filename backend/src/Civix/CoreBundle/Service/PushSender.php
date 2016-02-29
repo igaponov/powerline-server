@@ -209,6 +209,24 @@ class PushSender
         }
     }
 
+    public function sendPostCommentedPush($commentId)
+    {
+        $comment = $this->entityManager
+            ->getRepository('CivixCoreBundle:Micropetitions\Comment')
+            ->find($commentId);
+        $petition = $comment->getPetition();
+        foreach ($petition->getSubscribers() as $recipient) {
+            $this->send(
+                $recipient,
+                $comment->getUser()->getFullName(),
+                $comment->getCommentBody(),
+                self::TYPE_PUSH_PETITION,
+                null,
+                $this->getLinkByFilename($comment->getUser()->getAvatarFileName())
+            );
+        }
+    }
+
     public function sendSocialActivity($id)
     {
         $socialActivity = $this->entityManager->getRepository(SocialActivity::class)->find($id);

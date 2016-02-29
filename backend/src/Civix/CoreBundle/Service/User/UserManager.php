@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Service\User;
 
+use Civix\CoreBundle\Entity\Micropetitions\Petition;
 use Civix\CoreBundle\Entity\User;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -168,5 +169,14 @@ class UserManager
         }
 
         return false;
+    }
+
+    public function subscribeToPetition(User $user, Petition $petition)
+    {
+        if (!$user->getSubscriptions()->contains($petition)) {
+            $user->addSubscription($petition);
+            $this->entityManager->persist($petition);
+            $this->entityManager->flush();
+        }
     }
 }

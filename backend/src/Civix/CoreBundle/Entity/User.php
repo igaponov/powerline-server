@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\CoreBundle\Entity\Micropetitions\Petition;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use JMS\Serializer\Annotation as Serializer;
@@ -593,6 +594,15 @@ class User implements UserInterface, \Serializable
      */
     private $plainPassword;
 
+    /**
+     * @var ArrayCollection|Petition[]
+     *
+     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\Micropetitions\Petition",
+     *     cascade={"persist"}, orphanRemoval=true, inversedBy="subscribers")
+     * @ORM\JoinTable(name="petition_subscribers")
+     */
+    private $subscriptions;
+
     public function __construct()
     {
         $this->salt = base_convert(sha1(uniqid(mt_rand(), true)), 16, 36);
@@ -603,6 +613,7 @@ class User implements UserInterface, \Serializable
         $this->invites = new \Doctrine\Common\Collections\ArrayCollection();
         $this->districts = new \Doctrine\Common\Collections\ArrayCollection();
         $this->groupSections = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->subscriptions = new ArrayCollection();
         $this->interests = [];
 
         $this->isRegistrationComplete = true;
@@ -2291,5 +2302,38 @@ class User implements UserInterface, \Serializable
     public function getAddressQuery()
     {
         return $this->getAddress1().','.$this->getCity().','.$this->getState().','.$this->getCountry();
+    }
+
+    /**
+     * Add subscriptions
+     *
+     * @param Petition $subscription
+     * @return User
+     */
+    public function addSubscription(Petition $subscription)
+    {
+        $this->subscriptions[] = $subscription;
+    
+        return $this;
+    }
+
+    /**
+     * Remove subscriptions
+     *
+     * @param Petition $subscriptions
+     */
+    public function removeSubscription(Petition $subscriptions)
+    {
+        $this->subscriptions->removeElement($subscriptions);
+    }
+
+    /**
+     * Get subscriptions
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getSubscriptions()
+    {
+        return $this->subscriptions;
     }
 }

@@ -181,6 +181,7 @@ class SocialActivityManager
             $this->pt->addToQueue('sendSocialActivity', [$socialActivity3->getId()]);
         }
         $this->em->flush();
+        $this->pt->addToQueue('sendPostCommentedPush', [$comment->getId()]);
     }
 
     public function noticeGroupsPermissionsChanged(Group $group)
