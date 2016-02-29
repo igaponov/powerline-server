@@ -75,23 +75,36 @@ class PollController extends BaseController
         return $this->createJSONResponse($this->jmsSerialization($answers, ['api-leader-answers']));
     }
 
+    /**
+     * Get the Poll Question classname entity (prefix) based in the repository type
+     * 
+     * @param string $type The repository type
+     * @param string $prefix The base prefix for classname loading
+     * @access private
+     * 
+     * @return string
+     */
     private function getEntityRepository($type, $prefix)
     {
-        $className = $prefix;
+        switch($type)
+        {
+        	case 'petition':
+        		$className = $prefix . 'Petition';
+        	break;
+        	case 'news':
+        		$className = $prefix . 'News';
+        	break;
+        	case 'payment_request':
+        		$className = $prefix . 'PaymentRequest';
+        	break;
+        	case 'event':
+        		$className = $prefix . 'Event';
+        	break;
+        	default:
+        		$className = $prefix;
+        	break;
+        }
 
-        if ('petition' === $type) {
-            $className = $prefix.'Petition';
-        }
-        if ('news' === $type) {
-            $className = $prefix.'News';
-        }
-        if ('payment_request' === $type) {
-            $className = $prefix.'PaymentRequest';
-        }
-        if ('petition' === $type) {
-            $className = $prefix.'Event';
-        }
-
-        return "Civix\\CoreBundle\\Entity\\Poll\\Question\\{$className}";
+        return 'Civix\\CoreBundle\\Entity\\Poll\\Question\\' . $className;
     }
 }
