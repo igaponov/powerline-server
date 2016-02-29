@@ -17,6 +17,18 @@ class PollController extends BaseController
     /**
      * @Route("/")
      * @Method("GET")
+     * 
+     * @ApiDoc(
+     *     resource=true,
+     *     description="List a Leader Poll",
+     *     statusCodes={
+     *         200="Returns list",
+     *         400="Bad Request",
+     *         401="Authorization required",
+     *         404="Question not found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
      */
     public function listAction(Request $request)
     {
