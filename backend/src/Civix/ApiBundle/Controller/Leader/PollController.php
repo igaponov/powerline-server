@@ -10,17 +10,23 @@ use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Answer;
 
 /**
+ * Class for Leader Polls controller
+ * 
  * @Route("/polls")
  */
 class PollController extends BaseController
 {
     /**
+     * List all the polls and questions based in the current user type.
+     * 
+     * Additionaly the polls could be filtered for show only for the current user.
+     * 
      * @Route("/")
      * @Method("GET")
      * 
      * @ApiDoc(
      *     resource=true,
-     *     description="List a Leader Poll",
+     *     description="List all the polls and questions based in the current user type.",
      *     statusCodes={
      *         200="Returns list",
      *         400="Bad Request",
@@ -29,14 +35,23 @@ class PollController extends BaseController
      *         405="Method Not Allowed"
      *     }
      * )
+     * 
+     * @return [object Poll]
      */
     public function listAction(Request $request)
     {
+    	// @see $this->getEntityRepository()
+    	$repositoryType = $request->get('type');
+    	$currentUser = $this->getUser();
+    	// Fetch the Question type base repository by type
+    	$entityRepository = $this->getEntityRepository($repositoryType, ucfirst($currentUser->getType()));
+    	
         $polls = [];
-        if ($request->query->has('mine')) {
-            $polls = $this->getDoctrine()
-                ->getRepository($this->getEntityRepository($request->get('type'), ucfirst($this->getUser()->getType())))
-                ->findBy(['user' => $this->getUser()], ['id' => 'DESC']);
+        // Filter only the current user polls
+        if($request->query->has('mine')) 
+        {
+            $polls = $this->getDoctrine()->getRepository($entityRepository)
+                		  ->findBy(['user' => $currentUser], ['id' => 'DESC']);
         }
 
         return $this->createJSONResponse($this->jmsSerialization($polls, ['api-leader-poll']));
@@ -65,7 +80,8 @@ class PollController extends BaseController
     public function answersListAction(Question $question)
     {
     	// Forbid list the answers if the current user is different for the question user
-        if ($question->getUser() !== $this->getUser()) {
+        if ($question->getUser() !== $this->getUser()) 
+        {
             return $this->createJSONResponse('', 403);
         }
         
