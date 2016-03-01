@@ -211,6 +211,14 @@ abstract class Question
     protected $groupSections;
 
     /**
+     * @ORM\ManyToOne(targetEntity="\Civix\CoreBundle\Entity\Group")
+     * @ORM\JoinColumn(name="group_id", onDelete="CASCADE")
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-poll", "api-leader-poll"})
+     */
+    protected $group;
+
+    /**
      * Constructor.
      */
     public function __construct()
