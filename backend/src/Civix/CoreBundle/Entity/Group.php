@@ -461,6 +461,9 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * @var Group
      *
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-poll"})
+     * @Serializer\SerializedName("group")
      * @ORM\ManyToOne(targetEntity="Group", inversedBy="children")
      */
     private $parent;

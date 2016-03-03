@@ -25,9 +25,12 @@ class QuestionRepository extends EntityRepository
     {
         $questions = $this->getEntityManager()
             ->createQuery('
-                SELECT q, a
+                SELECT q, a, g1, g2, g3
                 FROM CivixCoreBundle:Poll\Question q
                 LEFT JOIN q.answers a WITH a.user = :user
+                LEFT JOIN q.group AS g1
+                LEFT JOIN g1.parent AS g2
+                LEFT JOIN g2.parent AS g3
                 WHERE q.id = :id
             ')
             ->setParameter('id', $id)
