@@ -37,6 +37,11 @@
             <argument type="string">%auto_invite_group_id%</argument>
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service class="Civix\ApiBundle\EventListener\PetitionMetadataListener" id="civix_api.event_listener.petition_metadata_listener">
+            <argument id="civix_core.service.htmlmetadata_parser" type="service"/>
+            <tag name="doctrine.event_listener" event="postPersist" />
+        </service>
     </services>
 
 </container>
