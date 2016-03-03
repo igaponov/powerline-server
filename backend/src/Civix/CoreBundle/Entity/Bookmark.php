@@ -24,6 +24,7 @@ class Bookmark
     const TYPE_POLL_ANSWER = "poll_answer";
 
     const TYPE_POST = "post";
+    const TYPE_ALL = "all";
 
     /**
      * @var integer

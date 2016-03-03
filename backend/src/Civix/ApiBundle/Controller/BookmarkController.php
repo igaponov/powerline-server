@@ -26,7 +26,7 @@ class BookmarkController extends BaseController
      *      "/list/{type}/{page}",
      *      requirements={
      *          "page"="\d+",
-     *          "type"="petition|petition_comment|petition_answer|poll|poll_comment|poll_answer|post"
+     *          "type"="petition|petition_comment|petition_answer|poll|poll_comment|poll_answer|post|all"
      *      },
      *      name="api_bookmarks_list"
      * )
@@ -50,7 +50,7 @@ class BookmarkController extends BaseController
         if ($type !== Bookmark::TYPE_PETITION && $type !== Bookmark::TYPE_PETITION_ANSWER
             && $type !== Bookmark::TYPE_PETITION_COMMENT && $type !== Bookmark::TYPE_POLL
             && $type !== Bookmark::TYPE_POLL_ANSWER && $type !== Bookmark::TYPE_POLL_COMMENT
-            && $type !== Bookmark::TYPE_POST) {
+            && $type !== Bookmark::TYPE_POST && $type !== Bookmark::TYPE_ALL) {
 
             throw $this->createNotFoundException();
         }
@@ -67,14 +67,18 @@ class BookmarkController extends BaseController
 
         $totalItem = $pagination->getTotalItemCount();
         $itemPerPage = $pagination->getItemNumberPerPage();
+        $totalPage = ceil($totalItem / $itemPerPage);
 
         $bookmarks = array(
             'type' => $type,
             'page' => $page,
-            'total_pages' => ceil($totalItem / $itemPerPage),
+            'total_pages' => $totalPage,
             'total_items' => $totalItem,
             'items' => array()
         );
+
+        if ($page < 1 || $page > $totalPage)
+            throw $this->createNotFoundException("Page out of range");
 
         foreach($pagination as $row) {
             $bookmarks['items'][] = $row;
@@ -93,7 +97,7 @@ class BookmarkController extends BaseController
      *     "/add/{type}/{itemId}",
      *     requirements={
      *          "page"="\d+",
-     *          "type"="petition|petition_comment|petition_answer|poll|poll_comment|poll_answer|post"
+     *          "type"="petition|petition_comment|petition_answer|poll|poll_comment|poll_answer|post|all"
      *      },
      *      name="api_bookmarks_add"
      * )

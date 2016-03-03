@@ -16,12 +16,20 @@ class BookmarkRepository extends EntityRepository
      */
     public function findByType($type, $user)
     {
-        $dql = "SELECT a FROM CivixCoreBundle:Bookmark a WHERE a.type = :type AND a.user = :user ORDER by a.createdAt DESC";
-        $query = $this->_em->createQuery($dql);
-        $query->setParameters(array(
-            'type' => $type,
-            'user' => $user
-        ));
+        if ($type === Bookmark::TYPE_ALL) {
+            $dql = "SELECT a FROM CivixCoreBundle:Bookmark a WHERE a.user = :user ORDER by a.createdAt DESC";
+            $query = $this->_em->createQuery($dql);
+            $query->setParameters(array(
+                'user' => $user
+            ));
+        } else {
+            $dql = "SELECT a FROM CivixCoreBundle:Bookmark a WHERE a.type = :type AND a.user = :user ORDER by a.createdAt DESC";
+            $query = $this->_em->createQuery($dql);
+            $query->setParameters(array(
+                'type' => $type,
+                'user' => $user
+            ));
+        }
 
         return $query;
     }
