@@ -12,18 +12,14 @@ class AndroidEndpoint extends AbstractEndpoint
 {
     public function getPlatformMessage($title, $message, $type, $entityData, $image)
     {
-        $data = array(
+        return json_encode(array('GCM' => json_encode(array('data' => array(
             'message' => $message,
             'type' => $type,
             'entity' => json_encode($entityData),
             'title' => $title,
             'image' => $image,
-            'actions' => $this->getActionButtonInfo($type)
-        );
-
-        return json_encode(array(
-            'GCM' => json_encode(array('data' => $data))
-        ));
+            'actions' => $this->getActionButtonInfo($type),
+        )))));
     }
 
     /**
