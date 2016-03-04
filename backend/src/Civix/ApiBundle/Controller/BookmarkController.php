@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Controller;
 
 use Civix\CoreBundle\Entity\Bookmark;
 use Civix\CoreBundle\Repository\BookmarkRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -62,6 +63,7 @@ class BookmarkController extends BaseController
 
         $bookmarkQuery = $bookmarkRepository->findByType($type, $this->getUser());
 
+        /** @var \Knp\Component\Pager\Paginator $paginator */
         $paginator  = $this->get('knp_paginator');
         $pagination = $paginator->paginate($bookmarkQuery, $page);
 
@@ -76,9 +78,6 @@ class BookmarkController extends BaseController
             'total_items' => $totalItem,
             'items' => array()
         );
-
-        if ($page < 1 || $page > $totalPage)
-            throw $this->createNotFoundException("Page out of range");
 
         foreach($pagination as $row) {
             $bookmarks['items'][] = $row;
