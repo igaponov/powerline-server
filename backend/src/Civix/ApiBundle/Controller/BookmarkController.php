@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Controller;
 
 use Civix\CoreBundle\Entity\Bookmark;
 use Civix\CoreBundle\Repository\BookmarkRepository;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -56,34 +57,11 @@ class BookmarkController extends BaseController
             throw $this->createNotFoundException();
         }
 
-        /** @var BookmarkRepository $bookmarkRepository */
-        $bookmarkRepository = $this->getDoctrine()
-            ->getManager()
-            ->getRepository('CivixCoreBundle:Bookmark');
+        /** @var BookmarkRepository $repository */
+        $repository = $this->getDoctrine()->getManager()->getRepository(Bookmark::class);
+        $result = $repository->findByType($type, $this->getUser(), $page);
 
-        $bookmarkQuery = $bookmarkRepository->findByType($type, $this->getUser());
-
-        /** @var \Knp\Component\Pager\Paginator $paginator */
-        $paginator  = $this->get('knp_paginator');
-        $pagination = $paginator->paginate($bookmarkQuery, $page);
-
-        $totalItem = $pagination->getTotalItemCount();
-        $itemPerPage = $pagination->getItemNumberPerPage();
-        $totalPage = ceil($totalItem / $itemPerPage);
-
-        $bookmarks = array(
-            'type' => $type,
-            'page' => $page,
-            'total_pages' => $totalPage,
-            'total_items' => $totalItem,
-            'items' => array()
-        );
-
-        foreach($pagination as $row) {
-            $bookmarks['items'][] = $row;
-        }
-
-        $response = new Response($this->jmsSerialization($bookmarks, ['api-bookmarks']));
+        $response = new Response($this->jmsSerialization($result, ['api-bookmarks']));
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;

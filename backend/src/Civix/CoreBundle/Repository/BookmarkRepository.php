@@ -12,26 +12,41 @@ class BookmarkRepository extends EntityRepository
     /**
      * @param string $type
      * @param User $user
+     * @param int $page
      * @return QueryBuilder
      */
-    public function findByType($type, $user)
+    public function findByType($type, $user, $page)
     {
+        $itemPerPage = 10;
+        $startRow = ($page -1) * $itemPerPage;
+
         if ($type === Bookmark::TYPE_ALL) {
-            $dql = "SELECT a FROM CivixCoreBundle:Bookmark a WHERE a.user = :user ORDER by a.createdAt DESC";
+            $dql = "SELECT COUNT(a) FROM CivixCoreBundle:Bookmark a WHERE a.user = :user";
             $query = $this->_em->createQuery($dql);
-            $query->setParameters(array(
-                'user' => $user
-            ));
+            $query->setParameters(array('user' => $user));
+            $totalItem = $query->getSingleScalarResult();
+            $bookmarks = $this->findBy(array('user' => $user), array('createdAt' => 'DESC'),
+                $itemPerPage, $startRow);
+
         } else {
-            $dql = "SELECT a FROM CivixCoreBundle:Bookmark a WHERE a.type = :type AND a.user = :user ORDER by a.createdAt DESC";
+            $dql = "SELECT COUNT(a) FROM CivixCoreBundle:Bookmark a WHERE a.type = :type AND a.user = :user";
             $query = $this->_em->createQuery($dql);
-            $query->setParameters(array(
-                'type' => $type,
-                'user' => $user
-            ));
+            $query->setParameters(array('type' => $type, 'user' => $user));
+            $totalItem = $query->getSingleScalarResult();
+            $bookmarks = $this->findBy(array('user' => $user, 'type' => $type),
+                array('createdAt' => 'DESC'), $itemPerPage, $startRow);
         }
 
-        return $query;
+        $totalPage = ceil($totalItem / $itemPerPage);
+
+        $result = array(
+            'page' => $page,
+            'total_pages' => $totalPage,
+            'total_items' => $totalItem,
+            'items' => $bookmarks
+        );
+
+        return $result;
     }
 
     /**
