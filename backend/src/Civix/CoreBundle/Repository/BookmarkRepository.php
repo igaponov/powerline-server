@@ -48,7 +48,7 @@ class BookmarkRepository extends EntityRepository
             'user' => $user
         ));
 
-        if (is_null($bookmark)) {
+        if ($bookmark == null) {
             $bookmark = new Bookmark();
             $bookmark->setUser($user);
             $bookmark->setItemId($itemId);
@@ -60,19 +60,5 @@ class BookmarkRepository extends EntityRepository
         }
 
         return $bookmark;
-    }
-
-    public function remove($id)
-    {
-        $bookmark = $this->getEntityManager()
-            ->getRepository(Bookmark::class)
-            ->find($id);
-        if (is_null($bookmark))
-            return false;
-
-        $this->getEntityManager()->remove($bookmark);
-        $this->getEntityManager()->flush();
-
-        return true;
     }
 }

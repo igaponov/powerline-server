@@ -146,7 +146,8 @@ class BookmarkController extends BaseController
      *     resource=true,
      *     description="Delete saved item.",
      *     statusCodes={
-     *         200="Returns success or not",
+     *         204="Returns success",
+     *         404="Returns entity not found",
      *         401="Authorization required",
      *         405="Method Not Allowed"
      *     }
@@ -157,14 +158,17 @@ class BookmarkController extends BaseController
      */
     public function remove($id)
     {
-        /** @var BookmarkRepository $bookmarkRepository */
-        $bookmarkRepository = $this->getDoctrine()->getRepository(Bookmark::class);
-        $bookmark = $bookmarkRepository->remove($id);
+        $repository = $this->getDoctrine()->getRepository(Bookmark::class);
+        $bookmark = $repository->find($id);
 
-        if ($bookmark === false)
+        if ($bookmark == null)
             throw $this->createNotFoundException();
 
-        $response = new Response($this->jmsSerialization($bookmark, ['api-bookmarks']));
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($bookmark);
+        $em->flush();
+
+        $response = new Response('', 204);
         return $response;
     }
 }
