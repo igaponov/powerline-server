@@ -302,5 +302,7 @@
         <service class="Imgix\UrlBuilder" id="imgix.url_builder">
             <argument type="string">%imgix.domain%</argument>
         </service>
+
+        <service class="Civix\CoreBundle\Service\HTMLMetadataParser" id="civix_core.service.htmlmetadata_parser"/>
     </services>
 </container>

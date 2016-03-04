@@ -46,7 +46,8 @@
         "mailgun/mailgun-php": "~1.7.2",
         "cocur/slugify": "dev-master",
         "stof/doctrine-extensions-bundle": "~1.2",
-        "imgix/imgix-php": "^1.0"
+        "imgix/imgix-php": "^1.0",
+        "guzzlehttp/guzzle": "~6.1"
     },
     "require-dev": {
         "phing/phing": "2.5.*",

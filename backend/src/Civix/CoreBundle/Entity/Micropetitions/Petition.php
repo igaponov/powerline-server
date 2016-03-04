@@ -200,11 +200,21 @@ class Petition
      */
     private $subscribers;
 
+    /**
+     * @var Metadata
+     *
+     * @ORM\Column(type="object")
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-petitions-list", "api-petitions-info", "api-leader-micropetition"})
+     */
+    private $metadata;
+
     public function __construct()
     {
-        $this->answers = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->hashTags = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->comments = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->answers = new ArrayCollection();
+        $this->hashTags = new ArrayCollection();
+        $this->comments = new ArrayCollection();
+        $this->metadata = new Metadata();
     }
 
     /**
@@ -491,7 +501,7 @@ class Petition
     public function setCreationData()
     {
         $this->setCreatedAt(new \DateTime('now'));
-        $this->answers = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->answers = new ArrayCollection();
 
         if (is_null($this->isOutsidersSign)) {
             $this->isOutsidersSign = false;
@@ -705,5 +715,24 @@ class Petition
     public function getSubscribers()
     {
         return $this->subscribers;
+    }
+
+    /**
+     * @param object $metadata
+     * @return Petition
+     */
+    public function setMetadata($metadata)
+    {
+        $this->metadata = $metadata;
+
+        return $this;
+    }
+
+    /**
+     * @return object
+     */
+    public function getMetadata()
+    {
+        return $this->metadata;
     }
 }
