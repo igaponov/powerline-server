@@ -63,7 +63,7 @@ class BookmarkRepository extends EntityRepository
             'user' => $user
         ));
 
-        if ($bookmark == null) {
+        if ($bookmark === null) {
             $bookmark = new Bookmark();
             $bookmark->setUser($user);
             $bookmark->setItemId($itemId);

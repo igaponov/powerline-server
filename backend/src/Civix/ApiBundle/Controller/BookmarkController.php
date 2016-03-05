@@ -139,7 +139,7 @@ class BookmarkController extends BaseController
         $repository = $this->getDoctrine()->getRepository(Bookmark::class);
         $bookmark = $repository->find($id);
 
-        if ($bookmark == null)
+        if ($bookmark === null)
             throw $this->createNotFoundException();
 
         $em = $this->getDoctrine()->getManager();
