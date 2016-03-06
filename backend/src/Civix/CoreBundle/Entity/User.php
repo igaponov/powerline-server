@@ -245,6 +245,14 @@ class User implements UserInterface, \Serializable
     /**
      * @var string
      *
+     * @ORM\Column(name="phone_hash", type="string", length=40)
+     * @Assert\NotBlank(groups={"registration", "profile"})
+     */
+    private $phoneHash;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="facebookLink", type="string", length=255, nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-profile", "api-full-info"})
@@ -626,6 +634,7 @@ class User implements UserInterface, \Serializable
         $this->isNotifMicroGroup = true;
         $this->isNotifQuestions = true;
         $this->isNotifScheduled = false;
+        $this->isNotifOwnPostChanged = true;
     }
 
     /**
@@ -1133,6 +1142,7 @@ class User implements UserInterface, \Serializable
     public function setPhone($phone)
     {
         $this->phone = $phone;
+        $this->phoneHash = sha1($phone);
 
         return $this;
     }
@@ -1145,6 +1155,14 @@ class User implements UserInterface, \Serializable
     public function getPhone()
     {
         return $this->phone;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPhoneHash()
+    {
+        return $this->phoneHash;
     }
 
     /**

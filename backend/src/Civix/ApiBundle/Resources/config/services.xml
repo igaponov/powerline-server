@@ -42,6 +42,12 @@
             <argument id="civix_core.service.htmlmetadata_parser" type="service"/>
             <tag name="doctrine.event_listener" event="postPersist" />
         </service>
+
+        <service class="Civix\ApiBundle\EventListener\UserPrePersistListener" id="civix_api.event_listener.user_pre_persist_listener">
+            <argument id="civix_core.service.phone_number_normalizer" type="service"/>
+            <argument id="logger" type="service"/>
+            <tag name="doctrine.event_listener" event="prePersist" />
+        </service>
     </services>
 
 </container>
