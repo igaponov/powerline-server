@@ -14,6 +14,7 @@ use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\DeferredInvites;
 use Civix\CoreBundle\Model\User\UserCreator;
 use Civix\CoreBundle\Model\User\BetaRequest;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * @Route("/secure")
@@ -46,7 +47,7 @@ class SecureController extends BaseController
         ));
 
         if (!$user) {
-            throw new \Symfony\Component\HttpKernel\Exception\HttpException(400);
+            throw new HttpException(400, 'Authentication failed.');
         }
 
         $encoder = $this->get('security.encoder_factory')->getEncoder($user);
@@ -61,7 +62,7 @@ class SecureController extends BaseController
             return $response;
         }
 
-        throw new \Symfony\Component\HttpKernel\Exception\HttpException(400);
+        throw new HttpException(400, 'Authentication failed.');
     }
 
     /**
@@ -91,7 +92,7 @@ class SecureController extends BaseController
         );
 
         if (!$isTokenCorrect) {
-            throw new \Symfony\Component\HttpKernel\Exception\HttpException(400);
+            throw new HttpException(400);
         }
 
         $user = $this->getDoctrine()->getManager()
@@ -109,7 +110,7 @@ class SecureController extends BaseController
             return $response;
         }
 
-        throw new \Symfony\Component\HttpKernel\Exception\HttpException(302);
+        throw new HttpException(302);
     }
 
     /**
@@ -256,14 +257,14 @@ class SecureController extends BaseController
             $request->get('facebook_id')
         );
         if (!$isTokenCorrect) {
-            throw new \Symfony\Component\HttpKernel\Exception\HttpException(400);
+            throw new HttpException(400);
         }
 
         $user = $this->getDoctrine()->getManager()
             ->getRepository('CivixCoreBundle:User')
             ->getUserByFacebookId($request->get('facebook_id'));
         if ($user instanceof User) {
-            throw new \Symfony\Component\HttpKernel\Exception\HttpException(400);
+            throw new HttpException(400);
         }
 
         return $this->registrationAction($request, array('facebook'));
@@ -292,7 +293,7 @@ class SecureController extends BaseController
             'email' => $request->get('email'),
         ));
         if (!$user) {
-            throw new \Symfony\Component\HttpKernel\Exception\HttpException(404);
+            throw new HttpException(404);
         }
 
         $response = new Response();
@@ -441,13 +442,13 @@ class SecureController extends BaseController
     private function getUserByResetToken($token)
     {
         if (empty($token)) {
-            throw new \Symfony\Component\HttpKernel\Exception\HttpException(404);
+            throw new HttpException(404);
         }
         $user = $this->getDoctrine()->getManager()->getRepository('CivixCoreBundle:User')->findOneBy(array(
             'resetPasswordToken' => $token,
         ));
         if (!$user) {
-            throw new \Symfony\Component\HttpKernel\Exception\HttpException(404);
+            throw new HttpException(404);
         }
 
         return $user;
