@@ -126,7 +126,9 @@ class GroupManager
         $this->joinToGroup($user, $countryGroup);
 
         $parentCountryGroup = $countryGroup->getParent();
-        if (!is_null($parentCountryGroup) && $parentCountryGroup->getLocationName() == Group::GROUP_LOCATION_NAME_EROPEAN_UNION) {
+        if (!is_null($parentCountryGroup) &&
+            ($parentCountryGroup->getLocationName() == Group::GROUP_LOCATION_NAME_EROPEAN_UNION
+                || $parentCountryGroup->getLocationName() == Group::GROUP_LOCATION_NAME_AFRICAN_UNION)) {
             $this->joinToGroup($user, $parentCountryGroup);
         }
 
