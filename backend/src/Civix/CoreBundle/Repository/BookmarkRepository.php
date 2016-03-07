@@ -13,7 +13,7 @@ class BookmarkRepository extends EntityRepository
      * @param string $type
      * @param User $user
      * @param int $page
-     * @return QueryBuilder
+     * @return array
      */
     public function findByType($type, $user, $page)
     {
@@ -75,5 +75,17 @@ class BookmarkRepository extends EntityRepository
         }
 
         return $bookmark;
+    }
+
+    public function delete($id)
+    {
+        $bookmark = $this->find($id);
+        if ($bookmark === null)
+            return false;
+
+        $this->_em->remove($bookmark);
+        $this->_em->flush();
+
+        return true;
     }
 }

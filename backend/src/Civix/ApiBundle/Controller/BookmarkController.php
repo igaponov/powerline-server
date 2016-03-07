@@ -136,15 +136,10 @@ class BookmarkController extends BaseController
      */
     public function remove($id)
     {
+        /** @var BookmarkRepository $repository */
         $repository = $this->getDoctrine()->getRepository(Bookmark::class);
-        $bookmark = $repository->find($id);
-
-        if ($bookmark === null)
-            throw $this->createNotFoundException();
-
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($bookmark);
-        $em->flush();
+        if ($repository->delete($id) === false)
+            $this->createNotFoundException();
 
         $response = new Response('', 204);
         return $response;
