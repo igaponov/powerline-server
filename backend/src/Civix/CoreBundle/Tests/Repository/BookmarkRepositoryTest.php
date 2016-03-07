@@ -97,11 +97,15 @@ class BookmarkRepositoryTest extends WebTestCase
      */
     protected function tearDown()
     {
-        $this->em->remove($this->user);
-        $this->em->flush();
+        if ($this->em !== null) {
+            if ($this->user !== null) {
+                $this->em->remove($this->user);
+                $this->em->flush();
+            }
 
-        $this->em->close();
-
+            $this->em->close();
+        }
+        
         parent::tearDown();
     }
 }
