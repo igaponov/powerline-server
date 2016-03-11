@@ -62,6 +62,13 @@ class Bookmark
     private $type;
 
     /**
+     * @var object | null
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-bookmarks"})
+     */
+    private $detail;
+
+    /**
      * @var \DateTime $createdAt
      *
      * @ORM\Column(name="created_at", type="datetime")
@@ -171,5 +178,28 @@ class Bookmark
     public function getType()
     {
         return $this->type;
+    }
+
+    /**
+     * Set detail
+     *
+     * @param null | object $detail
+     * @return Bookmark
+     */
+    public function setDetail($detail)
+    {
+        $this->detail = $detail;
+
+        return $this;
+    }
+
+    /**
+     * Get detail
+     *
+     * @return null | object
+     */
+    public function getDetail()
+    {
+        return $this->detail;
     }
 }

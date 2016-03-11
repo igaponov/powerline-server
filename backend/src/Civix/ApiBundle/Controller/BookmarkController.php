@@ -61,7 +61,9 @@ class BookmarkController extends BaseController
         $repository = $this->getDoctrine()->getManager()->getRepository(Bookmark::class);
         $result = $repository->findByType($type, $this->getUser(), $page);
 
-        $response = new Response($this->jmsSerialization($result, ['api-bookmarks']));
+        $response = new Response($this->jmsSerialization($result, ['api-bookmarks', 'api-post', 'api-poll',
+            'api-poll-public', 'api-petitions-info', 'api-comments', 'api-answer', 'api-answers-list']));
+        
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
