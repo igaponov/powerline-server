@@ -490,13 +490,28 @@ class UserRepository extends EntityRepository
         return $query;
     }
 
-    public function getUsersByEmailHashes(array $hashes, $page, $limit)
+    public function getUsersByEmailAndPhoneHashes(
+        array $emailHashes, 
+        array $phoneHashes, 
+        $exclude, 
+        $page, 
+        $limit
+    )
     {
         $query = $this->createQueryBuilder('u');
 
-        $query
-            ->orderBy('u.id', 'ASC')
-            ->where($query->expr()->in('u.emailHash', $hashes));
+        $query->orderBy('u.id', 'ASC');
+        if ($exclude) {
+            $query->where($query->expr()->neq('u.id', $exclude));
+        }
+        $or = $query->expr()->orX();
+        if ($emailHashes) {
+            $or->add($query->expr()->in('u.emailHash', $emailHashes));
+        }
+        if ($phoneHashes) {
+            $or->add($query->expr()->in('u.phoneHash', $phoneHashes));
+        }
+        $query->andWhere($or);
 
         $query->setMaxResults($limit);
         $query->setFirstResult(($page - 1) * $limit);

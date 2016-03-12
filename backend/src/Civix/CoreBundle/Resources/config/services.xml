@@ -304,5 +304,20 @@
         </service>
 
         <service class="Civix\CoreBundle\Service\HTMLMetadataParser" id="civix_core.service.htmlmetadata_parser"/>
+
+        <service class="libphonenumber\PhoneNumberUtil"
+                 id="libphonenumber.phone_number_util"
+                 factory-class="libphonenumber\PhoneNumberUtil"
+                 factory-method="getInstance" />
+
+        <service class="Symfony\Component\Intl\ResourceBundle\RegionBundle"
+                 id="symfony.component.intl.resource.region"
+                 factory-class="Symfony\Component\Intl\Intl"
+                 factory-method="getRegionBundle" />
+
+        <service class="Civix\CoreBundle\Service\PhoneNumberNormalizer" id="civix_core.service.phone_number_normalizer">
+            <argument id="libphonenumber.phone_number_util" type="service"/>
+            <argument id="symfony.component.intl.resource.region" type="service"/>
+        </service>
     </services>
 </container>
