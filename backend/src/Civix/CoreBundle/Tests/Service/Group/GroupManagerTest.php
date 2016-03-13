@@ -4,7 +4,6 @@ namespace Civix\CoreBundle\Tests\Service\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Service\Group\GroupManager;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class GroupManagerTest extends WebTestCase
 {
@@ -62,7 +61,9 @@ class GroupManagerTest extends WebTestCase
         $this->em->persist($this->user);
         $this->em->flush();
 
-        $this->container->get('civix_core.group_manager')->autoJoinUser($this->user);
+        /** @var GroupManager $groupManager */
+        $groupManager = $this->container->get('civix_core.group_manager');
+        $groupManager->autoJoinUser($this->user);
 
         /** @var UserGroup $groups */
         $groups = $this->em
