@@ -47,7 +47,8 @@
         "cocur/slugify": "dev-master",
         "stof/doctrine-extensions-bundle": "~1.2",
         "imgix/imgix-php": "^1.0",
-        "guzzlehttp/guzzle": "~6.1"
+        "guzzlehttp/guzzle": "~6.1",
+        "giggsey/libphonenumber-for-php": "^7.2"
     },
     "require-dev": {
         "phing/phing": "2.5.*",

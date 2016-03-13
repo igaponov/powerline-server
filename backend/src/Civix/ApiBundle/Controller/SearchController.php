@@ -111,21 +111,25 @@ class SearchController extends BaseController
      *         405="Method Not Allowed"
      *     }
      * )
+     * 
+     * @param Request $request
+     * @return Response
      */
     public function getFriendsAction(Request $request)
     {
         $response = new Response();
         $response->headers->set('Content-Type', 'application/json');
-        $emails = array_filter($request->get('emails', array()), 'is_string');
+        $emails = array_filter((array)$request->get('emails', array()), 'is_string');
+        $phones = array_filter((array)$request->get('phones', array()), 'is_string');
         $limit = $request->get('limit', 50);
         $page = $request->get('page', 1);
 
-        if (!$emails) {
+        if (!$emails && !$phones) {
             return $response;
         }
 
         $users = $this->getDoctrine()->getRepository('CivixCoreBundle:User')
-            ->getUsersByEmailHashes($emails, $page, $limit);
+            ->getUsersByEmailAndPhoneHashes($emails, $phones, $this->getUser()->getId(), $page, $limit);
         $response->setContent($this->jmsSerialization($users, array('api-info')));
 
         return $response;
