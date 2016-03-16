@@ -759,6 +759,16 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     }
 
     /**
+     * Get manager full name.
+     * 
+     * @return string
+     */
+    public function getManagerFullName()
+    {
+        return $this->getManagerFirstName().' '.$this->getManagerLastName();
+    }
+
+    /**
      * Get managerEmail.
      *
      * @return string

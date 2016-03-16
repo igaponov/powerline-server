@@ -9,6 +9,7 @@
         <parameter key="ciceroapi_password">%cicero_password%</parameter>
         <parameter key="sunlightapi_token">%sunlightapi_token%</parameter>
         <parameter key="ciceroapi_class">Civix\CoreBundle\Service\CiceroCalls</parameter>
+        <parameter key="mailgun_endpoint">api.mailgun.net</parameter>
     </parameters>
     <!--
     <parameters>
@@ -25,12 +26,34 @@
     -->
 
     <services>
+        <service class="Civix\CoreBundle\Repository\UserRepository"
+                 id="civix_core.repository.user_repository"
+                 factory-service="doctrine.orm.entity_manager"
+                 factory-method="getRepository">
+            <argument type="string">Civix\CoreBundle\Entity\User</argument>
+        </service>
         <service id="civix_core.crop_image" class="Civix\CoreBundle\Service\CropImage">
         </service>
-        <service id="civix_core.mailgun" class="Civix\CoreBundle\Service\Mailgun\MailgunApi">
-            <argument>%mailgun_public%</argument>
+        <service class="Mailgun\Mailgun" id="mailgun.client">
             <argument>%mailgun_private%</argument>
-            <argument type="service" id="service_container" />
+            <argument>%mailgun_endpoint%</argument>
+            <argument>v3</argument>
+        </service>
+        <service class="Mailgun\Mailgun" id="mailgun.public_client">
+            <argument>%mailgun_public%</argument>
+            <argument>%mailgun_endpoint%</argument>
+            <argument>v3</argument>
+        </service>
+        <service id="civix_core.mailgun" class="Civix\CoreBundle\Service\Mailgun\MailgunApi">
+            <argument type="service" id="mailgun.client" />
+            <argument type="service" id="mailgun.public_client" />
+            <argument type="service" id="logger" />
+        </service>
+        <service class="Civix\CoreBundle\EventListener\GroupEventSubscriber" id="civix_core.event_listener.group_event_subscriber">
+            <argument id="civix_core.mailgun" type="service"/>
+            <argument id="civix_core.repository.user_repository" type="service"/>
+            <argument id="logger" type="service"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
         <service id="civix_core.crop_avatar" class="Civix\CoreBundle\Service\CropAvatar">
             <argument type="service" id="civix_core.crop_image" />
