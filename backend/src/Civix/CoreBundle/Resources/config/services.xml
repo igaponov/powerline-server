@@ -38,7 +38,6 @@
         </service>
         <service id="civix_core.activity_update" class="Civix\CoreBundle\Service\ActivityUpdate">
             <argument type="service" id="doctrine.orm.entity_manager" />
-            <argument type="service" id="civix_core.push_task" />
             <argument type="service" id="validator" />
             <argument type="service" id="civix_core.settings" />
             <argument type="service" id="civix_core.poll.comment_manager" />
@@ -46,7 +45,6 @@
 
         <service id="civix_core.social_activity_manager" class="Civix\CoreBundle\Service\SocialActivityManager">
             <argument type="service" id="doctrine.orm.entity_manager" />
-            <argument type="service" id="civix_core.push_task" />
         </service>
 
         <service id="civix_core.cicero_calls" class="%ciceroapi_class%">
@@ -142,6 +140,7 @@
         <service id="civix_core.poll.micropetition_manager" class="Civix\CoreBundle\Service\Micropetitions\PetitionManager">
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="civix_core.activity_update" />
+            <argument type="service" id="event_dispatcher" />
         </service>
 
         <service id="civix_core.poll.answer_manager" class="Civix\CoreBundle\Service\Poll\AnswerManager">
@@ -318,6 +317,36 @@
         <service class="Civix\CoreBundle\Service\PhoneNumberNormalizer" id="civix_core.service.phone_number_normalizer">
             <argument id="libphonenumber.phone_number_util" type="service"/>
             <argument id="symfony.component.intl.resource.region" type="service"/>
+        </service>
+
+        <service class="Civix\CoreBundle\EventListener\AnnouncementPushSenderListener" id="civix_core.event_listener.announcement_push_sender_listener">
+            <argument id="civix_core.push_task" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service class="Civix\CoreBundle\EventListener\MicropetitionPushSenderListener" id="civix_core.event_listener.micropetition_push_sender_listener">
+            <argument id="civix_core.push_task" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service class="Civix\CoreBundle\EventListener\PollPushSenderListener" id="civix_core.event_listener.poll_push_sender_listener">
+            <argument id="civix_core.push_task" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service class="Civix\CoreBundle\EventListener\UserFollowPushSenderListener" id="civix_core.event_listener.user_follow_push_sender_listener">
+            <argument id="civix_core.push_task" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service class="Civix\CoreBundle\EventListener\MicropetitionCommentPushSenderListener" id="civix_core.event_listener.micropetition_comment_push_sender_listener">
+            <argument id="civix_core.push_task" type="service"/>
+            <tag name="doctrine.event_listener" event="postPersist"/>
+        </service>
+
+        <service class="Civix\CoreBundle\EventListener\SocialActivityPushSenderListener" id="civix_core.event_listener.social_activity_push_sender_listener">
+            <argument id="civix_core.push_task" type="service"/>
+            <tag name="doctrine.event_listener" event="postPersist"/>
         </service>
     </services>
 </container>
