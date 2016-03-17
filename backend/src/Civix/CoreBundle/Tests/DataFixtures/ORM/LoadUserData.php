@@ -2,22 +2,26 @@
 
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
-use Doctrine\Common\DataFixtures\FixtureInterface;
+use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Civix\CoreBundle\Entity\User;
+use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 
 /**
- * LoadSuperuserData.
+ * LoadUserData.
  */
-class LoadUserData implements FixtureInterface, ContainerAwareInterface, OrderedFixtureInterface
+class LoadUserData extends AbstractFixture implements ContainerAwareInterface, OrderedFixtureInterface
 {
     /**
      * @var ContainerInterface
      */
     private $container;
+
+    /** @var  ObjectManager */
+    private $manager;
 
     public function setContainer(ContainerInterface $container = null)
     {
@@ -26,26 +30,48 @@ class LoadUserData implements FixtureInterface, ContainerAwareInterface, Ordered
 
     public function load(ObjectManager $manager)
     {
-        $factory = $this->container->get('security.encoder_factory');
+        $this->manager = $manager;
 
-        $users = array(
-            array('username' => 'mobile1'),
-            array('username' => 'mobile2'),
-        );
+        $this->generateUser('mobile1');
+        $this->generateUser('mobile2');
 
-        foreach ($users as $data) {
-            $user = new User();
-            $user->setUsername($data['username']);
-            $user->setEmail($data['username'].'@example.com');
+        $this->addReference('followertest', $this->generateUser('followertest'));
+        $this->addReference('userfollowtest1', $this->generateUser('userfollowtest1'));
+        $this->addReference('userfollowtest2', $this->generateUser('userfollowtest2'));
+        $this->addReference('userfollowtest3', $this->generateUser('userfollowtest3'));
+    }
 
-            $encoder = $factory->getEncoder($user);
-            $password = $encoder->encodePassword($data['username'], $user->getSalt());
-            $user->setPassword($password);
+    /**
+     * @param $username
+     * @param null $birthDate
+     * @return User
+     */
+    private function generateUser($username, $birthDate = null)
+    {
+        $birthDate = $birthDate ?: new \DateTime();
 
-            $manager->persist($user);
-        }
+        $user = new User();
+        $user->setUsername($username)
+            ->setEmail("$username@example.com")
+            ->setPlainPassword($username)
+            ->setBirth($birthDate)
+            ->setDoNotDisturb(true)
+            ->setIsNotifDiscussions(false)
+            ->setIsNotifMessages(false)
+            ->setIsRegistrationComplete(true)
+            ->setPhone(date_create()->getOffset())
+            ->setIsNotifOwnPostChanged(false)
+            ->setSalt(base_convert(sha1(uniqid(mt_rand(), true)), 16, 36));
 
-        $manager->flush();
+        /** @var PasswordEncoderInterface $encoder */
+        $encoder = $this->container->get('security.encoder_factory')->getEncoder($user);
+        $password = $encoder->encodePassword($user->getPlainPassword(), $user->getSalt());
+        $user->setPassword($password);
+
+        $this->manager->persist($user);
+        $this->manager->flush();
+
+        return $user;
     }
 
     public function getOrder()

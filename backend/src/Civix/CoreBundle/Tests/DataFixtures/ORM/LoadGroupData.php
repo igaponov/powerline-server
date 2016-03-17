@@ -3,16 +3,17 @@
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
-use Doctrine\Common\DataFixtures\FixtureInterface;
+use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Civix\CoreBundle\Entity\Group;
+use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 
 /**
  * LoadGroupData.
  */
-class LoadGroupData extends AbstractFixture implements FixtureInterface, ContainerAwareInterface
+class LoadGroupData extends AbstractFixture implements ContainerAwareInterface, OrderedFixtureInterface
 {
     const GROUP_NAME = 'testgroup';
     const GROUP_PASSWORD = 'testgroup7ZAPe3QnZhbdec';
@@ -23,6 +24,9 @@ class LoadGroupData extends AbstractFixture implements FixtureInterface, Contain
      */
     private $container;
 
+    /** @var ObjectManager */
+    private $manager;
+
     public function setContainer(ContainerInterface $container = null)
     {
         $this->container = $container;
@@ -30,20 +34,58 @@ class LoadGroupData extends AbstractFixture implements FixtureInterface, Contain
 
     public function load(ObjectManager $manager)
     {
-        //create group
+        $this->manager = $manager;
+
+        $this->addReference('group', $this->createGroup(self::GROUP_NAME, self::GROUP_PASSWORD));
+        $this->addReference(
+            'secret-group',
+            $this->createGroup('testfollowsecretgroups', null, Group::GROUP_TRANSPARENCY_SECRET)
+        );
+        $this->addReference(
+            'private-group',
+            $this->createGroup('testfollowprivategroups', null, Group::GROUP_TRANSPARENCY_PRIVATE)
+        );
+    }
+
+    /**
+     * Get the order of this fixture
+     *
+     * @return integer
+     */
+    function getOrder()
+    {
+        return 12;
+    }
+
+    /**
+     * @param $groupName
+     * @param null $password
+     * @param null $transparency
+     * @return Group Group
+     */
+    private function createGroup($groupName, $password = null, $transparency = null)
+    {
+        $password = $password ?: $groupName;
+        $transparency = $transparency ?: Group::GROUP_TRANSPARENCY_PUBLIC;
+
         $group = new Group();
-        $group->setUsername(self::GROUP_NAME);
-        $group->setManagerEmail(self::GROUP_EMAIL);
+        $group->setAcronym($groupName)
+            ->setGroupType(Group::GROUP_TYPE_COMMON)
+            ->setManagerEmail("$groupName@example.com")
+            ->setManagerFirstName($groupName)
+            ->setManagerLastName($groupName)
+            ->setPassword($password)
+            ->setTransparency($transparency)
+            ->setUsername($groupName);
 
-        //encode password according configuration
-        $factory = $this->container->get('security.encoder_factory');
-        $encoder = $factory->getEncoder($group);
-        $password = $encoder->encodePassword(self::GROUP_PASSWORD, $group->getSalt());
-        $group->setPassword($password);
+        /** @var PasswordEncoderInterface $encoder */
+        $encoder = $this->container->get('security.encoder_factory')->getEncoder($group);
+        $encodedPassword = $encoder->encodePassword($password, $group->getSalt());
+        $group->setPassword($encodedPassword);
 
-        $manager->persist($group);
-        $manager->flush();
+        $this->manager->persist($group);
+        $this->manager->flush();
 
-        $this->addReference('group', $group);
+        return $group;
     }
 }
