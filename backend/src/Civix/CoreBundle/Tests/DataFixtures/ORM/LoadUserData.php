@@ -39,6 +39,7 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, O
         $this->addReference('userfollowtest1', $this->generateUser('userfollowtest1'));
         $this->addReference('userfollowtest2', $this->generateUser('userfollowtest2'));
         $this->addReference('userfollowtest3', $this->generateUser('userfollowtest3'));
+        $this->addReference('testuserbookmark1', $this->generateUser('testuserbookmark1'));
     }
 
     /**
