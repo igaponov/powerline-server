@@ -730,7 +730,7 @@ class Petition
      * @param object $metadata
      * @return Petition
      */
-    public function setMetadata($metadata)
+    public function setMetadata(Metadata $metadata)
     {
         $this->metadata = $metadata;
 
