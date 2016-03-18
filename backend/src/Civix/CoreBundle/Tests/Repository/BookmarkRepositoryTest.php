@@ -4,59 +4,22 @@ namespace Civix\CoreBundle\Tests\Repository;
 use Civix\CoreBundle\Entity\Bookmark;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Repository\BookmarkRepository;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
+use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
+use Liip\FunctionalTestBundle\Test\WebTestCase;
 
 class BookmarkRepositoryTest extends WebTestCase
 {
-    /**
-     * @var \Doctrine\ORM\EntityManager
-     */
-    private $em;
-
-    /** @var  User $user */
-    private $user;
-
-    /**
-     * {@inheritDoc}
-     */
-    protected function setUp()
-    {
-        static::$kernel = static::createKernel();
-        static::$kernel->boot();
-        $this->em = static::$kernel->getContainer()
-            ->get('doctrine')
-            ->getManager();
-
-        $this->user = $this->em
-            ->getRepository('CivixCoreBundle:User')
-            ->findOneBy(array('username' => 'testuser1'));
-
-        if ($this->user === null) {
-            $this->user = new User();
-            $this->user->setUsername('testuser1')
-                ->setEmail('habibillah@gmail.com')
-                ->setPassword('testuser1')
-                ->setToken('testuser1')
-                ->setBirth(new \DateTime())
-                ->setDoNotDisturb(true)
-                ->setIsNotifDiscussions(false)
-                ->setIsNotifMessages(false)
-                ->setIsRegistrationComplete(true)
-                ->setIsNotifOwnPostChanged(false);
-
-            $this->em->persist($this->user);
-            $this->em->flush();
-        }
-    }
-
     public function testSave()
     {
+        $user = $this->loadUser();
+
         /** @var BookmarkRepository $repo */
-        $repo = $this->em->getRepository('CivixCoreBundle:Bookmark');
-        $bookmark1 = $repo->save(Bookmark::TYPE_POST, $this->user, 1);
-        $bookmark2 = $repo->save(Bookmark::TYPE_POST, $this->user, 1);
-        $bookmark3 = $repo->save(Bookmark::TYPE_POLL, $this->user, 1);
-        $bookmark4 = $repo->save(Bookmark::TYPE_POLL, $this->user, 2);
+        $repo = $this->getContainer()->get('doctrine')->getRepository(Bookmark::class);
+        $bookmark1 = $repo->save(Bookmark::TYPE_POST, $user, 1);
+        $bookmark2 = $repo->save(Bookmark::TYPE_POST, $user, 1);
+        $bookmark3 = $repo->save(Bookmark::TYPE_POLL, $user, 1);
+        $bookmark4 = $repo->save(Bookmark::TYPE_POLL, $user, 2);
 
         $this->assertNotEmpty($bookmark1->getId());
         $this->assertEquals($bookmark1->getId(), $bookmark2->getId());
@@ -66,11 +29,19 @@ class BookmarkRepositoryTest extends WebTestCase
 
     public function testFindByType()
     {
+        $user = $this->loadUser();
+
         /** @var BookmarkRepository $repo */
-        $repo = $this->em->getRepository('CivixCoreBundle:Bookmark');
-        $bookmarks1 = $repo->findByType(Bookmark::TYPE_ALL, $this->user, 1);
-        $bookmarks2 = $repo->findByType(Bookmark::TYPE_POLL, $this->user, 1);
-        $bookmarks3 = $repo->findByType(Bookmark::TYPE_PETITION, $this->user, 1);
+        $repo = $this->getContainer()->get('doctrine')->getRepository(Bookmark::class);
+
+        $repo->save(Bookmark::TYPE_POST, $user, 1);
+        $repo->save(Bookmark::TYPE_POST, $user, 1);
+        $repo->save(Bookmark::TYPE_POLL, $user, 1);
+        $repo->save(Bookmark::TYPE_POLL, $user, 2);
+
+        $bookmarks1 = $repo->findByType(Bookmark::TYPE_ALL, $user, 1);
+        $bookmarks2 = $repo->findByType(Bookmark::TYPE_POLL, $user, 1);
+        $bookmarks3 = $repo->findByType(Bookmark::TYPE_PETITION, $user, 1);
 
         $this->assertCount(3, $bookmarks1['items']);
         $this->assertCount(2, $bookmarks2['items']);
@@ -79,34 +50,36 @@ class BookmarkRepositoryTest extends WebTestCase
 
     public function testDelete()
     {
+        $user = $this->loadUser();
+
         /** @var BookmarkRepository $repo */
-        $repo = $this->em->getRepository('CivixCoreBundle:Bookmark');
-        $bookmarks = $repo->findByType(Bookmark::TYPE_ALL, $this->user, 1);
-        $totalBookmark = count($bookmarks['items']);
+        $repo = $this->getContainer()->get('doctrine')->getRepository('CivixCoreBundle:Bookmark');
+
+        $repo->save(Bookmark::TYPE_POST, $user, 1);
+        $repo->save(Bookmark::TYPE_POST, $user, 1);
+        $repo->save(Bookmark::TYPE_POLL, $user, 1);
+        $repo->save(Bookmark::TYPE_POLL, $user, 2);
+
+        $bookmarks = $repo->findByType(Bookmark::TYPE_ALL, $user, 1);
 
         $deleted = array();
         foreach($bookmarks['items'] as $item) {
             $deleted[] = $repo->delete($item->getId());
         }
 
-        $this->assertCount($totalBookmark, $deleted);
+        $this->assertCount(3, $deleted);
     }
 
     /**
-     * {@inheritDoc}
+     * @return User
      */
-    protected function tearDown()
+    private function loadUser()
     {
-        if ($this->em !== null) {
-            if ($this->user !== null) {
-                $this->em->remove($this->user);
-                $this->em->flush();
-            }
+        /** @var AbstractExecutor $fixtures */
+        $fixtures = $this->loadFixtures([LoadUserData::class]);
+        $reference = $fixtures->getReferenceRepository();
 
-            $this->em->close();
-        }
-        
-        parent::tearDown();
+        return $reference->getReference('testuserbookmark1');
     }
 }
 

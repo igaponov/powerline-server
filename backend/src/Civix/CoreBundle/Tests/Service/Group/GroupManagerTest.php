@@ -4,19 +4,17 @@ namespace Civix\CoreBundle\Tests\Service\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Service\Group\GroupManager;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
+use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
+use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class GroupManagerTest extends WebTestCase
 {
-    /**
-     * @var User
-     */
-    private $user;
-
-    /**
-     * @var \Doctrine\ORM\EntityManager
-     */
+    /** @var \Doctrine\ORM\EntityManager */
     private $em;
 
+    /** @var  ContainerInterface */
     private $container;
 
     /**
@@ -24,51 +22,28 @@ class GroupManagerTest extends WebTestCase
      */
     protected function setUp()
     {
-        static::$kernel = static::createKernel();
-        static::$kernel->boot();
-        $this->container = static::$kernel->getContainer();
+        $this->container = $this->getContainer();
         $this->em = $this->container->get('doctrine')->getManager();
-
-        $this->user = $this->em
-            ->getRepository('CivixCoreBundle:User')
-            ->findOneBy(array('username' => 'testuser1'));
-
-        if ($this->user === null) {
-            $this->user = new User();
-            $this->user->setUsername('testuser1')
-                ->setEmail('habibillah@gmail.com')
-                ->setPassword('testuser1')
-                ->setToken('testuser1')
-                ->setBirth(new \DateTime())
-                ->setDoNotDisturb(true)
-                ->setIsNotifDiscussions(false)
-                ->setIsNotifMessages(false)
-                ->setIsRegistrationComplete(true)
-                ->setIsNotifOwnPostChanged(false);
-
-            $this->em->persist($this->user);
-            $this->em->flush();
-        }
     }
 
     public function testAutoJoinUserAFU()
     {
-        $this->user
-            ->setAddress1('Sudirman St')
+        $user = $this->loadUser();
+        $user->setAddress1('Sudirman St')
             ->setCity('Chinde District')
             ->setState('Zambezia')
             ->setCountry('MZ');
-        $this->em->persist($this->user);
+        $this->em->persist($user);
         $this->em->flush();
 
         /** @var GroupManager $groupManager */
         $groupManager = $this->container->get('civix_core.group_manager');
-        $groupManager->autoJoinUser($this->user);
+        $groupManager->autoJoinUser($user);
 
         /** @var UserGroup $groups */
         $groups = $this->em
-            ->getRepository('CivixCoreBundle:UserGroup')
-            ->findBy(array('user' => $this->user));
+            ->getRepository(UserGroup::class)
+            ->findBy(array('user' => $user));
 
         $groupLocations = array();
         foreach($groups as $item)
@@ -78,19 +53,14 @@ class GroupManagerTest extends WebTestCase
     }
 
     /**
-     * {@inheritDoc}
+     * @return User
      */
-    protected function tearDown()
+    private function loadUser()
     {
-        if ($this->em !== null) {
-            if ($this->user !== null) {
-                $this->em->remove($this->user);
-                $this->em->flush();
-            }
+        /** @var AbstractExecutor $fixtures */
+        $fixtures = $this->loadFixtures([LoadUserData::class]);
+        $reference = $fixtures->getReferenceRepository();
 
-            $this->em->close();
-        }
-
-        parent::tearDown();
+        return $reference->getReference('testuserbookmark1');
     }
 }
