@@ -136,12 +136,12 @@ class FollowController extends BaseController
         $followingIds = $loggedInUser->getFollowingIds();
 
         $members = $group->getUsers()->filter(function ($entry) use ($followingIds) {
-            return in_array($entry->getId(), $followingIds);
+            return !in_array($entry->getId(), $followingIds);
         });
 
-        /** @var UserGroup $ugroup */
+        /** @var User $ugroup */
         foreach ($members as $ugroup) {
-            $this->followUser(null, $ugroup->getUser());
+            $this->followUser(null, $ugroup);
         }
 
         $response = new Response('', 201);

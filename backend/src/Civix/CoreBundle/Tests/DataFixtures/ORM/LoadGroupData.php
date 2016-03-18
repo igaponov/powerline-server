@@ -38,11 +38,11 @@ class LoadGroupData extends AbstractFixture implements ContainerAwareInterface, 
 
         $this->addReference('group', $this->createGroup(self::GROUP_NAME, self::GROUP_PASSWORD));
         $this->addReference(
-            'secret-group',
+            'testfollowsecretgroups',
             $this->createGroup('testfollowsecretgroups', null, Group::GROUP_TRANSPARENCY_SECRET)
         );
         $this->addReference(
-            'private-group',
+            'testfollowprivategroups',
             $this->createGroup('testfollowprivategroups', null, Group::GROUP_TRANSPARENCY_PRIVATE)
         );
     }

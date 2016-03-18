@@ -32,10 +32,10 @@ class LoadUserGroupData extends AbstractFixture implements OrderedFixtureInterfa
         );
 
         /** @noinspection PhpParamsInspection */
-        $this->createUserGroup($this->getReference('secret-group'), $users);
+        $this->createUserGroup($this->getReference('testfollowsecretgroups'), $users);
 
         /** @noinspection PhpParamsInspection */
-        $this->createUserGroup($this->getReference('private-group'), $users);
+        $this->createUserGroup($this->getReference('testfollowprivategroups'), $users);
     }
 
     public function getOrder()
@@ -52,7 +52,9 @@ class LoadUserGroupData extends AbstractFixture implements OrderedFixtureInterfa
         foreach ($members as $member) {
             $userGroup = new UserGroup($member, $group);
             $this->manager->persist($userGroup);
-            $this->manager->flush();
+            $this->setReference($member->getUsername(), $member);
         }
+
+        $this->manager->flush();
     }
 }
