@@ -17,6 +17,9 @@ class GroupManagerTest extends WebTestCase
     /** @var  ContainerInterface */
     private $container;
 
+    /** @var  User */
+    private $user;
+
     /**
      * {@inheritDoc}
      */
@@ -24,43 +27,36 @@ class GroupManagerTest extends WebTestCase
     {
         $this->container = $this->getContainer();
         $this->em = $this->container->get('doctrine')->getManager();
+
+        /** @var AbstractExecutor $fixtures */
+        $fixtures = $this->loadFixtures([LoadUserData::class]);
+        $reference = $fixtures->getReferenceRepository();
+
+        $this->user = $reference->getReference('testuserbookmark1');
     }
 
     public function testAutoJoinUserAFU()
     {
-        $user = $this->loadUser();
-        $user->setAddress1('Sudirman St')
+        $this->user->setAddress1('Sudirman St')
             ->setCity('Chinde District')
             ->setState('Zambezia')
             ->setCountry('MZ');
-        $this->em->persist($user);
+        $this->em->persist($this->user);
         $this->em->flush();
 
         /** @var GroupManager $groupManager */
         $groupManager = $this->container->get('civix_core.group_manager');
-        $groupManager->autoJoinUser($user);
+        $groupManager->autoJoinUser($this->user);
 
         /** @var UserGroup $groups */
         $groups = $this->em
             ->getRepository(UserGroup::class)
-            ->findBy(array('user' => $user));
+            ->findBy(array('user' => $this->user));
 
         $groupLocations = array();
         foreach($groups as $item)
             $groupLocations[] = $item->getGroup()->getLocationName();
 
         $this->assertContains('MZ', $groupLocations);
-    }
-
-    /**
-     * @return User
-     */
-    private function loadUser()
-    {
-        /** @var AbstractExecutor $fixtures */
-        $fixtures = $this->loadFixtures([LoadUserData::class]);
-        $reference = $fixtures->getReferenceRepository();
-
-        return $reference->getReference('testuserbookmark1');
     }
 }

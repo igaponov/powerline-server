@@ -10,76 +10,72 @@ use Liip\FunctionalTestBundle\Test\WebTestCase;
 
 class BookmarkRepositoryTest extends WebTestCase
 {
-    public function testSave()
-    {
-        $user = $this->loadUser();
+    /** @var User */
+    private $user;
 
-        /** @var BookmarkRepository $repo */
-        $repo = $this->getContainer()->get('doctrine')->getRepository(Bookmark::class);
-        $bookmark1 = $repo->save(Bookmark::TYPE_POST, $user, 1);
-        $bookmark2 = $repo->save(Bookmark::TYPE_POST, $user, 1);
-        $bookmark3 = $repo->save(Bookmark::TYPE_POLL, $user, 1);
-        $bookmark4 = $repo->save(Bookmark::TYPE_POLL, $user, 2);
+    /** @var BookmarkRepository */
+    private $repo;
 
-        $this->assertNotEmpty($bookmark1->getId());
-        $this->assertEquals($bookmark1->getId(), $bookmark2->getId());
-        $this->assertNotEquals($bookmark1->getId(), $bookmark3->getId());
-        $this->assertNotEquals($bookmark1->getId(), $bookmark4->getId());
-    }
+    /** @var  Bookmark */
+    private $bookmark1;
 
-    public function testFindByType()
-    {
-        $user = $this->loadUser();
+    /** @var  Bookmark */
+    private $bookmark2;
 
-        /** @var BookmarkRepository $repo */
-        $repo = $this->getContainer()->get('doctrine')->getRepository(Bookmark::class);
+    /** @var  Bookmark */
+    private $bookmark3;
 
-        $repo->save(Bookmark::TYPE_POST, $user, 1);
-        $repo->save(Bookmark::TYPE_POST, $user, 1);
-        $repo->save(Bookmark::TYPE_POLL, $user, 1);
-        $repo->save(Bookmark::TYPE_POLL, $user, 2);
-
-        $bookmarks1 = $repo->findByType(Bookmark::TYPE_ALL, $user, 1);
-        $bookmarks2 = $repo->findByType(Bookmark::TYPE_POLL, $user, 1);
-        $bookmarks3 = $repo->findByType(Bookmark::TYPE_PETITION, $user, 1);
-
-        $this->assertCount(3, $bookmarks1['items']);
-        $this->assertCount(2, $bookmarks2['items']);
-        $this->assertCount(0, $bookmarks3['items']);
-    }
-
-    public function testDelete()
-    {
-        $user = $this->loadUser();
-
-        /** @var BookmarkRepository $repo */
-        $repo = $this->getContainer()->get('doctrine')->getRepository('CivixCoreBundle:Bookmark');
-
-        $repo->save(Bookmark::TYPE_POST, $user, 1);
-        $repo->save(Bookmark::TYPE_POST, $user, 1);
-        $repo->save(Bookmark::TYPE_POLL, $user, 1);
-        $repo->save(Bookmark::TYPE_POLL, $user, 2);
-
-        $bookmarks = $repo->findByType(Bookmark::TYPE_ALL, $user, 1);
-
-        $deleted = array();
-        foreach($bookmarks['items'] as $item) {
-            $deleted[] = $repo->delete($item->getId());
-        }
-
-        $this->assertCount(3, $deleted);
-    }
+    /** @var  Bookmark */
+    private $bookmark4;
 
     /**
-     * @return User
+     * @inheritdoc
      */
-    private function loadUser()
+    public function setUp()
     {
         /** @var AbstractExecutor $fixtures */
         $fixtures = $this->loadFixtures([LoadUserData::class]);
         $reference = $fixtures->getReferenceRepository();
 
-        return $reference->getReference('testuserbookmark1');
+        $this->user = $reference->getReference('testuserbookmark1');
+
+        $this->repo = $this->getContainer()->get('doctrine')->getRepository(Bookmark::class);
+
+        $this->bookmark1 = $this->repo->save(Bookmark::TYPE_POST, $this->user, 1);
+        $this->bookmark2 = $this->repo->save(Bookmark::TYPE_POST, $this->user, 1);
+        $this->bookmark3 = $this->repo->save(Bookmark::TYPE_POLL, $this->user, 1);
+        $this->bookmark4 = $this->repo->save(Bookmark::TYPE_POLL, $this->user, 2);
+    }
+
+    public function testSave()
+    {
+        $this->assertNotEmpty($this->bookmark1->getId());
+        $this->assertEquals($this->bookmark1->getId(), $this->bookmark2->getId());
+        $this->assertNotEquals($this->bookmark1->getId(), $this->bookmark3->getId());
+        $this->assertNotEquals($this->bookmark1->getId(), $this->bookmark4->getId());
+    }
+
+    public function testFindByType()
+    {
+        $savedBookmarks1 = $this->repo->findByType(Bookmark::TYPE_ALL, $this->user, 1);
+        $savedBookmarks2 = $this->repo->findByType(Bookmark::TYPE_POLL, $this->user, 1);
+        $savedBookmarks3 = $this->repo->findByType(Bookmark::TYPE_PETITION, $this->user, 1);
+
+        $this->assertCount(3, $savedBookmarks1['items']);
+        $this->assertCount(2, $savedBookmarks2['items']);
+        $this->assertCount(0, $savedBookmarks3['items']);
+    }
+
+    public function testDelete()
+    {
+        $savedBookmarks = $this->repo->findByType(Bookmark::TYPE_ALL, $this->user, 1);
+
+        $deleted = array();
+        foreach($savedBookmarks['items'] as $item) {
+            $deleted[] = $this->repo->delete($item->getId());
+        }
+
+        $this->assertCount(3, $deleted);
     }
 }
 
