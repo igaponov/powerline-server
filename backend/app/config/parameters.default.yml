@@ -52,7 +52,13 @@ parameters:
     domain: powerli.ne
 
     rabbitmq_connections:
-        default: { host: 'localhost', port: 5672, user: 'guest', password: 'guest', vhost: '/' }
+        default:
+            host: 'localhost'
+            port: 5672
+            user: 'guest'
+            password: 'guest'
+            vhost: '/'
+            lazy: true
 
     mailgun_public: public_key
     mailgun_private: private_key
