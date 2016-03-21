@@ -5,6 +5,7 @@ namespace Civix\ApiBundle\Controller;
 use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -48,16 +49,16 @@ class SecureController extends BaseController
      */
     public function indexAction(Request $request)
     {
-    	$em = $this->getDoctrine()->getManager();
-    	
+        $em = $this->getDoctrine()->getManager();
+        
         // Chain of authentication (left entity has priority over right entity)
         $entities = array('User', 'Group', 'Representative', 'Superuser');
-
+        
         foreach($entities as $entity)
         {
         	$user = $this->checkEntity($entity, $request->get('username'));
-        	
-        	// As far a entity is detected, stop the checks 
+        		
+        	// As far a entity is detected, stop the checks
         	// @todo resolve conflicts naming with users, groups, etc with same name (maybe type param?)
         	if($user)
         	{
@@ -68,22 +69,21 @@ class SecureController extends BaseController
         // If still didn't get a entity, it is a failed authentication
         if (!$user) 
         {
-            throw new HttpException(400, 'Authentication failed.');
+            throw new JsonResponse('Authentication failed.', 401); // @todo Only when Symfony 2.4 use Response::HTTP_UNAUTHORIZED
         }
         
         $encoder = $this->get('security.encoder_factory')->getEncoder($user);
         $password = $encoder->encodePassword($request->get('password'), $user->getSalt());
 
-        if ($password === $user->getPassword()) {
+        if ($password === $user->getPassword()) 
+        {
             $user->generateToken();
             $em->flush();
-            $response = new Response($this->jmsSerialization($user, array('api-session')));
-            $response->headers->set('Content-Type', 'application/json');
-
-            return $response;
+            
+            return new JsonResponse($this->jmsSerialization($user, ['api-session']), 200); // @todo Only when Symfony 2.4 use Response::HTTP_OK
         }
-
-        throw new HttpException(400, 'Authentication failed.');
+        
+        throw new JsonResponse('Authentication failed.', 401); // @todo Only when Symfony 2.4 use Response::HTTP_UNAUTHORIZED
     }
 
     /**
