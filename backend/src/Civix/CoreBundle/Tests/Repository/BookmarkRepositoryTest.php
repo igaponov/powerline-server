@@ -4,116 +4,86 @@ namespace Civix\CoreBundle\Tests\Repository;
 use Civix\CoreBundle\Entity\Bookmark;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Repository\BookmarkRepository;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
+use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
+use Liip\FunctionalTestBundle\Test\WebTestCase;
 
 class BookmarkRepositoryTest extends WebTestCase
 {
-    /**
-     * @var \Doctrine\ORM\EntityManager
-     */
-    private $em;
-
-    /** @var  User $user */
+    /** @var User */
     private $user;
 
+    /** @var BookmarkRepository */
+    private $repo;
+
+    /** @var  Bookmark */
+    private $bookmark1;
+
+    /** @var  Bookmark */
+    private $bookmark2;
+
+    /** @var  Bookmark */
+    private $bookmark3;
+
+    /** @var  Bookmark */
+    private $bookmark4;
+
     /**
-     * {@inheritDoc}
+     * @inheritdoc
      */
-    protected function setUp()
+    public function setUp()
     {
-    	return;
-        static::$kernel = static::createKernel();
-        static::$kernel->boot();
-        $this->em = static::$kernel->getContainer()
-            ->get('doctrine')
-            ->getManager();
+	return;
 
-        $this->user = $this->em
-            ->getRepository('CivixCoreBundle:User')
-            ->findOneBy(array('username' => 'testuser1'));
+        /** @var AbstractExecutor $fixtures */
+        $fixtures = $this->loadFixtures([LoadUserData::class]);
+        $reference = $fixtures->getReferenceRepository();
 
-        if ($this->user === null) {
-            $this->user = new User();
-            $this->user->setUsername('testuser1')
-                ->setEmail('habibillah@gmail.com')
-                ->setPassword('testuser1')
-                ->setToken('testuser1')
-                ->setBirth(new \DateTime())
-                ->setDoNotDisturb(true)
-                ->setIsNotifDiscussions(false)
-                ->setIsNotifMessages(false)
-                ->setIsRegistrationComplete(true)
-                ->setIsNotifOwnPostChanged(false);
+        $this->user = $reference->getReference('testuserbookmark1');
 
-            $this->em->persist($this->user);
-            $this->em->flush();
-        }
+        $this->repo = $this->getContainer()->get('doctrine')->getRepository(Bookmark::class);
+
+        $this->bookmark1 = $this->repo->save(Bookmark::TYPE_POST, $this->user, 1);
+        $this->bookmark2 = $this->repo->save(Bookmark::TYPE_POST, $this->user, 1);
+        $this->bookmark3 = $this->repo->save(Bookmark::TYPE_POLL, $this->user, 1);
+        $this->bookmark4 = $this->repo->save(Bookmark::TYPE_POLL, $this->user, 2);
     }
 
     public function testSave()
     {
-    	$this->markTestSkipped('Too much time to run');
-    	
-        /** @var BookmarkRepository $repo */
-        $repo = $this->em->getRepository('CivixCoreBundle:Bookmark');
-        $bookmark1 = $repo->save(Bookmark::TYPE_POST, $this->user, 1);
-        $bookmark2 = $repo->save(Bookmark::TYPE_POST, $this->user, 1);
-        $bookmark3 = $repo->save(Bookmark::TYPE_POLL, $this->user, 1);
-        $bookmark4 = $repo->save(Bookmark::TYPE_POLL, $this->user, 2);
+	$this->markTestSkipped('Too much time to run');
 
-        $this->assertNotEmpty($bookmark1->getId());
-        $this->assertEquals($bookmark1->getId(), $bookmark2->getId());
-        $this->assertNotEquals($bookmark1->getId(), $bookmark3->getId());
-        $this->assertNotEquals($bookmark1->getId(), $bookmark4->getId());
+        $this->assertNotEmpty($this->bookmark1->getId());
+        $this->assertEquals($this->bookmark1->getId(), $this->bookmark2->getId());
+        $this->assertNotEquals($this->bookmark1->getId(), $this->bookmark3->getId());
+        $this->assertNotEquals($this->bookmark1->getId(), $this->bookmark4->getId());
     }
 
     public function testFindByType()
     {
-    	$this->markTestSkipped('Too much time to run');
-    	
-        /** @var BookmarkRepository $repo */
-        $repo = $this->em->getRepository('CivixCoreBundle:Bookmark');
-        $bookmarks1 = $repo->findByType(Bookmark::TYPE_ALL, $this->user, 1);
-        $bookmarks2 = $repo->findByType(Bookmark::TYPE_POLL, $this->user, 1);
-        $bookmarks3 = $repo->findByType(Bookmark::TYPE_PETITION, $this->user, 1);
+	$this->markTestSkipped('Too much time to run');
 
-        $this->assertCount(3, $bookmarks1['items']);
-        $this->assertCount(2, $bookmarks2['items']);
-        $this->assertCount(0, $bookmarks3['items']);
+        $savedBookmarks1 = $this->repo->findByType(Bookmark::TYPE_ALL, $this->user, 1);
+        $savedBookmarks2 = $this->repo->findByType(Bookmark::TYPE_POLL, $this->user, 1);
+        $savedBookmarks3 = $this->repo->findByType(Bookmark::TYPE_PETITION, $this->user, 1);
+
+        $this->assertCount(3, $savedBookmarks1['items']);
+        $this->assertCount(2, $savedBookmarks2['items']);
+        $this->assertCount(0, $savedBookmarks3['items']);
     }
 
     public function testDelete()
     {
-    	$this->markTestSkipped('Too much time to run');
-        /** @var BookmarkRepository $repo */
-        $repo = $this->em->getRepository('CivixCoreBundle:Bookmark');
-        $bookmarks = $repo->findByType(Bookmark::TYPE_ALL, $this->user, 1);
-        $totalBookmark = count($bookmarks['items']);
+	$this->markTestSkipped('Too much time to run');
+
+        $savedBookmarks = $this->repo->findByType(Bookmark::TYPE_ALL, $this->user, 1);
 
         $deleted = array();
-        foreach($bookmarks['items'] as $item) {
-            $deleted[] = $repo->delete($item->getId());
+        foreach($savedBookmarks['items'] as $item) {
+            $deleted[] = $this->repo->delete($item->getId());
         }
 
-        $this->assertCount($totalBookmark, $deleted);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected function tearDown()
-    {
-    	return;
-        if ($this->em !== null) {
-            if ($this->user !== null) {
-                $this->em->remove($this->user);
-                $this->em->flush();
-            }
-
-            $this->em->close();
-        }
-        
-        parent::tearDown();
+        $this->assertCount(3, $deleted);
     }
 }
 
