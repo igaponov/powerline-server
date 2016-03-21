@@ -141,7 +141,7 @@ class BookmarkController extends BaseController
         /** @var BookmarkRepository $repository */
         $repository = $this->getDoctrine()->getRepository(Bookmark::class);
         if ($repository->delete($id) === false)
-            $this->createNotFoundException();
+            throw $this->createNotFoundException();
 
         $response = new Response('', 204);
         return $response;

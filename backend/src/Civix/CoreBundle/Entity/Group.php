@@ -48,6 +48,11 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
 
     const COUNT_PETITION_PER_MONTH = 5;
 
+    const GROUP_TRANSPARENCY_PUBLIC = "public";
+    const GROUP_TRANSPARENCY_PRIVATE = "private";
+    const GROUP_TRANSPARENCY_SECRET = "secret";
+    const GROUP_TRANSPARENCY_TOP_SECRET = "top-secret";
+
     /**
      * @var int
      *
@@ -491,6 +496,13 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      */
     private $token;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="transparency", type="string", nullable=false)
+     */
+    private $transparency;
+
     public function __construct()
     {
         $this->init();
@@ -508,6 +520,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
         $this->groupType = self::GROUP_TYPE_COMMON;
         $this->membershipControl = self::GROUP_MEMBERSHIP_PUBLIC;
         $this->petitionPerMonth = self::COUNT_PETITION_PER_MONTH;
+        $this->transparency = self::GROUP_TRANSPARENCY_PUBLIC;
     }
 
     /**
@@ -1197,7 +1210,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      *
      * @param \DateTime $createdAt
      *
-     * @return Request
+     * @return $this
      */
     public function setCreatedAt($createdAt)
     {
@@ -1709,7 +1722,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     {
         return $this->groupType === self::GROUP_TYPE_STATE;
     }
-    
+
     /**
      * Set token.
      *
@@ -1750,5 +1763,28 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     	}
     
     	$this->setToken(base_convert(bin2hex($bytes), 16, 36).$this->getId());
+    }
+
+    /**
+     * Set transparency
+     *
+     * @param string $transparency
+     * @return Group
+     */
+    public function setTransparency($transparency)
+    {
+        $this->transparency = $transparency;
+    
+        return $this;
+    }
+
+    /**
+     * Get transparency
+     *
+     * @return string 
+     */
+    public function getTransparency()
+    {
+        return $this->transparency;
     }
 }
