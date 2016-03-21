@@ -49,6 +49,8 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
             if ('mobile1' === $data['username']) {
                 $user->setResetPasswordToken(sha1($data['username']));
             }
+            
+            $user->generateToken();
 
             $this->addReference('user-'.$data['username'], $user);
 
