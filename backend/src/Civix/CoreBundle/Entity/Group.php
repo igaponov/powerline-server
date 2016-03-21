@@ -48,6 +48,11 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
 
     const COUNT_PETITION_PER_MONTH = 5;
 
+    const GROUP_TRANSPARENCY_PUBLIC = "public";
+    const GROUP_TRANSPARENCY_PRIVATE = "private";
+    const GROUP_TRANSPARENCY_SECRET = "secret";
+    const GROUP_TRANSPARENCY_TOP_SECRET = "top-secret";
+
     /**
      * @var int
      *
@@ -482,6 +487,21 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      * @ORM\Column(name="location_name", type="string", nullable=true)
      */
     private $locationName;
+    
+    /**
+     * @var string
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-session"})
+     * @ORM\Column(name="token", type="string", length=255, nullable=true)
+     */
+    private $token;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="transparency", type="string", nullable=false)
+     */
+    private $transparency;
 
     public function __construct()
     {
@@ -500,6 +520,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
         $this->groupType = self::GROUP_TYPE_COMMON;
         $this->membershipControl = self::GROUP_MEMBERSHIP_PUBLIC;
         $this->petitionPerMonth = self::COUNT_PETITION_PER_MONTH;
+        $this->transparency = self::GROUP_TRANSPARENCY_PUBLIC;
     }
 
     /**
@@ -1189,7 +1210,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      *
      * @param \DateTime $createdAt
      *
-     * @return Request
+     * @return $this
      */
     public function setCreatedAt($createdAt)
     {
@@ -1700,5 +1721,70 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     public function isStateGroup()
     {
         return $this->groupType === self::GROUP_TYPE_STATE;
+    }
+
+    /**
+     * Set token.
+     *
+     * @param string $token
+     *
+     * @return User
+     */
+    public function setToken($token)
+    {
+    	$this->token = $token;
+    
+    	return $this;
+    }
+    
+    /**
+     * Get token.
+     *
+     * @return string
+     */
+    public function getToken()
+    {
+    	return $this->token;
+    }
+    
+    public function generateToken()
+    {
+    	$bytes = false;
+    	if (function_exists('openssl_random_pseudo_bytes') && 0 !== stripos(PHP_OS, 'win')) {
+    		$bytes = openssl_random_pseudo_bytes(32, $strong);
+    
+    		if (true !== $strong) {
+    			$bytes = false;
+    		}
+    	}
+    
+    	if (false === $bytes) {
+    		$bytes = hash('sha256', uniqid(mt_rand(), true), true);
+    	}
+    
+    	$this->setToken(base_convert(bin2hex($bytes), 16, 36).$this->getId());
+    }
+
+    /**
+     * Set transparency
+     *
+     * @param string $transparency
+     * @return Group
+     */
+    public function setTransparency($transparency)
+    {
+        $this->transparency = $transparency;
+    
+        return $this;
+    }
+
+    /**
+     * Get transparency
+     *
+     * @return string 
+     */
+    public function getTransparency()
+    {
+        return $this->transparency;
     }
 }
