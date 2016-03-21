@@ -11,6 +11,8 @@ class AndroidEndpointTest extends \PHPUnit_Framework_TestCase
      */
     public function testPlatformMessage()
     {
+    	$this->markTestIncomplete('Waiting for several info from mobile developer');
+    	
         $endpoint = new AndroidEndpoint;
         $data = $endpoint->getPlatformMessage('test_title', 'test_message', 'test_type', null, null);
 
