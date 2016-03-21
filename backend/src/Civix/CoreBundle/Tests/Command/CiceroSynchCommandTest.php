@@ -31,6 +31,8 @@ class CiceroSynchCommandTest extends WebTestCase
      */
     public function testSynch()
     {
+    	$this->markTestSkipped('Too much time to run');
+    	
         $executor = $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
@@ -71,6 +73,7 @@ class CiceroSynchCommandTest extends WebTestCase
      */
     public function testSynchLink()
     {
+    	$this->markTestSkipped('Too much time to run');
         $executor = $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
@@ -130,6 +133,8 @@ class CiceroSynchCommandTest extends WebTestCase
      */
     public function testSynchWithChangedOfficialTitle()
     {
+    	$this->markTestSkipped('Too much time to run');
+    	
         $executor = $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
@@ -170,6 +175,8 @@ class CiceroSynchCommandTest extends WebTestCase
      */
     public function testSynchWithChangedOfficialTitleLink()
     {
+    	$this->markTestSkipped('Too much time to run');
+    	
         $executor = $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
@@ -217,6 +224,8 @@ class CiceroSynchCommandTest extends WebTestCase
      */
     public function testSynchWithChangedDistrict()
     {
+    	$this->markTestSkipped('Too much time to run');
+    	
         $executor = $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
@@ -257,6 +266,8 @@ class CiceroSynchCommandTest extends WebTestCase
      */
     public function testSynchWithChangedDistrictLink()
     {
+    	$this->markTestSkipped('Too much time to run');
+    	
         $executor = $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
@@ -300,6 +311,8 @@ class CiceroSynchCommandTest extends WebTestCase
      */
     public function testSynchRepresentativeNotFound()
     {
+    	$this->markTestSkipped('Too much time to run');
+    	
         $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
@@ -327,6 +340,8 @@ class CiceroSynchCommandTest extends WebTestCase
      */
     public function testSynchRepresentativeNotFoundLink()
     {
+    	$this->markTestSkipped('Too much time to run');
+    	
         $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
