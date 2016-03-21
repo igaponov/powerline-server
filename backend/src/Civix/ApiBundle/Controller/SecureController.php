@@ -69,7 +69,7 @@ class SecureController extends BaseController
         // If still didn't get a entity, it is a failed authentication
         if(!$user) 
         {
-            throw new JsonResponse('Authentication failed.', 401); // @todo Only when Symfony 2.4 use Response::HTTP_UNAUTHORIZED
+            return new JsonResponse('Authentication failed.', 401); // @todo Only when Symfony 2.4 use Response::HTTP_UNAUTHORIZED
         }
         
         $encoder = $this->get('security.encoder_factory')->getEncoder($user);
@@ -80,10 +80,10 @@ class SecureController extends BaseController
             $user->generateToken();
             $em->flush();
             
-            return new JsonResponse($this->jmsSerialization($user, ['api-session']), 200); // @todo Only when Symfony 2.4 use Response::HTTP_OK
+            return new Response($this->jmsSerialization($user, ['api-session']), 200); // @todo Only when Symfony 2.4 use Response::HTTP_OK
         }
         
-        throw new JsonResponse('Authentication failed.', 401); // @todo Only when Symfony 2.4 use Response::HTTP_UNAUTHORIZED
+        return new JsonResponse('Authentication failed.', 401); // @todo Only when Symfony 2.4 use Response::HTTP_UNAUTHORIZED
     }
 
     /**
