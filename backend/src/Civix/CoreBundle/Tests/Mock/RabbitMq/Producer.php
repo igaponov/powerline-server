@@ -10,7 +10,7 @@ class Producer extends BaseProducer
     {
     }
 
-    public function publish($msgBody, $routingKey = '')
+    public function publish($msgBody, $routingKey = '', $additionalProperties = [])
     {
     }
 }
