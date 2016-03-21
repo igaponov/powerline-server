@@ -67,7 +67,7 @@ class SecureController extends BaseController
         }
         
         // If still didn't get a entity, it is a failed authentication
-        if (!$user) 
+        if(!$user) 
         {
             throw new JsonResponse('Authentication failed.', 401); // @todo Only when Symfony 2.4 use Response::HTTP_UNAUTHORIZED
         }
