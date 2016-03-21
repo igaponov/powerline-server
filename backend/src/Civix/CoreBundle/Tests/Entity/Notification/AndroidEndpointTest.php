@@ -11,6 +11,8 @@ class AndroidEndpointTest extends \PHPUnit_Framework_TestCase
      */
     public function testPlatformMessage()
     {
+    	$this->markTestIncomplete('Waiting for several info from mobile developer');
+    	
         $endpoint = new AndroidEndpoint;
         $this->assertEquals($endpoint->getPlatformMessage('test_title', 'test_message', 'test_type', null, null),
             '{"GCM":"{\"data\":{\"message\":\"test_message\",\"type\":\"test_type\",\"entity\":\"null\",\"title\":\"test_title\",\"image\":null,\"actions\":[]}}"}'
