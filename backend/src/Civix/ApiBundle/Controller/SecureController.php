@@ -30,21 +30,60 @@ class SecureController extends BaseController
 	}
 	
     /**
+     * Login a entity (User, Group, Representative or SuperUser)
+     * 
+     * Example:
+     *
+     *     curl -i -X POST -H 'application/x-www-form-urlencoded' -G 'http://domain.com/api/secure/login' -d 'username=admin&password=admin'
+     *
+     * **Input Parameters**
+     *
+     *     username: the nick for the entity
+     * 	   password: the password for the entity
+     *
+     * **Output Format**
+     *
+     * If successful:
+     *
+     *     {"token":"sometoken"}
+     *
+     * If error:
+     *
+     *     ["error","some error message"]
+     *     
      * @Route("/login", name="api_secure_login")
      * @Method("POST")
      *
      * @ApiDoc(
+     * 	   https = true,
+     *     authentication = false,
      *     resource=true,
-     *         description="Login",
-     *         filters={
-     *             {"name"="username", "dataType"="string"},
-     *             {"name"="password", "dataType"="string"}
-     *      },
-     *      statusCodes={
-     *          200="Returns authorization token",
-     *          400="Incorrect login or password",
+     *     section="Common",
+     *     description="Login",
+     *     views = { "default"},
+     *     output = "",
+     *     requirements={
+	 *     },
+     *     tags={
+	 *         "stable" = "#89BF04",
+	 *         "POST" = "#10a54a",
+	 *         "login",
+	 *     },
+     *     filters={
+     *         {"name"="username", "dataType"="string"},
+     *         {"name"="password", "dataType"="string"}
+     *     },
+     *     parameters={
+	 *     },
+     *     input = {
+	 *   	"class" = "",
+	 *	    "options" = {"method" = "POST"},
+	 *	   },
+     *     statusCodes={
+     *          200="Returned when successful with authorization token",
+     *          400="Returned when incorrect login or password",
      *          405="Method Not Allowed"
-     *      }
+     *     }
      * )
      */
     public function indexAction(Request $request)
