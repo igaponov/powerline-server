@@ -42,6 +42,7 @@ class LoadGroupData extends AbstractFixture implements FixtureInterface, Contain
             $group->setUsername($data['username'])
                 ->setManagerEmail($data['username'].'@example.com')
                 ->setPassword($password);
+            $group->generateToken();
 
             $this->addReference('group-'.$data['username'], $group);
 
