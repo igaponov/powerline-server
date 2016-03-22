@@ -7,12 +7,12 @@ use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\Superuser;
 
 /**
- * LoadUserData.
+ * LoadSuperuserData.
  */
-class LoadUserData extends AbstractFixture implements FixtureInterface, ContainerAwareInterface
+class LoadSuperuserData extends AbstractFixture implements FixtureInterface, ContainerAwareInterface
 {
     /**
      * @var ContainerInterface
@@ -28,17 +28,15 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
     {
         $factory = $this->container->get('security.encoder_factory');
 
-        $users = array(
-            array('username' => 'mobile1'),
-            array('username' => 'mobile2'),
-            array('username' => 'mobile3'),
-            array('username' => 'mobile4'),
-            array('username' => 'mobile5'),
-            array('username' => 'mobile6'),
-        );
+        $users [] = ['username' => 'admin'];
+        for($i = 1; $i <= 10; $i++)
+        {
+        	$users [] = ['username' => 'superuser' . $i];
+        }
 
-        foreach ($users as $data) {
-            $user = new User();
+        foreach ($users as $data) 
+        {
+            $user = new Superuser();
 
             $encoder = $factory->getEncoder($user);
             $password = $encoder->encodePassword($data['username'], $user->getSalt());
@@ -46,13 +44,10 @@ class LoadUserData extends AbstractFixture implements FixtureInterface, Containe
             $user->setUsername($data['username'])
                 ->setEmail($data['username'].'@example.com')
                 ->setPassword($password);
-            if ('mobile1' === $data['username']) {
-                $user->setResetPasswordToken(sha1($data['username']));
-            }
             
             $user->generateToken();
 
-            $this->addReference('user-'.$data['username'], $user);
+            $this->addReference('superuser-'.$data['username'], $user);
 
             $manager->persist($user);
         }
