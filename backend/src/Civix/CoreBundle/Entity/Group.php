@@ -1206,7 +1206,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      *
      * @param \Civix\CoreBundle\Entity\UserGroupManager $manager
      */
-    public function removeUser(UserGroupManager $manager)
+    public function removeManager(UserGroupManager $manager)
     {
     	$this->managers->removeElement($manager);
     }
@@ -1216,7 +1216,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      *
      * @return \Doctrine\Common\Collections\Collection
      */
-    public function getUsers()
+    public function getManagers()
     {
     	return new ArrayCollection(array_map(
     			function ($usergroupmanager) {
