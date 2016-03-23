@@ -1227,6 +1227,19 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     }
 
     /**
+     * Check if a User give is really the group owner for a 
+     * group
+     * 
+     * @param User $user
+     * 
+     * @return boolean
+     */
+    public function isOwner(User $user)
+    {
+    	return $this->getOwner()->getId() === $user->getId();
+    }
+    
+    /**
      * @return mixed
      */
     public function getOwner()
