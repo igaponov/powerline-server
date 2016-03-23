@@ -40,14 +40,27 @@ class ApiUserProvider implements UserProviderInterface
 
     public function loadUserByToken(ApiToken $token)
     {
-        if (empty($token->getToken())) {
+    	// Avoid load a user if no token was provided
+        if (empty($token->getToken())) 
+        {
             return;
         }
 
-        if ($token->getUserType() === 'user') {
+        // Check first the user type
+        if ($token->getUserType() === 'user') 
+        {
             return $this->em->getRepository('CivixCoreBundle:User')
                 ->findOneBy(['token' => $token->getToken()]);
         }
+        
+        // If fails, check the group type
+        if ($token->getUserType() === 'group') 
+        {
+        	return $this->em->getRepository('CivixCoreBundle:Group')
+        	->findOneBy(['token' => $token->getToken()]);
+        }
+        
+        // @ŧodo implement here support for representative or superuser in case that needed
 
         $session = $this->em->getRepository(Session::class)
             ->findOneByToken($token->getToken());
