@@ -8,24 +8,43 @@ use JMS\Serializer\SerializationContext;
 abstract class WebTestCase extends \Liip\FunctionalTestBundle\Test\WebTestCase
 {
     /**
+     * Get the login token user passing the user object.
+     * 
+     * This method only will authenticate using the same
+     * password than the username.
+     * 
      * @param User $user
-     * @return string
+     * @return NULL|string
      */
     protected function getLoginToken($user)
     {
-        $client = static::createClient();
-        $client->request('POST', '/api/secure/login', [
-            "username" => $user->getUsername(),
-            "password" => $user->getUsername()
-        ]);
-
-        $response = $client->getResponse();
-
-        if ($response->getStatusCode() == 200) {
-            return json_decode($response->getContent())->token;
-        }
-
-        return "";
+    	return $this->getUserToken($user->getUsername(), $user->getUsername());
+    }
+    
+    /**
+     * Get the login token user passing username and password credentials
+     * 
+     * @param string $username
+     * @param string $password
+     * 
+     * @return NULL|string
+     */
+    protected function getUserToken($username = NULL, $password = NULL)
+    {
+    	$client = static::createClient();
+    	$client->request('POST', '/api/secure/login', [
+    			'username' => $username,
+    			'password' => $password
+    	]);
+    
+    	$response = $client->getResponse();
+    
+    	if ($response->getStatusCode() == 200) 
+    	{
+    		return json_decode($response->getContent())->token;
+    	}
+    
+    	return NULL;
     }
 
     protected function jmsSerialization($serializationObject, $groups, $type = 'json')

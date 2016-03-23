@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Controller;
 
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
 use JMS\Serializer\Exception\RuntimeException;
@@ -17,19 +18,21 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
+ * Group API controller for groups
+ * 
  * @Route("/groups")
  */
 class GroupController extends BaseController
 {
     /**
-     * @Route("/", name="api_groups")
+     * @Route("/", name="civix_api_groups_by_user")
      * @Method("GET")
      */
     public function getGroupsAction()
     {
         $entityManager = $this->getDoctrine()->getManager();
 
-        $groups = $entityManager->getRepository('CivixCoreBundle:Group')
+        $groups = $entityManager->getRepository(Group::class)
                 ->getGroupsByUser($this->getUser());
 
         $response = new Response($this->jmsSerialization($groups, ['api-groups']));
@@ -39,7 +42,7 @@ class GroupController extends BaseController
     }
 
     /**
-     * @Route("/")
+     * @Route("/", name="civix_api_groups_create")
      * @Method("POST")
      */
     public function createGroupAction(Request $request)
@@ -81,19 +84,21 @@ class GroupController extends BaseController
 
         $this->get('civix_core.email_sender')
             ->sendUserRegistrationSuccessGroup($group, $password);
-        $em->getRepository('CivixCoreBundle:Group')
+        $em->getRepository(Group::class)
             ->getTotalMembers($group);
 
         return $this->createJSONResponse($this->jmsSerialization($group, ['api-info']), 201);
     }
 
     /**
-     * @Route("/user-groups/")
+     * @todo duplicate getGroupsAction?
+     * 
+     * @Route("/user-groups/", name="civix_api_groups_by_user2")
      * @Method("GET")
      */
     public function getUserGroupsAction()
     {
-        $groups = $this->getDoctrine()->getRepository('CivixCoreBundle:Group')
+        $groups = $this->getDoctrine()->getRepository(Group::class)
             ->getUserGroupsByUser($this->getUser());
 
         $response = new Response($this->jmsSerialization($groups, ['api-groups']));
@@ -103,14 +108,14 @@ class GroupController extends BaseController
     }
 
     /**
-     * @Route("/popular", name="api_popular_groups")
+     * @Route("/popular", name="civix_api_groups_popular_groups")
      * @Method("GET")
      */
     public function getPopularGroupsAction()
     {
         $entityManager = $this->getDoctrine()->getManager();
 
-        $groups = $entityManager->getRepository('CivixCoreBundle:Group')
+        $groups = $entityManager->getRepository(Group::class)
             ->getPopularGroupsByUser($this->getUser());
 
         $response = new Response($this->jmsSerialization($groups, ['api-groups']));
@@ -120,14 +125,14 @@ class GroupController extends BaseController
     }
 
     /**
-     * @Route("/new", name="api_new_groups")
+     * @Route("/new", name="civix_api_groups_new_groups")
      * @Method("GET")
      */
     public function getNewGroupsAction()
     {
         $entityManager = $this->getDoctrine()->getManager();
 
-        $groups = $entityManager->getRepository('CivixCoreBundle:Group')
+        $groups = $entityManager->getRepository(Group::class)
             ->getNewGroupsByUser($this->getUser());
 
         $response = new Response($this->jmsSerialization($groups, ['api-groups']));
@@ -137,7 +142,7 @@ class GroupController extends BaseController
     }
 
     /**
-     * @Route("/join/{id}", name="api_groups_join")
+     * @Route("/join/{id}", name="civix_api_groups_join")
      * @Method("POST")
      * @ParamConverter(
      *      "group",
@@ -227,7 +232,7 @@ class GroupController extends BaseController
 
         //check status of join
         $userGroup = $entityManager
-            ->getRepository('CivixCoreBundle:UserGroup')
+            ->getRepository(UserGroup::class)
             ->isJoinedUser($group, $user);
         $responseContentArray['status'] = $userGroup->getStatus();
 
@@ -237,7 +242,7 @@ class GroupController extends BaseController
     }
 
     /**
-     * @Route("/join/{id}", name="api_groups_unjoin")
+     * @Route("/join/{id}", name="civix_api_groups_unjoin")
      * @Method("DELETE")
      * @ParamConverter(
      *      "group",
@@ -259,7 +264,7 @@ class GroupController extends BaseController
     }
 
     /**
-     * @Route("/info/{group}", requirements={"group"="\d+"}, name="api_group_information")
+     * @Route("/info/{group}", requirements={"group"="\d+"}, name="civix_api_groups_information")
      * @Method("GET")
      * @ParamConverter("group", class="CivixCoreBundle:Group")
      */
@@ -271,7 +276,7 @@ class GroupController extends BaseController
             throw $this->createNotFoundException();
         }
 
-        $count = $entityManager->getRepository('CivixCoreBundle:Group')
+        $count = $entityManager->getRepository(Group::class)
                 ->getTotalMembers($group);
 
         $response = new Response($this->jmsSerialization($group, ['api-info']));
@@ -281,7 +286,7 @@ class GroupController extends BaseController
     }
 
     /**
-     * @Route("/invites", name="api_group_invites")
+     * @Route("/invites", name="civix_api_groups_invites")
      * @Method("GET")
      */
     public function getInvitesAction(Request $request)
@@ -296,7 +301,7 @@ class GroupController extends BaseController
      * @Route(
      *     "/invites/{status}/{group}",
      *     requirements={"group"="\d+", "status"="approve|reject"},
-     *     name="api_group_invites_approval"
+     *     name="civix_api_groups_invites_approval"
      * )
      * @Method("POST")
      * @ParamConverter("group", class="CivixCoreBundle:Group")
@@ -339,7 +344,7 @@ class GroupController extends BaseController
      * @Route(
      *     "/{group}/fields",
      *     requirements={"group"="\d+"},
-     *     name="api_group_fields"
+     *     name="civix_api_groups_fields"
      * )
      * @Method("GET")
      */
@@ -355,7 +360,7 @@ class GroupController extends BaseController
      * @Route(
      *     "/{group}/users",
      *     requirements={"group"="\d+"},
-     *     name="api_group_users"
+     *     name="civix_api_groups_users"
      * )
      * @Method("GET")
      *
@@ -383,7 +388,7 @@ class GroupController extends BaseController
     {
         $limit = $request->query->get('limit', 50);
         $page = $request->query->get('page', 1);
-        $users = $this->getDoctrine()->getRepository('CivixCoreBundle:User')
+        $users = $this->getDoctrine()->getRepository(User::class)
             ->getUsersByGroup($group, $page, $limit);
 
         $response = new Response($this->jmsSerialization($users, ['api-short-info']));
