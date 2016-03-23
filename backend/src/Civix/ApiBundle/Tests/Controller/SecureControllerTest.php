@@ -9,7 +9,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\ApiBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
 
-class UserPrePersistListenerTest extends WebTestCase
+class SecureControllerTest extends WebTestCase
 {
 	const API_LOGIN_ENDPOINT = '/api/secure/login';
 	
