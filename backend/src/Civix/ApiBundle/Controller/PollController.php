@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -15,12 +16,72 @@ use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
 use Civix\CoreBundle\Entity\Poll\Option;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\Poll\Question\Group as GroupQuestion;
 
 /**
  * @Route("/poll")
  */
 class PollController extends BaseController
 {
+	/**
+	 * @Route("/question/new", name="civix_api_question_new")
+	 * @Method("PUT")
+	 * 
+	 * @ParamConverter("question", class="\Civix\CoreBundle\Entity\Poll\Question\Group")
+	 * 
+	 * @ApiDoc(
+	 *     resource=true,
+	 *     description="Add a new poll question",
+	 *     statusCodes={
+	 *         200="Returns when all succesfully added",
+	 *         400="Bad Request",
+	 *         405="Method Not Allowed"
+	 *     }
+	 * )
+	 */
+	public function putQuestionNewAction(Request $request)
+	{
+		// @ŧodo Pending to use $question param as doctrine converter
+		// , \Civix\CoreBundle\Entity\Poll\Question\Group $question,  = NULL
+		
+		$manager = $this->getDoctrine()->getManager();
+
+		// Todo pending to fetch all the question data via
+		// $request->getContent() when the doctrine converter works fine
+		
+		/** @var Question $question_data */
+		/*
+		$question_data = $this->jmsDeserialization(
+				$request->getContent(),
+				'\Civix\CoreBundle\Entity\Poll\Question\Group',
+				['api-poll']
+				);
+		*/
+		
+		// Create a empty object until the $question_data could be parsed
+		$question = new GroupQuestion();
+		/* @todo
+		$question->setTitle($question_data->getTitle());
+		$question->setSubject($question_data->getSubject());
+		$question->setExpireAt($question_data->getExpireAt());
+		*/
+		
+		$this->validate($question, ['api-poll']);
+		
+		$manager->persist($question);
+		$manager->flush();
+		
+		$response = new JsonResponse();
+		$response->setContent(
+				$this->jmsSerialization(
+						$question,
+						['api-poll']
+						)
+				);
+	
+		return $response;
+	}
+	
     /**
      * Get Question by ID.
      *
