@@ -18,20 +18,7 @@ abstract class WebTestCase extends \Liip\FunctionalTestBundle\Test\WebTestCase
      */
     protected function getLoginToken($user)
     {
-        $client = static::createClient();
-        $client->request('POST', '/api/secure/login', [
-            "username" => $user->getUsername(),
-            "password" => $user->getUsername()
-        ]);
-
-        $response = $client->getResponse();
-
-        if ($response->getStatusCode() == 200) 
-        {
-            return json_decode($response->getContent())->token;
-        }
-
-        return NULL;
+    	return $this->getUserToken($user->getUsername(), $user->getUsername());
     }
     
     /**
