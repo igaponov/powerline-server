@@ -19,7 +19,7 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 class UserController extends BaseController
 {
     /**
-     * @Route("/find", name="api_user_by_username")
+     * @Route("/find", name="civix_api_user_by_username")
      * @Method("GET")
      *
      * @ApiDoc(
@@ -51,7 +51,7 @@ class UserController extends BaseController
     }
 
     /**
-     * @Route("/", name="api_users")
+     * @Route("/", name="civix_api_user_list_users")
      * @Method("GET")
      *
      * @ApiDoc(
@@ -98,7 +98,7 @@ class UserController extends BaseController
     }
 
     /**
-     * @Route("/self/subscriptions")
+     * @Route("/self/subscriptions", name="civix_api_user_self_subscriptions_activity")
      * @Method("POST")
      * 
      * @ApiDoc(
