@@ -107,7 +107,7 @@ class ActivityUpdate
 
         //create activity
         $activity = new ActivityMicroPetition();
-        $activity->setPetitionId($petition->getId());
+        $activity->setPetition($petition);
         $activity->setTitle('');
         if ($petition->getType() === MicroPetition::TYPE_LONG_PETITION) {
             $activity->setTitle($petition->getTitle());
