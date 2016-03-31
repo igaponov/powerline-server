@@ -75,7 +75,7 @@ class BookmarkController extends BaseController
      * @Route(
      *     "/add/{type}/{itemId}",
      *     requirements={
-     *          "page"="\d+",
+     *          "itemId"="\d+",
      *          "type"="petition|petition_comment|petition_answer|poll|poll_comment|poll_answer|post|all"
      *      },
      *      name="api_bookmarks_add"
