@@ -283,7 +283,7 @@ class GroupController extends BaseController
     }
 
     /**
-     * @Route("/join/{id}", name="civix_api_groups_unjoin")
+     * @Route("/unjoin/{id}", name="civix_api_groups_unjoin")
      * @Method("DELETE")
      * @ParamConverter(
      *      "group",
