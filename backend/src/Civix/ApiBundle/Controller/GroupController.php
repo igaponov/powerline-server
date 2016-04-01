@@ -144,6 +144,54 @@ class GroupController extends BaseController
     }
 
     /**
+     * Join a group member as group manager for a group
+     *
+     *     curl -i -X POST -G 'http://domain.com/api/groups/join-group-manager/{id}' -d ''
+     *
+     * **Input Parameters**
+     *
+     *     id: the group identifier
+     *
+     * **Output Format**
+     *
+     * If successful:
+     *
+     *     {""}
+     *
+     * If error:
+     *
+     *     ["error","some error message"]
+     *
+     * @ApiDoc(
+     * 	   https = true,
+     *     authentication = false,
+     *     resource=true,
+     *     section="Group",
+     *     description="oin a group member as group manager for a group",
+     *     views = { "default"},
+     *     output = "",
+     *     requirements={
+	 *     },
+     *     tags={
+	 *         "stable" = "#89BF04",
+	 *         "POST" = "#10a54a",
+	 *         "join group manager",
+	 *     },
+     *     filters={
+     *     },
+     *     parameters={
+	 *     },
+     *     input = {
+	 *   	"class" = "",
+	 *	    "options" = {"method" = "POST"},
+	 *	   },
+     *     statusCodes={
+     *          200="Returned when successful",
+     *          400="Returned when incorrect login or password",
+     *          405="Method Not Allowed"
+     *     }
+     * )
+     * 
      * @Route("/join-group-manager/{id}", name="civix_api_groups_join_group_manager")
      * @Method("POST")
      * @ParamConverter(
