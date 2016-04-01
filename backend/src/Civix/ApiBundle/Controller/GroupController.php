@@ -5,6 +5,7 @@ namespace Civix\ApiBundle\Controller;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
+use Civix\CoreBundle\Entity\UserGroupManager;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
 use JMS\Serializer\Exception\RuntimeException;
@@ -14,6 +15,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -141,6 +143,45 @@ class GroupController extends BaseController
         return $response;
     }
 
+    /**
+     * @Route("/join-group-manager/{id}", name="civix_api_groups_join_group_manager")
+     * @Method("POST")
+     * @ParamConverter(
+     *      "group",
+     *      class="CivixCoreBundle:Group",
+     *      options={"repository_method" = "getGroupByIdAndType"}
+     * )
+     */
+    public function joinToGroupAsGroupManagerAction(Request $request, Group $group)
+    {
+    	$entityManager = $this->getDoctrine()->getManager();
+    	/** @var $user User */
+    	$user = $this->getUser();
+    	
+    	if(!$group->isMember($user))
+    	{
+    		new JsonResponse(['error' => 'The user is not member of the group'], 404);
+    	}
+    	
+    	if(!$group->isManager($user))
+    	{
+    		new JsonResponse(['error' => 'The user is already group manager of this group'], 404);
+    	}
+    	
+    	// Create the new relation for group and user as manager
+    	$user_group_manager = new UserGroupManager($user, $group);
+    	$entityManager->persist($user_group_manager);
+    	$entityManager->flush();
+    	
+    	// Add the relation in the group object
+    	$group->addManagerUser($user_group_manager);
+    	
+    	$entityManager->persist($group);
+    	$entityManager->flush();
+    	
+    	new JsonResponse([], 204);
+    }
+    
     /**
      * @Route("/join/{id}", name="civix_api_groups_join")
      * @Method("POST")
