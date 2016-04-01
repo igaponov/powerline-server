@@ -1135,6 +1135,26 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     {
         return $user->getGroups()->contains($this) ? 1 : 0;
     }
+    
+    /**
+     * Checks if a user belongs as group member to the current group
+     *
+     * @return boolean
+     */
+    public function isMember(User $user)
+    {
+    	return $this->getUsers()->contains($user);
+    }
+    
+    /**
+     * Checks if a user belongs as group manager to the current group
+     *
+     * @return boolean
+     */
+    public function isManager(User $user)
+    {
+    	return $this->getManagers()->contains($user);
+    }
 
     public function getPicture()
     {
