@@ -34,9 +34,10 @@ class BookmarkController extends BaseController
      * )
      * @Method("GET")
      * @ApiDoc(
+     *     section="Bookmark",
      *     resource=true,
      *     description="Get saved items. The saved item can be petition, petition_comment, petition_answer, poll,
-     *     poll_comment, poll_answer, or post",
+           poll_comment, poll_answer, or post",
      *     statusCodes={
      *         200="Returns saved items",
      *         401="Authorization required",
@@ -82,9 +83,10 @@ class BookmarkController extends BaseController
      * )
      * @Method("POST")
      * @ApiDoc(
+     *     section="Bookmark",
      *     resource=true,
      *     description="Add saved item. The saved item can be petition, petition_comment, petition_answer, poll,
-     *     poll_comment, poll_answer, or post",
+           poll_comment, poll_answer, or post",
      *     statusCodes={
      *         200="Returns saved item",
      *         401="Authorization required",
@@ -123,6 +125,7 @@ class BookmarkController extends BaseController
      * )
      * @Method("DELETE")
      * @ApiDoc(
+     *     section="Bookmark",
      *     resource=true,
      *     description="Delete saved item.",
      *     statusCodes={
