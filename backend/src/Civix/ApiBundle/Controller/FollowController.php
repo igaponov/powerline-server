@@ -23,8 +23,20 @@ use Civix\CoreBundle\Entity\User;
 class FollowController extends BaseController
 {
     /**
+     * Get followers
+     *
      * @Route("/")
      * @Method("GET")
+     * @ApiDoc(
+     *     section="Follow",
+     *     description="Get followers",
+     *     statusCodes={
+     *         200="Get followers success",
+     *         400="Bad request",
+     *         401="Authorization required",
+     *         405="Method Not Allowed"
+     *     }
+     * )
      */
     public function getAction()
     {
@@ -35,9 +47,12 @@ class FollowController extends BaseController
     }
 
     /**
+     * Follow a user
+     *
      * @Route("/")
      * @Method("POST")
      * @ApiDoc(
+     *     section="Follow",
      *     resource=true,
      *     description="Follow a user",
      *     statusCodes={
@@ -63,8 +78,21 @@ class FollowController extends BaseController
     }
 
     /**
+     * Approve follow request
+     *
      * @Route("/{id}")
      * @Method("PUT")
+     * @ApiDoc(
+     *     section="Follow",
+     *     resource=true,
+     *     description="Approve follow request",
+     *     statusCodes={
+     *         200="Approve follow request success",
+     *         400="Bad request",
+     *         401="Authorization required",
+     *         405="Method Not Allowed"
+     *     }
+     * )
      */
     public function putAction(UserFollow $follow, Request $request)
     {
@@ -86,8 +114,21 @@ class FollowController extends BaseController
     }
 
     /**
+     * Unfollow a user
+     *
      * @Route("/{id}")
      * @Method("DELETE")
+     * @ApiDoc(
+     *     section="Follow",
+     *     resource=true,
+     *     description="Unfollow a user",
+     *     statusCodes={
+     *         204="unfollow request success",
+     *         400="Bad request",
+     *         401="Authorization required",
+     *         405="Method Not Allowed"
+     *     }
+     * )
      */
     public function deleteAction(UserFollow $follow)
     {
@@ -102,6 +143,8 @@ class FollowController extends BaseController
     }
 
     /**
+     * Follow all group members
+     *
      * @Route(
      *     "/group/{id}",
      *     requirements={"id"="\d+"},
@@ -110,9 +153,9 @@ class FollowController extends BaseController
      * @Method("POST")
      * @ParamConverter("group", class="CivixCoreBundle:Group")
      * @ApiDoc(
+     *     section="Follow",
      *     resource=true,
-     *     description="Follow group members. This api will automatically follow a group member if
-     *         group permission is public or private.",
+     *     description="Follow group members. This api will automatically follow a group member if group permission is public or private.",
      *     statusCodes={
      *         201="follow request success",
      *         400="Bad request",
