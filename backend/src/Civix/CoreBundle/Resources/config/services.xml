@@ -34,16 +34,17 @@
         </service>
         <service id="civix_core.crop_image" class="Civix\CoreBundle\Service\CropImage">
         </service>
-        <service class="Mailgun\Mailgun" id="mailgun.client">
+        <service class="Mailgun\Mailgun" id="mailgun.basic_client" public="false">
             <argument>%mailgun_private%</argument>
             <argument>%mailgun_endpoint%</argument>
             <argument>v3</argument>
         </service>
-        <service class="Mailgun\Mailgun" id="mailgun.public_client">
+        <service class="Mailgun\Mailgun" id="mailgun.public_basic_client" public="false">
             <argument>%mailgun_public%</argument>
             <argument>%mailgun_endpoint%</argument>
             <argument>v3</argument>
         </service>
+        <service class="Mailgun\Tests\Mock\Mailgun" id="mailgun.test_client" public="false"/>
         <service id="civix_core.mailgun" class="Civix\CoreBundle\Service\Mailgun\MailgunApi">
             <argument type="service" id="mailgun.client" />
             <argument type="service" id="mailgun.public_client" />

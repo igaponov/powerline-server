@@ -208,6 +208,10 @@ stof_doctrine_extensions:
             timestampable: true
             softdeleteable: true
 
+civix_core:
+    mailgun_client: mailgun.basic_client
+    mailgun_public_client: mailgun.public_basic_client
+
 fos_rest:
     param_fetcher_listener: true
     body_listener: true

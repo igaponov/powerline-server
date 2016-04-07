@@ -20,6 +20,11 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('civix_core');
+        $rootNode
+            ->children()
+                ->scalarNode('mailgun_client')->isRequired()->cannotBeEmpty()->end()
+                ->scalarNode('mailgun_public_client')->isRequired()->cannotBeEmpty()->end()
+            ->end();
 
         // Here you should define the parameters that are allowed to
         // configure your bundle. See the documentation linked above for

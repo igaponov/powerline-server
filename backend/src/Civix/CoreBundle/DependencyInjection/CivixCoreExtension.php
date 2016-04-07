@@ -24,5 +24,8 @@ class CivixCoreExtension extends Extension
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
+        
+        $container->setAlias('mailgun.client', $config['mailgun_client']);
+        $container->setAlias('mailgun.public_client', $config['mailgun_public_client']);
     }
 }
