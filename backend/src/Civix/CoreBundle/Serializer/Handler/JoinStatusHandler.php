@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Serializer\Handler;
 
+use Civix\CoreBundle\Entity\UserInterface;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\JsonSerializationVisitor;
@@ -31,6 +32,9 @@ class JoinStatusHandler implements SubscribingHandlerInterface
 
     public function serialize(JsonSerializationVisitor $visitor, JoinStatus $joinStatusType)
     {
-        return $joinStatusType->getEntity()->getJoined($this->user);
+        if ($this->user instanceof UserInterface) {
+            return $joinStatusType->getEntity()
+                ->getJoined($this->user);
+        }
     }
 }
