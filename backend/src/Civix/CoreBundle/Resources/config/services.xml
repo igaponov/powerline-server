@@ -378,5 +378,10 @@
             <argument id="security.encoder_factory.generic" type="service"/>
             <tag name="doctrine.event_subscriber"/>
         </service>
+
+        <service class="Civix\CoreBundle\EventListener\MailerEventListener" id="civix_core.event_listener.mailer_event_listener">
+            <argument id="civix_core.email_sender" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

@@ -106,6 +106,10 @@ security:
             pattern: ^/api/secure/registration-facebook$
             anonymous: ~
 
+        mobileuser_group_registration:
+            pattern: ^/api/secure/registration-group$
+            anonymous: ~
+
         mobileuser_forgot_password:
             pattern: ^/api/secure/forgot-password$
             anonymous: ~

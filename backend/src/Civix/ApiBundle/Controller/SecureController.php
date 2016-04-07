@@ -2,8 +2,11 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use Civix\ApiBundle\Form\Type\GroupType;
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
+use FOS\RestBundle\Controller\Annotations\View;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -512,6 +515,45 @@ class SecureController extends BaseController
         }
 
         return $user;
+    }
+    /**
+     * @Route("/registration-group", name="civix_group_registration")
+     * @Method("POST")
+     *
+     * @ApiDoc(
+     *     section="Security",
+     *     description="Register new group",
+     *     input="Civix\ApiBundle\Form\Type\GroupType",
+     *     output={
+     *          "class" = "Civix\CoreBundle\Entity\Group",
+     *          "groups" = {"api-group"}
+     *     }
+     * )
+     *
+     * @View(serializerGroups={"api-group"})
+     */
+    public function registrationGroupAction()
+    {
+        $form = $this->createForm(new GroupType(), null, [
+            'validation_groups' => ['api-registration']
+        ]);
+
+        $request = $this->getRequest();
+        $form->submit($request);
+        
+        if ($form->isValid()) {
+            /** @var $group Group */
+            $group = $form->getData();
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($group);
+            $em->flush();
+
+            $this->get('civix_core.group_manager')->create($group);
+
+            return $group;
+        }
+        
+        return $form;
     }
 
     private function getWebDomain()

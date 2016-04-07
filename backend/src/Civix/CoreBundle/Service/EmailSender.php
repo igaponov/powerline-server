@@ -58,7 +58,7 @@ class EmailSender
         $this->mailer->send($message);
     }
 
-    public function sendRegistrationSuccessGroup(Group $group, $plainPassword)
+    public function sendRegistrationSuccessGroup(Group $group)
     {
         $message = $this->createMessage(
             'Group successful registered',
@@ -67,7 +67,7 @@ class EmailSender
             array(
                 'name' => $group->getOfficialName(),
                 'username' => $group->getUsername(),
-                'password' => $plainPassword,
+                'password' => $group->getPlainPassword(),
             )
         );
         $this->mailer->send($message);
@@ -217,6 +217,14 @@ class EmailSender
         $this->mailer->send($message);
     }
 
+    /**
+     * @param $subject
+     * @param $emailTo
+     * @param $templatePath
+     * @param $templateParams
+     * @param null $mailFrom
+     * @return \Swift_Message
+     */
     private function createMessage($subject, $emailTo, $templatePath, $templateParams, $mailFrom = null)
     {
         return \Swift_Message::newInstance()

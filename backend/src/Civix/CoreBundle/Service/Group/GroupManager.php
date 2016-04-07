@@ -6,6 +6,7 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Invites\UserToGroup;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
+use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
 use Civix\CoreBundle\Event\GroupUserEvent;
 use Civix\CoreBundle\Service\Google\Geocode;
@@ -50,6 +51,15 @@ class GroupManager
         $this->entityManager = $entityManager;
         $this->geocode = $geocode;
         $this->dispatcher = $dispatcher;
+    }
+
+    public function create(Group $group)
+    {
+        $this->entityManager->persist($group);
+        $this->entityManager->flush();
+
+        $event = new GroupEvent($group);
+        $this->dispatcher->dispatch(GroupEvents::REGISTERED, $event);
     }
 
     public function joinToGroup(User $user, Group $group)
