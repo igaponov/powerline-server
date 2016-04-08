@@ -1,7 +1,7 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller;
 
-use Doctrine\ORM\EntityManager;
+use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
 
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
@@ -33,6 +33,12 @@ class UserControllerTest extends WebTestCase
 		// Creates a initial client
 		$this->client = NULL;
 	}
-	
-	// @todo Stub test for implement in future
+
+	/**
+	 * @todo Stub test for implement in future
+	 */
+	public function test()
+	{
+		$this->markTestIncomplete();
+	}
 }
