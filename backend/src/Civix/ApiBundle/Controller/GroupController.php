@@ -27,6 +27,76 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class GroupController extends BaseController
 {
     /**
+     * Checks if the current user is group owner for a group given
+     *
+     *     curl -i -X GET -G 'http://domain.com/api/groups/is-owner/{id}' -d ''
+     *
+     * **Input Parameters**
+     *
+     *     id: the group identifier
+     *
+     * **Output Format**
+     *
+     * If successful:
+     *
+     *     {"true"}
+     *
+     * If error:
+     *
+     *     ["error","some error message"]
+     *
+     * @ApiDoc(
+     * 	   https = true,
+     *     authentication = false,
+     *     resource=true,
+     *     section="Group",
+     *     description="Checks if the current user is group owner for a group given",
+     *     views = { "default"},
+     *     output = "",
+     *     requirements={
+	 *     },
+     *     tags={
+	 *         "stable" = "#89BF04",
+	 *         "GET" = "#0f6ab4",
+	 *         "join group manager",
+	 *     },
+     *     filters={
+     *     },
+     *     parameters={
+	 *     },
+     *     input = {
+	 *   	"class" = "",
+	 *	    "options" = {"method" = "GET"},
+	 *	   },
+     *     statusCodes={
+     *          200="Returned when successful",
+     *          400="Returned when incorrect login or password",
+     *          405="Method Not Allowed"
+     *     }
+     * )
+     * 
+     * @Route("/is-owner/{id}", name="civix_api_groups_is_owner")
+     * @Method("GET")
+     * @ParamConverter(
+     *      "group",
+     *      class="CivixCoreBundle:Group",
+     *      options={"repository_method" = "getGroupByIdAndType"}
+     * )
+     */
+    public function isGroupOwnerAction(Request $request, Group $group)
+    {
+    	/** @var $user User */
+    	$user = $this->getUser();
+    	
+    	if(!$group->isOwner($user))
+    	{
+    		new JsonResponse(['error' => 'The user is not owner of the group'], 404);
+    	}
+
+    	new JsonResponse([TRUE], 204);
+    }
+	
+	/**
      * @Route("/", name="civix_api_groups_by_user")
      * @Method("GET")
      */
