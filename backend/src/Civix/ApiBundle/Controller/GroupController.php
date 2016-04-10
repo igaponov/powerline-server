@@ -110,7 +110,55 @@ class GroupController extends BaseController
     }
 
     /**
-     * @Route("/popular", name="civix_api_groups_popular_groups")
+     * Fetch the groups more popular for the current user
+     *
+     *     curl -i -X POST -G 'http://domain.com/api/groups/user-groups/' -d ''
+     *
+     * **Input Parameters**
+     *
+     *     None
+     *
+     * **Output Format**
+     *
+     * If successful:
+     *
+     *     {""}
+     *
+     * If error:
+     *
+     *     ["error","some error message"]
+     *
+     * @ApiDoc(
+     * 	   https = true,
+     *     authentication = false,
+     *     resource=true,
+     *     section="Group",
+     *     description="Fetch the groups more popular for the current user",
+     *     views = { "default"},
+     *     output = "",
+     *     requirements={
+     *     },
+     *     tags={
+     *         "stable" = "#89BF04",
+     *         "GET" = "#0f6ab4",
+     *         "popular groups",
+     *     },
+     *     filters={
+     *     },
+     *     parameters={
+     *     },
+     *     input = {
+     *   	"class" = "",
+     *	    "options" = {"method" = "GET"},
+     *	   },
+     *     statusCodes={
+     *          200="Returned when successful",
+     *          400="Returned when incorrect login or password",
+     *          405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @Route("/user-groups/", name="civix_api_groups_by_user2")
      * @Method("GET")
      */
     public function getPopularGroupsAction()
