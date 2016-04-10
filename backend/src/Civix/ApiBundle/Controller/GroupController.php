@@ -130,7 +130,7 @@ class GroupController extends BaseController
      *     tags={
      *         "stable" = "#89BF04",
      *         "GET" = "#0f6ab4",
-     *         "memmber group",
+     *         "member group",
      *     },
      *     filters={
      *     },
@@ -155,7 +155,7 @@ class GroupController extends BaseController
      *      options={"repository_method" = "getGroupByIdAndType"}
      * )
      */
-    public function isGroupOwnerAction(Request $request, Group $group)
+    public function isGroupMemberAction(Request $request, Group $group)
     {
     	/** @var $user User */
     	$user = $this->getUser();
@@ -173,7 +173,85 @@ class GroupController extends BaseController
     
     	new JsonResponse([TRUE], 204);
     }
-	
+
+    /**
+     * Checks if the current user is group manager for a group given.
+     * 
+     * By definition, a group manager MUST BE a group member too.
+     *
+     *     curl -i -X GET -G 'http://domain.com/api/groups/is-manager/{id}' -d ''
+     *
+     * **Input Parameters**
+     *
+     *     id: the group identifier
+     *
+     * **Output Format**
+     *
+     * If successful:
+     *
+     *     {"true"}
+     *
+     * If error:
+     *
+     *     ["error","some error message"]
+     *
+     * @ApiDoc(
+     * 	   https = true,
+     *     authentication = false,
+     *     resource=true,
+     *     section="Group",
+     *     description="Checks if the current user is group manager for a group given.",
+     *     views = { "default"},
+     *     output = "",
+     *     requirements={
+     *     },
+     *     tags={
+     *         "stable" = "#89BF04",
+     *         "GET" = "#0f6ab4",
+     *         "manager group",
+     *     },
+     *     filters={
+     *     },
+     *     parameters={
+     *     },
+     *     input = {
+     *   	"class" = "",
+     *	    "options" = {"method" = "GET"},
+     *	   },
+     *     statusCodes={
+     *          200="Returned when successful",
+     *          400="Returned when incorrect login or password",
+     *          405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @Route("/is-manager/{id}", name="civix_api_groups_is_manager")
+     * @Method("GET")
+     * @ParamConverter(
+     *      "group",
+     *      class="CivixCoreBundle:Group",
+     *      options={"repository_method" = "getGroupByIdAndType"}
+     * )
+     */
+    public function isGroupManagerAction(Request $request, Group $group)
+    {
+    	/** @var $user User */
+    	$user = $this->getUser();
+    
+    	// By definition, a group manager MUST BE a group member too.
+   		if(!$group->isMember($user))
+    	{
+    		new JsonResponse(['error' => 'The user is not member of the group'], 404);
+    	}
+    	
+    	if(!$group->isManager($user))
+    	{
+    		new JsonResponse(['error' => 'The user is not group manager of this group'], 404);
+    	}
+    
+    	new JsonResponse([TRUE], 204);
+    }
+    
 	/**
      * @Route("/", name="civix_api_groups_by_user")
      * @Method("GET")
