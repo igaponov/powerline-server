@@ -58,7 +58,7 @@ class GroupController extends BaseController
      *     tags={
 	 *         "stable" = "#89BF04",
 	 *         "GET" = "#0f6ab4",
-	 *         "join group manager",
+	 *         "owner group",
 	 *     },
      *     filters={
      *     },
@@ -93,6 +93,84 @@ class GroupController extends BaseController
     		new JsonResponse(['error' => 'The user is not owner of the group'], 404);
     	}
 
+    	new JsonResponse([TRUE], 204);
+    }
+    
+    /**
+     * Checks if the current user is group member for a group given.
+     * 
+     * Note that a group owner is a group member as default definition.
+     *
+     *     curl -i -X GET -G 'http://domain.com/api/groups/is-member/{id}' -d ''
+     *
+     * **Input Parameters**
+     *
+     *     id: the group identifier
+     *
+     * **Output Format**
+     *
+     * If successful:
+     *
+     *     {"true"}
+     *
+     * If error:
+     *
+     *     ["error","some error message"]
+     *
+     * @ApiDoc(
+     * 	   https = true,
+     *     authentication = false,
+     *     resource=true,
+     *     section="Group",
+     *     description="Checks if the current user is group member for a group given.",
+     *     views = { "default"},
+     *     output = "",
+     *     requirements={
+     *     },
+     *     tags={
+     *         "stable" = "#89BF04",
+     *         "GET" = "#0f6ab4",
+     *         "memmber group",
+     *     },
+     *     filters={
+     *     },
+     *     parameters={
+     *     },
+     *     input = {
+     *   	"class" = "",
+     *	    "options" = {"method" = "GET"},
+     *	   },
+     *     statusCodes={
+     *          200="Returned when successful",
+     *          400="Returned when incorrect login or password",
+     *          405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @Route("/is-member/{id}", name="civix_api_groups_is_member")
+     * @Method("GET")
+     * @ParamConverter(
+     *      "group",
+     *      class="CivixCoreBundle:Group",
+     *      options={"repository_method" = "getGroupByIdAndType"}
+     * )
+     */
+    public function isGroupOwnerAction(Request $request, Group $group)
+    {
+    	/** @var $user User */
+    	$user = $this->getUser();
+    	 
+    	// Group owner is group member as default
+    	if($group->isOwner($user))
+    	{
+    		new JsonResponse([TRUE], 204);
+    	}
+    	
+    	if(!$group->isMember($user))
+    	{
+    		new JsonResponse(['error' => 'The user is not member of the group'], 404);
+    	}
+    
     	new JsonResponse([TRUE], 204);
     }
 	
