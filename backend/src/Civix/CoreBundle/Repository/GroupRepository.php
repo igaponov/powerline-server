@@ -11,6 +11,10 @@ use Symfony\Component\Security\Core\Util\SecureRandom;
 
 class GroupRepository extends EntityRepository
 {
+	/**
+	 * 
+	 * @param User $user
+	 */
     public function getGroupsByUser(User $user)
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder();
@@ -22,6 +26,10 @@ class GroupRepository extends EntityRepository
                 ->getResult();
     }
 
+    /**
+     * 
+     * @param User $user
+     */
     public function getUserGroupsByUser(User $user)
     {
         $qb = $this->getEntityManager()->createQueryBuilder();
@@ -37,6 +45,10 @@ class GroupRepository extends EntityRepository
         ;
     }
 
+    /**
+     * 
+     * @param User $user
+     */
     public function getPopularGroupsByUser(User $user)
     {
         $groupOfUserIds = $user->getGroupsIds();
@@ -63,6 +75,13 @@ class GroupRepository extends EntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * Fetch the groups of common type from 7 days ago to the current
+     * moment and check if the current user belongs in each groups
+     * for display as groups news results.
+     * 
+     * @param User $user
+     */
     public function getNewGroupsByUser(User $user)
     {
         $groupOfUserIds = $user->getGroupsIds();
@@ -91,6 +110,11 @@ class GroupRepository extends EntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * 
+     * @param unknown $type
+     * @param string $order
+     */
     public function getQueryGroupOrderedById($type = Group::GROUP_TYPE_COMMON, $order = 'DESC')
     {
         return $this->createQueryBuilder('g')
@@ -99,6 +123,10 @@ class GroupRepository extends EntityRepository
                 ->orderBy('g.id', $order);
     }
 
+    /**
+     * 
+     * @param Group $countryGroup
+     */
     public function getQueryCountryGroupChildren(Group $countryGroup)
     {
         return $this->createQueryBuilder('g')
@@ -107,6 +135,10 @@ class GroupRepository extends EntityRepository
         ;
     }
 
+    /**
+     * 
+     * @param Group $group
+     */
     public function removeGroup(Group $group)
     {
         $this->getEntityManager()
@@ -139,6 +171,11 @@ class GroupRepository extends EntityRepository
             ->execute();
     }
 
+    /**
+     * 
+     * @param Group $group
+     * @return unknown
+     */
     public function getTotalMembers(Group $group)
     {
         $count = $this->getEntityManager()
@@ -156,6 +193,11 @@ class GroupRepository extends EntityRepository
         return $count;
     }
 
+    /**
+     * 
+     * @param unknown $id
+     * @param unknown $type
+     */
     public function getGroupByIdAndType($id, $type = Group::GROUP_TYPE_COMMON)
     {
         return $this->findOneBy(array(
@@ -164,6 +206,10 @@ class GroupRepository extends EntityRepository
         ));
     }
 
+    /**
+     * 
+     * @param unknown $state
+     */
     public function getLocalGroupsByState($state)
     {
         return $this->createQueryBuilder('g')
@@ -175,6 +221,11 @@ class GroupRepository extends EntityRepository
         ;
     }
 
+    /**
+     * 
+     * @param unknown $id
+     * @param unknown $representativeId
+     */
     public function getLocalGroupForRepr($id, $representativeId)
     {
         return $this->createQueryBuilder('gr')
@@ -191,6 +242,9 @@ class GroupRepository extends EntityRepository
             ->getOneOrNullResult();
     }
 
+    /**
+     * 
+     */
     public function cleanIncorrectLocalGroup()
     {
         return $this->getEntityManager()
@@ -200,6 +254,11 @@ class GroupRepository extends EntityRepository
             ->execute();
     }
 
+    /**
+     * 
+     * @param unknown $query
+     * @param User $user
+     */
     public function findByQuery($query, User $user)
     {
         $qb = $this->createQueryBuilder('g');
@@ -212,6 +271,9 @@ class GroupRepository extends EntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * 
+     */
     public function cleanCommonGroups()
     {
         return $this->getEntityManager()
@@ -221,6 +283,10 @@ class GroupRepository extends EntityRepository
             ->execute();
     }
 
+    /**
+     * 
+     * @param unknown $country
+     */
     public function findCountryGroup($country)
     {
         return $this->findOneBy([
@@ -229,6 +295,11 @@ class GroupRepository extends EntityRepository
         ]);
     }
 
+    /**
+     * 
+     * @param unknown $state
+     * @param Group $countryGroup
+     */
     public function findStateGroup($state, Group $countryGroup = null)
     {
         return $this->findOneBy([
@@ -238,6 +309,11 @@ class GroupRepository extends EntityRepository
         ]);
     }
 
+    /**
+     * 
+     * @param unknown $location
+     * @param Group $stateGroup
+     */
     public function findLocalGroup($location, Group $stateGroup = null)
     {
         return $this->findOneBy([
@@ -247,6 +323,11 @@ class GroupRepository extends EntityRepository
         ]);
     }
 
+    /**
+     * 
+     * @param AddressComponent $addressComponent
+     * @return \Civix\CoreBundle\Entity\Group
+     */
     public function getCountryGroup(AddressComponent $addressComponent)
     {
         $group = $this->findCountryGroup($addressComponent->getShortName());
@@ -270,6 +351,12 @@ class GroupRepository extends EntityRepository
         return $group;
     }
 
+    /**
+     * 
+     * @param AddressComponent $addressComponent
+     * @param Group $countryGroup
+     * @return \Civix\CoreBundle\Entity\Group
+     */
     public function getStateGroup(AddressComponent $addressComponent, Group $countryGroup = null)
     {
         $group = $this->findStateGroup($addressComponent->getShortName(), $countryGroup);
@@ -292,7 +379,12 @@ class GroupRepository extends EntityRepository
 
         return $group;
     }
-
+    
+    /**
+     * 
+     * @param AddressComponent $addressComponent
+     * @param Group $stateGroup
+     */
     public function getLocalGroup(AddressComponent $addressComponent, Group $stateGroup = null)
     {
         $group = $this->findLocalGroup($addressComponent->getShortName(), $stateGroup);
