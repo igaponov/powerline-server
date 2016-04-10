@@ -90,10 +90,10 @@ class GroupController extends BaseController
     	
     	if(!$group->isOwner($user))
     	{
-    		new JsonResponse(['error' => 'The user is not owner of the group'], 404);
+    		return new JsonResponse(['error' => 'The user is not owner of the group'], 404);
     	}
 
-    	new JsonResponse([TRUE], 204);
+    	return new JsonResponse([TRUE], 204);
     }
     
     /**
@@ -163,15 +163,15 @@ class GroupController extends BaseController
     	// Group owner is group member as default
     	if($group->isOwner($user))
     	{
-    		new JsonResponse([TRUE], 204);
+    		return new JsonResponse([TRUE], 204);
     	}
     	
     	if(!$group->isMember($user))
     	{
-    		new JsonResponse(['error' => 'The user is not member of the group'], 404);
+    		return new JsonResponse(['error' => 'The user is not member of the group'], 404);
     	}
     
-    	new JsonResponse([TRUE], 204);
+    	return new JsonResponse([TRUE], 204);
     }
 
     /**
@@ -241,15 +241,15 @@ class GroupController extends BaseController
     	// By definition, a group manager MUST BE a group member too.
    		if(!$group->isMember($user))
     	{
-    		new JsonResponse(['error' => 'The user is not member of the group'], 404);
+    		return new JsonResponse(['error' => 'The user is not member of the group'], 404);
     	}
     	
     	if(!$group->isManager($user))
     	{
-    		new JsonResponse(['error' => 'The user is not group manager of this group'], 404);
+    		return new JsonResponse(['error' => 'The user is not group manager of this group'], 404);
     	}
     
-    	new JsonResponse([TRUE], 204);
+    	return new JsonResponse([TRUE], 204);
     }
     
 	/**
@@ -530,12 +530,12 @@ class GroupController extends BaseController
     	
     	if(!$group->isMember($user))
     	{
-    		new JsonResponse(['error' => 'The user is not member of the group'], 404);
+    		return new JsonResponse(['error' => 'The user is not member of the group'], 404);
     	}
     	
     	if(!$group->isManager($user))
     	{
-    		new JsonResponse(['error' => 'The user is already group manager of this group'], 404);
+    		return new JsonResponse(['error' => 'The user is already group manager of this group'], 404);
     	}
     	
     	// Create the new relation for group and user as manager
@@ -549,7 +549,7 @@ class GroupController extends BaseController
     	$entityManager->persist($group);
     	$entityManager->flush();
     	
-    	new JsonResponse([], 204);
+    	return new JsonResponse([], 204);
     }
     
     /**
