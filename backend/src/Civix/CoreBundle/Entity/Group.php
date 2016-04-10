@@ -1256,7 +1256,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      */
     public function isOwner(User $user)
     {
-    	return $this->getOwner()->getId() === $user->getId();
+    	return !empty($this->getOwner()) && $this->getOwner()->getId() === $user->getId();
     }
     
     /**
