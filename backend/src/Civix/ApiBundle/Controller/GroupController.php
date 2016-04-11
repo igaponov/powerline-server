@@ -5,6 +5,7 @@ namespace Civix\ApiBundle\Controller;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
+use Civix\CoreBundle\Entity\UserGroupManager;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
 use JMS\Serializer\Exception\RuntimeException;
@@ -14,6 +15,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -25,6 +27,232 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class GroupController extends BaseController
 {
     /**
+     * Checks if the current user is group owner for a group given
+     *
+     *     curl -i -X GET -G 'http://domain.com/api/groups/is-owner/{id}' -d ''
+     *
+     * **Input Parameters**
+     *
+     *     id: the group identifier
+     *
+     * **Output Format**
+     *
+     * If successful:
+     *
+     *     {"true"}
+     *
+     * If error:
+     *
+     *     ["error","some error message"]
+     *
+     * @ApiDoc(
+     * 	   https = true,
+     *     authentication = false,
+     *     resource=true,
+     *     section="Group",
+     *     description="Checks if the current user is group owner for a group given",
+     *     views = { "default"},
+     *     output = "",
+     *     requirements={
+	 *     },
+     *     tags={
+	 *         "stable" = "#89BF04",
+	 *         "GET" = "#0f6ab4",
+	 *         "owner group",
+	 *     },
+     *     filters={
+     *     },
+     *     parameters={
+	 *     },
+     *     input = {
+	 *   	"class" = "",
+	 *	    "options" = {"method" = "GET"},
+	 *	   },
+     *     statusCodes={
+     *          200="Returned when successful",
+     *          400="Returned when incorrect login or password",
+     *          405="Method Not Allowed"
+     *     }
+     * )
+     * 
+     * @Route("/is-owner/{id}", name="civix_api_groups_is_owner")
+     * @Method("GET")
+     * @ParamConverter(
+     *      "group",
+     *      class="CivixCoreBundle:Group",
+     *      options={"repository_method" = "getGroupByIdAndType"}
+     * )
+     */
+    public function isGroupOwnerAction(Request $request, Group $group)
+    {
+    	/** @var $user User */
+    	$user = $this->getUser();
+    	
+    	if(!$group->isOwner($user))
+    	{
+    		return new JsonResponse(['error' => 'The user is not owner of the group'], 404);
+    	}
+
+    	return new JsonResponse([TRUE], 204);
+    }
+    
+    /**
+     * Checks if the current user is group member for a group given.
+     * 
+     * Note that a group owner is a group member as default definition.
+     *
+     *     curl -i -X GET -G 'http://domain.com/api/groups/is-member/{id}' -d ''
+     *
+     * **Input Parameters**
+     *
+     *     id: the group identifier
+     *
+     * **Output Format**
+     *
+     * If successful:
+     *
+     *     {"true"}
+     *
+     * If error:
+     *
+     *     ["error","some error message"]
+     *
+     * @ApiDoc(
+     * 	   https = true,
+     *     authentication = false,
+     *     resource=true,
+     *     section="Group",
+     *     description="Checks if the current user is group member for a group given.",
+     *     views = { "default"},
+     *     output = "",
+     *     requirements={
+     *     },
+     *     tags={
+     *         "stable" = "#89BF04",
+     *         "GET" = "#0f6ab4",
+     *         "member group",
+     *     },
+     *     filters={
+     *     },
+     *     parameters={
+     *     },
+     *     input = {
+     *   	"class" = "",
+     *	    "options" = {"method" = "GET"},
+     *	   },
+     *     statusCodes={
+     *          200="Returned when successful",
+     *          400="Returned when incorrect login or password",
+     *          405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @Route("/is-member/{id}", name="civix_api_groups_is_member")
+     * @Method("GET")
+     * @ParamConverter(
+     *      "group",
+     *      class="CivixCoreBundle:Group",
+     *      options={"repository_method" = "getGroupByIdAndType"}
+     * )
+     */
+    public function isGroupMemberAction(Request $request, Group $group)
+    {
+    	/** @var $user User */
+    	$user = $this->getUser();
+    	 
+    	// Group owner is group member as default
+    	if($group->isOwner($user))
+    	{
+    		return new JsonResponse([TRUE], 204);
+    	}
+    	
+    	if(!$group->isMember($user))
+    	{
+    		return new JsonResponse(['error' => 'The user is not member of the group'], 404);
+    	}
+    
+    	return new JsonResponse([TRUE], 204);
+    }
+
+    /**
+     * Checks if the current user is group manager for a group given.
+     * 
+     * By definition, a group manager MUST BE a group member too.
+     *
+     *     curl -i -X GET -G 'http://domain.com/api/groups/is-manager/{id}' -d ''
+     *
+     * **Input Parameters**
+     *
+     *     id: the group identifier
+     *
+     * **Output Format**
+     *
+     * If successful:
+     *
+     *     {"true"}
+     *
+     * If error:
+     *
+     *     ["error","some error message"]
+     *
+     * @ApiDoc(
+     * 	   https = true,
+     *     authentication = false,
+     *     resource=true,
+     *     section="Group",
+     *     description="Checks if the current user is group manager for a group given.",
+     *     views = { "default"},
+     *     output = "",
+     *     requirements={
+     *     },
+     *     tags={
+     *         "stable" = "#89BF04",
+     *         "GET" = "#0f6ab4",
+     *         "manager group",
+     *     },
+     *     filters={
+     *     },
+     *     parameters={
+     *     },
+     *     input = {
+     *   	"class" = "",
+     *	    "options" = {"method" = "GET"},
+     *	   },
+     *     statusCodes={
+     *          200="Returned when successful",
+     *          400="Returned when incorrect login or password",
+     *          405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @Route("/is-manager/{id}", name="civix_api_groups_is_manager")
+     * @Method("GET")
+     * @ParamConverter(
+     *      "group",
+     *      class="CivixCoreBundle:Group",
+     *      options={"repository_method" = "getGroupByIdAndType"}
+     * )
+     */
+    public function isGroupManagerAction(Request $request, Group $group)
+    {
+    	/** @var $user User */
+    	$user = $this->getUser();
+    
+    	// By definition, a group manager MUST BE a group member too.
+   		if(!$group->isMember($user))
+    	{
+    		return new JsonResponse(['error' => 'The user is not member of the group'], 404);
+    	}
+    	
+    	if(!$group->isManager($user))
+    	{
+    		return new JsonResponse(['error' => 'The user is not group manager of this group'], 404);
+    	}
+    
+    	return new JsonResponse([TRUE], 204);
+    }
+    
+	/**
      * @Route("/", name="civix_api_groups_by_user")
      * @Method("GET")
      */
@@ -108,7 +336,55 @@ class GroupController extends BaseController
     }
 
     /**
-     * @Route("/popular", name="civix_api_groups_popular_groups")
+     * Fetch the groups more popular for the current user
+     *
+     *     curl -i -X POST -G 'http://domain.com/api/groups/user-groups/' -d ''
+     *
+     * **Input Parameters**
+     *
+     *     None
+     *
+     * **Output Format**
+     *
+     * If successful:
+     *
+     *     {""}
+     *
+     * If error:
+     *
+     *     ["error","some error message"]
+     *
+     * @ApiDoc(
+     * 	   https = true,
+     *     authentication = false,
+     *     resource=true,
+     *     section="Group",
+     *     description="Fetch the groups more popular for the current user",
+     *     views = { "default"},
+     *     output = "",
+     *     requirements={
+     *     },
+     *     tags={
+     *         "stable" = "#89BF04",
+     *         "GET" = "#0f6ab4",
+     *         "popular groups",
+     *     },
+     *     filters={
+     *     },
+     *     parameters={
+     *     },
+     *     input = {
+     *   	"class" = "",
+     *	    "options" = {"method" = "GET"},
+     *	   },
+     *     statusCodes={
+     *          200="Returned when successful",
+     *          400="Returned when incorrect login or password",
+     *          405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @Route("/user-groups/", name="civix_api_groups_by_user2")
      * @Method("GET")
      */
     public function getPopularGroupsAction()
@@ -125,6 +401,54 @@ class GroupController extends BaseController
     }
 
     /**
+     * Fetch the groups with news for the current user
+     *
+     *     curl -i -X POST -G 'http://domain.com/api/groups/new' -d ''
+     *
+     * **Input Parameters**
+     *
+     *     None
+     *
+     * **Output Format**
+     *
+     * If successful:
+     *
+     *     {""}
+     *
+     * If error:
+     *
+     *     ["error","some error message"]
+     *
+     * @ApiDoc(
+     * 	   https = true,
+     *     authentication = false,
+     *     resource=true,
+     *     section="Group",
+     *     description="Fetch the groups with news for the current user",
+     *     views = { "default"},
+     *     output = "",
+     *     requirements={
+     *     },
+     *     tags={
+     *         "stable" = "#89BF04",
+     *         "GET" = "#0f6ab4",
+     *         "new group",
+     *     },
+     *     filters={
+     *     },
+     *     parameters={
+     *     },
+     *     input = {
+     *   	"class" = "",
+     *	    "options" = {"method" = "GET"},
+     *	   },
+     *     statusCodes={
+     *          200="Returned when successful",
+     *          400="Returned when incorrect login or password",
+     *          405="Method Not Allowed"
+     *     }
+     * )
+     *
      * @Route("/new", name="civix_api_groups_new_groups")
      * @Method("GET")
      */
@@ -141,6 +465,93 @@ class GroupController extends BaseController
         return $response;
     }
 
+    /**
+     * Join a group member as group manager for a group
+     *
+     *     curl -i -X POST -G 'http://domain.com/api/groups/join-group-manager/{id}' -d ''
+     *
+     * **Input Parameters**
+     *
+     *     id: the group identifier
+     *
+     * **Output Format**
+     *
+     * If successful:
+     *
+     *     {""}
+     *
+     * If error:
+     *
+     *     ["error","some error message"]
+     *
+     * @ApiDoc(
+     * 	   https = true,
+     *     authentication = false,
+     *     resource=true,
+     *     section="Group",
+     *     description="oin a group member as group manager for a group",
+     *     views = { "default"},
+     *     output = "",
+     *     requirements={
+	 *     },
+     *     tags={
+	 *         "stable" = "#89BF04",
+	 *         "POST" = "#10a54a",
+	 *         "join group manager",
+	 *     },
+     *     filters={
+     *     },
+     *     parameters={
+	 *     },
+     *     input = {
+	 *   	"class" = "",
+	 *	    "options" = {"method" = "POST"},
+	 *	   },
+     *     statusCodes={
+     *          200="Returned when successful",
+     *          400="Returned when incorrect login or password",
+     *          405="Method Not Allowed"
+     *     }
+     * )
+     * 
+     * @Route("/join-group-manager/{id}", name="civix_api_groups_join_group_manager")
+     * @Method("POST")
+     * @ParamConverter(
+     *      "group",
+     *      class="CivixCoreBundle:Group",
+     *      options={"repository_method" = "getGroupByIdAndType"}
+     * )
+     */
+    public function joinToGroupAsGroupManagerAction(Request $request, Group $group)
+    {
+    	$entityManager = $this->getDoctrine()->getManager();
+    	/** @var $user User */
+    	$user = $this->getUser();
+    	
+    	if(!$group->isMember($user))
+    	{
+    		return new JsonResponse(['error' => 'The user is not member of the group'], 404);
+    	}
+    	
+    	if(!$group->isManager($user))
+    	{
+    		return new JsonResponse(['error' => 'The user is already group manager of this group'], 404);
+    	}
+    	
+    	// Create the new relation for group and user as manager
+    	$user_group_manager = new UserGroupManager($user, $group);
+    	$entityManager->persist($user_group_manager);
+    	$entityManager->flush();
+    	
+    	// Add the relation in the group object
+    	$group->addManagerUser($user_group_manager);
+    	
+    	$entityManager->persist($group);
+    	$entityManager->flush();
+    	
+    	return new JsonResponse([], 204);
+    }
+    
     /**
      * @Route("/join/{id}", name="civix_api_groups_join")
      * @Method("POST")
@@ -242,7 +653,7 @@ class GroupController extends BaseController
     }
 
     /**
-     * @Route("/join/{id}", name="civix_api_groups_unjoin")
+     * @Route("/unjoin/{id}", name="civix_api_groups_unjoin")
      * @Method("DELETE")
      * @ParamConverter(
      *      "group",

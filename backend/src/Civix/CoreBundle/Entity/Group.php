@@ -292,9 +292,18 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     private $joined;
 
     /**
+     * Group members
+     * 
      * @ORM\OneToMany(targetEntity="UserGroup", mappedBy="group")
      */
     private $users;
+    
+    /**
+     * Group managers (that are group members too)
+     *
+     * @ORM\OneToMany(targetEntity="UserGroupManager", mappedBy="group")
+     */
+    private $managers;
 
     /**
      * @ORM\ManyToMany(targetEntity="User", mappedBy="invites")
@@ -511,7 +520,8 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     public function init()
     {
         $this->salt = base_convert(sha1(uniqid(mt_rand(), true)), 16, 36);
-        $this->users = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->users = new \Doctrine\Common\Collections\ArrayCollection(); // Group members
+        $this->managers = new \Doctrine\Common\Collections\ArrayCollection(); // Group managers (that are group members too)
         $this->invites = new \Doctrine\Common\Collections\ArrayCollection();
         $this->localRepresentatives = new \Doctrine\Common\Collections\ArrayCollection();
         $this->fields = new \Doctrine\Common\Collections\ArrayCollection();
@@ -1125,6 +1135,26 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     {
         return $user->getGroups()->contains($this) ? 1 : 0;
     }
+    
+    /**
+     * Checks if a user belongs as group member to the current group
+     *
+     * @return boolean
+     */
+    public function isMember(User $user)
+    {
+    	return $this->getUsers()->contains($user);
+    }
+    
+    /**
+     * Checks if a user belongs as group manager to the current group
+     *
+     * @return boolean
+     */
+    public function isManager(User $user)
+    {
+    	return $this->getManagers()->contains($user);
+    }
 
     public function getPicture()
     {
@@ -1176,7 +1206,59 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
             $this->users->toArray()
         ));
     }
+    
+    /**
+     * Add group manager users.
+     *
+     * @param \Civix\CoreBundle\Entity\UserGroupManager $manager
+     *
+     * @return Group
+     */
+    public function addManager(UserGroupManager $manager)
+    {
+    	$this->managers[] = $manager;
+    
+    	return $this;
+    }
+    
+    /**
+     * Remove group manager users.
+     *
+     * @param \Civix\CoreBundle\Entity\UserGroupManager $manager
+     */
+    public function removeManager(UserGroupManager $manager)
+    {
+    	$this->managers->removeElement($manager);
+    }
+    
+    /**
+     * Get users.
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getManagers()
+    {
+    	return new ArrayCollection(array_map(
+    			function ($usergroupmanager) {
+    				return $usergroupmanager->getUser();
+    			},
+    			$this->managers->toArray()
+    			));
+    }
 
+    /**
+     * Check if a User give is really the group owner for a 
+     * group
+     * 
+     * @param User $user
+     * 
+     * @return boolean
+     */
+    public function isOwner(User $user)
+    {
+    	return !empty($this->getOwner()) && $this->getOwner()->getId() === $user->getId();
+    }
+    
     /**
      * @return mixed
      */
