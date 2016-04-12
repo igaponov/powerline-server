@@ -61,7 +61,7 @@ class GroupController extends Controller
                 $entityManager->flush();
 
                 $event = new GroupEvent($group);
-                $this->get('event_dispatcher')->dispatch(GroupEvents::CREATED, $event);
+                $this->get('event_dispatcher')->dispatch(GroupEvents::REGISTERED, $event);
 
                 //send notification
                 $this->get('civix_core.email_sender')

@@ -2,8 +2,10 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\CoreBundle\Entity\Group\GroupField;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\UserInterface as SymfonyUserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -25,11 +27,11 @@ use Civix\CoreBundle\Serializer\Type\JoinStatus;
  * })
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\GroupRepository")
  * @ORM\HasLifecycleCallbacks()
- * @UniqueEntity(fields={"username","officialName"}, groups={"registration", "user-registration"})
+ * @UniqueEntity(fields={"username","officialName"}, groups={"registration", "user-registration", "api-registration"})
  * @Vich\Uploadable
  * @Serializer\ExclusionPolicy("all")
  */
-class Group implements UserInterface, EquatableInterface, \Serializable, CheckingLimits, CropAvatarInterface
+class Group implements UserInterface, EquatableInterface, \Serializable, CheckingLimits, CropAvatarInterface, PasswordEncodeInterface
 {
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_group.png';
 
@@ -88,9 +90,9 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
 
     /**
      * @ORM\Column(name="username", type="string", length=255, unique=true)
-     * @Assert\NotBlank(groups={"registration", "user-registration"})
+     * @Assert\NotBlank(groups={"registration", "user-registration", "api-registration"})
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-create-by-user", "api-groups"})
+     * @Serializer\Groups({"api-create-by-user", "api-groups", "api-group"})
      *
      * @var string
      */
@@ -136,7 +138,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      *      {"api-activities", "api-poll","api-groups", "api-info", "api-search",
      *      "api-petitions-list", "api-petitions-info", "api-invites", "api-poll-public"}
      * )
-     * @Serializer\Type("Avatar")
+     * @Serializer\Type("Civix\CoreBundle\Serializer\Type\Avatar")
      * @Serializer\Accessor(getter="getAvatarSrc")
      *
      * @var string
@@ -172,7 +174,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      *
      * @ORM\Column(name="manager_first_name", type="string", length=255, nullable=true)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-create-by-user"})
+     * @Serializer\Groups({"api-create-by-user", "api-group"})
      */
     private $managerFirstName;
 
@@ -181,7 +183,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      *
      * @ORM\Column(name="manager_last_name", type="string", length=255, nullable=true)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-create-by-user"})
+     * @Serializer\Groups({"api-create-by-user", "api-group"})
      */
     private $managerLastName;
 
@@ -189,10 +191,10 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      * @var string
      *
      * @ORM\Column(name="manager_email", type="string", length=255, nullable=true)
-     * @Assert\Email(groups={"registration"})
-     * @Assert\NotBlank(groups={"registration"})
+     * @Assert\Email(groups={"registration", "api-registration"})
+     * @Assert\NotBlank(groups={"registration", "api-registration"})
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-create-by-user"})
+     * @Serializer\Groups({"api-create-by-user", "api-group"})
      */
     private $managerEmail;
 
@@ -201,7 +203,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      *
      * @ORM\Column(name="manager_phone", type="string", length=255, nullable=true)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-info", "api-create-by-user"})
+     * @Serializer\Groups({"api-info", "api-create-by-user", "api-group"})
      */
     private $managerPhone;
 
@@ -209,11 +211,11 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      * @var string
      *
      * @ORM\Column(name="official_name", type="string", length=255, nullable=true, unique=true)
-     * @Assert\NotBlank(groups={"registration", "user-registration"})
+     * @Assert\NotBlank(groups={"registration", "user-registration", "api-registration"})
      * @Serializer\Expose()
      * @Serializer\Groups(
      *      {"api-activities", "api-poll","api-groups", "api-info", "api-search", "api-create-by-user",
-     *      "api-petitions-list", "api-petitions-info", "api-invites", "api-poll-public"}
+     *      "api-petitions-list", "api-petitions-info", "api-invites", "api-poll-public", "api-group"}
      * )
      * @Serializer\SerializedName("official_title")
      */
@@ -224,7 +226,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      *
      * @ORM\Column(name="official_description", type="string", length=255, nullable=true)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-info", "api-create-by-user"})
+     * @Serializer\Groups({"api-info", "api-create-by-user", "api-group"})
      */
     private $officialDescription;
 
@@ -232,9 +234,9 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      * @var string
      *
      * @ORM\Column(name="acronym", type="string", length=4, nullable=true)
-     * @Assert\Length(min = 2, max = 4, groups={"registration", "profile"})
+     * @Assert\Length(min = 2, max = 4, groups={"registration", "profile", "api-registration"})
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-info", "api-groups", "api-poll-public", "api-create-by-user"})
+     * @Serializer\Groups({"api-info", "api-groups", "api-poll-public", "api-create-by-user", "api-group"})
      * @Serializer\Accessor(getter="getAcronym")
      */
     private $acronym;
@@ -245,7 +247,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      * @ORM\Column(name="official_type", type="string", length=255, nullable=true)
      * @Assert\NotBlank(groups={"user-registration"})
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-create-by-user"})
+     * @Serializer\Groups({"api-create-by-user", "api-group"})
      */
     private $officialType;
 
@@ -254,7 +256,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      *
      * @ORM\Column(name="official_address", type="string", length=255, nullable=true)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-info", "api-create-by-user"})
+     * @Serializer\Groups({"api-info", "api-create-by-user", "api-group"})
      */
     private $officialAddress;
 
@@ -263,7 +265,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      *
      * @ORM\Column(name="official_city", type="string", length=255, nullable=true)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-info", "api-create-by-user"})
+     * @Serializer\Groups({"api-info", "api-create-by-user", "api-group"})
      */
     private $officialCity;
 
@@ -272,19 +274,18 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      *
      * @ORM\Column(name="official_state", type="string", length=255, nullable=true)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-info", "api-create-by-user"})
+     * @Serializer\Groups({"api-info", "api-create-by-user", "api-group"})
      */
     private $officialState;
 
     /**
-     * @RecaptchaAssert\True(groups={"registration"})
      */
     private $recaptcha;
 
     /**
      * @Serializer\Expose()
      * @Serializer\Groups({"api-groups", "api-info"})
-     * @Serializer\Type("JoinStatus")
+     * @Serializer\Type("Civix\CoreBundle\Serializer\Type\JoinStatus")
      * @Serializer\Accessor(getter="getJoinStatus")
      *
      * @var int
@@ -512,21 +513,37 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      */
     private $transparency;
 
-    public function __construct()
+    /**
+     * @var string
+     * @Assert\NotBlank(groups={"api-registration"})
+     */
+    private $plainPassword;
+
+    /**
+     * @return array
+     */
+    public static function getOfficialTypes()
     {
-        $this->init();
+        return [
+            'Educational' => 'Educational',
+            'Non-Profit (Not Campaign)' => 'Non-Profit (Not Campaign)',
+            'Non-Profit (Campaign)' => 'Non-Profit (Campaign)',
+            'Business' => 'Business',
+            'Cooperative/Union' => 'Cooperative/Union',
+            'Other' => 'Other',
+        ];
     }
 
-    public function init()
+    public function __construct()
     {
         $this->salt = base_convert(sha1(uniqid(mt_rand(), true)), 16, 36);
-        $this->users = new \Doctrine\Common\Collections\ArrayCollection(); // Group members
-        $this->managers = new \Doctrine\Common\Collections\ArrayCollection(); // Group managers (that are group members too)
-        $this->invites = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->localRepresentatives = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->fields = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->groupSections = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->children = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->users = new ArrayCollection();
+        $this->managers = new ArrayCollection();
+        $this->invites = new ArrayCollection();
+        $this->localRepresentatives = new ArrayCollection();
+        $this->fields = new ArrayCollection();
+        $this->groupSections = new ArrayCollection();
+        $this->children = new ArrayCollection();
         $this->groupType = self::GROUP_TYPE_COMMON;
         $this->membershipControl = self::GROUP_MEMBERSHIP_PUBLIC;
         $this->petitionPerMonth = self::COUNT_PETITION_PER_MONTH;
@@ -536,11 +553,11 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * Add invite.
      *
-     * @param \Civix\CoreBundle\Entity\User $user
+     * @param User $user
      *
      * @return Group
      */
-    public function addInvite(\Civix\CoreBundle\Entity\User $user)
+    public function addInvite(User $user)
     {
         $this->invites[] = $user;
 
@@ -550,9 +567,9 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * Remove invite.
      *
-     * @param \Civix\CoreBundle\Entity\User $user
+     * @param User $user
      */
-    public function removeInvite(\Civix\CoreBundle\Entity\User $user)
+    public function removeInvite(User $user)
     {
         $this->invites->removeElement($user);
     }
@@ -580,7 +597,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * Get avatarSrc.
      *
-     * @return \Civix\CoreBundle\Model\Avatar
+     * @return Avatar
      */
     public function getAvatarSrc()
     {
@@ -994,7 +1011,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * Set avatar.
      *
-     * @param string $avatar
+     * @param UploadedFile $avatar
      *
      * @return Group
      */
@@ -1129,6 +1146,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * Get Join status.
      *
+     * @param User $user
      * @return int
      */
     public function getJoined(User $user)
@@ -1171,7 +1189,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * Add users.
      *
-     * @param \Civix\CoreBundle\Entity\UserGroup $users
+     * @param UserGroup $user
      *
      * @return Group
      */
@@ -1185,7 +1203,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * Remove users.
      *
-     * @param \Civix\CoreBundle\Entity\User $user
+     * @param UserGroup $user
      */
     public function removeUser(UserGroup $user)
     {
@@ -1200,7 +1218,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     public function getUsers()
     {
         return new ArrayCollection(array_map(
-            function ($usergroup) {
+            function (UserGroup $usergroup) {
                 return $usergroup->getUser();
             },
             $this->users->toArray()
@@ -1324,7 +1342,8 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * Set limit of question.
      *
-     * @return \Civix\CoreBundle\Entity\Group
+     * @param int $limit
+     * @return Group
      */
     public function setQuestionLimit($limit)
     {
@@ -1347,7 +1366,8 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * Set petition's percent.
      *
-     * @return \Civix\CoreBundle\Entity\Group
+     * @param $percent
+     * @return Group
      */
     public function setPetitionPercent($percent)
     {
@@ -1370,7 +1390,8 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * Set petition's duration.
      *
-     * @return \Civix\CoreBundle\Entity\Group
+     * @param $duration
+     * @return Group
      */
     public function setPetitionDuration($duration)
     {
@@ -1394,11 +1415,11 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * Set localState.
      *
-     * @param \Civix\CoreBundle\Entity\State $localState
+     * @param State $localState
      *
      * @return Group
      */
-    public function setLocalState(\Civix\CoreBundle\Entity\State $localState = null)
+    public function setLocalState(State $localState = null)
     {
         $this->localState = $localState;
 
@@ -1408,7 +1429,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * Get localState.
      *
-     * @return \Civix\CoreBundle\Entity\State
+     * @return State
      */
     public function getLocalState()
     {
@@ -1428,11 +1449,11 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * Add localRepresentatives.
      *
-     * @param \Civix\CoreBundle\Entity\Representative $localRepresentatives
+     * @param Representative $localRepresentative
      *
      * @return Group
      */
-    public function addLocalRepresentative(\Civix\CoreBundle\Entity\Representative $localRepresentative)
+    public function addLocalRepresentative(Representative $localRepresentative)
     {
         $localRepresentative->setLocalGroup($this);
         $this->localRepresentatives[] = $localRepresentative;
@@ -1443,9 +1464,9 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * Remove localRepresentatives.
      *
-     * @param \Civix\CoreBundle\Entity\Representative $localRepresentatives
+     * @param Representative $localRepresentative
      */
-    public function removeLocalRepresentative(\Civix\CoreBundle\Entity\Representative $localRepresentative)
+    public function removeLocalRepresentative(Representative $localRepresentative)
     {
         $localRepresentative->setLocalGroup(null);
         $this->localRepresentatives->removeElement($localRepresentative);
@@ -1464,11 +1485,11 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * Set localDistrict.
      *
-     * @param \Civix\CoreBundle\Entity\District $localDistrict
+     * @param District $localDistrict
      *
      * @return Group
      */
-    public function setLocalDistrict(\Civix\CoreBundle\Entity\District $localDistrict = null)
+    public function setLocalDistrict(District $localDistrict = null)
     {
         $this->localDistrict = $localDistrict;
 
@@ -1478,7 +1499,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * Get localDistrict.
      *
-     * @return \Civix\CoreBundle\Entity\District
+     * @return District
      */
     public function getLocalDistrict()
     {
@@ -1536,11 +1557,11 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * Add fields.
      *
-     * @param \Civix\CoreBundle\Entity\Group\GroupField $fields
+     * @param Group\GroupField $fields
      *
      * @return Group
      */
-    public function addField(\Civix\CoreBundle\Entity\Group\GroupField $fields)
+    public function addField(Group\GroupField $fields)
     {
         $this->fields[] = $fields;
 
@@ -1550,9 +1571,9 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * Remove fields.
      *
-     * @param \Civix\CoreBundle\Entity\Group\GroupField $fields
+     * @param Group\GroupField $fields
      */
-    public function removeField(\Civix\CoreBundle\Entity\Group\GroupField $fields)
+    public function removeField(Group\GroupField $fields)
     {
         $this->fields->removeElement($fields);
     }
@@ -1602,7 +1623,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
 
     public function getFieldsIds()
     {
-        return $this->fields->count() > 0 ? $this->fields->map(function ($groupField) {
+        return $this->fields->count() > 0 ? $this->fields->map(function (GroupField $groupField) {
                 return $groupField->getId();
         })->toArray() : false;
     }
@@ -1660,6 +1681,8 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
         if (self::GROUP_TYPE_COUNTRY === $this->getGroupType() || self::GROUP_TYPE_STATE === $this->getGroupType()) {
             return $this->getLocationName();
         }
+        
+        return null;
     }
 
     public function getAddressArray()
@@ -1868,5 +1891,24 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     public function getTransparency()
     {
         return $this->transparency;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlainPassword()
+    {
+        return $this->plainPassword;
+    }
+
+    /**
+     * @param string $plainPassword
+     * @return Group
+     */
+    public function setPlainPassword($plainPassword)
+    {
+        $this->plainPassword = $plainPassword;
+
+        return $this;
     }
 }

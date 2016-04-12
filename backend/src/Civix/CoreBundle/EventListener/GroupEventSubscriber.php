@@ -42,7 +42,7 @@ class GroupEventSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            GroupEvents::CREATED => 'onCreated',
+            GroupEvents::REGISTERED => 'onCreated',
             GroupEvents::USER_JOINED => 'onUserJoined',
             GroupEvents::USER_BEFORE_UNJOIN => 'onUserBeforeUnjoin',
             GroupEvents::BEFORE_DELETE => 'onBeforeDelete',

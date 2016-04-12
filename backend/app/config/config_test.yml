@@ -33,3 +33,7 @@ parameters:
     ciceroapi_class: Civix\CoreBundle\Tests\Mock\Service\CiceroCalls
     old_sound_rabbit_mq.producer.class: Civix\CoreBundle\Tests\Mock\RabbitMq\Producer
     old_sound_rabbit_mq.connection.class: Civix\CoreBundle\Tests\Mock\RabbitMq\AMQPConnection
+
+civix_core:
+    mailgun_client: mailgun.test_client
+    mailgun_public_client: mailgun.test_client

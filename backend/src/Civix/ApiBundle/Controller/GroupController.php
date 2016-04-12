@@ -304,14 +304,12 @@ class GroupController extends BaseController
         $em->flush();
 
         $event = new GroupEvent($group);
-        $this->get('event_dispatcher')->dispatch(GroupEvents::CREATED, $event);
+        $this->get('event_dispatcher')->dispatch(GroupEvents::REGISTERED, $event);
 
         $this->get('civix_core.group_manager')
             ->joinToGroup($this->getUser(), $group);
         $em->flush();
 
-        $this->get('civix_core.email_sender')
-            ->sendUserRegistrationSuccessGroup($group, $password);
         $em->getRepository(Group::class)
             ->getTotalMembers($group);
 

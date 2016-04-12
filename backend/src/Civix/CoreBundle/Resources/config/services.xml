@@ -34,16 +34,17 @@
         </service>
         <service id="civix_core.crop_image" class="Civix\CoreBundle\Service\CropImage">
         </service>
-        <service class="Mailgun\Mailgun" id="mailgun.client">
+        <service class="Mailgun\Mailgun" id="mailgun.basic_client" public="false">
             <argument>%mailgun_private%</argument>
             <argument>%mailgun_endpoint%</argument>
             <argument>v3</argument>
         </service>
-        <service class="Mailgun\Mailgun" id="mailgun.public_client">
+        <service class="Mailgun\Mailgun" id="mailgun.public_basic_client" public="false">
             <argument>%mailgun_public%</argument>
             <argument>%mailgun_endpoint%</argument>
             <argument>v3</argument>
         </service>
+        <service class="Mailgun\Tests\Mock\Mailgun" id="mailgun.test_client" public="false"/>
         <service id="civix_core.mailgun" class="Civix\CoreBundle\Service\Mailgun\MailgunApi">
             <argument type="service" id="mailgun.client" />
             <argument type="service" id="mailgun.public_client" />
@@ -371,6 +372,16 @@
         <service class="Civix\CoreBundle\EventListener\SocialActivityPushSenderListener" id="civix_core.event_listener.social_activity_push_sender_listener">
             <argument id="civix_core.push_task" type="service"/>
             <tag name="doctrine.event_listener" event="postPersist"/>
+        </service>
+
+        <service class="Civix\CoreBundle\EventListener\PasswordEncodeListener" id="civix_core.event_listener.password_encode_listener">
+            <argument id="security.encoder_factory.generic" type="service"/>
+            <tag name="doctrine.event_subscriber"/>
+        </service>
+
+        <service class="Civix\CoreBundle\EventListener\MailerEventListener" id="civix_core.event_listener.mailer_event_listener">
+            <argument id="civix_core.email_sender" type="service"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

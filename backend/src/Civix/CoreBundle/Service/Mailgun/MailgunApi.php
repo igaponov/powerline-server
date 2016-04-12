@@ -46,7 +46,8 @@ class MailgunApi
         $validationresponse = json_decode(json_encode($validation), true);
 
         if ($validationresponse['http_response_code'] == 200
-            && $validationresponse['http_response_body']['is_valid'] === false
+            && (isset($validationresponse['http_response_body']['is_valid'])
+            && $validationresponse['http_response_body']['is_valid'] === false)
         ) {
             return $validationresponse;
         }
@@ -120,7 +121,7 @@ class MailgunApi
 
         $decodedresult = $this->JsonResponse($result);
 
-        return (bool)$decodedresult['http_response_body']['total_count'];
+        return isset($decodedresult['http_response_body']['total_count']) && (bool)$decodedresult['http_response_body']['total_count'];
     }
 
     public function JsonResponse($result)
