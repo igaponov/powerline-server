@@ -2,6 +2,8 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\CoreBundle\Entity\Activities\MicroPetition;
+use Civix\CoreBundle\Entity\Activities\Petition;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
@@ -16,7 +18,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\ActivityRepository")
- * @ORM\Table(name="activities")
+ * @ORM\Table(name="activities", indexes={@ORM\Index(name="sent_at_idx", columns={"sent_at"})})
  * @InheritanceType("SINGLE_TABLE")
  * @DiscriminatorColumn(name="type", type="string")
  * @DiscriminatorMap({
@@ -206,6 +208,26 @@ abstract class Activity
      * @ORM\Column(name="deleted_at", type="datetime", nullable=true)
      */
     private $deletedAt;
+
+    /**
+     * @var ActivityRead
+     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\ActivityRead")
+     * @ORM\JoinColumn(name="id", referencedColumnName="activity_id")
+     */
+    private $activityRead;
+
+    /**
+     * @var Question
+     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\Poll\Question")
+     * @ORM\JoinColumn(name="question_id", referencedColumnName="id")
+     */
+    private $question;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Micropetitions\Petition", inversedBy="micropetitions")
+     * @var Micropetitions\Petition
+     */
+    protected $petition;
 
     public function __construct()
     {
@@ -701,6 +723,63 @@ abstract class Activity
     public function setDeletedAt($deletedAt)
     {
         $this->deletedAt = $deletedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return ActivityRead
+     */
+    public function getActivityRead()
+    {
+        return $this->activityRead;
+    }
+
+    /**
+     * @param ActivityRead $activityRead
+     * @return Activity
+     */
+    public function setActivityRead($activityRead)
+    {
+        $this->activityRead = $activityRead;
+
+        return $this;
+    }
+
+    /**
+     * @return Question
+     */
+    public function getQuestion()
+    {
+        return $this->question;
+    }
+
+    /**
+     * @param Question $question
+     * @return Activity
+     */
+    public function setQuestion($question)
+    {
+        $this->question = $question;
+
+        return $this;
+    }
+
+    /**
+     * @return Petition
+     */
+    public function getPetition()
+    {
+        return $this->petition;
+    }
+
+    /**
+     * @param Micropetitions\Petition $petition
+     * @return MicroPetition
+     */
+    public function setPetition(Micropetitions\Petition $petition)
+    {
+        $this->petition = $petition;
 
         return $this;
     }

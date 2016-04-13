@@ -86,9 +86,34 @@ class ActivityRepository extends EntityRepository
 
         $userFollowingIds = $user->getFollowingIds();
 
+        /** @var Activity[] $activities */
         $activities = $qb->select('act')
+            // 0 = Prioritized Zone (unread, unanswered)
+            // 2 = Expired Zone (expired)
+            // 1 = Non-Prioritized Zone (others)
+            ->addSelect('
+            (CASE WHEN 
+                (qa.id IS NULL AND pa.id IS NULL AND act NOT INSTANCE OF (
+                    Civix\CoreBundle\Entity\Activities\LeaderNews, 
+                    Civix\CoreBundle\Entity\Activities\Petition
+                ))
+                OR 
+                (act_r.id IS NULL AND act INSTANCE OF (
+                    Civix\CoreBundle\Entity\Activities\LeaderNews, 
+                    Civix\CoreBundle\Entity\Activities\Petition
+                ))
+            THEN 0
+            WHEN act.expireAt < CURRENT_TIMESTAMP()
+            THEN 2 
+            ELSE 1
+            END) AS HIDDEN zone')
             ->from('CivixCoreBundle:Activity', 'act')
             ->leftJoin('act.activityConditions', 'act_c')
+            ->leftJoin('act.activityRead', 'act_r')
+            ->leftJoin('act.question', 'q')
+            ->leftJoin('act.petition', 'p')
+            ->leftJoin('q.answers', 'qa')
+            ->leftJoin('p.answers', 'pa')
             ->where($expr->gt('act.sentAt', ':start'))
             ->andWhere(
                 $expr->orX(
@@ -106,19 +131,19 @@ class ActivityRepository extends EntityRepository
             ->setParameter('userGroupSectionIds', empty($sectionsIds) ? false : $sectionsIds)
             ->setParameter('user', $user)
             ->setParameter('start', $start->format('Y-m-d H:i:s'))
-            ->orderBy('act.sentAt', 'DESC')
+            ->orderBy('zone', 'ASC') // order by priority zone
+            ->addOrderBy('act.sentAt', 'DESC')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
+            ->groupBy('act.id')
             ->getQuery()->getResult();
 
-        // $this->getReadItems($user, $start, $activities);
-        $readItems = $this->getEntityManager()->getRepository(ActivityRead::class)->findLastIdsByUser($user, $start);
         foreach ($activities as $activity) {
-            if (in_array($activity->getId(), $readItems)) {
+            if ($activity->getActivityRead()) {
                 $activity->setRead(true);
             }
         }
-
+        
         return $activities;
     }
 

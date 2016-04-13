@@ -28,12 +28,6 @@ class MicroPetition extends Activity
      */
     protected $quorum;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Micropetitions\Petition", inversedBy="micropetitions")
-     * @var Micropetitions\Petition
-     */
-    protected $petition;
-
     public function setPetitionId($id)
     {
         $this->petitionId = $id;
@@ -44,25 +38,6 @@ class MicroPetition extends Activity
     public function getPetitionId()
     {
         return $this->petitionId;
-    }
-
-    /**
-     * @return Petition
-     */
-    public function getPetition()
-    {
-        return $this->petition;
-    }
-
-    /**
-     * @param Micropetitions\Petition $petition
-     * @return MicroPetition
-     */
-    public function setPetition(Micropetitions\Petition $petition)
-    {
-        $this->petition = $petition;
-
-        return $this;
     }
 
     /**
