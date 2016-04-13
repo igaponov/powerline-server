@@ -4,12 +4,15 @@ namespace Civix\CoreBundle\Entity\Subscription;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinColumn;
+use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Entity\UserInterface;
 use Civix\CoreBundle\Entity\Customer\Card;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(name="subscriptions")
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Subscription\SubscriptionRepository")
+ * @Serializer\ExclusionPolicy("ALL")
  */
 class Subscription
 {
@@ -39,6 +42,7 @@ class Subscription
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Serializer\Expose()
      */
     private $id;
 
@@ -62,6 +66,10 @@ class Subscription
      * @var int
      *
      * @ORM\Column(name="package_type", type="integer")
+     * @Assert\NotBlank()
+     * @Serializer\Expose()
+     * @Serializer\Type("string")
+     * @Serializer\Accessor(getter="getPackageTypeName")
      */
     private $packageType;
 
@@ -69,6 +77,7 @@ class Subscription
      * @var \DateTime
      *
      * @ORM\Column(name="expired_at", type="datetime")
+     * @Serializer\Expose()
      */
     private $expiredAt;
 
@@ -76,6 +85,7 @@ class Subscription
      * @var \DateTime
      *
      * @ORM\Column(name="next_payment_at", type="datetime", nullable=true)
+     * @Serializer\Expose()
      */
     private $nextPaymentAt;
 
@@ -83,6 +93,7 @@ class Subscription
      * @var bool
      *
      * @ORM\Column(name="enabled", type="boolean")
+     * @Serializer\Expose()
      */
     private $enabled;
 
@@ -111,6 +122,27 @@ class Subscription
      */
     private $stripeSyncAt;
 
+    /**
+     * @var string
+     */
+    private $coupon;
+
+    public static function getStripePackageTypes()
+    {
+        return self::$stripePlansByType;
+    }
+
+    public static function getPackageTypes()
+    {
+        return [
+            self::PACKAGE_TYPE_FREE,
+            self::PACKAGE_TYPE_SILVER,
+            self::PACKAGE_TYPE_GOLD,
+            self::PACKAGE_TYPE_PLATINUM,
+            self::PACKAGE_TYPE_COMMERCIAL,
+        ];
+    }
+    
     /**
      * @param bool $enabled
      *
@@ -422,5 +454,33 @@ class Subscription
     public function getPlanId()
     {
         return self::$stripePlansByType[$this->getPackageType()];
+    }
+
+    public function getPackageTypeName()
+    {
+        if (isset(self::$stripePlansByType[$this->getPackageType()])) {
+            return self::$stripePlansByType[$this->getPackageType()];
+        }
+        
+        return null;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCoupon()
+    {
+        return $this->coupon;
+    }
+
+    /**
+     * @param string $coupon
+     * @return Subscription
+     */
+    public function setCoupon($coupon)
+    {
+        $this->coupon = $coupon;
+
+        return $this;
     }
 }
