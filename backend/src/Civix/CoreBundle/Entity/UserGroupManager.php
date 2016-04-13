@@ -12,7 +12,7 @@ use JMS\Serializer\Annotation as Serializer;
  *      name="users_groups_managers",
  *      uniqueConstraints=
  *      {
- *          @ORM\UniqueConstraint(name="unique_user_group", columns={"user_id", "group_id"})
+ *          @ORM\UniqueConstraint(name="unique_user_group_manager", columns={"user_id", "group_id"})
  *      }
  * )
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\UserGroupManagerRepository")
