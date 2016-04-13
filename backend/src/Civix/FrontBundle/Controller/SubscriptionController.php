@@ -44,7 +44,8 @@ abstract class SubscriptionController extends Controller
 
         if ('POST' === $request->getMethod() && $form->submit($request)->isValid()) {
             $subscription->setPackageType($id);
-            $this->get('civix_core.stripe')->handleSubscription($subscription, $form->getData()['coupon']);
+            $subscription->setCoupon($form->getData()['coupon']);
+            $this->get('civix_core.stripe')->handleSubscription($subscription);
 
             return $this->redirect($this->generateUrl('civix_front_'.$this->getUser()->getType().
                 '_index'));
