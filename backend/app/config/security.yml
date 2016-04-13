@@ -122,6 +122,12 @@ security:
             pattern: ^/api/secure/beta$
             anonymous: ~
 
+        mobilegroup_security_area:
+            pattern: ^/api/group
+            security: true
+            header: true
+            provider: group
+
         mobileuser_security_area:
             pattern: ^/api/
             security: true
