@@ -190,9 +190,14 @@ class Stripe
         return $this->chargeCustomer($customer, $amount, $statement, $description);
     }
 
-    public function handleSubscription(Subscription $subscription, $coupon = null)
+    /**
+     * @param Subscription $subscription
+     * @return Subscription
+     */
+    public function handleSubscription(Subscription $subscription)
     {
         $user = $subscription->getUserEntity();
+        /** @var Customer $customer */
         $customer = $this->em
             ->getRepository(Customer::getEntityClassByUser($user))
             ->findOneBy(['user' => $user]);
@@ -200,32 +205,31 @@ class Stripe
 
         if ($subscription->getStripeId()) {
             try {
-                $ss = $stripeCustomer->subscriptions
+                /** @var \Stripe\Subscription $stripeSubscription */
+                $stripeSubscription = $stripeCustomer->subscriptions
                     ->retrieve($subscription->getStripeId());
-                $ss->plan = $subscription->getPlanId();
-                if ($coupon) {
-                    $ss->coupon = $coupon;
-                }
-                $ss->save();
+                $stripeSubscription->plan = $subscription->getPlanId();
+                $stripeSubscription->coupon = $subscription->getCoupon();
+                $stripeSubscription->save();
             } catch (Error\InvalidRequest $e) {
                 if (404 === $e->getHttpStatus()) {
                     $subscription->stripeReset();
                 }
-                $ss = $stripeCustomer->subscriptions
+                $stripeSubscription = $stripeCustomer->subscriptions
                     ->create([
                         'plan' => $subscription->getPlanId(),
-                        'coupon' => $coupon,
+                        'coupon' => $subscription->getCoupon(),
                     ]);
             }
         } else {
-            $ss = $stripeCustomer->subscriptions
+            $stripeSubscription = $stripeCustomer->subscriptions
                 ->create([
                     'plan' => $subscription->getPlanId(),
-                    'coupon' => $coupon,
+                    'coupon' => $subscription->getCoupon(),
                 ]);
         }
 
-        $subscription->syncStripeData($ss);
+        $subscription->syncStripeData($stripeSubscription);
         $this->em->persist($subscription);
         $this->em->flush($subscription);
 

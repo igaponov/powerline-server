@@ -160,4 +160,14 @@ class SubscriptionManager
 
         return new $class();
     }
+
+    public function subscribe(Subscription $subscription)
+    {
+        return $this->stripe->handleSubscription($subscription);
+    }
+
+    public function unsubscribe(Subscription $subscription)
+    {
+        return $this->stripe->cancelSubscription($subscription);
+    }
 }
