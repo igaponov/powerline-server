@@ -10,6 +10,7 @@ use Doctrine\ORM\QueryBuilder;
 class BookmarkRepository extends EntityRepository
 {
     /**
+     * @author Habibillah <habibillah@gmail.com>
      * @param string $type
      * @param User $user
      * @param int $page
@@ -56,6 +57,7 @@ class BookmarkRepository extends EntityRepository
     }
 
     /**
+     * @author Habibillah <habibillah@gmail.com>
      * @param $type
      * @param User $user
      * @param $itemId
@@ -83,6 +85,11 @@ class BookmarkRepository extends EntityRepository
         return $bookmark;
     }
 
+    /**
+     * @author Habibillah <habibillah@gmail.com>
+     * @param $id
+     * @return bool
+     */
     public function delete($id)
     {
         $bookmark = $this->find($id);
@@ -96,6 +103,7 @@ class BookmarkRepository extends EntityRepository
     }
 
     /**
+     * @author Habibillah <habibillah@gmail.com>
      * @param $itemType
      * @param $itemId
      * @return null|object

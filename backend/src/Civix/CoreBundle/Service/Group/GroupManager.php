@@ -134,6 +134,11 @@ class GroupManager
         ;
     }
 
+    /**
+     * @author Habibillah <habibillah@gmail.com>
+     * @param User $user
+     * @return User
+     */
     public function autoJoinUser(User $user)
     {
         $this->resetGeoGroups($user);

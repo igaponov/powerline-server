@@ -9,6 +9,9 @@ use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * @author Habibillah <habibillah@gmail.com>
+ */
 class GroupManagerTest extends WebTestCase
 {
     /** @var \Doctrine\ORM\EntityManager */
@@ -35,6 +38,9 @@ class GroupManagerTest extends WebTestCase
         $this->user = $reference->getReference('testuserbookmark1');
     }
 
+    /**
+     * @author Habibillah <habibillah@gmail.com>
+     */
     public function testAutoJoinUserAFU()
     {
         $this->user->setAddress1('Sudirman St')

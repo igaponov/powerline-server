@@ -23,6 +23,7 @@ class AndroidEndpoint extends AbstractEndpoint
     }
 
     /**
+     * @author Habibillah <habibillah@gmail.com>
      * @param $type
      * @return array
      */

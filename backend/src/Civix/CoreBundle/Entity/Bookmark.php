@@ -9,6 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Bookmark entity
  *
+ * @author Habibillah <habibillah@gmail.com>
  * @ORM\Table(name="bookmarks")
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\BookmarkRepository")
  * @Serializer\ExclusionPolicy("all")

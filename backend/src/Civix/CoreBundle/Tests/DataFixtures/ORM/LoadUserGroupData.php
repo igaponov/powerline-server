@@ -11,6 +11,8 @@ use Civix\CoreBundle\Entity\User;
 
 /**
  * LoadUserGroupData.
+ *
+ * @author Habibillah <habibillah@gmail.com>
  */
 class LoadUserGroupData extends AbstractFixture implements OrderedFixtureInterface
 {
@@ -19,6 +21,7 @@ class LoadUserGroupData extends AbstractFixture implements OrderedFixtureInterfa
     private $manager;
 
     /**
+     * @author Habibillah <habibillah@gmail.com>
      * @param ObjectManager $manager
      */
     public function load(ObjectManager $manager)
@@ -44,6 +47,7 @@ class LoadUserGroupData extends AbstractFixture implements OrderedFixtureInterfa
     }
 
     /**
+     * @author Habibillah <habibillah@gmail.com>
      * @param Group $group
      * @param User[] $members
      */

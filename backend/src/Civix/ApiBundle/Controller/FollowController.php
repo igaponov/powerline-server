@@ -145,6 +145,7 @@ class FollowController extends BaseController
     /**
      * Follow all group members
      *
+     * @author Habibillah <habibillah@gmail.com>
      * @Route(
      *     "/group/{id}",
      *     requirements={"id"="\d+"},
@@ -192,6 +193,7 @@ class FollowController extends BaseController
     }
 
     /**
+     * @author Habibillah <habibillah@gmail.com>
      * @param UserFollow $follow
      * @param User $user
      */

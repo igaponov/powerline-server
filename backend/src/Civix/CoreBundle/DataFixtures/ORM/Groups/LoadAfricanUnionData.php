@@ -11,6 +11,11 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Symfony\Component\Security\Core\Util\SecureRandom;
 
+/**
+ * Load African Union Initiall Data
+ *
+ * @author Habibillah <habibillah@gmail.com>
+ */
 class LoadAfricanUnionData implements FixtureInterface, OrderedFixtureInterface, ContainerAwareInterface
 {
     const COMMON_STATE_GROUP_EMAIL = 'support@powerli.ne';
@@ -33,7 +38,7 @@ class LoadAfricanUnionData implements FixtureInterface, OrderedFixtureInterface,
     public function load(ObjectManager $manager)
     {
         //EU group
-        $euGroup = $this->creatGroup(
+        $euGroup = $this->createGroup(
             'AFU',
             'AFU1',
             'African Union',
@@ -45,7 +50,7 @@ class LoadAfricanUnionData implements FixtureInterface, OrderedFixtureInterface,
         //create state groups
         $dataFileHandler = fopen($this->dataFile, 'r');
         while (($csvRow = fgetcsv($dataFileHandler)) !== false) {
-            $countryGroup = $this->creatGroup(
+            $countryGroup = $this->createGroup(
                 'african_union_' . $csvRow[1],
                 $csvRow[1].'1',
                 $csvRow[0],
@@ -77,7 +82,7 @@ class LoadAfricanUnionData implements FixtureInterface, OrderedFixtureInterface,
         return 4;
     }
 
-    private function creatGroup($username, $password, $officialName, $locationName, $groupType, $parent = null)
+    private function createGroup($username, $password, $officialName, $locationName, $groupType, $parent = null)
     {
         $countryGroup = new Group();
         $countryGroup->setUsername($username);

@@ -191,6 +191,9 @@ class MicropetitionController extends BaseController
     }
 
     /**
+     * The author's post have ability to invite the upvoter's of a post to join other group if that post has boosted
+     *
+     * @author Habibillah <habibillah@gmail.com>
      * @Route(
      *      "/micro-petitions/{id}/invite/{group_id}",
      *      name="api_micropetition_invite",

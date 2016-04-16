@@ -12,7 +12,8 @@ abstract class WebTestCase extends \Liip\FunctionalTestBundle\Test\WebTestCase
      * 
      * This method only will authenticate using the same
      * password than the username.
-     * 
+     *
+     * @author Habibillah <habibillah@gmail.com>
      * @param User $user
      * @return NULL|string
      */
@@ -23,7 +24,8 @@ abstract class WebTestCase extends \Liip\FunctionalTestBundle\Test\WebTestCase
     
     /**
      * Get the login token user passing username and password credentials
-     * 
+     *
+     * @author Habibillah <habibillah@gmail.com>
      * @param string $username
      * @param string $password
      * 
@@ -47,6 +49,13 @@ abstract class WebTestCase extends \Liip\FunctionalTestBundle\Test\WebTestCase
     	return NULL;
     }
 
+    /**
+     * @author Habibillah <habibillah@gmail.com>
+     * @param $serializationObject
+     * @param $groups
+     * @param string $type
+     * @return string
+     */
     protected function jmsSerialization($serializationObject, $groups, $type = 'json')
     {
         /** @var $serializer \JMS\Serializer\Serializer */
@@ -56,6 +65,14 @@ abstract class WebTestCase extends \Liip\FunctionalTestBundle\Test\WebTestCase
         return $serializer->serialize($serializationObject, $type, $serializerContext);
     }
 
+    /**
+     * @author Habibillah <habibillah@gmail.com>
+     * @param $content
+     * @param $class
+     * @param $groups
+     * @param string $type
+     * @return array|mixed|object
+     */
     protected function jmsDeserialization($content, $class, $groups, $type = 'json')
     {
         /** @var $serializer \JMS\Serializer\Serializer */
