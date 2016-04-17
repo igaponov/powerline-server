@@ -383,5 +383,10 @@
             <argument id="civix_core.email_sender" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service class="Civix\ApiBundle\EventListener\SecureParamListener" id="civix_api.event_listener.secure_param_listener">
+            <argument id="security.context" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>
