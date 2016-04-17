@@ -3,7 +3,7 @@ namespace Civix\ApiBundle\Tests\Controller;
 
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Service\Stripe;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadCustomerGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadStripeCustomerGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSubscriptionData;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
@@ -27,7 +27,7 @@ class SubscriptionControllerTest extends WebTestCase
 	{
 		$this->loadFixtures([
 			LoadGroupData::class,
-			LoadCustomerGroupData::class,
+			LoadStripeCustomerGroupData::class,
 			LoadSubscriptionData::class,
 		]);
 		// Creates a initial client
