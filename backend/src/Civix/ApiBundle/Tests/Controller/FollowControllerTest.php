@@ -64,6 +64,8 @@ class FollowControllerTest extends WebTestCase
 
     /**
      * Test logedin user to follow a user
+     * 
+     * @author Habibillah <habibillah@gmail.com>
      */
     public function testPostAction()
     {
@@ -93,6 +95,8 @@ class FollowControllerTest extends WebTestCase
 
     /**
      * Test to follow member of secret group
+     *
+     * @author Habibillah <habibillah@gmail.com>
      */
     public function testFollowSecretGroup()
     {
@@ -107,6 +111,8 @@ class FollowControllerTest extends WebTestCase
 
     /**
      * Test to follow private group
+     *
+     * @author Habibillah <habibillah@gmail.com>
      */
     public function testFollowPrivateGroup()
     {

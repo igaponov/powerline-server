@@ -49,6 +49,9 @@ class BookmarkRepositoryTest extends WebTestCase
         $this->bookmark4 = $this->repo->save(Bookmark::TYPE_POLL, $this->user, 2);
     }
 
+    /**
+     * @author Habibillah <habibillah@gmail.com>
+     */
     public function testSave()
     {
 	$this->markTestSkipped('Too much time to run');
@@ -59,6 +62,9 @@ class BookmarkRepositoryTest extends WebTestCase
         $this->assertNotEquals($this->bookmark1->getId(), $this->bookmark4->getId());
     }
 
+    /**
+     * @author Habibillah <habibillah@gmail.com>
+     */
     public function testFindByType()
     {
 	$this->markTestSkipped('Too much time to run');
@@ -72,6 +78,9 @@ class BookmarkRepositoryTest extends WebTestCase
         $this->assertCount(0, $savedBookmarks3['items']);
     }
 
+    /**
+     * @author Habibillah <habibillah@gmail.com>
+     */
     public function testDelete()
     {
 	$this->markTestSkipped('Too much time to run');

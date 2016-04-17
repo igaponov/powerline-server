@@ -17,6 +17,7 @@ use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Micropetitions;
 
 /**
+ * @author Habibillah <habibillah@gmail.com>
  * @Route("/bookmarks", name="api_bookmarks")
  */
 class BookmarkController extends BaseController
@@ -24,6 +25,7 @@ class BookmarkController extends BaseController
     /**
      * Get list of bookmarks
      *
+     * @author Habibillah <habibillah@gmail.com>
      * @Route(
      *      "/list/{type}/{page}",
      *      requirements={
@@ -73,6 +75,7 @@ class BookmarkController extends BaseController
     /**
      * Add bookmark
      *
+     * @author Habibillah <habibillah@gmail.com>
      * @Route(
      *     "/add/{type}/{itemId}",
      *     requirements={
@@ -118,6 +121,7 @@ class BookmarkController extends BaseController
     /**
      * Remove bookmark
      *
+     * @author Habibillah <habibillah@gmail.com>
      * @Route(
      *     "/remove/{id}",
      *     requirements={"id"="\d+"},
