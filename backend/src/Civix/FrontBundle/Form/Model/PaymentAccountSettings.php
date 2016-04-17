@@ -42,6 +42,17 @@ class PaymentAccountSettings
     private $ein;
 
     /**
+     * @var string
+     *
+     * @Assert\NotBlank(groups={"Default"})
+     * @Assert\Choice(callback={
+     *     "Civix\CoreBundle\Entity\Customer\Customer",
+     *     "getAccountTypes"
+     * }, groups={"Default"})
+     */
+    private $accountType;
+
+    /**
      * @param mixed $SSNLast4
      *
      * @return $this
@@ -139,5 +150,24 @@ class PaymentAccountSettings
     public function getEin()
     {
         return $this->ein;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAccountType()
+    {
+        return $this->accountType;
+    }
+
+    /**
+     * @param string $accountType
+     * @return PaymentAccountSettings
+     */
+    public function setAccountType($accountType)
+    {
+        $this->accountType = $accountType;
+
+        return $this;
     }
 }

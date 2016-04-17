@@ -3,6 +3,8 @@
 namespace Civix\CoreBundle\Service\Customer;
 
 use Civix\BalancedBundle\Service\BalancedPaymentManager;
+use Civix\FrontBundle\Form\Model\PaymentAccountSettings;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Customer\Customer;
@@ -16,7 +18,9 @@ class CustomerManager
      * @var BalancedPaymentManager
      */
     private $bp;
-
+    /**
+     * @var EntityManager
+     */
     private $entityManager;
 
     public function __construct(BalancedPaymentManager $bp, \Doctrine\ORM\EntityManager $entityManager)
@@ -167,5 +171,16 @@ class CustomerManager
     private function getCustomerClass(UserInterface $user)
     {
         return '\Civix\CoreBundle\Entity\Customer\Customer'.ucfirst($user->getType());
+    }
+
+    public function updateCustomerSettings(Customer $customer, PaymentAccountSettings $settings)
+    {
+        $customer->setAccountType($settings->getAccountType());
+        $this->entityManager->persist($customer);
+        $this->entityManager->flush();
+        
+        $this->bp->updateCustomer($customer, $settings);
+        
+        return $customer;
     }
 }
