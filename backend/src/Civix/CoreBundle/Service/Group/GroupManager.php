@@ -191,13 +191,10 @@ class GroupManager
         return $user;
     }
 
-    public function isMorePermissions(Group $oldGroup, Group $newGroup)
+    public function isMorePermissions($previousPermissions, $newPermissions)
     {
         $oldSumPriorityValue = 0;
         $newSumPriorityValue = 0;
-
-        $previousPermissions = $oldGroup->getRequiredPermissions();
-        $newPermissions = $newGroup->getRequiredPermissions();
 
         foreach ($this->permissionPriority as $priority => $key) {
             $oldSumPriorityValue += $this->calcPriorityValue(
@@ -237,6 +234,29 @@ class GroupManager
         
         $event = new GroupEvent($group);
         $this->dispatcher->dispatch(GroupEvents::MEMBERSHIP_CONTROL_CHANGED, $event);
+        
+        return $group;
+    }
+
+    public function changePermissionSettings(Group $group)
+    {
+        $uow = $this->entityManager->getUnitOfWork();
+        $uow->computeChangeSets();
+        $changeSet = $uow->getEntityChangeSet($group);
+        
+        $group->setPermissionsChangedAt(new \DateTime());
+        $this->entityManager->persist($group);
+        $this->entityManager->flush();
+
+        $isMore = $this->isMorePermissions(
+            $changeSet['requiredPermissions'],
+            $group->getRequiredPermissions()
+        );
+        
+        if ($isMore) {
+            $event = new GroupEvent($group);
+            $this->dispatcher->dispatch(GroupEvents::PERMISSIONS_CHANGED, $event);
+        }
         
         return $group;
     }

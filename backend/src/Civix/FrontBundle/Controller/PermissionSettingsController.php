@@ -2,6 +2,7 @@
 
 namespace Civix\FrontBundle\Controller;
 
+use Civix\CoreBundle\Entity\Group;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -16,13 +17,15 @@ class PermissionSettingsController extends Controller
      */
     public function indexAction(Request $request)
     {
+        /** @var Group $user */
         $user = $this->getUser();
         $entityManager = $this->getDoctrine()->getManager();
         $permissionForm = $this->createForm(new Permissions(), $user);
-        $oldGroup = clone $user;
+        $previousPermissions = $user->getRequiredPermissions();
 
         if ('POST' === $request->getMethod() && $permissionForm->submit($request)->isValid()) {
-            $shouldNotify = $this->get('civix_core.group_manager')->isMorePermissions($oldGroup, $user);
+            $shouldNotify = $this->get('civix_core.group_manager')
+                ->isMorePermissions($previousPermissions, $user->getRequiredPermissions());
             $user->setPermissionsChangedAt(new \DateTime());
             $entityManager->persist($user);
             $entityManager->flush($user);

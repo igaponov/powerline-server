@@ -10,6 +10,7 @@ use Civix\CoreBundle\Exception\MailgunException;
 use Civix\CoreBundle\Repository\UserGroupRepository;
 use Civix\CoreBundle\Repository\UserRepository;
 use Civix\CoreBundle\Service\Mailgun\MailgunApi;
+use Civix\CoreBundle\Service\SocialActivityManager;
 use Cocur\Slugify\Slugify;
 use Mailgun\Connection\Exceptions\GenericHTTPError;
 use Psr\Log\LoggerInterface;
@@ -30,6 +31,10 @@ class GroupEventSubscriber implements EventSubscriberInterface
      */
     private $userGroupRepository;
     /**
+     * @var SocialActivityManager
+     */
+    private $activityManager;
+    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -38,12 +43,14 @@ class GroupEventSubscriber implements EventSubscriberInterface
         MailgunApi $mailgunApi,
         UserRepository $repository,
         UserGroupRepository $userGroupRepository,
+        SocialActivityManager $activityManager,
         LoggerInterface $logger
     )
     {
         $this->mailgunApi = $mailgunApi;
         $this->repository = $repository;
         $this->userGroupRepository = $userGroupRepository;
+        $this->activityManager = $activityManager;
         $this->logger = $logger;
     }
 
@@ -55,6 +62,7 @@ class GroupEventSubscriber implements EventSubscriberInterface
             GroupEvents::USER_BEFORE_UNJOIN => 'onUserBeforeUnjoin',
             GroupEvents::BEFORE_DELETE => 'onBeforeDelete',
             GroupEvents::MEMBERSHIP_CONTROL_CHANGED => 'setApprovedAllUsersInGroup',
+            GroupEvents::PERMISSIONS_CHANGED => 'noticeGroupsPermissionsChanged',
         ];
     }
 
@@ -150,6 +158,11 @@ class GroupEventSubscriber implements EventSubscriberInterface
         if ($group->getMembershipControl() == Group::GROUP_MEMBERSHIP_PUBLIC) {
             $this->userGroupRepository->setApprovedAllUsersInGroup($group);
         }
+    }
+
+    public function noticeGroupsPermissionsChanged(GroupEvent $event)
+    {
+        $this->activityManager->noticeGroupsPermissionsChanged($event->getGroup());
     }
 
     /**

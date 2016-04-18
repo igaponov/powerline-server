@@ -60,6 +60,7 @@
             <argument id="civix_core.mailgun" type="service"/>
             <argument id="civix_core.repository.user_repository" type="service"/>
             <argument id="civix_core.repository.user_group_repository" type="service"/>
+            <argument id="civix_core.social_activity_manager" type="service"/>
             <argument id="logger" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>

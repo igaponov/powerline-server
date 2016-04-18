@@ -461,7 +461,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
 
     /**
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-info"})
+     * @Serializer\Groups({"api-info", "permission-settings"})
      * @Serializer\Accessor(getter="serializeRequiredPermissions")
      * @ORM\Column(name="required_permissions", type="array", nullable=true)
      */
@@ -470,7 +470,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * @var \DateTime
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-info"})
+     * @Serializer\Groups({"api-info", "permission-settings"})
      * @Serializer\Type("DateTime<'D, d M Y H:i:s'>")
      * @ORM\Column(name="permission_changed_at", type="datetime", nullable=true)
      */
