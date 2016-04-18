@@ -64,7 +64,8 @@
         "polishsymfonycommunity/symfony2-mocker-extension": "*",
         "vipsoft/doctrine-data-fixtures-extension": "*",
         "intellectsoft-uk/assert": "*",
-        "fzaninotto/faker": "^1.5"
+        "fzaninotto/faker": "^1.5",
+        "sebastian/version": "~1.0"
     },
     "scripts": {
         "post-install-cmd": [
