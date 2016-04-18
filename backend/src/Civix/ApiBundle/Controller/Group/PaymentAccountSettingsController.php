@@ -20,6 +20,31 @@ use Symfony\Component\HttpFoundation\Request;
 class PaymentAccountSettingsController extends Controller
 {
     /**
+     * Return group's payment settings
+     *
+     * @Route("", name="civix_get_group_payment_account_settings")
+     * @Method("GET")
+     *
+     * @ApiDoc(
+     *     section="User Management",
+     *     description="Return group's payment settings",
+     *     output={
+     *          "class" = "Civix\CoreBundle\Entity\Customer\Customer",
+     *          "groups" = {"payment-settings"}
+     *     }
+     * )
+     *
+     * @View(serializerGroups={"payment-settings"})
+     * 
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function getAction()
+    {
+        $customerManager = $this->get('civix_core.customer_manager');
+        return $customerManager->getCustomerByUser($this->getUser());
+    }
+    
+    /**
      * Update group's payment settings
      *
      * @Route("", name="civix_put_group_payment_account_settings")

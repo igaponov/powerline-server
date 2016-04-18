@@ -37,6 +37,16 @@ class PaymentAccountSettingsControllerTest extends WebTestCase
 		$this->client = NULL;
 	}
 
+	public function testGetPaymentSettingsIsOk()
+	{
+		$client = $this->client;
+		$client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Token'=>'secret_token']);
+		$response = $client->getResponse();
+		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+		$data = json_decode($response->getContent(), true);
+		$this->assertSame(Customer::ACCOUNT_TYPE_BUSINESS, $data['account_type']);
+	}
+
 	/**
 	 * @param array $params
 	 * @param array $errors
