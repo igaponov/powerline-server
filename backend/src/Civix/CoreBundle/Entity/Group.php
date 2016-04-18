@@ -1555,15 +1555,16 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     }
 
     /**
-     * Add fields.
+     * Add field.
      *
-     * @param Group\GroupField $fields
+     * @param Group\GroupField $field
      *
      * @return Group
      */
-    public function addField(Group\GroupField $fields)
+    public function addField(Group\GroupField $field)
     {
-        $this->fields[] = $fields;
+        $this->fields[] = $field;
+        $field->setGroup($this);
 
         return $this;
     }
@@ -1833,7 +1834,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      *
      * @param string $token
      *
-     * @return User
+     * @return Group
      */
     public function setToken($token)
     {
