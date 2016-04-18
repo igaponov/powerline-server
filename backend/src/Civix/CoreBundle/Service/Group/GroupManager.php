@@ -229,4 +229,15 @@ class GroupManager
     {
         return (array_search($key, $permissions) !== false ? 1 : 0) * pow(10, $priority);
     }
+
+    public function changeMembershipControl(Group $group)
+    {
+        $this->entityManager->persist($group);
+        $this->entityManager->flush();
+        
+        $event = new GroupEvent($group);
+        $this->dispatcher->dispatch(GroupEvents::MEMBERSHIP_CONTROL_CHANGED, $event);
+        
+        return $group;
+    }
 }

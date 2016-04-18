@@ -26,6 +26,8 @@ class KeyToValueTransformer implements DataTransformerInterface
 
     public function reverseTransform($value)
     {
-        return array_search($value, $this->array) ? : null;
+        $index = array_search($value, $this->array);
+
+        return $index !== false ? $index : null;
     }
 }

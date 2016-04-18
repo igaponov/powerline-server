@@ -377,18 +377,22 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * @Serializer\Expose()
      * @Serializer\Groups({"api-groups", "api-info", "api-invites", "membership-control"})
+     * @Serializer\Accessor(getter="getMembershipControlTitle")
+     * @Serializer\Type("string")
      * @ORM\Column(
      *      name="membership_control",
      *      type="smallint",
      *      nullable=false,
      *      options={"default" = 0}
      * )
-     * @Assert\Choice(callback="getMembershipControlTypes")
+     * @Assert\NotBlank(groups={"membership-control"})
+     * @Assert\Choice(callback="getMembershipControlTypes", groups={"membership-control"})
      */
     private $membershipControl;
 
     /**
      * @ORM\Column(name="membership_passcode", type="string", nullable=true)
+     * @Assert\NotBlank(groups={"membership-control-passcode"})
      */
     private $membershipPasscode;
 
@@ -536,6 +540,18 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      * @return array
      */
     public static function getMembershipControlTypes()
+    {
+        return [
+            self::GROUP_MEMBERSHIP_PUBLIC,
+            self::GROUP_MEMBERSHIP_APPROVAL,
+            self::GROUP_MEMBERSHIP_PASSCODE,
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public static function getMembershipControlChoices()
     {
         return [
             self::GROUP_MEMBERSHIP_PUBLIC => 'public',
@@ -1538,6 +1554,20 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     public function getMembershipControl()
     {
         return $this->membershipControl;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getMembershipControlTitle()
+    {
+        $choices = self::getMembershipControlChoices();
+        $membershipControl = $this->getMembershipControl();
+        if (isset($choices[$membershipControl])) {
+            return $choices[$membershipControl];
+        }
+        
+        return null;
     }
 
     /**

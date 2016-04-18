@@ -1,11 +1,13 @@
 <?php
 namespace Civix\CoreBundle\EventListener;
 
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
 use Civix\CoreBundle\Event\GroupUserEvent;
 use Civix\CoreBundle\Exception\MailgunException;
+use Civix\CoreBundle\Repository\UserGroupRepository;
 use Civix\CoreBundle\Repository\UserRepository;
 use Civix\CoreBundle\Service\Mailgun\MailgunApi;
 use Cocur\Slugify\Slugify;
@@ -24,6 +26,10 @@ class GroupEventSubscriber implements EventSubscriberInterface
      */
     private $repository;
     /**
+     * @var UserGroupRepository
+     */
+    private $userGroupRepository;
+    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -31,11 +37,13 @@ class GroupEventSubscriber implements EventSubscriberInterface
     public function __construct(
         MailgunApi $mailgunApi,
         UserRepository $repository,
+        UserGroupRepository $userGroupRepository,
         LoggerInterface $logger
     )
     {
         $this->mailgunApi = $mailgunApi;
         $this->repository = $repository;
+        $this->userGroupRepository = $userGroupRepository;
         $this->logger = $logger;
     }
 
@@ -46,6 +54,7 @@ class GroupEventSubscriber implements EventSubscriberInterface
             GroupEvents::USER_JOINED => 'onUserJoined',
             GroupEvents::USER_BEFORE_UNJOIN => 'onUserBeforeUnjoin',
             GroupEvents::BEFORE_DELETE => 'onBeforeDelete',
+            GroupEvents::MEMBERSHIP_CONTROL_CHANGED => 'setApprovedAllUsersInGroup',
         ];
     }
 
@@ -132,6 +141,14 @@ class GroupEventSubscriber implements EventSubscriberInterface
         } catch (GenericHTTPError $e) {
             $this->logError($e);
             throw new MailgunException("An error has occurred in ".__FUNCTION__, $e->getCode(), $e);
+        }
+    }
+
+    public function setApprovedAllUsersInGroup(GroupEvent $event)
+    {
+        $group = $event->getGroup();
+        if ($group->getMembershipControl() == Group::GROUP_MEMBERSHIP_PUBLIC) {
+            $this->userGroupRepository->setApprovedAllUsersInGroup($group);
         }
     }
 
