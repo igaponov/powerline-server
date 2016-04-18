@@ -349,40 +349,41 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     private $questionLimit;
 
     /**
-     * @Assert\Regex(
-     *      pattern="/^\d+$/",
-     *      message="The value cannot contain a non-numerical symbols"
-     * )
+     * @Assert\Type(type="integer", groups={"micropetition-config"})
      * @Assert\Range(
-     *      min = 1,
-     *      max = 50
+     *     min = 1,
+     *     max = 50,
+     *     groups={"micropetition-config"}
      * )
      * @ORM\Column(name="petition_percent", type="integer", nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"micropetition-config"})
      */
     private $petitionPercent;
 
     /**
-     * @Assert\Regex(
-     *      pattern="/^\d+$/",
-     *      message="The value cannot contain a non-numerical symbols"
-     * )
+     * @Assert\Type(type="integer", groups={"micropetition-config"})
      * @Assert\Range(
-     *      min = 1,
-     *      max = 30
+     *     min = 1,
+     *     max = 30,
+     *     groups={"micropetition-config"}
      * )
      * @ORM\Column(name="petition_duration", type="integer", nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"micropetition-config"})
      */
     private $petitionDuration;
 
     /**
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-groups", "api-info", "api-invites"})
+     * @Serializer\Groups({"api-groups", "api-info", "api-invites", "membership-control"})
      * @ORM\Column(
      *      name="membership_control",
      *      type="smallint",
      *      nullable=false,
      *      options={"default" = 0}
      * )
+     * @Assert\Choice(callback="getMembershipControlTypes")
      */
     private $membershipControl;
 
@@ -439,10 +440,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     private $fillFieldsRequired = false;
 
     /**
-     * @Assert\Regex(
-     *      pattern="/^\d+$/",
-     *      message="The value cannot contain a non-numerical symbols"
-     * )
+     * @Assert\Type(type="integer", groups={"micropetition-config"})
      * @ORM\Column(
      *      name="petition_per_month",
      *      type="integer",
@@ -450,7 +448,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      *      options={"default" = 5}
      * )
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-groups"})
+     * @Serializer\Groups({"api-groups", "micropetition-config"})
      * @Serializer\Accessor(getter="getPetitionPerMonth")
      *
      * @var int
@@ -531,6 +529,18 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
             'Business' => 'Business',
             'Cooperative/Union' => 'Cooperative/Union',
             'Other' => 'Other',
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public static function getMembershipControlTypes()
+    {
+        return [
+            self::GROUP_MEMBERSHIP_PUBLIC => 'public',
+            self::GROUP_MEMBERSHIP_APPROVAL => 'approval',
+            self::GROUP_MEMBERSHIP_PASSCODE => 'passcode',
         ];
     }
 

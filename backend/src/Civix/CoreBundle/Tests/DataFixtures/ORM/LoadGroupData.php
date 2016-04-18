@@ -77,7 +77,12 @@ class LoadGroupData extends AbstractFixture implements ContainerAwareInterface, 
             ->setPassword($password)
             ->setTransparency($transparency)
             ->setUsername($groupName)
-            ->setToken('secret_token');
+            ->setToken($groupName == self::GROUP_NAME ? 'secret_token' : $groupName)
+            ->setPetitionPerMonth($groupName == self::GROUP_NAME ? 4 : 5)
+            ->setPetitionPercent(45)
+            ->setPetitionDuration(25)
+            ->setMembershipControl(Group::GROUP_MEMBERSHIP_PASSCODE)
+            ->setMembershipPasscode('secret_passcode');
 
         /** @var PasswordEncoderInterface $encoder */
         $encoder = $this->container->get('security.encoder_factory')->getEncoder($group);
