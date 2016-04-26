@@ -56,7 +56,8 @@ class BalancedPaymentManager
 
     public function updateCustomer(BalancedUserInterface $customerEntity, PaymentAccountSettings $accountSettings = null)
     {
-        $customer = $this->balancedPaymentCalls->getCustomer($customerEntity->getBalancedUri());
+        $customer = $this->balancedPaymentCalls
+            ->getCustomer($customerEntity->getBalancedUri());
 
         $customer->email = $customerEntity->getEmail();
         $customer->address = $customerEntity->getUser()->getAddressArray();

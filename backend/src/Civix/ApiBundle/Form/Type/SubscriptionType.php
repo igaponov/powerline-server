@@ -1,6 +1,7 @@
 <?php
 namespace Civix\ApiBundle\Form\Type;
 
+use Civix\ApiBundle\Form\KeyToValueTransformer;
 use Civix\CoreBundle\Entity\Subscription\Subscription;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
@@ -26,15 +27,7 @@ class SubscriptionType extends AbstractType
                 'required' => false,
             ]);
         
-        $builder->get('package_type')->addModelTransformer(
-            new CallbackTransformer(function ($choice) use ($choices) {
-                if (isset($choices[$choice])) {
-                    return $choices[$choice];
-                }       
-            }, function ($value) use ($choices) {
-                return array_search($value, $choices);
-            })
-        );
+        $builder->get('package_type')->addModelTransformer(new KeyToValueTransformer($choices));
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)

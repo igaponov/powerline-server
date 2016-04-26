@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
 use Civix\BalancedBundle\Model\BalancedUserInterface;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Customer\CustomerRepository")
@@ -18,6 +19,7 @@ use Civix\BalancedBundle\Model\BalancedUserInterface;
  *      "group"  = "Civix\CoreBundle\Entity\Customer\CustomerGroup",
  *      "user"  = "Civix\CoreBundle\Entity\Customer\CustomerUser"
  * })
+ * @Serializer\ExclusionPolicy("ALL")
  */
 abstract class Customer implements BalancedUserInterface
 {
@@ -38,9 +40,19 @@ abstract class Customer implements BalancedUserInterface
 
     /**
      * @ORM\Column(name="account_type", type="string", nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"payment-settings"})
      */
     protected $accountType;
 
+    public static function getAccountTypes()
+    {
+        return [
+            self::ACCOUNT_TYPE_PERSONAL,
+            self::ACCOUNT_TYPE_BUSINESS,
+        ];
+    }
+    
     /**
      * Get id.
      *

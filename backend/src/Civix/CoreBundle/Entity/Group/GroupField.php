@@ -2,6 +2,8 @@
 
 namespace Civix\CoreBundle\Entity\Group;
 
+use Civix\CoreBundle\Entity\Group;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
@@ -33,7 +35,7 @@ class GroupField
      * @ORM\Column(name="field_name", type="string", length=150)
      * @Assert\NotBlank()
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-groups-fields"})
+     * @Serializer\Groups({"api-groups-fields", "api-group-field"})
      */
     private $fieldName;
 
@@ -53,7 +55,7 @@ class GroupField
 
     public function __construct()
     {
-        $this->values = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->values = new ArrayCollection();
     }
 
     /**
@@ -93,11 +95,11 @@ class GroupField
     /**
      * Set group.
      *
-     * @param \Civix\CoreBundle\Entity\Group $group
+     * @param Group $group
      *
      * @return GroupField
      */
-    public function setGroup(\Civix\CoreBundle\Entity\Group $group = null)
+    public function setGroup(Group $group = null)
     {
         $this->group = $group;
 
@@ -107,7 +109,7 @@ class GroupField
     /**
      * Get group.
      *
-     * @return \Civix\CoreBundle\Entity\Group
+     * @return Group
      */
     public function getGroup()
     {
@@ -117,11 +119,11 @@ class GroupField
     /**
      * Add values.
      *
-     * @param \Civix\CoreBundle\Entity\Group\FieldValue $values
+     * @param FieldValue $values
      *
      * @return GroupField
      */
-    public function addValue(\Civix\CoreBundle\Entity\Group\FieldValue $values)
+    public function addValue(FieldValue $values)
     {
         $this->values[] = $values;
 
@@ -131,9 +133,9 @@ class GroupField
     /**
      * Remove values.
      *
-     * @param \Civix\CoreBundle\Entity\Group\FieldValue $values
+     * @param FieldValue $values
      */
-    public function removeValue(\Civix\CoreBundle\Entity\Group\FieldValue $values)
+    public function removeValue(FieldValue $values)
     {
         $this->values->removeElement($values);
     }

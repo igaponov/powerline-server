@@ -1,13 +1,16 @@
 <?php
 namespace Civix\CoreBundle\EventListener;
 
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
 use Civix\CoreBundle\Event\GroupUserEvent;
 use Civix\CoreBundle\Exception\MailgunException;
+use Civix\CoreBundle\Repository\UserGroupRepository;
 use Civix\CoreBundle\Repository\UserRepository;
 use Civix\CoreBundle\Service\Mailgun\MailgunApi;
+use Civix\CoreBundle\Service\SocialActivityManager;
 use Cocur\Slugify\Slugify;
 use Mailgun\Connection\Exceptions\GenericHTTPError;
 use Psr\Log\LoggerInterface;
@@ -24,6 +27,14 @@ class GroupEventSubscriber implements EventSubscriberInterface
      */
     private $repository;
     /**
+     * @var UserGroupRepository
+     */
+    private $userGroupRepository;
+    /**
+     * @var SocialActivityManager
+     */
+    private $activityManager;
+    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -31,11 +42,15 @@ class GroupEventSubscriber implements EventSubscriberInterface
     public function __construct(
         MailgunApi $mailgunApi,
         UserRepository $repository,
+        UserGroupRepository $userGroupRepository,
+        SocialActivityManager $activityManager,
         LoggerInterface $logger
     )
     {
         $this->mailgunApi = $mailgunApi;
         $this->repository = $repository;
+        $this->userGroupRepository = $userGroupRepository;
+        $this->activityManager = $activityManager;
         $this->logger = $logger;
     }
 
@@ -46,6 +61,8 @@ class GroupEventSubscriber implements EventSubscriberInterface
             GroupEvents::USER_JOINED => 'onUserJoined',
             GroupEvents::USER_BEFORE_UNJOIN => 'onUserBeforeUnjoin',
             GroupEvents::BEFORE_DELETE => 'onBeforeDelete',
+            GroupEvents::MEMBERSHIP_CONTROL_CHANGED => 'setApprovedAllUsersInGroup',
+            GroupEvents::PERMISSIONS_CHANGED => 'noticeGroupsPermissionsChanged',
         ];
     }
 
@@ -133,6 +150,19 @@ class GroupEventSubscriber implements EventSubscriberInterface
             $this->logError($e);
             throw new MailgunException("An error has occurred in ".__FUNCTION__, $e->getCode(), $e);
         }
+    }
+
+    public function setApprovedAllUsersInGroup(GroupEvent $event)
+    {
+        $group = $event->getGroup();
+        if ($group->getMembershipControl() == Group::GROUP_MEMBERSHIP_PUBLIC) {
+            $this->userGroupRepository->setApprovedAllUsersInGroup($group);
+        }
+    }
+
+    public function noticeGroupsPermissionsChanged(GroupEvent $event)
+    {
+        $this->activityManager->noticeGroupsPermissionsChanged($event->getGroup());
     }
 
     /**

@@ -32,6 +32,12 @@
                  factory-method="getRepository">
             <argument type="string">Civix\CoreBundle\Entity\User</argument>
         </service>
+        <service class="Civix\CoreBundle\Repository\UserGroupRepository"
+                 id="civix_core.repository.user_group_repository"
+                 factory-service="doctrine.orm.entity_manager"
+                 factory-method="getRepository">
+            <argument type="string">Civix\CoreBundle\Entity\UserGroup</argument>
+        </service>
         <service id="civix_core.crop_image" class="Civix\CoreBundle\Service\CropImage">
         </service>
         <service class="Mailgun\Mailgun" id="mailgun.basic_client" public="false">
@@ -53,6 +59,8 @@
         <service class="Civix\CoreBundle\EventListener\GroupEventSubscriber" id="civix_core.event_listener.group_event_subscriber">
             <argument id="civix_core.mailgun" type="service"/>
             <argument id="civix_core.repository.user_repository" type="service"/>
+            <argument id="civix_core.repository.user_group_repository" type="service"/>
+            <argument id="civix_core.social_activity_manager" type="service"/>
             <argument id="logger" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -381,6 +389,15 @@
 
         <service class="Civix\CoreBundle\EventListener\MailerEventListener" id="civix_core.event_listener.mailer_event_listener">
             <argument id="civix_core.email_sender" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service class="Civix\ApiBundle\Security\Authorization\Voter\GroupFieldVoter" id="tough_domains_security.group_field_voter">
+            <tag name="security.voter"/>
+        </service>
+
+        <service class="Civix\ApiBundle\EventListener\SecureParamListener" id="civix_api.event_listener.secure_param_listener">
+            <argument id="security.context" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
     </services>

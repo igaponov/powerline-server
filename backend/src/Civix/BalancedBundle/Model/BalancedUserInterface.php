@@ -9,4 +9,6 @@ interface BalancedUserInterface
     public function getEmail();
     public function getBalancedUri();
     public function setBalancedUri($uri);
+    public function setAccountType($accountType);
+    public function getAccountType();
 }
