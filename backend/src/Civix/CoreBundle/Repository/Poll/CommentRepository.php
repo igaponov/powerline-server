@@ -63,4 +63,17 @@ class CommentRepository extends BaseCommentRepository
 
         return $comments;
     }
+
+    public function getCommentsByQuestion($question)
+    {
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('c, u, ch, chu')
+            ->from('CivixCoreBundle:Poll\Comment', 'c')
+            ->leftJoin('c.user', 'u')
+            ->leftJoin('c.childrenComments', 'ch')
+            ->leftJoin('ch.user', 'chu')
+            ->where('c.question = :question')
+            ->setParameter('question', $question)
+            ->getQuery();
+    }
 }

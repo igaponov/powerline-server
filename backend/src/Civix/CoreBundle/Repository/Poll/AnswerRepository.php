@@ -9,15 +9,15 @@ use Civix\CoreBundle\Entity\Poll\Answer;
 
 class AnswerRepository extends EntityRepository
 {
-    public function getAnswersByQuestion($questionId)
+    public function getAnswersByQuestion($question)
     {
         return $this->getEntityManager()
                 ->createQueryBuilder()
-                ->select('a, u')
+                ->select('a')
                 ->from('CivixCoreBundle:Poll\Answer', 'a')
                 ->join('a.user', 'u')
-                ->where('a.question  = :questionId')
-                ->setParameter('questionId', $questionId)
+                ->where('a.question  = :question')
+                ->setParameter('question', $question)
                 ->getQuery();
     }
 

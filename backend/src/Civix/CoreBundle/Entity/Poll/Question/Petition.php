@@ -21,7 +21,7 @@ abstract class Petition extends Question
 
     /**
      * @ORM\Column(name="petition_title", type="string")
-     * @Assert\NotBlank(groups={"petition-manage"})
+     * @Assert\NotBlank(groups={"petition-manage", "api-poll"})
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll", "api-leader-poll"})
      */
@@ -29,7 +29,7 @@ abstract class Petition extends Question
 
     /**
      * @ORM\Column(name="petition_body", type="text")
-     * @Assert\NotBlank(groups={"petition-manage"})
+     * @Assert\NotBlank(groups={"petition-manage", "api-poll"})
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll", "api-leader-poll"})
      */
