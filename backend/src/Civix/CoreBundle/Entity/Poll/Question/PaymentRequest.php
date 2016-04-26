@@ -16,7 +16,7 @@ abstract class PaymentRequest extends Question
 {
     /**
      * @ORM\Column(name="title", type="string")
-     * @Assert\NotBlank(groups={"payment-manage"})
+     * @Assert\NotBlank(groups={"payment-manage", "api-poll"})
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
      */
@@ -43,6 +43,7 @@ abstract class PaymentRequest extends Question
      *
      * @ORM\Column(name="crowdfunding_deadline", type="datetime", nullable=true)
      * @Serializer\Expose()
+     * @Serializer\Type("DateTime<'D, d M Y H:i:s'>")
      * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
      */
     protected $crowdfundingDeadline;

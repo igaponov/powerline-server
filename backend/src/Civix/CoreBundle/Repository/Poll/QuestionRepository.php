@@ -225,6 +225,46 @@ class QuestionRepository extends EntityRepository
         ;
     }
 
+    public function getFilteredQuestionQuery($filter, UserInterface $user, $questionClass)
+    {
+        $query = $this->getQuestionQuery($user, $questionClass);
+        switch ($filter) {
+            case 'published':
+                $query->andWhere('p.publishedAt IS NOT NULL');
+                break;
+            case 'unpublished':
+                $query->andWhere('p.publishedAt IS NULL');
+                break;
+            case 'publishing':
+                $query->andWhere('p.publishedAt > :date')
+                    ->setParameter('date', new \DateTime('now - 1 day'));
+                break;
+            case 'archived':
+                $query->andWhere('p.publishedAt <= :date')
+                    ->setParameter('date', new \DateTime('now - 1 day'));
+                break;
+        }
+        
+        return $query;
+    }
+
+    /**
+     * @param UserInterface $user
+     * @param $questionClass
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function getQuestionQuery(UserInterface $user, $questionClass)
+    {
+        return $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('p')
+            ->from($questionClass, 'p')
+            ->where('p.user = :user')
+            ->setParameter('user', $user)
+            ->orderBy('p.createdAt', 'DESC')
+        ;
+    }
+
     public function getPublishedQuestionWithAnswers($id, $questionClass)
     {
         return $this->getEntityManager()

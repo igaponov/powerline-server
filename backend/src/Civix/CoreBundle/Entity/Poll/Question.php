@@ -2,7 +2,9 @@
 
 namespace Civix\CoreBundle\Entity\Poll;
 
+use Civix\CoreBundle\Entity\GroupSection;
 use Civix\CoreBundle\Entity\UserInterface;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping\InheritanceType;
@@ -37,6 +39,8 @@ use Civix\CoreBundle\Entity\Representative;
  *      "group_event" = "Civix\CoreBundle\Entity\Poll\Question\GroupEvent"
  * })
  * @Serializer\ExclusionPolicy("all")
+ * 
+ * @method setUser(UserInterface $user)
  */
 abstract class Question
 {
@@ -49,7 +53,7 @@ abstract class Question
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll", "api-answers-list", "api-poll-public", "api-leader-poll"})
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
@@ -59,7 +63,7 @@ abstract class Question
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
      */
-    private $subject;
+    protected $subject;
 
     /**
      * @ORM\OneToMany(
@@ -86,7 +90,7 @@ abstract class Question
      *      orphanRemoval=true
      * )
      */
-    private $answers;
+    protected $answers;
 
     /**
      * @Serializer\Expose()
@@ -99,7 +103,7 @@ abstract class Question
      *      orphanRemoval=true
      * )
      */
-    private $educationalContext;
+    protected $educationalContext;
 
     /**
      * @var \DateTime
@@ -109,14 +113,14 @@ abstract class Question
      * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
      * @Serializer\Type("DateTime<'D, d M Y H:i:s O'>")
      */
-    private $createdAt;
+    protected $createdAt;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="updated_at", type="datetime")
      */
-    private $updatedAt;
+    protected $updatedAt;
 
     /**
      * @var \DateTime
@@ -126,7 +130,7 @@ abstract class Question
      * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
      * @Serializer\Type("DateTime<'D, d M Y H:i:s O'>")
      */
-    private $expireAt;
+    protected $expireAt;
 
     /**
      * @var \DateTime
@@ -136,7 +140,7 @@ abstract class Question
      * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
      * @Serializer\Type("DateTime<'D, d M Y H:i:s O'>")
      */
-    private $publishedAt;
+    protected $publishedAt;
 
     /**
      * @Serializer\Expose()
@@ -145,23 +149,23 @@ abstract class Question
      * @Serializer\Type("boolean")
      * @Serializer\ReadOnly()
      */
-    private $isAnswered;
+    protected $isAnswered;
 
     /**
      * @ORM\OneToMany(targetEntity="Comment", mappedBy="question", cascade={"remove","persist"})
      */
-    private $comments;
+    protected $comments;
     /**
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Representative")
      * @ORM\JoinColumn(name="report_recipient_id", referencedColumnName="id", onDelete="SET NULL")
      */
-    private $reportRecipient;
+    protected $reportRecipient;
 
     /**
      * @var string
      * @ORM\Column(name="report_recipient_group", type="string", nullable=true)
      */
-    private $reportRecipientGroup;
+    protected $reportRecipientGroup;
 
     /**
      * @ORM\Column(name="answers_count", type="integer", nullable=true)
@@ -185,7 +189,7 @@ abstract class Question
      *      }
      * )
      */
-    private $recipients;
+    protected $recipients;
 
     /**
      * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\HashTag", mappedBy="questions")
@@ -223,13 +227,13 @@ abstract class Question
      */
     public function __construct()
     {
-        $this->options = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->answers = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->recipients = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->educationalContext = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->comments = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->hashTags = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->groupSections = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->options = new ArrayCollection();
+        $this->answers = new ArrayCollection();
+        $this->recipients = new ArrayCollection();
+        $this->educationalContext = new ArrayCollection();
+        $this->comments = new ArrayCollection();
+        $this->hashTags = new ArrayCollection();
+        $this->groupSections = new ArrayCollection();
     }
 
     abstract public function getType();
@@ -468,7 +472,7 @@ abstract class Question
     /**
      * Get educationalContext.
      *
-     * @return \Doctrine\Common\Collections\ArrayCollection
+     * @return ArrayCollection
      */
     public function getEducationalContext()
     {
@@ -650,7 +654,7 @@ abstract class Question
      * @Serializer\Groups({"api-poll"})
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("share_picture")
-     * @Serializer\Type("Image")
+     * @Serializer\Type("Civix\CoreBundle\Serializer\Type\Image")
      */
     public function getSharePicture()
     {
@@ -722,7 +726,7 @@ abstract class Question
 
     public function getGroupSectionIds()
     {
-        $sectionsIds = $this->groupSections->map(function ($section) {
+        $sectionsIds = $this->groupSections->map(function (GroupSection $section) {
                 return $section->getId();
         })->toArray();
 

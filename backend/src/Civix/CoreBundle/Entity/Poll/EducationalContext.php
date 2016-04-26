@@ -61,7 +61,7 @@ class EducationalContext
      *
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll"})
-     * @Serializer\Type("Image")
+     * @Serializer\Type("Civix\CoreBundle\Serializer\Type\Image")
      * @Serializer\SerializedName("imageSrc")
      * @Serializer\Accessor(getter="getImageSrc")
      */
