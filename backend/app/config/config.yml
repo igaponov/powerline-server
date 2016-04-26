@@ -227,3 +227,13 @@ fos_rest:
             json: true
         failed_validation: HTTP_BAD_REQUEST
         empty_content: 204
+
+jms_serializer:
+    metadata:
+        directories:
+            KnpPaginatorBundle:
+                namespace_prefix: Knp\Bundle\PaginatorBundle
+                path: '%kernel.root_dir%/config/serializer/KnpPaginatorBundle'
+            KnpPager:
+                namespace_prefix: Knp\Component\Pager
+                path: '%kernel.root_dir%/config/serializer/KnpPager'
