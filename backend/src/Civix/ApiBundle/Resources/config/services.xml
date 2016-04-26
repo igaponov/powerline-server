@@ -48,6 +48,14 @@
             <argument id="logger" type="service"/>
             <tag name="doctrine.event_listener" event="prePersist" />
         </service>
+
+        <service class="Civix\ApiBundle\Security\Authorization\Voter\PollVoter" id="civix_api.security_authorization_voter.poll_voter">
+            <tag name="security.voter"/>
+        </service>
+
+        <service class="Civix\ApiBundle\Security\Authorization\Voter\PollOptionVoter" id="civix_api.security_authorization_voter.poll_option_voter">
+            <tag name="security.voter"/>
+        </service>
     </services>
 
 </container>
