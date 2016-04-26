@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle\Tests\EventListener;
 
+use FOS\RestBundle\Util\Codes;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 
 class CORSSubscriberTest extends WebTestCase
@@ -13,9 +14,9 @@ class CORSSubscriberTest extends WebTestCase
     public function testGET()
     {
         $client = static::createClient(array(), array('HTTPS' => true));
-        $client->request('GET', '/');
+        $client->request('GET', '/api-public/users/');
         $this->assertEquals(
-            200,
+            Codes::HTTP_OK,
             $client->getResponse()->getStatusCode(),
             'Should return content'
         );
@@ -29,14 +30,18 @@ class CORSSubscriberTest extends WebTestCase
      */
     public function testNotAllowedMethod()
     {
-        $client = static::createClient(array(), array('HTTPS' => true));
-        $client->request('POST', '/api/activity');
+        $client = static::makeClient(false, array(
+            'HTTPS' => true
+        ));
+        $client->request('POST', '/api-public/users/');
+        $response = $client->getResponse();
         $this->assertEquals(
-            405,
-            $client->getResponse()->getStatusCode(),
-            'Should be not allowed method'
+            Codes::HTTP_METHOD_NOT_ALLOWED,
+            $response->getStatusCode(),
+            $response->getContent()
         );
-        $this->assertNotEmpty($client->getResponse()->headers->get('Access-Control-Allow-Origin'),
+        $this->assertNotEmpty(
+            $response->headers->get('Access-Control-Allow-Origin'),
             'Should return cors headers');
     }
 
@@ -50,7 +55,7 @@ class CORSSubscriberTest extends WebTestCase
 
         $client->request('OPTIONS', '/api/activity');
         $this->assertEquals(
-            200,
+            Codes::HTTP_OK,
             $client->getResponse()->getStatusCode(),
             'Should return 200 ok'
         );
