@@ -529,12 +529,12 @@ class UserRepository extends EntityRepository
     {
         $query = $this->createQueryBuilder('u');
         $query
-            ->select('u.firstName, u.lastName, u.email')
+            ->select('partial u.{id,firstName,lastName,email}')
             ->innerJoin('u.groups', 'gr')
             ->orderBy('u.id', 'ASC')
             ->where('gr.group = :groupId')
             ->setParameter('groupId', $groupId);
         
-        return $query->getQuery()->getResult();
+        return $query->getQuery()->getResult(Query::HYDRATE_OBJECT);
     }
 }

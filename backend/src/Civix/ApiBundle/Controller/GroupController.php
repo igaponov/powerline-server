@@ -8,6 +8,7 @@ use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Entity\UserGroupManager;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
+use FOS\RestBundle\Util\Codes;
 use JMS\Serializer\Exception\RuntimeException;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -46,7 +47,7 @@ class GroupController extends BaseController
      *     ["error","some error message"]
      *
      * @ApiDoc(
-     * 	   https = true,
+     *     https = true,
      *     authentication = false,
      *     resource=true,
      *     section="Group",
@@ -54,27 +55,27 @@ class GroupController extends BaseController
      *     views = { "default"},
      *     output = "",
      *     requirements={
-	 *     },
+     *     },
      *     tags={
-	 *         "stable" = "#89BF04",
-	 *         "GET" = "#0f6ab4",
-	 *         "owner group",
-	 *     },
+     *         "stable" = "#89BF04",
+     *         "GET" = "#0f6ab4",
+     *         "owner group",
+     *     },
      *     filters={
      *     },
      *     parameters={
-	 *     },
+     *     },
      *     input = {
-	 *   	"class" = "",
-	 *	    "options" = {"method" = "GET"},
-	 *	   },
+     *    "class" = "",
+     *        "options" = {"method" = "GET"},
+     *       },
      *     statusCodes={
-     *          200="Returned when successful",
+     *          204="Returned when successful",
      *          400="Returned when incorrect login or password",
      *          405="Method Not Allowed"
      *     }
      * )
-     * 
+     *
      * @Route("/is-owner/{id}", name="civix_api_groups_is_owner")
      * @Method("GET")
      * @ParamConverter(
@@ -82,18 +83,23 @@ class GroupController extends BaseController
      *      class="CivixCoreBundle:Group",
      *      options={"repository_method" = "getGroupByIdAndType"}
      * )
+     * @param Group $group
+     * @return JsonResponse
      */
-    public function isGroupOwnerAction(Request $request, Group $group)
+    public function isGroupOwnerAction(Group $group)
     {
     	/** @var $user User */
     	$user = $this->getUser();
     	
     	if(!$group->isOwner($user))
     	{
-    		return new JsonResponse(['error' => 'The user is not owner of the group'], 404);
+    		return new JsonResponse(
+                ['error' => 'The user is not owner of the group'], 
+                Codes::HTTP_BAD_REQUEST
+            );
     	}
 
-    	return new JsonResponse([TRUE], 204);
+    	return new JsonResponse('', Codes::HTTP_NO_CONTENT);
     }
     
     /**

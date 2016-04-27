@@ -101,13 +101,16 @@ class MailgunApi
     {
         $listAddress = $listname.self::GROUP_EMAIL;
 
-        $this->logger->info('Testing adding members '.implode(', ', $users));
+        $this->logger->info('Testing adding members', $users);
         $result = $this->client->post("lists/$listAddress/members.json", array(
             'members' => json_encode($users),
             'upsert' => true,
         ));
 
-        $this->logger->info('adding members '.implode(', ', $users).' '.serialize($result));
+        $this->logger->info('adding members', [
+            'users' => $users, 
+            'results' => $result,
+        ]);
 
         return $this->JsonResponse($result);
     }

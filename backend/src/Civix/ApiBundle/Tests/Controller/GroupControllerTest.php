@@ -1,14 +1,12 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller;
 
-use Doctrine\ORM\EntityManager;
-
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\ApiBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
 use Civix\ApiBundle\Tests\WebTestCase;
-
+use FOS\RestBundle\Util\Codes;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 
@@ -79,8 +77,6 @@ class GroupControllerTest extends WebTestCase
 		
 		$this->client->request('GET', $end_point, [], [], ['HTTP_Token' => $this->mobile1_token], $content);
 		
-		$request = $this->client->getRequest();
-		
 		$response = $this->client->getResponse();
 		
 		$content = json_decode($response->getContent());
@@ -88,9 +84,9 @@ class GroupControllerTest extends WebTestCase
 		$this->assertNotEmpty($content->error, 'The user is not owner of the group');
 		
 		$this->assertEquals(
-				404,
+				Codes::HTTP_BAD_REQUEST,
 				$response->getStatusCode(),
-				'Should be a 404 response'
+				'Should be a 400 response'
 				);
 		
 		$this->assertNotEmpty($response->headers->get('Access-Control-Allow-Origin'),
@@ -103,19 +99,13 @@ class GroupControllerTest extends WebTestCase
 		
 		// Test is owner endpoint for failed result
 		$end_point = self::API_GROUP_IS_OWNER_ENDPOINT . '/' . $this->group->getId();
-		
+
 		$this->client->request('GET', $end_point, [], [], ['HTTP_Token' => $this->mobile1_token], $content);
-		
-		$request = $this->client->getRequest();
 		
 		$response = $this->client->getResponse();
 		
-		$content = json_decode($response->getContent());
-		
-		$this->assertNotEmpty($content, 'true');
-		
 		$this->assertEquals(
-				204,
+				Codes::HTTP_NO_CONTENT,
 				$response->getStatusCode(),
 				'Should be a 204 response'
 				);
