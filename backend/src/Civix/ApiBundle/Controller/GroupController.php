@@ -382,7 +382,7 @@ class GroupController extends BaseController
      *     }
      * )
      *
-     * @Route("/user-groups/", name="civix_api_groups_by_user2")
+     * @Route("/popular", name="civix_api_groups_popular_groups")
      * @Method("GET")
      */
     public function getPopularGroupsAction()
