@@ -18,7 +18,9 @@ class Version20160405174012 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
+        $this->addSql('SET FOREIGN_KEY_CHECKS = 0;');
         $this->addSql('ALTER TABLE activities ADD CONSTRAINT FK_B5F1AFE5BF396750 FOREIGN KEY (id) REFERENCES activities_read (activity_id)');
+        $this->addSql('SET FOREIGN_KEY_CHECKS = 1;');
         $this->addSql('ALTER TABLE activities ADD CONSTRAINT FK_B5F1AFE51E27F6BF FOREIGN KEY (question_id) REFERENCES poll_questions (id)');
         $this->addSql('CREATE INDEX IDX_B5F1AFE51E27F6BF ON activities (question_id)');
         $this->addSql('CREATE INDEX sent_at_idx ON activities (sent_at)');
