@@ -9,6 +9,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Civix\CoreBundle\Entity\ActivityRead;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserFollow;
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 
 class ActivityController extends BaseController
 {
@@ -36,8 +37,34 @@ class ActivityController extends BaseController
     }
 
     /**
+     * Return a user's list of activities
+     *
      * @Route("/activities/")
      * @Method("GET")
+     *
+     * @ApiDoc(
+     *     authentication = false,
+     *     resource=true,
+     *     section="Activity",
+     *     input = "",
+     *     filters={
+     *     },
+     *     parameters={
+     *     },
+     *     description="Returns an array of activities",
+     *     statusCodes={
+     *          201="Returned when successful ",
+     *          400="",
+     *          405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * # TODO: may need to upgrade api-doc-bundle
+     * # output = {
+     * #         "class" = "Civix\CoreBundle\Entity\Activity",
+     * #         "groups" = {"api-activities"},
+     * #    },
+     *
      */
     public function listAction(Request $request)
     {
@@ -80,8 +107,42 @@ class ActivityController extends BaseController
     }
 
     /**
+     * Mark an activity as read
+     *
      * @Route("/activities/read/")
      * @Method("POST")
+     *
+     * @ApiDoc(
+     * 	   https = true,
+     *     authentication = false,
+     *     resource=true,
+     *     section="Activity",
+     *     description="Mark activity read",
+     *     views = { "default"},
+     *     output = "",
+     *     requirements={
+     *     },
+     *     tags={
+     *         "stable" = "#89BF04",
+     *         "POST" = "#10a54a",
+     *         "activity",
+     *     },
+     *     filters={
+     *     },
+     *     parameters={
+     *     },
+     *     input = {
+     *   	"class" = "",
+     *	    "options" = {"method" = "POST"},
+     *	   },
+     *     statusCodes={
+     *          201="Returned when successful ",
+     *          400="",
+     *          405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * # TODO: needs input label
      */
     public function saveReadAction(Request $request)
     {
