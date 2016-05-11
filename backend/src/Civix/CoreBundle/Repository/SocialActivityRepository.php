@@ -51,4 +51,36 @@ class SocialActivityRepository extends EntityRepository
             ->getResult()
         ;
     }
+
+    public function getFilteredByFollowingAndRecipientQuery(User $user)
+    {
+        $userFollowingIds = $user->getFollowingIds();
+        if (empty($userFollowingIds)) {
+            return [];
+        }
+        $activeGroups = $this->getEntityManager()->getRepository('CivixCoreBundle:UserGroup')->getActiveGroupIds($user);
+
+        $qb = $this->createQueryBuilder('sa');
+
+        return $qb
+            ->addSelect('f')
+            ->addSelect('g')
+            ->leftJoin('sa.following', 'f')
+            ->leftJoin('sa.group', 'g')
+            ->where(
+                $qb->expr()->orX(
+                    $qb->expr()->andX(
+                        'sa.recipient is NULL',
+                        $qb->expr()->in('sa.following', ':following'),
+                        empty($activeGroups) ? 'sa.group is NULL' : 'sa.group is NULL OR sa.group IN (:groups)'
+                    ),
+                    'sa.recipient = :user'
+                )
+            )
+            ->setParameter('following', $userFollowingIds)
+            ->setParameter('user', $user)
+            ->setParameter('groups', $activeGroups)
+            ->orderBy('sa.id', 'DESC')
+            ->getQuery();
+    }
 }

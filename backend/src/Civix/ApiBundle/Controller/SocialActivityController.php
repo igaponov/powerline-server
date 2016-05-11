@@ -2,7 +2,10 @@
 
 namespace Civix\ApiBundle\Controller;
 
-use Symfony\Component\HttpFoundation\Request;
+use FOS\RestBundle\Controller\Annotations\QueryParam;
+use FOS\RestBundle\Controller\Annotations\View;
+use FOS\RestBundle\Request\ParamFetcher;
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Civix\CoreBundle\Entity\SocialActivity;
@@ -13,21 +16,43 @@ use Civix\CoreBundle\Entity\SocialActivity;
 class SocialActivityController extends BaseController
 {
     /**
-     * @Route("/")
+     * List all social activities for a current user.
+     *
+     * @Route("/", name="civix_get_social_activities")
      * @Method("GET")
+     * @QueryParam(name="page", requirements="\d+", default=1)
+     * @QueryParam(name="limit", requirements="\d+", default=20)
+     *
+     * @ApiDoc(
+     *     resource=true,
+     *     section="Social Activities",
+     *     description="List all social activities for a current user.",
+     *     output="Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination",
+     *     statusCodes={
+     *         200="Returns list",
+     *         400="Bad Request",
+     *         401="Authorization required",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @View(serializerGroups={"paginator", "api-activities"})
+     *
+     * @param ParamFetcher $params
+     *
+     * @return \Knp\Component\Pager\Pagination\PaginationInterface
      */
-    public function listAction(Request $request)
+    public function listAction(ParamFetcher $params)
     {
-        $response = $this->createJSONResponse($this->jmsSerialization(
-            array_merge(
-                $this->getDoctrine()->getRepository(SocialActivity::class)->findFollowingForUser($this->getUser()),
-                $this->getDoctrine()->getRepository(SocialActivity::class)->findByRecipient($this->getUser())
-            ),
-            ['api-activities']
-        ));
-        $response->headers->set('Server-Time', (new \DateTime())->format('D, d M Y H:i:s O'));
-
-        return $response;
+        $query = $this->getDoctrine()
+            ->getRepository(SocialActivity::class)
+            ->getFilteredByFollowingAndRecipientQuery($this->getUser());
+        $paginator = $this->get('knp_paginator');
+        return $paginator->paginate(
+            $query,
+            $params->get('page'),
+            $params->get('limit')
+        );
     }
 
     /**
