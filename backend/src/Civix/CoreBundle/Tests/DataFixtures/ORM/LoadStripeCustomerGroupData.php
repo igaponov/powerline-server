@@ -4,12 +4,12 @@ namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Stripe\CustomerGroup;
 use Doctrine\Common\DataFixtures\AbstractFixture;
-use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class LoadStripeCustomerGroupData extends AbstractFixture implements ContainerAwareInterface, OrderedFixtureInterface
+class LoadStripeCustomerGroupData extends AbstractFixture implements ContainerAwareInterface, DependentFixtureInterface
 {
     /**
      * @var ContainerInterface
@@ -33,16 +33,11 @@ class LoadStripeCustomerGroupData extends AbstractFixture implements ContainerAw
         $this->createCustomer($this->getReference('testfollowprivategroups'));
     }
 
-    /**
-     * Get the order of this fixture
-     *
-     * @return integer
-     */
-    function getOrder()
+    public function getDependencies()
     {
-        return 21;
+        return [LoadGroupData::class];
     }
-
+    
     /**
      * @param $group
      * @return CustomerGroup 

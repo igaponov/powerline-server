@@ -3,11 +3,11 @@ namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
 use Civix\CoreBundle\Entity\Group;
 use Doctrine\Common\DataFixtures\AbstractFixture;
-use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Faker\Factory;
 
-class LoadGroupFieldsData extends AbstractFixture implements OrderedFixtureInterface
+class LoadGroupFieldsData extends AbstractFixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager)
     {
@@ -35,13 +35,8 @@ class LoadGroupFieldsData extends AbstractFixture implements OrderedFixtureInter
         $manager->flush();
     }
 
-    /**
-     * Get the order of this fixture
-     *
-     * @return integer
-     */
-    function getOrder()
+    public function getDependencies()
     {
-        return 23;
+        return [LoadGroupData::class];
     }
 }

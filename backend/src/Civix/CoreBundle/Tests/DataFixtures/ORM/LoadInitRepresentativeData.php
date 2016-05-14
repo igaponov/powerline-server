@@ -3,7 +3,7 @@
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
-use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
@@ -13,7 +13,7 @@ use Civix\CoreBundle\Entity\Representative;
 /**
  * LoadRepresentativeData.
  */
-class LoadInitRepresentativeData extends AbstractFixture implements FixtureInterface, ContainerAwareInterface, OrderedFixtureInterface
+class LoadInitRepresentativeData extends AbstractFixture implements FixtureInterface, ContainerAwareInterface, DependentFixtureInterface
 {
     const REPRESENTATIVE_NAME = 'testrepresentative';
     const REPRESENTATIVE_PASSWORD = 'testrepresentative7ZAPe3QnZhbdec';
@@ -61,8 +61,8 @@ class LoadInitRepresentativeData extends AbstractFixture implements FixtureInter
         $manager->flush();
     }
 
-    public function getOrder()
+    public function getDependencies()
     {
-        return 10;
+        return [LoadDistrictData::class];
     }
 }

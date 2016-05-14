@@ -3,11 +3,10 @@
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
-use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Civix\CoreBundle\Entity\District;
 
-class LoadDistrictData extends AbstractFixture implements OrderedFixtureInterface
+class LoadDistrictData extends AbstractFixture
 {
     public function load(ObjectManager $manager)
     {
@@ -18,10 +17,5 @@ class LoadDistrictData extends AbstractFixture implements OrderedFixtureInterfac
         $this->addReference('district_us', $district);
         $manager->persist($district);
         $manager->flush();
-    }
-
-    public function getOrder()
-    {
-        return 1;
     }
 }

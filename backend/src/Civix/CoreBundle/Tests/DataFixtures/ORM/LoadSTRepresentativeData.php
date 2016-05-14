@@ -3,11 +3,11 @@
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
-use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Civix\CoreBundle\Entity\RepresentativeStorage;
 
-class LoadSTRepresentativeData extends AbstractFixture implements OrderedFixtureInterface
+class LoadSTRepresentativeData extends AbstractFixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager)
     {
@@ -25,8 +25,8 @@ class LoadSTRepresentativeData extends AbstractFixture implements OrderedFixture
         $manager->flush();
     }
 
-    public function getOrder()
+    public function getDependencies()
     {
-        return 2;
+        return [LoadDistrictData::class];
     }
 }
