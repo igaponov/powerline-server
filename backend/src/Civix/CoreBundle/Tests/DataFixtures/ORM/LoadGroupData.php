@@ -3,7 +3,6 @@
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
-use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -13,7 +12,7 @@ use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 /**
  * LoadGroupData.
  */
-class LoadGroupData extends AbstractFixture implements ContainerAwareInterface, OrderedFixtureInterface
+class LoadGroupData extends AbstractFixture implements ContainerAwareInterface
 {
     const GROUP_NAME = 'testgroup';
     const GROUP_PASSWORD = 'testgroup7ZAPe3QnZhbdec';
@@ -45,16 +44,6 @@ class LoadGroupData extends AbstractFixture implements ContainerAwareInterface, 
             'testfollowprivategroups',
             $this->createGroup('testfollowprivategroups', null, Group::GROUP_TRANSPARENCY_PRIVATE)
         );
-    }
-
-    /**
-     * Get the order of this fixture
-     *
-     * @return integer
-     */
-    function getOrder()
-    {
-        return 12;
     }
 
     /**

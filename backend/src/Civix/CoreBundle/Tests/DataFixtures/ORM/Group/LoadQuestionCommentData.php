@@ -2,22 +2,19 @@
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM\Group;
 
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Comment;
-use Civix\CoreBundle\Entity\Poll\Option;
 use Civix\CoreBundle\Entity\Poll\Question;
-use Civix\CoreBundle\Entity\Poll\Question\Group as GroupQuestion;
 use Civix\CoreBundle\Entity\Stripe\CustomerGroup;
-use Civix\CoreBundle\Entity\Subscription\Subscription;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Doctrine\Common\DataFixtures\AbstractFixture;
-use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Faker\Factory;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class LoadQuestionCommentData extends AbstractFixture implements ContainerAwareInterface, OrderedFixtureInterface
+class LoadQuestionCommentData extends AbstractFixture implements ContainerAwareInterface, DependentFixtureInterface
 {
     /**
      * @var ContainerInterface
@@ -66,14 +63,9 @@ class LoadQuestionCommentData extends AbstractFixture implements ContainerAwareI
         );
     }
 
-    /**
-     * Get the order of this fixture
-     *
-     * @return integer
-     */
-    function getOrder()
+    public function getDependencies()
     {
-        return 25;
+        return [LoadGroupData::class, LoadGroupQuestionData::class];
     }
 
     /**

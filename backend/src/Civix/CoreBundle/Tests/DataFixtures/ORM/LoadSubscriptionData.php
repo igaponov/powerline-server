@@ -5,12 +5,12 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Stripe\CustomerGroup;
 use Civix\CoreBundle\Entity\Subscription\Subscription;
 use Doctrine\Common\DataFixtures\AbstractFixture;
-use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class LoadSubscriptionData extends AbstractFixture implements ContainerAwareInterface, OrderedFixtureInterface
+class LoadSubscriptionData extends AbstractFixture implements ContainerAwareInterface, DependentFixtureInterface
 {
     /**
      * @var ContainerInterface
@@ -34,14 +34,9 @@ class LoadSubscriptionData extends AbstractFixture implements ContainerAwareInte
         $this->createSubscription($this->getReference('testfollowprivategroups'), Subscription::PACKAGE_TYPE_COMMERCIAL);
     }
 
-    /**
-     * Get the order of this fixture
-     *
-     * @return integer
-     */
-    function getOrder()
+    public function getDependencies()
     {
-        return 22;
+        return [LoadGroupData::class];
     }
 
     /**

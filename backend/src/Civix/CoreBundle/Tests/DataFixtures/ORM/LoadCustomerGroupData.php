@@ -5,13 +5,12 @@ use Civix\CoreBundle\Entity\Customer\Customer;
 use Civix\CoreBundle\Entity\Customer\CustomerGroup;
 use Civix\CoreBundle\Entity\Group;
 use Doctrine\Common\DataFixtures\AbstractFixture;
-use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Faker\Factory;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class LoadCustomerGroupData extends AbstractFixture implements ContainerAwareInterface, OrderedFixtureInterface
+class LoadCustomerGroupData extends AbstractFixture implements ContainerAwareInterface
 {
     /**
      * @var ContainerInterface
@@ -44,14 +43,9 @@ class LoadCustomerGroupData extends AbstractFixture implements ContainerAwareInt
         );
     }
 
-    /**
-     * Get the order of this fixture
-     *
-     * @return integer
-     */
-    function getOrder()
+    public function getDependencies()
     {
-        return 21;
+        return [LoadGroupData::class];
     }
 
     /**

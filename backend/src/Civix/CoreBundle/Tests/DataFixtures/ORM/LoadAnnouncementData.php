@@ -4,11 +4,10 @@ namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\FixtureInterface;
-use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Civix\CoreBundle\Entity\Announcement\RepresentativeAnnouncement;
 
-class LoadAnnouncementData  extends AbstractFixture implements FixtureInterface, OrderedFixtureInterface
+class LoadAnnouncementData  extends AbstractFixture implements FixtureInterface
 {
     public function load(ObjectManager $manager)
     {
@@ -32,8 +31,8 @@ class LoadAnnouncementData  extends AbstractFixture implements FixtureInterface,
         $manager->flush();
     }
 
-    public function getOrder()
+    public function getDependencies()
     {
-        return 20;
+        return [LoadInitRepresentativeData::class];
     }
 }

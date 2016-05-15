@@ -5,7 +5,7 @@ namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\UserGroup;
 use Doctrine\Common\DataFixtures\AbstractFixture;
-use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Civix\CoreBundle\Entity\User;
 
@@ -14,7 +14,7 @@ use Civix\CoreBundle\Entity\User;
  *
  * @author Habibillah <habibillah@gmail.com>
  */
-class LoadUserGroupData extends AbstractFixture implements OrderedFixtureInterface
+class LoadUserGroupData extends AbstractFixture implements DependentFixtureInterface
 {
 
     /** @var ObjectManager $manager */
@@ -41,9 +41,9 @@ class LoadUserGroupData extends AbstractFixture implements OrderedFixtureInterfa
         $this->createUserGroup($this->getReference('testfollowprivategroups'), $users);
     }
 
-    public function getOrder()
+    public function getDependencies()
     {
-        return 13;
+        return [LoadUserData::class];
     }
 
     /**
