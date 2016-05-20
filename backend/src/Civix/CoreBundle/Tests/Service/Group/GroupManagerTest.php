@@ -3,6 +3,8 @@ namespace Civix\CoreBundle\Tests\Service\Group;
 
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
+use Civix\CoreBundle\Model\Geocode\AddressComponent;
+use Civix\CoreBundle\Service\Google\Geocode;
 use Civix\CoreBundle\Service\Group\GroupManager;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
@@ -51,7 +53,25 @@ class GroupManagerTest extends WebTestCase
         $this->em->flush();
 
         /** @var GroupManager $groupManager */
-        $groupManager = $this->container->get('civix_core.group_manager');
+        $geocode = $this->getMock(Geocode::class);
+        $geocode->expects($this->once())
+            ->method('getCountry')
+            ->will($this->returnValue(new AddressComponent('Mozambique', 'MZ')));
+        $geocode->expects($this->once())
+            ->method('getState')
+            ->will($this->returnValue(new AddressComponent('Zambezia Province', 'Zambezia Province')));
+        $geocode->expects($this->once())
+            ->method('getLocality')
+            ->will($this->returnValue(new AddressComponent('Chinde', 'Chinde')));
+        $groupManager = $this->getMock(
+            GroupManager::class,
+            null,
+            [
+                $this->container->get('doctrine.orm.entity_manager'),
+                $geocode,
+                $this->container->get('event_dispatcher')
+            ]
+        );
         $groupManager->autoJoinUser($this->user);
 
         /** @var UserGroup $groups */

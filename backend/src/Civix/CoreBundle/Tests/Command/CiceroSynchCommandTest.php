@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Tests\Command;
 
+use Civix\CoreBundle\Service\CiceroApi;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -9,6 +10,11 @@ use Civix\CoreBundle\Command\CiceroSynchCommand;
 
 class CiceroSynchCommandTest extends WebTestCase
 {
+    private $responseRepresentative;
+    private $responseRepresentativeTitle;
+    private $responseRepresentativeDistrict;
+    private $responseRepresentativeNotFound;
+
     public function setUp()
     {
         $this->responseRepresentative = json_decode(
@@ -31,15 +37,12 @@ class CiceroSynchCommandTest extends WebTestCase
      */
     public function testSynch()
     {
-    	$this->markTestSkipped('Too much time to run');
-    	
         $executor = $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
         ));
 
         $representative = $executor->getReferenceRepository()->getReference('vice_president');
-        $lastUpdatedAt = $representative->getUpdatedAt();
         $officialName = $representative->getOfficialTitle();
         $avatarSrc = $representative->getAvatarSrc();
         $districtId = $representative->getDistrictId();
@@ -73,7 +76,6 @@ class CiceroSynchCommandTest extends WebTestCase
      */
     public function testSynchLink()
     {
-    	$this->markTestSkipped('Too much time to run');
         $executor = $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
@@ -133,8 +135,6 @@ class CiceroSynchCommandTest extends WebTestCase
      */
     public function testSynchWithChangedOfficialTitle()
     {
-    	$this->markTestSkipped('Too much time to run');
-    	
         $executor = $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
@@ -175,8 +175,6 @@ class CiceroSynchCommandTest extends WebTestCase
      */
     public function testSynchWithChangedOfficialTitleLink()
     {
-    	$this->markTestSkipped('Too much time to run');
-    	
         $executor = $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
@@ -224,8 +222,6 @@ class CiceroSynchCommandTest extends WebTestCase
      */
     public function testSynchWithChangedDistrict()
     {
-    	$this->markTestSkipped('Too much time to run');
-    	
         $executor = $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
@@ -266,8 +262,6 @@ class CiceroSynchCommandTest extends WebTestCase
      */
     public function testSynchWithChangedDistrictLink()
     {
-    	$this->markTestSkipped('Too much time to run');
-    	
         $executor = $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
@@ -311,8 +305,6 @@ class CiceroSynchCommandTest extends WebTestCase
      */
     public function testSynchRepresentativeNotFound()
     {
-    	$this->markTestSkipped('Too much time to run');
-    	
         $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
@@ -340,8 +332,6 @@ class CiceroSynchCommandTest extends WebTestCase
      */
     public function testSynchRepresentativeNotFoundLink()
     {
-    	$this->markTestSkipped('Too much time to run');
-    	
         $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
@@ -392,6 +382,7 @@ class CiceroSynchCommandTest extends WebTestCase
     {
         static::$kernel = static::createKernel();
         static::$kernel->boot();
+        $container = static::$kernel->getContainer();
 
         $ciceroMock = $this->getMock('Civix\CoreBundle\Service\CiceroCalls',
             array('getResponse'),
@@ -417,6 +408,17 @@ class CiceroSynchCommandTest extends WebTestCase
             false
         );
 
+        /** @var \PHPUnit_Framework_MockObject_MockObject|CiceroApi $mock */
+        $mock = $this->getMock('Civix\CoreBundle\Service\CiceroApi',
+            array('checkLink'),
+            array(),
+            '',
+            false
+        );
+        $mock->setEntityManager($container->get('doctrine.orm.entity_manager'));
+        $mock->setCongressApi($congressMock);
+        $mock->setOpenstatesApi($openstateServiceMock);
+
         $fileSystem = $this->getMockBuilder('Knp\Bundle\GaufretteBundle\FilesystemMap')
             ->disableOriginalConstructor()
             ->getMock();
@@ -424,12 +426,12 @@ class CiceroSynchCommandTest extends WebTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $container = static::$kernel->getContainer();
         $container->set('civix_core.cicero_calls', $ciceroMock);
         $container->set('civix_core.openstates_api', $openstateServiceMock);
         $container->set('civix_core.congress_api', $congressMock);
         $container->set('knp_gaufrette.filesystem_map', $fileSystem);
         $container->set('vich_uploader.storage.gaufrette', $storage);
+        $container->set('civix_core.cicero_api', $mock);
 
         return $container;
     }
