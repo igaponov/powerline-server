@@ -14,6 +14,7 @@ Knp\Component\Pager\Pagination\AbstractPagination:
                 - paginator
         currentPageNumber:
             expose: true
+            type: integer
             serialized_name:
                 page
             groups:
@@ -21,6 +22,7 @@ Knp\Component\Pager\Pagination\AbstractPagination:
                 - paginator
         numItemsPerPage:
             expose: true
+            type: integer
             serialized_name:
                 items
             groups:
@@ -28,6 +30,7 @@ Knp\Component\Pager\Pagination\AbstractPagination:
                 - paginator
         totalCount:
             expose: true
+            type: integer
             serialized_name:
                 totalItems
             groups:
