@@ -61,7 +61,8 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface
             ->setIsRegistrationComplete(true)
             ->setPhone(date_create()->getOffset())
             ->setIsNotifOwnPostChanged(false)
-            ->setSalt(base_convert(sha1(uniqid(mt_rand(), true)), 16, 36));
+            ->setSalt(base_convert(sha1(uniqid(mt_rand(), true)), 16, 36))
+            ->setToken($username);
 
         /** @var PasswordEncoderInterface $encoder */
         $encoder = $this->container->get('security.encoder_factory')->getEncoder($user);

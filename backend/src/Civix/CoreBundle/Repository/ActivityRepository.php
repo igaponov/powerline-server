@@ -5,6 +5,7 @@ namespace Civix\CoreBundle\Repository;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Superuser;
 use Civix\CoreBundle\Entity\Group;
+use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
@@ -74,7 +75,7 @@ class ActivityRepository extends EntityRepository
     {
         /** @var $em EntityManager */
         $em = $this->getEntityManager();
-
+ 
         /** @var $qb QueryBuilder */
         $qb = $em->createQueryBuilder();
         $expr = $qb->expr();
@@ -370,5 +371,107 @@ class ActivityRepository extends EntityRepository
 
     public function updateOwnerAdmin(Superuser $owner)
     {
+    }
+
+    /**
+     * Find activities by user.
+     *
+     * @param User      $user
+     * @param \DateTime $start
+     *
+     * @return Query
+     */
+    public function getActivitiesByUserQuery(User $user, \DateTime $start = null)
+    {
+        /** @var $em EntityManager */
+        $em = $this->getEntityManager();
+
+        /** @var $qb QueryBuilder */
+        $qb = $em->createQueryBuilder();
+        $expr = $qb->expr();
+
+        $districtsIds = $user->getDistrictsIds();
+        $sectionsIds = $user->getGroupSectionsIds();
+        $activeGroups = $this->getEntityManager()->getRepository('CivixCoreBundle:UserGroup')
+            ->getActiveGroupIds($user);
+
+        $userFollowingIds = $user->getFollowingIds();
+
+        $query = $this->getActivitiesQueryBuilder($start)
+            ->andWhere(
+                $expr->orX(
+                    $expr->in('act_c.districtId', ':userDistrictsIds'),
+                    'act_c.isSuperuser != 1',
+                    $expr->in('act_c.groupId', ':userGroupsIds'),
+                    $expr->in('act_c.userId', ':userFollowingIds'),
+                    $expr->in('act_c.groupSectionId', ':userGroupSectionIds'),
+                    ':user MEMBER OF act_c.users'
+                )
+            )
+            ->setParameter('userDistrictsIds', empty($districtsIds) ? false : $districtsIds)
+            ->setParameter('userGroupsIds', empty($activeGroups) ? false : $activeGroups)
+            ->setParameter('userFollowingIds', empty($userFollowingIds) ? false : $userFollowingIds)
+            ->setParameter('userGroupSectionIds', empty($sectionsIds) ? false : $sectionsIds)
+            ->setParameter('user', $user)
+            ->getQuery();
+        
+        return $query;
+    }
+
+    /**
+     * Find activities by Following the user.
+     *
+     * @param int $followingId
+     * @param \DateTime $start
+     * @return Query
+     */
+    public function getActivitiesByFollowingQuery($followingId, \DateTime $start = null)
+    {
+        $query = $this->getActivitiesQueryBuilder($start)
+            ->andWhere('act_c.userId = :following')
+            ->setParameter('following', $followingId)
+            ->getQuery();
+        
+        return $query;
+    }
+
+    protected function getActivitiesQueryBuilder(\DateTime $start = null)
+    {
+        $qb = $this->createQueryBuilder('act')
+            ->select('act', 'act_r')
+            // 0 = Prioritized Zone (unread, unanswered)
+            // 2 = Expired Zone (expired)
+            // 1 = Non-Prioritized Zone (others)
+            ->addSelect('
+            (CASE WHEN 
+                (qa.id IS NULL AND pa.id IS NULL AND act NOT INSTANCE OF (
+                    Civix\CoreBundle\Entity\Activities\LeaderNews, 
+                    Civix\CoreBundle\Entity\Activities\Petition
+                ))
+                OR 
+                (act_r.id IS NULL AND act INSTANCE OF (
+                    Civix\CoreBundle\Entity\Activities\LeaderNews, 
+                    Civix\CoreBundle\Entity\Activities\Petition
+                ))
+            THEN 0
+            WHEN act.expireAt < CURRENT_TIMESTAMP()
+            THEN 2 
+            ELSE 1
+            END) AS HIDDEN zone')
+            ->leftJoin('act.activityConditions', 'act_c')
+            ->leftJoin('act.activityRead', 'act_r')
+            ->leftJoin('act.question', 'q')
+            ->leftJoin('act.petition', 'p')
+            ->leftJoin('q.answers', 'qa')
+            ->leftJoin('p.answers', 'pa')
+            ->orderBy('zone', 'ASC') // order by priority zone
+            ->addOrderBy('act.sentAt', 'DESC')
+            ->groupBy('act.id');
+        if ($start) {
+            $qb->where('act.sentAt > :start')
+                ->setParameter('start', $start->format('Y-m-d H:i:s'));
+        }
+        
+        return $qb;
     }
 }

@@ -3,11 +3,12 @@
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Civix\CoreBundle\Entity\Announcement\RepresentativeAnnouncement;
 
-class LoadAnnouncementData  extends AbstractFixture implements FixtureInterface
+class LoadAnnouncementData  extends AbstractFixture implements FixtureInterface, DependentFixtureInterface
 {
     public function load(ObjectManager $manager)
     {
