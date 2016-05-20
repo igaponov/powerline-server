@@ -38,7 +38,8 @@ class ActivityController extends BaseController
     }
 
     /**
-     * Return a user's list of activities
+     * Return a user's list of activities.
+     * Deprecated, use /api/v2/activities instead.
      *
      * @Route("/activities")
      * @Method("GET")
@@ -61,7 +62,8 @@ class ActivityController extends BaseController
      *          201="Returned when successful ",
      *          400="",
      *          405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      *
      * @View(serializerGroups={"api-activities"})
