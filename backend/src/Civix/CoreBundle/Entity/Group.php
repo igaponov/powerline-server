@@ -138,7 +138,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      *      {"api-activities", "api-poll","api-groups", "api-info", "api-search",
      *      "api-petitions-list", "api-petitions-info", "api-invites", "api-poll-public"}
      * )
-     * @Serializer\Type("Civix\CoreBundle\Serializer\Type\Avatar")
+     * @Serializer\Type("Avatar")
      * @Serializer\Accessor(getter="getAvatarSrc")
      *
      * @var string
@@ -285,7 +285,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * @Serializer\Expose()
      * @Serializer\Groups({"api-groups", "api-info"})
-     * @Serializer\Type("Civix\CoreBundle\Serializer\Type\JoinStatus")
+     * @Serializer\Type("JoinStatus")
      * @Serializer\Accessor(getter="getJoinStatus")
      *
      * @var int
