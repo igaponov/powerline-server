@@ -108,7 +108,8 @@ class ActivityController extends BaseController
     }
 
     /**
-     * Mark an activity as read
+     * Mark an activity as read.
+     * Deprecated, use "PATCH /api/v2/activities" instead.
      *
      * @Route("/activities/read/")
      * @Method("POST")
@@ -124,7 +125,6 @@ class ActivityController extends BaseController
      *     requirements={
      *     },
      *     tags={
-     *         "stable" = "#89BF04",
      *         "POST" = "#10a54a",
      *         "activity",
      *     },
@@ -140,7 +140,8 @@ class ActivityController extends BaseController
      *          201="Returned when successful ",
      *          400="",
      *          405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      *
      * # TODO: needs input label

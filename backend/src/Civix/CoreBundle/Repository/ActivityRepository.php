@@ -474,4 +474,20 @@ class ActivityRepository extends EntityRepository
         
         return $qb;
     }
+
+    /**
+     * @param $id
+     * @param User $user
+     * @return Activity[]
+     */
+    public function findWithActivityReadByIdAndUser($id, User $user)
+    {
+        return $this->createQueryBuilder('a')
+            ->select('a', 'ar')
+            ->leftJoin('a.activityRead', 'ar')
+            ->where($this->_em->getExpressionBuilder()->in('a.id', $id))
+            ->andWhere('a.user = :user')
+            ->setParameter(':user', $user)
+            ->getQuery()->getResult();
+    }
 }

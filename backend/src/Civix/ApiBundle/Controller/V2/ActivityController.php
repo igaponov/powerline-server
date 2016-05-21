@@ -2,13 +2,16 @@
 
 namespace Civix\ApiBundle\Controller\V2;
 
+use Civix\ApiBundle\Form\Type\ActivitiesType;
 use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\UserFollow;
+use Doctrine\Common\Collections\ArrayCollection;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
 use Knp\Component\Pager\Event\AfterEvent;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -89,5 +92,45 @@ class ActivityController extends FOSRestController
             $params->get('per_page'),
             ['distinct' => false]
         );
+    }
+
+    /**
+     * Bulk update activities
+     *
+     * @Route("")
+     * @Method("PATCH")
+     *
+     * @ApiDoc(
+     *     authentication = true,
+     *     resource=true,
+     *     section="Activity",
+     *     description="Bulk update activities",
+     *     input = "Civix\ApiBundle\Form\Type\ActivitiesType",
+     *     output = {
+     *          "class" = "array<Civix\CoreBundle\Entity\Activity>",
+     *          "groups" = {"api-activities"}
+     *     },
+     *     statusCodes={
+     *          200="Returned when successful",
+     *          405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @View(serializerGroups={"api-activities"})
+     *
+     * @param Request $request
+     * @return \Symfony\Component\Form\Form|Response
+     */
+    public function patchAction(Request $request)
+    {
+        $form = $this->createForm(new ActivitiesType());
+        $form->submit($request);
+        
+        if ($form->isValid()) {
+            return $this->get('civix_core.service.activity_manager')
+                ->bulkUpdate(new ArrayCollection($form->getData()['activities']), $this->getUser());
+        }
+
+        return $form;
     }
 }

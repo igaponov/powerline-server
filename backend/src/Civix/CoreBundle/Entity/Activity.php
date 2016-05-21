@@ -158,6 +158,7 @@ abstract class Activity
     /**
      * @var bool
      * @Serializer\Expose()
+     * @Serializer\Type("boolean")
      * @Serializer\Groups({"api-activities"})
      */
     protected $read = false;

@@ -36,18 +36,37 @@ class LoadActivityData extends AbstractFixture implements ContainerAwareInterfac
     public function load(ObjectManager $manager)
     {
         $user = $this->getReference('followertest');
-        $manager->persist($this->generateActivity(new LeaderNews(), $user));
-        $manager->persist($this->generateActivity(new CrowdfundingPaymentRequest(), $user, new \DateTime('-1 hour')));
-        $manager->persist($this->generateActivity(new MicroPetition(), $user));
+        $leaderNews = $this->generateActivity(new LeaderNews(), $user);
+        $manager->persist($leaderNews);
+        $this->addReference('activity_leader_news', $leaderNews);
+        $crowdfundingPaymentRequest = $this->generateActivity(
+            new CrowdfundingPaymentRequest(),
+            $user,
+            new \DateTime('-1 hour')
+        );
+        $manager->persist($crowdfundingPaymentRequest);
+        $this->addReference('activity_crowdfunding_payment_request', $crowdfundingPaymentRequest);
+        $micropetition = $this->generateActivity(new MicroPetition(), $user);
+        $manager->persist($micropetition);
+        $this->addReference('activity_micropetition', $micropetition);
         $user2 = $this->getReference('userfollowtest1');
-        $manager->persist($this->generateActivity(new Petition(), $user2));
-        $manager->persist($this->generateActivity(new Question(), $user2, new \DateTime('-1 day')));
+        $petition = $this->generateActivity(new Petition(), $user2);
+        $manager->persist($petition);
+        $this->addReference('activity_petition', $petition);
+        $question = $this->generateActivity(new Question(), $user2, new \DateTime('-1 day'));
+        $manager->persist($question);
+        $this->addReference('activity_question', $question);
         $user3 = $this->getReference('userfollowtest2');
-        $manager->persist($this->generateActivity(new LeaderEvent(), $user3, new \DateTime('-1 month')));
-        $manager->persist($this->generateActivity(new PaymentRequest(), $user3));
-        $activity = $this->generateActivity(new Petition(), $user3);
-        $activity->setSentAt(new \DateTime('-2 months'));
-        $manager->persist($activity);
+        $leaderEvent = $this->generateActivity(new LeaderEvent(), $user3, new \DateTime('-1 month'));
+        $manager->persist($leaderEvent);
+        $this->addReference('activity_leader_event', $leaderEvent);
+        $paymentRequest = $this->generateActivity(new PaymentRequest(), $user3);
+        $manager->persist($paymentRequest);
+        $this->addReference('activity_payment_request', $paymentRequest);
+        $petition = $this->generateActivity(new Petition(), $user3);
+        $petition->setSentAt(new \DateTime('-2 months'));
+        $manager->persist($petition);
+        $this->addReference('activity_petition2', $petition);
         $manager->flush();
     }
 
