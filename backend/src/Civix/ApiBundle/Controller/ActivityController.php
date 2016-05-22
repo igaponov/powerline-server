@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use FOS\RestBundle\Controller\Annotations\View;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -37,16 +38,21 @@ class ActivityController extends BaseController
     }
 
     /**
-     * Return a user's list of activities
+     * Return a user's list of activities.
+     * Deprecated, use /api/v2/activities instead.
      *
-     * @Route("/activities/")
+     * @Route("/activities")
      * @Method("GET")
      *
      * @ApiDoc(
-     *     authentication = false,
+     *     authentication = true,
      *     resource=true,
      *     section="Activity",
      *     input = "",
+     *     output = {
+     *          "class" = "ArrayCollection<Civix\CoreBundle\Entity\Activity>",
+     *          "groups" = {"api-activities"}
+     *     },
      *     filters={
      *     },
      *     parameters={
@@ -56,30 +62,28 @@ class ActivityController extends BaseController
      *          201="Returned when successful ",
      *          400="",
      *          405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      *
-     * # TODO: may need to upgrade api-doc-bundle
-     * # output = {
-     * #         "class" = "Civix\CoreBundle\Entity\Activity",
-     * #         "groups" = {"api-activities"},
-     * #    },
+     * @View(serializerGroups={"api-activities"})
      *
+     * @param Request $request
+     * @return Response
      */
-    public function listAction(Request $request)
+    public function getcAction(Request $request)
     {
         $offset = $request->query->get('offset', 0);
         $limit = $request->query->get('limit', 10);
 
-        $start = new \DateTime();
-        $start->sub(new \DateInterval('P30D'));
+        $start = new \DateTime('-30 days');
 
-        if ($request->query->has('following')) {
+        if ($request->query->get('following')) {
             // following var set in request
 
             // get following users
             $following = $this->getDoctrine()->getRepository(User::class)
-                ->find($request->get('following'));
+                ->find($request->query->get('following'));
 
             // get user follow status
             $userFollow = $this->getDoctrine()
@@ -100,14 +104,12 @@ class ActivityController extends BaseController
                 ->findActivitiesByUser($this->getUser(), $start, (int) $offset, (int) $limit);
         }
 
-        $response = $this->createJSONResponse($this->jmsSerialization($activities, ['api-activities']));
-        $response->headers->set('Server-Time', (new \DateTime())->format('D, d M Y H:i:s O'));
-
-        return $response;
+        return $activities;
     }
 
     /**
-     * Mark an activity as read
+     * Mark an activity as read.
+     * Deprecated, use "PATCH /api/v2/activities" instead.
      *
      * @Route("/activities/read/")
      * @Method("POST")
@@ -123,7 +125,6 @@ class ActivityController extends BaseController
      *     requirements={
      *     },
      *     tags={
-     *         "stable" = "#89BF04",
      *         "POST" = "#10a54a",
      *         "activity",
      *     },
@@ -139,7 +140,8 @@ class ActivityController extends BaseController
      *          201="Returned when successful ",
      *          400="",
      *          405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      *
      * # TODO: needs input label

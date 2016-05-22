@@ -130,7 +130,7 @@ abstract class Activity
     protected $user;
 
     /**
-     * @ORM\OneToMany(targetEntity="ActivityCondition", mappedBy="activity")
+     * @ORM\OneToMany(targetEntity="ActivityCondition", mappedBy="activity", cascade={"persist"})
      */
     protected $activityConditions;
 
@@ -158,9 +158,10 @@ abstract class Activity
     /**
      * @var bool
      * @Serializer\Expose()
+     * @Serializer\Type("boolean")
      * @Serializer\Groups({"api-activities"})
      */
-    protected $read;
+    protected $read = false;
 
     /**
      * @ORM\Column(name="rate_up", type="integer", nullable=true)
@@ -536,6 +537,7 @@ abstract class Activity
     public function addActivityCondition(\Civix\CoreBundle\Entity\ActivityCondition $activityConditions)
     {
         $this->activityConditions[] = $activityConditions;
+        $activityConditions->setActivity($this);
 
         return $this;
     }

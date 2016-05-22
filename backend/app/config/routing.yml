@@ -4,6 +4,12 @@ civix_api:
     prefix:   /api
     defaults: { _format: 'json' }
 
+civix_api_v2:
+    resource: "@CivixApiBundle/Controller/V2/"
+    type:     annotation
+    prefix:   /api/v2
+    defaults: { _format: 'json' }
+
 civix_api_public:
     resource: "@CivixApiBundle/Controller/PublicApi"
     type:     annotation
