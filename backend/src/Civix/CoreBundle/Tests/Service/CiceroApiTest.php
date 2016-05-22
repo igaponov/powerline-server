@@ -2,15 +2,21 @@
 
 namespace Civix\CoreBundle\Tests\Service;
 
+use Civix\CoreBundle\Service\CiceroApi;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\District;
 
 class CiceroApiTest extends WebTestCase
 {
-    private $serviceObj;
+    /**
+     * @var Representative
+     */
     private $representativeObj;
     private $districtObj;
+    private $responseCandidates;
+    private $resultCandidatesDistricts;
+    private $responseRepresentative;
 
     public function setUp()
     {
@@ -33,15 +39,13 @@ class CiceroApiTest extends WebTestCase
      */
     public function testGetRepresentativeByLocation()
     {
-    	$this->markTestSkipped('Too much time to run');
-    	
         $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadInitRepresentativeData',
         ));
-
+        /** @var \PHPUnit_Framework_MockObject_MockObject|CiceroApi $mock */
         $mock = $this->getMock('Civix\CoreBundle\Service\CiceroApi',
-            null,
+            array('getNonlegislaveDistricts', 'checkLink'),
             array(),
             '',
             false
@@ -97,14 +101,20 @@ class CiceroApiTest extends WebTestCase
         $mock->setOpenstatesApi($openstatesApi);
         $mock->setLogger($logger);
 
-        $ciceroCallsMock->expects($this->any())
+        $ciceroCallsMock->expects($this->once())
            ->method('getResponse')
            ->will($this->returnValue($this->responseCandidates));
         $mock->setCiceroCalls($ciceroCallsMock);
+        $mock->expects($this->exactly(10))
+            ->method('checkLink')
+            ->will($this->returnValue(false));
+        $mock->expects($this->once())
+            ->method('getNonlegislaveDistricts')
+            ->will($this->returnValue([]));
 
         $districts = $mock->getRepresentativeByLocation('108 4th St', 'Hoboken', 'NJ');
 
-        $districtsIds = array_map(function ($district) {
+        $districtsIds = array_map(function (District $district) {
             return $district->getId();
         }, $districts);
 
@@ -121,15 +131,13 @@ class CiceroApiTest extends WebTestCase
      */
     public function testUpdateByRepresentativeInfo()
     {
-    	$this->markTestSkipped('Too much time to run');
-    	
         $this->loadFixtures(array(
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
             'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadInitRepresentativeData',
         ));
-
+        /** @var \PHPUnit_Framework_MockObject_MockObject|CiceroApi $mock */
         $mock = $this->getMock('Civix\CoreBundle\Service\CiceroApi',
-            null,
+            ['checkLink'],
             array(),
             '',
             false
@@ -190,6 +198,9 @@ class CiceroApiTest extends WebTestCase
                    ->method('getResponse')
                    ->will($this->returnValue($this->responseRepresentative));
         $mock->setCiceroCalls($ciceroCallsMock);
+        $mock->expects($this->once())
+            ->method('checkLink')
+            ->will($this->returnValue(false));
 
         $district = $mock->updateByRepresentativeInfo($this->representativeObj);
 

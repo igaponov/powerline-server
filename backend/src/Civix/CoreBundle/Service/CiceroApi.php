@@ -68,7 +68,7 @@ class CiceroApi extends ServiceApi
      *
      * @param Representative $representative Representative object
      *
-     * @return int
+     * @return District|bool
      */
     public function updateByRepresentativeInfo(Representative $representative)
     {
