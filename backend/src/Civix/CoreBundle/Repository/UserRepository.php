@@ -520,10 +520,16 @@ class UserRepository extends EntityRepository
     }
 
     /**
-     * Returns users [{name, address}, ...]
+     * Returns partial user entities
+     * [{id, first name, last name, email}, ...]
+     *
+     * This method uses Partial Objects,
+     * that leads to potentially more fragile code
+     *
+     * @see http://doctrine-orm.readthedocs.io/projects/doctrine-orm/en/latest/reference/partial-objects.html
      * 
      * @param $groupId
-     * @return array
+     * @return User[]
      */
     public function getUsersEmailsByGroup($groupId)
     {
