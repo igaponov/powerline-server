@@ -44,7 +44,22 @@ class AnnouncementRepository extends EntityRepository
         ;
     }
 
+    /**
+     * @param User $user
+     * @param \DateTime $start
+     * @return array
+     */
     public function findByUser(User $user, \DateTime $start)
+    {
+        return $this->getByUserQuery($user, $start)->getResult();
+    }
+
+    /**
+     * @param User $user
+     * @param \DateTime $start
+     * @return \Doctrine\ORM\Query
+     */
+    public function getByUserQuery(User $user, \DateTime $start)
     {
         $districtsIds = $user->getDistrictsIds();
         $groupsIds = $user->getGroupsIds();
@@ -86,7 +101,6 @@ class AnnouncementRepository extends EntityRepository
             ->setParameter('start', $start->format('Y-m-d H:i:s'))
             ->orderBy('a.publishedAt', 'DESC')
             ->getQuery()
-            ->getResult()
         ;
     }
 
