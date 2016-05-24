@@ -7,7 +7,7 @@ use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Civix\CoreBundle\Entity\RepresentativeStorage;
 
-class LoadSTRepresentativeData extends AbstractFixture implements DependentFixtureInterface
+class LoadRepresentativeStorageData extends AbstractFixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager)
     {
