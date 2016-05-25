@@ -7,6 +7,7 @@ use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Civix\CoreBundle\Command\CiceroSynchCommand;
+use Civix\CoreBundle\Tests\DataFixtures\ORM as ORM;
 
 class CiceroSynchCommandTest extends WebTestCase
 {
@@ -38,8 +39,8 @@ class CiceroSynchCommandTest extends WebTestCase
     public function testSynch()
     {
         $executor = $this->loadFixtures(array(
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
+            ORM\LoadDistrictData::class,
+            ORM\LoadRepresentativeStorageData::class,
         ));
 
         $representative = $executor->getReferenceRepository()->getReference('vice_president');
@@ -77,9 +78,9 @@ class CiceroSynchCommandTest extends WebTestCase
     public function testSynchLink()
     {
         $executor = $this->loadFixtures(array(
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData',
+            ORM\LoadDistrictData::class,
+            ORM\LoadRepresentativeStorageData::class,
+            ORM\LoadRepresentativeData::class,
         ));
 
         $representativeSt = $executor->getReferenceRepository()->getReference('vice_president');
@@ -136,8 +137,8 @@ class CiceroSynchCommandTest extends WebTestCase
     public function testSynchWithChangedOfficialTitle()
     {
         $executor = $this->loadFixtures(array(
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
+            ORM\LoadDistrictData::class,
+            ORM\LoadRepresentativeStorageData::class,
         ));
 
         $representative = $executor->getReferenceRepository()->getReference('vice_president');
@@ -176,9 +177,9 @@ class CiceroSynchCommandTest extends WebTestCase
     public function testSynchWithChangedOfficialTitleLink()
     {
         $executor = $this->loadFixtures(array(
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData',
+            ORM\LoadDistrictData::class,
+            ORM\LoadRepresentativeStorageData::class,
+            ORM\LoadRepresentativeData::class,
         ));
 
         $representativeSt = $executor->getReferenceRepository()->getReference('vice_president');
@@ -223,8 +224,8 @@ class CiceroSynchCommandTest extends WebTestCase
     public function testSynchWithChangedDistrict()
     {
         $executor = $this->loadFixtures(array(
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
+            ORM\LoadDistrictData::class,
+            ORM\LoadRepresentativeStorageData::class,
         ));
 
         $representative = $executor->getReferenceRepository()->getReference('vice_president');
@@ -263,9 +264,9 @@ class CiceroSynchCommandTest extends WebTestCase
     public function testSynchWithChangedDistrictLink()
     {
         $executor = $this->loadFixtures(array(
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData',
+            ORM\LoadDistrictData::class,
+            ORM\LoadRepresentativeStorageData::class,
+            ORM\LoadRepresentativeData::class,
         ));
 
         $representative = $executor->getReferenceRepository()->getReference('vice_president');
@@ -306,8 +307,8 @@ class CiceroSynchCommandTest extends WebTestCase
     public function testSynchRepresentativeNotFound()
     {
         $this->loadFixtures(array(
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
+            ORM\LoadDistrictData::class,
+            ORM\LoadRepresentativeStorageData::class,
         ));
 
         $container = $this->getContainerForCheck($this->responseRepresentativeNotFound);
@@ -333,9 +334,9 @@ class CiceroSynchCommandTest extends WebTestCase
     public function testSynchRepresentativeNotFoundLink()
     {
         $this->loadFixtures(array(
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSTRepresentativeData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData',
+            ORM\LoadDistrictData::class,
+            ORM\LoadRepresentativeStorageData::class,
+            ORM\LoadRepresentativeData::class,
         ));
 
         $container = $this->getContainerForCheck($this->responseRepresentativeNotFound);

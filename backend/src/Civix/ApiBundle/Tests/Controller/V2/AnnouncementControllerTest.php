@@ -81,7 +81,7 @@ class AnnouncementControllerTest extends WebTestCase
     public function testGetAnnouncementsIsEmpty()
     {
         $client = $this->client;
-        $client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"']);
+        $client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="testuserbookmark1"']);
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
