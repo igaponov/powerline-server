@@ -6,6 +6,7 @@ use Civix\CoreBundle\Service\CiceroApi;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\District;
+use Civix\CoreBundle\Tests\DataFixtures\ORM as ORM;
 
 class CiceroApiTest extends WebTestCase
 {
@@ -40,8 +41,8 @@ class CiceroApiTest extends WebTestCase
     public function testGetRepresentativeByLocation()
     {
         $this->loadFixtures(array(
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadInitRepresentativeData',
+            ORM\LoadDistrictData::class,
+            ORM\LoadRepresentativeData::class,
         ));
         /** @var \PHPUnit_Framework_MockObject_MockObject|CiceroApi $mock */
         $mock = $this->getMock('Civix\CoreBundle\Service\CiceroApi',
@@ -105,7 +106,7 @@ class CiceroApiTest extends WebTestCase
            ->method('getResponse')
            ->will($this->returnValue($this->responseCandidates));
         $mock->setCiceroCalls($ciceroCallsMock);
-        $mock->expects($this->exactly(10))
+        $mock->expects($this->exactly(9))
             ->method('checkLink')
             ->will($this->returnValue(false));
         $mock->expects($this->once())
@@ -132,8 +133,8 @@ class CiceroApiTest extends WebTestCase
     public function testUpdateByRepresentativeInfo()
     {
         $this->loadFixtures(array(
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData',
-            'Civix\CoreBundle\Tests\DataFixtures\ORM\LoadInitRepresentativeData',
+            ORM\LoadDistrictData::class,
+            ORM\LoadRepresentativeData::class,
         ));
         /** @var \PHPUnit_Framework_MockObject_MockObject|CiceroApi $mock */
         $mock = $this->getMock('Civix\CoreBundle\Service\CiceroApi',
@@ -198,7 +199,7 @@ class CiceroApiTest extends WebTestCase
                    ->method('getResponse')
                    ->will($this->returnValue($this->responseRepresentative));
         $mock->setCiceroCalls($ciceroCallsMock);
-        $mock->expects($this->once())
+        $mock->expects($this->never())
             ->method('checkLink')
             ->will($this->returnValue(false));
 

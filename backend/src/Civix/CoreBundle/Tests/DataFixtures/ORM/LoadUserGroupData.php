@@ -43,7 +43,7 @@ class LoadUserGroupData extends AbstractFixture implements DependentFixtureInter
 
     public function getDependencies()
     {
-        return [LoadUserData::class];
+        return [LoadUserData::class, LoadGroupData::class];
     }
 
     /**
@@ -56,7 +56,7 @@ class LoadUserGroupData extends AbstractFixture implements DependentFixtureInter
         foreach ($members as $member) {
             $userGroup = new UserGroup($member, $group);
             $this->manager->persist($userGroup);
-            $this->setReference($member->getUsername(), $member);
+            $this->setReference($member->getUsername().'_'.$group->getUsername(), $userGroup);
         }
 
         $this->manager->flush();
