@@ -47,7 +47,6 @@ class AnnouncementController extends FOSRestController
      *     },
      *     statusCodes={
      *         200="Returns announcements",
-     *         400="Bad Request",
      *         405="Method Not Allowed"
      *     }
      * )

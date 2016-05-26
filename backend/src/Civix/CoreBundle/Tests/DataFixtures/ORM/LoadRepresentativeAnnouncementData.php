@@ -9,7 +9,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Civix\CoreBundle\Entity\Announcement\RepresentativeAnnouncement;
 use Faker\Factory;
 
-class LoadAnnouncementData  extends AbstractFixture implements FixtureInterface, DependentFixtureInterface
+class LoadRepresentativeAnnouncementData extends AbstractFixture implements FixtureInterface, DependentFixtureInterface
 {
     public function load(ObjectManager $manager)
     {
