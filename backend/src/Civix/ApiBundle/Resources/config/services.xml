@@ -61,6 +61,12 @@
             <argument id="civix_core.package_handler" type="service"/>
             <tag name="security.voter"/>
         </service>
+
+        <service class="Civix\ApiBundle\EventListener\VersionListener" id="civix_api.event_listener.version_listener">
+            <argument id="fos_rest.view_handler.default" type="service"/>
+            <argument type="string">%default_api_version%</argument>
+            <tag name="kernel.event_listener" event="kernel.controller" method="onKernelController" priority="33" />
+        </service>
     </services>
 
 </container>
