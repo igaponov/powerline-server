@@ -303,8 +303,6 @@
         <service id="civix_core.subscription_manager" class="Civix\CoreBundle\Service\Subscription\SubscriptionManager">
             <argument type="service" id="doctrine.orm.entity_manager"/>
             <argument type="service" id="civix_core.stripe" />
-            <argument type="service" id="civix_core.email_sender"/>
-            <argument type="service" id="civix_core.discount_code_manager"/>
         </service>
 
         <service id="civix_core.package_handler" class="Civix\CoreBundle\Service\Subscription\PackageHandler">
