@@ -56,6 +56,11 @@
         <service class="Civix\ApiBundle\Security\Authorization\Voter\PollOptionVoter" id="civix_api.security_authorization_voter.poll_option_voter">
             <tag name="security.voter"/>
         </service>
+
+        <service class="Civix\ApiBundle\Security\Authorization\Voter\AnnouncementVoter" id="civix_api.security_authorization_voter.announcement_voter">
+            <argument id="civix_core.package_handler" type="service"/>
+            <tag name="security.voter"/>
+        </service>
     </services>
 
 </container>

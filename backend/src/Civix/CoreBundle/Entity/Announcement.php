@@ -89,13 +89,6 @@ abstract class Announcement
     protected $group;
 
     /**
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api"})
-     * @Serializer\Accessor(getter="getUser")
-     */
-    private $user;
-
-    /**
      * Get id.
      *
      * @return int
@@ -235,6 +228,13 @@ abstract class Announcement
         return new Image($entity, 'avatar');
     }
 
+    /**
+     * @return UserInterface
+     * 
+     * @Serializer\VirtualProperty()
+     * @Serializer\SerializedName("user")
+     * @Serializer\Groups({"api"})
+     */
     abstract public function getUser();
     abstract public function setUser();
 }

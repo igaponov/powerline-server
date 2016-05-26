@@ -1,7 +1,7 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadAnnouncementData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeAnnouncementData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
@@ -29,7 +29,7 @@ class AnnouncementControllerTest extends WebTestCase
             LoadUserData::class,
             LoadDistrictData::class,
             LoadRepresentativeData::class,
-            LoadAnnouncementData::class,
+            LoadRepresentativeAnnouncementData::class,
         ])->getReferenceRepository();
         // Creates a initial client
         $this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);

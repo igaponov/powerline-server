@@ -23,16 +23,6 @@ class SubscriptionManager
      */
     private $stripe;
 
-    /**
-     * @var EmailSender
-     */
-    private $es;
-
-    /**
-     * @var DiscountCodeManager
-     */
-    private $dm;
-
     private $packageKeyToClass = [
         Subscription::PACKAGE_TYPE_FREE => 'Free',
         Subscription::PACKAGE_TYPE_SILVER => 'Silver',
@@ -49,12 +39,10 @@ class SubscriptionManager
         Subscription::PACKAGE_TYPE_COMMERCIAL => null,
     ];
 
-    public function __construct(EntityManager $em, Stripe $stripe, EmailSender $es, DiscountCodeManager $dm)
+    public function __construct(EntityManager $em, Stripe $stripe)
     {
         $this->em = $em;
         $this->stripe = $stripe;
-        $this->es = $es;
-        $this->dm = $dm;
     }
 
     /**
