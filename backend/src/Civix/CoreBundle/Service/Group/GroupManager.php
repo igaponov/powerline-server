@@ -53,13 +53,23 @@ class GroupManager
         $this->dispatcher = $dispatcher;
     }
 
-    public function create(Group $group)
+    public function register(Group $group)
     {
         $this->entityManager->persist($group);
         $this->entityManager->flush();
 
         $event = new GroupEvent($group);
         $this->dispatcher->dispatch(GroupEvents::REGISTERED, $event);
+    }
+
+    public function create(Group $group)
+    {
+        $group->setPlainPassword(uniqid('', true));
+        $this->entityManager->persist($group);
+        $this->entityManager->flush();
+
+        $event = new GroupEvent($group);
+        $this->dispatcher->dispatch(GroupEvents::CREATED, $event);
     }
 
     public function joinToGroup(User $user, Group $group)

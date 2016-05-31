@@ -2,7 +2,7 @@
 
 namespace Civix\ApiBundle\Controller;
 
-use Civix\ApiBundle\Form\Type\GroupType;
+use Civix\ApiBundle\Form\Type\GroupRegistrationType;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
@@ -534,7 +534,7 @@ class SecureController extends BaseController
      */
     public function registrationGroupAction()
     {
-        $form = $this->createForm(new GroupType(), null, [
+        $form = $this->createForm(new GroupRegistrationType(), null, [
             'validation_groups' => ['api-registration']
         ]);
 
@@ -548,7 +548,7 @@ class SecureController extends BaseController
             $em->persist($group);
             $em->flush();
 
-            $this->get('civix_core.group_manager')->create($group);
+            $this->get('civix_core.group_manager')->register($group);
 
             return $group;
         }
