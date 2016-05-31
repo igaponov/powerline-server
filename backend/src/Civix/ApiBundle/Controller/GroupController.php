@@ -325,13 +325,27 @@ class GroupController extends BaseController
     /**
      * @todo duplicate getGroupsAction?
      * 
+     * Return user's groups.
+     * Deprecated, use /api/v2/user/groups instead.
+     * 
      * @Route("/user-groups/", name="civix_api_groups_by_user2")
      * @Method("GET")
+     * 
+     * @ApiDoc(
+     *     authentication = true,
+     *     description="Return user's groups",
+     *     section="Group",
+     *     output={
+     *          "class" = "array<Civix\CoreBundle\Entity\UserGroup>",
+     *          "groups" = {"api-groups"}
+     *     },
+     *     deprecated=true
+     * )
      */
     public function getUserGroupsAction()
     {
         $groups = $this->getDoctrine()->getRepository(Group::class)
-            ->getUserGroupsByUser($this->getUser());
+            ->getByUserQuery($this->getUser())->getResult();
 
         $response = new Response($this->jmsSerialization($groups, ['api-groups']));
         $response->headers->set('Content-Type', 'application/json');

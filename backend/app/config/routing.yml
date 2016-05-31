@@ -8,7 +8,7 @@ civix_api_v2:
     resource: "@CivixApiBundle/Controller/V2/"
     type:     annotation
     prefix:   /api/v2
-    defaults: { _format: 'json' }
+    defaults: { _format: 'json', version: "2" }
 
 civix_api_public:
     resource: "@CivixApiBundle/Controller/PublicApi"

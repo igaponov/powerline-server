@@ -65,3 +65,5 @@ parameters:
 
     auto_invite_group_id: 1
     imgix.domain:  powerline-dev.imgix.net
+
+    default_api_version: 1

@@ -27,10 +27,11 @@ class GroupRepository extends EntityRepository
     }
 
     /**
-     * 
+     *
      * @param User $user
+     * @return \Doctrine\ORM\Query
      */
-    public function getUserGroupsByUser(User $user)
+    public function getByUserQuery(User $user)
     {
         $qb = $this->getEntityManager()->createQueryBuilder();
 
@@ -41,7 +42,6 @@ class GroupRepository extends EntityRepository
             ->where('ug.user = :user')
             ->setParameter('user', $user)
             ->getQuery()
-            ->getResult()
         ;
     }
 

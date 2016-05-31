@@ -29,6 +29,7 @@ class UserGroup
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Serializer\Expose()
+     * @Serializer\Until("1")
      * @Serializer\Groups({"api-info", "api-groups"})
      */
     protected $id;
@@ -44,6 +45,7 @@ class UserGroup
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Group", inversedBy="users", cascade={"persist"})
      * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="cascade")
      * @Serializer\Expose()
+     * @Serializer\Until("2")
      * @Serializer\Groups({"api-groups"})
      */
     private $group;
@@ -67,6 +69,7 @@ class UserGroup
      *
      * @ORM\Column(name="status", type="smallint")
      * @Serializer\Expose()
+     * @Serializer\Until("1")
      * @Serializer\Groups({"api-info", "api-groups"})
      */
     private $status;
@@ -156,6 +159,14 @@ class UserGroup
      */
     private $permissionsApprovedAt;
 
+    public static function getStatusLabels()
+    {
+        return [
+            self::STATUS_PENDING => 'pending',
+            self::STATUS_ACTIVE => 'active',
+        ];
+    }
+
     public function __construct(User $user, Group $group)
     {
         $this->setUser($user);
@@ -216,6 +227,25 @@ class UserGroup
     }
 
     /**
+     * @return string|null
+     * 
+     * @Serializer\VirtualProperty()
+     * @Serializer\Since("2")
+     * @Serializer\SerializedName("join_status")
+     * @Serializer\Type("string")
+     * @Serializer\Groups({"api-info", "api-groups"})
+     */
+    public function getJoinStatus()
+    {
+        $labels = $this->getStatusLabels();
+        if (isset($labels[$this->status])) {
+            return $labels[$this->status];
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Set user.
      *
      * @param \Civix\CoreBundle\Entity\User $user
@@ -259,6 +289,19 @@ class UserGroup
      * @return \Civix\CoreBundle\Entity\Group
      */
     public function getGroup()
+    {
+        return $this->group;
+    }
+
+    /**
+     * @return User
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Since("2")
+     * @Serializer\Inline()
+     * @Serializer\Groups({"api-info", "api-groups"})
+     */
+    public function getGroupInline()
     {
         return $this->group;
     }
