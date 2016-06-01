@@ -17,6 +17,7 @@ class SocialActivityController extends BaseController
 {
     /**
      * List all social activities for a current user.
+     * Deprecated, use `GET /api/v2/user/social-activities` instead.
      *
      * @Route("/", name="civix_get_social_activities")
      * @Method("GET")
@@ -25,7 +26,7 @@ class SocialActivityController extends BaseController
      *
      * @ApiDoc(
      *     resource=true,
-     *     section="Social Activities",
+     *     section="Social Activity",
      *     description="List all social activities for a current user.",
      *     output="Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination",
      *     statusCodes={
@@ -33,7 +34,8 @@ class SocialActivityController extends BaseController
      *         400="Bad Request",
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      *
      * @View(serializerGroups={"paginator", "api-activities"})
@@ -56,8 +58,15 @@ class SocialActivityController extends BaseController
     }
 
     /**
+     * Deprecated, use `DELETE /api/v2/social-activities` instead.
+     *
      * @Route("/{id}")
      * @Method("DELETE")
+     *
+     * @ApiDoc(
+     *     section="Social Activity",
+     *     deprecated=true
+     * )
      */
     public function removeAction(SocialActivity $socialActivity)
     {
@@ -71,8 +80,15 @@ class SocialActivityController extends BaseController
     }
 
     /**
+     * Deprecated, use `PUT /api/v2/social-activities` instead.
+     *
      * @Route("/{id}")
      * @Method("PUT")
+     *
+     * @ApiDoc(
+     *     section="Social Activity",
+     *     deprecated=true
+     * )
      */
     public function putAction(SocialActivity $socialActivity)
     {
