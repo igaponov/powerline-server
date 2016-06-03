@@ -11,11 +11,11 @@ use Symfony\Component\Security\Core\Util\SecureRandom;
 
 class GroupRepository extends EntityRepository
 {
-	/**
-	 * 
-	 * @param User $user
-	 */
-    public function getGroupsByUser(User $user)
+    /**
+     *
+     * @return array
+     */
+    public function getGroupsByUser()
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder();
 

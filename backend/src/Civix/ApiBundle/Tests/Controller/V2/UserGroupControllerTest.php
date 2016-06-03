@@ -2,10 +2,12 @@
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
+use Faker\Factory;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class UserGroupControllerTest extends WebTestCase
@@ -81,5 +83,54 @@ class UserGroupControllerTest extends WebTestCase
         $this->assertSame(20, $data['items']);
         $this->assertSame(0, $data['totalItems']);
         $this->assertCount(0, $data['payload']);
+    }
+
+    public function testCreateGroupWithErrors()
+    {
+        $errors = [
+            'username' => ['This value should not be blank.'],
+            'official_name' => ['This value should not be blank.'],
+            'official_type' => ['This value should not be blank.'],
+        ];
+        $client = $this->client;
+        $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']);
+        $response = $client->getResponse();
+        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $count = 0;
+        foreach ($data['errors']['children'] as $property => $arr) {
+            if (!empty($arr['errors'])) {
+                $count++;
+                $this->assertSame($errors[$property], $arr['errors']);
+            }
+        }
+        $this->assertCount($count, $errors);
+    }
+
+    public function testCreateGroupIsOk()
+    {
+        $faker = Factory::create();
+        $params = [
+            'username' => $faker->userName,
+            'manager_first_name' => $faker->firstName,
+            'manager_last_name' => $faker->lastName,
+            'manager_email' => $faker->email,
+            'manager_phone' => $faker->phoneNumber,
+            'official_type' => $faker->randomElement(Group::getOfficialTypes()),
+            'official_name' => $faker->company,
+            'official_description' => $faker->text,
+            'acronym' => $faker->company,
+            'official_address' => $faker->address,
+            'official_city' => $faker->city,
+            'official_state' => strtoupper($faker->randomLetter.$faker->randomLetter),
+        ];
+        $client = $this->client;
+        $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(201, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        foreach ($data as $property => $value) {
+            $this->assertSame($value, $data[$property]);
+        }
     }
 }

@@ -260,15 +260,15 @@ class GroupController extends BaseController
     }
     
 	/**
-     * Returns user's groups.
-     * Deprecated, use `GET /api/v2/user/groups` instead.
+     * Returns groups.
+     * Deprecated, use `GET /api/v2/groups` instead.
      * 
-     * @Route("/", name="civix_api_groups_by_user")
+     * @Route("/", name="civix_api_groups")
      * @Method("GET")
      * 
      * @ApiDoc(
      *     section="Group",
-     *     description="Returns user's groups",
+     *     description="Returns groups",
      *     deprecated=true
      * )
      */
@@ -277,7 +277,7 @@ class GroupController extends BaseController
         $entityManager = $this->getDoctrine()->getManager();
 
         $groups = $entityManager->getRepository(Group::class)
-                ->getGroupsByUser($this->getUser());
+                ->getGroupsByUser();
 
         $response = new Response($this->jmsSerialization($groups, ['api-groups']));
         $response->headers->set('Content-Type', 'application/json');
@@ -336,7 +336,7 @@ class GroupController extends BaseController
      * Return user's groups.
      * Deprecated, use `GET /api/v2/user/groups` instead.
      * 
-     * @Route("/user-groups/", name="civix_api_groups_by_user2")
+     * @Route("/user-groups/", name="civix_api_groups_by_user")
      * @Method("GET")
      * 
      * @ApiDoc(
