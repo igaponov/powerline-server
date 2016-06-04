@@ -411,7 +411,7 @@ class GroupRepository extends EntityRepository
     /**
      * @param array $criteria Possible keys: `exclude_owned = User` - exclude groups of current user
      * @param array $orderBy Possible keys: created_at, popularity
-     * 
+     *
      * @return \Doctrine\ORM\Query
      */
     public function getFindByQuery($criteria, $orderBy)
@@ -421,12 +421,12 @@ class GroupRepository extends EntityRepository
             ->where('g.groupType = :type')
             ->setParameter('type', Group::GROUP_TYPE_COMMON)
             ->groupBy('g');
-        
+
         if (isset($criteria['exclude_owned']) && $criteria['exclude_owned'] instanceof User) {
             $ids = $criteria['exclude_owned']->getGroupsIds();
             $qb->andWhere($qb->expr()->notIn('g.id', $ids));
         }
-        
+
         if (isset($orderBy['created_at'])) {
             $qb->orderBy('g.createdAt', $orderBy['created_at']);
         }
@@ -436,5 +436,25 @@ class GroupRepository extends EntityRepository
         }
 
         return $qb->getQuery();
+    }
+
+    /**
+     * Returns not secret groups
+     *
+     * @param int $id
+     * @return Group|null
+     */
+    public function findOneNotSecret($id)
+    {
+        $qb = $this->createQueryBuilder('g');
+        $transparencies = [
+            Group::GROUP_TRANSPARENCY_SECRET,
+            Group::GROUP_TRANSPARENCY_TOP_SECRET,
+        ];
+
+        return $qb->where('g.id = :id')
+            ->setParameter(':id', $id)
+            ->andWhere($qb->expr()->notIn('g.transparency', $transparencies))
+            ->getQuery()->getOneOrNullResult();
     }
 }
