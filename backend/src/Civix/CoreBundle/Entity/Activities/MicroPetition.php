@@ -14,31 +14,12 @@ use Civix\CoreBundle\Entity\Activity;
 class MicroPetition extends Activity
 {
     /**
-     * @ORM\Column(name="petition_id", type="integer")
-     *
-     * @var int
-     */
-    protected $petitionId;
-
-    /**
      * @var int
      * @ORM\Column(name="quorum", type="integer")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-activities"})
      */
     protected $quorum;
-
-    public function setPetitionId($id)
-    {
-        $this->petitionId = $id;
-
-        return $this;
-    }
-
-    public function getPetitionId()
-    {
-        return $this->petitionId;
-    }
 
     /**
      * @Serializer\VirtualProperty()
@@ -58,7 +39,7 @@ class MicroPetition extends Activity
     {
         return array(
             'type' => 'micro-petition',
-            'id' => $this->getPetitionId(),
+            'id' => $this->getPetition() ? $this->getPetition()->getId() : null,
             'group_id' => $this->getGroup() ? $this->getGroup()->getId() : null,
         );
     }
