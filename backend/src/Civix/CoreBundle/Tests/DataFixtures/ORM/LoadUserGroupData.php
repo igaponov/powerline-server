@@ -36,7 +36,8 @@ class LoadUserGroupData extends AbstractFixture implements DependentFixtureInter
 
         /** @noinspection PhpParamsInspection */
         $this->createUserGroup($this->getReference('testfollowsecretgroups'), $users);
-
+        
+        $users[] = $this->getReference('testuserbookmark1');
         /** @noinspection PhpParamsInspection */
         $this->createUserGroup($this->getReference('testfollowprivategroups'), $users);
     }

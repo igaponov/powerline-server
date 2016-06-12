@@ -5,12 +5,13 @@ use Civix\CoreBundle\Entity\Customer\Customer;
 use Civix\CoreBundle\Entity\Customer\CustomerGroup;
 use Civix\CoreBundle\Entity\Group;
 use Doctrine\Common\DataFixtures\AbstractFixture;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Faker\Factory;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class LoadCustomerGroupData extends AbstractFixture implements ContainerAwareInterface
+class LoadCustomerGroupData extends AbstractFixture implements ContainerAwareInterface, DependentFixtureInterface
 {
     /**
      * @var ContainerInterface

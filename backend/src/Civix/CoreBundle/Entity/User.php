@@ -1422,6 +1422,16 @@ class User implements UserInterface, \Serializable
     {
     }
 
+    /**
+     * @param UserInterface $user
+     *
+     * @return bool
+     */
+    public function isEqualTo(UserInterface $user)
+    {
+        return $this->getUsername() === $user->getUsername();
+    }
+
     public function generateToken()
     {
         $bytes = false;

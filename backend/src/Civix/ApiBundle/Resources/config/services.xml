@@ -66,6 +66,10 @@
             <tag name="security.voter"/>
         </service>
 
+        <service class="Civix\ApiBundle\Security\Authorization\Voter\GroupVoter" id="civix_api.security_authorization_voter.group_voter">
+            <tag name="security.voter"/>
+        </service>
+
         <service class="Civix\ApiBundle\EventListener\VersionListener" id="civix_api.event_listener.version_listener">
             <argument id="fos_rest.view_handler.default" type="service"/>
             <argument type="string">%default_api_version%</argument>

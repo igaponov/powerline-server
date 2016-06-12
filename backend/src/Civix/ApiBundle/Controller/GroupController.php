@@ -8,6 +8,7 @@ use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Entity\UserGroupManager;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
+use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Util\Codes;
 use JMS\Serializer\Exception\RuntimeException;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
@@ -259,15 +260,24 @@ class GroupController extends BaseController
     }
     
 	/**
-     * @Route("/", name="civix_api_groups_by_user")
+     * Returns groups.
+     * Deprecated, use `GET /api/v2/groups` instead.
+     * 
+     * @Route("/", name="civix_api_groups")
      * @Method("GET")
+     * 
+     * @ApiDoc(
+     *     section="Group",
+     *     description="Returns groups",
+     *     deprecated=true
+     * )
      */
     public function getGroupsAction()
     {
         $entityManager = $this->getDoctrine()->getManager();
 
         $groups = $entityManager->getRepository(Group::class)
-                ->getGroupsByUser($this->getUser());
+                ->getGroupsByUser();
 
         $response = new Response($this->jmsSerialization($groups, ['api-groups']));
         $response->headers->set('Content-Type', 'application/json');
@@ -323,12 +333,10 @@ class GroupController extends BaseController
     }
 
     /**
-     * @todo duplicate getGroupsAction?
-     * 
      * Return user's groups.
-     * Deprecated, use /api/v2/user/groups instead.
+     * Deprecated, use `GET /api/v2/user/groups` instead.
      * 
-     * @Route("/user-groups/", name="civix_api_groups_by_user2")
+     * @Route("/user-groups/", name="civix_api_groups_by_user")
      * @Method("GET")
      * 
      * @ApiDoc(
@@ -354,7 +362,8 @@ class GroupController extends BaseController
     }
 
     /**
-     * Fetch the groups more popular for the current user
+     * Fetch the groups more popular for the current user.
+     * Deprecated, use `GET /api/v2/groups?sort=popularity&sort_dir=DESC&exclude_owned=true` instead.
      *
      *     curl -i -X POST -G 'http://domain.com/api/groups/user-groups/' -d ''
      *
@@ -399,7 +408,8 @@ class GroupController extends BaseController
      *          200="Returned when successful",
      *          400="Returned when incorrect login or password",
      *          405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      *
      * @Route("/popular", name="civix_api_groups_popular_groups")
@@ -419,7 +429,8 @@ class GroupController extends BaseController
     }
 
     /**
-     * Fetch the groups with news for the current user
+     * Fetch the groups with news for the current user.
+     * Deprecated, use `GET /api/v2/groups?sort=created_at&sort_dir=DESC&exclude_owned=true` instead.
      *
      *     curl -i -X POST -G 'http://domain.com/api/groups/new' -d ''
      *
@@ -464,7 +475,8 @@ class GroupController extends BaseController
      *          200="Returned when successful",
      *          400="Returned when incorrect login or password",
      *          405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      *
      * @Route("/new", name="civix_api_groups_new_groups")
@@ -693,9 +705,18 @@ class GroupController extends BaseController
     }
 
     /**
+     * Returns group information.
+     * Deprecated, use /api/v2/groups/{id} instead.
+     * 
      * @Route("/info/{group}", requirements={"group"="\d+"}, name="civix_api_groups_information")
      * @Method("GET")
      * @ParamConverter("group", class="CivixCoreBundle:Group")
+     * 
+     * @ApiDoc(
+     *     section="Group",
+     *     description="Returns group information",
+     *     deprecated=true
+     * )
      */
     public function getInformationAction(Request $request, $group)
     {
@@ -715,15 +736,31 @@ class GroupController extends BaseController
     }
 
     /**
+     * Returns list of invites
+     *
      * @Route("/invites", name="civix_api_groups_invites")
      * @Method("GET")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     resource=true,
+     *     section="Group",
+     *     description="List of invites",
+     *     output="ArrayCollection<Civix\CoreBundle\Entity\Group>",
+     *     statusCodes={
+     *         200="Returns invites",
+     *         401="Authorization required",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @View(serializerGroups={"api-groups"})
+     *
+     * @return \Doctrine\Common\Collections\Collection
      */
-    public function getInvitesAction(Request $request)
+    public function getInvitesAction()
     {
-        $response = new Response($this->jmsSerialization($this->getUser()->getInvites(), ['api-groups']));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+        return $this->getUser()->getInvites();
     }
 
     /**
@@ -770,22 +807,43 @@ class GroupController extends BaseController
     }
 
     /**
+     * Returns list of required fields from group
+     *
      * @Route(
      *     "/{group}/fields",
      *     requirements={"group"="\d+"},
      *     name="civix_api_groups_fields"
      * )
      * @Method("GET")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     resource=true,
+     *     section="Group",
+     *     description="List of required fields from group",
+     *     output="ArrayCollection<Civix\CoreBundle\Entity\Group\GroupField>",
+     *     statusCodes={
+     *         200="Returns fields",
+     *         401="Authorization required",
+     *         405="Method Not Allowed"
+     *     },
+     * )
+     *
+     * @View(serializerGroups={"api-groups-fields"})
+     *
+     * @param Group $group
+     *
+     * @return \Doctrine\Common\Collections\Collection
      */
-    public function getGroupRequiredFields(Group $group)
+    public function getRequiredFieldsAction(Group $group)
     {
-        $response = new Response($this->jmsSerialization($group->getFields(), ['api-groups-fields']));
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+        return $group->getFields();
     }
 
     /**
+     * List of users from group
+     * Deprecated, use `GET /api/v2/groups/{id}/users` instead.
+     *
      * @Route(
      *     "/{group}/users",
      *     requirements={"group"="\d+"},
@@ -794,7 +852,9 @@ class GroupController extends BaseController
      * @Method("GET")
      *
      * @ApiDoc(
+     *     authentication=true,
      *     resource=true,
+     *     section="Group",
      *     description="List of users from group",
      *     filters={
      *             {"name"="limit", "dataType"="integer"},
@@ -805,7 +865,8 @@ class GroupController extends BaseController
      *         400="Bad request",
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      *
      * @param Request $request

@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Repository;
 
+use Civix\CoreBundle\Entity\Group;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
@@ -542,5 +543,15 @@ class UserRepository extends EntityRepository
             ->setParameter('groupId', $groupId);
         
         return $query->getQuery()->getResult(Query::HYDRATE_OBJECT);
+    }
+
+    public function getFindByGroupQuery(Group $group)
+    {
+        return $this->createQueryBuilder('u')
+            ->innerJoin('u.groups', 'gr')
+            ->where('gr.group = :group')
+            ->setParameter('group', $group)
+            ->orderBy('u.id', 'ASC')
+            ->getQuery();
     }
 }

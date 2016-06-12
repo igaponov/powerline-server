@@ -334,6 +334,10 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
+     * @Serializer\Expose()
+     * @Serializer\Type("DateTime<'D, d M Y H:i:s O'>")
+     * @Serializer\Since("2")
+     * @Serializer\Groups({"api-groups"})
      */
     private $createdAt;
 

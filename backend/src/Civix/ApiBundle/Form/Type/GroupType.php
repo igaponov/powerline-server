@@ -18,10 +18,6 @@ class GroupType extends AbstractType
         $builder->add('username', 'text', [
             'description' => 'User name',
         ]);
-        $builder->add('plain_password', 'password', [
-            'property_path' => 'plainPassword',
-            'description' => 'User password',
-        ]);
         $builder->add('manager_first_name', 'text', ['property_path' => 'managerFirstName']);
         $builder->add('manager_last_name', 'text', ['property_path' => 'managerLastName']);
         $builder->add('manager_email', 'text', ['property_path' => 'managerEmail']);

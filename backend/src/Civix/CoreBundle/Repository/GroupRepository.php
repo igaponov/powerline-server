@@ -11,11 +11,11 @@ use Symfony\Component\Security\Core\Util\SecureRandom;
 
 class GroupRepository extends EntityRepository
 {
-	/**
-	 * 
-	 * @param User $user
-	 */
-    public function getGroupsByUser(User $user)
+    /**
+     *
+     * @return array
+     */
+    public function getGroupsByUser()
     {
         $queryBuilder = $this->getEntityManager()->createQueryBuilder();
 
@@ -406,5 +406,35 @@ class GroupRepository extends EntityRepository
         }
 
         return $group;
+    }
+
+    /**
+     * @param array $criteria Possible keys: `exclude_owned = User` - exclude groups of current user
+     * @param array $orderBy Possible keys: created_at, popularity
+     * 
+     * @return \Doctrine\ORM\Query
+     */
+    public function getFindByQuery($criteria, $orderBy)
+    {
+        $qb = $this->createQueryBuilder('g')
+            ->leftJoin('g.users', 'ug')
+            ->where('g.groupType = :type')
+            ->setParameter('type', Group::GROUP_TYPE_COMMON)
+            ->groupBy('g');
+        
+        if (isset($criteria['exclude_owned']) && $criteria['exclude_owned'] instanceof User) {
+            $ids = $criteria['exclude_owned']->getGroupsIds();
+            $qb->andWhere($qb->expr()->notIn('g.id', $ids));
+        }
+        
+        if (isset($orderBy['created_at'])) {
+            $qb->orderBy('g.createdAt', $orderBy['created_at']);
+        }
+        if (isset($orderBy['popularity'])) {
+            $qb->addSelect('COUNT(ug) AS HIDDEN count_users')
+                ->orderBy('count_users', $orderBy['popularity']);
+        }
+
+        return $qb->getQuery();
     }
 }
