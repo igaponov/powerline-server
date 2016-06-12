@@ -98,4 +98,23 @@ class AnswerRepository extends EntityRepository
 
         return $answers;
     }
+
+    /**
+     * @param User $user
+     * @param array $criteria
+     * @return \Doctrine\ORM\Query
+     */
+    public function getFindByUserAndCriteriaQuery(User $user, $criteria)
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->where('a.user = :user')
+            ->setParameter('user', $user);
+
+        if (!empty($criteria['start'])) {
+            $qb->andWhere('a.createdAt > :start')
+                ->setParameter(':start', $criteria['start']);
+        }
+        
+        return $qb->getQuery();
+    }
 }

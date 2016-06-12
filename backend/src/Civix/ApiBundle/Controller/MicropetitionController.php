@@ -18,6 +18,8 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 class MicropetitionController extends BaseController
 {
     /**
+     * Deprecated, use `POST /api/v2/groups/{id}/micro-petitions` instead.
+     *
      * @Route(
      *      "/micro-petitions",
      *      name="api_micropetition_create"
@@ -25,7 +27,7 @@ class MicropetitionController extends BaseController
      * @Method("POST")
      *
      * @ApiDoc(
-     *      resource=true,
+     *      section="Micropetitions",
      *      description="Create micropetition by user",
      *      input={
      *          "class"="Civix\CoreBundle\Entity\Micropetitions\Petition",
@@ -35,7 +37,8 @@ class MicropetitionController extends BaseController
      *          200="Returns new micropetition",
      *          400="Bad Request",
      *          405="Method Not Allowed"
-     *      }
+     *      },
+     *      deprecated=true
      * )
      */
     public function createPetitionAction(Request $request)
@@ -98,18 +101,21 @@ class MicropetitionController extends BaseController
     }
 
     /**
+     * Deprecated, use `GET /api/v2/user/micro-petitions` instead.
+     *
      * @Route("/micro-petitions", name="api_micropetition_list")
      * @Method("GET")
      *
      * @deprecated
      * @ApiDoc(
-     *      resource=true,
+     *      section="Micropetitions",
      *      description="List micropetitions from user's groups",
      *      statusCodes={
      *          200="Returns list micropetitions",
      *          400="Bad Request",
      *          405="Method Not Allowed"
-     *      }
+     *      },
+     *      deprecated=true
      * )
      */
     public function getListMicropetitions(Request $request)
@@ -132,8 +138,15 @@ class MicropetitionController extends BaseController
     }
 
     /**
+     * Deprecated, use `GET /api/v2/micro-petitions` instead.
+     *
      * @Route("/micro-petitions/", name="api_get_micropetitions")
      * @Method("GET")
+     *
+     * @ApiDoc(
+     *     section="Micropetitions",
+     *     deprecated=true
+     * )
      */
     public function getMicropetitions(Request $request)
     {
@@ -153,20 +166,24 @@ class MicropetitionController extends BaseController
     }
 
     /**
+     * Deprecated, use `GET /api/v2/micro-petitions/{id}` instead.
+     *
      * @Route(
      *      "/micro-petitions/{id}",
      *      name="api_micropetition_info",
      *      requirements={"id"="\d+"}
      * )
      * @Method("GET")
+     *
      * @ApiDoc(
-     *      resource=true,
+     *      section="Micropetitions",
      *      description="Get micropetition by ID",
      *      statusCodes={
      *          200="Returns micropetition's info",
      *          400="Bad Request",
      *          405="Method Not Allowed"
-     *      }
+     *      },
+     *      deprecated=true
      * )
      */
     public function getMicropetition(Request $request)
@@ -201,7 +218,9 @@ class MicropetitionController extends BaseController
      * )
      * @Method("GET")
      * @ApiDoc(
+     *      authentication=true,
      *      resource=true,
+     *      section="Micropetitions",
      *      description="Invite the upvoter of petition to a group",
      *      statusCodes={
      *          200="Returns micropetition's info",
@@ -265,6 +284,8 @@ class MicropetitionController extends BaseController
     }
 
     /**
+     * Deprecated, use `POST /api/v2/micro-petitions/{id}/answer` instead.
+     *
      * @Route(
      *      "/micro-petitions/{id}/answers/{option_id}",
      *      requirements={"id"="\d+", "option_id"="\d+"},
@@ -273,13 +294,14 @@ class MicropetitionController extends BaseController
      * @Method("POST")
      * @ParamConverter("micropetition", class="CivixCoreBundle:Micropetitions\Petition")
      * @ApiDoc(
-     *      resource=true,
+     *      section="Micropetitions",
      *      description="Answer to micropetition",
      *      statusCodes={
      *          200="Returns micropetition's info",
      *          400="Bad Request",
      *          405="Method Not Allowed"
-     *      }
+     *      },
+     *      deprecated=true
      * )
      */
     public function choiceMicropetition(Request $request, Petition $micropetition)
@@ -296,7 +318,6 @@ class MicropetitionController extends BaseController
                 'errors' => $micropetitionService->getErrors(), ))
             );
         } else {
-            $micropetitionService->recalcVoicesForPetitions($micropetition);
             $response->setContent($this->jmsSerialization($answer, array('api-answers-list')));
         }
 
@@ -304,8 +325,15 @@ class MicropetitionController extends BaseController
     }
 
     /**
+     * Deprecated, use `GET /api/v2/user/micro-petition-answers` instead.
+     *
      * @Route("/micro-petitions/answers/")
      * @Method("GET")
+     *
+     * @ApiDoc(
+     *     section="Micropetitions",
+     *     deprecated=true
+     * )
      */
     public function answersAction()
     {
@@ -314,6 +342,8 @@ class MicropetitionController extends BaseController
     }
 
     /**
+     * Deprecated, use `PUT /api/v2/micro-petitions/{id}` instead.
+     *
      * @Route(
      *     "/micro-petitions/{id}",
      *     name="api_micropetition_update",
@@ -321,13 +351,14 @@ class MicropetitionController extends BaseController
      * )
      * @Method("PUT")
      * @ApiDoc(
-     *     resource=true,
+     *     section="Micropetitions",
      *     description="Update micropetition by ID",
      *     statusCodes={
      *         200="Returns micropetition's info",
      *         400="Bad Request",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      */
     public function putMicropetitionAction(Request $request, MicroPetition $microPetition)
@@ -362,6 +393,8 @@ class MicropetitionController extends BaseController
     }
 
     /**
+     * Deprecated, use `DELETE /api/v2/micro-petitions/{id}` instead.
+     *
      * @Route(
      *     "/micro-petitions/{id}",
      *     name="api_micropetition_delete",
@@ -369,13 +402,14 @@ class MicropetitionController extends BaseController
      * )
      * @Method("DELETE")
      * @ApiDoc(
-     *     resource=true,
+     *     section="Micropetitions",
      *     description="Delete micropetition by ID",
      *     statusCodes={
      *         204="Returns null",
      *         400="Bad Request",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      */
     public function deleteMicropetitionAction(MicroPetition $microPetition)

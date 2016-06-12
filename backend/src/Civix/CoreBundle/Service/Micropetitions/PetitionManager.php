@@ -2,6 +2,8 @@
 
 namespace Civix\CoreBundle\Service\Micropetitions;
 
+use Civix\CoreBundle\Entity\Micropetitions\Petition;
+use Civix\CoreBundle\Event\Micropetition\AnswerEvent;
 use Civix\CoreBundle\Event\Micropetition\PetitionEvent;
 use Civix\CoreBundle\Event\MicropetitionEvents;
 use Doctrine\ORM\EntityManager;
@@ -25,22 +27,16 @@ class PetitionManager
     private $errors;
 
     /**
-     * @var ActivityUpdate
-     */
-    protected $activityUpdate;
-    /**
      * @var EventDispatcherInterface
      */
     private $dispatcher;
 
     public function __construct(
         EntityManager $entityManager, 
-        ActivityUpdate $activityUpdate,
         EventDispatcherInterface $dispatcher
     )
     {
         $this->entityManager = $entityManager;
-        $this->activityUpdate = $activityUpdate;
         $this->errors = [];
         $this->dispatcher = $dispatcher;
     }
@@ -61,6 +57,13 @@ class PetitionManager
         return $userPetition;
     }
 
+    /**
+     * @deprecated Use {@link signPetition} instead
+     * @param UserPetition $userPetition
+     * @param User $user
+     * @param $optionId
+     * @return bool|Answer
+     */
     public function answerToPetition(UserPetition $userPetition, User $user, $optionId)
     {
         $this->errors = [];
@@ -103,26 +106,62 @@ class PetitionManager
         $this->entityManager->flush();
 
         //update response count activity for this petition
-        $this->activityUpdate->updateResponsesPetition($userPetition);
-        $this->activityUpdate->updateAuthorActivity($userPetition, $user);
+        $answerEvent = new AnswerEvent($answer);
+        $this->dispatcher->dispatch(MicropetitionEvents::PETITION_SIGN, $answerEvent);
 
         //check if need to publish to activity
-        if ($userPetition->getPublishStatus() == UserPetition::STATUS_USER) {
-            if ($this->checkIfNeedPublish($userPetition)) {
-                $this->activityUpdate->publishMicroPetitionToActivity($userPetition, true);
-                $event = new PetitionEvent($userPetition);
-                $this->dispatcher->dispatch(MicropetitionEvents::PETITION_ANSWERED, $event);
-            }
+        if ($userPetition->getPublishStatus() == UserPetition::STATUS_USER
+            && $this->checkIfNeedPublish($userPetition)
+        ) {
+            $petitionEvent = new PetitionEvent($userPetition);
+            $this->dispatcher->dispatch(MicropetitionEvents::PETITION_BOOST, $petitionEvent);
         }
 
         return $answer;
     }
 
-    public function unsignPetition(UserPetition $userPetition, Answer $answer)
+    /**
+     * Sign a petition with an answer
+     *
+     * @param Answer $answer
+     * @return Answer
+     */
+    public function signPetition(Answer $answer)
+    {
+        $this->entityManager->persist($answer);
+        $this->entityManager->flush();
+
+        //update response count activity for this petition
+        $answerEvent = new AnswerEvent($answer);
+        $this->dispatcher->dispatch(MicropetitionEvents::PETITION_SIGN, $answerEvent);
+
+        //check if need to publish to activity
+        $petition = $answer->getPetition();
+        if ($petition->getPublishStatus() == UserPetition::STATUS_USER
+            && $this->checkIfNeedPublish($petition)
+        ) {
+            $petitionEvent = new PetitionEvent($petition);
+            $this->dispatcher->dispatch(MicropetitionEvents::PETITION_BOOST, $petitionEvent);
+        }
+
+        return $answer;
+    }
+
+    /**
+     * Unsign a petition with an answer
+     *
+     * @param Answer $answer
+     * @return Answer
+     */
+    public function unsignPetition(Answer $answer)
     {
         $this->entityManager->remove($answer);
         $this->entityManager->flush();
-        $this->activityUpdate->updateAuthorActivity($userPetition, $answer->getUser());
+
+        $event = new AnswerEvent($answer);
+        $this->dispatcher->dispatch(MicropetitionEvents::PETITION_UNSIGN, $event);
+
+        return $answer;
     }
 
     public function recalcVoicesForPetitions(UserPetition $petition)
@@ -203,5 +242,26 @@ class PetitionManager
     public function getErrors()
     {
         return $this->errors;
+    }
+
+    public function savePetition(Petition $petition)
+    {
+        if ($petition->getType() !== Petition::TYPE_LONG_PETITION) {
+            $petition->setTitle(''); //title should be removed in the future
+        }
+
+        $event = new PetitionEvent($petition);
+        $isNew = !$petition->getId();
+        if ($isNew) {
+            $petition->setPublishStatus(UserPetition::STATUS_USER);
+            $this->dispatcher->dispatch(MicropetitionEvents::PETITION_PRE_CREATE, $event);
+        }
+
+        $this->entityManager->persist($petition);
+        $this->entityManager->flush();
+
+        $this->dispatcher->dispatch($isNew ? MicropetitionEvents::PETITION_CREATE : MicropetitionEvents::PETITION_UPDATE, $event);
+
+        return $petition;
     }
 }

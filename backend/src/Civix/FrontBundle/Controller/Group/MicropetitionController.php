@@ -69,7 +69,7 @@ class MicropetitionController extends Controller
         if (!$petition->getPublishStatus()) {
             $this->get('civix_core.activity_update')->publishMicroPetitionToActivity($petition, true);
             $event = new PetitionEvent($petition);
-            $this->get('event_dispatcher')->dispatch(MicropetitionEvents::PETITION_ANSWERED, $event);
+            $this->get('event_dispatcher')->dispatch(MicropetitionEvents::PETITION_BOOST, $event);
         }
 
         return $this->redirect($this->generateUrl('civix_front_petitions_open'));
