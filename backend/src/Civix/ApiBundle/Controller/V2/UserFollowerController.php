@@ -109,7 +109,7 @@ class UserFollowerController extends FOSRestController
      * @Route("/{id}", requirements={"id"="\d+"})
      * @Method("PATCH")
      *
-     * @ParamConverter("userFollow", options={"mapping" = {"id" = "user", "loggedInUser" = "follower"}})
+     * @ParamConverter("userFollow", options={"mapping" = {"id" = "user", "loggedInUser" = "follower"}}, converter="doctrine.param_converter")
      *
      * @ApiDoc(
      *     authentication=true,
@@ -144,7 +144,7 @@ class UserFollowerController extends FOSRestController
      * @Route("/{id}")
      * @Method("DELETE")
      *
-     * @ParamConverter("userFollow", options={"mapping" = {"id" = "user", "loggedInUser" = "follower"}})
+     * @ParamConverter("userFollow", options={"mapping" = {"id" = "user", "loggedInUser" = "follower"}}, converter="doctrine.param_converter")
      *
      * @ApiDoc(
      *     authentication=true,
