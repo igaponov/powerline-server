@@ -98,7 +98,6 @@ class ProfileController extends BaseController
         if ($follow) {
             $entityManager->flush();
             if ('follow' === $status) {
-                $this->get('civix_core.social_activity_manager')->sendUserFollowRequest($follow);
                 $event = new UserFollowEvent($follow);
                 $this->get('event_dispatcher')->dispatch(UserEvents::FOLLOWED, $event);
             }

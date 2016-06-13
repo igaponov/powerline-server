@@ -402,5 +402,15 @@
         <service class="Civix\CoreBundle\Service\ActivityManager" id="civix_core.service.activity_manager">
             <argument id="doctrine.orm.entity_manager" type="service"/>
         </service>
+
+        <service class="Civix\CoreBundle\EventListener\SocialActivitySubscriber" id="civix_core.event_listener.social_activity_subscriber">
+            <argument id="civix_core.social_activity_manager" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service class="Civix\CoreBundle\Service\FollowerManager" id="civix_core.service.follower_manager">
+            <argument id="doctrine.orm.entity_manager" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+        </service>
     </services>
 </container>

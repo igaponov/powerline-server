@@ -3,19 +3,18 @@
 namespace Civix\ApiBundle\Controller;
 
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\UserGroup;
+use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Event\UserFollowEvent;
 use Civix\CoreBundle\Repository\UserFollowRepository;
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Civix\CoreBundle\Entity\UserFollow;
-use Civix\CoreBundle\Entity\User;
 
 /**
  * @Route("/follow")
@@ -23,36 +22,40 @@ use Civix\CoreBundle\Entity\User;
 class FollowController extends BaseController
 {
     /**
-     * Get followers
+     * Get followers.
+     * Deprecated, use `GET /api/v2/user/followers` instead.
      *
      * @Route("/")
      * @Method("GET")
+     * 
      * @ApiDoc(
-     *     section="Follow",
+     *     section="Followers",
      *     description="Get followers",
      *     statusCodes={
      *         200="Get followers success",
      *         400="Bad request",
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      */
     public function getAction()
     {
         $follows = $this->getDoctrine()->getRepository(UserFollow::class)
-            ->findByUser($this->getUser());
+            ->getFindByUserQuery($this->getUser())->getResult();
 
         return $this->createJSONResponse($this->jmsSerialization($follows, ['api-follow', 'api-info']));
     }
 
     /**
      * Follow a user
+     * Deprecated, use `PUT /api/v2/user/followers/{id}` instead.
      *
      * @Route("/")
      * @Method("POST")
      * @ApiDoc(
-     *     section="Follow",
+     *     section="Followers",
      *     resource=true,
      *     description="Follow a user",
      *     statusCodes={
@@ -60,7 +63,8 @@ class FollowController extends BaseController
      *         400="Bad request",
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      * @param Request $request
      * @return Response
@@ -79,11 +83,12 @@ class FollowController extends BaseController
 
     /**
      * Approve follow request
+     * Deprecated, use `PATCH /api/v2/user/followers/{id}` instead.
      *
      * @Route("/{id}")
      * @Method("PUT")
      * @ApiDoc(
-     *     section="Follow",
+     *     section="Followers",
      *     resource=true,
      *     description="Approve follow request",
      *     statusCodes={
@@ -91,7 +96,8 @@ class FollowController extends BaseController
      *         400="Bad request",
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      */
     public function putAction(UserFollow $follow, Request $request)
@@ -115,11 +121,12 @@ class FollowController extends BaseController
 
     /**
      * Unfollow a user
+     * Deprecated, use `DELETE /api/v2/user/followers/{id}` instead.
      *
      * @Route("/{id}")
      * @Method("DELETE")
      * @ApiDoc(
-     *     section="Follow",
+     *     section="Followers",
      *     resource=true,
      *     description="Unfollow a user",
      *     statusCodes={
@@ -127,7 +134,8 @@ class FollowController extends BaseController
      *         400="Bad request",
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      */
     public function deleteAction(UserFollow $follow)
@@ -143,7 +151,8 @@ class FollowController extends BaseController
     }
 
     /**
-     * Follow all group members
+     * Follow all group members.
+     * Deprecated, use `GET /api/v2/user/group-followers/{id}` instead.
      *
      * @author Habibillah <habibillah@gmail.com>
      * @Route(
@@ -154,7 +163,7 @@ class FollowController extends BaseController
      * @Method("POST")
      * @ParamConverter("group", class="CivixCoreBundle:Group")
      * @ApiDoc(
-     *     section="Follow",
+     *     section="Followers",
      *     resource=true,
      *     description="Follow group members. This api will automatically follow a group member if group permission is public or private.",
      *     statusCodes={
@@ -162,7 +171,8 @@ class FollowController extends BaseController
      *         400="Bad request",
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      * @param Group $group
      * @return Response
@@ -209,8 +219,6 @@ class FollowController extends BaseController
         /** @var UserFollowRepository $userFollowRepo */
         $userFollowRepo = $this->getDoctrine()->getRepository(UserFollow::class);
         $userFollowRepo->handle($follow);
-
-        $this->get('civix_core.social_activity_manager')->sendUserFollowRequest($follow);
 
         $event = new UserFollowEvent($follow);
         $this->get('event_dispatcher')->dispatch(UserEvents::FOLLOWED, $event);

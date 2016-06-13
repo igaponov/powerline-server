@@ -75,6 +75,12 @@
             <argument type="string">%default_api_version%</argument>
             <tag name="kernel.event_listener" event="kernel.controller" method="onKernelController" priority="33" />
         </service>
+
+        <service class="Civix\ApiBundle\Request\ParamConverter\DoctrineParamConverter" id="civix_api.request_param_converter.doctrine_param_converter">
+            <argument id="sensio_framework_extra.converter.doctrine.orm" type="service"/>
+            <argument id="security.context" type="service"/>
+            <tag name="request.param_converter" converter="doctrine.param_converter" priority="-10"/>
+        </service>
     </services>
 
 </container>

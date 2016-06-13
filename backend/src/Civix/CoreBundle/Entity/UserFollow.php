@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
@@ -39,6 +40,7 @@ class UserFollow
      * @var \DateTime
      *
      * @ORM\Column(name="date_create", type="datetime")
+     * @Gedmo\Timestampable()
      * @Serializer\Expose()
      * @Serializer\Groups({"api-followers", "api-following", "api-follow"})
      */
@@ -74,10 +76,19 @@ class UserFollow
      *
      * @ORM\Column(name="status", type="integer")
      * @Serializer\Expose()
+     * @Serializer\Until("1")
      * @Serializer\Groups({"api-followers", "api-following", "api-follow"})
      */
     private $status;
 
+    public static function getStatusLabels()
+    {
+        return [
+            self::STATUS_PENDING => 'pending',
+            self::STATUS_ACTIVE => 'active',
+        ];
+    }
+    
     /**
      * Get id.
      *
@@ -110,6 +121,25 @@ class UserFollow
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * @return string|null
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Since("2")
+     * @Serializer\SerializedName("status")
+     * @Serializer\Type("string")
+     * @Serializer\Groups({"api-info", "api-follow"})
+     */
+    public function getStatusLabel()
+    {
+        $labels = $this->getStatusLabels();
+        if (isset($labels[$this->status])) {
+            return $labels[$this->status];
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -206,5 +236,18 @@ class UserFollow
     public function getFollower()
     {
         return $this->follower;
+    }
+
+    /**
+     * Approve following request
+     * 
+     * @return $this
+     */
+    public function approve()
+    {
+        $this->status = self::STATUS_ACTIVE;
+        $this->dateApproval = new \DateTime();
+        
+        return $this;
     }
 }

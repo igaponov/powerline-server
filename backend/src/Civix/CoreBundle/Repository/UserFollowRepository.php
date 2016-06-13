@@ -2,9 +2,10 @@
 
 namespace Civix\CoreBundle\Repository;
 
-use Doctrine\ORM\EntityRepository;
-use Civix\CoreBundle\Entity\UserFollow;
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserFollow;
+use Doctrine\ORM\EntityRepository;
 
 /**
  * UserFollowRepository.
@@ -62,14 +63,10 @@ class UserFollowRepository extends EntityRepository
                 ->getResult();
     }
 
-    public function findByUser(User $user)
+    public function getFindByUserQuery(User $user)
     {
-        $qb = $this->getEntityManager()->createQueryBuilder();
-        $pendingStart = new \DateTime();
-        $pendingStart->sub(new \DateInterval('P6M'));
-
-        return $qb->select('uf, f, u')
-            ->from(UserFollow::class, 'uf')
+        return $this->createQueryBuilder('uf')
+            ->select('uf, f, u')
             ->leftJoin('uf.user', 'u')
             ->leftJoin('uf.follower', 'f')
             ->where('uf.user = :user AND uf.status = :active')
@@ -78,11 +75,10 @@ class UserFollowRepository extends EntityRepository
                 .' AND uf.status = :pending AND uf.dateCreate > :pendingStart')
             ->setParameter('active', UserFollow::STATUS_ACTIVE)
             ->setParameter('pending', UserFollow::STATUS_PENDING)
-            ->setParameter('pendingStart', $pendingStart)
+            ->setParameter('pendingStart', new \DateTime('-6 months'))
             ->setParameter('user', $user)
             ->orderBy('uf.dateCreate', 'DESC')
             ->getQuery()
-            ->getResult()
         ;
     }
 
@@ -109,5 +105,21 @@ class UserFollowRepository extends EntityRepository
         $this->getEntityManager()->flush($entity);
 
         return $entity;
+    }
+
+    public function followGroupMembers(User $user, Group $group)
+    {
+        return $this->getEntityManager()
+            ->getConnection()
+            ->query('
+                INSERT INTO users_follow(user_id, follower_id, date_create, status) 
+                SELECT ug.user_id, :user, current_timestamp, :status FROM users_groups ug 
+                LEFT JOIN users_follow uf ON uf.user_id = ug.user_id
+                WHERE ug.group_id = :group AND uf.id IS NULL')
+            ->execute([
+                ':user' => $user->getId(),
+                ':status' => UserFollow::STATUS_PENDING,
+                ':group' => $group->getId(),
+            ]);
     }
 }
