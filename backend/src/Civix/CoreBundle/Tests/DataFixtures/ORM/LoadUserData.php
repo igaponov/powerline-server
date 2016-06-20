@@ -36,7 +36,7 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
         $this->generateUser('mobile2');
 
         $this->addReference('followertest', $this->generateUser('followertest', null, ['district_la', 'district_sf']));
-        $this->addReference('userfollowtest1', $this->generateUser('userfollowtest1', null, 'district_sd'));
+        $this->addReference('userfollowtest1', $this->generateUser('userfollowtest1', null, 'district_sd', true));
         $this->addReference('userfollowtest2', $this->generateUser('userfollowtest2'));
         $this->addReference('userfollowtest3', $this->generateUser('userfollowtest3'));
         $this->addReference('testuserbookmark1', $this->generateUser('testuserbookmark1'));
@@ -48,7 +48,7 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
      * @param null $district
      * @return User
      */
-    private function generateUser($username, $birthDate = null, $district = null)
+    private function generateUser($username, $birthDate = null, $district = null, $isNotifOwnPostChanged = false)
     {
         $birthDate = $birthDate ?: new \DateTime();
 
@@ -62,7 +62,7 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
             ->setIsNotifMessages(false)
             ->setIsRegistrationComplete(true)
             ->setPhone(date_create()->getOffset())
-            ->setIsNotifOwnPostChanged(false)
+            ->setIsNotifOwnPostChanged($isNotifOwnPostChanged)
             ->setSalt(base_convert(sha1(uniqid(mt_rand(), true)), 16, 36))
             ->setToken($username);
         

@@ -61,11 +61,13 @@ class SearchController extends BaseController
     }
 
     /**
+     * Deprecated, use `GET /api/v2/micro-petitions?tag=hash` instead.
+     *
      * @Route("/by-hash-tags", name="api_search_hash_tag")
      * @Method("GET")
      *
      * @ApiDoc(
-     *     resource=true,
+     *     section="Micropetitions",
      *     description="Search micropetitions by hash tag",
      *     filters={
      *         {"name"="query", "dataType"="string"}
@@ -74,7 +76,8 @@ class SearchController extends BaseController
      *         200="Returns list search items",
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      */
     public function findByHashTag(Request $request)

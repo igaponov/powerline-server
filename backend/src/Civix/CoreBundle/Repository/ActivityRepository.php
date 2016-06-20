@@ -288,8 +288,8 @@ class ActivityRepository extends EntityRepository
         $query = $this->getEntityManager()
             ->createQuery('UPDATE Civix\CoreBundle\Entity\Activities\MicroPetition a
                               SET a.responsesCount = :a_count, a.quorum = :quorum
-                            WHERE a.petitionId = :petition');
-        $query->setParameter('petition', $micropetition->getId())
+                            WHERE a.petition = :petition');
+        $query->setParameter('petition', $micropetition)
             ->setParameter('quorum', $quorum)
             ->setParameter('a_count', $count);
 

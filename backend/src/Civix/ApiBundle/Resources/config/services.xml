@@ -70,6 +70,10 @@
             <tag name="security.voter"/>
         </service>
 
+        <service class="Civix\ApiBundle\Security\Authorization\Voter\PetitionVoter" id="civix_api.security_authorization_voter.petition_voter">
+            <tag name="security.voter"/>
+        </service>
+
         <service class="Civix\ApiBundle\EventListener\VersionListener" id="civix_api.event_listener.version_listener">
             <argument id="fos_rest.view_handler.default" type="service"/>
             <argument type="string">%default_api_version%</argument>
@@ -80,6 +84,19 @@
             <argument id="sensio_framework_extra.converter.doctrine.orm" type="service"/>
             <argument id="security.context" type="service"/>
             <tag name="request.param_converter" converter="doctrine.param_converter" priority="-10"/>
+        </service>
+
+        <service class="Civix\ApiBundle\EventListener\SocialActivitySubscriber" id="civix_api.event_listener.social_activity_subscriber">
+            <argument id="civix_core.social_activity_manager" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service class="Civix\ApiBundle\EventListener\PetitionSubscriber" id="civix_api.event_listener.petition_subscriber">
+            <argument id="doctrine.orm.entity_manager" type="service"/>
+            <argument id="civix_core.settings" type="service"/>
+            <argument id="civix_core.poll.micropetition_manager" type="service"/>
+            <argument id="civix_core.poll.comment_manager" type="service"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 

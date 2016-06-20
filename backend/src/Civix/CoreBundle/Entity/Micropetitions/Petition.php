@@ -7,6 +7,7 @@ use Civix\CoreBundle\Entity\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Serializer\Type\Image;
@@ -48,7 +49,7 @@ class Petition
 
     /**
      * @ORM\Column(name="petition", type="text")
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(groups={"Default", "create", "update"})
      * @Serializer\Expose()
      * @Serializer\Groups({"api-petitions-create", "api-petitions-list", "api-leader-micropetition"})
      */
@@ -64,7 +65,7 @@ class Petition
 
     /**
      * @ORM\Column(name="group_id", type="integer")
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(groups={"Default"})
      * @Serializer\Expose()
      * @Serializer\Groups({"api-petitions-create", "api-petitions-list", "api-leader-micropetition"})
      */
@@ -89,6 +90,7 @@ class Petition
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
+     * @Gedmo\Timestampable()
      * @Serializer\Expose()
      * @Serializer\Groups({"api-petitions-list", "api-petitions-info", "api-leader-micropetition"})
      * @Serializer\Type("DateTime<'D, d M Y H:i:s O'>")
@@ -107,7 +109,7 @@ class Petition
 
     /**
      * @ORM\Column(name="user_expire_interval", type="integer")
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(groups={"Default", "update"})
      * @Serializer\Expose()
      * @Serializer\Groups({"api-petitions-create"})
      * 
@@ -139,7 +141,7 @@ class Petition
      * @Serializer\Expose()
      * @Serializer\Groups({"api-petitions-create", "api-petitions-list", "api-petitions-info",
      *      "api-leader-micropetition"})
-     * @Assert\Choice(callback = "getTypes")
+     * @Assert\Choice(callback = "getTypes", groups={"Default", "create", "update"})
      */
     private $type = self::TYPE_QUORUM;
 
@@ -217,6 +219,33 @@ class Petition
      */
     private $micropetitions;
 
+    public static function getTypes()
+    {
+        return [
+            self::TYPE_QUORUM,
+            self::TYPE_OPEN_LETTER,
+            self::TYPE_LONG_PETITION,
+        ];
+    }
+
+    public static function getOptionTitles()
+    {
+        return [
+            self::OPTION_ID_UPVOTE => 'upvote',
+            self::OPTION_ID_DOWNVOTE => 'downvote',
+            self::OPTION_ID_IGNORE => 'ignore',
+        ];
+    }
+
+    public static function getOptionIds()
+    {
+        return [
+            self::OPTION_ID_UPVOTE,
+            self::OPTION_ID_DOWNVOTE,
+            self::OPTION_ID_IGNORE,
+        ];
+    }
+    
     public function __construct()
     {
         $this->answers = new ArrayCollection();
@@ -586,11 +615,6 @@ class Petition
         return round((
                 $this->getGroup()->getUsers()->count() * $currentPercent) / 100
         );
-    }
-
-    public function getTypes()
-    {
-        return array(self::TYPE_QUORUM, self::TYPE_OPEN_LETTER, self::TYPE_LONG_PETITION);
     }
 
     /**

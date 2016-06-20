@@ -63,6 +63,7 @@ class AnswersController extends BaseController
 
     /**
      * Unsign petition answer.
+     * Deprecated, use `DELETE /api/v2/micro-petitions/{id}/answer` instead.
      *
      * @Route(
      *      "/micro-petitions/{id}/answers/{answerId}",
@@ -70,8 +71,9 @@ class AnswersController extends BaseController
      *      name="api_micro_petition_answer_unsign"
      * )
      * @Method("DELETE")
+     *
      * @ApiDoc(
-     *     resource=true,
+     *     section="Micropetitions",
      *     description="Unsign answer",
      *     filters={
      *         {"name"="entityId", "dataType"="integer"},
@@ -82,7 +84,8 @@ class AnswersController extends BaseController
      *         400="Bad Request",
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      */
     public function unsignMicroPetitionsAnswerAction(MicroPetition $microPetition, $answerId)
@@ -99,7 +102,7 @@ class AnswersController extends BaseController
         }
 
         $micropetitionService = $this->get('civix_core.poll.micropetition_manager');
-        $micropetitionService->unsignPetition($microPetition, $answer);
+        $micropetitionService->unsignPetition($answer);
 
         $response = new Response(json_encode(array('status' => 'ok')));
         $response->headers->set('Content-Type', 'application/json');

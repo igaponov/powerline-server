@@ -171,7 +171,6 @@
 
         <service id="civix_core.poll.micropetition_manager" class="Civix\CoreBundle\Service\Micropetitions\PetitionManager">
             <argument type="service" id="doctrine.orm.entity_manager" />
-            <argument type="service" id="civix_core.activity_update" />
             <argument type="service" id="event_dispatcher" />
         </service>
 
@@ -411,6 +410,11 @@
         <service class="Civix\CoreBundle\Service\FollowerManager" id="civix_core.service.follower_manager">
             <argument id="doctrine.orm.entity_manager" type="service"/>
             <argument id="event_dispatcher" type="service"/>
+        </service>
+
+        <service class="Civix\CoreBundle\EventListener\ActivityUpdateSubscriber" id="civix_core.event_listener.activity_update_subscriber">
+            <argument id="civix_core.activity_update" type="service"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

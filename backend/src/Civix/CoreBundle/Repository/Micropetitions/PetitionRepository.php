@@ -141,4 +141,48 @@ class PetitionRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function getFindByQuery($criteria)
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select('p, u, g')
+            ->leftJoin('p.user', 'u')
+            ->leftJoin('p.group', 'g')
+        ;
+        if (!empty($criteria['start'])) {
+            $qb->andWhere('p.createdAt > :start')
+                ->setParameter(':start', $criteria['start']);
+        }
+        if (!empty($criteria['tag'])) {
+            $qb->leftJoin('p.hashTags', 'h')
+                ->andWhere('h.name = :tag')
+                ->setParameter(':tag', $criteria['tag']);
+        }
+
+        return $qb->getQuery();
+    }
+
+    public function getFindByUserGroupsQuery(User $user)
+    {
+        $entityManager = $this->getEntityManager();
+
+        $activeGroups = $entityManager
+            ->getRepository('CivixCoreBundle:UserGroup')
+            ->getSubQueryGroupByJoinStatus()
+            ->setParameter('user', $user)
+            ->setParameter('joinSubqueryStatus', UserGroup::STATUS_ACTIVE)
+            ->getQuery()
+            ->getResult();
+
+        return $entityManager->createQueryBuilder()
+            ->select('p, u, g')
+            ->from('CivixCoreBundle:Micropetitions\Petition', 'p')
+            ->leftJoin('p.user', 'u')
+            ->leftJoin('p.group', 'g')
+            ->where('p.expireAt >= :currentDate')
+            ->andWhere('p.group IN (:userGroups)')
+            ->setParameter('currentDate', new \DateTime())
+            ->setParameter('userGroups', empty($activeGroups) ? 0 : $activeGroups)
+            ->getQuery();
+    }
 }

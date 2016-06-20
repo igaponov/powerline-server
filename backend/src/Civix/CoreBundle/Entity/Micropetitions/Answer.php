@@ -2,8 +2,11 @@
 
 namespace Civix\CoreBundle\Entity\Micropetitions;
 
+use Civix\CoreBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\ExecutionContextInterface;
 
 /**
  * Micropetitions Answer entity.
@@ -12,6 +15,7 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Micropetitions\AnswerRepository")
  * @ORM\HasLifecycleCallbacks
  * @Serializer\ExclusionPolicy("all")
+ * @Assert\Callback(methods={"isPetitionExpired", "isUserPetitionAuthor"})
  */
 class Answer
 {
@@ -36,6 +40,8 @@ class Answer
      * @ORM\Column(name="option_id", type="integer")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-leader-answers", "api-answers-list"})
+     * @Assert\NotBlank()
+     * @Assert\Choice(callback="\Civix\CoreBundle\Entity\Micropetitions\Petition::getOptionIds", message="Incorrect answer's option")
      */
     private $optionId;
 
@@ -97,11 +103,11 @@ class Answer
     /**
      * Set user.
      *
-     * @param \Civix\CoreBundle\Entity\User $user
+     * @param User $user
      *
      * @return Answer
      */
-    public function setUser(\Civix\CoreBundle\Entity\User $user = null)
+    public function setUser(User $user = null)
     {
         $this->user = $user;
 
@@ -111,7 +117,7 @@ class Answer
     /**
      * Get user.
      *
-     * @return \Civix\CoreBundle\Entity\User
+     * @return User
      */
     public function getUser()
     {
@@ -121,11 +127,11 @@ class Answer
     /**
      * Set petition.
      *
-     * @param \Civix\CoreBundle\Entity\Micropetitions\Petition $petition
+     * @param Petition $petition
      *
      * @return Answer
      */
-    public function setPetition(\Civix\CoreBundle\Entity\Micropetitions\Petition $petition = null)
+    public function setPetition(Petition $petition = null)
     {
         $this->petition = $petition;
 
@@ -135,7 +141,7 @@ class Answer
     /**
      * Get petition.
      *
-     * @return \Civix\CoreBundle\Entity\Micropetitions\Petition
+     * @return Petition
      */
     public function getPetition()
     {
@@ -188,5 +194,21 @@ class Answer
     public function getPetitionId()
     {
         return $this->petitionId;
+    }
+
+    public function isPetitionExpired(ExecutionContextInterface $context)
+    {
+        $petition = $this->petition;
+        if ($petition instanceof Petition && $petition->getExpireAt() < new \DateTime()) {
+            $context->addViolation('You could not answer to expired micropetition.');
+        }
+    }
+
+    public function isUserPetitionAuthor(ExecutionContextInterface $context)
+    {
+        $petition = $this->petition;
+        if ($petition instanceof Petition && $petition->getUser() == $this->getUser()) {
+            $context->addViolation('You could not answer to your micropetition.');
+        }
     }
 }

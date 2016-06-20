@@ -21,7 +21,7 @@ class MicropetitionPushSenderListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            MicropetitionEvents::PETITION_ANSWERED => 'sendPush',
+            MicropetitionEvents::PETITION_BOOST => 'sendPush',
         ];
     }
 

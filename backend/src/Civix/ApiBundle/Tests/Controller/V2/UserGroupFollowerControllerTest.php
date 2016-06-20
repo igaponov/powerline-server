@@ -88,6 +88,6 @@ class UserGroupFollowerControllerTest extends WebTestCase
         $this->assertSame(204, $response->getStatusCode(), $response->getContent());
         $userFollows = $this->em->getRepository(UserFollow::class)
             ->findBy(array('follower' => $user));
-        $this->assertCount(3, $userFollows);
+        $this->assertCount(4, $userFollows);
     }
 }
