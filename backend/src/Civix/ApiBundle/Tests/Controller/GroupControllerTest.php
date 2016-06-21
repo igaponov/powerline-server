@@ -89,9 +89,6 @@ class GroupControllerTest extends WebTestCase
 				'Should be a 400 response'
 				);
 		
-		$this->assertNotEmpty($response->headers->get('Access-Control-Allow-Origin'),
-				'Should return cors headers');
-		
 		// Set as owner of the group the mobile user
 		$this->group->setOwner($this->mobile1);
 
@@ -109,8 +106,5 @@ class GroupControllerTest extends WebTestCase
 				$response->getStatusCode(),
 				'Should be a 204 response'
 				);
-		
-		$this->assertNotEmpty($response->headers->get('Access-Control-Allow-Origin'),
-				'Should return cors headers');
 	}
 }

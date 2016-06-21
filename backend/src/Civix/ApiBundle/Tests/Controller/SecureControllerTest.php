@@ -66,9 +66,6 @@ class SecureControllerTest extends WebTestCase
 				$this->client->getResponse()->getStatusCode(),
 				'Should be not authorized'
 				);
-		
-		$this->assertNotEmpty($this->client->getResponse()->headers->get('Access-Control-Allow-Origin'),
-				'Should return cors headers');
 	}
 	
 	/**
@@ -88,10 +85,7 @@ class SecureControllerTest extends WebTestCase
 				$this->client->getResponse()->getStatusCode(),
 				'Should be superuser successfully authorized'
 				);
-	
-		$this->assertNotEmpty($this->client->getResponse()->headers->get('Access-Control-Allow-Origin'),
-				'Should return cors headers');
-		
+
 		$data = json_decode($request_content);
 		
 		$this->assertEquals(TRUE, isset($data->token) && !empty($data->token), 'Request result should contain a token and must be not empty');
@@ -115,9 +109,6 @@ class SecureControllerTest extends WebTestCase
 				'Should be superuser successfully authorized'
 				);
 	
-		$this->assertNotEmpty($this->client->getResponse()->headers->get('Access-Control-Allow-Origin'),
-				'Should return cors headers');
-	
 		$data = json_decode($request_content);
 	
 		$this->assertEquals(TRUE, isset($data->token) && !empty($data->token), 'Request result should contain a token and must be not empty');
@@ -140,10 +131,7 @@ class SecureControllerTest extends WebTestCase
 				$this->client->getResponse()->getStatusCode(),
 				'Should be superuser successfully authorized'
 				);
-	
-		$this->assertNotEmpty($this->client->getResponse()->headers->get('Access-Control-Allow-Origin'),
-				'Should return cors headers');
-	
+
 		$data = json_decode($request_content);
 	
 		$this->assertEquals(TRUE, isset($data->token) && !empty($data->token), 'Request result should contain a token and must be not empty');
