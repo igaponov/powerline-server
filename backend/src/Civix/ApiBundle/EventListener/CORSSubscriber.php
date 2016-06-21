@@ -11,11 +11,26 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CORSSubscriber implements EventSubscriberInterface
 {
+    private $headers = [
+        'accept',
+        'origin',
+        'x-requested-with',
+        'token',
+        'content-type',
+    ];
+
+    private $methods = [
+        'GET',
+        'POST',
+        'PUT',
+        'DELETE',
+        'PATCH',
+    ];
+
     public static function getSubscribedEvents()
     {
         return array(
             KernelEvents::REQUEST => array(array('onKernelRequest', 33)),
-            KernelEvents::RESPONSE => array(array('onKernelResponse', 33)),
         );
     }
 
@@ -24,11 +39,20 @@ class CORSSubscriber implements EventSubscriberInterface
         if (HttpKernelInterface::MASTER_REQUEST !== $event->getRequestType()) {
             return;
         }
+
         $request = $event->getRequest();
-        if ('OPTIONS' === $request->getMethod()) {
-            $response = new Response();
-            $event->setResponse($response);
+
+        // skip if not a CORS request
+        if (!$request->headers->has('Origin') || $request->headers->get('Origin') == $request->getSchemeAndHttpHost()) {
+            return;
         }
+
+        if ('OPTIONS' === $request->getMethod()) {
+            $event->setResponse($this->getPreflightResponse());
+            return;
+        }
+
+        $event->getDispatcher()->addListener('kernel.response', array($this, 'onKernelResponse'));
     }
 
     public function onKernelResponse(FilterResponseEvent $event)
@@ -36,9 +60,20 @@ class CORSSubscriber implements EventSubscriberInterface
         if (HttpKernelInterface::MASTER_REQUEST !== $event->getRequestType()) {
             return;
         }
+
         $response = $event->getResponse();
         $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers
-            ->set('Access-Control-Allow-Headers', 'accept, origin, x-requested-with, token, content-type');
+        $response->headers->set('Access-Control-Allow-Headers', implode(', ', $this->headers));
+    }
+
+    protected function getPreflightResponse()
+    {
+        $response = new Response();
+
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+        $response->headers->set('Access-Control-Allow-Headers', implode(', ', $this->headers));
+        $response->headers->set('Access-Control-Allow-Methods', implode(', ', $this->methods));
+
+        return $response;
     }
 }

@@ -13,15 +13,28 @@ class CORSSubscriberTest extends WebTestCase
      */
     public function testGET()
     {
-        $client = static::createClient(array(), array('HTTPS' => true));
+        $client = static::createClient(array(), array(
+            'HTTPS' => true,
+            'HTTP_ORIGIN' => 'https://powerli.ne',
+        ));
         $client->request('GET', '/api-public/users/');
         $this->assertEquals(
             Codes::HTTP_OK,
             $client->getResponse()->getStatusCode(),
             'Should return content'
         );
-        $this->assertNotEmpty($client->getResponse()->headers->get('Access-Control-Allow-Origin'),
-            'Should return cors headers');
+        $this->assertNotEmpty(
+            $client->getResponse()->headers->get('Access-Control-Allow-Origin'),
+            'Should return cors headers'
+        );
+        $this->assertNotEmpty(
+            $client->getResponse()->headers->get('Access-Control-Allow-Headers'),
+            'Should return cors headers'
+        );
+        $this->assertEmpty(
+            $client->getResponse()->headers->get('Access-Control-Allow-Methods'),
+            'Should not return cors methods'
+        );
     }
 
     /**
@@ -31,7 +44,8 @@ class CORSSubscriberTest extends WebTestCase
     public function testNotAllowedMethod()
     {
         $client = static::makeClient(false, array(
-            'HTTPS' => true
+            'HTTPS' => true,
+            'HTTP_ORIGIN' => 'https://powerli.ne',
         ));
         $client->request('POST', '/api-public/users/');
         $response = $client->getResponse();
@@ -42,7 +56,16 @@ class CORSSubscriberTest extends WebTestCase
         );
         $this->assertNotEmpty(
             $response->headers->get('Access-Control-Allow-Origin'),
-            'Should return cors headers');
+            'Should return cors origin'
+        );
+        $this->assertNotEmpty(
+            $client->getResponse()->headers->get('Access-Control-Allow-Headers'),
+            'Should return cors headers'
+        );
+        $this->assertEmpty(
+            $client->getResponse()->headers->get('Access-Control-Allow-Methods'),
+            'Should not return cors methods'
+        );
     }
 
     /**
@@ -51,7 +74,10 @@ class CORSSubscriberTest extends WebTestCase
      */
     public function testOPTIONS()
     {
-        $client = static::createClient(array(), array('HTTPS' => true));
+        $client = static::createClient(array(), array(
+            'HTTPS' => true,
+            'HTTP_ORIGIN' => 'https://powerli.ne',
+        ));
 
         $client->request('OPTIONS', '/api/activity');
         $this->assertEquals(
@@ -59,7 +85,17 @@ class CORSSubscriberTest extends WebTestCase
             $client->getResponse()->getStatusCode(),
             'Should return 200 ok'
         );
-        $this->assertNotEmpty($client->getResponse()->headers->get('Access-Control-Allow-Origin'),
-            'Should return cors headers');
+        $this->assertNotEmpty(
+            $client->getResponse()->headers->get('Access-Control-Allow-Origin'),
+            'Should return cors origin'
+        );
+        $this->assertNotEmpty(
+            $client->getResponse()->headers->get('Access-Control-Allow-Headers'),
+            'Should return cors headers'
+        );
+        $this->assertNotEmpty(
+            $client->getResponse()->headers->get('Access-Control-Allow-Methods'),
+            'Should return cors methods'
+        );
     }
 }

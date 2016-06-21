@@ -95,8 +95,5 @@ class PollControllerTest extends WebTestCase
 				$response->getStatusCode(),
 				'Should be authorized'
 				);
-	
-		$this->assertNotEmpty($response->headers->get('Access-Control-Allow-Origin'),
-				'Should return cors headers');
 	}
 }
