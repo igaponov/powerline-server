@@ -86,6 +86,22 @@ class MicropetitionControllerTest extends WebTestCase
         $this->assertSame($petition->getPetitionBody(), $data['petition_body']);
     }
 
+    public function testGetDeletedMicropetition()
+    {
+        $repository = $this->loadFixtures([
+            LoadMicropetitionData::class,
+        ])->getReferenceRepository();
+        /** @var Petition $petition */
+        $petition = $repository->getReference('micropetition_7');
+        $client = $this->client;
+        $client->request('GET',
+            self::API_ENDPOINT.'/'.$petition->getId(), [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(404, $response->getStatusCode(), $response->getContent());
+    }
+
     public function testUpdateMicropetitionAccessDenied()
     {
         $repository = $this->loadFixtures([
@@ -207,8 +223,8 @@ class MicropetitionControllerTest extends WebTestCase
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
             ->getConnection();
-        $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM micropetitions WHERE id = ?', [$petition->getId()]);
-        $this->assertSame(0, $count);
+        $date = $conn->fetchColumn('SELECT deleted_at FROM micropetitions WHERE id = ?', [$petition->getId()]);
+        $this->assertNotNull($date);
     }
 
     public function testSignMicropetitionReturnsErrors()
