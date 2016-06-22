@@ -111,6 +111,23 @@ Women WWII pilots get burial rights at Arlington National Cemetery')
         $manager->persist($petition);
         $this->addReference('micropetition_6', $petition);
 
+        $deleted = new Petition();
+        $deleted->setUser($user3)
+            ->setTitle('-- deleted --')
+            ->setPetitionBody('-- deleted --')
+            ->setLink('https://www.change.org')
+            ->setCreatedAt(new \DateTime('-2 months'))
+            ->setExpireAt(new \DateTime('+10 days'))
+            ->setPublishStatus(Petition::STATUS_PUBLISH)
+            ->setType(Petition::TYPE_QUORUM)
+            ->setUserExpireInterval(10)
+            ->setGroup($privateGroup);
+        $manager->persist($deleted);
+        $this->addReference('micropetition_7', $deleted);
+
+        $manager->flush();
+
+        $manager->remove($deleted);
         $manager->flush();
     }
 

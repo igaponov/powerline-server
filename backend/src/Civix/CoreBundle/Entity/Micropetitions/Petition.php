@@ -17,6 +17,7 @@ use Civix\CoreBundle\Serializer\Type\Image;
  * @ORM\Table(name="micropetitions")
  * @ORM\HasLifecycleCallbacks
  * @Serializer\ExclusionPolicy("all")
+ * @Gedmo\SoftDeleteable()
  */
 class Petition
 {
@@ -218,6 +219,13 @@ class Petition
      * @var ArrayCollection|MicroPetition
      */
     private $micropetitions;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="deleted_at", type="datetime", nullable=true)
+     */
+    private $deletedAt;
 
     public static function getTypes()
     {
@@ -775,5 +783,13 @@ class Petition
     public function getMicropetitions()
     {
         return $this->micropetitions;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getDeletedAt()
+    {
+        return $this->deletedAt;
     }
 }
