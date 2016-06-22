@@ -910,6 +910,9 @@ class User implements UserInterface, \Serializable
      */
     private function normalizeEmail($email)
     {
+        if (strpos($email, '@') === false) {
+            return $email;
+        }
         $email = strtolower($email);
         list($local, $domain) = explode('@', $email);
         $local = strstr($local, '+', true) ?: $local;
