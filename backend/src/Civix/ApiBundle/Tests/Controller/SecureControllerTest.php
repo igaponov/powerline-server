@@ -3,6 +3,7 @@ namespace Civix\ApiBundle\Tests\Controller;
 
 use Civix\CoreBundle\Entity\Group;
 use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Faker\Factory;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
@@ -137,7 +138,7 @@ class SecureControllerTest extends WebTestCase
 		$this->assertEquals(TRUE, isset($data->token) && !empty($data->token), 'Request result should contain a token and must be not empty');
 	}
 
-	public function testRegistrationWithWrongDataReturnsErrors()
+	public function testRegistrationGroupWithWrongDataReturnsErrors()
 	{
 		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
 		$client->request('POST', '/api/secure/registration-group', [], [], []);
@@ -151,7 +152,7 @@ class SecureControllerTest extends WebTestCase
 		$this->assertContains('This value should not be blank.', $errors['official_name']['errors']);
 	}
 
-	public function testRegistrationIsOk()
+	public function testRegistrationGroupIsOk()
 	{
 		$faker = Factory::create();
 		$data = [
@@ -189,6 +190,72 @@ class SecureControllerTest extends WebTestCase
 		$this->assertSame($data['acronym'], $group['acronym']);
 
 		$client->request('POST', '/api/secure/login', ['username' => $data['username'], 'password' => $data['plain_password']]);
+		$response = $client->getResponse();
+		$data = json_decode($response->getContent(), true);
+		$this->assertNotEmpty($data['token']);
+	}
+
+	public function testRegistrationWithWrongDataReturnsErrors()
+	{
+		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
+		$client->request('POST', '/api/secure/registration', [], [], [], json_encode(['email' => 'qwerty']));
+		$response = $client->getResponse();
+		$this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+		$data = json_decode($response->getContent(), true);
+		$errors = $data['errors'];
+		$expectedErrors = [
+			'username' => 'This value should not be blank.',
+			'password' => 'This value should not be blank.',
+			'firstName' => 'This value should not be blank.',
+			'lastName' => 'This value should not be blank.',
+			'zip' => 'This value should not be blank.',
+			'email' => 'This value is not a valid email address.',
+		];
+		foreach ($errors as $error) {
+			$this->assertEquals($expectedErrors[$error['property']], $error['message']);
+		}
+	}
+
+	public function testRegistrationIsOk()
+	{
+		$faker = Factory::create();
+		$data = [
+			'username' => $faker->userName,
+			'first_name' => $faker->firstName,
+			'last_name' => $faker->lastName,
+			'email' => 'reg.test+powerline@mail.com',
+			'password' => $faker->password,
+			'address1' => $faker->address,
+			'address2' => $faker->address,
+			'city' => $faker->city,
+			'state' => strtoupper($faker->randomLetter.$faker->randomLetter),
+			'zip' => $faker->word,
+			'country' => $faker->country,
+			'birth' => $faker->date(),
+		];
+		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
+		$client->request('POST', '/api/secure/registration', [], [], [], json_encode($data));
+		$response = $client->getResponse();
+		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+
+		$result = json_decode($response->getContent(), true);
+		$this->assertSame($data['username'], $result['username']);
+		/** @var Connection $conn */
+		$conn = $client->getContainer()->get('database_connection');
+		$user = $conn->fetchAssoc('SELECT * FROM user WHERE username = ?', [$result['username']]);
+		$this->assertSame($data['username'], $user['username']);
+		$this->assertSame($data['first_name'], $user['firstName']);
+		$this->assertSame($data['last_name'], $user['lastName']);
+		$this->assertSame('regtest@mail.com', $user['email']);
+		$this->assertSame($data['address1'], $user['address1']);
+		$this->assertSame($data['address2'], $user['address2']);
+		$this->assertSame($data['city'], $user['city']);
+		$this->assertSame($data['state'], $user['state']);
+		$this->assertSame($data['zip'], $user['zip']);
+		$this->assertSame($data['country'], $user['country']);
+		$this->assertSame(strtotime($data['birth']), strtotime($user['birth']));
+
+		$client->request('POST', '/api/secure/login', ['username' => $data['username'], 'password' => $data['password']]);
 		$response = $client->getResponse();
 		$data = json_decode($response->getContent(), true);
 		$this->assertNotEmpty($data['token']);
