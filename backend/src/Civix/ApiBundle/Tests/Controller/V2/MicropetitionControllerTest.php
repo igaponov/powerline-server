@@ -172,6 +172,9 @@ class MicropetitionControllerTest extends WebTestCase
         $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM hash_tags_petitions WHERE petition_id = ?', [$data['id']]);
         $this->assertCount($count, $hashTags);
         $this->assertCount($count, $data['cached_hash_tags']);
+        // check activity
+        $description = $conn->fetchColumn('SELECT description FROM activities WHERE petition_id = ?', [$data['id']]);
+        $this->assertSame($data['petition_body'], $description);
     }
 
     public function testDeleteMicropetitionAccessDenied()
