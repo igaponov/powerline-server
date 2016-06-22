@@ -23,6 +23,7 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
     {
         return [
             MicropetitionEvents::PETITION_CREATE => 'publishMicroPetitionToActivity',
+            MicropetitionEvents::PETITION_UPDATE => 'publishMicroPetitionToActivity',
             MicropetitionEvents::PETITION_SIGN => [
                 ['updateResponsesPetition'],
                 ['updateAuthorActivity'],
