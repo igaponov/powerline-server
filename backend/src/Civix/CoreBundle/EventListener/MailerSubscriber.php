@@ -1,13 +1,12 @@
 <?php
 namespace Civix\CoreBundle\EventListener;
 
-use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
 use Civix\CoreBundle\Service\EmailSender;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class MailerEventListener implements EventSubscriberInterface
+class MailerSubscriber implements EventSubscriberInterface
 {
     /**
      * @var EmailSender

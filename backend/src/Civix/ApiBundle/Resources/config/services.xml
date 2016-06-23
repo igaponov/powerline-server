@@ -86,11 +86,6 @@
             <tag name="request.param_converter" converter="doctrine.param_converter" priority="-10"/>
         </service>
 
-        <service class="Civix\ApiBundle\EventListener\SocialActivitySubscriber" id="civix_api.event_listener.social_activity_subscriber">
-            <argument id="civix_core.social_activity_manager" type="service"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service class="Civix\ApiBundle\EventListener\PetitionSubscriber" id="civix_api.event_listener.petition_subscriber">
             <argument id="doctrine.orm.entity_manager" type="service"/>
             <argument id="civix_core.settings" type="service"/>
