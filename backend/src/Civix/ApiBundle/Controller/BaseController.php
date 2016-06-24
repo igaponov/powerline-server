@@ -52,7 +52,9 @@ class BaseController extends Controller
     {
         /** @var $serializer \JMS\Serializer\Serializer */
         $serializer = $this->get('jms_serializer');
-        $serializerContext = SerializationContext::create()->setGroups($groups);
+        $serializerContext = SerializationContext::create()
+            ->setGroups($groups)
+            ->setVersion(1);
 
         return $serializer->serialize($serializationObject, $type, $serializerContext);
     }
@@ -61,7 +63,9 @@ class BaseController extends Controller
     {
         /** @var $serializer \JMS\Serializer\Serializer */
         $serializer = $this->get('jms_serializer');
-        $serializerContext = DeserializationContext::create()->setGroups($groups);
+        $serializerContext = DeserializationContext::create()
+            ->setGroups($groups)
+            ->setVersion(1);
 
         return $serializer->deserialize($content, $class, $type, $serializerContext);
     }
