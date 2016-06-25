@@ -7,6 +7,7 @@
  */
 namespace Civix\CoreBundle\Service\Mailgun;
 
+use Mailgun\Connection\Exceptions\MissingEndpoint;
 use Mailgun\Mailgun;
 use Psr\Log\LoggerInterface;
 
@@ -117,14 +118,20 @@ class MailgunApi
 
     public function listExistsAction($listname)
     {
+        $return = true;
         $listAddress = $listname.self::GROUP_EMAIL;
-        $result = $this->client->get('lists', array(
-            'address' => $listAddress,
-        ));
+        try {
+            $this->client->get(
+                'lists',
+                array(
+                    'address' => $listAddress,
+                )
+            );
+        } catch (MissingEndpoint $e) {
+            $return = false;
+        }
 
-        $decodedresult = $this->JsonResponse($result);
-
-        return isset($decodedresult['http_response_body']['total_count']) && (bool)$decodedresult['http_response_body']['total_count'];
+        return $return;
     }
 
     public function JsonResponse($result)
