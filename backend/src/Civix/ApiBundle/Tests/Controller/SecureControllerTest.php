@@ -220,17 +220,17 @@ class SecureControllerTest extends WebTestCase
 	{
 		$faker = Factory::create();
 		$data = [
-			'username' => $faker->userName,
+			'username' => 'testUser1',
 			'first_name' => $faker->firstName,
 			'last_name' => $faker->lastName,
 			'email' => 'reg.test+powerline@mail.com',
 			'password' => $faker->password,
-			'address1' => $faker->address,
+			'address1' => 'Bucklin',
 			'address2' => $faker->address,
-			'city' => $faker->city,
-			'state' => strtoupper($faker->randomLetter.$faker->randomLetter),
-			'zip' => $faker->word,
-			'country' => $faker->country,
+			'city' => 'Bucklin',
+			'state' => 'KS',
+			'zip' => '67834',
+			'country' => 'US',
 			'birth' => $faker->date(),
 		];
 		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
