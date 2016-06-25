@@ -56,14 +56,6 @@
             <argument type="service" id="mailgun.public_client" />
             <argument type="service" id="logger" />
         </service>
-        <service class="Civix\CoreBundle\EventListener\GroupEventSubscriber" id="civix_core.event_listener.group_event_subscriber">
-            <argument id="civix_core.mailgun" type="service"/>
-            <argument id="civix_core.repository.user_repository" type="service"/>
-            <argument id="civix_core.repository.user_group_repository" type="service"/>
-            <argument id="civix_core.social_activity_manager" type="service"/>
-            <argument id="logger" type="service"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
         <service id="civix_core.crop_avatar" class="Civix\CoreBundle\Service\CropAvatar">
             <argument type="service" id="civix_core.crop_image" />
             <argument type="service" id="logger" />
@@ -349,34 +341,14 @@
             <argument id="symfony.component.intl.resource.region" type="service"/>
         </service>
 
-        <service class="Civix\CoreBundle\EventListener\AnnouncementPushSenderListener" id="civix_core.event_listener.announcement_push_sender_listener">
+        <service class="Civix\CoreBundle\EventListener\PushSenderSubscriber" id="civix_core.event_listener.push_sender_subscriber">
             <argument id="civix_core.push_task" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service class="Civix\CoreBundle\EventListener\MicropetitionPushSenderListener" id="civix_core.event_listener.micropetition_push_sender_listener">
+        <service class="Civix\CoreBundle\EventListener\PushSenderDoctrineSubscriber" id="civix_core.event_listener.push_sender_doctrine_subscriber">
             <argument id="civix_core.push_task" type="service"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service class="Civix\CoreBundle\EventListener\PollPushSenderListener" id="civix_core.event_listener.poll_push_sender_listener">
-            <argument id="civix_core.push_task" type="service"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service class="Civix\CoreBundle\EventListener\UserFollowPushSenderListener" id="civix_core.event_listener.user_follow_push_sender_listener">
-            <argument id="civix_core.push_task" type="service"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service class="Civix\CoreBundle\EventListener\MicropetitionCommentPushSenderListener" id="civix_core.event_listener.micropetition_comment_push_sender_listener">
-            <argument id="civix_core.push_task" type="service"/>
-            <tag name="doctrine.event_listener" event="postPersist"/>
-        </service>
-
-        <service class="Civix\CoreBundle\EventListener\SocialActivityPushSenderListener" id="civix_core.event_listener.social_activity_push_sender_listener">
-            <argument id="civix_core.push_task" type="service"/>
-            <tag name="doctrine.event_listener" event="postPersist"/>
+            <tag name="doctrine.event_subscriber"/>
         </service>
 
         <service class="Civix\CoreBundle\EventListener\PasswordEncodeListener" id="civix_core.event_listener.password_encode_listener">
@@ -384,8 +356,20 @@
             <tag name="doctrine.event_subscriber"/>
         </service>
 
-        <service class="Civix\CoreBundle\EventListener\MailerEventListener" id="civix_core.event_listener.mailer_event_listener">
+        <service class="Civix\CoreBundle\EventListener\MailerSubscriber" id="civix_core.event_listener.mailer_subscriber">
             <argument id="civix_core.email_sender" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service class="Civix\CoreBundle\EventListener\GroupEventSubscriber" id="civix_core.event_listener.group_event_subscriber">
+            <argument id="civix_core.repository.user_group_repository" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service class="Civix\CoreBundle\EventListener\MailgunSubscriber" id="civix_core.event_listener.mailgun_subscriber">
+            <argument id="civix_core.mailgun" type="service"/>
+            <argument id="civix_core.repository.user_repository" type="service"/>
+            <argument id="logger" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
