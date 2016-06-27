@@ -17,7 +17,6 @@ use Civix\CoreBundle\Serializer\Type\Image;
  * @ORM\Table(name="micropetitions")
  * @ORM\HasLifecycleCallbacks
  * @Serializer\ExclusionPolicy("all")
- * @Gedmo\SoftDeleteable()
  */
 class Petition
 {
@@ -119,7 +118,7 @@ class Petition
     private $userExpireInterval;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Civix\CoreBundle\Entity\User", cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity="\Civix\CoreBundle\Entity\User")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-petitions-list", "api-petitions-info", "api-leader-micropetition"})
@@ -214,18 +213,11 @@ class Petition
     private $metadata;
 
     /**
-     * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\Activities\MicroPetition", mappedBy="petition")
+     * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\Activities\MicroPetition", mappedBy="petition", cascade={"remove"})
      *
      * @var ArrayCollection|MicroPetition
      */
     private $micropetitions;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="deleted_at", type="datetime", nullable=true)
-     */
-    private $deletedAt;
 
     public static function getTypes()
     {

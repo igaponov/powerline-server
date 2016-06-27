@@ -33,14 +33,14 @@ class ActivityReadRepository extends EntityRepository
         ;
 
         return array_map(function (ActivityRead $item) {
-            return $item->getActivityId();
+            return $item->getActivity()->getId();
         }, $items);
     }
 
     private function isRead(ActivityRead $item)
     {
         return !empty($this->findBy([
-            'activityId' => $item->getActivityId(),
+            'activity' => $item->getActivity(),
             'user' => $item->getUser(),
         ]));
     }

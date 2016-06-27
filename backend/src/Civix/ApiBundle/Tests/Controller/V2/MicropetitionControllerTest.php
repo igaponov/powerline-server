@@ -3,15 +3,11 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\CoreBundle\Entity\Micropetitions\Petition;
 use Civix\CoreBundle\Entity\SocialActivity;
-use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Service\Micropetitions\PetitionManager;
 use Civix\CoreBundle\Service\PushTask;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadMicropetitionAnswerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadMicropetitionData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
-use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
@@ -226,8 +222,8 @@ class MicropetitionControllerTest extends WebTestCase
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
             ->getConnection();
-        $date = $conn->fetchColumn('SELECT deleted_at FROM micropetitions WHERE id = ?', [$petition->getId()]);
-        $this->assertNotNull($date);
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM micropetitions WHERE id = ?', [$petition->getId()]);
+        $this->assertEquals(0, $count);
     }
 
     public function testSignMicropetitionReturnsErrors()

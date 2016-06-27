@@ -1,18 +1,12 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
-use Civix\CoreBundle\Entity\HashTag;
 use Civix\CoreBundle\Entity\Micropetitions\Petition;
-use Civix\CoreBundle\Entity\Setting;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Service\Micropetitions\PetitionManager;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeAnnouncementData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDistrictData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
-use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
@@ -27,23 +21,18 @@ class GroupMicropetitionControllerTest extends WebTestCase
      */
     private $client = null;
 
-    /**
-     * @var ReferenceRepository
-     */
-    private $repository;
-
     public function setUp()
     {
-        $this->repository = $this->loadFixtures([
-            LoadUserData::class,
-            LoadGroupData::class,
-        ])->getReferenceRepository();
         // Creates a initial client
         $this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
     }
 
     public function testCreateMicropetitionWithErrors()
     {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+            LoadGroupData::class,
+        ])->getReferenceRepository();
         $manager = $this->getPetitionManagerMock(['checkPetitionLimitPerMonth']);
         $manager->expects($this->once())
             ->method('checkPetitionLimitPerMonth')
@@ -54,7 +43,7 @@ class GroupMicropetitionControllerTest extends WebTestCase
             'petition_body' => 'This value should not be blank.',
             'type' => 'The value you selected is not a valid choice.',
         ];
-        $group = $this->repository->getReference('testfollowprivategroups');
+        $group = $repository->getReference('testfollowprivategroups');
         $client = $this->client;
         $uri = str_replace('{id}', $group->getId(), self::API_ENDPOINT);
         $params = [
@@ -82,8 +71,12 @@ class GroupMicropetitionControllerTest extends WebTestCase
 
     public function testCreateMicropetition()
     {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+            LoadGroupData::class,
+        ])->getReferenceRepository();
         $faker = Factory::create();
-        $group = $this->repository->getReference('testfollowprivategroups');
+        $group = $repository->getReference('testfollowprivategroups');
         $client = $this->client;
         $manager = $this->getPetitionManagerMock([
             'checkPetitionLimitPerMonth',
@@ -148,10 +141,78 @@ class GroupMicropetitionControllerTest extends WebTestCase
         $this->assertSame($data['petition_body'], $description);
     }
 
+    public function testGetActivitiesOfDeletedMicropetition()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+            LoadGroupData::class,
+            LoadUserGroupData::class,
+        ])->getReferenceRepository();
+        $faker = Factory::create();
+        $group = $repository->getReference('testfollowprivategroups');
+        $client = $this->client;
+        $manager = $this->getPetitionManagerMock([
+            'checkPetitionLimitPerMonth',
+        ]);
+        $manager->expects($this->once())
+            ->method('checkPetitionLimitPerMonth')
+            ->will($this->returnValue(true));
+        $client->getContainer()->set('civix_core.poll.micropetition_manager', $manager);
+        $settings = $client->getContainer()->get('civix_core.settings');
+        $settings->set('micropetition_expire_interval_0', 100);
+        $uri = str_replace('{id}', $group->getId(), self::API_ENDPOINT);
+        $hashTags = [
+            '#testHashTag',
+            '#powerlineHashTag',
+        ];
+        $params = [
+            'title' => $faker->sentence,
+            'petition_body' => $faker->text."\n".implode(' ', $hashTags),
+            'link' => $faker->url,
+            'is_outsiders_sign' => $faker->boolean(),
+            'type' => Petition::TYPE_OPEN_LETTER,
+        ];
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
+            ->getConnection();
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM activities');
+        $this->assertEquals(0, $count);
+        $client->request('POST',
+            $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"'],
+            json_encode($params)
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(201, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        // check activity
+        $description = $conn->fetchColumn('SELECT description FROM activities WHERE petition_id = ?', [$data['id']]);
+        $this->assertSame($data['petition_body'], $description);
+        $client->request('DELETE',
+            '/api/v2/micro-petitions/'.$data['id'], [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM micropetitions WHERE id = ?', [$data['id']]);
+        $this->assertEquals(0, $count);
+        $client->request('GET',
+            '/api/v2/activities', [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertCount(0, $data['payload']);
+    }
+
     public function testCreateLongMicropetition()
     {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+            LoadGroupData::class,
+        ])->getReferenceRepository();
         $faker = Factory::create();
-        $group = $this->repository->getReference('testfollowprivategroups');
+        $group = $repository->getReference('testfollowprivategroups');
         $client = $this->client;
         $manager = $this->getPetitionManagerMock([
             'checkPetitionLimitPerMonth',

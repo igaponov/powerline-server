@@ -26,13 +26,12 @@ class ActivityRead
     private $id;
 
     /**
-     * @var int
+     * @var Activity
      *
-     * @ORM\Column(name="activity_id", type="integer")
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-activities"})
+     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\Activity", inversedBy="activityRead")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
-    private $activityId;
+    private $activity;
 
     /**
      * @var User
@@ -72,22 +71,16 @@ class ActivityRead
 
     /**
      * @return int
+     * @deprecated Use {@link getActivity()} instead
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Type("integer")
+     * @Serializer\Until("1")
+     * @Serializer\Groups({"api-activities"})
      */
     public function getActivityId()
     {
-        return $this->activityId;
-    }
-
-    /**
-     * @param int $activityId
-     *
-     * @return $this
-     */
-    public function setActivityId($activityId)
-    {
-        $this->activityId = $activityId;
-
-        return $this;
+        return $this->getActivity()->getId();
     }
 
     /**
@@ -126,6 +119,25 @@ class ActivityRead
     public function setCreatedAt(\DateTime $createdAt)
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Activity
+     */
+    public function getActivity()
+    {
+        return $this->activity;
+    }
+
+    /**
+     * @param Activity $activity
+     * @return ActivityRead
+     */
+    public function setActivity($activity)
+    {
+        $this->activity = $activity;
 
         return $this;
     }
