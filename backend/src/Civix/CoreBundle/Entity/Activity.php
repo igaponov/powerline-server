@@ -4,13 +4,13 @@ namespace Civix\CoreBundle\Entity;
 
 use Civix\CoreBundle\Entity\Activities\MicroPetition;
 use Civix\CoreBundle\Entity\Activities\Petition;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
-use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Serializer\Type\OwnerData;
 use Civix\CoreBundle\Serializer\Type\Image;
@@ -119,17 +119,19 @@ abstract class Activity
 
     /**
      * @ORM\ManyToOne(targetEntity="\Civix\CoreBundle\Entity\Superuser")
-     * @ORM\JoinColumn(name="superuser_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="superuser_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $superuser;
 
     /**
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\User")
-     * @ORM\JoinColumn(name="user_id",  referencedColumnName="id")
+     * @ORM\JoinColumn(name="user_id",  referencedColumnName="id", onDelete="CASCADE")
      */
     protected $user;
 
     /**
+     * @var ArrayCollection|ActivityCondition[]
+     *
      * @ORM\OneToMany(targetEntity="ActivityCondition", mappedBy="activity", cascade={"persist"})
      */
     protected $activityConditions;
@@ -151,7 +153,7 @@ abstract class Activity
     /**
      * @ORM\Column(name="is_outsiders", type="boolean", nullable=true)
      *
-     * @var type
+     * @var bool
      */
     protected $isOutsiders;
 
@@ -212,27 +214,28 @@ abstract class Activity
 
     /**
      * @var ActivityRead
-     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\ActivityRead")
-     * @ORM\JoinColumn(name="id", referencedColumnName="activity_id")
+     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\ActivityRead", mappedBy="activity")
      */
     private $activityRead;
 
     /**
      * @var Question
      * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\Poll\Question")
-     * @ORM\JoinColumn(name="question_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="question_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $question;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Micropetitions\Petition", inversedBy="micropetitions")
      * @var Micropetitions\Petition
+     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Micropetitions\Petition", inversedBy="micropetitions")
+     * @ORM\JoinColumn(name="petition_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $petition;
 
     public function __construct()
     {
         $this->setResponsesCount(0);
+        $this->activityConditions = new ArrayCollection();
     }
 
     /**
@@ -464,7 +467,7 @@ abstract class Activity
     /**
      * Set isOutsiders.
      *
-     * @param \DateTime $expireAt
+     * @param bool $isOutsiders
      *
      * @return Activity
      */
@@ -530,11 +533,11 @@ abstract class Activity
     /**
      * Add activityConditions.
      *
-     * @param \Civix\CoreBundle\Entity\ActivityCondition $activityConditions
+     * @param ActivityCondition $activityConditions
      *
      * @return Activity
      */
-    public function addActivityCondition(\Civix\CoreBundle\Entity\ActivityCondition $activityConditions)
+    public function addActivityCondition(ActivityCondition $activityConditions)
     {
         $this->activityConditions[] = $activityConditions;
         $activityConditions->setActivity($this);
@@ -545,9 +548,9 @@ abstract class Activity
     /**
      * Remove activityConditions.
      *
-     * @param \Civix\CoreBundle\Entity\ActivityCondition $activityConditions
+     * @param ActivityCondition $activityConditions
      */
-    public function removeActivityCondition(\Civix\CoreBundle\Entity\ActivityCondition $activityConditions)
+    public function removeActivityCondition(ActivityCondition $activityConditions)
     {
         $this->activityConditions->removeElement($activityConditions);
     }

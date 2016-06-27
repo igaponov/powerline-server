@@ -45,7 +45,7 @@ class ActivityManager
             if (!$activity->getActivityRead()) {
                 $activityRead = new ActivityRead();
                 $activityRead->setUser($user);
-                $activityRead->setActivityId($activity->getId());
+                $activityRead->setActivity($activity);
                 $this->em->persist($activityRead);
                 $activity->setRead(true);
             }
