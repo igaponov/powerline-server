@@ -337,8 +337,11 @@ class MicropetitionController extends BaseController
      */
     public function answersAction()
     {
-        return new Response($this->jmsSerialization($this->getDoctrine()->getRepository(Answer::class)
-            ->findLastByUser($this->getUser()), array('api-answers-list')));
+        $answers = $this->getDoctrine()->getRepository(Answer::class)
+            ->getFindByUserAndCriteriaQuery($this->getUser(), ['start' => new \DateTime('-35 days')])
+            ->getResult();
+
+        return new Response($this->jmsSerialization($answers, array('api-answers-list')));
     }
 
     /**
