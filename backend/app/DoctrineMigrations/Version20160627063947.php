@@ -24,6 +24,7 @@ class Version20160627063947 extends AbstractMigration
         $this->addSql('ALTER TABLE activities CHANGE updated_at updated_at DATETIME NOT NULL');
 
         $this->addSql('DELETE FROM activities_read WHERE activity_id NOT IN (SELECT id FROM activities) OR activity_id IS NULL');
+        $this->addSql('DELETE FROM activities_read USING activities_read, activities_read ar WHERE activities_read .id > ar.id AND activities_read.activity_id = ar.activity_id');
         $this->addSql('DELETE FROM activities WHERE question_id NOT IN (SELECT id FROM poll_questions)');
         $this->addSql('DELETE FROM activities WHERE petition_id NOT IN (SELECT id FROM micropetitions)');
         $this->addSql('DELETE FROM activities WHERE superuser_id NOT IN (SELECT id FROM superusers)');
