@@ -23,4 +23,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     ansible.limit = "vagrant"
   end
 
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 2048
+  end
 end
