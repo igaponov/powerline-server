@@ -72,33 +72,6 @@ class AnswerRepository extends EntityRepository
         return $result;
     }
 
-    public function findLastByUser(User $user)
-    {
-        $start = new \DateTime();
-        $start->sub(new \DateInterval('P35D'));
-
-        $answers = $this->getEntityManager()
-            ->createQueryBuilder()
-            ->select('a')
-            ->from(Answer::class, 'a')
-            ->where('a.user = :user')
-            ->andWhere('a.createdAt > :start')
-            ->setParameter('user', $user)
-            ->setParameter('start', $start)
-            ->getQuery()
-            ->getResult()
-        ;
-
-        $userPetitions = $this->getEntityManager()->getRepository(Petition::class)->findByUser($user);
-        foreach ($userPetitions as $petition) {
-            $answer = new Answer();
-            $answer->setPetitionId($petition->getId());
-            $answers[] = $answer;
-        }
-
-        return $answers;
-    }
-
     /**
      * @param User $user
      * @param array $criteria

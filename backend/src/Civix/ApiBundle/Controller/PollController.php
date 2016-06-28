@@ -31,6 +31,7 @@ class PollController extends BaseController
 	 * 
 	 * @ApiDoc(
 	 *     resource=true,
+     *     section="Polls",
 	 *     description="Add a new poll question",
 	 *     statusCodes={
 	 *         200="Returns when all succesfully added",
@@ -89,6 +90,7 @@ class PollController extends BaseController
      * @Method("GET")
      * @ApiDoc(
      *     resource=true,
+     *     section="Polls",
      *     description="Get Question by ID",
      *     statusCodes={
      *         200="Returns question",
@@ -192,6 +194,7 @@ class PollController extends BaseController
      * @Method("GET")
      * @ApiDoc(
      *     resource=true,
+     *     section="Polls",
      *     description="Get question answers",
      *     statusCodes={
      *         200="Returns answers",
@@ -236,6 +239,7 @@ class PollController extends BaseController
      * @Method("GET")
      * @ApiDoc(
      *     resource=true,
+     *     section="Polls",
      *     description="Get question answers",
      *     statusCodes={
      *         200="Returns answers",
@@ -273,6 +277,10 @@ class PollController extends BaseController
      *
      * @Route("/question/{question_id}/answer/add", requirements={"question_id"="\d+"}, name="api_answer_add")
      * @Method("POST")
+     *
+     * @ApiDoc(
+     *     section="Polls"
+     * )
      */
     public function answerAddAction(Request $request)
     {
@@ -360,6 +368,7 @@ class PollController extends BaseController
      * @Method("POST")
      * @ApiDoc(
      *     resource=true,
+     *     section="Polls",
      *     description="Add rate to comment",
      *     statusCodes={
      *         200="Returns comment with new rate",
@@ -392,12 +401,22 @@ class PollController extends BaseController
     }
 
     /**
+     * Deprecated, use `GET /api/v2/user/poll-answers` instead.
+     *
      * @Route("/answers/")
      * @Method("GET")
+     *
+     * @ApiDoc(
+     *     section="Polls",
+     *     deprecated=true
+     * )
      */
     public function answersAction()
     {
-        return new Response($this->jmsSerialization($this->getDoctrine()->getRepository(Answer::class)
-            ->findLastByUser($this->getUser()), array('api-answers-list')));
+        $answers = $this->getDoctrine()->getRepository(Answer::class)
+            ->getFindByUserAndCriteriaQuery($this->getUser(), ['start' => new \DateTime('-35 days')])
+            ->getResult();
+
+        return new Response($this->jmsSerialization($answers, array('api-answers-list')));
     }
 }
