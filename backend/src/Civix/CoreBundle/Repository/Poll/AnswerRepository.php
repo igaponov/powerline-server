@@ -56,25 +56,6 @@ class AnswerRepository extends EntityRepository
                 ->getResult();
     }
 
-    public function findLastByUser(User $user)
-    {
-        $start = new \DateTime();
-        $start->sub(new \DateInterval('P35D'));
-
-        return $this->getEntityManager()
-            ->createQueryBuilder()
-            ->select('a, q')
-            ->from(Answer::class, 'a')
-            ->leftJoin('a.question', 'q')
-            ->where('a.user = :user')
-            ->andWhere('q.publishedAt > :start')
-            ->setParameter('user', $user)
-            ->setParameter('start', $start)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-
     public function findSignedUsersByPetition(Petition $petition)
     {
         $answers = $this->getEntityManager()
@@ -91,5 +72,24 @@ class AnswerRepository extends EntityRepository
         return array_map(function (Answer $answer) {
             return $answer->getUser();
         }, $answers);
+    }
+
+    /**
+     * @param User $user
+     * @param array $criteria
+     * @return \Doctrine\ORM\Query
+     */
+    public function getFindByUserAndCriteriaQuery(User $user, $criteria)
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->where('a.user = :user')
+            ->setParameter('user', $user);
+
+        if (!empty($criteria['start'])) {
+            $qb->andWhere('a.createdAt > :start')
+                ->setParameter(':start', $criteria['start']);
+        }
+
+        return $qb->getQuery();
     }
 }
