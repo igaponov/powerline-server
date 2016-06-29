@@ -90,7 +90,6 @@
                 <include name="src/**/*"/>
                 <exclude name="src/**/*Test.php"/>
                 <include name="web/**/*"/>
-                <exclude name="web/app_dev.php"/>
                 <exclude name="web/app_test.php"/>
                 <include name="vendor/**/*"/>
                 <include name="composer.*" />

@@ -9,6 +9,7 @@
     cert_file: apns-dev-civix.pem
     parameters_file: targets/dev/config/parameters.yml
     config_js_file: targets/dev/config/config.js
+    dev_env: true
   roles:
     - setup
     - configure
