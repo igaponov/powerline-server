@@ -116,3 +116,10 @@
     - deploy
   command: mv /srv/{{ project }}/web/app_dev.php /srv/{{ project }}/web/app.php
   when: dev_env is defined
+
+- name: remove app_dev.php
+  tags:
+    - configure
+    - deploy
+  command: rm /srv/{{ project }}/web/app_dev.php
+  when: dev_env is not defined
