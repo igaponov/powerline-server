@@ -271,6 +271,14 @@ class ActivityUpdate
                 $answerer,
                 $petition->getGroup()
             );
+            $socialActivity->setTarget([
+                'id' => $petition->getId(),
+                'type' => $petition->getType(),
+                'user_id' => $answerer->getId(),
+                'first_name' => $answerer->getFirstName(),
+                'last_name' => $answerer->getLastName(),
+                'image' => $answerer->getAvatarFileName(),
+            ]);
             $socialActivity->setRecipient($petition->getUser());
             $this->entityManager->persist($socialActivity);
             $this->entityManager->flush();
