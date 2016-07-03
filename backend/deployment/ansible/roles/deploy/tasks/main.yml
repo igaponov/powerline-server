@@ -18,6 +18,16 @@
   tags: deploy
   command: /usr/bin/dpkg -i /srv/current.deb
 
+- name: use app_dev.php
+  tags: deploy
+  command: mv /srv/{{ project }}/web/app_dev.php /srv/{{ project }}/web/app.php
+  when: dev_env is defined
+
+- name: remove app_dev.php
+  tags: deploy
+  command: rm /srv/{{ project }}/web/app_dev.php
+  when: dev_env is not defined
+
 - name: start php5-fpm
   tags: deploy
   service: name=php5-fpm state=started
