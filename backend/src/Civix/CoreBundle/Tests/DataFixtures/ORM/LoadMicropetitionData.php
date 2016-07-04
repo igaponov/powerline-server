@@ -133,6 +133,6 @@ Women WWII pilots get burial rights at Arlington National Cemetery')
 
     public function getDependencies()
     {
-        return [LoadUserData::class, LoadGroupData::class];
+        return [LoadUserData::class, LoadGroupFollowerTestData::class];
     }
 }

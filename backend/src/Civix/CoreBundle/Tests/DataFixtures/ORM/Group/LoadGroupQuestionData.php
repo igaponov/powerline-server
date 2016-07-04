@@ -5,7 +5,7 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Poll\Option;
 use Civix\CoreBundle\Entity\Poll\Question\Group as GroupQuestion;
 use Civix\CoreBundle\Entity\Stripe\CustomerGroup;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -47,7 +47,7 @@ class LoadGroupQuestionData extends AbstractFixture implements ContainerAwareInt
 
     public function getDependencies()
     {
-        return [LoadGroupData::class];
+        return [LoadGroupFollowerTestData::class];
     }
 
     /**

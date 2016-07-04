@@ -140,6 +140,6 @@ class LoadSocialActivityData extends AbstractFixture implements ContainerAwareIn
 
     public function getDependencies()
     {
-        return [LoadUserData::class, LoadGroupData::class];
+        return [LoadUserData::class, LoadGroupFollowerTestData::class];
     }
 }

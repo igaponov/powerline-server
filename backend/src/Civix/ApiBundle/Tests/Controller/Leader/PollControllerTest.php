@@ -5,7 +5,7 @@ use Civix\CoreBundle\Entity\Poll\Question\Group;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
@@ -38,7 +38,7 @@ class PollControllerTest extends WebTestCase
 
 		$this->repository = $this->loadFixtures([
 			LoadUserData::class,
-			LoadGroupData::class,
+			LoadGroupFollowerTestData::class,
 			LoadGroupQuestionData::class,
 			LoadQuestionAnswerData::class,
 			LoadQuestionCommentData::class,

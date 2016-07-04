@@ -1,9 +1,9 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller;
 
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Civix\ApiBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
 use Civix\ApiBundle\Tests\WebTestCase;
 use FOS\RestBundle\Util\Codes;
@@ -31,8 +31,8 @@ class GroupControllerTest extends WebTestCase
 		/** @var AbstractExecutor $fixtures */
 		$fixtures = $this->loadFixtures([
 				LoadUserData::class,
-				LoadGroupData::class,
-				LoadUserGroupData::class,
+				LoadGroupFollowerTestData::class,
+				LoadUserGroupFollowerTestData::class,
 				LoadSuperuserData::class
 		]);
 		

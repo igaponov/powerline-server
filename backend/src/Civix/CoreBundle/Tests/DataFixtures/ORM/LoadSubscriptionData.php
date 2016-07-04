@@ -36,7 +36,7 @@ class LoadSubscriptionData extends AbstractFixture implements ContainerAwareInte
 
     public function getDependencies()
     {
-        return [LoadGroupData::class];
+        return [LoadGroupFollowerTestData::class];
     }
 
     /**

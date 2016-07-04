@@ -35,7 +35,7 @@ class LoadStripeCustomerGroupData extends AbstractFixture implements ContainerAw
 
     public function getDependencies()
     {
-        return [LoadGroupData::class];
+        return [LoadGroupFollowerTestData::class];
     }
     
     /**

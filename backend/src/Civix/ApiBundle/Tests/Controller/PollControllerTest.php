@@ -3,9 +3,9 @@ namespace Civix\ApiBundle\Tests\Controller;
 
 use Doctrine\ORM\EntityManager;
 
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Civix\ApiBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Poll\Question;
@@ -32,8 +32,8 @@ class PollControllerTest extends WebTestCase
 		/** @var AbstractExecutor $fixtures */
 		$fixtures = $this->loadFixtures([
 				LoadUserData::class,
-				LoadGroupData::class,
-				LoadUserGroupData::class,
+				LoadGroupFollowerTestData::class,
+				LoadUserGroupFollowerTestData::class,
 				LoadSuperuserData::class
 		]);
 		
@@ -43,7 +43,7 @@ class PollControllerTest extends WebTestCase
 		
 		$this->group = $reference->getReference('group');
 
-		$this->group_token = $this->getUserToken($this->group->getUsername(), LoadGroupData::GROUP_PASSWORD);
+		$this->group_token = $this->getUserToken($this->group->getUsername(), LoadGroupFollowerTestData::GROUP_PASSWORD);
 	}
 
 	public function tearDown()

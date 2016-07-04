@@ -4,7 +4,7 @@ namespace Civix\ApiBundle\Tests\Controller;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Service\SocialActivityManager;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class PermissionSettingsControllerTest extends WebTestCase
@@ -19,7 +19,7 @@ class PermissionSettingsControllerTest extends WebTestCase
 	public function setUp()
 	{
 		$this->loadFixtures([
-			LoadGroupData::class,
+			LoadGroupFollowerTestData::class,
 		]);
 		// Creates a initial client
 		$this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);

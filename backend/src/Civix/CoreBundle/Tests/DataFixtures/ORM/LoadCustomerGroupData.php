@@ -46,7 +46,7 @@ class LoadCustomerGroupData extends AbstractFixture implements ContainerAwareInt
 
     public function getDependencies()
     {
-        return [LoadGroupData::class];
+        return [LoadGroupFollowerTestData::class];
     }
 
     /**

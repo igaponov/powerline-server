@@ -5,9 +5,9 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserFollow;
 use Civix\ApiBundle\Tests\WebTestCase;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
 
 class FollowControllerTest extends WebTestCase
@@ -44,8 +44,8 @@ class FollowControllerTest extends WebTestCase
         /** @var AbstractExecutor $fixtures */
         $fixtures = $this->loadFixtures([
             LoadUserData::class,
-            LoadGroupData::class,
-            LoadUserGroupData::class
+            LoadGroupFollowerTestData::class,
+            LoadUserGroupFollowerTestData::class
         ]);
         $reference = $fixtures->getReferenceRepository();
 

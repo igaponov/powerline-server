@@ -7,9 +7,9 @@ use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Faker\Factory;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Civix\ApiBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -30,8 +30,8 @@ class SecureControllerTest extends WebTestCase
 		/** @var AbstractExecutor $fixtures */
 		$fixtures = $this->loadFixtures([
 				LoadUserData::class,
-				LoadGroupData::class,
-				LoadUserGroupData::class,
+				LoadGroupFollowerTestData::class,
+				LoadUserGroupFollowerTestData::class,
 				LoadSuperuserData::class
 		]);
 		$reference = $fixtures->getReferenceRepository();
@@ -97,7 +97,7 @@ class SecureControllerTest extends WebTestCase
 	 */
 	public function testUserLoginWithCredentials()
 	{
-		$parameters = ['username' => 'mobile1', 'password' => 'mobile1'];
+		$parameters = ['username' => 'user1', 'password' => 'user1'];
 		$content = ['application/x-www-form-urlencoded'];
 	
 		$this->client->request('POST', self::API_LOGIN_ENDPOINT, $parameters, [], [], $content);
@@ -120,7 +120,7 @@ class SecureControllerTest extends WebTestCase
 	 */
 	public function testGroupLoginWithCredentials()
 	{
-		$parameters = ['username' => LoadGroupData::GROUP_NAME, 'password' => LoadGroupData::GROUP_PASSWORD];
+		$parameters = ['username' => LoadGroupFollowerTestData::GROUP_NAME, 'password' => LoadGroupFollowerTestData::GROUP_PASSWORD];
 		$content = ['application/x-www-form-urlencoded'];
 	
 		$this->client->request('POST', self::API_LOGIN_ENDPOINT, $parameters, [], [], $content);

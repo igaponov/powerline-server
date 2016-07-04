@@ -5,7 +5,7 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFieldsData;
 use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class FieldControllerTest extends WebTestCase
@@ -25,7 +25,7 @@ class FieldControllerTest extends WebTestCase
 	public function setUp()
 	{
 		$this->executor = $this->loadFixtures([
-			LoadGroupData::class,
+			LoadGroupFollowerTestData::class,
 			LoadGroupFieldsData::class,
 		]);
 		// Creates a initial client

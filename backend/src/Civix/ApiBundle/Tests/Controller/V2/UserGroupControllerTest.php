@@ -3,9 +3,9 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
 use Faker\Factory;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -36,8 +36,8 @@ class UserGroupControllerTest extends WebTestCase
 
         $this->repository = $this->loadFixtures([
             LoadUserData::class,
-            LoadGroupData::class,
-            LoadUserGroupData::class,
+            LoadGroupFollowerTestData::class,
+            LoadUserGroupFollowerTestData::class,
         ])->getReferenceRepository();
 
         $this->em = $this->getContainer()->get('doctrine')->getManager();
@@ -62,6 +62,7 @@ class UserGroupControllerTest extends WebTestCase
         $this->assertSame(20, $data['items']);
         $this->assertSame(2, $data['totalItems']);
         $this->assertCount(2, $data['payload']);
+        var_dump($data['payload']);
         foreach ($data['payload'] as $item) {
             $this->assertArrayHasKey('username', $item);
             $this->assertArrayHasKey('join_status', $item);

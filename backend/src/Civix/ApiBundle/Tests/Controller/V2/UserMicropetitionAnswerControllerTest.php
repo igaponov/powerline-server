@@ -1,7 +1,7 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadMicropetitionAnswerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadMicropetitionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
@@ -27,7 +27,7 @@ class UserMicropetitionAnswerControllerTest extends WebTestCase
     {
         $this->repository = $this->loadFixtures([
             LoadUserData::class,
-            LoadGroupData::class,
+            LoadGroupFollowerTestData::class,
             LoadMicropetitionData::class,
             LoadMicropetitionAnswerData::class,
         ])->getReferenceRepository();

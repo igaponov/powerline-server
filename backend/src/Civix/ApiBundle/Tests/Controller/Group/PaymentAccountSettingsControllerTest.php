@@ -8,7 +8,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadCustomerGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadStripeCustomerGroupData;
 use Faker\Factory;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class PaymentAccountSettingsControllerTest extends WebTestCase
@@ -23,7 +23,7 @@ class PaymentAccountSettingsControllerTest extends WebTestCase
 	public function setUp()
 	{
 		$this->loadFixtures([
-			LoadGroupData::class,
+			LoadGroupFollowerTestData::class,
 			LoadStripeCustomerGroupData::class,
 			LoadCustomerGroupData::class,
 		]);
