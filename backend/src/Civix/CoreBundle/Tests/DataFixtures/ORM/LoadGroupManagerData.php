@@ -3,36 +3,39 @@
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\UserGroup;
+use Civix\CoreBundle\Entity\UserGroupManager;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Civix\CoreBundle\Entity\User;
 
-class LoadUserGroupData extends AbstractFixture implements DependentFixtureInterface
+class LoadGroupManagerData extends AbstractFixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager)
     {
+        /** @var User $user2 */
+        $user2 = $this->getReference('user_2');
         /** @var User $user3 */
         $user3 = $this->getReference('user_3');
-        /** @var User $user4 */
-        $user4 = $this->getReference('user_4');
 
         /** @var Group $group1 */
         $group1 = $this->getReference('group_1');
+        /** @var Group $group2 */
+        $group2 = $this->getReference('group_2');
         /** @var Group $group3 */
         $group3 = $this->getReference('group_3');
-        /** @var Group $group4 */
-        $group4 = $this->getReference('group_4');
 
-        $userGroup = new UserGroup($user4, $group1);
-        $manager->persist($userGroup);
+        $groupManager = new UserGroupManager($user2, $group1);
+        $manager->persist($groupManager);
 
-        $userGroup = new UserGroup($user4, $group3);
-        $manager->persist($userGroup);
+        $groupManager = new UserGroupManager($user3, $group1);
+        $manager->persist($groupManager);
 
-        $userGroup = new UserGroup($user3, $group4);
-        $manager->persist($userGroup);
+        $groupManager = new UserGroupManager($user2, $group3);
+        $manager->persist($groupManager);
+
+        $groupManager = new UserGroupManager($user3, $group2);
+        $manager->persist($groupManager);
 
         $manager->flush();
     }

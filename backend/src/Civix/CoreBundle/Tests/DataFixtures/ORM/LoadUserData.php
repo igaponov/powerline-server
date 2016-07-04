@@ -32,8 +32,10 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
     {
         $this->manager = $manager;
 
-        $this->generateUser('mobile1');
-        $this->generateUser('mobile2');
+        $this->addReference('user_1', $this->generateUser('user1'));
+        $this->addReference('user_2', $this->generateUser('user2'));
+        $this->addReference('user_3', $this->generateUser('user3'));
+        $this->addReference('user_4', $this->generateUser('user4'));
 
         $this->addReference('followertest', $this->generateUser('followertest', null, ['district_la', 'district_sf']));
         $this->addReference('userfollowtest1', $this->generateUser('userfollowtest1', null, 'district_sd', true));
