@@ -71,7 +71,6 @@ class AnnouncementControllerTest extends WebTestCase
         $this->assertCount(2, $data['payload']);
         $announcement1 = $repository->getReference('announcement_jb_2');
         $announcement2 = $repository->getReference('announcement_jb_3');
-        var_dump($data['payload']);
         foreach ($data['payload'] as $item) {
             $this->assertThat(
                 $item['content_parsed'],

@@ -62,7 +62,6 @@ class UserGroupControllerTest extends WebTestCase
         $this->assertSame(20, $data['items']);
         $this->assertSame(2, $data['totalItems']);
         $this->assertCount(2, $data['payload']);
-        var_dump($data['payload']);
         foreach ($data['payload'] as $item) {
             $this->assertArrayHasKey('username', $item);
             $this->assertArrayHasKey('join_status', $item);
