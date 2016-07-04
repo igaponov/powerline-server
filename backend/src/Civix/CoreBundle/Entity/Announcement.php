@@ -26,7 +26,7 @@ use Civix\CoreBundle\Serializer\Type\Image;
  * @Assert\Callback(methods={"isContentValid"})
  * @Serializer\ExclusionPolicy("all")
  */
-abstract class Announcement
+abstract class Announcement implements LeaderContentInterface
 {
     /**
      * @var int
@@ -52,7 +52,7 @@ abstract class Announcement
      * @var string
      *
      * @ORM\Column(name="content_parsed", type="text")
-     * @Assert\NotBlank(message="The announcement should not be blank")
+     * @Assert\NotBlank(message="The announcement should not be blank", groups={"Default", "update"})
      *
      * @Serializer\Expose()
      * @Serializer\Groups({"api"})
