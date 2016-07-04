@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\CoreBundle\Validator\Constrains\PublishDate;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
@@ -25,6 +26,7 @@ use Civix\CoreBundle\Serializer\Type\Image;
  * })
  * @Assert\Callback(methods={"isContentValid"})
  * @Serializer\ExclusionPolicy("all")
+ * @PublishDate(objectName="Announcement", groups={"update", "publish"})
  */
 abstract class Announcement implements LeaderContentInterface
 {
