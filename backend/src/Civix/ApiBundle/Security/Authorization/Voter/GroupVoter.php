@@ -6,11 +6,17 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\UserInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-
+use Symfony\Component\Security\Core\Role\Role;
+use Symfony\Component\Security\Core\Role\RoleHierarchy;
+use Symfony\Component\Security\Core\Role\RoleInterface;
 
 class GroupVoter implements VoterInterface
 {
     const EDIT = 'edit';
+    const ASSIGN = 'assign';
+    const MANAGE = 'manage';
+    const MEMBER = 'member';
+    const VIEW = 'view';
 
     /**
      * Checks if the voter supports the given attribute.
@@ -21,9 +27,13 @@ class GroupVoter implements VoterInterface
      */
     public function supportsAttribute($attribute)
     {
-        return in_array($attribute, array(
+        return in_array($attribute, [
             self::EDIT,
-        ));
+            self::ASSIGN,
+            self::MANAGE,
+            self::MEMBER,
+            self::VIEW,
+        ]);
     }
 
     /**
@@ -82,14 +92,31 @@ class GroupVoter implements VoterInterface
         if (!$user instanceof UserInterface) {
             return VoterInterface::ACCESS_DENIED;
         }
-        
-        // make sure entity has owner attached to it
-        if (!$object->getOwner() instanceof UserInterface) {
+
+        $roleHierarchy = new RoleHierarchy([
+            self::EDIT => [self::ASSIGN],
+            self::ASSIGN => [self::MANAGE],
+            self::MANAGE => [self::MEMBER],
+            self::MEMBER => [self::VIEW],
+        ]);
+
+        if ($object->isOwner($user)) {
+            $userRole = self::EDIT;
+        } elseif ($object->isManager($user)) {
+            $userRole = self::MANAGE;
+        } elseif ($object->isMember($user)) {
+            $userRole = self::MEMBER;
+        } else {
             return VoterInterface::ACCESS_DENIED;
         }
-        
-        if ($object->getOwner()->isEqualTo($user)) {
-            return VoterInterface::ACCESS_GRANTED;
+
+        /** @var RoleInterface[] $roles */
+        $roles = $roleHierarchy->getReachableRoles([new Role($userRole)]);
+
+        foreach ($roles as $role) {
+            if ($attribute === $role->getRole()) {
+                return VoterInterface::ACCESS_GRANTED;
+            }
         }
 
         return VoterInterface::ACCESS_DENIED;
