@@ -167,7 +167,7 @@ class ActivityControllerTest extends WebTestCase
 			'activities' => [
 				['id' => $leaderNews->getId(), 'read' => true],
 				['id' => $paymentRequest->getId(), 'read' => true],
-				['id' => $question->getId(), 'read' => true], // wrong id
+				['id' => $question->getId(), 'read' => true],
 			],
 		];
 		$client = $this->client;
@@ -175,11 +175,11 @@ class ActivityControllerTest extends WebTestCase
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
-		$this->assertCount(2, $data);
+		$this->assertCount(3, $data);
 		foreach ($data as $activity) {
 			$this->assertThat(
 				$activity['id'],
-				$this->logicalOr($leaderNews->getId(), $paymentRequest->getId())
+				$this->logicalOr($leaderNews->getId(), $paymentRequest->getId(), $question->getId())
 			);
 			$this->assertTrue($activity['read']);
 		}
@@ -191,7 +191,7 @@ class ActivityControllerTest extends WebTestCase
 			ORDER BY activity_id', [
 			$leaderNews->getId(), $paymentRequest->getId(), $question->getId()
 		]);
-		$arr = [$leaderNews->getId(), $paymentRequest->getId()];
+		$arr = [$leaderNews->getId(), $paymentRequest->getId(), $question->getId()];
 		sort($arr);
 		$this->assertEquals($arr, array_map('intval', array_column($ids, 'activity_id')));
 	}
