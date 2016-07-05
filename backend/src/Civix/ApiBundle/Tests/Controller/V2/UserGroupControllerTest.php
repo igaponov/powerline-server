@@ -3,10 +3,13 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\UserGroup;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
-use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
+use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -24,21 +27,10 @@ class UserGroupControllerTest extends WebTestCase
      */
     private $client = null;
 
-    /**
-     * @var ProxyReferenceRepository
-     */
-    private $repository;
-
     public function setUp()
     {
         // Creates a initial client
         $this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
-
-        $this->repository = $this->loadFixtures([
-            LoadUserData::class,
-            LoadGroupFollowerTestData::class,
-            LoadUserGroupFollowerTestData::class,
-        ])->getReferenceRepository();
 
         $this->em = $this->getContainer()->get('doctrine')->getManager();
     }
@@ -51,8 +43,13 @@ class UserGroupControllerTest extends WebTestCase
 
     public function testGetGroups()
     {
-        $group1 = $this->repository->getReference('userfollowtest1_testfollowsecretgroups');
-        $group2 = $this->repository->getReference('userfollowtest1_testfollowprivategroups');
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+            LoadGroupFollowerTestData::class,
+            LoadUserGroupFollowerTestData::class,
+        ])->getReferenceRepository();
+        $group1 = $repository->getReference('userfollowtest1_testfollowsecretgroups');
+        $group2 = $repository->getReference('userfollowtest1_testfollowprivategroups');
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"']);
         $response = $client->getResponse();
@@ -74,6 +71,9 @@ class UserGroupControllerTest extends WebTestCase
 
     public function testGetGroupsIsEmpty()
     {
+        $this->loadFixtures([
+            LoadUserData::class,
+        ]);
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']);
         $response = $client->getResponse();
@@ -87,6 +87,9 @@ class UserGroupControllerTest extends WebTestCase
 
     public function testCreateGroupWithErrors()
     {
+        $this->loadFixtures([
+            LoadUserData::class,
+        ]);
         $errors = [
             'username' => ['This value should not be blank.'],
             'official_name' => ['This value should not be blank.'],
@@ -109,6 +112,9 @@ class UserGroupControllerTest extends WebTestCase
 
     public function testCreateGroupIsOk()
     {
+        $this->loadFixtures([
+            LoadUserData::class,
+        ]);
         $faker = Factory::create();
         $params = [
             'username' => $faker->userName,
@@ -132,5 +138,69 @@ class UserGroupControllerTest extends WebTestCase
         foreach ($data as $property => $value) {
             $this->assertSame($value, $data[$property]);
         }
+    }
+
+    /**
+     * @param $reference
+     * @param $status
+     * @dataProvider getJoinedGroupStatuses
+     */
+    public function testJoinGroupIsOk($reference, $status)
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+            LoadGroupData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference($reference);
+        $client = $this->client;
+        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user4"']);
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $currentStatus = $conn->fetchColumn('SELECT status FROM users_groups WHERE group_id = ?', [$group->getId()]);
+        $this->assertEquals($status, $currentStatus);
+    }
+
+    public function getJoinedGroupStatuses()
+    {
+        return [
+            'public' => ['group_1', UserGroup::STATUS_ACTIVE],
+            'private' => ['group_2', UserGroup::STATUS_PENDING],
+        ];
+    }
+
+    public function testJoinGroupWithPasscodeThrowsException()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+            LoadGroupData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_3');
+        $client = $this->client;
+        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user4"']);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals('Incorrect passcode', $data['message']);
+    }
+
+    public function testUnjoinGroupIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+            LoadGroupData::class,
+            LoadUserGroupData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_1');
+        $user = $repository->getReference('user_4');
+        $client = $this->client;
+        $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user4"']);
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM users_groups WHERE group_id = ? AND user_id = ?', [$group->getId(), $user->getId()]);
+        $this->assertEquals(0, $count);
     }
 }

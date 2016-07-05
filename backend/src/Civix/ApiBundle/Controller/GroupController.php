@@ -581,8 +581,10 @@ class GroupController extends BaseController
     	
     	return new JsonResponse([], 204);
     }
-    
+
     /**
+     * Deprecated, use `PUT /api/v2/user/groups/{id}` instead
+     *
      * @Route("/join/{id}", name="civix_api_groups_join")
      * @Method("POST")
      * @ParamConverter(
@@ -590,6 +592,16 @@ class GroupController extends BaseController
      *      class="CivixCoreBundle:Group",
      *      options={"repository_method" = "getGroupByIdAndType"}
      * )
+     *
+     * @ApiDoc(
+     *     section="Groups",
+     *     deprecated=true
+     * )
+     *
+     * @param Request $request
+     * @param Group $group
+     *
+     * @return Response
      */
     public function joinToGroupAction(Request $request, Group $group)
     {
@@ -683,6 +695,8 @@ class GroupController extends BaseController
     }
 
     /**
+     * Deprecated, use `DELETE /api/v2/user/groups/{id}` instead
+     *
      * @Route("/unjoin/{id}", name="civix_api_groups_unjoin")
      * @Method("DELETE")
      * @ParamConverter(
@@ -690,8 +704,17 @@ class GroupController extends BaseController
      *      class="CivixCoreBundle:Group",
      *      options={"repository_method" = "getGroupByIdAndType"}
      * )
+     *
+     * @ApiDoc(
+     *     section="Groups",
+     *     deprecated=true
+     * )
+     *
+     * @param Group $group
+     *
+     * @return Response
      */
-    public function unjoinFromGroup(Group $group)
+    public function unjoinFromGroupAction(Group $group)
     {
         $response = new Response();
         $response->headers->set('Content-Type', 'application/json');

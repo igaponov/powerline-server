@@ -83,10 +83,14 @@ class LoadGroupFollowerTestData extends AbstractFixture implements ContainerAwar
             ->setPetitionPerMonth($groupName == self::GROUP_NAME ? 4 : 5)
             ->setPetitionPercent(45)
             ->setPetitionDuration(25)
-            ->setMembershipControl(Group::GROUP_MEMBERSHIP_PASSCODE)
-            ->setMembershipPasscode('secret_passcode')
             ->setCreatedAt($faker->dateTimeBetween('-1 day', '-5 seconds'));
-        
+
+        if ($groupName == self::GROUP_NAME) {
+            $group
+                ->setMembershipControl(Group::GROUP_MEMBERSHIP_PASSCODE)
+                ->setMembershipPasscode('secret_passcode');
+        }
+
         if ($owner) {
             $group->setOwner($owner);
         }
