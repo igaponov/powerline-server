@@ -484,10 +484,9 @@ class ActivityRepository extends EntityRepository
     {
         return $this->createQueryBuilder('a')
             ->select('a', 'ar')
-            ->leftJoin('a.activityRead', 'ar')
-            ->where($this->_em->getExpressionBuilder()->in('a.id', $id))
-            ->andWhere('a.user = :user')
+            ->leftJoin('a.activityRead', 'ar', Query\Expr\Join::WITH, 'ar.user = :user')
             ->setParameter(':user', $user)
+            ->where($this->_em->getExpressionBuilder()->in('a.id', $id))
             ->getQuery()->getResult();
     }
 }
