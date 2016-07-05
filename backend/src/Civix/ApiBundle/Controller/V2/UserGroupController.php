@@ -21,7 +21,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 class UserGroupController extends FOSRestController
 {
     /**
-     * Return current user's groups
+     * List the authenticated user's groups
      *
      * @Route("")
      * @Method("GET")
@@ -32,7 +32,8 @@ class UserGroupController extends FOSRestController
      * @ApiDoc(
      *     authentication = true,
      *     resource=true,
-     *     section="User Management",
+     *     section="Groups",
+     *     description="List groups of a user",
      *     output = "Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination",
      *     description="Return user's groups",
      *     statusCodes={
@@ -44,8 +45,8 @@ class UserGroupController extends FOSRestController
      * @View(serializerGroups={"paginator", "api-groups"})
      *
      * @param ParamFetcher $params
-     * 
-     * @return Response
+     *
+     * @return \Knp\Component\Pager\Pagination\PaginationInterface
      */
     public function getcAction(ParamFetcher $params)
     {
@@ -60,16 +61,14 @@ class UserGroupController extends FOSRestController
     }
 
     /**
-     * Adds an user's group
-     *
      * @Route("")
      * @Method("POST")
      *
      * @ApiDoc(
      *     authentication=true,
      *     resource=true,
-     *     section="Group",
-     *     description="",
+     *     section="Groups",
+     *     description="Create a group",
      *     input="Civix\ApiBundle\Form\Type\GroupType",
      *     output = {
      *          "class" = "Civix\CoreBundle\Entity\Group",
@@ -117,5 +116,70 @@ class UserGroupController extends FOSRestController
         }
 
         return $form;
+    }
+
+    /**
+     * @Route("/{id}")
+     * @Method("PUT")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     resource=true,
+     *     section="Groups",
+     *     description="Join a group",
+     *     statusCodes={
+     *         204="Success",
+     *         400="Bad Request",
+     *         403="Access Denied",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @View(serializerGroups={"api-info"})
+     *
+     * @param Group $group
+     *
+     * @return null|Response
+     */
+    public function putAction(Group $group)
+    {
+        $response = $this->forward('CivixApiBundle:Group:joinToGroup', ['group' => $group]);
+        if ($response->getStatusCode() != 200) {
+            return $response;
+        }
+
+        return null;
+    }
+
+    /**
+     * @Route("/{id}")
+     * @Method("DELETE")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     resource=true,
+     *     section="Groups",
+     *     description="Unjoin a group",
+     *     statusCodes={
+     *         204="Success",
+     *         403="Access Denied",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @View(serializerGroups={"api-info"})
+     *
+     * @param Group $group
+     *
+     * @return null|Response
+     */
+    public function deleteAction(Group $group)
+    {
+        $response = $this->forward('CivixApiBundle:Group:unjoinFromGroup', ['group' => $group]);
+        if ($response->getStatusCode() != 200) {
+            return $response;
+        }
+
+        return null;
     }
 }
