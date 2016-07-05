@@ -3,9 +3,9 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
 use Faker\Factory;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -36,8 +36,8 @@ class UserGroupControllerTest extends WebTestCase
 
         $this->repository = $this->loadFixtures([
             LoadUserData::class,
-            LoadGroupData::class,
-            LoadUserGroupData::class,
+            LoadGroupFollowerTestData::class,
+            LoadUserGroupFollowerTestData::class,
         ])->getReferenceRepository();
 
         $this->em = $this->getContainer()->get('doctrine')->getManager();

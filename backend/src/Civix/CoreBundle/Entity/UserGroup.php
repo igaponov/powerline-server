@@ -45,7 +45,7 @@ class UserGroup
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Group", inversedBy="users", cascade={"persist"})
      * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="cascade")
      * @Serializer\Expose()
-     * @Serializer\Until("2")
+     * @Serializer\Until("1")
      * @Serializer\Groups({"api-groups"})
      */
     private $group;

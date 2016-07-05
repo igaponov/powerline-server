@@ -1,10 +1,10 @@
 <?php
 
-namespace Civix\CoreBundle\Validator\Constrains;
+namespace Civix\CoreBundle\Validator\Constraints;
 
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
-use Doctrine\ORM\EntityManager;
 
 /**
  * @Annotation

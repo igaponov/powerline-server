@@ -3,9 +3,9 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\UserFollow;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class UserGroupFollowerControllerTest extends WebTestCase
@@ -40,8 +40,8 @@ class UserGroupFollowerControllerTest extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
-            LoadGroupData::class,
-            LoadUserGroupData::class,
+            LoadGroupFollowerTestData::class,
+            LoadUserGroupFollowerTestData::class,
         ])->getReferenceRepository();
         $group = $repository->getReference('group');
         $user = $repository->getReference('followertest');
@@ -59,7 +59,7 @@ class UserGroupFollowerControllerTest extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
-            LoadGroupData::class,
+            LoadGroupFollowerTestData::class,
         ])->getReferenceRepository();
         $group = $repository->getReference('testfollowsecretgroups');
         $client = $this->client;
@@ -77,8 +77,8 @@ class UserGroupFollowerControllerTest extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
-            LoadGroupData::class,
-            LoadUserGroupData::class,
+            LoadGroupFollowerTestData::class,
+            LoadUserGroupFollowerTestData::class,
         ])->getReferenceRepository();
         $group = $repository->getReference('testfollowprivategroups');
         $user = $repository->getReference('followertest');

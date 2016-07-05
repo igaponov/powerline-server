@@ -213,6 +213,8 @@ civix_core:
     mailgun_public_client: mailgun.public_basic_client
 
 fos_rest:
+    service:
+        view_handler: civix_api.view_handler
     param_fetcher_listener: true
     body_listener: true
     access_denied_listener:

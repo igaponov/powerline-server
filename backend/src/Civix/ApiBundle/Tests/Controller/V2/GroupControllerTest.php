@@ -3,9 +3,9 @@ namespace Civix\ApiBundle\Tests\Controller\Leader;
 
 use Civix\CoreBundle\Entity\Group;
 use Civix\ApiBundle\Tests\WebTestCase;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
 use Faker\Factory;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -36,8 +36,8 @@ class GroupControllerTest extends WebTestCase
 
 		$this->repository = $this->loadFixtures([
 			LoadUserData::class,
-			LoadGroupData::class,
-			LoadUserGroupData::class,
+			LoadGroupFollowerTestData::class,
+			LoadUserGroupFollowerTestData::class,
 		])->getReferenceRepository();
 
 		$this->em = $this->getContainer()->get('doctrine')->getManager();
@@ -61,7 +61,7 @@ class GroupControllerTest extends WebTestCase
 		$data = $this->getGroups('userfollowtest1', ['exclude_owned' => true]);
 		$this->assertSame(1, $data['totalItems']);
 		$this->assertCount(1, $data['payload']);
-		$this->assertSame(LoadGroupData::GROUP_NAME, $data['payload'][0]['username']);
+		$this->assertSame(LoadGroupFollowerTestData::GROUP_NAME, $data['payload'][0]['username']);
 	}
 
 	public function testGetGroupsSortedByCreatedAtIsOk()

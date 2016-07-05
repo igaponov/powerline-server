@@ -7,7 +7,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadStripeCustomerGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSubscriptionData;
 use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class MicropetitionControllerTest extends WebTestCase
@@ -26,7 +26,7 @@ class MicropetitionControllerTest extends WebTestCase
 	public function setUp()
 	{
 		$this->executor = $this->loadFixtures([
-			LoadGroupData::class,
+			LoadGroupFollowerTestData::class,
 		]);
 		// Creates a initial client
 		$this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);

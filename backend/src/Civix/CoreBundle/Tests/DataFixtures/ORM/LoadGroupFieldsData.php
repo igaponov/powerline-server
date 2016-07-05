@@ -37,6 +37,6 @@ class LoadGroupFieldsData extends AbstractFixture implements DependentFixtureInt
 
     public function getDependencies()
     {
-        return [LoadGroupData::class];
+        return [LoadGroupFollowerTestData::class];
     }
 }

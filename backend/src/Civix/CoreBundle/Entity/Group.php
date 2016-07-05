@@ -1183,23 +1183,25 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     {
         return $user->getGroups()->contains($this) ? 1 : 0;
     }
-    
+
     /**
      * Checks if a user belongs as group member to the current group
      *
-     * @return boolean
+     * @param UserInterface $user
+     * @return bool
      */
-    public function isMember(User $user)
+    public function isMember(UserInterface $user)
     {
     	return $this->getUsers()->contains($user);
     }
-    
+
     /**
      * Checks if a user belongs as group manager to the current group
      *
-     * @return boolean
+     * @param UserInterface $user
+     * @return bool
      */
-    public function isManager(User $user)
+    public function isManager(UserInterface $user)
     {
     	return $this->getManagers()->contains($user);
     }
@@ -1298,11 +1300,11 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      * Check if a User give is really the group owner for a 
      * group
      * 
-     * @param User $user
+     * @param UserInterface $user
      * 
      * @return boolean
      */
-    public function isOwner(User $user)
+    public function isOwner(UserInterface $user)
     {
     	return !empty($this->getOwner()) && $this->getOwner()->getId() === $user->getId();
     }

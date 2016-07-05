@@ -4,9 +4,9 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 use Civix\CoreBundle\Entity\Micropetitions\Petition;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Service\Micropetitions\PetitionManager;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
@@ -31,7 +31,7 @@ class GroupMicropetitionControllerTest extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
-            LoadGroupData::class,
+            LoadGroupFollowerTestData::class,
         ])->getReferenceRepository();
         $manager = $this->getPetitionManagerMock(['checkPetitionLimitPerMonth']);
         $manager->expects($this->once())
@@ -73,7 +73,7 @@ class GroupMicropetitionControllerTest extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
-            LoadGroupData::class,
+            LoadGroupFollowerTestData::class,
         ])->getReferenceRepository();
         $faker = Factory::create();
         $group = $repository->getReference('testfollowprivategroups');
@@ -145,8 +145,8 @@ class GroupMicropetitionControllerTest extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
-            LoadGroupData::class,
-            LoadUserGroupData::class,
+            LoadGroupFollowerTestData::class,
+            LoadUserGroupFollowerTestData::class,
         ])->getReferenceRepository();
         $faker = Factory::create();
         $group = $repository->getReference('testfollowprivategroups');
@@ -209,7 +209,7 @@ class GroupMicropetitionControllerTest extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
-            LoadGroupData::class,
+            LoadGroupFollowerTestData::class,
         ])->getReferenceRepository();
         $faker = Factory::create();
         $group = $repository->getReference('testfollowprivategroups');

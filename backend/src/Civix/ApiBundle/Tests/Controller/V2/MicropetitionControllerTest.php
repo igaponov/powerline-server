@@ -7,7 +7,7 @@ use Civix\CoreBundle\Service\Micropetitions\PetitionManager;
 use Civix\CoreBundle\Service\PushTask;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadMicropetitionAnswerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadMicropetitionData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
@@ -31,7 +31,7 @@ class MicropetitionControllerTest extends WebTestCase
     public function testGetMicropetitions()
     {
         $this->loadFixtures([
-            LoadUserGroupData::class,
+            LoadUserGroupFollowerTestData::class,
             LoadMicropetitionData::class,
         ]);
         $client = $this->client;
@@ -49,7 +49,7 @@ class MicropetitionControllerTest extends WebTestCase
     public function testGetMicropetitionsByTag()
     {
         $this->loadFixtures([
-            LoadUserGroupData::class,
+            LoadUserGroupFollowerTestData::class,
             LoadMicropetitionData::class,
         ]);
         $client = $this->client;

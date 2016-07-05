@@ -1,105 +1,101 @@
 <?php
-
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
-use Civix\CoreBundle\Entity\User;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Faker\Factory;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Civix\CoreBundle\Entity\Group;
-use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 
-/**
- * LoadGroupData.
- */
-class LoadGroupData extends AbstractFixture implements ContainerAwareInterface, DependentFixtureInterface
+class LoadGroupData extends AbstractFixture implements DependentFixtureInterface
 {
-    const GROUP_NAME = 'testgroup';
-    const GROUP_PASSWORD = 'testgroup7ZAPe3QnZhbdec';
-    const GROUP_EMAIL = 'testgroup@example.com';
-
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    /** @var ObjectManager */
-    private $manager;
-
-    public function setContainer(ContainerInterface $container = null)
-    {
-        $this->container = $container;
-    }
-
     public function load(ObjectManager $manager)
     {
-        $this->manager = $manager;
-
-        $this->addReference(
-            'group', 
-            $this->createGroup(self::GROUP_NAME, self::GROUP_PASSWORD)
-        );
-        $this->addReference(
-            'testfollowsecretgroups',
-            $this->createGroup(
-                'testfollowsecretgroups', 
-                null, 
-                Group::GROUP_TRANSPARENCY_SECRET,
-                $this->getReference('userfollowtest1')
-            )
-        );
-        $this->addReference(
-            'testfollowprivategroups',
-            $this->createGroup('testfollowprivategroups', null, Group::GROUP_TRANSPARENCY_PRIVATE)
-        );
-    }
-
-    /**
-     * @param $groupName
-     * @param null $password
-     * @param null $transparency
-     * @param User $owner
-     * @return Group Group
-     */
-    private function createGroup($groupName, $password = null, $transparency = null, User $owner = null)
-    {
         $faker = Factory::create();
-        $password = $password ?: $groupName;
-        $transparency = $transparency ?: Group::GROUP_TRANSPARENCY_PUBLIC;
 
+        $user1 = $this->getReference('user_1');
+        $user2 = $this->getReference('user_2');
+        $user3 = $this->getReference('user_3');
+
+        // public
         $group = new Group();
-        $group->setAcronym($groupName)
+        $group->setAcronym('group1')
             ->setGroupType(Group::GROUP_TYPE_COMMON)
-            ->setManagerEmail("$groupName@example.com")
-            ->setManagerFirstName($groupName)
-            ->setManagerLastName($groupName)
-            ->setPassword($password)
-            ->setTransparency($transparency)
-            ->setUsername($groupName)
-            ->setToken($groupName == self::GROUP_NAME ? 'secret_token' : $groupName)
-            ->setPetitionPerMonth($groupName == self::GROUP_NAME ? 4 : 5)
+            ->setManagerEmail("group1@example.com")
+            ->setManagerFirstName('John')
+            ->setManagerLastName('Doe')
+            ->setTransparency(Group::GROUP_TRANSPARENCY_PUBLIC)
+            ->setUsername('group1')
+            ->setPassword($faker->sha1)
+            ->setPetitionPerMonth(5)
             ->setPetitionPercent(45)
             ->setPetitionDuration(25)
+            ->setMembershipControl(Group::GROUP_MEMBERSHIP_PUBLIC)
+            ->setCreatedAt($faker->dateTimeBetween('-1 day', '-10 minutes'))
+            ->setOwner($user1);
+        $manager->persist($group);
+        $this->addReference('group_1', $group);
+
+        // private
+        $group = new Group();
+        $group->setAcronym('group2')
+            ->setGroupType(Group::GROUP_TYPE_COMMON)
+            ->setManagerEmail("group2@example.com")
+            ->setManagerFirstName('Alan')
+            ->setManagerLastName('Johnson')
+            ->setTransparency(Group::GROUP_TRANSPARENCY_PRIVATE)
+            ->setUsername('group2')
+            ->setPassword($faker->sha1)
+            ->setPetitionPerMonth(3)
+            ->setPetitionPercent(35)
+            ->setPetitionDuration(15)
+            ->setMembershipControl(Group::GROUP_MEMBERSHIP_APPROVAL)
+            ->setCreatedAt($faker->dateTimeBetween('-5 day', '-10 hours'))
+            ->setOwner($user2);
+        $manager->persist($group);
+        $this->addReference('group_2', $group);
+
+        // secret
+        $group = new Group();
+        $group->setAcronym('group3')
+            ->setGroupType(Group::GROUP_TYPE_COMMON)
+            ->setManagerEmail("group3@example.com")
+            ->setManagerFirstName('Quentin')
+            ->setManagerLastName('Ward')
+            ->setTransparency(Group::GROUP_TRANSPARENCY_SECRET)
+            ->setUsername('group3')
+            ->setPassword($faker->sha1)
+            ->setPetitionPerMonth(10)
+            ->setPetitionPercent(55)
+            ->setPetitionDuration(35)
             ->setMembershipControl(Group::GROUP_MEMBERSHIP_PASSCODE)
             ->setMembershipPasscode('secret_passcode')
-            ->setCreatedAt($faker->dateTimeBetween('-1 day', '-5 seconds'));
-        
-        if ($owner) {
-            $group->setOwner($owner);
-        }
+            ->setCreatedAt($faker->dateTimeBetween('-1 week', '-1 day'))
+            ->setOwner($user3);
+        $manager->persist($group);
+        $this->addReference('group_3', $group);
 
-        /** @var PasswordEncoderInterface $encoder */
-        $encoder = $this->container->get('security.encoder_factory')->getEncoder($group);
-        $encodedPassword = $encoder->encodePassword($password, $group->getSalt());
-        $group->setPassword($encodedPassword);
+        // super secret
+        $group = new Group();
+        $group->setAcronym('group4')
+            ->setGroupType(Group::GROUP_TYPE_COMMON)
+            ->setManagerEmail("group4@example.com")
+            ->setManagerFirstName('Tom')
+            ->setManagerLastName('Carter')
+            ->setTransparency(Group::GROUP_TRANSPARENCY_TOP_SECRET)
+            ->setUsername('group4')
+            ->setPassword($faker->sha1)
+            ->setPetitionPerMonth(15)
+            ->setPetitionPercent(75)
+            ->setPetitionDuration(55)
+            ->setMembershipControl(Group::GROUP_MEMBERSHIP_PASSCODE)
+            ->setMembershipPasscode('top_secret_passcode')
+            ->setCreatedAt($faker->dateTimeBetween('-3 weeks', '-1 week'))
+            ->setOwner($user1);
+        $manager->persist($group);
+        $this->addReference('group_4', $group);
 
-        $this->manager->persist($group);
-        $this->manager->flush();
-
-        return $group;
+        $manager->flush();
     }
 
     public function getDependencies()

@@ -2,13 +2,13 @@
 
 namespace Civix\CoreBundle\Entity\Invites;
 
-use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\EntityManager;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Validator\Constraints\NotJoinedToGroup;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Civix\CoreBundle\Validator\Constrains\NotJoinedToGroup;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity()

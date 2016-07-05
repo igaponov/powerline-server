@@ -6,7 +6,7 @@ use Civix\CoreBundle\Service\Stripe;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadStripeCustomerGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSubscriptionData;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class SubscriptionControllerTest extends WebTestCase
@@ -26,7 +26,7 @@ class SubscriptionControllerTest extends WebTestCase
 	public function setUp()
 	{
 		$this->loadFixtures([
-			LoadGroupData::class,
+			LoadGroupFollowerTestData::class,
 			LoadStripeCustomerGroupData::class,
 			LoadSubscriptionData::class,
 		]);

@@ -9,9 +9,6 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class AnnouncementVoter implements VoterInterface
 {
-    const VIEW = 'view';
-    const EDIT = 'edit';
-    const DELETE = 'delete';
     const PUBLISH = 'publish';
     /**
      * @var PackageHandler
@@ -33,9 +30,6 @@ class AnnouncementVoter implements VoterInterface
     public function supportsAttribute($attribute)
     {
         return in_array($attribute, array(
-            self::VIEW,
-            self::EDIT,
-            self::DELETE,
             self::PUBLISH,
         ));
     }
@@ -102,16 +96,8 @@ class AnnouncementVoter implements VoterInterface
             return VoterInterface::ACCESS_DENIED;
         }
         
-        if (
-            $object->getUser()->getId() === $user->getId()
-            && (
-                $attribute === self::VIEW
-                || ($attribute !== self::PUBLISH && !$object->getPublishedAt())
-                || (
-                    $attribute === self::PUBLISH && !$object->getPublishedAt()
-                    && $this->packageHandler->getPackageStateForAnnouncement($user)->isAllowedWith(1)
-                )
-            )
+        if ($attribute === self::PUBLISH
+            && $this->packageHandler->getPackageStateForAnnouncement($user)->isAllowedWith(1)
         ) {
             return VoterInterface::ACCESS_GRANTED;
         }

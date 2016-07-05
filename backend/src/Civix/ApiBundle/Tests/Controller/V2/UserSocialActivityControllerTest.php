@@ -1,11 +1,11 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSocialActivityData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -28,8 +28,8 @@ class UserSocialActivityControllerTest extends WebTestCase
     {
         $this->repository = $this->loadFixtures([
             LoadUserData::class,
-            LoadGroupData::class,
-            LoadUserGroupData::class,
+            LoadGroupFollowerTestData::class,
+            LoadUserGroupFollowerTestData::class,
             LoadUserFollowData::class,
             LoadSocialActivityData::class,
         ])->getReferenceRepository();

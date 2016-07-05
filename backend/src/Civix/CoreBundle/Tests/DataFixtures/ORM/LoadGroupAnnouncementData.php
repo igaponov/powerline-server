@@ -15,7 +15,7 @@ class LoadGroupAnnouncementData extends AbstractFixture implements FixtureInterf
     {
         $faker = Factory::create();
         
-        $group = $this->getReference('group');
+        $group = $this->getReference('group_1');
 
         $announcement = new GroupAnnouncement();
         $announcement->setUser($group);
@@ -38,21 +38,36 @@ class LoadGroupAnnouncementData extends AbstractFixture implements FixtureInterf
         $this->addReference('announcement_group_3', $announcementPublished);
         $manager->persist($announcementPublished);
 
-        $group = $this->getReference('testfollowsecretgroups');
-
-        $announcement = new GroupAnnouncement();
-        $announcement->setUser($group);
-        $announcement->setContent($faker->text);
-        $this->addReference('announcement_secretgroup_1', $announcement);
-        $manager->persist($announcement);
-
-        $group = $this->getReference('testfollowprivategroups');
+        $group = $this->getReference('group_2');
 
         $announcement = new GroupAnnouncement();
         $announcement->setUser($group);
         $announcement->setContent($faker->text);
         $announcement->setPublishedAt(new \DateTime());
-        $this->addReference('announcement_privategroup_1', $announcement);
+        $this->addReference('announcement_private_1', $announcement);
+        $manager->persist($announcement);
+
+        $group = $this->getReference('group_3');
+
+        $announcement = new GroupAnnouncement();
+        $announcement->setUser($group);
+        $announcement->setContent($faker->text);
+        $this->addReference('announcement_secret_1', $announcement);
+        $manager->persist($announcement);
+
+        $announcementPublished = new GroupAnnouncement();
+        $announcementPublished->setUser($group);
+        $announcementPublished->setContent($faker->text);
+        $announcementPublished->setPublishedAt(new \DateTime());
+        $this->addReference('announcement_secret_2', $announcementPublished);
+        $manager->persist($announcementPublished);
+
+        $group = $this->getReference('group_4');
+
+        $announcement = new GroupAnnouncement();
+        $announcement->setUser($group);
+        $announcement->setContent($faker->text);
+        $this->addReference('announcement_topsecret_1', $announcement);
         $manager->persist($announcement);
 
         $manager->flush();

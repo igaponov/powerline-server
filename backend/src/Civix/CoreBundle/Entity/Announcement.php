@@ -2,14 +2,15 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\CoreBundle\Serializer\Type\Image;
+use Civix\CoreBundle\Validator\Constraints\PublishDate;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
+use Doctrine\ORM\Mapping\InheritanceType;
+use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\ExecutionContextInterface;
-use JMS\Serializer\Annotation as Serializer;
-use Civix\CoreBundle\Serializer\Type\Image;
 
 /**
  * Announcement.
@@ -25,8 +26,9 @@ use Civix\CoreBundle\Serializer\Type\Image;
  * })
  * @Assert\Callback(methods={"isContentValid"})
  * @Serializer\ExclusionPolicy("all")
+ * @PublishDate(objectName="Announcement", groups={"update", "publish"})
  */
-abstract class Announcement
+abstract class Announcement implements LeaderContentInterface
 {
     /**
      * @var int
@@ -52,7 +54,7 @@ abstract class Announcement
      * @var string
      *
      * @ORM\Column(name="content_parsed", type="text")
-     * @Assert\NotBlank(message="The announcement should not be blank")
+     * @Assert\NotBlank(message="The announcement should not be blank", groups={"Default", "update"})
      *
      * @Serializer\Expose()
      * @Serializer\Groups({"api"})

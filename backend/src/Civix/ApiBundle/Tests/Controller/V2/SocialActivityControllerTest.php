@@ -4,7 +4,7 @@ namespace Civix\ApiBundle\Tests\Controller;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\SocialActivity;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSocialActivityData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
@@ -31,7 +31,7 @@ class SocialActivityControllerTest extends WebTestCase
 
 		$this->repository = $this->loadFixtures([
 			LoadUserData::class,
-			LoadGroupData::class,
+			LoadGroupFollowerTestData::class,
 			LoadSocialActivityData::class,
 		])->getReferenceRepository();
 	}

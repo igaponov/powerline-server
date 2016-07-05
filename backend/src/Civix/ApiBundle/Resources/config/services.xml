@@ -74,6 +74,11 @@
             <tag name="security.voter"/>
         </service>
 
+        <service class="Civix\ApiBundle\Security\Authorization\Voter\LeaderContentVoter" id="civix_api.security_authorization_voter.leader_content_voter">
+            <argument id="civix_api.security_authorization_voter.group_voter" type="service"/>
+            <tag name="security.voter" priority="-255"/>
+        </service>
+
         <service class="Civix\ApiBundle\EventListener\VersionListener" id="civix_api.event_listener.version_listener">
             <argument id="fos_rest.view_handler.default" type="service"/>
             <argument type="string">%default_api_version%</argument>
@@ -92,6 +97,18 @@
             <argument id="civix_core.poll.micropetition_manager" type="service"/>
             <argument id="civix_core.poll.comment_manager" type="service"/>
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service class="Civix\ApiBundle\View\ConstraintViolationListHandler" id="civix_api.constraint_violation_list_handler"/>
+
+        <service parent="fos_rest.view_handler.default" id="civix_api.view_handler">
+            <call method="registerHandler">
+                <argument type="string">json</argument>
+                <argument type="collection">
+                    <argument type="service" id="civix_api.constraint_violation_list_handler"/>
+                    <argument type="string">createResponse</argument>
+                </argument>
+            </call>
         </service>
     </services>
 
