@@ -1,10 +1,10 @@
 <?php
 
-namespace Civix\CoreBundle\Validator\Constrains;
+namespace Civix\CoreBundle\Validator\Constraints;
 
+use Civix\CoreBundle\Service\FacebookApi;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
-use Civix\CoreBundle\Service\FacebookApi;
 
 class ConstrainsFacebookTokenValidator extends ConstraintValidator
 {

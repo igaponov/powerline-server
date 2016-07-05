@@ -3,14 +3,14 @@
 namespace Civix\CoreBundle\Entity;
 
 use Civix\CoreBundle\Entity\Micropetitions\Petition;
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use JMS\Serializer\Annotation as Serializer;
-use Symfony\Component\Validator\Constraints as Assert;
-use Doctrine\Common\Collections\ArrayCollection;
-use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Civix\CoreBundle\Serializer\Type\Avatar;
-use Civix\CoreBundle\Validator\Constrains\ConstrainsFacebookToken;
+use Civix\CoreBundle\Validator\Constraints\ConstrainsFacebookToken;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
  * User.

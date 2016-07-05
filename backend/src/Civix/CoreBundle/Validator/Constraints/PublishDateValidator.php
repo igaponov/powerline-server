@@ -1,6 +1,6 @@
 <?php
 
-namespace Civix\CoreBundle\Validator\Constrains;
+namespace Civix\CoreBundle\Validator\Constraints;
 
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Component\Validator\Constraint;

@@ -2,15 +2,15 @@
 
 namespace Civix\CoreBundle\Entity;
 
-use Civix\CoreBundle\Validator\Constrains\PublishDate;
+use Civix\CoreBundle\Serializer\Type\Image;
+use Civix\CoreBundle\Validator\Constraints\PublishDate;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
+use Doctrine\ORM\Mapping\InheritanceType;
+use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\ExecutionContextInterface;
-use JMS\Serializer\Annotation as Serializer;
-use Civix\CoreBundle\Serializer\Type\Image;
 
 /**
  * Announcement.
