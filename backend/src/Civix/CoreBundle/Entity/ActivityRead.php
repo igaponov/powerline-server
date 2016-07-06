@@ -8,10 +8,11 @@ use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\ActivityReadRepository")
- * @ORM\Table(name="activities_read", indexes={
- *      @ORM\Index(name="user_activity_ind", columns={"activity_id", "user_id"}),
- *      @ORM\Index(name="created_ind", columns={"created_at"})
- * })
+ * @ORM\Table(
+ *     name="activities_read",
+ *     indexes={@ORM\Index(name="created_ind", columns={"created_at"})},
+ *     uniqueConstraints={@ORM\UniqueConstraint(columns={"activity_id", "user_id"})}
+ * )
  * @Serializer\ExclusionPolicy("all")
  */
 class ActivityRead
@@ -28,7 +29,7 @@ class ActivityRead
     /**
      * @var Activity
      *
-     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\Activity", inversedBy="activityRead")
+     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Activity", inversedBy="activityRead")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $activity;

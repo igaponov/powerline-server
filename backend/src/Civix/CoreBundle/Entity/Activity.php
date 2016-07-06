@@ -213,8 +213,8 @@ abstract class Activity
     private $deletedAt;
 
     /**
-     * @var ActivityRead
-     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\ActivityRead", mappedBy="activity")
+     * @var ArrayCollection|ActivityRead[]
+     * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\ActivityRead", mappedBy="activity", cascade={"persist"}, fetch="EXTRA_LAZY")
      */
     private $activityRead;
 
@@ -236,6 +236,7 @@ abstract class Activity
     {
         $this->setResponsesCount(0);
         $this->activityConditions = new ArrayCollection();
+        $this->activityRead = new ArrayCollection();
     }
 
     /**
@@ -733,7 +734,7 @@ abstract class Activity
     }
 
     /**
-     * @return ActivityRead
+     * @return ArrayCollection|ActivityRead[]
      */
     public function getActivityRead()
     {
@@ -744,11 +745,19 @@ abstract class Activity
      * @param ActivityRead $activityRead
      * @return Activity
      */
-    public function setActivityRead($activityRead)
+    public function addActivityRead(ActivityRead $activityRead)
     {
-        $this->activityRead = $activityRead;
+        $this->activityRead[] = $activityRead;
 
         return $this;
+    }
+
+    /**
+     * @param ActivityRead $activityRead
+     */
+    public function removeActivityRead(ActivityRead $activityRead)
+    {
+        $this->activityRead->removeElement($activityRead);
     }
 
     /**

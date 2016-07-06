@@ -110,7 +110,7 @@ class ActivityRepository extends EntityRepository
             END) AS HIDDEN zone')
             ->from('CivixCoreBundle:Activity', 'act')
             ->leftJoin('act.activityConditions', 'act_c')
-            ->leftJoin('act.activityRead', 'act_r')
+            ->leftJoin('act.activityRead', 'act_r', Query\Expr\Join::WITH, 'act_r.user = :user')
             ->leftJoin('act.question', 'q')
             ->leftJoin('act.petition', 'p')
             ->leftJoin('q.answers', 'qa')
@@ -140,7 +140,7 @@ class ActivityRepository extends EntityRepository
             ->getQuery()->getResult();
 
         foreach ($activities as $activity) {
-            if ($activity->getActivityRead()) {
+            if ($activity->getActivityRead()->contains($user)) {
                 $activity->setRead(true);
             }
         }
@@ -397,7 +397,7 @@ class ActivityRepository extends EntityRepository
 
         $userFollowingIds = $user->getFollowingIds();
 
-        $query = $this->getActivitiesQueryBuilder($start)
+        $query = $this->getActivitiesQueryBuilder($user, $start)
             ->andWhere(
                 $expr->orX(
                     $expr->in('act_c.districtId', ':userDistrictsIds'),
@@ -421,21 +421,22 @@ class ActivityRepository extends EntityRepository
     /**
      * Find activities by Following the user.
      *
-     * @param int $followingId
+     * @param User $following
      * @param \DateTime $start
      * @return Query
+     * @internal param int $followingId
      */
-    public function getActivitiesByFollowingQuery($followingId, \DateTime $start = null)
+    public function getActivitiesByFollowingQuery(User $following, \DateTime $start = null)
     {
-        $query = $this->getActivitiesQueryBuilder($start)
+        $query = $this->getActivitiesQueryBuilder($following, $start)
             ->andWhere('act_c.userId = :following')
-            ->setParameter('following', $followingId)
+            ->setParameter('following', $following->getId())
             ->getQuery();
         
         return $query;
     }
 
-    protected function getActivitiesQueryBuilder(\DateTime $start = null)
+    protected function getActivitiesQueryBuilder(User $user, \DateTime $start = null)
     {
         $qb = $this->createQueryBuilder('act')
             ->select('act', 'act_r')
@@ -459,7 +460,8 @@ class ActivityRepository extends EntityRepository
             ELSE 1
             END) AS HIDDEN zone')
             ->leftJoin('act.activityConditions', 'act_c')
-            ->leftJoin('act.activityRead', 'act_r')
+            ->leftJoin('act.activityRead', 'act_r', Query\Expr\Join::WITH, 'act_r.user = :user')
+            ->setParameter(':user', $user)
             ->leftJoin('act.question', 'q')
             ->leftJoin('act.petition', 'p')
             ->leftJoin('q.answers', 'qa')
