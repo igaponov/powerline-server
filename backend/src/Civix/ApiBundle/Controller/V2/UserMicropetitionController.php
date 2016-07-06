@@ -2,8 +2,9 @@
 
 namespace Civix\ApiBundle\Controller\V2;
 
-use Civix\CoreBundle\Entity\Group;
+use Civix\ApiBundle\Configuration\SecureParam;
 use Civix\CoreBundle\Entity\Micropetitions\Petition;
+use Civix\CoreBundle\Service\User\UserManager;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -21,6 +22,12 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
  */
 class UserMicropetitionController extends FOSRestController
 {
+    /**
+     * @var UserManager
+     * @DI\Inject("civix_core.user_manager")
+     */
+    private $manager;
+
     /**
      * List user group's micropetitions
      *
@@ -60,5 +67,57 @@ class UserMicropetitionController extends FOSRestController
             $params->get('page'),
             $params->get('per_page')
         );
+    }
+
+    /**
+     * @Route("/{id}", requirements={"id"="\d+"})
+     * @Method("PUT")
+     *
+     * @SecureParam("petition", permission="subscribe")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Micropetitions",
+     *     description="Subscribe to micropetition",
+     *     requirements={
+     *         {"name"="id", "dataType"="integer", "description"="Micropetition id"}
+     *     },
+     *     statusCodes={
+     *         204="Success",
+     *         404="Micropetition Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Petition $petition
+     */
+    public function putAction(Petition $petition)
+    {
+        $this->manager->subscribeToPetition($this->getUser(), $petition);
+    }
+
+    /**
+     * @Route("/{id}", requirements={"id"="\d+"})
+     * @Method("DELETE")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Micropetitions",
+     *     description="Unsubscribe from micropetition",
+     *     requirements={
+     *         {"name"="id", "dataType"="integer", "description"="Micropetition id"}
+     *     },
+     *     statusCodes={
+     *         204="Success",
+     *         404="Micropetition Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Petition $petition
+     */
+    public function deleteAction(Petition $petition)
+    {
+        $this->manager->unsubscribeFromPetition($this->getUser(), $petition);
     }
 }

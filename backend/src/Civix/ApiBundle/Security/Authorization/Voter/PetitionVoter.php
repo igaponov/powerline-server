@@ -2,7 +2,8 @@
 namespace Civix\ApiBundle\Security\Authorization\Voter;
 
 use Civix\CoreBundle\Entity\Micropetitions\Petition;
-use Civix\CoreBundle\Entity\Poll\Question;
+use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Entity\UserInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
@@ -11,6 +12,7 @@ class PetitionVoter implements VoterInterface
 {
     const EDIT = 'edit';
     const DELETE = 'delete';
+    const SUBSCRIBE = 'subscribe';
 
     /**
      * Checks if the voter supports the given attribute.
@@ -24,6 +26,7 @@ class PetitionVoter implements VoterInterface
         return in_array($attribute, array(
             self::EDIT,
             self::DELETE,
+            self::SUBSCRIBE,
         ));
     }
 
@@ -71,7 +74,7 @@ class PetitionVoter implements VoterInterface
         // set the attribute to check against
         $attribute = $attributes[0];
 
-        /** @var UserInterface $user */
+        /** @var User $user */
         $user = $token->getUser(); // get current logged in user
 
         // check if the given attribute is covered by this voter
@@ -88,8 +91,19 @@ class PetitionVoter implements VoterInterface
         if (!$object->getUser() instanceof UserInterface) {
             return VoterInterface::ACCESS_DENIED;
         }
-        
-        if ($object->getUser()->getUsername() === $user->getUsername()) {
+
+        if ($attribute === self::SUBSCRIBE) {
+            $group = $object->getGroup();
+            $func = function($i, UserGroup $userGroup) use($group) {
+                return $userGroup->getStatus() == UserGroup::STATUS_ACTIVE
+                    && $group->getId() == $userGroup->getGroup()->getId();
+            };
+            if ($user->getUserGroups()->exists($func)) {
+                return VoterInterface::ACCESS_GRANTED;
+            }
+        }
+
+        if ($attribute !== self::SUBSCRIBE && $object->getUser()->isEqualTo($user)) {
             return VoterInterface::ACCESS_GRANTED;
         }
 
