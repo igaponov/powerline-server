@@ -19,21 +19,21 @@ class LoadRepresentativeAnnouncementData extends AbstractFixture implements Fixt
 
         $announcement = new RepresentativeAnnouncement();
         $announcement->setUser($representative);
-        $announcement->setContent($faker->text);
+        $announcement->setContent($faker->sentence);
         $this->addReference('announcement_jb_1', $announcement);
         $manager->persist($announcement);
 
         //published
         $announcementPublished = new RepresentativeAnnouncement();
         $announcementPublished->setUser($representative);
-        $announcementPublished->setContent($faker->text);
+        $announcementPublished->setContent($faker->sentence);
         $announcementPublished->setPublishedAt(new \DateTime('-1 month'));
         $this->addReference('announcement_jb_2', $announcementPublished);
         $manager->persist($announcementPublished);
 
         $announcementPublished = new RepresentativeAnnouncement();
         $announcementPublished->setUser($representative);
-        $announcementPublished->setContent($faker->text);
+        $announcementPublished->setContent($faker->sentence);
         $announcementPublished->setPublishedAt(new \DateTime());
         $this->addReference('announcement_jb_3', $announcementPublished);
         $manager->persist($announcementPublished);
@@ -42,7 +42,7 @@ class LoadRepresentativeAnnouncementData extends AbstractFixture implements Fixt
 
         $announcement = new RepresentativeAnnouncement();
         $announcement->setUser($representative);
-        $announcement->setContent($faker->text);
+        $announcement->setContent($faker->sentence);
         $this->addReference('announcement_jt_1', $announcement);
         $manager->persist($announcement);
 
@@ -50,7 +50,7 @@ class LoadRepresentativeAnnouncementData extends AbstractFixture implements Fixt
 
         $announcement = new RepresentativeAnnouncement();
         $announcement->setUser($representative);
-        $announcement->setContent($faker->text);
+        $announcement->setContent($faker->sentence);
         $announcement->setPublishedAt(new \DateTime());
         $this->addReference('announcement_wc_1', $announcement);
         $manager->persist($announcement);
