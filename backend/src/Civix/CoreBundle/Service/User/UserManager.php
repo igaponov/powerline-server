@@ -179,4 +179,13 @@ class UserManager
             $this->entityManager->flush();
         }
     }
+
+    public function unsubscribeFromPetition(User $user, Petition $petition)
+    {
+        if ($user->getSubscriptions()->contains($petition)) {
+            $user->removeSubscription($petition);
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+        }
+    }
 }

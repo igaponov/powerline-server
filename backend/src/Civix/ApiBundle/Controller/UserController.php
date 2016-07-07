@@ -98,18 +98,21 @@ class UserController extends BaseController
     }
 
     /**
+     * Deprecated, use `PUT /api/v2/user/micro-petitions/{id}` instead
+     *
      * @Route("/self/subscriptions", name="civix_api_user_self_subscriptions_activity")
      * @Method("POST")
      * 
      * @ApiDoc(
-     *     resource=true,
+     *     section="Micropetitions",
      *     description="Subscribe to activity",
      *     statusCodes={
      *         201="Returns null",
      *         400="Bad Request",
      *         404="Not Found",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      * 
      * @param Request $request
