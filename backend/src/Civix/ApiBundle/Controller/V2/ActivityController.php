@@ -56,12 +56,13 @@ class ActivityController extends FOSRestController
     {
         $start = new \DateTime('-30 days');
 
+        $user = $this->getUser();
         if ($followingId = $params->get('following')) {
             // get user follow status
             $userFollow = $this->getDoctrine()
                 ->getRepository('CivixCoreBundle:UserFollow')->findOneBy([
                     'user' => $followingId,
-                    'follower' => $this->getUser(),
+                    'follower' => $user,
                     'status' => UserFollow::STATUS_ACTIVE,
                 ]);
             if (!$userFollow) {
@@ -69,18 +70,18 @@ class ActivityController extends FOSRestController
             } else {
                 $query = $this->getDoctrine()
                     ->getRepository('CivixCoreBundle:Activity')
-                    ->getActivitiesByFollowingQuery($followingId, $start);
+                    ->getActivitiesByFollowingQuery($userFollow->getUser(), $start);
             }
         } else {
             $query = $this->getDoctrine()->getRepository('CivixCoreBundle:Activity')
-                ->getActivitiesByUserQuery($this->getUser(), $start);
+                ->getActivitiesByUserQuery($user, $start);
         }
 
         $paginator = $this->get('knp_paginator');
-        $paginator->connect('knp_pager.after', function (AfterEvent $event) {
+        $paginator->connect('knp_pager.after', function (AfterEvent $event) use ($user) {
             foreach ($event->getPaginationView() as $activity) {
                 /** @var Activity $activity */
-                if ($activity->getActivityRead()) {
+                if ($activity->getActivityRead()->contains($user)) {
                     $activity->setRead(true);
                 }
             }

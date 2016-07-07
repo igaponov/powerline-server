@@ -42,7 +42,7 @@ class ActivityManager
         $repository = $this->em->getRepository(Activity::class);
         $activities = $repository->findWithActivityReadByIdAndUser($ids->toArray(), $user);
         foreach ($activities as $activity) {
-            if (!$activity->getActivityRead()) {
+            if (!$activity->getActivityRead()->contains($user)) {
                 $activityRead = new ActivityRead();
                 $activityRead->setUser($user);
                 $activityRead->setActivity($activity);
