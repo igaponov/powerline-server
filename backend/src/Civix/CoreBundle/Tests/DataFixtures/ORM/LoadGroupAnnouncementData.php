@@ -19,21 +19,21 @@ class LoadGroupAnnouncementData extends AbstractFixture implements FixtureInterf
 
         $announcement = new GroupAnnouncement();
         $announcement->setUser($group);
-        $announcement->setContent($faker->text);
+        $announcement->setContent($faker->sentence);
         $this->addReference('announcement_group_1', $announcement);
         $manager->persist($announcement);
 
         //published
         $announcementPublished = new GroupAnnouncement();
         $announcementPublished->setUser($group);
-        $announcementPublished->setContent($faker->text);
+        $announcementPublished->setContent($faker->sentence);
         $announcementPublished->setPublishedAt(new \DateTime('-1 month'));
         $this->addReference('announcement_group_2', $announcementPublished);
         $manager->persist($announcementPublished);
 
         $announcementPublished = new GroupAnnouncement();
         $announcementPublished->setUser($group);
-        $announcementPublished->setContent($faker->text);
+        $announcementPublished->setContent($faker->sentence);
         $announcementPublished->setPublishedAt(new \DateTime());
         $this->addReference('announcement_group_3', $announcementPublished);
         $manager->persist($announcementPublished);
@@ -42,7 +42,7 @@ class LoadGroupAnnouncementData extends AbstractFixture implements FixtureInterf
 
         $announcement = new GroupAnnouncement();
         $announcement->setUser($group);
-        $announcement->setContent($faker->text);
+        $announcement->setContent($faker->sentence);
         $announcement->setPublishedAt(new \DateTime());
         $this->addReference('announcement_private_1', $announcement);
         $manager->persist($announcement);
@@ -51,13 +51,13 @@ class LoadGroupAnnouncementData extends AbstractFixture implements FixtureInterf
 
         $announcement = new GroupAnnouncement();
         $announcement->setUser($group);
-        $announcement->setContent($faker->text);
+        $announcement->setContent($faker->sentence);
         $this->addReference('announcement_secret_1', $announcement);
         $manager->persist($announcement);
 
         $announcementPublished = new GroupAnnouncement();
         $announcementPublished->setUser($group);
-        $announcementPublished->setContent($faker->text);
+        $announcementPublished->setContent($faker->sentence);
         $announcementPublished->setPublishedAt(new \DateTime());
         $this->addReference('announcement_secret_2', $announcementPublished);
         $manager->persist($announcementPublished);
@@ -66,7 +66,7 @@ class LoadGroupAnnouncementData extends AbstractFixture implements FixtureInterf
 
         $announcement = new GroupAnnouncement();
         $announcement->setUser($group);
-        $announcement->setContent($faker->text);
+        $announcement->setContent($faker->sentence);
         $this->addReference('announcement_topsecret_1', $announcement);
         $manager->persist($announcement);
 
