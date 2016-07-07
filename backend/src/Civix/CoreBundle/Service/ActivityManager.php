@@ -42,13 +42,16 @@ class ActivityManager
         $repository = $this->em->getRepository(Activity::class);
         $activities = $repository->findWithActivityReadByIdAndUser($ids->toArray(), $user);
         foreach ($activities as $activity) {
-            if (!$activity->getActivityRead()->contains($user)) {
+            $filter = function (ActivityRead $activityRead) use ($user) {
+                return $activityRead->getUser()->getId() == $user->getId();
+            };
+            if (!$activity->getActivityRead()->filter($filter)->count()) {
                 $activityRead = new ActivityRead();
                 $activityRead->setUser($user);
                 $activityRead->setActivity($activity);
                 $this->em->persist($activityRead);
-                $activity->setRead(true);
             }
+            $activity->setRead(true);
         }
         $this->em->flush();
         

@@ -139,8 +139,11 @@ class ActivityRepository extends EntityRepository
             ->groupBy('act.id')
             ->getQuery()->getResult();
 
+        $filter = function (ActivityRead $activityRead) use ($user) {
+            return $activityRead->getUser()->getId() == $user->getId();
+        };
         foreach ($activities as $activity) {
-            if ($activity->getActivityRead()->contains($user)) {
+            if ($activity->getActivityRead()->filter($filter)->count()) {
                 $activity->setRead(true);
             }
         }

@@ -163,7 +163,7 @@ class ActivityControllerTest extends WebTestCase
 		$leaderNews = $this->repository->getReference('activity_leader_news');
 		$paymentRequest = $this->repository->getReference('activity_crowdfunding_payment_request');
 		$question = $this->repository->getReference('activity_question');
-		$data = [
+		$params = [
 			'activities' => [
 				['id' => $leaderNews->getId(), 'read' => true],
 				['id' => $paymentRequest->getId(), 'read' => true],
@@ -171,7 +171,7 @@ class ActivityControllerTest extends WebTestCase
 			],
 		];
 		$client = $this->client;
-		$client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode($data));
+		$client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode($params));
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
@@ -194,5 +194,10 @@ class ActivityControllerTest extends WebTestCase
 		$arr = [$leaderNews->getId(), $paymentRequest->getId(), $question->getId()];
 		sort($arr);
 		$this->assertEquals($arr, array_map('intval', array_column($ids, 'activity_id')));
-	}
+        // the same request does nothing
+        $client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $this->assertEquals($data, json_decode($response->getContent(), true));
+    }
 }

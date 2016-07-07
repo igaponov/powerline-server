@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Form\Type\ActivitiesType;
 use Civix\CoreBundle\Entity\Activity;
+use Civix\CoreBundle\Entity\ActivityRead;
 use Civix\CoreBundle\Entity\UserFollow;
 use Doctrine\Common\Collections\ArrayCollection;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
@@ -79,9 +80,12 @@ class ActivityController extends FOSRestController
 
         $paginator = $this->get('knp_paginator');
         $paginator->connect('knp_pager.after', function (AfterEvent $event) use ($user) {
+            $filter = function (ActivityRead $activityRead) use ($user) {
+                return $activityRead->getUser()->getId() == $user->getId();
+            };
             foreach ($event->getPaginationView() as $activity) {
                 /** @var Activity $activity */
-                if ($activity->getActivityRead()->contains($user)) {
+                if ($activity->getActivityRead()->filter($filter)->count()) {
                     $activity->setRead(true);
                 }
             }
