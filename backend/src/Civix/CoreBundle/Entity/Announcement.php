@@ -230,6 +230,11 @@ abstract class Announcement implements LeaderContentInterface
         return new Image($entity, 'avatar');
     }
 
+    public function getGroup()
+    {
+        return $this->getUser();
+    }
+
     /**
      * @return UserInterface
      * 

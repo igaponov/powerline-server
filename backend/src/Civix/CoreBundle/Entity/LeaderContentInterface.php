@@ -7,5 +7,5 @@ interface LeaderContentInterface
     /**
      * @return UserInterface
      */
-    public function getUser();
+    public function getGroup();
 }
