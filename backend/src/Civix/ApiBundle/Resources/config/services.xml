@@ -49,11 +49,8 @@
             <tag name="doctrine.event_listener" event="prePersist" />
         </service>
 
-        <service class="Civix\ApiBundle\Security\Authorization\Voter\PollVoter" id="civix_api.security_authorization_voter.poll_voter">
-            <tag name="security.voter"/>
-        </service>
-
         <service class="Civix\ApiBundle\Security\Authorization\Voter\PollOptionVoter" id="civix_api.security_authorization_voter.poll_option_voter">
+            <argument id="civix_api.security_authorization_voter.group_voter" type="service"/>
             <tag name="security.voter"/>
         </service>
 
