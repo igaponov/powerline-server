@@ -3,23 +3,29 @@ namespace Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Form\Type\GroupType;
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Service\Group\GroupManager;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
+use JMS\DiExtraBundle\Annotation as DI;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * @Route("/user/groups")
  */
 class UserGroupController extends FOSRestController
 {
+    /**
+     * @var GroupManager
+     * @DI\Inject("civix_core.group_manager")
+     */
+    private $manager;
+
     /**
      * List the authenticated user's groups
      *
@@ -92,14 +98,6 @@ class UserGroupController extends FOSRestController
      */
     public function postAction(Request $request)
     {
-        $groupManager = $this->get('civix_core.group_manager');
-        /** @var User $user */
-        $user = $this->getUser();
-
-        if ($user->getGroups()->count() > 4) {
-            throw new AccessDeniedException('You have reached a limit for creating groups');
-        }
-
         $form = $this->createForm(new GroupType(), null, [
             'validation_groups' => 'user-registration',
         ]);
@@ -109,8 +107,8 @@ class UserGroupController extends FOSRestController
             /** @var Group $group */
             $group = $form->getData();
             $group->setOwner($this->getUser());
-            $groupManager->create($group);
-            $groupManager->joinToGroup($user, $group);
+            $this->manager->create($group);
+            $this->manager->joinToGroup($this->getUser(), $group);
 
             return $this->view($group, 201);
         }
