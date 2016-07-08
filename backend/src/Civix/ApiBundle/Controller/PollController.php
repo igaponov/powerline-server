@@ -24,20 +24,22 @@ use Civix\CoreBundle\Entity\Poll\Question\Group as GroupQuestion;
 class PollController extends BaseController
 {
 	/**
+     * Deprecated, use `POST /api/v2/groups/{group}/polls` instead
+     *
 	 * @Route("/question/new", name="civix_api_question_new")
 	 * @Method("PUT")
 	 * 
 	 * @ParamConverter("question", class="\Civix\CoreBundle\Entity\Poll\Question\Group")
 	 * 
 	 * @ApiDoc(
-	 *     resource=true,
      *     section="Polls",
 	 *     description="Add a new poll question",
 	 *     statusCodes={
 	 *         200="Returns when all succesfully added",
 	 *         400="Bad Request",
 	 *         405="Method Not Allowed"
-	 *     }
+	 *     },
+     *     deprecated=true
 	 * )
 	 */
 	public function putQuestionNewAction(Request $request)
@@ -85,11 +87,11 @@ class PollController extends BaseController
 	
     /**
      * Get Question by ID.
+     * Deprecated, use `GET /api/v2/polls/{id}` instead
      *
      * @Route("/question/{question_id}", requirements={"question_id"="\d+"}, name="api_question_get")
      * @Method("GET")
      * @ApiDoc(
-     *     resource=true,
      *     section="Polls",
      *     description="Get Question by ID",
      *     statusCodes={
@@ -98,7 +100,8 @@ class PollController extends BaseController
      *         401="Authorization required",
      *         404="Question not found",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      */
     public function questionGetAction(Request $request)
@@ -133,7 +136,7 @@ class PollController extends BaseController
      *      options={"repository_method" = "getActivitiesByRepresentativeId"}
      * )
      * @ApiDoc(
-     *     resource=true,
+     *     section="Polls",
      *     description="Get Questions by representative",
      *     statusCodes={
      *         200="Returns questions",
@@ -154,6 +157,7 @@ class PollController extends BaseController
 
     /**
      * Get Questions by group.
+     * Deprecated, use `GET /api/v2/groups/{group}/polls` instead
      *
      * @Route("/question/group/{id}", requirements={"id"="\d+"}, name="api_question_get_by_group")
      * @Method("GET")
@@ -163,7 +167,7 @@ class PollController extends BaseController
      *      options={"repository_method" = "getActivitiesByGroupId"}
      * )
      * @ApiDoc(
-     *     resource=true,
+     *     section="Polls",
      *     description="Get Questions by group",
      *     statusCodes={
      *         200="Returns questions",
@@ -171,7 +175,8 @@ class PollController extends BaseController
      *         401="Authorization required",
      *         404="Question not found",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      */
     public function questionGetByGroupAction(Request $request, $activities)
@@ -193,7 +198,6 @@ class PollController extends BaseController
      * @ParamConverter("question", class="CivixCoreBundle:Poll\Question")
      * @Method("GET")
      * @ApiDoc(
-     *     resource=true,
      *     section="Polls",
      *     description="Get question answers",
      *     statusCodes={
@@ -238,7 +242,6 @@ class PollController extends BaseController
      * @ParamConverter("question", class="CivixCoreBundle:Poll\Question")
      * @Method("GET")
      * @ApiDoc(
-     *     resource=true,
      *     section="Polls",
      *     description="Get question answers",
      *     statusCodes={
@@ -367,7 +370,6 @@ class PollController extends BaseController
      * @ParamConverter("comment", class="CivixCoreBundle:BaseComment")
      * @Method("POST")
      * @ApiDoc(
-     *     resource=true,
      *     section="Polls",
      *     description="Add rate to comment",
      *     statusCodes={

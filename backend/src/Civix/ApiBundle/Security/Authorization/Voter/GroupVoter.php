@@ -12,10 +12,25 @@ use Symfony\Component\Security\Core\Role\RoleInterface;
 
 class GroupVoter implements VoterInterface
 {
+    /**
+     * Content creators (meta attribute)
+     */
     const EDIT = 'edit';
+    /**
+     * Content creators (assign managers)
+     */
     const ASSIGN = 'assign';
+    /**
+     * Content creators and group managers (create/update/delete)
+     */
     const MANAGE = 'manage';
+    /**
+     * Group members + all above (comments/answers)
+     */
     const MEMBER = 'member';
+    /**
+     * All above
+     */
     const VIEW = 'view';
 
     /**

@@ -7,6 +7,8 @@ use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Stripe\CustomerGroup;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -34,38 +36,38 @@ class LoadQuestionCommentData extends AbstractFixture implements ContainerAwareI
         $this->manager = $manager;
 
         $this->addReference(
-            'question-comment',
+            'question_comment_1',
             $this->createComment(
-                $this->getReference('userfollowtest1'),
-                $this->getReference('group-question')
+                $this->getReference('user_2'),
+                $this->getReference('group_question_1')
             )
         );
         $this->createComment(
-            $this->getReference('userfollowtest2'),
-            $this->getReference('group-question'),
-            $this->getReference('question-comment')
+            $this->getReference('user_3'),
+            $this->getReference('group_question_1'),
+            $this->getReference('question_comment_1')
         );
         $this->createComment(
-            $this->getReference('userfollowtest3'),
-            $this->getReference('group-question')
+            $this->getReference('user_4'),
+            $this->getReference('group_question_1')
         );
         $this->addReference(
-            'testfollowsecretgroups-comment', 
+            'question_comment_4',
             $this->createComment(
-                $this->getReference('followertest'),
-                $this->getReference('testfollowsecretgroups-question')
+                $this->getReference('user_4'),
+                $this->getReference('group_question_3')
             )
         );
         $this->createComment(
-            $this->getReference('testuserbookmark1'),
-            $this->getReference('testfollowsecretgroups-question'),
-            $this->getReference('testfollowsecretgroups-comment')
+            $this->getReference('user_2'),
+            $this->getReference('group_question_3'),
+            $this->getReference('question_comment_4')
         );
     }
 
     public function getDependencies()
     {
-        return [LoadGroupFollowerTestData::class, LoadGroupQuestionData::class];
+        return [LoadGroupManagerData::class, LoadUserGroupData::class, LoadGroupQuestionData::class];
     }
 
     /**

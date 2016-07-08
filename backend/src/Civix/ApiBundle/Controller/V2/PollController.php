@@ -1,99 +1,50 @@
 <?php
 
-namespace Civix\ApiBundle\Controller\Leader;
+namespace Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Configuration\SecureParam;
+use Civix\ApiBundle\Form\Type\Poll\OptionType;
 use Civix\ApiBundle\Form\Type\Poll\QuestionType;
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Comment;
 use Civix\CoreBundle\Entity\Poll\Option;
 use Civix\CoreBundle\Entity\Poll\Question;
-use Civix\CoreBundle\Service\PollClassNameFactory;
-use Civix\ApiBundle\Form\Type\Poll\OptionType;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
-use FOS\RestBundle\Util\Codes;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class for Leader Polls controller
- * 
+ *
  * @Route("/polls")
  */
 class PollController extends FOSRestController
 {
     /**
-     * List all the polls and questions based in the current user type.
-     *
-     * @Route("", name="civix_get_polls")
-     * @Method("GET")
-     * @QueryParam(name="type", requirements="group|representative")
-     * @QueryParam(name="filter", requirements="published|unpublished|publishing|archived")
-     * @QueryParam(name="page", requirements="\d+", default=1)
-     *
-     * @ApiDoc(
-     *     resource=true,
-     *     section="Leader Content",
-     *     description="List all the polls and questions based in the current user type.",
-     *     output="Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination",
-     *     statusCodes={
-     *         200="Returns list",
-     *         400="Bad Request",
-     *         401="Authorization required",
-     *         404="Question not found",
-     *         405="Method Not Allowed"
-     *     }
-     * )
-     * 
-     * @View(serializerGroups={"paginator", "api-poll"})
-     *
-     * @param ParamFetcher $params
-     *
-     * @return \Knp\Component\Pager\Pagination\PaginationInterface
-     */
-    public function getcAction(ParamFetcher $params)
-    {
-    	$repositoryType = $params->get('type');
-    	$currentUser = $this->getUser();
-    	$entityClass = PollClassNameFactory::getEntityClass($repositoryType, $currentUser->getType());
-
-        /** @var $query \Doctrine\ORM\Query */
-        $query = $this->getDoctrine()->getRepository('CivixCoreBundle:Poll\Question')
-            ->getFilteredQuestionQuery(
-                $params->get('filter'),
-                $this->getUser(),
-                $entityClass
-            );
-
-        $paginator = $this->get('knp_paginator');
-        return $paginator->paginate(
-            $query,
-            $params->get('page'),
-            20
-        );
-    }
-
-    /**
      * Return poll
      *
-     * @Route("/{id}", name="civix_get_poll")
+     * @Route("/{id}")
      * @Method("GET")
+     *
      * @SecureParam("question", permission="view")
      *
-     * @ParamConverter("question")
-     *
      * @ApiDoc(
-     *     section="Leader Content",
+     *     authentication=true,
+     *     resource=true,
+     *     section="Polls",
      *     description="Return poll",
      *     output={
      *          "class" = "Civix\CoreBundle\Entity\Poll\Question",
      *          "groups" = {"api-poll"}
+     *     },
+     *     statusCodes={
+     *         200="Returns poll",
+     *         405="Method Not Allowed"
      *     }
      * )
      *
@@ -109,62 +60,28 @@ class PollController extends FOSRestController
     }
 
     /**
-     * Add poll
-     *
-     * @Route("", name="civix_post_poll")
-     * @Method("POST")
-     *
-     * @ApiDoc(
-     *     section="Leader Content",
-     *     description="Add poll",
-     *     input="Civix\ApiBundle\Form\Type\Poll\QuestionType",
-     *     output={
-     *          "class" = "Civix\CoreBundle\Entity\Poll\Question",
-     *          "groups" = {"api-poll"}
-     *     }
-     * )
-     *
-     * @View(serializerGroups={"api-poll"})
-     *
-     * @param Request $request
-     *
-     * @return \Civix\CoreBundle\Entity\Poll\Question|\Symfony\Component\Form\Form
-     */
-    public function postAction(Request $request)
-    {
-        $form = $this->createForm(new QuestionType($this->getUser()));
-
-        $form->submit($request);
-        if ($form->isValid()) {
-            $question = $form->getData();
-            $question->setUser($this->getUser());
-
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($question);
-            $em->flush();
-
-            return $question;
-        }
-
-        return $form;
-    }
-
-    /**
      * Update poll
      *
-     * @Route("/{id}", name="civix_put_poll")
+     * @Route("/{id}")
      * @Method("PUT")
-     * @SecureParam("question", permission="edit")
      *
-     * @ParamConverter("question")
+     * @SecureParam("question", permission="manage")
      *
      * @ApiDoc(
-     *     section="Leader Content",
+     *     authentication=true,
+     *     section="Polls",
      *     description="Update poll",
      *     input="Civix\ApiBundle\Form\Type\Poll\QuestionType",
      *     output={
      *          "class" = "Civix\CoreBundle\Entity\Poll\Question",
      *          "groups" = {"api-poll"}
+     *     },
+     *     statusCodes={
+     *         204="Success",
+     *         400="Bad Request",
+     *         403="Access Denied",
+     *         404="Poll Not Found",
+     *         405="Method Not Allowed"
      *     }
      * )
      *
@@ -177,7 +94,7 @@ class PollController extends FOSRestController
      */
     public function putAction(Request $request, Question $question)
     {
-        $form = $this->createForm(new QuestionType($this->getUser()), $question);
+        $form = $this->createForm(new QuestionType($question->getUser()), $question, ['validation_groups' => 'update']);
 
         $form->submit($request, false);
         if ($form->isValid()) {
@@ -194,20 +111,20 @@ class PollController extends FOSRestController
     /**
      * Delete poll
      *
-     * @Route("/{id}", name="civix_delete_poll")
+     * @Route("/{id}")
      * @Method("DELETE")
-     * @SecureParam("question", permission="delete")
      *
-     * @ParamConverter("question")
+     * @SecureParam("question", permission="manage")
      *
      * @ApiDoc(
-     *     section="Leader Content",
+     *     authentication=true,
+     *     section="Polls",
      *     description="Delete poll",
      *     statusCodes={
-     *         204="Question is deleted",
+     *         204="Success",
      *         400="Bad Request",
-     *         401="Authorization required",
-     *         404="Question not found",
+     *         403="Access Denied",
+     *         404="Question Not Found",
      *         405="Method Not Allowed"
      *     }
      * )
@@ -218,33 +135,41 @@ class PollController extends FOSRestController
      */
     public function deleteAction(Question $question)
     {
-        if ($question->getPublishedAt() === null) {
+        $violations = $this->get('validator')->validate($question, ['publish']);
+        if (!$violations->count()) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($question);
             $entityManager->flush();
 
             return null;
         } else {
-            return $this->view('Can not delete published question', Codes::HTTP_BAD_REQUEST);
+            return $violations;
         }
     }
 
     /**
      * Add poll's option
      *
-     * @Route("/{id}/options", name="civix_post_poll_option")
+     * @Route("/{id}/options")
      * @Method("POST")
-     * @SecureParam("question", permission="edit")
      *
-     * @ParamConverter("question")
+     * @SecureParam("question", permission="manage")
      *
      * @ApiDoc(
-     *     section="Leader Content",
+     *     authentication=true,
+     *     section="Polls",
      *     description="Add poll's option",
      *     input="Civix\ApiBundle\Form\Type\Poll\OptionType",
      *     output={
      *          "class" = "Civix\CoreBundle\Entity\Poll\Option",
      *          "groups" = {"api-poll"}
+     *     },
+     *     statusCodes={
+     *         200="Success",
+     *         400="Bad Request",
+     *         403="Access Denied",
+     *         404="Poll Not Found",
+     *         405="Method Not Allowed"
      *     }
      * )
      *
@@ -252,7 +177,7 @@ class PollController extends FOSRestController
      *
      * @param Request $request
      * @param Question $question
-     * 
+     *
      * @return \Civix\CoreBundle\Entity\Poll\Option|\Symfony\Component\Form\Form
      */
     public function postOptionAction(Request $request, Question $question)
@@ -280,20 +205,23 @@ class PollController extends FOSRestController
      *
      * The current user only can list the answers if it is the question user creator.
      *
-     * @Route("/{id}/answers", name="civix_get_poll_answers")
+     * @Route("/{id}/answers")
      * @Method("GET")
+     *
+     * @SecureParam("question", permission="view")
+     *
      * @QueryParam(name="page", requirements="\d+", default=1)
+     * @QueryParam(name="per_page", requirements="(10|20)", default="20")
      *
      * @ApiDoc(
-     *     resource=true,
-     *     section="Leader Content",
+     *     authentication=true,
+     *     section="Polls",
      *     description="List the answers for a given question.",
      *     output="Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination",
      *     statusCodes={
      *         200="Returns list",
-     *         400="Bad Request",
-     *         401="Authorization required",
-     *         404="Question not found",
+     *         403="Access Denied",
+     *         404="Question Not Found",
      *         405="Method Not Allowed"
      *     }
      * )
@@ -310,11 +238,11 @@ class PollController extends FOSRestController
         $entityManager = $this->getDoctrine()->getManager();
         $query = $entityManager->getRepository('CivixCoreBundle:Poll\Answer')
             ->getAnswersByQuestion($question);
-        
+
         return $this->get('knp_paginator')->paginate(
             $query,
             $params->get('page'),
-            20
+            $params->get('per_page')
         );
     }
 
@@ -323,20 +251,23 @@ class PollController extends FOSRestController
      *
      * The current user only can list the comments if it is the question user creator.
      *
-     * @Route("/{id}/comments", name="civix_get_poll_comments")
+     * @Route("/{id}/comments")
      * @Method("GET")
+     *
+     * @SecureParam("question", permission="view")
+     *
      * @QueryParam(name="page", requirements="\d+", default=1)
+     * @QueryParam(name="per_page", requirements="(10|20)", default="20")
      *
      * @ApiDoc(
-     *     resource=true,
-     *     section="Leader Content",
+     *     authentication=true,
+     *     section="Polls",
      *     description="List the comments for a given question.",
      *     output="Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination",
      *     statusCodes={
      *         200="Returns list",
-     *         400="Bad Request",
-     *         401="Authorization required",
-     *         404="Question not found",
+     *         403="Access Denied",
+     *         404="Question Not Found",
      *         405="Method Not Allowed"
      *     }
      * )
@@ -353,11 +284,11 @@ class PollController extends FOSRestController
         $entityManager = $this->getDoctrine()->getManager();
         $query = $entityManager->getRepository('CivixCoreBundle:Poll\Comment')
             ->getCommentsByQuestion($question);
-        
+
         return $this->get('knp_paginator')->paginate(
             $query,
             $params->get('page'),
-            20
+            $params->get('per_page')
         );
     }
 }

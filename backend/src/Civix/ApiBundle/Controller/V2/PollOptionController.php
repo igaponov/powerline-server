@@ -1,39 +1,45 @@
 <?php
-namespace Civix\ApiBundle\Controller\Leader;
+namespace Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Configuration\SecureParam;
-use Civix\CoreBundle\Entity\Poll\Option;
-use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\ApiBundle\Form\Type\Poll\OptionType;
+use Civix\CoreBundle\Entity\Poll\Option;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @Route("/options")
+ * @Route("/poll-options")
  */
 class PollOptionController extends FOSRestController
 {
     /**
      * Update poll's option
      *
-     * @Route("/{id}", name="civix_put_poll_option")
+     * @Route("/{id}")
      * @Method("PUT")
-     * @SecureParam("option", permission="edit")
      *
-     * @ParamConverter("option")
+     * @SecureParam("option", permission="manage")
      *
      * @ApiDoc(
-     *     section="Leader Content",
+     *     authentication=true,
+     *     resource=true,
+     *     section="Polls",
      *     description="Update poll's option",
      *     input="Civix\ApiBundle\Form\Type\Poll\OptionType",
      *     output={
      *          "class" = "Civix\CoreBundle\Entity\Poll\Option",
      *          "groups" = {"api-poll"}
+     *     },
+     *     statusCodes={
+     *         204="Success",
+     *         400="Bad Request",
+     *         403="Access Denied",
+     *         404="Option Not Found",
+     *         405="Method Not Allowed"
      *     }
      * )
      *
@@ -63,20 +69,19 @@ class PollOptionController extends FOSRestController
     /**
      * Delete poll's option
      *
-     * @Route("/{id}", name="civix_delete_poll_option")
+     * @Route("/{id}")
      * @Method("DELETE")
-     * @SecureParam("option", permission="delete")
      *
-     * @ParamConverter("option")
+     * @SecureParam("option", permission="manage")
      *
      * @ApiDoc(
-     *     section="Leader Content",
+     *     authentication=true,
+     *     section="Polls",
      *     description="Delete poll's option",
      *     statusCodes={
      *         204="Option is deleted",
-     *         400="Bad Request",
-     *         401="Authorization required",
-     *         404="Option not found",
+     *         403="Access Denied",
+     *         404="Option Not Found",
      *         405="Method Not Allowed"
      *     }
      * )

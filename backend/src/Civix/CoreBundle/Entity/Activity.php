@@ -780,7 +780,7 @@ abstract class Activity
     }
 
     /**
-     * @return Petition
+     * @return \Civix\CoreBundle\Entity\Micropetitions\Petition
      */
     public function getPetition()
     {
@@ -789,7 +789,7 @@ abstract class Activity
 
     /**
      * @param Micropetitions\Petition $petition
-     * @return MicroPetition
+     * @return $this
      */
     public function setPetition(Micropetitions\Petition $petition)
     {

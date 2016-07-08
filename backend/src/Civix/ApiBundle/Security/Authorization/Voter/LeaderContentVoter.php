@@ -73,9 +73,11 @@ class LeaderContentVoter implements VoterInterface
             return VoterInterface::ACCESS_ABSTAIN;
         }
 
-        /** @var Group $group */
-        $group = $object->getUser();
+        $user = $object->getUser();
+        if ($user instanceof Group) {
+            return $this->groupVoter->vote($token, $user, $attributes);
+        }
 
-        return $this->groupVoter->vote($token, $group, $attributes);
+        return VoterInterface::ACCESS_DENIED;
     }
 }
