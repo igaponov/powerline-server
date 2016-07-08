@@ -3,7 +3,9 @@
 namespace Civix\CoreBundle\Entity\Poll;
 
 use Civix\CoreBundle\Entity\GroupSection;
+use Civix\CoreBundle\Entity\LeaderContentInterface;
 use Civix\CoreBundle\Entity\UserInterface;
+use Civix\CoreBundle\Validator\Constraints\PublishDate;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -41,8 +43,9 @@ use Civix\CoreBundle\Entity\Representative;
  * @Serializer\ExclusionPolicy("all")
  * 
  * @method setUser(UserInterface $user)
+ * @PublishDate(objectName="Poll", groups={"update", "publish"})
  */
-abstract class Question
+abstract class Question implements LeaderContentInterface
 {
     /**
      * @var int
@@ -59,7 +62,7 @@ abstract class Question
      * @var string
      *
      * @ORM\Column(name="subject", type="text", nullable=true)
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(groups={"Default", "update"})
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
      */
