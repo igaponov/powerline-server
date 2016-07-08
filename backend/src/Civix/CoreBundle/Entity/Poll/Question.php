@@ -735,4 +735,9 @@ abstract class Question implements LeaderContentInterface
 
         return empty($sectionsIds) ? false : $sectionsIds;
     }
+
+    public function getGroup()
+    {
+        return $this->getUser();
+    }
 }

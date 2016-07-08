@@ -13,7 +13,7 @@ class LoadGroupFieldsData extends AbstractFixture implements DependentFixtureInt
     {
         $faker = Factory::create();
         /** @var Group $group */
-        $group = $this->getReference('group');
+        $group = $this->getReference('group_1');
         $field = new Group\GroupField();
         $field->setFieldName('test-group-field');
         $group->addField($field);
@@ -26,17 +26,17 @@ class LoadGroupFieldsData extends AbstractFixture implements DependentFixtureInt
         $manager->persist($group);
         $manager->flush();
         /** @var Group $group */
-        $group = $this->getReference('testfollowsecretgroups');
+        $group = $this->getReference('group_3');
         $field = new Group\GroupField();
-        $field->setFieldName('anothers-group-field');
+        $field->setFieldName('another-group-field');
         $group->addField($field);
-        $this->addReference('anothers-group-field', $field);
+        $this->addReference('another-group-field', $field);
         $manager->persist($group);
         $manager->flush();
     }
 
     public function getDependencies()
     {
-        return [LoadGroupFollowerTestData::class];
+        return [LoadGroupData::class];
     }
 }

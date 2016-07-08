@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Entity\Group;
 
 use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\LeaderContentInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -16,7 +17,7 @@ use Civix\CoreBundle\Entity\User;
  * @ORM\Entity()
  * @Serializer\ExclusionPolicy("all")
  */
-class GroupField
+class GroupField implements LeaderContentInterface
 {
     /**
      * @var int
@@ -158,5 +159,7 @@ class GroupField
                 return $value->getFieldValue();
             }
         }
+
+        return null;
     }
 }

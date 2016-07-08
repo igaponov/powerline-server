@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @Route("/groups")
  */
-class GroupMicropetitionController extends FOSRestController
+class GroupMicropetitionsController extends FOSRestController
 {
     /**
      * @var PetitionManager
