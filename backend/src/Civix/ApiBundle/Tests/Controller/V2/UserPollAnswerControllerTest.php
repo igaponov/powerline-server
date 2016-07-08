@@ -31,11 +31,11 @@ class UserPollAnswerControllerTest extends WebTestCase
 
     public function testGetPollAnswers()
     {
-        $answer = $this->repository->getReference('question-answer');
+        $answer = $this->repository->getReference('question_answer_2');
         $client = $this->client;
         $client->request('GET',
             self::API_ENDPOINT, [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="user3"']
         );
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -50,7 +50,7 @@ class UserPollAnswerControllerTest extends WebTestCase
         $client = $this->client;
         $client->request('GET',
             self::API_ENDPOINT, ['start' => date('Y-m-d H:i:s')], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest2"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="user3"']
         );
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
