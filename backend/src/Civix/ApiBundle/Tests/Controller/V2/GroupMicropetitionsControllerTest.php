@@ -12,7 +12,7 @@ use Faker\Factory;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
-class GroupMicropetitionControllerTest extends WebTestCase
+class GroupMicropetitionsControllerTest extends WebTestCase
 {
     const API_ENDPOINT = '/api/v2/groups/{id}/micro-petitions';
 
