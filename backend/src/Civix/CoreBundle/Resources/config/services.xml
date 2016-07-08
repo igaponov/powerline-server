@@ -376,10 +376,6 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service class="Civix\ApiBundle\Security\Authorization\Voter\GroupFieldVoter" id="tough_domains_security.group_field_voter">
-            <tag name="security.voter"/>
-        </service>
-
         <service class="Civix\ApiBundle\EventListener\SecureParamListener" id="civix_api.event_listener.secure_param_listener">
             <argument id="security.context" type="service"/>
             <tag name="kernel.event_subscriber"/>

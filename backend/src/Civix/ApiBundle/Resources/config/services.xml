@@ -71,6 +71,11 @@
             <tag name="security.voter"/>
         </service>
 
+        <service class="Civix\ApiBundle\Security\Authorization\Voter\GroupFieldVoter" id="tough_domains_security.group_field_voter">
+            <argument id="civix_api.security_authorization_voter.group_voter" type="service"/>
+            <tag name="security.voter"/>
+        </service>
+
         <service class="Civix\ApiBundle\Security\Authorization\Voter\LeaderContentVoter" id="civix_api.security_authorization_voter.leader_content_voter">
             <argument id="civix_api.security_authorization_voter.group_voter" type="service"/>
             <tag name="security.voter" priority="-255"/>

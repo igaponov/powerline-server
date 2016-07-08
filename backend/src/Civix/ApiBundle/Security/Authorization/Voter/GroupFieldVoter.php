@@ -2,16 +2,23 @@
 
 namespace Civix\ApiBundle\Security\Authorization\Voter;
 
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Group\GroupField;
-use Civix\CoreBundle\Entity\UserInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-
 class GroupFieldVoter implements VoterInterface
 {
-    const EDIT = 'edit';
-    const DELETE = 'delete';
+    const MANAGE = 'manage';
+    /**
+     * @var GroupVoter
+     */
+    private $groupVoter;
+
+    public function __construct(GroupVoter $groupVoter)
+    {
+        $this->groupVoter = $groupVoter;
+    }
 
     /**
      * Checks if the voter supports the given attribute.
@@ -23,8 +30,7 @@ class GroupFieldVoter implements VoterInterface
     public function supportsAttribute($attribute)
     {
         return in_array($attribute, array(
-            self::EDIT,
-            self::DELETE,
+            self::MANAGE,
         ));
     }
 
@@ -55,43 +61,17 @@ class GroupFieldVoter implements VoterInterface
      */
     public function vote(TokenInterface $token, $object, array $attributes)
     {
-        // check if class of this object is supported by this voter
         if (!$this->supportsClass(get_class($object))) {
             return VoterInterface::ACCESS_ABSTAIN;
         }
 
-        // check if the voter is used correct, only allow one attribute
-        // this isn't a requirement, it's just one easy way for you to
-        // design your voter
-        if (1 !== count($attributes)) {
-            throw new \InvalidArgumentException(
-                'Only one attribute is allowed for VIEW, EDIT, or DELETE'
-            );
-        }
-
-        // set the attribute to check against
-        $attribute = $attributes[0];
-
-        /** @var UserInterface $user */
-        $user = $token->getUser(); // get current logged in user
-
-        // check if the given attribute is covered by this voter
-        if (!$this->supportsAttribute($attribute)) {
+        if (!$this->supportsAttribute($attributes[0])) {
             return VoterInterface::ACCESS_ABSTAIN;
         }
 
-        // make sure there is a user object (i.e. that the user is logged in)
-        if (!$user instanceof UserInterface) {
-            return VoterInterface::ACCESS_DENIED;
-        }
-
-        // make sure entity has owner attached to it
-        if (!$object->getGroup() instanceof UserInterface) {
-            return VoterInterface::ACCESS_DENIED;
-        }
-
-        if ($object->getGroup()->isEqualTo($user)) {
-            return VoterInterface::ACCESS_GRANTED;
+        $group = $object->getGroup();
+        if ($group instanceof Group) {
+            return $this->groupVoter->vote($token, $group, $attributes);
         }
 
         return VoterInterface::ACCESS_DENIED;
