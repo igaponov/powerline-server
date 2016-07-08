@@ -18,20 +18,49 @@ class GroupType extends AbstractType
         $builder->add('username', 'text', [
             'description' => 'User name',
         ]);
-        $builder->add('manager_first_name', 'text', ['property_path' => 'managerFirstName']);
-        $builder->add('manager_last_name', 'text', ['property_path' => 'managerLastName']);
-        $builder->add('manager_email', 'text', ['property_path' => 'managerEmail']);
-        $builder->add('manager_phone', 'text', ['property_path' => 'managerPhone']);
+        $builder->add('manager_first_name', 'text', [
+            'property_path' => 'managerFirstName',
+            'required' => false,
+        ]);
+        $builder->add('manager_last_name', 'text', [
+            'property_path' => 'managerLastName',
+            'required' => false,
+        ]);
+        $builder->add('manager_email', 'text', [
+            'property_path' => 'managerEmail',
+            'required' => false,
+        ]);
+        $builder->add('manager_phone', 'text', [
+            'property_path' => 'managerPhone',
+            'required' => false,
+        ]);
         $builder->add('official_type', 'text', [
             'property_path' => 'officialType',
             'description' => 'Official type, can be one of '.join(', ', Group::getOfficialTypes()),
         ]);
-        $builder->add('official_name', 'text', ['property_path' => 'officialName']);
-        $builder->add('official_description', 'text', ['property_path' => 'officialDescription']);
-        $builder->add('acronym', null, ['max_length' => 4]);
-        $builder->add('official_address', 'text', ['property_path' => 'officialAddress']);
-        $builder->add('official_city', 'text', ['property_path' => 'officialCity']);
-        $builder->add('official_state', 'text', ['property_path' => 'officialState']);
+        $builder->add('official_name', 'text', [
+            'property_path' => 'officialName',
+        ]);
+        $builder->add('official_description', 'text', [
+            'property_path' => 'officialDescription',
+            'required' => false,
+        ]);
+        $builder->add('acronym', null, [
+            'max_length' => 4,
+            'required' => false,
+        ]);
+        $builder->add('official_address', 'text', [
+            'property_path' => 'officialAddress',
+            'required' => false,
+        ]);
+        $builder->add('official_city', 'text', [
+            'property_path' => 'officialCity',
+            'required' => false,
+        ]);
+        $builder->add('official_state', 'text', [
+            'property_path' => 'officialState',
+            'required' => false,
+        ]);
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)
