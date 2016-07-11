@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Security\Authorization\Voter;
 
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\UserInterface;
+use Civix\CoreBundle\Service\Subscription\SubscriptionManager;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Role\Role;
@@ -34,6 +35,20 @@ class GroupVoter implements VoterInterface
     const VIEW = 'view';
 
     /**
+     * Group managers (check subscription plan)
+     */
+    const MEMBERSHIP = 'membership';
+    /**
+     * @var SubscriptionManager
+     */
+    private $subscriptionManager;
+
+    public function __construct(SubscriptionManager $subscriptionManager)
+    {
+        $this->subscriptionManager = $subscriptionManager;
+    }
+
+    /**
      * Checks if the voter supports the given attribute.
      *
      * @param string $attribute An attribute
@@ -44,6 +59,7 @@ class GroupVoter implements VoterInterface
     {
         return in_array($attribute, [
             self::EDIT,
+            self::MEMBERSHIP,
             self::ASSIGN,
             self::MANAGE,
             self::MEMBER,
@@ -108,10 +124,16 @@ class GroupVoter implements VoterInterface
             return VoterInterface::ACCESS_DENIED;
         }
 
+        if ($attribute === self::MEMBERSHIP
+            && !$this->subscriptionManager->getSubscription($object)->isNotFree()
+        ) {
+            return VoterInterface::ACCESS_DENIED;
+        }
+
         $roleHierarchy = new RoleHierarchy([
             self::EDIT => [self::ASSIGN],
             self::ASSIGN => [self::MANAGE],
-            self::MANAGE => [self::MEMBER],
+            self::MANAGE => [self::MEMBER, self::MEMBERSHIP],
             self::MEMBER => [self::VIEW],
         ]);
 

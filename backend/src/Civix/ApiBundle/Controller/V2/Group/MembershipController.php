@@ -1,10 +1,13 @@
 <?php
 
-namespace Civix\ApiBundle\Controller\Group;
+namespace Civix\ApiBundle\Controller\V2\Group;
 
+use Civix\ApiBundle\Configuration\SecureParam;
 use Civix\ApiBundle\Form\Type\Group\MembershipType;
 use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Service\Group\GroupManager;
 use FOS\RestBundle\Controller\Annotations\View;
+use JMS\DiExtraBundle\Annotation as DI;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -12,18 +15,26 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @Route("/membership")
+ * @Route("/groups/{group}/membership")
  */
 class MembershipController extends Controller
 {
     /**
+     * @var GroupManager
+     * @DI\Inject("civix_core.group_manager")
+     */
+    private $manager;
+
+    /**
      * Return group's membership control
      *
-     * @Route("", name="civix_get_group_membership")
+     * @Route("")
      * @Method("GET")
      *
+     * @SecureParam("group", permission="view")
+     *
      * @ApiDoc(
-     *     section="User Management",
+     *     section="Groups",
      *     description="Return group's membership control",
      *     output={
      *          "class" = "Civix\CoreBundle\Entity\Group",
@@ -33,21 +44,25 @@ class MembershipController extends Controller
      *
      * @View(serializerGroups={"membership-control"})
      *
+     * @param Group $group
+     *
      * @return Group
      */
-    public function getAction()
+    public function getAction(Group $group)
     {
-        return $this->getUser();
+        return $group;
     }
-    
+
     /**
      * Update micropetitions's config
      *
-     * @Route("", name="civix_put_group_membership")
+     * @Route("")
      * @Method("PUT")
      *
+     * @SecureParam("group", permission="membership")
+     *
      * @ApiDoc(
-     *     section="User Management",
+     *     section="Groups",
      *     description="Update group's membership control",
      *     input="Civix\ApiBundle\Form\Type\Group\MembershipType",
      *     output={
@@ -59,18 +74,18 @@ class MembershipController extends Controller
      * @View(serializerGroups={"membership-control"})
      *
      * @param Request $request
-     * @return \Symfony\Component\Form\Form
+     * @param Group $group
+     *
+     * @return \Symfony\Component\Form\Form|\Civix\CoreBundle\Entity\Group
      */
-    public function putAction(Request $request)
+    public function putAction(Request $request, Group $group)
     {
-        $group = $this->getUser();
         $form = $this->createForm(new MembershipType(), $group);
         
         $form->submit($request);
         
         if ($form->isValid()) {
-            return $this->get('civix_core.group_manager')
-                ->changeMembershipControl($group);
+            return $this->manager->changeMembershipControl($group);
         }
 
         return $form;
