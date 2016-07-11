@@ -18,15 +18,15 @@ class CiceroCalls extends BaseCiceroCalls
         $this->logger = $logger;
     }
 
-    public function findRepresentativeByLocation()
+    public function findRepresentativeByLocation($address, $city, $state, $country = 'US')
     {
     }
 
-    public function findRepresentativeByOfficialData()
+    public function findRepresentativeByOfficialData($firstName, $lastName, $officialTitle)
     {
     }
 
-    public function findRepresentativeByNameAndId()
+    public function findRepresentativeByNameAndId($firstName, $lastName, $storageId)
     {
         return false;
     }
