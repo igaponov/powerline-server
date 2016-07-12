@@ -34,11 +34,20 @@ class MembershipController extends Controller
      * @SecureParam("group", permission="view")
      *
      * @ApiDoc(
+     *     authentication=true,
      *     section="Groups",
      *     description="Return group's membership control",
      *     output={
      *          "class" = "Civix\CoreBundle\Entity\Group",
-     *          "groups" = {"membership-control"}
+     *          "groups" = {"membership-control"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
+     *     },
+     *     statusCodes={
+     *         403="Access Denied",
+     *         404="Group Not Found",
+     *         405="Method Not Allowed"
      *     }
      * )
      *
@@ -62,12 +71,22 @@ class MembershipController extends Controller
      * @SecureParam("group", permission="membership")
      *
      * @ApiDoc(
+     *     authentication=true,
      *     section="Groups",
      *     description="Update group's membership control",
      *     input="Civix\ApiBundle\Form\Type\Group\MembershipType",
      *     output={
      *          "class" = "Civix\CoreBundle\Entity\Group",
-     *          "groups" = {"membership-control"}
+     *          "groups" = {"membership-control"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
+     *     },
+     *     statusCodes={
+     *         400="Bad Request",
+     *         403="Access Denied",
+     *         404="Group Not Found",
+     *         405="Method Not Allowed"
      *     }
      * )
      *

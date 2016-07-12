@@ -8,6 +8,7 @@ use Civix\CoreBundle\Entity\Group;
 use Doctrine\Common\Collections\Collection;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
+use FOS\RestBundle\Util\Codes;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -27,11 +28,20 @@ class FieldController extends FOSRestController
      * @SecureParam("group", permission="view")
      *
      * @ApiDoc(
-     *     section="User Management",
+     *     authentication=true,
+     *     section="Groups",
      *     description="Return group's fields",
      *     output={
-     *          "class" = "ArrayCollection<Civix\CoreBundle\Entity\Group\GroupField>",
-     *          "groups" = {"api-groups-fields"}
+     *          "class" = "array<Civix\CoreBundle\Entity\Group\GroupField>",
+     *          "groups" = {"api-groups-fields"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
+     *     },
+     *     statusCodes={
+     *         403="Access Denied",
+     *         404="Group Not Found",
+     *         405="Method Not Allowed"
      *     }
      * )
      *
@@ -49,18 +59,30 @@ class FieldController extends FOSRestController
     /**
      * Add groups's field
      *
-     * @Route("", name="civix_post_group_field")
+     * @Route("")
      * @Method("POST")
      *
      * @SecureParam("group", permission="manage")
      *
      * @ApiDoc(
-     *     section="User Management",
+     *     authentication=true,
+     *     section="Groups",
      *     description="Add group's field",
      *     input="Civix\ApiBundle\Form\Type\Group\GroupFieldType",
-     *     output={
-     *          "class" = "Civix\CoreBundle\Entity\Group\GroupField",
-     *          "groups" = {"api-group-field"}
+     *     statusCodes={
+     *         400="Bad Request",
+     *         403="Access Denied",
+     *         404="Group Not Found",
+     *         405="Method Not Allowed"
+     *     },
+     *     responseMap={
+     *          201={
+     *              "class" = "Civix\CoreBundle\Entity\Group\GroupField",
+     *              "groups" = {"api-group-field"},
+     *              "parsers" = {
+     *                  "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *              }
+     *          }
      *     }
      * )
      *
@@ -69,7 +91,7 @@ class FieldController extends FOSRestController
      * @param Request $request
      * @param Group $group
      *
-     * @return Group\GroupField|\Symfony\Component\Form\Form
+     * @return \FOS\RestBundle\View\View|\Symfony\Component\Form\Form
      */
     public function postAction(Request $request, Group $group)
     {
@@ -85,7 +107,7 @@ class FieldController extends FOSRestController
             $em->persist($field);
             $em->flush();
 
-            return $field;
+            return $this->view($field, Codes::HTTP_CREATED);
         }
 
         return $form;

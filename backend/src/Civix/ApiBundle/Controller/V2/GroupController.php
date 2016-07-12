@@ -5,10 +5,12 @@ use Civix\ApiBundle\Configuration\SecureParam;
 use Civix\ApiBundle\Form\Type\GroupType;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
+use Doctrine\ORM\EntityManager;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
+use JMS\DiExtraBundle\Annotation as DI;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -21,6 +23,12 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class GroupController extends FOSRestController
 {
+    /**
+     * @var EntityManager
+     * @DI\Inject("doctrine.orm.entity_manager")
+     */
+    private $em;
+
     /**
      * Returns groups.
      *
@@ -35,11 +43,11 @@ class GroupController extends FOSRestController
      *
      * @ApiDoc(
      *     authentication = true,
-     *     section="Group",
+     *     resource=true,
+     *     section="Groups",
      *     description="Return groups",
      *     output="Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination",
      *     statusCodes={
-     *         200="Returns groups",
      *         405="Method Not Allowed"
      *     }
      * )
@@ -52,7 +60,7 @@ class GroupController extends FOSRestController
      */
     public function getcAction(ParamFetcher $params)
     {
-        $query = $this->getDoctrine()->getRepository(Group::class)
+        $query = $this->em->getRepository(Group::class)
             ->getFindByQuery([
                 'exclude_owned' => $params->get('exclude_owned') ? $this->getUser() : null,
             ], [
@@ -76,8 +84,7 @@ class GroupController extends FOSRestController
      *
      * @ApiDoc(
      *     authentication = true,
-     *     resource=true,
-     *     section="Group",
+     *     section="Groups",
      *     description="Returns a group",
      *     output = {
      *          "class" = "Civix\CoreBundle\Entity\Group",
@@ -87,7 +94,6 @@ class GroupController extends FOSRestController
      *          }
      *     },
      *     statusCodes={
-     *          200="Returned when successful",
      *          405="Method Not Allowed"
      *     }
      * )
@@ -115,8 +121,7 @@ class GroupController extends FOSRestController
      * 
      * @ApiDoc(
      *     authentication=true,
-     *     resource=true,
-     *     section="Group",
+     *     section="Groups",
      *     description="",
      *     input="Civix\ApiBundle\Form\Type\GroupType",
      *     output = {
@@ -127,7 +132,6 @@ class GroupController extends FOSRestController
      *          }
      *     },
      *     statusCodes={
-     *         200="Returns a group",
      *         400="Bad Request",
      *         405="Method Not Allowed"
      *     }
@@ -138,19 +142,18 @@ class GroupController extends FOSRestController
      * @param Request $request
      * @param Group $group
      *
-     * @return \FOS\RestBundle\View\View|\Symfony\Component\Form\Form
+     * @return Group|\Symfony\Component\Form\Form
      */
     public function putAction(Request $request, Group $group)
     {
-        $em = $this->get('doctrine.orm.entity_manager');
         $form = $this->createForm(new GroupType(), $group, [
             'validation_groups' => 'user-registration',
         ]);
         $form->submit($request, false);
 
         if ($form->isValid()) {
-            $em->persist($group);
-            $em->flush();
+            $this->em->persist($group);
+            $this->em->flush();
 
             return $group;
         }
@@ -169,12 +172,10 @@ class GroupController extends FOSRestController
      *
      * @ApiDoc(
      *     authentication=true,
-     *     resource=true,
-     *     section="Group",
+     *     section="Groups",
      *     description="Returns a list of users from a group",
      *     output="Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination",
      *     statusCodes={
-     *         200="Returns users",
      *         400="Bad request",
      *         401="Authorization required",
      *         405="Method Not Allowed"
