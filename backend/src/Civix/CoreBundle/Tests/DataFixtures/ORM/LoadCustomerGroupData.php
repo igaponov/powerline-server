@@ -3,50 +3,37 @@ namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
 use Civix\CoreBundle\Entity\Customer\Customer;
 use Civix\CoreBundle\Entity\Customer\CustomerGroup;
-use Civix\CoreBundle\Entity\Group;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Faker\Factory;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class LoadCustomerGroupData extends AbstractFixture implements ContainerAwareInterface, DependentFixtureInterface
+class LoadCustomerGroupData extends AbstractFixture implements DependentFixtureInterface
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    /** @var ObjectManager */
-    private $manager;
-
-    public function setContainer(ContainerInterface $container = null)
-    {
-        $this->container = $container;
-    }
-
     public function load(ObjectManager $manager)
     {
-        $this->manager = $manager;
+        $group1 = $this->getReference('group_1');
+        $group2 = $this->getReference('group_2');
+        $group3 = $this->getReference('group_3');
+        $group4 = $this->getReference('group_4');
 
-        $this->createCustomer(
-            $this->getReference('group'), 
-            Customer::ACCOUNT_TYPE_BUSINESS
-        );
-        $this->createCustomer(
-            $this->getReference('testfollowsecretgroups'), 
-            Customer::ACCOUNT_TYPE_PERSONAL
-        );
-        $this->createCustomer(
-            $this->getReference('testfollowprivategroups'), 
-            Customer::ACCOUNT_TYPE_PERSONAL
-        );
-    }
+        $customer = $this->createCustomer($group1, Customer::ACCOUNT_TYPE_BUSINESS);
+        $manager->persist($customer);
+        $this->addReference('customer_1', $customer);
 
-    public function getDependencies()
-    {
-        return [LoadGroupFollowerTestData::class];
+        $customer = $this->createCustomer($group2, Customer::ACCOUNT_TYPE_PERSONAL);
+        $manager->persist($customer);
+        $this->addReference('customer_2', $customer);
+
+        $customer = $this->createCustomer($group3, Customer::ACCOUNT_TYPE_PERSONAL);
+        $manager->persist($customer);
+        $this->addReference('customer_3', $customer);
+
+        $customer = $this->createCustomer($group4, Customer::ACCOUNT_TYPE_BUSINESS);
+        $manager->persist($customer);
+        $this->addReference('customer_4', $customer);
+
+        $manager->flush();
     }
 
     /**
@@ -63,9 +50,11 @@ class LoadCustomerGroupData extends AbstractFixture implements ContainerAwareInt
         $customer->setAccountType($accountType);
         $customer->setUser($group);
 
-        $this->manager->persist($customer);
-        $this->manager->flush();
-
         return $customer;
+    }
+
+    public function getDependencies()
+    {
+        return [LoadGroupData::class];
     }
 }
