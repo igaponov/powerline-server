@@ -49,9 +49,9 @@ class GroupController extends BaseController
      *
      * @ApiDoc(
      *     https = true,
-     *     authentication = false,
+     *     authentication = true,
      *     resource=true,
-     *     section="Group",
+     *     section="Groups",
      *     description="Checks if the current user is group owner for a group given",
      *     views = { "default"},
      *     output = "",
@@ -126,9 +126,9 @@ class GroupController extends BaseController
      *
      * @ApiDoc(
      * 	   https = true,
-     *     authentication = false,
+     *     authentication = true,
      *     resource=true,
-     *     section="Group",
+     *     section="Groups",
      *     description="Checks if the current user is group member for a group given.",
      *     views = { "default"},
      *     output = "",
@@ -204,9 +204,9 @@ class GroupController extends BaseController
      *
      * @ApiDoc(
      * 	   https = true,
-     *     authentication = false,
+     *     authentication = true,
      *     resource=true,
-     *     section="Group",
+     *     section="Groups",
      *     description="Checks if the current user is group manager for a group given.",
      *     views = { "default"},
      *     output = "",
@@ -267,7 +267,7 @@ class GroupController extends BaseController
      * @Method("GET")
      * 
      * @ApiDoc(
-     *     section="Group",
+     *     section="Groups",
      *     description="Returns groups",
      *     deprecated=true
      * )
@@ -342,7 +342,7 @@ class GroupController extends BaseController
      * @ApiDoc(
      *     authentication = true,
      *     description="Return user's groups",
-     *     section="Group",
+     *     section="Groups",
      *     output={
      *          "class" = "array<Civix\CoreBundle\Entity\UserGroup>",
      *          "groups" = {"api-groups"}
@@ -384,8 +384,7 @@ class GroupController extends BaseController
      * @ApiDoc(
      * 	   https = true,
      *     authentication = false,
-     *     resource=true,
-     *     section="Group",
+     *     section="Groups",
      *     description="Fetch the groups more popular for the current user",
      *     views = { "default"},
      *     output = "",
@@ -451,8 +450,7 @@ class GroupController extends BaseController
      * @ApiDoc(
      * 	   https = true,
      *     authentication = false,
-     *     resource=true,
-     *     section="Group",
+     *     section="Groups",
      *     description="Fetch the groups with news for the current user",
      *     views = { "default"},
      *     output = "",
@@ -518,7 +516,7 @@ class GroupController extends BaseController
      * 	   https = true,
      *     authentication = false,
      *     resource=true,
-     *     section="Group",
+     *     section="Groups",
      *     description="oin a group member as group manager for a group",
      *     views = { "default"},
      *     output = "",
@@ -736,7 +734,7 @@ class GroupController extends BaseController
      * @ParamConverter("group", class="CivixCoreBundle:Group")
      * 
      * @ApiDoc(
-     *     section="Group",
+     *     section="Groups",
      *     description="Returns group information",
      *     deprecated=true
      * )
@@ -767,7 +765,7 @@ class GroupController extends BaseController
      * @ApiDoc(
      *     authentication=true,
      *     resource=true,
-     *     section="Group",
+     *     section="Groups",
      *     description="List of invites",
      *     output="ArrayCollection<Civix\CoreBundle\Entity\Group>",
      *     statusCodes={
@@ -831,6 +829,7 @@ class GroupController extends BaseController
 
     /**
      * Returns list of required fields from group
+     * Deprecated, use `GET /api/v2/groups/{group}/fields` instead
      *
      * @Route(
      *     "/{group}/fields",
@@ -841,8 +840,7 @@ class GroupController extends BaseController
      *
      * @ApiDoc(
      *     authentication=true,
-     *     resource=true,
-     *     section="Group",
+     *     section="Groups",
      *     description="List of required fields from group",
      *     output="ArrayCollection<Civix\CoreBundle\Entity\Group\GroupField>",
      *     statusCodes={
@@ -850,6 +848,7 @@ class GroupController extends BaseController
      *         401="Authorization required",
      *         405="Method Not Allowed"
      *     },
+     *     deprecated=true
      * )
      *
      * @View(serializerGroups={"api-groups-fields"})
@@ -876,8 +875,7 @@ class GroupController extends BaseController
      *
      * @ApiDoc(
      *     authentication=true,
-     *     resource=true,
-     *     section="Group",
+     *     section="Groups",
      *     description="List of users from group",
      *     filters={
      *             {"name"="limit", "dataType"="integer"},

@@ -64,6 +64,7 @@
         </service>
 
         <service class="Civix\ApiBundle\Security\Authorization\Voter\GroupVoter" id="civix_api.security_authorization_voter.group_voter">
+            <argument id="civix_core.subscription_manager" type="service"/>
             <tag name="security.voter"/>
         </service>
 

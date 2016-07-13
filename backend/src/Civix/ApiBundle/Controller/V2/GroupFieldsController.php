@@ -33,10 +33,12 @@ class GroupFieldsController extends FOSRestController
      *     input="Civix\ApiBundle\Form\Type\Group\GroupFieldType",
      *     output={
      *          "class" = "Civix\CoreBundle\Entity\Group\GroupField",
-     *          "groups" = {"api-group-field"}
+     *          "groups" = {"api-group-field"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
      *     },
      *     statusCodes={
-     *         200="Success",
      *         400="Bad Request",
      *         403="Access Denied",
      *         404="Group Field Not Found",

@@ -43,7 +43,6 @@ class UserGroupController extends FOSRestController
      *     output = "Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination",
      *     description="Return user's groups",
      *     statusCodes={
-     *          200="Returned when successful",
      *          405="Method Not Allowed"
      *     }
      * )
@@ -72,21 +71,21 @@ class UserGroupController extends FOSRestController
      *
      * @ApiDoc(
      *     authentication=true,
-     *     resource=true,
      *     section="Groups",
      *     description="Create a group",
      *     input="Civix\ApiBundle\Form\Type\GroupType",
-     *     output = {
-     *          "class" = "Civix\CoreBundle\Entity\Group",
-     *          "groups" = {"api-info"},
-     *          "parsers" = {
-     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
-     *          }
-     *     },
      *     statusCodes={
-     *         201="Returns a new group",
      *         400="Bad Request",
      *         405="Method Not Allowed"
+     *     },
+     *     responseMap={
+     *          201 = {
+     *              "class" = "Civix\CoreBundle\Entity\Group",
+     *              "groups" = {"api-info"},
+     *              "parsers" = {
+     *                  "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *              }
+     *          }
      *     }
      * )
      *
@@ -122,7 +121,6 @@ class UserGroupController extends FOSRestController
      *
      * @ApiDoc(
      *     authentication=true,
-     *     resource=true,
      *     section="Groups",
      *     description="Join a group",
      *     statusCodes={
@@ -155,7 +153,6 @@ class UserGroupController extends FOSRestController
      *
      * @ApiDoc(
      *     authentication=true,
-     *     resource=true,
      *     section="Groups",
      *     description="Unjoin a group",
      *     statusCodes={
