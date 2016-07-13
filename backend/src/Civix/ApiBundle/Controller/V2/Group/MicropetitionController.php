@@ -1,26 +1,26 @@
 <?php
 
-namespace Civix\ApiBundle\Controller\Group;
+namespace Civix\ApiBundle\Controller\V2\Group;
 
 use Civix\ApiBundle\Form\Type\MicropetitionConfigType;
 use Civix\CoreBundle\Entity\Group;
 use FOS\RestBundle\Controller\Annotations\View;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
- * @Route("/micro-petitions")
+ * @Route("/groups/{group}/micro-petitions-config")
  */
 class MicropetitionController extends Controller
 {
     /**
-     * Return micropetitions's config
+     * Return micropetition's config
      *
-     * @Route("/config", name="civix_get_micropetition_config")
+     * @Route("")
      * @Method("GET")
      *
      * @ApiDoc(
@@ -34,17 +34,19 @@ class MicropetitionController extends Controller
      *
      * @View(serializerGroups={"micropetition-config"})
      *
+     * @param Group $group
+     *
      * @return Group
      */
-    public function getConfigAction()
+    public function getConfigAction(Group $group)
     {
-        return $this->getUser();
+        return $group;
     }
-    
+
     /**
-     * Update micropetitions's config
+     * Update micropetition's config
      *
-     * @Route("/config", name="civix_put_micropetition_config")
+     * @Route("")
      * @Method("PUT")
      *
      * @ApiDoc(
@@ -60,27 +62,28 @@ class MicropetitionController extends Controller
      * @View(serializerGroups={"micropetition-config"})
      *
      * @param Request $request
-     * @return \Symfony\Component\Form\Form
+     * @param Group $group
+     *
+     * @return Group|\Symfony\Component\Form\Form
      */
-    public function putConfigAction(Request $request)
+    public function putConfigAction(Request $request, Group $group)
     {
         if (!$this->isAvailableChangeConfig()) {
             throw new AccessDeniedException();
         }
 
-        $entityManager = $this->getDoctrine()->getManager();
-        $currentGroup = $this->getUser();
 
-        $form = $this->createForm(new MicropetitionConfigType(), $currentGroup, [
+        $form = $this->createForm(new MicropetitionConfigType(), $group, [
             'validation_groups' => ['micropetition-config'],
         ]);
         $form->submit($request);
 
         if ($form->isValid()) {
-            $entityManager->persist($currentGroup);
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($group);
             $entityManager->flush();
 
-            return $currentGroup;
+            return $group;
         }
 
         return $form;
