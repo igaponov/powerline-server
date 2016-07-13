@@ -19,16 +19,20 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 class ProfileController extends BaseController
 {
     /**
+     * Deprecated, use `GET /api/v2/user` instead
+     *
      * @Route("", name="api_profile_index")
      * @Method("GET")
+     *
      * @ApiDoc(
-     *     resource=true,
+     *     section="Users",
      *     description="Profile",
      *     statusCodes={
      *         200="Returns profile info",
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      */
     public function indexAction(Request $request)
