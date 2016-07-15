@@ -22,12 +22,6 @@ civix_api_leader:
     prefix:   /api-leader
     defaults: { _format: 'json' }
 
-civix_api_group:
-    resource: "@CivixApiBundle/Controller/Group/"
-    type:     annotation
-    prefix:   /api/group
-    defaults: { _format: 'json' }
-
 civix_front_default:
     resource: "@CivixFrontBundle/Controller/DefaultController.php"
     type: annotation

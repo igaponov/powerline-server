@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Security\Authorization\Voter;
 
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\UserInterface;
+use Civix\CoreBundle\Service\Subscription\PackageHandler;
 use Civix\CoreBundle\Service\Subscription\SubscriptionManager;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -38,14 +39,27 @@ class GroupVoter implements VoterInterface
      * Group managers (check subscription plan)
      */
     const MEMBERSHIP = 'membership';
+
+    /**
+     * Group managers (check package limits)
+     */
+    const MICROPETITION_CONFIG = 'micropetition_config';
+
     /**
      * @var SubscriptionManager
      */
     private $subscriptionManager;
+    /**
+     * @var PackageHandler
+     */
+    private $packageHandler;
 
-    public function __construct(SubscriptionManager $subscriptionManager)
-    {
+    public function __construct(
+        SubscriptionManager $subscriptionManager,
+        PackageHandler $packageHandler
+    ) {
         $this->subscriptionManager = $subscriptionManager;
+        $this->packageHandler = $packageHandler;
     }
 
     /**
@@ -64,6 +78,7 @@ class GroupVoter implements VoterInterface
             self::MANAGE,
             self::MEMBER,
             self::VIEW,
+            self::MICROPETITION_CONFIG,
         ]);
     }
 
@@ -128,12 +143,16 @@ class GroupVoter implements VoterInterface
             && !$this->subscriptionManager->getSubscription($object)->isNotFree()
         ) {
             return VoterInterface::ACCESS_DENIED;
+        } elseif ($attribute === self::MICROPETITION_CONFIG
+            && !$this->packageHandler->getPackageStateForMicropetition($object)->isAllowed()
+        ) {
+            return VoterInterface::ACCESS_DENIED;
         }
 
         $roleHierarchy = new RoleHierarchy([
             self::EDIT => [self::ASSIGN],
             self::ASSIGN => [self::MANAGE],
-            self::MANAGE => [self::MEMBER, self::MEMBERSHIP],
+            self::MANAGE => [self::MEMBER, self::MEMBERSHIP, self::MICROPETITION_CONFIG],
             self::MEMBER => [self::VIEW],
         ]);
 
