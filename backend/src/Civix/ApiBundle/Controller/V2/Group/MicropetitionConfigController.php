@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle\Controller\V2\Group;
 
+use Civix\ApiBundle\Configuration\SecureParam;
 use Civix\ApiBundle\Form\Type\MicropetitionConfigType;
 use Civix\CoreBundle\Entity\Group;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -10,12 +11,11 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * @Route("/groups/{group}/micro-petitions-config")
  */
-class MicropetitionController extends Controller
+class MicropetitionConfigController extends Controller
 {
     /**
      * Return micropetition's config
@@ -23,12 +23,22 @@ class MicropetitionController extends Controller
      * @Route("")
      * @Method("GET")
      *
+     * @SecureParam("group", permission="view")
+     *
      * @ApiDoc(
-     *     section="User Management",
+     *     authentication=true,
+     *     section="Groups",
      *     description="Return micropetitions's config",
      *     output={
      *          "class" = "Civix\CoreBundle\Entity\Group",
-     *          "groups" = {"micropetition-config"}
+     *          "groups" = {"micropetition-config"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
+     *     },
+     *     statusCodes={
+     *         403="Access Denied",
+     *         405="Method Not Allowed"
      *     }
      * )
      *
@@ -49,13 +59,24 @@ class MicropetitionController extends Controller
      * @Route("")
      * @Method("PUT")
      *
+     * @SecureParam("group", permission="micropetition_config")
+     *
      * @ApiDoc(
-     *     section="User Management",
+     *     authentication=true,
+     *     section="Groups",
      *     description="Update micropetitions's config",
      *     input="Civix\ApiBundle\Form\Type\MicropetitionConfigType",
      *     output={
      *          "class" = "Civix\CoreBundle\Entity\Group",
-     *          "groups" = {"micropetition-config"}
+     *          "groups" = {"micropetition-config"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
+     *     },
+     *     statusCodes={
+     *         400="Bad Request",
+     *         403="Access Denied",
+     *         405="Method Not Allowed"
      *     }
      * )
      *
@@ -68,11 +89,6 @@ class MicropetitionController extends Controller
      */
     public function putConfigAction(Request $request, Group $group)
     {
-        if (!$this->isAvailableChangeConfig()) {
-            throw new AccessDeniedException();
-        }
-
-
         $form = $this->createForm(new MicropetitionConfigType(), $group, [
             'validation_groups' => ['micropetition-config'],
         ]);
@@ -87,13 +103,5 @@ class MicropetitionController extends Controller
         }
 
         return $form;
-    }
-
-    protected function isAvailableChangeConfig()
-    {
-        $packLimitState = $this->get('civix_core.package_handler')
-            ->getPackageStateForMicropetition($this->getUser());
-
-        return $packLimitState->isAllowed();
     }
 }
