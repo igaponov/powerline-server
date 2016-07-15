@@ -88,7 +88,7 @@ class GroupController extends FOSRestController
      *     description="Returns a group",
      *     output = {
      *          "class" = "Civix\CoreBundle\Entity\Group",
-     *          "groups" = {"api-info"},
+     *          "groups" = {"api-info", "api-full-info"},
      *          "parsers" = {
      *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
      *          }
@@ -98,7 +98,7 @@ class GroupController extends FOSRestController
      *     }
      * )
      *
-     * @View(serializerGroups={"api-info"})
+     * @View(serializerGroups={"api-info", "api-full-info"})
      *
      * @param Group $group
      *

@@ -173,28 +173,6 @@ class GroupRepository extends EntityRepository
 
     /**
      * 
-     * @param Group $group
-     * @return unknown
-     */
-    public function getTotalMembers(Group $group)
-    {
-        $count = $this->getEntityManager()
-                ->createQuery('
-                    SELECT COUNT(u)
-                    FROM CivixCoreBundle:Group g
-                    LEFT JOIN g.users u
-                    WHERE g.id = :id
-                ')
-            ->setParameter('id', $group->getId())
-            ->getSingleScalarResult();
-
-        $group->setTotalMembers((int) $count);
-
-        return $count;
-    }
-
-    /**
-     * 
      * @param unknown $id
      * @param unknown $type
      */

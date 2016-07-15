@@ -326,9 +326,6 @@ class GroupController extends BaseController
             ->joinToGroup($this->getUser(), $group);
         $em->flush();
 
-        $em->getRepository(Group::class)
-            ->getTotalMembers($group);
-
         return $this->createJSONResponse($this->jmsSerialization($group, ['api-info']), 201);
     }
 
@@ -746,9 +743,6 @@ class GroupController extends BaseController
         if (!$group) {
             throw $this->createNotFoundException();
         }
-
-        $count = $entityManager->getRepository(Group::class)
-                ->getTotalMembers($group);
 
         $response = new Response($this->jmsSerialization($group, ['api-info']));
         $response->headers->set('Content-Type', 'application/json');

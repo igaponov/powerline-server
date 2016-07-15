@@ -128,13 +128,14 @@ class GroupControllerTest extends WebTestCase
 
 	public function testGetGroupIsOk()
 	{
-		$group = $this->repository->getReference('group');
+		$group = $this->repository->getReference('testfollowprivategroups');
 		$client = $this->client;
 		$client->request('GET', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']);
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
 		$this->assertSame($group->getId(), $data['id']);
+        $this->assertSame(4, $data['total_members']);
 	}
 
 	public function testUpdateGroupWithErrors()
