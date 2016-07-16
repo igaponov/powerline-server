@@ -6,7 +6,7 @@ before_script:
   - echo "memory_limit=4096M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   - cd backend
   - cp app/config/parameters.travis.yml app/config/parameters.yml
-  - composer install --ignore-platform-reqs --no-interaction --prefer-source
+  - composer install --ignore-platform-reqs --no-interaction --prefer-dist
   - php app/console doctrine:database:create --env=test
   - php app/console doctrine:schema:create --env=test
 script:
