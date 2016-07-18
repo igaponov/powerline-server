@@ -375,7 +375,7 @@ class User implements UserInterface, \Serializable
      *
      * @ORM\Column(name="bio", type="text", nullable=true)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-profile"})
+     * @Serializer\Groups({"api-profile", "api-info", "api-full-info"})
      */
     private $bio;
 
@@ -384,7 +384,7 @@ class User implements UserInterface, \Serializable
      *
      * @ORM\Column(name="slogan", type="text", nullable=true)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-profile"})
+     * @Serializer\Groups({"api-profile", "api-info", "api-full-info"})
      */
     private $slogan;
 

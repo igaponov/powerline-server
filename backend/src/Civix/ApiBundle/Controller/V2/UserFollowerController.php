@@ -68,6 +68,39 @@ class UserFollowerController extends FOSRestController
     }
 
     /**
+     * Profile of follower of the authenticated user
+     *
+     * @Route("/{id}")
+     * @Method("GET")
+     *
+     * @ApiDoc(
+     *     authentication = true,
+     *     resource=true,
+     *     section="Users",
+     *     output = {
+     *          "class" = "Civix\CoreBundle\Entity\User",
+     *          "groups" = {"api-profile"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
+     *     },
+     *     description="Authenticated user's profile",
+     *     statusCodes={
+     *         401="Authorization required",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @View(serializerGroups={"api-profile"})
+     *
+     * @return User
+     */
+    public function getAction()
+    {
+        return $this->getUser();
+    }
+
+    /**
      * Follow a user
      *
      * @Route("/{id}", requirements={"id"="\d+"})

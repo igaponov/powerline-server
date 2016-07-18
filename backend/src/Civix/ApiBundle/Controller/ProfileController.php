@@ -46,17 +46,20 @@ class ProfileController extends BaseController
     }
 
     /**
+     * Deprecated, use `GET /api/v2/users/{id}` instead
+     *
      * @Route("/info/{user}", requirements={"user"="\d+"}, name="api_profile_information")
      * @Method("GET")
      * @ParamConverter("user", class="CivixCoreBundle:User")
      * @ApiDoc(
-     *     resource=true,
+     *     section="Users",
      *     description="Get information on user",
      *     statusCodes={
      *         200="Get information on user",
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      */
     public function getInformationAction(Request $request, User $user)
