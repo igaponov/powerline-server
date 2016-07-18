@@ -16,4 +16,17 @@ class MicroPetitionTest extends \PHPUnit_Framework_TestCase
         $microPetition->setPetition($petition);
         $this->assertInstanceOf(Metadata::class, $microPetition->getMetadata());
     }
+
+    public function testGetEntity()
+    {
+        $microPetition = new MicroPetition();
+        $petition = new \Civix\CoreBundle\Entity\Micropetitions\Petition();
+        $petition->setType(\Civix\CoreBundle\Entity\Micropetitions\Petition::TYPE_LONG_PETITION);
+        $microPetition->setPetition($petition);
+        $this->assertEquals([
+            'type' => 'micro-petition:long-petition',
+            'id' => null,
+            'group_id' => null,
+        ], $microPetition->getEntity());
+    }
 }

@@ -751,7 +751,7 @@ class Petition
     }
 
     /**
-     * @param object $metadata
+     * @param Metadata $metadata
      * @return Petition
      */
     public function setMetadata(Metadata $metadata)
@@ -762,7 +762,7 @@ class Petition
     }
 
     /**
-     * @return object
+     * @return Metadata
      */
     public function getMetadata()
     {
