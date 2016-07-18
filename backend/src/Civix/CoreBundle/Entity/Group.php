@@ -295,7 +295,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     /**
      * Group members
      * 
-     * @ORM\OneToMany(targetEntity="UserGroup", mappedBy="group")
+     * @ORM\OneToMany(targetEntity="UserGroup", mappedBy="group", fetch="EXTRA_LAZY")
      */
     private $users;
     
@@ -323,12 +323,6 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      * @Serializer\Accessor(getter="getPicture")
      */
     protected $picture;
-
-    /**
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-info"})
-     */
-    protected $totalMembers = 0;
 
     /**
      * @var \DateTime
@@ -645,17 +639,13 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     }
 
     /**
-     * Set totalMembers.
-     *
-     * @param int $count
-     *
-     * @return Group
+     * @Serializer\VirtualProperty()
+     * @Serializer\Type("integer")
+     * @Serializer\Groups({"api-full-info"})
      */
-    public function setTotalMembers($count)
+    public function getTotalMembers()
     {
-        $this->totalMembers = $count;
-
-        return $this;
+        return $this->users->count();
     }
 
     /**

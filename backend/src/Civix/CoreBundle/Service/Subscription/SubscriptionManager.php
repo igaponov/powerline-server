@@ -91,7 +91,7 @@ class SubscriptionManager
 
         $memberCount = 0;
         if ($subscription->getGroup()) {
-            $memberCount = $this->em->getRepository(Group::class)->getTotalMembers($subscription->getGroup());
+            $memberCount = $subscription->getGroup()->getTotalMembers();
         }
 
         return [
