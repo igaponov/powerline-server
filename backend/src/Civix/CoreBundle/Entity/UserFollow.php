@@ -250,4 +250,12 @@ class UserFollow
         
         return $this;
     }
+
+    /**
+     * @return bool
+     */
+    public function isActive()
+    {
+        return $this->getStatus() == self::STATUS_ACTIVE;
+    }
 }
