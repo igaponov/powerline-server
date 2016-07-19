@@ -28,42 +28,48 @@ class LoadMicropetitionAnswerData extends AbstractFixture implements DependentFi
         $petition1 = $this->getReference('micropetition_1');
         $petition5 = $this->getReference('micropetition_5');
 
-        $answer = new Answer();
-        $answer->setUser($user);
-        $answer->setPetition($petition1);
-        $answer->setOptionId(Petition::OPTION_ID_UPVOTE);
-        $answer->setCreatedAt(new \DateTime('-2 months'));
-        $manager->persist($answer);
+        $answer1 = new Answer();
+        $answer1->setUser($user);
+        $answer1->setPetition($petition1);
+        $answer1->setOptionId(Petition::OPTION_ID_UPVOTE);
+        $answer1->setCreatedAt(new \DateTime('-2 months'));
+        $manager->persist($answer1);
 
-        $answer = new Answer();
-        $answer->setUser($user2);
-        $answer->setPetition($petition1);
-        $answer->setOptionId(Petition::OPTION_ID_DOWNVOTE);
-        $answer->setCreatedAt(new \DateTime('-3 months'));
-        $manager->persist($answer);
+        $answer2 = new Answer();
+        $answer2->setUser($user2);
+        $answer2->setPetition($petition1);
+        $answer2->setOptionId(Petition::OPTION_ID_DOWNVOTE);
+        $answer2->setCreatedAt(new \DateTime('-3 months'));
+        $manager->persist($answer2);
 
-        $answer = new Answer();
-        $answer->setUser($user3);
-        $answer->setPetition($petition1);
-        $answer->setOptionId(Petition::OPTION_ID_IGNORE);
-        $answer->setCreatedAt(new \DateTime('-1 month'));
-        $manager->persist($answer);
+        $answer3 = new Answer();
+        $answer3->setUser($user3);
+        $answer3->setPetition($petition1);
+        $answer3->setOptionId(Petition::OPTION_ID_IGNORE);
+        $answer3->setCreatedAt(new \DateTime('-1 month'));
+        $manager->persist($answer3);
 
-        $answer = new Answer();
-        $answer->setUser($user1);
-        $answer->setPetition($petition5);
-        $answer->setOptionId(Petition::OPTION_ID_UPVOTE);
-        $answer->setCreatedAt(new \DateTime('-1 month'));
-        $manager->persist($answer);
+        $answer4 = new Answer();
+        $answer4->setUser($user1);
+        $answer4->setPetition($petition5);
+        $answer4->setOptionId(Petition::OPTION_ID_UPVOTE);
+        $answer4->setCreatedAt(new \DateTime('-1 month'));
+        $manager->persist($answer4);
 
-        $answer = new Answer();
-        $answer->setUser($user2);
-        $answer->setPetition($petition5);
-        $answer->setOptionId(Petition::OPTION_ID_UPVOTE);
-        $answer->setCreatedAt(new \DateTime('-2 month'));
-        $manager->persist($answer);
+        $answer5 = new Answer();
+        $answer5->setUser($user2);
+        $answer5->setPetition($petition5);
+        $answer5->setOptionId(Petition::OPTION_ID_UPVOTE);
+        $answer5->setCreatedAt(new \DateTime('-2 month'));
+        $manager->persist($answer5);
 
         $manager->flush();
+
+        $this->addReference('micropetition_answer_1', $answer1);
+        $this->addReference('micropetition_answer_2', $answer2);
+        $this->addReference('micropetition_answer_3', $answer3);
+        $this->addReference('micropetition_answer_4', $answer4);
+        $this->addReference('micropetition_answer_5', $answer5);
     }
 
     public function getDependencies()
