@@ -3,11 +3,10 @@ namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
 use Civix\CoreBundle\Entity\Content\Post;
 use Doctrine\Common\DataFixtures\AbstractFixture;
-use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Faker\Factory;
 
-class LoadPostData extends AbstractFixture implements DependentFixtureInterface
+class LoadPostData extends AbstractFixture
 {
     /** @var ObjectManager */
     private $manager;
@@ -35,16 +34,5 @@ class LoadPostData extends AbstractFixture implements DependentFixtureInterface
         $this->manager->flush();
 
         return $post;
-    }
-
-    /**
-     * This method must return an array of fixtures classes
-     * on which the implementing class depends on
-     *
-     * @return array
-     */
-    function getDependencies()
-    {
-        return [];
     }
 }

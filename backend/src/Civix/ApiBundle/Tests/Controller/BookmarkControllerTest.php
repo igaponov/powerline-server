@@ -63,7 +63,7 @@ class BookmarkControllerTest extends WebTestCase
         /** @var AbstractExecutor $fixtures */
         $fixtures = $this->loadFixtures([LoadUserData::class,
             LoadMicropetitionData::class,
-            LoadMicropetitionAnswerData::Class,
+            LoadMicropetitionAnswerData::class,
             LoadMicropetitionCommentData::class,
             LoadGroupQuestionData::class,
             LoadQuestionAnswerData::class,
@@ -138,7 +138,7 @@ class BookmarkControllerTest extends WebTestCase
             $repo->save(Bookmark::TYPE_POLL_COMMENT, $this->user, $item->getId());
 
         foreach ($this->posts as $item)
-            $repo->save(Bookmark::TYPE_POLL_COMMENT, $this->user, $item->getId());
+            $repo->save(Bookmark::TYPE_POST, $this->user, $item->getId());
 
         if (empty($this->userToken))
             $this->userToken = $this->getLoginToken($this->user);

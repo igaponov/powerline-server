@@ -2,7 +2,6 @@
 
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
-use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Micropetitions\Answer;
 use Civix\CoreBundle\Entity\Micropetitions\Petition;
 use Doctrine\Common\DataFixtures\AbstractFixture;
