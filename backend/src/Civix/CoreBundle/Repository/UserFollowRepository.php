@@ -111,15 +111,15 @@ class UserFollowRepository extends EntityRepository
     {
         return $this->getEntityManager()
             ->getConnection()
-            ->query('
+            ->executeQuery('
                 INSERT INTO users_follow(user_id, follower_id, date_create, status) 
                 SELECT ug.user_id, :user, current_timestamp, :status FROM users_groups ug 
                 LEFT JOIN users_follow uf ON uf.user_id = ug.user_id
-                WHERE ug.group_id = :group AND uf.id IS NULL')
-            ->execute([
-                ':user' => $user->getId(),
-                ':status' => UserFollow::STATUS_PENDING,
-                ':group' => $group->getId(),
-            ]);
+                WHERE ug.group_id = :group AND uf.id IS NULL', [
+                    ':user' => $user->getId(),
+                    ':status' => UserFollow::STATUS_PENDING,
+                    ':group' => $group->getId(),
+                ]
+            )->execute();
     }
 }
