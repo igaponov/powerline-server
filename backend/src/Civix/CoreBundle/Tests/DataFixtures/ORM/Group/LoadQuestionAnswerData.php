@@ -47,9 +47,12 @@ class LoadQuestionAnswerData extends AbstractFixture implements ContainerAwareIn
                 $this->getReference('group_question_1')
             )
         );
-        $this->createAnswer(
-            $this->getReference('user_4'),
-            $this->getReference('group_question_1')
+        $this->addReference(
+            'question_answer_3',
+            $this->createAnswer(
+                $this->getReference('user_4'),
+                $this->getReference('group_question_1')
+            )
         );
         $this->addReference(
             'question_answer_4',
@@ -72,7 +75,7 @@ class LoadQuestionAnswerData extends AbstractFixture implements ContainerAwareIn
     /**
      * @param object|User $user
      * @param object|Question $question
-     * @return CustomerGroup
+     * @return Answer
      */
     private function createAnswer($user, $question)
     {
