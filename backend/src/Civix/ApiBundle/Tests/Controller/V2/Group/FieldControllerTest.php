@@ -154,7 +154,7 @@ class FieldControllerTest extends WebTestCase
     {
         return [
             'member' => ['user4', 'group_1'],
-            'outlier' => ['user1', 'group_2'],
+            'outlier' => ['user4', 'group_2'],
         ];
     }
 

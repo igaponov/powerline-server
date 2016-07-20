@@ -13,6 +13,8 @@ class LoadUserGroupData extends AbstractFixture implements DependentFixtureInter
 {
     public function load(ObjectManager $manager)
     {
+        /** @var User $user1 */
+        $user1 = $this->getReference('user_1');
         /** @var User $user3 */
         $user3 = $this->getReference('user_3');
         /** @var User $user4 */
@@ -20,6 +22,8 @@ class LoadUserGroupData extends AbstractFixture implements DependentFixtureInter
 
         /** @var Group $group1 */
         $group1 = $this->getReference('group_1');
+        /** @var Group $group2 */
+        $group2 = $this->getReference('group_2');
         /** @var Group $group3 */
         $group3 = $this->getReference('group_3');
         /** @var Group $group4 */
@@ -32,6 +36,9 @@ class LoadUserGroupData extends AbstractFixture implements DependentFixtureInter
         $manager->persist($userGroup);
 
         $userGroup = new UserGroup($user3, $group4);
+        $manager->persist($userGroup);
+
+        $userGroup = new UserGroup($user1, $group2);
         $manager->persist($userGroup);
 
         $manager->flush();
