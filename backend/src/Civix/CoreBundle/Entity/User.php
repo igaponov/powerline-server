@@ -611,6 +611,20 @@ class User implements UserInterface, \Serializable
      */
     private $subscriptions;
 
+    /**
+     * @var UserGroupManager[]|ArrayCollection
+     *
+     * @ORM\OneToMany(targetEntity="UserGroupManager", mappedBy="user", fetch="EXTRA_LAZY")
+     */
+    private $managedGroups;
+
+    /**
+     * @var Group[]|ArrayCollection
+     *
+     * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\Group", mappedBy="owner", cascade={"remove", "persist"}, fetch="EXTRA_LAZY")
+     */
+    private $ownedGroups;
+
     public function __construct()
     {
         $this->salt = base_convert(sha1(uniqid(mt_rand(), true)), 16, 36);
@@ -2366,5 +2380,21 @@ class User implements UserInterface, \Serializable
     public function getSubscriptions()
     {
         return $this->subscriptions;
+    }
+
+    /**
+     * @return UserGroupManager[]
+     */
+    public function getManagedGroups()
+    {
+        return $this->managedGroups;
+    }
+
+    /**
+     * @return Group[]
+     */
+    public function getOwnedGroups()
+    {
+        return $this->ownedGroups;
     }
 }

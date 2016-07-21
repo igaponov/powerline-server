@@ -554,4 +554,24 @@ class UserRepository extends EntityRepository
             ->orderBy('u.id', 'ASC')
             ->getQuery();
     }
+
+    public function findForInviteByGroupUsername(Group $group, $userNames)
+    {
+        $qb = $this->createQueryBuilder('u');
+        $query = $qb
+            ->select('u')
+            ->leftJoin('u.managedGroups', 'mg', Query\Expr\Join::WITH, 'mg.group = :group')
+            ->leftJoin('u.ownedGroups', 'og', Query\Expr\Join::WITH, 'og = :group')
+            ->leftJoin('u.groups', 'ug', Query\Expr\Join::WITH, 'ug.group = :group')
+            ->leftJoin('u.invites', 'i', Query\Expr\Join::WITH, 'i = :group')
+            ->where($qb->expr()->in('u.username', $userNames))
+            ->andWhere('mg.id IS NULL')
+            ->andWhere('og.id IS NULL')
+            ->andWhere('ug.id IS NULL')
+            ->andWhere('i.id IS NULL')
+            ->setParameter(':group', $group)
+            ->getQuery();
+
+        return $query->getResult();
+    }
 }

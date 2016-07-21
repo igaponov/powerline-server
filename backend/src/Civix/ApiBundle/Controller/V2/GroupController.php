@@ -3,9 +3,11 @@ namespace Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Configuration\SecureParam;
 use Civix\ApiBundle\Form\Type\GroupType;
+use Civix\ApiBundle\Form\Type\InviteType;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
+use Civix\CoreBundle\Service\Group\GroupManager;
 use Doctrine\ORM\EntityManager;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -29,6 +31,12 @@ class GroupController extends FOSRestController
      * @DI\Inject("doctrine.orm.entity_manager")
      */
     private $em;
+
+    /**
+     * @var GroupManager
+     * @DI\Inject("civix_core.group_manager")
+     */
+    private $manager;
 
     /**
      * Returns groups.
@@ -224,13 +232,53 @@ class GroupController extends FOSRestController
      * @View(serializerGroups={"api-info"})
      *
      * @param UserGroup $userGroup
-     *
-     * @return UserGroup
      */
     public function patchUserAction(UserGroup $userGroup)
     {
         $userGroup->setStatus(UserGroup::STATUS_ACTIVE);
         $this->em->persist($userGroup);
         $this->em->flush();
+    }
+
+    /**
+     * @Route("/{id}/users", requirements={"id"="\d+"})
+     * @Method("PUT")
+     *
+     * @SecureParam("group", permission="member")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Groups",
+     *     description="Join a list of users to a group",
+     *     input="Civix\ApiBundle\Form\Type\InviteType",
+     *     statusCodes={
+     *         204="Success",
+     *         400="Bad request",
+     *         403="Access Denied",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Request $request
+     * @param Group $group
+     *
+     * @return null|\Symfony\Component\Form\Form
+     */
+    public function putUsersAction(Request $request, Group $group)
+    {
+        $form = $this->createForm(new InviteType());
+        $form->submit($request);
+
+        if ($form->isValid()) {
+            $this->manager->joinUsersByUsername(
+                $group,
+                $this->getUser(),
+                $form->get('users')->getData()
+            );
+
+            return null;
+        }
+
+        return $form;
     }
 }

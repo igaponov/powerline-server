@@ -50,6 +50,10 @@ class InviteSender
         }
     }
 
+    /**
+     * @param array $invites
+     * @deprecated Use {@link \Civix\CoreBundle\EventListener\PushSenderSubscriber::sendUserToGroupInvites listener} instead
+     */
     public function sendUserToGroupInvites(array $invites)
     {
         /* @var $invite UserToGroup */

@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -29,8 +30,15 @@ class InviteController extends BaseController
     }
 
     /**
+     * Deprecated, use `PUT /api/v2/groups/{id}/users`
+     *
      * @Route("/")
      * @Method("POST")
+     *
+     * @ApiDoc(
+     *     section="Groups",
+     *     deprecated=true
+     * )
      */
     public function createAction(Request $request)
     {

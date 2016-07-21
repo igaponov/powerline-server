@@ -9,6 +9,8 @@ use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
 use Civix\CoreBundle\Event\GroupUserEvent;
+use Civix\CoreBundle\Event\InviteEvent;
+use Civix\CoreBundle\Event\InviteEvents;
 use Civix\CoreBundle\Service\Google\Geocode;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -269,5 +271,26 @@ class GroupManager
         }
         
         return $group;
+    }
+
+    /**
+     * @param Group $group
+     * @param User $inviter
+     * @param string|array $userNames
+     */
+    public function joinUsersByUsername(Group $group, User $inviter, $userNames)
+    {
+        $users = $this->entityManager->getRepository(User::class)
+            ->findForInviteByGroupUsername($group, $userNames);
+        foreach ($users as $user) {
+            $invite = new UserToGroup();
+            $invite->setInviter($inviter);
+            $invite->setUser($user);
+            $invite->setGroup($group);
+            $this->entityManager->persist($invite);
+            $event = new InviteEvent($invite);
+            $this->dispatcher->dispatch(InviteEvents::CREATE, $event);
+        }
+        $this->entityManager->flush();
     }
 }

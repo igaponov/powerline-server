@@ -9,6 +9,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
+use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -268,6 +269,95 @@ class GroupControllerTest extends WebTestCase
         $client->request('PATCH', self::API_ENDPOINT.'/'.$group->getId().'/users/'.$user->getId(), [], [], $headers);
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testPutGroupUsersWithWrongCredentialsThrowsException()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference('group_3');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user1"'];
+        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/users', [], [], $headers);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testPutGroupUsersReturnsErrors()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference('group_1');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user4"'];
+        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/users', [], [], $headers, json_encode(['users' => []]));
+        $response = $client->getResponse();
+        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals([
+            'This value should not be blank.',
+            'This collection should contain 1 element or more.',
+        ], $data['errors']['children']['users']['errors']);
+    }
+
+    public function testInviteJoinedUsersToGroupIsOk()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference('group_1');
+        $user1 = $this->repository->getReference('user_1');
+        $user2 = $this->repository->getReference('user_2');
+        $user3 = $this->repository->getReference('user_3');
+        $user4 = $this->repository->getReference('user_4');
+        $client = $this->client;
+        $service = $this->getServiceMockBuilder('civix_core.push_task')
+            ->setMethods(['addToQueue'])
+            ->getMock();
+        $service->expects($this->never())->method('addToQueue');
+        $client->getContainer()->set('civix_core.push_task', $service);
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user1"'];
+        $params = ['users' => json_encode([
+            $user1->getUsername(),
+            $user2->getUsername(),
+            $user3->getUsername(),
+            $user4->getUsername(),
+        ])];
+        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/users', [], [], $headers, json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('database_connection');
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM invites WHERE group_id = ?', [$group->getId()]);
+        $this->assertEquals(0, $count);
+    }
+
+    public function testInviteUsersToGroupIsOk()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference('group_1');
+        $user2 = $this->repository->getReference('user_2');
+        $user3 = $this->repository->getReference('user_3');
+        $client = $this->client;
+        $service = $this->getServiceMockBuilder('civix_core.push_task')
+            ->setMethods(['addToQueue'])
+            ->getMock();
+        $service->expects($this->exactly(2))->method('addToQueue')->with('sendInvitePush');
+        $client->getContainer()->set('civix_core.push_task', $service);
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user4"'];
+        $params = ['users' => json_encode([$user2->getUsername(), $user3->getUsername()])];
+        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/users', [], [], $headers, json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('database_connection');
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM invites WHERE group_id = ?', [$group->getId()]);
+        $this->assertEquals(2, $count);
     }
 
 	protected function getGroups($username, $params)
