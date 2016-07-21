@@ -32,6 +32,15 @@ class CiceroSynchCommandTest extends WebTestCase
         );
     }
 
+    protected function tearDown()
+    {
+        $this->responseRepresentative = null;
+        $this->responseRepresentativeTitle = null;
+        $this->responseRepresentativeDistrict = null;
+        $this->responseRepresentativeNotFound = null;
+        parent::tearDown();
+    }
+
     /**
      * @group cicero
      * @group cicero-cmd

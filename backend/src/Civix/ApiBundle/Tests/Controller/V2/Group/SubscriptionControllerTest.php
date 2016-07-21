@@ -34,10 +34,10 @@ class SubscriptionControllerTest extends WebTestCase
 
 	public function tearDown()
 	{
-		// Creates a initial client
 		$this->client = NULL;
         $this->stripe = null;
-	}
+        parent::tearDown();
+    }
 
     /**
      * @param $user

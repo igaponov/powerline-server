@@ -48,9 +48,10 @@ class PollControllerTest extends WebTestCase
 
 	public function tearDown()
 	{
-		// Creates a initial client
 		$this->client = NULL;
-	}
+		$this->em = NULL;
+        parent::tearDown();
+    }
 	
 	/**
 	 * group api

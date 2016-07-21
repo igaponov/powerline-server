@@ -47,6 +47,17 @@ class BookmarkRepositoryTest extends WebTestCase
         $this->bookmark4 = $this->repo->save(Bookmark::TYPE_POLL, $this->user, 2);
     }
 
+    protected function tearDown()
+    {
+        $this->user = null;
+        $this->repo = null;
+        $this->bookmark1 = null;
+        $this->bookmark2 = null;
+        $this->bookmark3 = null;
+        $this->bookmark4 = null;
+        parent::tearDown();
+    }
+
     /**
      * @author Habibillah <habibillah@gmail.com>
      */

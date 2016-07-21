@@ -29,6 +29,13 @@ class UserPollAnswerControllerTest extends WebTestCase
         $this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
     }
 
+    protected function tearDown()
+    {
+        $this->client = null;
+        $this->repository = null;
+        parent::tearDown();
+    }
+
     public function testGetPollAnswers()
     {
         $answer = $this->repository->getReference('question_answer_2');

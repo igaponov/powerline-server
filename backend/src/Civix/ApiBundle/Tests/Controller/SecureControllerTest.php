@@ -39,9 +39,9 @@ class SecureControllerTest extends WebTestCase
 
 	public function tearDown()
 	{
-		// Creates a initial client
 		$this->client = NULL;
-	}
+        parent::tearDown();
+    }
 	
 	/**
 	 * @return \PHPUnit_Framework_MockObject_MockObject|EntityManager

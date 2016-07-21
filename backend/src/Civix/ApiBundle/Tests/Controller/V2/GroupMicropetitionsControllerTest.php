@@ -23,8 +23,13 @@ class GroupMicropetitionsControllerTest extends WebTestCase
 
     public function setUp()
     {
-        // Creates a initial client
         $this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
+    }
+
+    protected function tearDown()
+    {
+        $this->client = null;
+        parent::tearDown();
     }
 
     public function testCreateMicropetitionWithErrors()
