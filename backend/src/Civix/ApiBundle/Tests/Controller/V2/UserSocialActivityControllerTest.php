@@ -33,14 +33,14 @@ class UserSocialActivityControllerTest extends WebTestCase
             LoadUserFollowData::class,
             LoadSocialActivityData::class,
         ])->getReferenceRepository();
-        // Creates a initial client
         $this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
     }
 
     public function tearDown()
     {
-        // Creates a initial client
         $this->client = NULL;
+        $this->repository = null;
+        parent::tearDown();
     }
 
     public function testGetSocialActivitiesByRecipientAndFollowingIsOk()

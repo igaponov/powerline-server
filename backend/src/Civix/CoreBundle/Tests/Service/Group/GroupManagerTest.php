@@ -40,6 +40,14 @@ class GroupManagerTest extends WebTestCase
         $this->user = $reference->getReference('testuserbookmark1');
     }
 
+    protected function tearDown()
+    {
+        $this->em = null;
+        $this->container = null;
+        $this->user = null;
+        parent::tearDown();
+    }
+
     /**
      * @author Habibillah <habibillah@gmail.com>
      */

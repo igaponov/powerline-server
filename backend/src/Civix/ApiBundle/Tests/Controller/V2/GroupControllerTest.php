@@ -33,7 +33,6 @@ class GroupControllerTest extends WebTestCase
 
 	public function setUp()
 	{
-		// Creates a initial client
 		$this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
 
 		$this->repository = $this->loadFixtures([
@@ -47,9 +46,11 @@ class GroupControllerTest extends WebTestCase
 
 	public function tearDown()
 	{
-		// Creates a initial client
 		$this->client = NULL;
-	}
+        $this->repository = null;
+        $this->em = null;
+        parent::tearDown();
+    }
 
 	public function testGetGroupsIsOk()
 	{

@@ -25,6 +25,7 @@ class MicropetitionConfigControllerTest extends WebTestCase
 	public function tearDown()
 	{
 		$this->client = NULL;
+        parent::tearDown();
 	}
 
 	public function testGetMicropetitionConfigWithWrongCredentialsThrowsException()

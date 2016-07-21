@@ -33,6 +33,16 @@ class CiceroApiTest extends WebTestCase
         $this->districtObj = new District();
     }
 
+    protected function tearDown()
+    {
+        $this->representativeObj = null;
+        $this->districtObj = null;
+        $this->responseCandidates = null;
+        $this->resultCandidatesDistricts = null;
+        $this->responseRepresentative = null;
+        parent::tearDown();
+    }
+
     /**
      * Test method GetRepresentativeByLocation.
      *

@@ -39,8 +39,9 @@ class AnnouncementControllerTest extends WebTestCase
 
 	public function tearDown()
 	{
-		// Creates a initial client
 		$this->client = NULL;
+        $this->repository = null;
+        parent::tearDown();
 	}
 
 	public function testCreateAnnouncementWithWrongCredentials()

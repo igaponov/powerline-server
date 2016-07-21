@@ -144,6 +144,20 @@ class BookmarkControllerTest extends WebTestCase
             $this->userToken = $this->getLoginToken($this->user);
 	}
 
+    protected function tearDown()
+    {
+        $this->user = null;
+        $this->petitions = null;
+        $this->petitionAnswers = null;
+        $this->petitionComments = null;
+        $this->posts = null;
+        $this->questions = null;
+        $this->questionAnswers = null;
+        $this->questionComments = null;
+        $this->userToken = null;
+        parent::tearDown();
+    }
+
     /**
      * @author Habibillah <habibillah@gmail.com>
      */

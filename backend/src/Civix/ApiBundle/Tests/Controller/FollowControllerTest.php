@@ -62,6 +62,19 @@ class FollowControllerTest extends WebTestCase
 
     }
 
+    protected function tearDown()
+    {
+        $this->em = null;
+        $this->follower = null;
+        $this->followerToken = null;
+        $this->user1 = null;
+        $this->user2 = null;
+        $this->user3 = null;
+        $this->secretGroup = null;
+        $this->privateGroup = null;
+        parent::tearDown();
+    }
+
     /**
      * Test logedin user to follow a user
      * 

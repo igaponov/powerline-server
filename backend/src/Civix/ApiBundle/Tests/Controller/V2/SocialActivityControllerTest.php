@@ -26,7 +26,6 @@ class SocialActivityControllerTest extends WebTestCase
 
 	public function setUp()
 	{
-		// Creates a initial client
 		$this->client = static::createClient();
 
 		$this->repository = $this->loadFixtures([
@@ -38,9 +37,10 @@ class SocialActivityControllerTest extends WebTestCase
 
 	public function tearDown()
 	{
-		// Creates a initial client
 		$this->client = NULL;
-	}
+        $this->repository = null;
+        parent::tearDown();
+    }
 
 	public function testUpdateSocialActivityWithWrongCredentialsReturnsException()
 	{

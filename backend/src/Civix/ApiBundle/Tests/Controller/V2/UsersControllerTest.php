@@ -24,6 +24,7 @@ class UsersControllerTest extends WebTestCase
     public function tearDown()
     {
         $this->client = NULL;
+        parent::tearDown();
     }
 
     public function testGetNotFollowingUserProfileIsOk()

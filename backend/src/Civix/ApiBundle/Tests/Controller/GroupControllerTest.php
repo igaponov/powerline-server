@@ -23,6 +23,12 @@ class GroupControllerTest extends WebTestCase
 	
 	private $client = null;
 
+    private $group;
+
+    private $mobile1;
+
+    private $mobile1_token;
+
 	public function setUp()
 	{
 		// Creates a initial client
@@ -49,9 +55,13 @@ class GroupControllerTest extends WebTestCase
 
 	public function tearDown()
 	{
-		// Creates a initial client
 		$this->client = NULL;
-	}
+        $this->em = null;
+        $this->group = null;
+        $this->mobile1 = null;
+        $this->mobile1_token = null;
+        parent::tearDown();
+    }
 	
 	/**
 	 * group api

@@ -24,9 +24,9 @@ class PermissionSettingsControllerTest extends WebTestCase
 
 	public function tearDown()
 	{
-		// Creates a initial client
 		$this->client = NULL;
-	}
+        parent::tearDown();
+    }
 
 	public function testGetPermissionSettingsWithWrongCredentialsThrowsException()
 	{

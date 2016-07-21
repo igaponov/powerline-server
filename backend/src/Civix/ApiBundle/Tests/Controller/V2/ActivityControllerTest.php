@@ -45,9 +45,11 @@ class ActivityControllerTest extends WebTestCase
 
 	public function tearDown()
 	{
-		// Creates a initial client
 		$this->client = NULL;
-	}
+        $this->repository = null;
+        $this->em = null;
+        parent::tearDown();
+    }
 
 	public function testGetActivitiesNotAuthorized()
 	{
