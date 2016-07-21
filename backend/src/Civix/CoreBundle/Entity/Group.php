@@ -1182,7 +1182,9 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      */
     public function isMember(UserInterface $user)
     {
-    	return $this->getUsers()->contains($user);
+        return $this->users->filter(function (UserGroup $usergroup) use ($user) {
+            return $usergroup->isActive() && $usergroup->getUser()->isEqualTo($user);
+        })->count() > 0;
     }
 
     /**

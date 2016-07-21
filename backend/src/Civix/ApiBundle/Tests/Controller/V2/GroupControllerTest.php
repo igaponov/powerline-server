@@ -4,7 +4,9 @@ namespace Civix\ApiBundle\Tests\Controller\Leader;
 use Civix\CoreBundle\Entity\Group;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
 use Faker\Factory;
@@ -237,6 +239,35 @@ class GroupControllerTest extends WebTestCase
 			);
 		}
 	}
+
+    public function testPatchGroupUserWithWrongCredentialsThrowsException()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference('group_2');
+        $user = $this->repository->getReference('user_1');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user4"'];
+        $client->request('PATCH', self::API_ENDPOINT.'/'.$group->getId().'/users/'.$user->getId(), [], [], $headers);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testPatchGroupUserIsOk()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference('group_2');
+        $user = $this->repository->getReference('user_1');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user3"'];
+        $client->request('PATCH', self::API_ENDPOINT.'/'.$group->getId().'/users/'.$user->getId(), [], [], $headers);
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+    }
 
 	protected function getGroups($username, $params)
 	{

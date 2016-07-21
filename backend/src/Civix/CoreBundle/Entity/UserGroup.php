@@ -19,7 +19,7 @@ use Civix\CoreBundle\Entity\Group\GroupField;
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\UserGroupRepository")
  * @Serializer\ExclusionPolicy("all")
  */
-class UserGroup
+class UserGroup implements LeaderContentInterface
 {
     const STATUS_PENDING = 0;
     const STATUS_ACTIVE = 1;
@@ -630,5 +630,10 @@ class UserGroup
     public function getPermissionsZipCode()
     {
         return $this->permissionsZipCode;
+    }
+
+    public function isActive()
+    {
+        return $this->status == self::STATUS_ACTIVE;
     }
 }

@@ -5,6 +5,7 @@ use Civix\ApiBundle\Configuration\SecureParam;
 use Civix\ApiBundle\Form\Type\GroupType;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserGroup;
 use Doctrine\ORM\EntityManager;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -199,5 +200,37 @@ class GroupController extends FOSRestController
             $params->get('page'),
             $params->get('per_page')
         );
+    }
+
+    /**
+     * @Route("/{group}/users/{user}")
+     * @Method("PATCH")
+     *
+     * @ParamConverter("userGroup", options={"mapping"={"group"="group", "user"="user"}})
+     *
+     * @SecureParam("userGroup", permission="manage")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Groups",
+     *     description="Updates a status of an user in a group to `active`",
+     *     statusCodes={
+     *         204="Success",
+     *         404="Group or User Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @View(serializerGroups={"api-info"})
+     *
+     * @param UserGroup $userGroup
+     *
+     * @return UserGroup
+     */
+    public function patchUserAction(UserGroup $userGroup)
+    {
+        $userGroup->setStatus(UserGroup::STATUS_ACTIVE);
+        $this->em->persist($userGroup);
+        $this->em->flush();
     }
 }
