@@ -74,7 +74,7 @@ class LoadQuestionCommentData extends AbstractFixture implements ContainerAwareI
      * @param object|User $user
      * @param object|Question $question
      * @param null|Comment $parentComment
-     * @return CustomerGroup
+     * @return Comment
      */
     private function createComment($user, $question, $parentComment = null)
     {
