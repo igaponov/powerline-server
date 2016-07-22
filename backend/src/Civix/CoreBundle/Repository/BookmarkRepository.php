@@ -41,8 +41,13 @@ class BookmarkRepository extends EntityRepository
         $totalPage = ceil($totalItem / $itemPerPage);
 
         /** @var Bookmark $bookmark */
-        foreach($bookmarks as $bookmark) {
+        foreach($bookmarks as $id => $bookmark) {
             $detail = $this->getItemDetail($bookmark->getType(), $bookmark->getItemId());
+            if ($detail == null) {
+                $this->delete($bookmark->getId());
+                unset($bookmarks[$id]);
+                continue;
+            }
             $bookmark->setDetail($detail);
         }
 
@@ -50,7 +55,7 @@ class BookmarkRepository extends EntityRepository
             'page' => $page,
             'total_pages' => $totalPage,
             'total_items' => $totalItem,
-            'items' => $bookmarks
+            'items' => array_values($bookmarks)
         );
 
         return $result;
@@ -112,39 +117,19 @@ class BookmarkRepository extends EntityRepository
     {
         $item = null;
         switch ($itemType) {
-            case Bookmark::TYPE_POST:
-                $item = $this->_em
-                    ->getRepository('CivixCoreBundle:Content\Post')
-                    ->find($itemId);
-                break;
-            case Bookmark::TYPE_POLL:
-                $item = $this->_em
-                    ->getRepository('CivixCoreBundle:Poll\Question')
-                    ->find($itemId);
-                break;
-            case Bookmark::TYPE_POLL_ANSWER:
-                $item = $this->_em
-                    ->getRepository('CivixCoreBundle:Poll\Answer')
-                    ->find($itemId);
-                break;
-            case Bookmark::TYPE_POLL_COMMENT:
-                $item = $this->_em
-                    ->getRepository('CivixCoreBundle:Poll\Comment')
-                    ->find($itemId);
-                break;
             case Bookmark::TYPE_PETITION:
                 $item = $this->_em
-                    ->getRepository('CivixCoreBundle:Micropetitions\Petition')
+                    ->getRepository('CivixCoreBundle:Activities\Petition')
                     ->find($itemId);
                 break;
-            case Bookmark::TYPE_PETITION_ANSWER:
+            case Bookmark::TYPE_MICRO_PETITION:
                 $item = $this->_em
-                    ->getRepository('CivixCoreBundle:Micropetitions\Answer')
+                    ->getRepository('CivixCoreBundle:Activities\MicroPetition')
                     ->find($itemId);
                 break;
-            case Bookmark::TYPE_PETITION_COMMENT:
+            case Bookmark::TYPE_QUESTION:
                 $item = $this->_em
-                    ->getRepository('CivixCoreBundle:Micropetitions\Comment')
+                    ->getRepository('CivixCoreBundle:Activities\Question')
                     ->find($itemId);
                 break;
         }

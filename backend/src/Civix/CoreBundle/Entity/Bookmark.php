@@ -16,15 +16,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Bookmark
 {
+    const TYPE_QUESTION = "question";
     const TYPE_PETITION = "petition";
-    const TYPE_PETITION_COMMENT = "petition_comment";
-    const TYPE_PETITION_ANSWER = "petition_answer";
-
-    const TYPE_POLL = "poll";
-    const TYPE_POLL_COMMENT = "poll_comment";
-    const TYPE_POLL_ANSWER = "poll_answer";
-
-    const TYPE_POST = "post";
+    const TYPE_MICRO_PETITION = "micro_petition";
     const TYPE_ALL = "all";
 
     /**
