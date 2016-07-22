@@ -26,6 +26,7 @@ class PushSenderSubscriber implements EventSubscriberInterface
             Event\UserEvents::FOLLOWED => 'sendInfluencePush',
             Event\PollEvents::QUESTION_PUBLISHED => 'sendPushPublishQuestion',
             Event\MicropetitionEvents::PETITION_BOOST => 'sendGroupPetitionPush',
+            Event\InviteEvents::CREATE => 'sendUserToGroupInvites',
         ];
     }
 
@@ -96,6 +97,15 @@ class PushSenderSubscriber implements EventSubscriberInterface
         $this->pushTask->addToQueue(
             'sendGroupPetitionPush',
             [$petition->getGroup()->getId(), $petition->getId()]
+        );
+    }
+
+    public function sendUserToGroupInvites(Event\InviteEvent $event)
+    {
+        $invite = $event->getInvite();
+        $this->pushTask->addToQueue(
+            'sendInvitePush',
+            [$invite->getUser()->getId(), $invite->getGroup()->getId()]
         );
     }
 }

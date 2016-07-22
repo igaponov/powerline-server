@@ -33,7 +33,7 @@ class UserGroupManager
     protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\User", inversedBy="groups", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\User", inversedBy="managedGroups", cascade={"persist"})
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="cascade")
      * @Serializer\Expose()
      */
