@@ -2,21 +2,13 @@
 namespace Civix\ApiBundle\Tests\Controller;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Activities\MicroPetition;
+use Civix\CoreBundle\Entity\Activities\Petition;
+use Civix\CoreBundle\Entity\Activities\Question;
 use Civix\CoreBundle\Entity\Bookmark;
-use Civix\CoreBundle\Entity\Content\Post;
-use Civix\CoreBundle\Entity\Micropetitions\Petition;
-use Civix\CoreBundle\Entity\Poll\Answer;
-use Civix\CoreBundle\Entity\Poll\Comment;
-use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Repository\BookmarkRepository;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadMicropetitionAnswerData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadMicropetitionCommentData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadMicropetitionData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,23 +26,12 @@ class BookmarkControllerTest extends WebTestCase
     /** @var  Petition[] */
     private $petitions;
 
-    /** @var  \Civix\CoreBundle\Entity\Micropetitions\Answer[] */
-    private $petitionAnswers;
 
-    /** @var  \Civix\CoreBundle\Entity\Micropetitions\Comment[] */
-    private $petitionComments;
+    /** @var MicroPetition[] */
+    private $microPetition;
 
-    /** @var Question[] */
-    private $questions;
-
-    /** @var  Answer[] */
-    private $questionAnswers;
-
-    /** @var  Comment[] */
-    private $questionComments;
-
-    /** @var  Post[] */
-    private $posts;
+    /** @var  Question[] */
+    private $question;
 
     /** @var User */
     private $user;
@@ -62,58 +43,22 @@ class BookmarkControllerTest extends WebTestCase
 	{
         /** @var AbstractExecutor $fixtures */
         $fixtures = $this->loadFixtures([LoadUserData::class,
-            LoadMicropetitionData::class,
-            LoadMicropetitionAnswerData::class,
-            LoadMicropetitionCommentData::class,
-            LoadGroupQuestionData::class,
-            LoadQuestionAnswerData::class,
-            LoadQuestionCommentData::class,
-            LoadPostData::class]);
+            LoadActivityData::class]);
 
         $reference = $fixtures->getReferenceRepository();
 
         $this->user = $reference->getReference('testuserbookmark1');
 
         $this->petitions = [
-            $reference->getReference('micropetition_1'),
-            $reference->getReference('micropetition_2'),
-            $reference->getReference('micropetition_3')
+            $reference->getReference('activity_petition')
         ];
 
-        $this->petitionAnswers = [
-            $reference->getReference('micropetition_answer_1'),
-            $reference->getReference('micropetition_answer_2'),
-            $reference->getReference('micropetition_answer_3')
+        $this->microPetition = [
+            $reference->getReference('activity_micropetition')
         ];
 
-        $this->petitionComments = [
-            $reference->getReference('micropetition_comment_1'),
-            $reference->getReference('micropetition_comment_2'),
-            $reference->getReference('micropetition_comment_3')
-        ];
-
-        $this->questions = [
-            $reference->getReference('group_question_1'),
-            $reference->getReference('group_question_2'),
-            $reference->getReference('group_question_3'),
-            $reference->getReference('group_question_4')
-        ];
-
-        $this->questionAnswers = [
-            $reference->getReference('question_answer_1'),
-            $reference->getReference('question_answer_2'),
-            $reference->getReference('question_answer_3')
-        ];
-
-        $this->questionComments = [
-            $reference->getReference('question_comment_1'),
-            $reference->getReference('question_comment_4')
-        ];
-
-        $this->posts = [
-            $reference->getReference('post_1'),
-            $reference->getReference('post_2'),
-            $reference->getReference('post_3')
+        $this->question = [
+            $reference->getReference('activity_question')
         ];
 
         /** @var BookmarkRepository $repo */
@@ -122,23 +67,11 @@ class BookmarkControllerTest extends WebTestCase
         foreach ($this->petitions as $item)
             $repo->save(Bookmark::TYPE_PETITION, $this->user, $item->getId());
 
-        foreach ($this->petitionAnswers as $item)
-            $repo->save(Bookmark::TYPE_PETITION_ANSWER, $this->user, $item->getId());
+        foreach ($this->microPetition as $item)
+            $repo->save(Bookmark::TYPE_MICRO_PETITION, $this->user, $item->getId());
 
-        foreach ($this->petitionComments as $item)
-            $repo->save(Bookmark::TYPE_PETITION_COMMENT, $this->user, $item->getId());
-
-        foreach ($this->questions as $item)
-            $repo->save(Bookmark::TYPE_POLL, $this->user, $item->getId());
-
-        foreach ($this->questionAnswers as $item)
-            $repo->save(Bookmark::TYPE_POLL_ANSWER, $this->user, $item->getId());
-
-        foreach ($this->questionComments as $item)
-            $repo->save(Bookmark::TYPE_POLL_COMMENT, $this->user, $item->getId());
-
-        foreach ($this->posts as $item)
-            $repo->save(Bookmark::TYPE_POST, $this->user, $item->getId());
+        foreach ($this->question as $item)
+            $repo->save(Bookmark::TYPE_QUESTION, $this->user, $item->getId());
 
         if (empty($this->userToken))
             $this->userToken = $this->getLoginToken($this->user);
@@ -160,29 +93,13 @@ class BookmarkControllerTest extends WebTestCase
         $content = $client->getResponse()->getContent();
         $this->assertEquals($this->toJsonObject($this->petitions), $this->buildResponse($content));
 
-        $client->request('GET', '/api/bookmarks/list/' . Bookmark::TYPE_PETITION_ANSWER);
+        $client->request('GET', '/api/bookmarks/list/' . Bookmark::TYPE_MICRO_PETITION);
         $content = $client->getResponse()->getContent();
-        $this->assertEquals($this->toJsonObject($this->petitionAnswers), $this->buildResponse($content));
+        $this->assertEquals($this->toJsonObject($this->microPetition), $this->buildResponse($content));
 
-        $client->request('GET', '/api/bookmarks/list/' . Bookmark::TYPE_PETITION_COMMENT);
+        $client->request('GET', '/api/bookmarks/list/' . Bookmark::TYPE_QUESTION);
         $content = $client->getResponse()->getContent();
-        $this->assertEquals($this->toJsonObject($this->petitionComments), $this->buildResponse($content));
-
-        $client->request('GET', '/api/bookmarks/list/' . Bookmark::TYPE_POLL);
-        $content = $client->getResponse()->getContent();
-        $this->assertEquals($this->toJsonObject($this->questions), $this->buildResponse($content));
-
-        $client->request('GET', '/api/bookmarks/list/' . Bookmark::TYPE_POLL_ANSWER);
-        $content = $client->getResponse()->getContent();
-        $this->assertEquals($this->toJsonObject($this->questionAnswers), $this->buildResponse($content));
-
-        $client->request('GET', '/api/bookmarks/list/' . Bookmark::TYPE_POLL_COMMENT);
-        $content = $client->getResponse()->getContent();
-        $this->assertEquals($this->toJsonObject($this->questionComments), $this->buildResponse($content));
-
-        $client->request('GET', '/api/bookmarks/list/' . Bookmark::TYPE_POST);
-        $content = $client->getResponse()->getContent();
-        $this->assertEquals($this->toJsonObject($this->posts), $this->buildResponse($content));
+        $this->assertEquals($this->toJsonObject($this->question), $this->buildResponse($content));
     }
 
     private function toJsonObject($object)
@@ -191,9 +108,7 @@ class BookmarkControllerTest extends WebTestCase
         $this->getContainer()->enterScope('request');
         $this->getContainer()->set('request', $request, 'request');
 
-        $json = $this->jmsSerialization($object, ['api-bookmarks', 'api-post', 'api-poll',
-            'api-poll-public', 'api-petitions-info', 'api-petitions-list', 'api-comments',
-            'api-answer', 'api-answers-list', 'api-leader-answers']);
+        $json = $this->jmsSerialization($object, ['api-bookmarks', 'api-activities']);
 
         return (array)json_decode($json);
     }
