@@ -56,7 +56,7 @@ class UserGroupControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertSame(1, $data['page']);
-        $this->assertSame(20, $data['items']);
+        $this->assertSame(50, $data['items']);
         $this->assertSame(2, $data['totalItems']);
         $this->assertCount(2, $data['payload']);
         foreach ($data['payload'] as $item) {
@@ -80,7 +80,7 @@ class UserGroupControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertSame(1, $data['page']);
-        $this->assertSame(20, $data['items']);
+        $this->assertSame(50, $data['items']);
         $this->assertSame(0, $data['totalItems']);
         $this->assertCount(0, $data['payload']);
     }

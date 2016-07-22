@@ -33,7 +33,7 @@ class UserGroupController extends FOSRestController
      * @Method("GET")
      *
      * @QueryParam(name="page", requirements="\d+", default="1")
-     * @QueryParam(name="per_page", requirements="(10|20)", default="20")
+     * @QueryParam(name="per_page", requirements="(10|20|50)", default="50")
      *
      * @ApiDoc(
      *     authentication = true,
