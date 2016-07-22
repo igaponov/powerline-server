@@ -25,8 +25,6 @@ class FieldController extends FOSRestController
      * @Route("")
      * @Method("GET")
      *
-     * @SecureParam("group", permission="view")
-     *
      * @ApiDoc(
      *     authentication=true,
      *     section="Groups",

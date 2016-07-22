@@ -27,23 +27,10 @@ class FieldControllerTest extends WebTestCase
         parent::tearDown();
     }
 
-    public function testGetGroupFieldsWithWrongCredentialsThrowsException()
-    {
-        $repository = $this->loadFixtures([
-            LoadGroupFieldsData::class,
-        ])->getReferenceRepository();
-        $group = $repository->getReference('group_2');
-        $client = $this->client;
-        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
-        $client->request('GET', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
-        $response = $client->getResponse();
-        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
-    }
-
     /**
      * @param $user
      * @param $reference
-     * @dataProvider getValidPollCredentialsForGetRequest
+     * @dataProvider getValidGroupCredentialsForGetRequest
      */
 	public function testGetGroupFieldsIsOk($user, $reference)
 	{
@@ -56,17 +43,17 @@ class FieldControllerTest extends WebTestCase
 		$client = $this->client;
         $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
         $client->request('GET', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
-		$response = $client->getResponse();
-		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-		$data = json_decode($response->getContent(), true);
-		$this->assertCount(5, $data);
-		$this->assertSame('test-group-field', $data[0]['field_name']);
-	}
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertCount(5, $data);
+        $this->assertSame('test-group-field', $data[0]['field_name']);
+    }
 
     /**
      * @param $user
      * @param $reference
-     * @dataProvider getInvalidPollCredentialsForUpdateRequest
+     * @dataProvider getInvalidGroupCredentialsForUpdateRequest
      */
 	public function testCreateGroupFieldWithWrongCredentialsThrowsException($user, $reference)
 	{
@@ -109,7 +96,7 @@ class FieldControllerTest extends WebTestCase
     /**
      * @param $user
      * @param $reference
-     * @dataProvider getValidPollCredentialsForUpdateRequest
+     * @dataProvider getValidGroupCredentialsForUpdateRequest
      */
 	public function testCreateGroupFieldIsOk($user, $reference)
 	{
@@ -141,16 +128,17 @@ class FieldControllerTest extends WebTestCase
         ];
     }
 
-    public function getValidPollCredentialsForGetRequest()
+    public function getValidGroupCredentialsForGetRequest()
     {
         return [
             'owner' => ['user1', 'group_1'],
             'manager' => ['user2', 'group_1'],
             'member' => ['user4', 'group_1'],
+            'outlier' => ['followertest', 'group_1'],
         ];
     }
 
-    public function getInvalidPollCredentialsForUpdateRequest()
+    public function getInvalidGroupCredentialsForUpdateRequest()
     {
         return [
             'member' => ['user4', 'group_1'],
@@ -158,7 +146,7 @@ class FieldControllerTest extends WebTestCase
         ];
     }
 
-    public function getValidPollCredentialsForUpdateRequest()
+    public function getValidGroupCredentialsForUpdateRequest()
     {
         return [
             'owner' => ['user1', 'group_1'],
