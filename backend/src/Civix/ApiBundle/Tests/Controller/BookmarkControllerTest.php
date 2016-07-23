@@ -89,10 +89,6 @@ class BookmarkControllerTest extends WebTestCase
         $this->isSuccessful($client->getResponse(), false);
         $this->assertStatusCode(404, $client);
 
-        $client->request('GET', '/api/bookmarks/list/' . Bookmark::TYPE_ALL);
-        $content = $client->getResponse()->getContent();
-        \error_log($content);
-
         $client->request('GET', '/api/bookmarks/list/' . Bookmark::TYPE_PETITION);
         $content = $client->getResponse()->getContent();
         $this->assertEquals($this->toJsonObject($this->petitions), $this->buildResponse($content));
