@@ -4,6 +4,7 @@ namespace Civix\CoreBundle\Tests\Repository;
 use Civix\CoreBundle\Entity\Bookmark;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Repository\BookmarkRepository;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
@@ -34,17 +35,20 @@ class BookmarkRepositoryTest extends WebTestCase
     public function setUp()
     {
         /** @var AbstractExecutor $fixtures */
-        $fixtures = $this->loadFixtures([LoadUserData::class]);
+        $fixtures = $this->loadFixtures([LoadUserData::class, LoadActivityData::class]);
         $reference = $fixtures->getReferenceRepository();
 
         $this->user = $reference->getReference('testuserbookmark1');
+        $petition = $reference->getReference('activity_petition');
+        $microPetition = $reference->getReference('activity_micropetition');
+        $question = $reference->getReference('activity_question');
 
         $this->repo = $this->getContainer()->get('doctrine')->getRepository(Bookmark::class);
 
-        $this->bookmark1 = $this->repo->save(Bookmark::TYPE_POST, $this->user, 1);
-        $this->bookmark2 = $this->repo->save(Bookmark::TYPE_POST, $this->user, 1);
-        $this->bookmark3 = $this->repo->save(Bookmark::TYPE_POLL, $this->user, 1);
-        $this->bookmark4 = $this->repo->save(Bookmark::TYPE_POLL, $this->user, 2);
+        $this->bookmark1 = $this->repo->save(Bookmark::TYPE_MICRO_PETITION, $this->user, $microPetition->getId());
+        $this->bookmark2 = $this->repo->save(Bookmark::TYPE_MICRO_PETITION, $this->user, $microPetition->getId());
+        $this->bookmark3 = $this->repo->save(Bookmark::TYPE_QUESTION, $this->user, $question->getId());
+        $this->bookmark4 = $this->repo->save(Bookmark::TYPE_PETITION, $this->user, $petition->getId());
     }
 
     protected function tearDown()
@@ -75,12 +79,12 @@ class BookmarkRepositoryTest extends WebTestCase
     public function testFindByType()
     {
         $savedBookmarks1 = $this->repo->findByType(Bookmark::TYPE_ALL, $this->user, 1);
-        $savedBookmarks2 = $this->repo->findByType(Bookmark::TYPE_POLL, $this->user, 1);
+        $savedBookmarks2 = $this->repo->findByType(Bookmark::TYPE_LEADER_EVENT, $this->user, 1);
         $savedBookmarks3 = $this->repo->findByType(Bookmark::TYPE_PETITION, $this->user, 1);
 
         $this->assertCount(3, $savedBookmarks1['items']);
-        $this->assertCount(2, $savedBookmarks2['items']);
-        $this->assertCount(0, $savedBookmarks3['items']);
+        $this->assertCount(0, $savedBookmarks2['items']);
+        $this->assertCount(1, $savedBookmarks3['items']);
     }
 
     /**

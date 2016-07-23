@@ -16,15 +16,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Bookmark
 {
+    const TYPE_QUESTION = "question";
     const TYPE_PETITION = "petition";
-    const TYPE_PETITION_COMMENT = "petition_comment";
-    const TYPE_PETITION_ANSWER = "petition_answer";
-
-    const TYPE_POLL = "poll";
-    const TYPE_POLL_COMMENT = "poll_comment";
-    const TYPE_POLL_ANSWER = "poll_answer";
-
-    const TYPE_POST = "post";
+    const TYPE_MICRO_PETITION = "micro_petition";
+    const TYPE_LEADER_NEWS = "leader_news";
+    const TYPE_PAYMENT_REQUEST = "payment_request";
+    const TYPE_CRWODFUNDING_PAYMENT_REQUEST = "crowdfunding_payment_request";
+    const TYPE_LEADER_EVENT = "leader_event";
     const TYPE_ALL = "all";
 
     /**

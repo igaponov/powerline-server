@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Repository;
 
+use Civix\CoreBundle\Entity\Activities;
 use Civix\CoreBundle\Entity\Bookmark;
 use Civix\CoreBundle\Entity\User;
 use Doctrine\ORM\EntityRepository;
@@ -26,23 +27,26 @@ class BookmarkRepository extends EntityRepository
             $query = $this->_em->createQuery($dql);
             $query->setParameters(array('user' => $user));
             $totalItem = $query->getSingleScalarResult();
-            $bookmarks = $this->findBy(array('user' => $user), array('createdAt' => 'DESC'),
-                $itemPerPage, $startRow);
+            $bookmarks = $this->findBy(array('user' => $user), array('createdAt' => 'DESC'), $itemPerPage, $startRow);
 
         } else {
             $dql = "SELECT COUNT(a) FROM CivixCoreBundle:Bookmark a WHERE a.type = :type AND a.user = :user";
             $query = $this->_em->createQuery($dql);
             $query->setParameters(array('type' => $type, 'user' => $user));
             $totalItem = $query->getSingleScalarResult();
-            $bookmarks = $this->findBy(array('user' => $user, 'type' => $type),
-                array('createdAt' => 'DESC'), $itemPerPage, $startRow);
+            $bookmarks = $this->findBy(array('user' => $user, 'type' => $type), array('createdAt' => 'DESC'), $itemPerPage, $startRow);
         }
 
         $totalPage = ceil($totalItem / $itemPerPage);
 
         /** @var Bookmark $bookmark */
-        foreach($bookmarks as $bookmark) {
+        foreach($bookmarks as $id => $bookmark) {
             $detail = $this->getItemDetail($bookmark->getType(), $bookmark->getItemId());
+            if ($detail == null) {
+                $this->delete($bookmark->getId());
+                unset($bookmarks[$id]);
+                continue;
+            }
             $bookmark->setDetail($detail);
         }
 
@@ -50,7 +54,7 @@ class BookmarkRepository extends EntityRepository
             'page' => $page,
             'total_pages' => $totalPage,
             'total_items' => $totalItem,
-            'items' => $bookmarks
+            'items' => array_values($bookmarks)
         );
 
         return $result;
@@ -111,44 +115,28 @@ class BookmarkRepository extends EntityRepository
     private function getItemDetail($itemType, $itemId)
     {
         $item = null;
-        switch ($itemType) {
-            case Bookmark::TYPE_POST:
-                $item = $this->_em
-                    ->getRepository('CivixCoreBundle:Content\Post')
-                    ->find($itemId);
-                break;
-            case Bookmark::TYPE_POLL:
-                $item = $this->_em
-                    ->getRepository('CivixCoreBundle:Poll\Question')
-                    ->find($itemId);
-                break;
-            case Bookmark::TYPE_POLL_ANSWER:
-                $item = $this->_em
-                    ->getRepository('CivixCoreBundle:Poll\Answer')
-                    ->find($itemId);
-                break;
-            case Bookmark::TYPE_POLL_COMMENT:
-                $item = $this->_em
-                    ->getRepository('CivixCoreBundle:Poll\Comment')
-                    ->find($itemId);
-                break;
-            case Bookmark::TYPE_PETITION:
-                $item = $this->_em
-                    ->getRepository('CivixCoreBundle:Micropetitions\Petition')
-                    ->find($itemId);
-                break;
-            case Bookmark::TYPE_PETITION_ANSWER:
-                $item = $this->_em
-                    ->getRepository('CivixCoreBundle:Micropetitions\Answer')
-                    ->find($itemId);
-                break;
-            case Bookmark::TYPE_PETITION_COMMENT:
-                $item = $this->_em
-                    ->getRepository('CivixCoreBundle:Micropetitions\Comment')
-                    ->find($itemId);
-                break;
-        }
+        $allowedTypes = self::allowedTypes();
+        if (isset($allowedTypes[$itemType]))
+            $item = $this->_em->getRepository($allowedTypes[$itemType])->find($itemId);
 
         return $item;
+    }
+
+    /**
+     * @return array
+     */
+    public static function allowedTypes()
+    {
+        $types = [
+            Bookmark::TYPE_QUESTION => Activities\Question::class,
+            Bookmark::TYPE_PETITION => Activities\Petition::class,
+            Bookmark::TYPE_MICRO_PETITION => Activities\MicroPetition::class,
+            Bookmark::TYPE_LEADER_NEWS => Activities\LeaderNews::class,
+            Bookmark::TYPE_PAYMENT_REQUEST => Activities\PaymentRequest::class,
+            Bookmark::TYPE_CRWODFUNDING_PAYMENT_REQUEST => Activities\CrowdfundingPaymentRequest::class,
+            Bookmark::TYPE_LEADER_EVENT => Activities\LeaderEvent::class,
+        ];
+
+        return $types;
     }
 }
