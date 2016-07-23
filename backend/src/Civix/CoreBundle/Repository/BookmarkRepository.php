@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Repository;
 
+use Civix\CoreBundle\Entity\Activities;
 use Civix\CoreBundle\Entity\Bookmark;
 use Civix\CoreBundle\Entity\User;
 use Doctrine\ORM\EntityRepository;
@@ -116,24 +117,28 @@ class BookmarkRepository extends EntityRepository
     private function getItemDetail($itemType, $itemId)
     {
         $item = null;
-        switch ($itemType) {
-            case Bookmark::TYPE_PETITION:
-                $item = $this->_em
-                    ->getRepository('CivixCoreBundle:Activities\Petition')
-                    ->find($itemId);
-                break;
-            case Bookmark::TYPE_MICRO_PETITION:
-                $item = $this->_em
-                    ->getRepository('CivixCoreBundle:Activities\MicroPetition')
-                    ->find($itemId);
-                break;
-            case Bookmark::TYPE_QUESTION:
-                $item = $this->_em
-                    ->getRepository('CivixCoreBundle:Activities\Question')
-                    ->find($itemId);
-                break;
-        }
+        $allowedTypes = self::allowedTypes();
+        if (isset($allowedTypes[$itemType]))
+            $item = $this->_em->getRepository($allowedTypes[$itemType])->find($itemId);
 
         return $item;
+    }
+
+    /**
+     * @return array
+     */
+    public static function allowedTypes()
+    {
+        $types = [
+            Bookmark::TYPE_QUESTION => Activities\Question::class,
+            Bookmark::TYPE_PETITION => Activities\Petition::class,
+            Bookmark::TYPE_MICRO_PETITION => Activities\MicroPetition::class,
+            Bookmark::TYPE_LEADER_NEWS => Activities\LeaderNews::class,
+            Bookmark::TYPE_PAYMENT_REQUEST => Activities\PaymentRequest::class,
+            Bookmark::TYPE_CRWODFUNDING_PAYMENT_REQUEST => Activities\CrowdfundingPaymentRequest::class,
+            Bookmark::TYPE_LEADER_EVENT => Activities\LeaderEvent::class,
+        ];
+
+        return $types;
     }
 }

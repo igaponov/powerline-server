@@ -28,7 +28,7 @@ class BookmarkController extends BaseController
      *      "/list/{type}/{page}",
      *      requirements={
      *          "page"="\d+",
-     *          "type"="petition|micro_petition|question|all"
+     *          "type"="petition|micro_petition|question|leader_news|payment_request|crowdfunding_payment_request|leader_event|all"
      *      },
      *      name="api_bookmarks_list"
      * )
@@ -36,7 +36,8 @@ class BookmarkController extends BaseController
      * @ApiDoc(
      *     section="Bookmark",
      *     resource=true,
-     *     description="Get saved items. The saved item can be petition, micro petition, or question",
+     *     description="Get saved items. The saved item can be petition, micro_petition, question, leader_news, payment_request,
+     *                  crowdfunding_payment_request, leader_event, all",
      *     statusCodes={
      *         200="Returns saved items",
      *         401="Authorization required",
@@ -49,11 +50,8 @@ class BookmarkController extends BaseController
      */
     public function indexAction($type, $page = 1)
     {
-        if ($type !== Bookmark::TYPE_MICRO_PETITION && $type !== Bookmark::TYPE_PETITION
-            && $type !== Bookmark::TYPE_QUESTION && $type !== Bookmark::TYPE_ALL) {
-
+        if (!in_array($type, $this->allowedTypes(true)))
             throw $this->createNotFoundException();
-        }
 
         /** @var BookmarkRepository $repository */
         $repository = $this->getDoctrine()->getManager()->getRepository(Bookmark::class);
@@ -74,7 +72,7 @@ class BookmarkController extends BaseController
      *     "/add/{type}/{itemId}",
      *     requirements={
      *          "itemId"="\d+",
-     *          "type"="petition|micro_petition|question"
+     *          "type"="petition|micro_petition|question|leader_news|payment_request|crowdfunding_payment_request|leader_event"
      *      },
      *      name="api_bookmarks_add"
      * )
@@ -82,7 +80,8 @@ class BookmarkController extends BaseController
      * @ApiDoc(
      *     section="Bookmark",
      *     resource=true,
-     *     description="Add saved item. The saved item can be petition, micro_petition, or question",
+     *     description="Add saved item. The saved item can be petition, micro_petition, question, leader_news, payment_request,
+     *                  crowdfunding_payment_request, leader_event",
      *     statusCodes={
      *         200="Returns saved item",
      *         401="Authorization required",
@@ -95,11 +94,8 @@ class BookmarkController extends BaseController
      */
     public function add($type, $itemId)
     {
-        if ($type !== Bookmark::TYPE_MICRO_PETITION && $type !== Bookmark::TYPE_PETITION
-            && $type !== Bookmark::TYPE_QUESTION && $type !== Bookmark::TYPE_ALL) {
-
+        if (!in_array($type, $this->allowedTypes()))
             throw $this->createNotFoundException();
-        }
 
         /** @var BookmarkRepository $bookmarkRepository */
         $bookmarkRepository = $this->getDoctrine()->getRepository(Bookmark::class);
@@ -143,5 +139,18 @@ class BookmarkController extends BaseController
 
         $response = new Response('', 204);
         return $response;
+    }
+
+    /**
+     * @param bool $includeAll
+     * @return array
+     */
+    private function allowedTypes($includeAll = false)
+    {
+        $types = BookmarkRepository::allowedTypes();
+        if ($includeAll)
+            $types[] = Bookmark::TYPE_ALL;
+
+        return array_keys($types);
     }
 }

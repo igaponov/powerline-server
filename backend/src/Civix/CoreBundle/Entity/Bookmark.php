@@ -19,6 +19,10 @@ class Bookmark
     const TYPE_QUESTION = "question";
     const TYPE_PETITION = "petition";
     const TYPE_MICRO_PETITION = "micro_petition";
+    const TYPE_LEADER_NEWS = "leader_news";
+    const TYPE_PAYMENT_REQUEST = "payment_request";
+    const TYPE_CRWODFUNDING_PAYMENT_REQUEST = "crowdfunding_payment_request";
+    const TYPE_LEADER_EVENT = "leader_event";
     const TYPE_ALL = "all";
 
     /**
