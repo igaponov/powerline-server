@@ -42,8 +42,7 @@ class BookmarkControllerTest extends WebTestCase
 	public function setUp()
 	{
         /** @var AbstractExecutor $fixtures */
-        $fixtures = $this->loadFixtures([LoadUserData::class,
-            LoadActivityData::class]);
+        $fixtures = $this->loadFixtures([LoadUserData::class, LoadActivityData::class]);
 
         $reference = $fixtures->getReferenceRepository();
 

@@ -27,16 +27,14 @@ class BookmarkRepository extends EntityRepository
             $query = $this->_em->createQuery($dql);
             $query->setParameters(array('user' => $user));
             $totalItem = $query->getSingleScalarResult();
-            $bookmarks = $this->findBy(array('user' => $user), array('createdAt' => 'DESC'),
-                $itemPerPage, $startRow);
+            $bookmarks = $this->findBy(array('user' => $user), array('createdAt' => 'DESC'), $itemPerPage, $startRow);
 
         } else {
             $dql = "SELECT COUNT(a) FROM CivixCoreBundle:Bookmark a WHERE a.type = :type AND a.user = :user";
             $query = $this->_em->createQuery($dql);
             $query->setParameters(array('type' => $type, 'user' => $user));
             $totalItem = $query->getSingleScalarResult();
-            $bookmarks = $this->findBy(array('user' => $user, 'type' => $type),
-                array('createdAt' => 'DESC'), $itemPerPage, $startRow);
+            $bookmarks = $this->findBy(array('user' => $user, 'type' => $type), array('createdAt' => 'DESC'), $itemPerPage, $startRow);
         }
 
         $totalPage = ceil($totalItem / $itemPerPage);
