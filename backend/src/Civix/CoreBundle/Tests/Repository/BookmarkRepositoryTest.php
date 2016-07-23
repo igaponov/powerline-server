@@ -41,10 +41,10 @@ class BookmarkRepositoryTest extends WebTestCase
 
         $this->repo = $this->getContainer()->get('doctrine')->getRepository(Bookmark::class);
 
-        $this->bookmark1 = $this->repo->save(Bookmark::TYPE_POST, $this->user, 1);
-        $this->bookmark2 = $this->repo->save(Bookmark::TYPE_POST, $this->user, 1);
-        $this->bookmark3 = $this->repo->save(Bookmark::TYPE_POLL, $this->user, 1);
-        $this->bookmark4 = $this->repo->save(Bookmark::TYPE_POLL, $this->user, 2);
+        $this->bookmark1 = $this->repo->save(Bookmark::TYPE_MICRO_PETITION, $this->user, 1);
+        $this->bookmark2 = $this->repo->save(Bookmark::TYPE_MICRO_PETITION, $this->user, 1);
+        $this->bookmark3 = $this->repo->save(Bookmark::TYPE_QUESTION, $this->user, 1);
+        $this->bookmark4 = $this->repo->save(Bookmark::TYPE_PETITION, $this->user, 2);
     }
 
     /**
@@ -64,7 +64,7 @@ class BookmarkRepositoryTest extends WebTestCase
     public function testFindByType()
     {
         $savedBookmarks1 = $this->repo->findByType(Bookmark::TYPE_ALL, $this->user, 1);
-        $savedBookmarks2 = $this->repo->findByType(Bookmark::TYPE_POLL, $this->user, 1);
+        $savedBookmarks2 = $this->repo->findByType(Bookmark::TYPE_LEADER_EVENT, $this->user, 1);
         $savedBookmarks3 = $this->repo->findByType(Bookmark::TYPE_PETITION, $this->user, 1);
 
         $this->assertCount(3, $savedBookmarks1['items']);
