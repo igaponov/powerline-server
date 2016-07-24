@@ -669,6 +669,7 @@ class GroupController extends BaseController
             //save fields values
             if ($group->getFillFieldsRequired()) {
                 foreach ($worksheet->getFields() as $fieldValue) {
+                    /** @var Group\FieldValue $entity */
                     $entity = $entityManager->merge($fieldValue);
                     $entityManager->persist($entity);
                 }
