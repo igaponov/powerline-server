@@ -5,6 +5,7 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFieldsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
@@ -168,6 +169,38 @@ class UserGroupControllerTest extends WebTestCase
             'public' => ['group_1', UserGroup::STATUS_ACTIVE],
             'private' => ['group_2', UserGroup::STATUS_PENDING],
         ];
+    }
+
+    public function testJoinGroupWithFieldsIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadGroupFieldsData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_3');
+        /** @var Group\GroupField $field */
+        $field = $repository->getReference('another-group-field');
+        $fieldValue = 'Answer A';
+        $params = [
+            'passcode' => 'secret_passcode',
+            'fields' => [
+                [
+                    'field' => [
+                        'id' => $field->getId(),
+                    ],
+                    'field_value' => $fieldValue
+                ],
+            ],
+        ];
+        $client = $this->client;
+        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user4"'], json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $currentStatus = $conn->fetchColumn('SELECT status FROM users_groups WHERE group_id = ?', [$group->getId()]);
+        $this->assertEquals(UserGroup::STATUS_ACTIVE, $currentStatus);
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM groups_fields_values WHERE field_value = ?', [$fieldValue]);
+        $this->assertEquals(1, $count);
     }
 
     public function testJoinGroupWithPasscodeThrowsException()

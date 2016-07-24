@@ -17,6 +17,7 @@ class LoadGroupFieldsData extends AbstractFixture implements DependentFixtureInt
         $field = new Group\GroupField();
         $field->setFieldName('test-group-field');
         $group->addField($field);
+        $group->updateFillFieldsRequired();
         $this->addReference('test-group-field', $field);
         for ($i = 0; $i < 4; $i++) {
             $field = new Group\GroupField();
@@ -30,6 +31,7 @@ class LoadGroupFieldsData extends AbstractFixture implements DependentFixtureInt
         $field = new Group\GroupField();
         $field->setFieldName('another-group-field');
         $group->addField($field);
+        $group->updateFillFieldsRequired();
         $this->addReference('another-group-field', $field);
         $manager->persist($group);
         $manager->flush();
