@@ -253,9 +253,8 @@ class GroupManager
     public function changePermissionSettings(Group $group)
     {
         $uow = $this->entityManager->getUnitOfWork();
-        $uow->computeChangeSets();
-        $changeSet = $uow->getEntityChangeSet($group);
-        
+        $changeSet = $uow->getOriginalEntityData($group);
+
         $group->setPermissionsChangedAt(new \DateTime());
         $this->entityManager->persist($group);
         $this->entityManager->flush();
