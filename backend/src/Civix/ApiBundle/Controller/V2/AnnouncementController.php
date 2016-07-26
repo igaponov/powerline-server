@@ -44,12 +44,12 @@ class AnnouncementController extends FOSRestController
      *          "groups" = {"paginator", "api"}
      *     },
      *     filters={
-                {
-     *              "name" = "start",
-     *              "dataType" = "datetime",
-     *              "description" = "Start date",
-     *              "default" = "-1 day"
-     *          }
+     *         {
+     *             "name" = "start",
+     *             "dataType" = "datetime",
+     *             "description" = "Start date",
+     *             "default" = "-1 day"
+     *         }
      *     },
      *     statusCodes={
      *         200="Returns announcements",
