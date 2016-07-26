@@ -33,7 +33,7 @@ class AnnouncementController extends FOSRestController
      * @ApiDoc(
      *     authentication=true,
      *     resource=true,
-     *     section="Announcement",
+     *     section="Announcements",
      *     description="Adds an user's announcement",
      *     input="Civix\ApiBundle\Form\Type\AnnouncementType",
      *     output = {

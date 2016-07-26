@@ -45,9 +45,9 @@ class AnnouncementController extends FOSRestController
      *     },
      *     filters={
                 {
-     *              "name" = "start", 
-     *              "dataType" = "datetime", 
-     *              "description" = "Start date", 
+     *              "name" = "start",
+     *              "dataType" = "datetime",
+     *              "description" = "Start date",
      *              "default" = "-1 day"
      *          }
      *     },
@@ -235,7 +235,7 @@ class AnnouncementController extends FOSRestController
      * @ApiDoc(
      *     authentication=true,
      *     resource=true,
-     *     section="Announcement",
+     *     section="Announcements",
      *     description="Deletes an announcement",
      *     input="Civix\ApiBundle\Form\Type\AnnouncementType",
      *     statusCodes={

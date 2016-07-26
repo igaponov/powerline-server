@@ -13,14 +13,14 @@ class AnnouncementController extends BaseController
     /**
      * Return a user's list of announcements.
      * Deprecated, use /api/v2/announcements instead.
-     * 
+     *
      * @Route("/announcements", name="api_announcements")
      * @Method("GET")
      *
      * @ApiDoc(
      *      resource=true,
      *      description="Return a user's list of announcements",
-     *      section="Announcement",
+     *      section="Announcements",
      *      filters={
      *        {"name"="start", "dataType"="datetime"}
      *      },
