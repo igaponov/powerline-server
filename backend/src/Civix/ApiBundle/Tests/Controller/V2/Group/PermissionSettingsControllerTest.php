@@ -113,7 +113,7 @@ class PermissionSettingsControllerTest extends WebTestCase
 		$data = json_decode($response->getContent(), true);
 		$this->assertSame($params['required_permissions'], $data['required_permissions']);
 		$this->assertArrayHasKey('permissions_changed_at', $data);
-        // manager
+        // manager - downgrade permissions
 		$params['required_permissions'] = array_slice($params['required_permissions'], 2, 4);
 		$client->request('PUT', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user2"'], json_encode($params));
 		$response = $client->getResponse();
