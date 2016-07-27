@@ -37,6 +37,12 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  */
 abstract class Activity
 {
+    const ZONE_PRIORITIZED = 0;
+
+    const ZONE_NON_PRIORITIZED = 1;
+
+    const ZONE_EXPIRED = 2;
+
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
@@ -231,6 +237,20 @@ abstract class Activity
      * @ORM\JoinColumn(name="petition_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $petition;
+
+    /**
+     * @var int
+     */
+    protected $zone;
+
+    public static function getZones()
+    {
+        return [
+            self::ZONE_PRIORITIZED => 'prioritized',
+            self::ZONE_NON_PRIORITIZED => 'non_prioritized',
+            self::ZONE_EXPIRED => 'expired',
+        ];
+    }
 
     public function __construct()
     {
@@ -796,5 +816,41 @@ abstract class Activity
         $this->petition = $petition;
 
         return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getZone()
+    {
+        return $this->zone;
+    }
+
+    /**
+     * @param int $zone
+     * @return Activity
+     */
+    public function setZone($zone)
+    {
+        $this->zone = $zone;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\SerializedName("zone")
+     * @Serializer\Type("string")
+     * @Serializer\Groups({"api-activities"})
+     */
+    public function getZoneLabel()
+    {
+        if (isset(self::getZones()[$this->zone])) {
+            return self::getZones()[$this->zone];
+        }
+
+        return null;
     }
 }
