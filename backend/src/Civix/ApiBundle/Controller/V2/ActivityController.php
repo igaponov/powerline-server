@@ -83,12 +83,18 @@ class ActivityController extends FOSRestController
             $filter = function (ActivityRead $activityRead) use ($user) {
                 return $activityRead->getUser()->getId() == $user->getId();
             };
+            $activities = [];
             foreach ($event->getPaginationView() as $activity) {
+                $zone = $activity['zone'];
+                $activity = reset($activity);
                 /** @var Activity $activity */
+                $activity->setZone($zone);
                 if ($activity->getActivityRead()->filter($filter)->count()) {
                     $activity->setRead(true);
                 }
+                $activities[] = $activity;
             }
+            $event->getPaginationView()->setItems($activities);
         });
 
         return $paginator->paginate(

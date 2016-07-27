@@ -87,7 +87,6 @@ class ActivityRepository extends EntityRepository
 
         $userFollowingIds = $user->getFollowingIds();
 
-        /** @var Activity[] $activities */
         $activities = $qb->select('act')
             // 0 = Prioritized Zone (unread, unanswered)
             // 2 = Expired Zone (expired)
@@ -107,7 +106,7 @@ class ActivityRepository extends EntityRepository
             WHEN act.expireAt < CURRENT_TIMESTAMP()
             THEN 2 
             ELSE 1
-            END) AS HIDDEN zone')
+            END) AS zone')
             ->from('CivixCoreBundle:Activity', 'act')
             ->leftJoin('act.activityConditions', 'act_c')
             ->leftJoin('act.activityRead', 'act_r', Query\Expr\Join::WITH, 'act_r.user = :user')
@@ -142,7 +141,11 @@ class ActivityRepository extends EntityRepository
         $filter = function (ActivityRead $activityRead) use ($user) {
             return $activityRead->getUser()->getId() == $user->getId();
         };
-        foreach ($activities as $activity) {
+        foreach ($activities as &$activity) {
+            $zone = $activity['zone'];
+            $activity = reset($activity);
+            /** @var Activity $activity */
+            $activity->setZone($zone);
             if ($activity->getActivityRead()->filter($filter)->count()) {
                 $activity->setRead(true);
             }
@@ -461,7 +464,7 @@ class ActivityRepository extends EntityRepository
             WHEN act.expireAt < CURRENT_TIMESTAMP()
             THEN 2 
             ELSE 1
-            END) AS HIDDEN zone')
+            END) AS zone')
             ->leftJoin('act.activityConditions', 'act_c')
             ->leftJoin('act.activityRead', 'act_r', Query\Expr\Join::WITH, 'act_r.user = :user')
             ->setParameter(':user', $user)

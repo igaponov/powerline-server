@@ -72,6 +72,7 @@ class ActivityControllerTest extends WebTestCase
 		$this->assertCount(7, $data['payload']);
 		$current = reset($data['payload']);
 		while ($next = next($data['payload'])) {
+		    $this->assertSame('prioritized', $next['zone']);
 			$this->assertLessThanOrEqual(
 				strtotime($current['sent_at']), 
 				strtotime($next['sent_at'])
@@ -108,7 +109,8 @@ class ActivityControllerTest extends WebTestCase
 		$this->assertCount(2, $data['payload']);
 		$current = reset($data['payload']);
 		while ($next = next($data['payload'])) {
-			$this->assertLessThanOrEqual(
+            $this->assertSame('prioritized', $next['zone']);
+            $this->assertLessThanOrEqual(
 				strtotime($current['sent_at']),
 				strtotime($next['sent_at'])
 			);
