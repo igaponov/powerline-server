@@ -24,7 +24,7 @@ class Answer
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-answers-list", "api-leader-answers"})
+     * @Serializer\Groups({"api-answers-list", "api-leader-answers", "api-petitions-answers"})
      */
     private $id;
 
@@ -39,7 +39,7 @@ class Answer
     /**
      * @ORM\Column(name="option_id", type="integer")
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-leader-answers", "api-answers-list"})
+     * @Serializer\Groups({"api-leader-answers", "api-answers-list", "api-petitions-answers"})
      * @Assert\NotBlank()
      * @Assert\Choice(callback="\Civix\CoreBundle\Entity\Micropetitions\Petition::getOptionIds", message="Incorrect answer's option")
      */
@@ -63,7 +63,7 @@ class Answer
      *
      * @ORM\Column(name="created_at", type="datetime")
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-leader-answers"})
+     * @Serializer\Groups({"api-leader-answers", "api-petitions-answers"})
      */
     private $createdAt;
     /**

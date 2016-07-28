@@ -35,10 +35,13 @@ class MicropetitionControllerTest extends WebTestCase
 
     public function testGetMicropetitions()
     {
-        $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserGroupFollowerTestData::class,
             LoadMicropetitionData::class,
-        ]);
+            LoadMicropetitionAnswerData::class,
+        ])->getReferenceRepository();
+        $petition = $repository->getReference('micropetition_1');
+        $answer = $repository->getReference('micropetition_answer_1');
         $client = $this->client;
         $client->request('GET',
             self::API_ENDPOINT, [], [],
@@ -49,6 +52,12 @@ class MicropetitionControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertSame(6, $data['totalItems']);
         $this->assertCount(6, $data['payload']);
+        foreach ($data['payload'] as $item) {
+            if ($petition->getId() == $item['id']) {
+                $this->assertCount(1, $item['answers']);
+                $this->assertEquals($answer->getOptionId(), $item['answers'][0]['option_id']);
+            }
+        }
     }
 
     public function testGetMicropetitionsByTag()

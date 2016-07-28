@@ -7,6 +7,7 @@ use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Entity\Micropetitions\Petition;
+use Doctrine\ORM\Query\Expr\Join;
 
 class PetitionRepository extends EntityRepository
 {
@@ -142,12 +143,14 @@ class PetitionRepository extends EntityRepository
             ->getResult();
     }
 
-    public function getFindByQuery($criteria)
+    public function getFindByQuery(User $user, $criteria)
     {
         $qb = $this->createQueryBuilder('p')
-            ->select('p, u, g')
+            ->select('p, u, g, a')
             ->leftJoin('p.user', 'u')
             ->leftJoin('p.group', 'g')
+            ->leftJoin('p.answers', 'a', Join::WITH, 'a.user = :user')
+            ->setParameter(':user', $user)
         ;
         if (!empty($criteria['start'])) {
             $qb->andWhere('p.createdAt > :start')
