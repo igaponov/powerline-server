@@ -71,7 +71,7 @@ class ActivityController extends FOSRestController
             } else {
                 $query = $this->getDoctrine()
                     ->getRepository('CivixCoreBundle:Activity')
-                    ->getActivitiesByFollowingQuery($userFollow->getUser(), $start);
+                    ->getActivitiesByFollowingQuery($userFollow->getFollower(), $userFollow->getUser(), $start);
             }
         } else {
             $query = $this->getDoctrine()->getRepository('CivixCoreBundle:Activity')

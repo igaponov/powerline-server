@@ -11,6 +11,7 @@ use Civix\CoreBundle\Entity\Activities\Petition;
 use Civix\CoreBundle\Entity\Activities\Question;
 use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\ActivityCondition;
+use Civix\CoreBundle\Entity\Group;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -49,8 +50,9 @@ class LoadActivityData extends AbstractFixture implements ContainerAwareInterfac
         $micropetition = $this->generateActivity(new MicroPetition(), $user);
         $manager->persist($micropetition);
         $this->addReference('activity_micropetition', $micropetition);
+        $group = $this->getReference('testfollowprivategroups');
         $user2 = $this->getReference('userfollowtest1');
-        $petition = $this->generateActivity(new Petition(), $user2);
+        $petition = $this->generateActivity(new Petition(), $user2, null, $group);
         $manager->persist($petition);
         $this->addReference('activity_petition', $petition);
         $question = $this->generateActivity(new Question(), $user2, new \DateTime('-1 day'));
@@ -70,7 +72,7 @@ class LoadActivityData extends AbstractFixture implements ContainerAwareInterfac
         $manager->flush();
     }
 
-    private function generateActivity(Activity $activity, $user, $expired = null)
+    private function generateActivity(Activity $activity, $user, $expired = null, Group $group = null)
     {
         $faker = Factory::create();
         $activity->setTitle($faker->word);
@@ -82,6 +84,9 @@ class LoadActivityData extends AbstractFixture implements ContainerAwareInterfac
         $activityCondition = new ActivityCondition();
         $activityCondition->setUserId($user->getId());
         $activityCondition->addUsers($user);
+        if ($group) {
+            $activityCondition->setGroupId($group->getId());
+        }
         $activity->addActivityCondition($activityCondition);
 
         return $activity;
@@ -89,6 +94,6 @@ class LoadActivityData extends AbstractFixture implements ContainerAwareInterfac
 
     public function getDependencies()
     {
-        return [LoadUserData::class];
+        return [LoadUserData::class, LoadGroupFollowerTestData::class];
     }
 }

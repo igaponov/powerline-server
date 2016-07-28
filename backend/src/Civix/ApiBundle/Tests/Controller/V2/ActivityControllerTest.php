@@ -2,10 +2,12 @@
 namespace Civix\ApiBundle\Tests\Controller\Leader;
 
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityData;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -37,6 +39,7 @@ class ActivityControllerTest extends WebTestCase
 		$this->repository = $this->loadFixtures([
 			LoadUserData::class,
 			LoadUserFollowData::class,
+            LoadUserGroupFollowerTestData::class,
 			LoadActivityData::class,
 		])->getReferenceRepository();
 
@@ -84,7 +87,7 @@ class ActivityControllerTest extends WebTestCase
 	public function testGetActivitiesIsEmpty()
 	{
 		$client = $this->client;
-		$client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest3"']);
+		$client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
@@ -98,15 +101,20 @@ class ActivityControllerTest extends WebTestCase
 	{
 		/** @var User $user */
 		$user = $this->repository->getReference('userfollowtest1');
+        $following = $this->repository->getReference('followertest');
+        $group = $this->repository->getReference('testfollowprivategroups');
 		$client = $this->client;
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('database_connection');
+        $conn->insert('users_groups', ['user_id' => $following->getId(), 'group_id' => $group->getId(), 'status' => UserGroup::STATUS_ACTIVE, 'created_at' => date('Y-m-d H:i:s')]);
 		$client->request('GET', self::API_ENDPOINT, ['following' => $user->getId()], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']);
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
 		$this->assertSame(1, $data['page']);
 		$this->assertSame(20, $data['items']);
-		$this->assertSame(2, $data['totalItems']);
-		$this->assertCount(2, $data['payload']);
+		$this->assertSame(1, $data['totalItems']);
+		$this->assertCount(1, $data['payload']);
 		$current = reset($data['payload']);
 		while ($next = next($data['payload'])) {
             $this->assertSame('prioritized', $next['zone']);
