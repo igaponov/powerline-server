@@ -146,7 +146,9 @@ class Petition
     private $type = self::TYPE_QUORUM;
 
     /**
-     * @ORM\OneToMany(targetEntity="Answer", mappedBy="petition", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="Answer", mappedBy="petition", cascade={"remove"}, fetch="EXTRA_LAZY")
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-petitions-answers"})
      */
     private $answers;
 

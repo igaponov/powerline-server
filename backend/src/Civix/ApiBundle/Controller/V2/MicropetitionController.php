@@ -60,7 +60,7 @@ class MicropetitionController extends FOSRestController
      *     }
      * )
      *
-     * @View(serializerGroups={"paginator", "api-petitions-create", "api-petitions-info"})
+     * @View(serializerGroups={"paginator", "api-petitions-create", "api-petitions-info", "api-petitions-answers"})
      *
      * @param ParamFetcher $params
      *
@@ -70,7 +70,7 @@ class MicropetitionController extends FOSRestController
     {
         $query = $this->getDoctrine()
             ->getRepository('CivixCoreBundle:Micropetitions\Petition')
-            ->getFindByQuery($params->all());
+            ->getFindByQuery($this->getUser(), $params->all());
 
         return $this->get('knp_paginator')->paginate(
             $query,
