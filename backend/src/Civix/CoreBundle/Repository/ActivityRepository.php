@@ -427,16 +427,36 @@ class ActivityRepository extends EntityRepository
     /**
      * Find activities by Following the user.
      *
+     * @param User $user
      * @param User $following
      * @param \DateTime $start
      * @return Query
      * @internal param int $followingId
      */
-    public function getActivitiesByFollowingQuery(User $following, \DateTime $start = null)
+    public function getActivitiesByFollowingQuery(User $user, User $following, \DateTime $start = null)
     {
+        $expr = $this->getEntityManager()->getExpressionBuilder();
+        $districtsIds = $user->getDistrictsIds();
+        $sectionsIds = $user->getGroupSectionsIds();
+        $activeGroups = $this->getEntityManager()->getRepository('CivixCoreBundle:UserGroup')
+            ->getActiveGroupIds($user);
+
         $query = $this->getActivitiesQueryBuilder($following, $start)
             ->andWhere('act_c.userId = :following')
+            ->andWhere(
+                $expr->orX(
+                    $expr->in('act_c.districtId', ':userDistrictsIds'),
+                    'act_c.isSuperuser != 1',
+                    $expr->in('act_c.groupId', ':userGroupsIds'),
+                    $expr->in('act_c.groupSectionId', ':userGroupSectionIds'),
+                    ':user MEMBER OF act_c.users'
+                )
+            )
             ->setParameter('following', $following->getId())
+            ->setParameter('userDistrictsIds', empty($districtsIds) ? false : $districtsIds)
+            ->setParameter('userGroupsIds', empty($activeGroups) ? false : $activeGroups)
+            ->setParameter('userGroupSectionIds', empty($sectionsIds) ? false : $sectionsIds)
+            ->setParameter('user', $user)
             ->getQuery();
         
         return $query;
