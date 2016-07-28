@@ -92,7 +92,10 @@ class CacheClearListener implements \PHPUnit_Framework_TestListener
      */
     public function startTest(PHPUnit_Framework_Test $test)
     {
-        // TODO: Implement startTest() method.
+        $pattern = __DIR__.'/../../../../app/cache/test/test_*.ser';
+        foreach (glob($pattern) as $item) {
+            unlink($item);
+        }
     }
 
     /**
@@ -103,9 +106,6 @@ class CacheClearListener implements \PHPUnit_Framework_TestListener
      */
     public function endTest(PHPUnit_Framework_Test $test, $time)
     {
-        $pattern = __DIR__.'/../../../../app/cache/test/test_*.ser';
-        foreach (glob($pattern) as $item) {
-            unlink($item);
-        }
+        // TODO: Implement endTest() method.
     }
 }

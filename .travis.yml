@@ -8,7 +8,7 @@ before_script:
   - cp app/config/parameters.travis.yml app/config/parameters.yml
   - composer install --ignore-platform-reqs --no-interaction --prefer-dist
 script:
-- phpunit -c app/
+- phpunit -c app/phpunit.xml.dist
 notifications:
   slack:
     rooms:

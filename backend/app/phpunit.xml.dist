@@ -2,20 +2,19 @@
 
 <!-- http://www.phpunit.de/manual/current/en/appendixes.configuration.html -->
 <phpunit
-    backupGlobals               = "false"
-    backupStaticAttributes      = "false"
-    convertErrorsToExceptions   = "true"
-    convertNoticesToExceptions  = "true"
-    convertWarningsToExceptions = "true"
-    processIsolation            = "false"
-    stopOnFailure               = "false"
-    syntaxCheck                 = "false"
-    bootstrap                   = "bootstrap.php.cache" >
+        backupGlobals               = "false"
+        backupStaticAttributes      = "false"
+        convertErrorsToExceptions   = "true"
+        convertNoticesToExceptions  = "true"
+        convertWarningsToExceptions = "true"
+        processIsolation            = "true"
+        stopOnFailure               = "false"
+        syntaxCheck                 = "false"
+        bootstrap                   = "bootstrap.php.cache" >
 
     <testsuites>
         <testsuite name="Project Test Suite">
-            <directory>../src/*/*Bundle/Tests</directory>
-            <directory>../src/*/Bundle/*Bundle/Tests</directory>
+            <directory>../src/Civix/*Bundle/Tests</directory>
         </testsuite>
     </testsuites>
 
@@ -25,15 +24,10 @@
             <directory>../app</directory>
             <directory>../web</directory>
         </blacklist>
-        <whitelist>
-            <directory>../src</directory>
-            <exclude>
-                <directory>../src/*/*Bundle/Resources</directory>
-                <directory>../src/*/*Bundle/Tests</directory>
-                <directory>../src/*/Bundle/*Bundle/Resources</directory>
-                <directory>../src/*/Bundle/*Bundle/Tests</directory>
-            </exclude>
-        </whitelist>
     </filter>
+
+    <listeners>
+        <listener class="Civix\CoreBundle\Tests\CacheClearListener" />
+    </listeners>
 
 </phpunit>
