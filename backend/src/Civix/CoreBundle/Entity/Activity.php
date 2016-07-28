@@ -37,6 +37,15 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  */
 abstract class Activity
 {
+    const TYPE_QUESTION = "question";
+    const TYPE_PETITION = "petition";
+    const TYPE_MICRO_PETITION = "micro-petition";
+    const TYPE_LEADER_NEWS = "leader-news";
+    const TYPE_PAYMENT_REQUEST = "payment-request";
+    const TYPE_CRWODFUNDING_PAYMENT_REQUEST = "crowdfunding-payment-request";
+    const TYPE_LEADER_EVENT = "leader-event";
+    const TYPE_ALL = "all";
+
     const ZONE_PRIORITIZED = 0;
 
     const ZONE_NON_PRIORITIZED = 1;

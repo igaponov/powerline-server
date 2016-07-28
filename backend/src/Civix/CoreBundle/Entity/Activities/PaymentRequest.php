@@ -16,7 +16,7 @@ class PaymentRequest extends Question
     public function getEntity()
     {
         return array(
-            'type' => 'payment-request',
+            'type' => self::TYPE_PAYMENT_REQUEST,
             'id' => $this->getQuestionId(),
         );
     }

@@ -37,7 +37,7 @@ class MicroPetition extends Activity
 
     public function getEntity()
     {
-        $type = 'micro-petition';
+        $type = self::TYPE_MICRO_PETITION;
         if ($this->getPetition()) {
             $type .= ':'.str_replace(' ', '-', $this->getPetition()->getType());
         }

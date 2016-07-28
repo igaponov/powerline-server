@@ -16,7 +16,7 @@ class CrowdfundingPaymentRequest extends Question
     public function getEntity()
     {
         return array(
-            'type' => 'crowdfunding-payment-request',
+            'type' => self::TYPE_CRWODFUNDING_PAYMENT_REQUEST,
             'id' => $this->getQuestionId(),
         );
     }

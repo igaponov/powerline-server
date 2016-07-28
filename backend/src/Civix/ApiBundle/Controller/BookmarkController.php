@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\Bookmark;
 use Civix\CoreBundle\Repository\BookmarkRepository;
 use Doctrine\ORM\EntityManager;
@@ -28,7 +29,7 @@ class BookmarkController extends BaseController
      *      "/list/{type}/{page}",
      *      requirements={
      *          "page"="\d+",
-     *          "type"="petition|micro_petition|question|leader_news|payment_request|crowdfunding_payment_request|leader_event|all"
+     *          "type"="petition|micro-petition|question|leader-news|payment-request|crowdfunding-payment-request|leader-event|all"
      *      },
      *      name="api_bookmarks_list"
      * )
@@ -36,8 +37,7 @@ class BookmarkController extends BaseController
      * @ApiDoc(
      *     section="Bookmark",
      *     resource=true,
-     *     description="Get saved items. The saved item can be petition, micro_petition, question, leader_news, payment_request,
-     *                  crowdfunding_payment_request, leader_event, all",
+     *     description="Get saved items. The saved item can be petition, micro-petition, question, leader-news, payment-request, crowdfunding-payment-request, leader-event, all",
      *     statusCodes={
      *         200="Returns saved items",
      *         401="Authorization required",
@@ -72,7 +72,7 @@ class BookmarkController extends BaseController
      *     "/add/{type}/{itemId}",
      *     requirements={
      *          "itemId"="\d+",
-     *          "type"="petition|micro_petition|question|leader_news|payment_request|crowdfunding_payment_request|leader_event"
+     *          "type"="petition|micro-petition|question|leader-news|payment-request|crowdfunding-payment-request|leader-event"
      *      },
      *      name="api_bookmarks_add"
      * )
@@ -80,8 +80,7 @@ class BookmarkController extends BaseController
      * @ApiDoc(
      *     section="Bookmark",
      *     resource=true,
-     *     description="Add saved item. The saved item can be petition, micro_petition, question, leader_news, payment_request,
-     *                  crowdfunding_payment_request, leader_event",
+     *     description="Add saved item. The saved item can be petition, micro-petition, question, leader-news, payment-request, crowdfunding-payment-request, leader-event",
      *     statusCodes={
      *         200="Returns saved item",
      *         401="Authorization required",
@@ -149,7 +148,7 @@ class BookmarkController extends BaseController
     {
         $types = BookmarkRepository::allowedTypes();
         if ($includeAll)
-            $types[] = Bookmark::TYPE_ALL;
+            $types[] = Activity::TYPE_ALL;
 
         return array_keys($types);
     }

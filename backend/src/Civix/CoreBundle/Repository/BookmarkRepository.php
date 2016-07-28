@@ -3,10 +3,10 @@
 namespace Civix\CoreBundle\Repository;
 
 use Civix\CoreBundle\Entity\Activities;
+use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\Bookmark;
 use Civix\CoreBundle\Entity\User;
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\QueryBuilder;
 
 class BookmarkRepository extends EntityRepository
 {
@@ -22,7 +22,7 @@ class BookmarkRepository extends EntityRepository
         $itemPerPage = 10;
         $startRow = ($page -1) * $itemPerPage;
 
-        if ($type === Bookmark::TYPE_ALL) {
+        if ($type === Activity::TYPE_ALL) {
             $dql = "SELECT COUNT(a) FROM CivixCoreBundle:Bookmark a WHERE a.user = :user";
             $query = $this->_em->createQuery($dql);
             $query->setParameters(array('user' => $user));
@@ -128,13 +128,13 @@ class BookmarkRepository extends EntityRepository
     public static function allowedTypes()
     {
         $types = [
-            Bookmark::TYPE_QUESTION => Activities\Question::class,
-            Bookmark::TYPE_PETITION => Activities\Petition::class,
-            Bookmark::TYPE_MICRO_PETITION => Activities\MicroPetition::class,
-            Bookmark::TYPE_LEADER_NEWS => Activities\LeaderNews::class,
-            Bookmark::TYPE_PAYMENT_REQUEST => Activities\PaymentRequest::class,
-            Bookmark::TYPE_CRWODFUNDING_PAYMENT_REQUEST => Activities\CrowdfundingPaymentRequest::class,
-            Bookmark::TYPE_LEADER_EVENT => Activities\LeaderEvent::class,
+            Activity::TYPE_QUESTION => Activities\Question::class,
+            Activity::TYPE_PETITION => Activities\Petition::class,
+            Activity::TYPE_MICRO_PETITION => Activities\MicroPetition::class,
+            Activity::TYPE_LEADER_NEWS => Activities\LeaderNews::class,
+            Activity::TYPE_PAYMENT_REQUEST => Activities\PaymentRequest::class,
+            Activity::TYPE_CRWODFUNDING_PAYMENT_REQUEST => Activities\CrowdfundingPaymentRequest::class,
+            Activity::TYPE_LEADER_EVENT => Activities\LeaderEvent::class,
         ];
 
         return $types;

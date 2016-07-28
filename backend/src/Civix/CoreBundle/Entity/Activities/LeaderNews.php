@@ -36,7 +36,7 @@ class LeaderNews extends Activity
     public function getEntity()
     {
         return array(
-            'type' => 'leader-news',
+            'type' => self::TYPE_LEADER_NEWS,
             'id' => $this->getQuestionId(),
         );
     }

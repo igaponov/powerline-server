@@ -5,6 +5,7 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Activities\MicroPetition;
 use Civix\CoreBundle\Entity\Activities\Petition;
 use Civix\CoreBundle\Entity\Activities\Question;
+use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\Bookmark;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Repository\BookmarkRepository;
@@ -26,12 +27,11 @@ class BookmarkControllerTest extends WebTestCase
     /** @var  Petition[] */
     private $petitions;
 
-
     /** @var MicroPetition[] */
-    private $microPetition;
+    private $microPetitions;
 
     /** @var  Question[] */
-    private $question;
+    private $questions;
 
     /** @var User */
     private $user;
@@ -52,11 +52,11 @@ class BookmarkControllerTest extends WebTestCase
             $reference->getReference('activity_petition')
         ];
 
-        $this->microPetition = [
+        $this->microPetitions = [
             $reference->getReference('activity_micropetition')
         ];
 
-        $this->question = [
+        $this->questions = [
             $reference->getReference('activity_question')
         ];
 
@@ -64,13 +64,13 @@ class BookmarkControllerTest extends WebTestCase
         $repo = $this->getContainer()->get('doctrine')->getRepository(Bookmark::class);
 
         foreach ($this->petitions as $item)
-            $repo->save(Bookmark::TYPE_PETITION, $this->user, $item->getId());
+            $repo->save(Activity::TYPE_PETITION, $this->user, $item->getId());
 
-        foreach ($this->microPetition as $item)
-            $repo->save(Bookmark::TYPE_MICRO_PETITION, $this->user, $item->getId());
+        foreach ($this->microPetitions as $item)
+            $repo->save(Activity::TYPE_MICRO_PETITION, $this->user, $item->getId());
 
-        foreach ($this->question as $item)
-            $repo->save(Bookmark::TYPE_QUESTION, $this->user, $item->getId());
+        foreach ($this->questions as $item)
+            $repo->save(Activity::TYPE_QUESTION, $this->user, $item->getId());
 
         if (empty($this->userToken))
             $this->userToken = $this->getLoginToken($this->user);
@@ -79,13 +79,9 @@ class BookmarkControllerTest extends WebTestCase
     protected function tearDown()
     {
         $this->user = null;
-        $this->petitions = null;
-        $this->petitionAnswers = null;
-        $this->petitionComments = null;
-        $this->posts = null;
-        $this->questions = null;
-        $this->questionAnswers = null;
-        $this->questionComments = null;
+        $this->petitions = [];
+        $this->microPetitions = [];
+        $this->questions = [];
         $this->userToken = null;
         parent::tearDown();
     }
@@ -102,17 +98,17 @@ class BookmarkControllerTest extends WebTestCase
         $this->isSuccessful($client->getResponse(), false);
         $this->assertStatusCode(404, $client);
 
-        $client->request('GET', '/api/bookmarks/list/' . Bookmark::TYPE_PETITION);
+        $client->request('GET', '/api/bookmarks/list/' . Activity::TYPE_PETITION);
         $content = $client->getResponse()->getContent();
         $this->assertEquals($this->toJsonObject($this->petitions), $this->buildResponse($content));
 
-        $client->request('GET', '/api/bookmarks/list/' . Bookmark::TYPE_MICRO_PETITION);
+        $client->request('GET', '/api/bookmarks/list/' . Activity::TYPE_MICRO_PETITION);
         $content = $client->getResponse()->getContent();
-        $this->assertEquals($this->toJsonObject($this->microPetition), $this->buildResponse($content));
+        $this->assertEquals($this->toJsonObject($this->microPetitions), $this->buildResponse($content));
 
-        $client->request('GET', '/api/bookmarks/list/' . Bookmark::TYPE_QUESTION);
+        $client->request('GET', '/api/bookmarks/list/' . Activity::TYPE_QUESTION);
         $content = $client->getResponse()->getContent();
-        $this->assertEquals($this->toJsonObject($this->question), $this->buildResponse($content));
+        $this->assertEquals($this->toJsonObject($this->questions), $this->buildResponse($content));
     }
 
     private function toJsonObject($object)
