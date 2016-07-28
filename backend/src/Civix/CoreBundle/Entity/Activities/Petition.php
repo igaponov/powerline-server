@@ -16,7 +16,7 @@ class Petition extends Question
     public function getEntity()
     {
         return array(
-            'type' => 'petition',
+            'type' => self::TYPE_PETITION,
             'id' => $this->getQuestionId(),
         );
     }

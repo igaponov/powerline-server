@@ -36,7 +36,7 @@ class Question extends Activity
     public function getEntity()
     {
         return array(
-            'type' => 'question',
+            'type' => self::TYPE_QUESTION,
             'id' => $this->getQuestionId(),
         );
     }

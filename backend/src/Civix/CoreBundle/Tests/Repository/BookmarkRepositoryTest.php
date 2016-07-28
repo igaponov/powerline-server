@@ -1,6 +1,7 @@
 <?php
 namespace Civix\CoreBundle\Tests\Repository;
 
+use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\Bookmark;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Repository\BookmarkRepository;
@@ -45,10 +46,10 @@ class BookmarkRepositoryTest extends WebTestCase
 
         $this->repo = $this->getContainer()->get('doctrine')->getRepository(Bookmark::class);
 
-        $this->bookmark1 = $this->repo->save(Bookmark::TYPE_MICRO_PETITION, $this->user, $microPetition->getId());
-        $this->bookmark2 = $this->repo->save(Bookmark::TYPE_MICRO_PETITION, $this->user, $microPetition->getId());
-        $this->bookmark3 = $this->repo->save(Bookmark::TYPE_QUESTION, $this->user, $question->getId());
-        $this->bookmark4 = $this->repo->save(Bookmark::TYPE_PETITION, $this->user, $petition->getId());
+        $this->bookmark1 = $this->repo->save(Activity::TYPE_MICRO_PETITION, $this->user, $microPetition->getId());
+        $this->bookmark2 = $this->repo->save(Activity::TYPE_MICRO_PETITION, $this->user, $microPetition->getId());
+        $this->bookmark3 = $this->repo->save(Activity::TYPE_QUESTION, $this->user, $question->getId());
+        $this->bookmark4 = $this->repo->save(Activity::TYPE_PETITION, $this->user, $petition->getId());
     }
 
     protected function tearDown()
@@ -78,9 +79,9 @@ class BookmarkRepositoryTest extends WebTestCase
      */
     public function testFindByType()
     {
-        $savedBookmarks1 = $this->repo->findByType(Bookmark::TYPE_ALL, $this->user, 1);
-        $savedBookmarks2 = $this->repo->findByType(Bookmark::TYPE_LEADER_EVENT, $this->user, 1);
-        $savedBookmarks3 = $this->repo->findByType(Bookmark::TYPE_PETITION, $this->user, 1);
+        $savedBookmarks1 = $this->repo->findByType(Activity::TYPE_ALL, $this->user, 1);
+        $savedBookmarks2 = $this->repo->findByType(Activity::TYPE_LEADER_EVENT, $this->user, 1);
+        $savedBookmarks3 = $this->repo->findByType(Activity::TYPE_PETITION, $this->user, 1);
 
         $this->assertCount(3, $savedBookmarks1['items']);
         $this->assertCount(0, $savedBookmarks2['items']);
@@ -92,7 +93,7 @@ class BookmarkRepositoryTest extends WebTestCase
      */
     public function testDelete()
     {
-        $savedBookmarks = $this->repo->findByType(Bookmark::TYPE_ALL, $this->user, 1);
+        $savedBookmarks = $this->repo->findByType(Activity::TYPE_ALL, $this->user, 1);
 
         $deleted = array();
         foreach($savedBookmarks['items'] as $item) {
