@@ -114,6 +114,11 @@
                 </argument>
             </call>
         </service>
+
+        <service class="Civix\ApiBundle\Security\Http\Authentication\AuthenticationFailureHandler" id="civix_api.security.authentication_failure_handler"/>
+        <service class="Civix\ApiBundle\Security\Http\Authentication\AuthenticationSuccessHandler" id="civix_api.security.authentication_success_handler">
+            <argument id="jms_serializer.serializer" type="service"/>
+        </service>
     </services>
 
 </container>
