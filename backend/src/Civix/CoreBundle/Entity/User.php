@@ -245,7 +245,7 @@ class User implements UserInterface, \Serializable
     /**
      * @var string
      *
-     * @ORM\Column(name="phone_hash", type="string", length=40)
+     * @ORM\Column(name="phone_hash", type="string", length=40, nullable=true)
      * @Assert\NotBlank(groups={"registration", "profile"})
      */
     private $phoneHash;

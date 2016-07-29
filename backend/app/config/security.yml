@@ -130,6 +130,17 @@ security:
 
         mobileuser_security_area:
             pattern: ^/api/
+            stateless: ~
+            oauth:
+                login_path: /api/v2/security
+                check_path: /api/v2/login_check
+                resource_owners:
+                    facebook: "/api/v2/security/facebook"
+                oauth_user_provider:
+                    service: api.security.user.provider
+                require_previous_session: false
+                success_handler: civix_api.security.authentication_success_handler
+                failure_handler: civix_api.security.authentication_failure_handler
             security: true
             header: true
             provider: mobileuser

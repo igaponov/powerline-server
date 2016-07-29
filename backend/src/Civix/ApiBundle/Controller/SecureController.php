@@ -129,22 +129,25 @@ class SecureController extends BaseController
     }
 
     /**
+     * Deprecated, use `GET /api/v2/security/facebook` instead.
+     *
      * @Route("/facebook/login", name="api_secure_facebook_login")
      * @Method("POST")
      * 
      * @ApiDoc(
-     *     resource=true,
-     *         description="Facebook login",
-     *         filters={
-     *             {"name"="facebook_token", "dataType"="string"},
-     *             {"name"="facebook_id", "dataType"="string"}
-     *      },
-     *      statusCodes={
-     *          200="Returns authorization token",
-     *          201="Need to register",
-     *          400="Incorrect facebook token",
-     *          405="Method Not Allowed"
-     *      }
+     *     section="Security",
+     *     description="Facebook login",
+     *     filters={
+     *         {"name"="facebook_token", "dataType"="string"},
+     *         {"name"="facebook_id", "dataType"="string"}
+     *     },
+     *     statusCodes={
+     *         200="Returns authorization token",
+     *         201="Need to register",
+     *         400="Incorrect facebook token",
+     *         405="Method Not Allowed"
+     *     },
+     *     deprecated=true
      * )
      */
     public function facebookLogin(Request $request)
@@ -284,10 +287,12 @@ class SecureController extends BaseController
     }
 
     /**
+     * Deprecated, use `GET /api/v2/security/facebook` instead.
+     *
      * @Route("/registration-facebook", name="api_secure_facebook_register")
      * @Method("POST")
      * @ApiDoc(
-     *     resource=true,
+     *     section="Security",
      *     description="Registration from facebook",
      *     filters={
      *         {"name"="facebook_token", "dataType"="string"},
@@ -310,7 +315,8 @@ class SecureController extends BaseController
      *         200="Returns authorization token",
      *         400="Incorrect facebook token",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      */
     public function facebookRegistration(Request $request)
@@ -517,6 +523,8 @@ class SecureController extends BaseController
         return $user;
     }
     /**
+     * Deprecated.
+     *
      * @Route("/registration-group", name="civix_group_registration")
      * @Method("POST")
      *
@@ -527,7 +535,8 @@ class SecureController extends BaseController
      *     output={
      *          "class" = "Civix\CoreBundle\Entity\Group",
      *          "groups" = {"api-group"}
-     *     }
+     *     },
+     *     deprecated=true
      * )
      *
      * @View(serializerGroups={"api-group"})

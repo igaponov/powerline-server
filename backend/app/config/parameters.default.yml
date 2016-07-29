@@ -67,3 +67,6 @@ parameters:
     imgix.domain:  powerline-dev.imgix.net
 
     default_api_version: 1
+
+    facebook_client_id: xxx
+    facebook_client_secret: yyy
