@@ -27,7 +27,7 @@ class HeaderFactory implements SecurityFactoryInterface
 
     public function getPosition()
     {
-        return 'pre_auth';
+        return 'http';
     }
 
     public function getKey()

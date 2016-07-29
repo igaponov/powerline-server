@@ -48,7 +48,9 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
             ->setSalt(base_convert(sha1(uniqid(mt_rand(), true)), 16, 36))
             ->setToken('user1')
             ->setSlogan('User 1 Slogan')
-            ->setBio('User 1 Bio');
+            ->setBio('User 1 Bio')
+            ->setFacebookId('xXxXxXxXxXx')
+            ->setFacebookToken('yYyYyYyYyYy');
 
         $this->encodePassword($user);
         $this->addReference('user_1', $user);
