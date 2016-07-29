@@ -34,7 +34,8 @@ class AppKernel extends Kernel
             new OldSound\RabbitMqBundle\OldSoundRabbitMqBundle(),
             new Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle(),
             new FOS\RestBundle\FOSRestBundle(),
-            
+            new HWI\Bundle\OAuthBundle\HWIOAuthBundle(),
+
             new Civix\FrontBundle\CivixFrontBundle(),
             new Civix\CoreBundle\CivixCoreBundle(),
             new Civix\ApiBundle\CivixApiBundle(),
