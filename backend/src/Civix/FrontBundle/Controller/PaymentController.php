@@ -119,7 +119,6 @@ abstract class PaymentController extends Controller
 
                     $petition->setPublishedAt(new \DateTime());
                     $this->getDoctrine()->getManager()->flush($petition);
-                    $this->get('civix_core.activity_update')->publishPetitionToActivity($petition);
                     $event = new QuestionEvent($petition);
                     $this->get('event_dispatcher')->dispatch(PollEvents::QUESTION_PUBLISHED, $event);
                     $this->get('session')->getFlashBag()->add('notice', 'The petition has been successfully published');

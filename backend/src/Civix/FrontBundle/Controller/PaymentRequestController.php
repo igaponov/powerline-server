@@ -233,15 +233,11 @@ abstract class PaymentRequestController extends Controller
         $ignore = new Option();
         $ignore->setPaymentAmount(0)->setValue('Ignore')->setQuestion($paymentRequest);
         $this->getDoctrine()->getManager()->persist($ignore);
-        $this->getDoctrine()->getManager()->flush($paymentRequest);
-        $this->getDoctrine()->getManager()->flush($ignore);
+        $this->getDoctrine()->getManager()->flush();
 
-        $this->get('civix_core.activity_update')->publishPaymentRequestToActivity($paymentRequest);
         $event = new QuestionEvent($paymentRequest);
         $this->get('event_dispatcher')->dispatch(PollEvents::QUESTION_PUBLISHED, $event);
         $this->get('session')->getFlashBag()->add('notice', 'The payment request has been successfully published');
-        $this->getDoctrine()
-            ->getRepository('CivixCoreBundle:HashTag')->addForQuestion($paymentRequest);
 
         return $this->redirect($this->generateUrl("civix_front_{$this->getUser()->getType()}_paymentrequest_index"));
     }
@@ -283,10 +279,8 @@ abstract class PaymentRequestController extends Controller
                 $ignore = new Option();
                 $ignore->setPaymentAmount(0)->setValue('Ignore')->setQuestion($paymentRequest);
                 $this->getDoctrine()->getManager()->persist($ignore);
-                $this->getDoctrine()->getManager()->flush($paymentRequest);
-                $this->getDoctrine()->getManager()->flush($ignore);
+                $this->getDoctrine()->getManager()->flush();
 
-                $this->get('civix_core.activity_update')->publishPaymentRequestToActivity($paymentRequest, $users);
                 $event = new QuestionEvent($paymentRequest);
                 $this->get('event_dispatcher')->dispatch(PollEvents::QUESTION_PUBLISHED, $event);
 

@@ -63,23 +63,12 @@ class ActivityUpdate
 
     public function publishQuestionToActivity(Question $question)
     {
-        $errors = $this->validator->validate($question, array('publish'));
-        if (count($errors) != 0) {
-            return $errors;
-        }
-
-        //update question
-        $publishDate = new \DateTime('now');
-
-        $question->setPublishedAt($publishDate);
-        $this->entityManager->persist($question);
-
         //create activity
         $activity = new ActivityQuestion();
         $activity->setQuestionId($question->getId());
         $activity->setTitle('');
         $activity->setDescription($question->getSubject());
-        $activity->setSentAt($publishDate);
+        $activity->setSentAt($question->getPublishedAt());
         $activity->setExpireAt($question->getExpireAt());
         $userMethod = 'set'.$this->getClassName($question);
         $activity->$userMethod($question->getUser());

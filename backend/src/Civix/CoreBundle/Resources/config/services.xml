@@ -205,6 +205,11 @@
             <argument type="service" id="request" />
         </service>
 
+        <service class="Civix\CoreBundle\Service\PollManager" id="civix_core.poll_manager">
+            <argument id="doctrine.orm.entity_manager" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+        </service>
+
         <service id="civix_core.openstates_api" class="Civix\CoreBundle\Service\OpenstatesApi">
             <argument>%sunlightapi_token%</argument>
         </service>
@@ -224,8 +229,13 @@
             <argument type="service" id="doctrine.orm.entity_manager" />
             <tag name="validator.constraint_validator" alias="civix_core.validator.not_joined_to_group" />
         </service>
-        <service class="Civix\CoreBundle\Validator\Constrains\PublishDateValidator" id="civix_core.validator.publish_date">
+        <service class="Civix\CoreBundle\Validator\Constraints\PublishDateValidator" id="civix_core.validator.publish_date">
             <tag name="validator.constraint_validator"/>
+        </service>
+
+        <service class="Civix\CoreBundle\Validator\Constraints\PublishedPollAmountValidator" id="civix_core.validator.published_poll_amount">
+            <argument id="civix_core.question_limit" type="service"/>
+            <tag name="validator.constraint_validator" alias="civix_core.validator.published_poll_amount"/>
         </service>
 
         <service id="aws_s3.client" class="Aws\S3\S3Client" factory-class="Aws\S3\S3Client" factory-method="factory">

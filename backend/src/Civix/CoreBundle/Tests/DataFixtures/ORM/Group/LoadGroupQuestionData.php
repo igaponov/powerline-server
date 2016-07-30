@@ -21,7 +21,7 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
 
         $question = new GroupQuestion();
         $question->setUser($group1);
-        $question->setSubject('subj '.$faker->sentence);
+        $question->setSubject('subj with #test-tag '.$faker->sentence);
         $question->setExpireAt(new \DateTime('+1 day'));
         for ($i = 0; $i < 2; $i++) {
             $option = new Option();
