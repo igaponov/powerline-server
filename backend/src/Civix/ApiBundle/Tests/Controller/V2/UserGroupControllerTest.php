@@ -113,9 +113,10 @@ class UserGroupControllerTest extends WebTestCase
 
     public function testCreateGroupIsOk()
     {
-        $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserData::class,
-        ]);
+        ])->getReferenceRepository();
+        $user = $repository->getReference('followertest');
         $faker = Factory::create();
         $params = [
             'username' => $faker->userName,
@@ -139,6 +140,10 @@ class UserGroupControllerTest extends WebTestCase
         foreach ($data as $property => $value) {
             $this->assertSame($value, $data[$property]);
         }
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('database_connection');
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM users_groups WHERE group_id = ? and user_id = ?', [$data['id'], $user->getId()]);
+        $this->assertEquals(1, $count);
     }
 
     /**
