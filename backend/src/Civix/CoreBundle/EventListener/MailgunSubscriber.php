@@ -61,11 +61,13 @@ class MailgunSubscriber implements EventSubscriberInterface
                 $groupName,
                 $group->getOfficialDescription()
             );
-            $this->mailgunApi->listAddMemberAction(
-                $groupName,
-                $group->getManagerEmail(),
-                $group->getManagerFullName()
-            );
+            if (trim($group->getManagerEmail())) {
+                $this->mailgunApi->listAddMemberAction(
+                    $groupName,
+                    $group->getManagerEmail(),
+                    $group->getManagerFullName()
+                );
+            }
         } catch (GenericHTTPError $e) {
             $this->logError($e);
         }
