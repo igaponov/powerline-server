@@ -225,7 +225,6 @@ abstract class NewsController extends Controller
         }
         $news->setPublishedAt(new \DateTime());
         $this->getDoctrine()->getManager()->flush();
-        $this->get('civix_core.activity_update')->publishLeaderNewsToActivity($news);
         $event = new QuestionEvent($news);
         $this->get('event_dispatcher')->dispatch(PollEvents::QUESTION_PUBLISHED, $event);
         $this->get('session')->getFlashBag()->add('notice', 'The news has been successfully published');

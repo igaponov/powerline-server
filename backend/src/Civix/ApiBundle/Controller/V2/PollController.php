@@ -9,14 +9,17 @@ use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Comment;
 use Civix\CoreBundle\Entity\Poll\Option;
 use Civix\CoreBundle\Entity\Poll\Question;
+use Civix\CoreBundle\Service\PollManager;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
+use JMS\DiExtraBundle\Annotation as DI;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\Validator;
 
 /**
  * Class for Leader Polls controller
@@ -25,6 +28,18 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class PollController extends FOSRestController
 {
+    /**
+     * @var Validator
+     * @DI\Inject("validator")
+     */
+    private $validator;
+
+    /**
+     * @var PollManager
+     * @DI\Inject("civix_core.poll_manager")
+     */
+    private $manager;
+
     /**
      * Return poll
      *
@@ -109,6 +124,47 @@ class PollController extends FOSRestController
     }
 
     /**
+     * Publish poll
+     *
+     * @Route("/{id}")
+     * @Method("PATCH")
+     *
+     * @SecureParam("question", permission="manage")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Polls",
+     *     description="Publish poll",
+     *     output={
+     *          "class" = "Civix\CoreBundle\Entity\Poll\Question",
+     *          "groups" = {"api-poll"}
+     *     },
+     *     statusCodes={
+     *         400="Bad Request",
+     *         403="Access Denied",
+     *         404="Poll Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @View(serializerGroups={"api-poll"})
+     *
+     * @param Question $question
+     *
+     * @return Question|\Symfony\Component\Form\Form
+     */
+    public function patchAction(Question $question)
+    {
+        $violations = $this->validator->validate($question, ['publish']);
+
+        if (!$violations->count()) {
+            return $this->manager->publish($question);
+        }
+
+        return $violations;
+    }
+
+    /**
      * Delete poll
      *
      * @Route("/{id}")
@@ -135,7 +191,7 @@ class PollController extends FOSRestController
      */
     public function deleteAction(Question $question)
     {
-        $violations = $this->get('validator')->validate($question, ['publish']);
+        $violations = $this->get('validator')->validate($question, ['update']);
         if (!$violations->count()) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($question);

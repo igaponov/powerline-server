@@ -226,6 +226,7 @@ abstract class QuestionController extends Controller
 
     /**
      * @Route("/publish/{id}", requirements={"id"="\d+"})
+     *
      * @ParamConverter("question", class="CivixCoreBundle:Poll\Question")
      */
     public function publishAction(Request $request, Question $question)
@@ -237,31 +238,13 @@ abstract class QuestionController extends Controller
         if ($question->getUser() !== $this->getUser()) {
             throw new AccessDeniedHttpException();
         }
-
+        $flashBag = $this->get('session')->getFlashBag();
         if ($this->getToken() === $request->get('token')) {
-            $this->getDoctrine()
-                ->getRepository('CivixCoreBundle:HashTag')->addForQuestion($question);
-            $expireDate = new \DateTime();
-            $expireDate->add(
-                new \DateInterval('P'.$this->get('civix_core.settings')->get(Settings::POLL_EXPIRE_INTERVAL)
-                        ->getValue().'D')
-            );
-            $question->setExpireAt($expireDate);
-
-            $result = $this->get('civix_core.activity_update')->publishQuestionToActivity($question);
-
             $event = new QuestionEvent($question);
             $this->get('event_dispatcher')->dispatch(PollEvents::QUESTION_PUBLISHED, $event);
-            
-            if ($result instanceof Activity) {
-                $this->get('session')->getFlashBag()->add('notice', 'Question has been successfully published');
-            } else {
-                foreach ($result as $singleError) {
-                    $this->get('session')->getFlashBag()->add('error', $singleError->getMessage());
-                }
-            }
+            $flashBag->add('notice', 'Question has been successfully published');
         } else {
-            $this->get('session')->getFlashBag()->add('error', 'Something went wrong');
+            $flashBag->add('error', 'Something went wrong');
         }
 
         return $this->redirect($this->generateUrl('civix_front_'.$this->getUser()->getType().'_question_index'));

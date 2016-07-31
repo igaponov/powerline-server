@@ -6,6 +6,7 @@ use Civix\CoreBundle\Entity\GroupSection;
 use Civix\CoreBundle\Entity\LeaderContentInterface;
 use Civix\CoreBundle\Entity\UserInterface;
 use Civix\CoreBundle\Validator\Constraints\PublishDate;
+use Civix\CoreBundle\Validator\Constraints\PublishedPollAmount;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -44,6 +45,7 @@ use Civix\CoreBundle\Entity\Representative;
  * 
  * @method setUser(UserInterface $user)
  * @PublishDate(objectName="Poll", groups={"update", "publish"})
+ * @PublishedPollAmount(groups={"publish"})
  */
 abstract class Question implements LeaderContentInterface
 {

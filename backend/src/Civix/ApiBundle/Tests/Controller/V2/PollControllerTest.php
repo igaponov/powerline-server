@@ -8,8 +8,9 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Doctrine\DBAL\Connection;
 use Faker\Factory;
-use Symfony\Component\BrowserKit\Client;
+use Symfony\Bundle\FrameworkBundle\Client;
 
 class PollControllerTest extends WebTestCase
 {
@@ -189,6 +190,85 @@ class PollControllerTest extends WebTestCase
 		$this->assertSame($question->getId(), $data['id']);
 		$this->assertSame($params['subject'], $data['subject']);
 	}
+
+	public function testPublishPollReturnsErrors()
+	{
+        $repository = $this->loadFixtures([
+            LoadGroupQuestionData::class,
+        ])->getReferenceRepository();
+        $errors = [
+            'Poll is already published',
+            'Published poll amount has been reached',
+        ];
+		$client = $this->client;
+        $serviceId = 'civix_core.question_limit';
+        $service = $this->getServiceMockBuilder($serviceId)
+            ->setMethods(['checkLimits'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $service->expects($this->once())->method('checkLimits')->will($this->returnValue(false));
+        $client->getContainer()->set($serviceId, $service);
+		$question = $repository->getReference('group_question_4');
+		$client->request('PATCH', self::API_ENDPOINT.'/'.$question->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user3"']);
+		$response = $client->getResponse();
+		$this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+		$data = json_decode($response->getContent(), true);
+		$this->assertSame('Validation Failed', $data['message']);
+        $this->assertSame($errors, $data['errors']['errors']);
+	}
+
+    /**
+     * @param $user
+     * @param $reference
+     * @dataProvider getInvalidPollCredentialsForUpdateRequest
+     */
+	public function testPublishPollWithWrongCredentialsReturnsException($user, $reference)
+	{
+        $repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupQuestionData::class,
+        ])->getReferenceRepository();
+		$client = $this->client;
+		$question = $repository->getReference($reference);
+		$client->request('PATCH', self::API_ENDPOINT.'/'.$question->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"'], '{}');
+		$response = $client->getResponse();
+		$this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+	}
+
+    /**
+     * @param $user
+     * @param $reference
+     * @dataProvider getValidPollCredentialsForUpdateRequest
+     */
+	public function testPublishPollIsOk($user, $reference)
+	{
+        $repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+            LoadGroupQuestionData::class,
+        ])->getReferenceRepository();
+		$question = $repository->getReference($reference);
+		$client = $this->client;
+        $serviceId = 'civix_core.question_limit';
+        $service = $this->getServiceMockBuilder($serviceId)
+            ->setMethods(['checkLimits'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $service->expects($this->once())->method('checkLimits')->will($this->returnValue(true));
+        $client->getContainer()->set($serviceId, $service);
+		$client->request('PATCH', self::API_ENDPOINT.'/'.$question->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
+		$response = $client->getResponse();
+		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+		$data = json_decode($response->getContent(), true);
+		$this->assertNotNull($data['published_at']);
+		$this->assertNotNull($data['expire_at']);
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('database_connection');
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM activities WHERE question_id = ?', [$question->getId()]);
+        $this->assertEquals(1, $count);
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM hash_tags WHERE name = ?', ['#test-tag']);
+        $this->assertEquals(1, $count);
+    }
 
     /**
      * @param $user

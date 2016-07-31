@@ -99,7 +99,7 @@
             <tag name="request.param_converter" converter="doctrine.param_converter" priority="-10"/>
         </service>
 
-        <service class="Civix\ApiBundle\EventListener\PetitionSubscriber" id="civix_api.event_listener.petition_subscriber">
+        <service class="Civix\ApiBundle\EventListener\LeaderContentSubscriber" id="civix_api.event_listener.petition_subscriber">
             <argument id="doctrine.orm.entity_manager" type="service"/>
             <argument id="civix_core.settings" type="service"/>
             <argument id="civix_core.poll.micropetition_manager" type="service"/>
