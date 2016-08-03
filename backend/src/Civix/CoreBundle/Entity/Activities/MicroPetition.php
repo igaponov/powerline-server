@@ -63,4 +63,20 @@ class MicroPetition extends Activity
     {
         return $this->quorum;
     }
+
+    /**
+     * @return int|void
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Type("integer")
+     * @Serializer\Groups({"api-activities"})
+     */
+    public function getCommentsCount()
+    {
+        if ($this->petition) {
+            return $this->petition->getComments()->count();
+        }
+
+        return 0;
+    }
 }

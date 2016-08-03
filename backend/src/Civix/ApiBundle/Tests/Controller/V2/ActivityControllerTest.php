@@ -75,6 +75,9 @@ class ActivityControllerTest extends WebTestCase
 		$this->assertCount(7, $data['payload']);
 		$current = reset($data['payload']);
 		while ($next = next($data['payload'])) {
+		    if ($next['entity']['type'] == 'micro-petition') {
+                $this->assertArrayHasKey('comments_count', $next);
+            }
 		    $this->assertSame('prioritized', $next['zone']);
 			$this->assertLessThanOrEqual(
 				strtotime($current['sent_at']), 
