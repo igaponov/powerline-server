@@ -260,4 +260,64 @@ class SecureControllerTest extends WebTestCase
 		$data = json_decode($response->getContent(), true);
 		$this->assertNotEmpty($data['token']);
 	}
+
+	public function testFacebookRegistrationIsOk()
+	{
+		$faker = Factory::create();
+		$data = [
+		    'facebook_token' => 'xxx',
+            'facebook_id' => 'yyy',
+			'username' => 'testUser1',
+			'first_name' => $faker->firstName,
+			'last_name' => $faker->lastName,
+			'email' => 'reg.test+powerline@mail.com',
+			'password' => $faker->password,
+			'address1' => 'Bucklin',
+			'address2' => $faker->address,
+			'city' => 'Bucklin',
+			'state' => 'KS',
+			'zip' => '67834',
+			'country' => 'US',
+			'birth' => $faker->date(),
+		];
+		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
+        $serviceId = 'civix_core.facebook_api';
+        $mock = $this->getServiceMockBuilder($serviceId)
+            ->setMethods(['getFacebookId'])
+            ->getMock();
+        $mock->expects($this->any())->method('getFacebookId')->will($this->returnValue('yyy'));
+        $client->getContainer()->set($serviceId, $mock);
+		$client->request('POST', '/api/secure/registration-facebook', [], [], [], json_encode($data));
+		$response = $client->getResponse();
+		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+
+		$result = json_decode($response->getContent(), true);
+		$this->assertSame($data['username'], $result['username']);
+		/** @var Connection $conn */
+		$conn = $client->getContainer()->get('database_connection');
+		$user = $conn->fetchAssoc('SELECT * FROM user WHERE username = ?', [$result['username']]);
+		$this->assertSame($data['facebook_token'], $user['facebook_token']);
+		$this->assertSame($data['facebook_id'], $user['facebook_id']);
+		$this->assertSame($data['username'], $user['username']);
+		$this->assertSame($data['first_name'], $user['firstName']);
+		$this->assertSame($data['last_name'], $user['lastName']);
+		$this->assertSame('regtest@mail.com', $user['email']);
+		$this->assertSame($data['address1'], $user['address1']);
+		$this->assertSame($data['address2'], $user['address2']);
+		$this->assertSame($data['city'], $user['city']);
+		$this->assertSame($data['state'], $user['state']);
+		$this->assertSame($data['zip'], $user['zip']);
+		$this->assertSame($data['country'], $user['country']);
+		$this->assertSame(strtotime($data['birth']), strtotime($user['birth']));
+
+        $client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
+        $client->getContainer()->set($serviceId, $mock);
+        $client->request('POST', '/api/secure/facebook/login', [
+		    'facebook_token' => $data['facebook_token'],
+            'facebook_id' => $data['facebook_id']
+        ]);
+		$response = $client->getResponse();
+		$data = json_decode($response->getContent(), true);
+		$this->assertNotEmpty($data['token']);
+	}
 }
