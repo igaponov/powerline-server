@@ -77,6 +77,8 @@ class ActivityControllerTest extends WebTestCase
 		while ($next = next($data['payload'])) {
 		    if ($next['entity']['type'] == 'micro-petition') {
                 $this->assertArrayHasKey('comments_count', $next);
+                $this->assertArrayHasKey('answers', $next);
+                $this->assertInternalType('array', $next['answers']);
             }
 		    $this->assertSame('prioritized', $next['zone']);
 			$this->assertLessThanOrEqual(

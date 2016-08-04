@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Entity\Activities;
 
 use Civix\CoreBundle\Entity\Micropetitions;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Entity\Activity;
@@ -78,5 +79,21 @@ class MicroPetition extends Activity
         }
 
         return 0;
+    }
+
+    /**
+     * @return ArrayCollection|Micropetitions\Answer[]
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Type("ArrayCollection")
+     * @Serializer\Groups({"api-activities"})
+     */
+    public function getAnswers()
+    {
+        if ($this->petition) {
+            return $this->petition->getAnswers();
+        }
+
+        return new ArrayCollection();
     }
 }
