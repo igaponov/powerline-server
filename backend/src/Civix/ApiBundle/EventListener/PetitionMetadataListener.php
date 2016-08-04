@@ -29,12 +29,19 @@ class PetitionMetadataListener
         }
 
         if (preg_match(self::PATTERN, $entity->getPetitionBody(), $matches)) {
-            $client = new Client();
-            $response = $client->get($matches[1]);
+            $url = $matches[1];
+            $response = $this->getResponse($url);
             $metadata = $this->parser->parse($response->getBody());
             if ($metadata->getTitle()) {
+                $metadata->setUrl($url);
                 $entity->setMetadata($metadata);
             }
         }
+    }
+
+    protected function getResponse($url)
+    {
+        $client = new Client();
+        return $client->get($url);
     }
 }
