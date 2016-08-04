@@ -465,7 +465,7 @@ class ActivityRepository extends EntityRepository
     protected function getActivitiesQueryBuilder(User $user, \DateTime $start = null)
     {
         $qb = $this->createQueryBuilder('act')
-            ->select('act', 'act_r')
+            ->select('act', 'act_r', 'p', 'pa')
             // 0 = Prioritized Zone (unread, unanswered)
             // 2 = Expired Zone (expired)
             // 1 = Non-Prioritized Zone (others)
@@ -491,7 +491,7 @@ class ActivityRepository extends EntityRepository
             ->leftJoin('act.question', 'q')
             ->leftJoin('act.petition', 'p')
             ->leftJoin('q.answers', 'qa')
-            ->leftJoin('p.answers', 'pa')
+            ->leftJoin('p.answers', 'pa', Query\Expr\Join::WITH, 'pa.user = :user')
             ->orderBy('zone', 'ASC') // order by priority zone
             ->addOrderBy('act.sentAt', 'DESC')
             ->groupBy('act.id');
