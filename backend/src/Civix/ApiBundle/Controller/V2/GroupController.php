@@ -49,6 +49,7 @@ class GroupController extends FOSRestController
      * @QueryParam(name="sort", requirements="(created_at|popularity)", nullable=true)
      * @QueryParam(name="sort_dir", requirements="(ASC|DESC)", nullable=true)
      * @QueryParam(name="exclude_owned", requirements=".+", description="Exclude groups of current user (use any value)", nullable=true)
+     * @QueryParam(name="query", requirements=".+", description="Search groups by query", nullable=true)
      *
      * @ApiDoc(
      *     authentication = true,
@@ -72,6 +73,7 @@ class GroupController extends FOSRestController
         $query = $this->em->getRepository(Group::class)
             ->getFindByQuery([
                 'exclude_owned' => $params->get('exclude_owned') ? $this->getUser() : null,
+                'query' => $params->get('query'),
             ], [
                 $params->get('sort') => $params->get('sort_dir')
             ]);

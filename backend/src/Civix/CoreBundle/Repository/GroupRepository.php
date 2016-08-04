@@ -405,6 +405,17 @@ class GroupRepository extends EntityRepository
             $qb->andWhere($qb->expr()->notIn('g.id', $ids));
         }
 
+        if (!empty($criteria['query'])) {
+            $query = "%{$criteria['query']}%";
+            $qb->andWhere(
+                $qb->expr()->orX(
+                    $qb->expr()->like('g.acronym', ':query'),
+                    $qb->expr()->like('g.officialName', ':query')
+                )
+            )
+            ->setParameter(':query', $query);
+        }
+
         if (isset($orderBy['created_at'])) {
             $qb->orderBy('g.createdAt', $orderBy['created_at']);
         }

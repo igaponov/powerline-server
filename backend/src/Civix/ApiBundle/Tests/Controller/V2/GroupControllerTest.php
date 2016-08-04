@@ -60,6 +60,13 @@ class GroupControllerTest extends WebTestCase
 		$this->assertCount(3, $data['payload']);
 	}
 
+	public function testGetGroupsByQueryIsOk()
+	{
+		$data = $this->getGroups('followertest', ['query' => 'stfollow']);
+		$this->assertSame(2, $data['totalItems']);
+		$this->assertCount(2, $data['payload']);
+	}
+
 	public function testGetGroupsExcludeOwnedIsOk()
 	{
 		$data = $this->getGroups('userfollowtest1', ['exclude_owned' => true]);
