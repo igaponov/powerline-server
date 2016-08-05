@@ -92,7 +92,7 @@ class CacheClearListener implements \PHPUnit_Framework_TestListener
      */
     public function startTest(PHPUnit_Framework_Test $test)
     {
-        $pattern = __DIR__.'/../../../../app/cache/test/test_*.ser';
+        $pattern = '/dev/shm/powerline/cache/test/test_*.ser';
         foreach (glob($pattern) as $item) {
             unlink($item);
         }

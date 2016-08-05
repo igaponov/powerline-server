@@ -24,7 +24,7 @@ doctrine:
         connections:
             default:
                 driver:   pdo_sqlite
-                path:     /tmp/powerline-server-test.db
+                path:     /%kernel.cache_dir%/powerline-server-test.db
 
 parameters:
     sunlightapi_token: ~
