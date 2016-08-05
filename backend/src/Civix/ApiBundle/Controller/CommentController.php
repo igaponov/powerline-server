@@ -13,7 +13,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Civix\CoreBundle\Model\Comment\CommentModelInterface;
 use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
-use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Micropetitions;
 
 class CommentController extends BaseController
@@ -27,14 +26,19 @@ class CommentController extends BaseController
      *      name="api_comments"
      * )
      * @Method("GET")
+     *
      * @ParamConverter(
      *      "commentModel",
      *      class="Civix\CoreBundle\Model\Comment\CommentModelInterface",
      *      options={"typeEntity":"typeEntity"}
      * )
+     *
      * @ApiDoc(
      *     resource=true,
      *     description="Get comments (polls or micropetitions)",
+     *     filters={
+     *          {"name"="root", "dataType"="boolean", "description"="Show root comment", "default"=false}
+     *     },
      *     statusCodes={
      *         200="Returns comments",
      *         401="Authorization required",
