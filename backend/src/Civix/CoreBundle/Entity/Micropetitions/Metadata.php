@@ -42,6 +42,18 @@ class Metadata
     private $image;
 
     /**
+     * @var string
+     * @Serializer\Expose()
+     * @Serializer\Groups({
+     *     "api-petitions-list",
+     *     "api-petitions-info",
+     *     "api-leader-micropetition",
+     *     "api-activities"
+     * })
+     */
+    private $url;
+
+    /**
      * @return string
      */
     public function getTitle()
@@ -94,6 +106,25 @@ class Metadata
     public function setImage($image)
     {
         $this->image = $image;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return $this->url;
+    }
+
+    /**
+     * @param string $url
+     * @return Metadata
+     */
+    public function setUrl($url)
+    {
+        $this->url = $url;
 
         return $this;
     }
