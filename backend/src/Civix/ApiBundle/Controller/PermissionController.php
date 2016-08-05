@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -14,8 +15,15 @@ use Civix\CoreBundle\Entity\UserGroup;
 class PermissionController extends BaseController
 {
     /**
+     * Deprecated, use `GET|PUT /api/v2/groups/{group}/permissions` instead
+     *
      * @Route("/{id}/permissions", requirements={"id"="\d+"})
      * @Method({"GET", "POST"})
+     *
+     * @ApiDoc(
+     *     section="Groups",
+     *     deprecated=true
+     * )
      */
     public function permissionsAction(Group $group, Request $request)
     {

@@ -30,6 +30,10 @@ class LoadUserGroupData extends AbstractFixture implements DependentFixtureInter
         $group4 = $this->getReference('group_4');
 
         $userGroup = new UserGroup($user4, $group1);
+        $userGroup->setPermissionsName(true)
+            ->setPermissionsCity(true)
+            ->setPermissionsPhone(true)
+            ->setPermissionsApprovedAt(new \DateTime());
         $manager->persist($userGroup);
 
         $userGroup = new UserGroup($user4, $group3);
