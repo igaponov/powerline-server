@@ -42,7 +42,7 @@ class AppKernel extends Kernel
             new Civix\BalancedBundle\CivixBalancedBundle(),
         );
 
-        if (in_array($this->getEnvironment(), array('dev', 'test', 'test_behat'))) {
+        if (in_array($this->getEnvironment(), array('dev', 'test'))) {
 
             $bundles[] = new Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
             $bundles[] = new Sensio\Bundle\DistributionBundle\SensioDistributionBundle();
@@ -61,5 +61,23 @@ class AppKernel extends Kernel
     public function registerContainerConfiguration(LoaderInterface $loader)
     {
         $loader->load(__DIR__.'/config/config_'.$this->getEnvironment().'.yml');
+    }
+
+    public function getCacheDir()
+    {
+        if (in_array($this->environment, array('dev', 'test'))) {
+            return '/dev/shm/powerline/cache/' .  $this->environment;
+        }
+
+        return parent::getCacheDir();
+    }
+
+    public function getLogDir()
+    {
+        if (in_array($this->environment, array('dev', 'test'))) {
+            return '/dev/shm/powerline/logs';
+        }
+
+        return parent::getLogDir();
     }
 }
