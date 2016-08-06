@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Entity\Micropetitions;
 
 use Civix\CoreBundle\Entity\Activities\MicroPetition;
+use Civix\CoreBundle\Entity\HtmlBodyInterface;
 use Civix\CoreBundle\Entity\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -18,7 +19,7 @@ use Civix\CoreBundle\Serializer\Type\Image;
  * @ORM\HasLifecycleCallbacks
  * @Serializer\ExclusionPolicy("all")
  */
-class Petition
+class Petition implements HtmlBodyInterface
 {
     const STATUS_USER = 0;
     const STATUS_PUBLISH = 1;
@@ -54,6 +55,13 @@ class Petition
      * @Serializer\Groups({"api-petitions-create", "api-petitions-list", "api-leader-micropetition"})
      */
     private $petitionBody;
+
+    /**
+     * @ORM\Column(name="petition_body_html", type="text")
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-petitions-create", "api-petitions-list", "api-leader-micropetition"})
+     */
+    private $petitionBodyHtml;
 
     /**
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Group")
@@ -313,6 +321,37 @@ class Petition
     public function getPetitionBody()
     {
         return $this->petitionBody;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPetitionBodyHtml()
+    {
+        return $this->petitionBodyHtml;
+    }
+
+    /**
+     * @param mixed $petitionBodyHtml
+     * @return Petition
+     */
+    public function setPetitionBodyHtml($petitionBodyHtml)
+    {
+        $this->petitionBodyHtml = $petitionBodyHtml;
+
+        return $this;
+    }
+
+    public function getBody()
+    {
+        return $this->getPetitionBody();
+    }
+
+    public function setHtmlBody($html)
+    {
+        $this->setPetitionBodyHtml($html);
+
+        return $this;
     }
 
     /**

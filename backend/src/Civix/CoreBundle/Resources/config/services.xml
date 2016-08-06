@@ -410,5 +410,9 @@
             <argument id="civix_core.activity_update" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service class="Civix\CoreBundle\EventListener\MentionSubscriber" id="civix_core.event_listener.html_body_subscriber">
+            <tag name="doctrine.event_subscriber"/>
+        </service>
     </services>
 </container>

@@ -56,6 +56,7 @@ class MicropetitionControllerTest extends WebTestCase
             if ($petition->getId() == $item['id']) {
                 $this->assertCount(1, $item['answers']);
                 $this->assertEquals($answer->getOptionId(), $item['answers'][0]['option_id']);
+                $this->assertArrayHasKey('petition_body_html', $item);
             }
         }
     }

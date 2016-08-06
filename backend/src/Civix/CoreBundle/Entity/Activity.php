@@ -35,7 +35,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  * @Serializer\ExclusionPolicy("all")
  * @Vich\Uploadable
  */
-abstract class Activity
+abstract class Activity implements HtmlBodyInterface
 {
     const TYPE_QUESTION = "question";
     const TYPE_PETITION = "petition";
@@ -78,6 +78,15 @@ abstract class Activity
      * @var string
      */
     protected $description;
+
+    /**
+     * @ORM\Column(name="description_html", type="text")
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-activities"})
+     *
+     * @var string
+     */
+    protected $descriptionHtml;
 
     /**
      * @ORM\Column(name="sent_at", type="datetime", nullable=true)
@@ -324,6 +333,25 @@ abstract class Activity
     public function getDescription()
     {
         return $this->description;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDescriptionHtml()
+    {
+        return $this->descriptionHtml;
+    }
+
+    /**
+     * @param string $descriptionHtml
+     * @return Activity
+     */
+    public function setDescriptionHtml($descriptionHtml)
+    {
+        $this->descriptionHtml = $descriptionHtml;
+
+        return $this;
     }
 
     /**
@@ -861,5 +889,15 @@ abstract class Activity
         }
 
         return null;
+    }
+
+    public function getBody()
+    {
+        return $this->getDescription();
+    }
+
+    public function setHtmlBody($html)
+    {
+        $this->setDescriptionHtml($html);
     }
 }
