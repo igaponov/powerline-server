@@ -574,4 +574,16 @@ class UserRepository extends EntityRepository
 
         return $query->getResult();
     }
+
+    /**
+     * @return User[]
+     */
+    public function findWithDuplicateEmails()
+    {
+        return $this->createQueryBuilder('u')
+            ->leftJoin(User::class, 'u2', Query\Expr\Join::WITH, 'u2.email = u.email')
+            ->where('u.id <> u2.id')
+            ->getQuery()
+            ->getResult();
+    }
 }
