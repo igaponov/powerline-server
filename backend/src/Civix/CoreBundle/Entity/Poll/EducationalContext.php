@@ -5,6 +5,8 @@ namespace Civix\CoreBundle\Entity\Poll;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Serializer\Type\Image;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
@@ -15,7 +17,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  * @Serializer\ExclusionPolicy("all")
  * @Vich\Uploadable
  */
-class EducationalContext
+class EducationalContext implements ContentInterface
 {
     const VIDEO_TYPE = 'video';
     const IMAGE_TYPE = 'image';
@@ -39,7 +41,7 @@ class EducationalContext
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll"})
      */
-    private $text;
+    private $text = '';
 
     /**
      * @var string
@@ -47,12 +49,14 @@ class EducationalContext
      * @ORM\Column(name="type", type="string", length=255)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll"})
+     * @Assert\NotBlank()
      */
     private $type;
 
     /**
      * @ORM\ManyToOne(targetEntity="Question", inversedBy="educationalContext", cascade={"persist"})
      * @ORM\JoinColumn(name="question_id", referencedColumnName="id", onDelete="CASCADE")
+     * @Assert\Valid()
      */
     private $question;
 
@@ -61,7 +65,7 @@ class EducationalContext
      *
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll"})
-     * @Serializer\Type("Civix\CoreBundle\Serializer\Type\Image")
+     * @Serializer\Type("Image")
      * @Serializer\SerializedName("imageSrc")
      * @Serializer\Accessor(getter="getImageSrc")
      */
@@ -130,7 +134,7 @@ class EducationalContext
      *
      * @param Question $question
      *
-     * @return Option
+     * @return EducationalContext
      */
     public function setQuestion(Question $question = null)
     {
@@ -165,6 +169,31 @@ class EducationalContext
         return $this->image;
     }
 
+    /**
+     * @return string|UploadedFile
+     * @Assert\NotBlank(groups={"Default"})
+     * @Assert\Image(groups={"image"})
+     */
+    public function getContent()
+    {
+        if ($this->type == self::IMAGE_TYPE) {
+            return $this->image;
+        } else {
+            return $this->text;
+        }
+    }
+
+    public function setContent($content)
+    {
+        if ($this->type == self::IMAGE_TYPE) {
+            $this->image = $content;
+        } else {
+            $this->text = $content;
+        }
+
+        return $this;
+    }
+
     public function getImageSrc()
     {
         return $this->type === $this::IMAGE_TYPE ? new Image($this, 'image') : null;
@@ -183,6 +212,8 @@ class EducationalContext
         if ($this->type === $this::VIDEO_TYPE && $this->text) {
             return 'https://img.youtube.com/vi/'.$this->getYoutubeId($this->text).'/0.jpg';
         }
+
+        return null;
     }
 
     private function getYoutubeId($url)
@@ -192,5 +223,7 @@ class EducationalContext
             $url, $match)) {
             return $match[1];
         }
+
+        return null;
     }
 }
