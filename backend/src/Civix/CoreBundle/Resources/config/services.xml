@@ -414,5 +414,9 @@
         <service class="Civix\CoreBundle\EventListener\MentionSubscriber" id="civix_core.event_listener.html_body_subscriber">
             <tag name="doctrine.event_subscriber"/>
         </service>
+
+        <service class="Civix\CoreBundle\Storage\VichArrayStorage" id="civix_core.storage.array">
+            <argument id="vich_uploader.property_mapping_factory" type="service"/>
+        </service>
     </services>
 </container>

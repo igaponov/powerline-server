@@ -37,3 +37,6 @@ parameters:
 civix_core:
     mailgun_client: mailgun.test_client
     mailgun_public_client: mailgun.test_client
+
+vich_uploader:
+    storage: civix_core.storage.array
