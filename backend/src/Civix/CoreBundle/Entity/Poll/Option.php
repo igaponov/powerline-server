@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity\Poll;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
@@ -13,7 +14,7 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\Entity()
  * @Serializer\ExclusionPolicy("all")
  */
-class Option
+class Option implements ContentInterface
 {
     /**
      * @var int
@@ -64,24 +65,18 @@ class Option
     private $answers;
 
     /**
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll"})
-     * @Serializer\Accessor(getter="getVotesCount")
-     * @Serializer\ReadOnly()
-     */
-    private $votesCount;
-
-    /**
      * Constructor.
      */
     public function __construct()
     {
-        $this->answers = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->answers = new ArrayCollection();
     }
 
     /**
      * Get votes count.
      *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"api-poll"})
      * @return int
      */
     public function getVotesCount()
@@ -150,11 +145,11 @@ class Option
     /**
      * Add answers.
      *
-     * @param \Civix\CoreBundle\Entity\Poll\Answer $answers
+     * @param Answer $answers
      *
      * @return Option
      */
-    public function addAnswer(\Civix\CoreBundle\Entity\Poll\Answer $answers)
+    public function addAnswer(Answer $answers)
     {
         $this->answers[] = $answers;
 
@@ -164,9 +159,9 @@ class Option
     /**
      * Remove answers.
      *
-     * @param \Civix\CoreBundle\Entity\Poll\Answer $answers
+     * @param Answer $answers
      */
-    public function removeAnswer(\Civix\CoreBundle\Entity\Poll\Answer $answers)
+    public function removeAnswer(Answer $answers)
     {
         $this->answers->removeElement($answers);
     }

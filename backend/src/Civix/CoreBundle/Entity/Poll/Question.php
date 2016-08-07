@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Entity\Poll;
 
 use Civix\CoreBundle\Entity\GroupSection;
+use Civix\CoreBundle\Entity\HashTag;
 use Civix\CoreBundle\Entity\LeaderContentInterface;
 use Civix\CoreBundle\Entity\UserInterface;
 use Civix\CoreBundle\Validator\Constraints\PublishDate;
@@ -107,6 +108,8 @@ abstract class Question implements LeaderContentInterface
      *      cascade={"remove", "persist"},
      *      orphanRemoval=true
      * )
+     *
+     * @Assert\Count(max="1", groups={"context"}, maxMessage="This poll should contain 3 educational contexts or less.")
      */
     protected $educationalContext;
 
@@ -487,19 +490,22 @@ abstract class Question implements LeaderContentInterface
     /**
      * Add educationalText.
      *
+     * @param EducationalContext $educationalContext
      * @return Question
      */
-    public function addEducationalContext(\Civix\CoreBundle\Entity\Poll\EducationalContext $educationalContext)
+    public function addEducationalContext(EducationalContext $educationalContext)
     {
         $this->educationalContext[] = $educationalContext;
+        $educationalContext->setQuestion($this);
 
         return $this;
     }
 
     /**
      * Remove educationalText.
+     * @param EducationalContext $educationalContext
      */
-    public function removeEducationalText(\Civix\CoreBundle\Entity\Poll\EducationalContext $educationalContext)
+    public function removeEducationalContext(EducationalContext $educationalContext)
     {
         $this->educationalContext->removeElement($educationalContext);
     }
@@ -510,19 +516,19 @@ abstract class Question implements LeaderContentInterface
     public function clearEducationalContext()
     {
         foreach ($this->educationalContext as $context) {
+            $this->removeEducationalContext($context);
             $context->setQuestion(null);
         }
-        $this->educationalContext = [];
     }
 
     /**
      * Add answers.
      *
-     * @param \Civix\CoreBundle\Entity\Poll\Answer $answers
+     * @param Answer $answers
      *
      * @return Question
      */
-    public function addAnswer(\Civix\CoreBundle\Entity\Poll\Answer $answers)
+    public function addAnswer(Answer $answers)
     {
         $this->answers[] = $answers;
 
@@ -532,9 +538,9 @@ abstract class Question implements LeaderContentInterface
     /**
      * Remove answers.
      *
-     * @param \Civix\CoreBundle\Entity\Poll\Answer $answers
+     * @param Answer $answers
      */
-    public function removeAnswer(\Civix\CoreBundle\Entity\Poll\Answer $answers)
+    public function removeAnswer(Answer $answers)
     {
         $this->answers->removeElement($answers);
     }
@@ -653,6 +659,8 @@ abstract class Question implements LeaderContentInterface
         if ($this->reportRecipientGroup) {
             return $this->reportRecipientGroup;
         }
+
+        return null;
     }
 
     /**
@@ -674,11 +682,11 @@ abstract class Question implements LeaderContentInterface
     /**
      * Add hashTags.
      *
-     * @param \Civix\CoreBundle\Entity\HashTag $hashTags
+     * @param HashTag $hashTags
      *
      * @return Question
      */
-    public function addHashTag(\Civix\CoreBundle\Entity\HashTag $hashTags)
+    public function addHashTag(HashTag $hashTags)
     {
         $this->hashTags[] = $hashTags;
 
@@ -688,9 +696,9 @@ abstract class Question implements LeaderContentInterface
     /**
      * Remove hashTags.
      *
-     * @param \Civix\CoreBundle\Entity\HashTag $hashTags
+     * @param HashTag $hashTags
      */
-    public function removeHashTag(\Civix\CoreBundle\Entity\HashTag $hashTags)
+    public function removeHashTag(HashTag $hashTags)
     {
         $this->hashTags->removeElement($hashTags);
     }
