@@ -35,6 +35,7 @@ class LoadUserFollowData extends AbstractFixture implements ContainerAwareInterf
         
         $userFollow = $this->generateUserFollow($user1, $follower, UserFollow::STATUS_ACTIVE);
         $this->manager->persist($userFollow);
+        $this->addReference('userfollowtest1_followertest', $userFollow);
         $userFollow = $this->generateUserFollow($user2, $follower, UserFollow::STATUS_PENDING);
         $this->manager->persist($userFollow);
         $this->addReference('userfollowtest2_followertest', $userFollow);

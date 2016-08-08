@@ -50,13 +50,12 @@ class FollowController extends BaseController
 
     /**
      * Follow a user
-     * Deprecated, use `PUT /api/v2/user/followers/{id}` instead.
+     * Deprecated, use `PUT /api/v2/user/followings/{id}` instead.
      *
      * @Route("/")
      * @Method("POST")
      * @ApiDoc(
      *     section="Followers",
-     *     resource=true,
      *     description="Follow a user",
      *     statusCodes={
      *         201="follow request success",
@@ -89,7 +88,6 @@ class FollowController extends BaseController
      * @Method("PUT")
      * @ApiDoc(
      *     section="Followers",
-     *     resource=true,
      *     description="Approve follow request",
      *     statusCodes={
      *         200="Approve follow request success",
@@ -121,13 +119,12 @@ class FollowController extends BaseController
 
     /**
      * Unfollow a user
-     * Deprecated, use `DELETE /api/v2/user/followers/{id}` instead.
+     * Deprecated, use `DELETE /api/v2/user/followings/{id}` instead.
      *
      * @Route("/{id}")
      * @Method("DELETE")
      * @ApiDoc(
      *     section="Followers",
-     *     resource=true,
      *     description="Unfollow a user",
      *     statusCodes={
      *         204="unfollow request success",
@@ -164,7 +161,6 @@ class FollowController extends BaseController
      * @ParamConverter("group", class="CivixCoreBundle:Group")
      * @ApiDoc(
      *     section="Followers",
-     *     resource=true,
      *     description="Follow group members. This api will automatically follow a group member if group permission is public or private.",
      *     statusCodes={
      *         201="follow request success",
