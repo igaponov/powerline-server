@@ -92,7 +92,9 @@ class ActivityRepository extends EntityRepository
             // 2 = Expired Zone (expired)
             // 1 = Non-Prioritized Zone (others)
             ->addSelect('
-            (CASE WHEN 
+            (CASE WHEN act.expireAt < CURRENT_TIMESTAMP()
+            THEN 2 
+            WHEN 
                 (qa.id IS NULL AND pa.id IS NULL AND act NOT INSTANCE OF (
                     Civix\CoreBundle\Entity\Activities\LeaderNews, 
                     Civix\CoreBundle\Entity\Activities\Petition
@@ -103,8 +105,6 @@ class ActivityRepository extends EntityRepository
                     Civix\CoreBundle\Entity\Activities\Petition
                 ))
             THEN 0
-            WHEN act.expireAt < CURRENT_TIMESTAMP()
-            THEN 2 
             ELSE 1
             END) AS zone')
             ->from('CivixCoreBundle:Activity', 'act')
