@@ -66,17 +66,30 @@ class UserFollowRepository extends EntityRepository
     public function getFindByUserQuery(User $user)
     {
         return $this->createQueryBuilder('uf')
-            ->select('uf, f, u')
-            ->leftJoin('uf.user', 'u')
+            ->select('uf, f')
             ->leftJoin('uf.follower', 'f')
             ->where('uf.user = :user AND uf.status = :active')
-            ->orWhere('uf.follower = :user AND uf.status = :active')
-            ->orWhere('(uf.user = :user OR uf.follower = :user)'
-                .' AND uf.status = :pending AND uf.dateCreate > :pendingStart')
+            ->orWhere('uf.user = :user AND uf.status = :pending AND uf.dateCreate > :pendingStart')
             ->setParameter('active', UserFollow::STATUS_ACTIVE)
             ->setParameter('pending', UserFollow::STATUS_PENDING)
             ->setParameter('pendingStart', new \DateTime('-6 months'))
             ->setParameter('user', $user)
+            ->orderBy('uf.dateCreate', 'DESC')
+            ->getQuery()
+        ;
+    }
+
+    public function getFindByFollowerQuery(User $follower)
+    {
+        return $this->createQueryBuilder('uf')
+            ->select('uf, u')
+            ->leftJoin('uf.user', 'u')
+            ->where('uf.follower = :user AND uf.status = :active')
+            ->orWhere('uf.follower = :user AND uf.status = :pending AND uf.dateCreate > :pendingStart')
+            ->setParameter('active', UserFollow::STATUS_ACTIVE)
+            ->setParameter('pending', UserFollow::STATUS_PENDING)
+            ->setParameter('pendingStart', new \DateTime('-6 months'))
+            ->setParameter('user', $follower)
             ->orderBy('uf.dateCreate', 'DESC')
             ->getQuery()
         ;

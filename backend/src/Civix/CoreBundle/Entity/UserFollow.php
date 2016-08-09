@@ -33,6 +33,7 @@ class UserFollow
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-follow"})
+     * @Serializer\Until("1")
      */
     private $id;
 
@@ -64,6 +65,8 @@ class UserFollow
     private $user;
 
     /**
+     * Deprecated, this property is serialized inline in v2
+     *
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\User", inversedBy="following", cascade={"persist"})
      * @ORM\JoinColumn(name="follower_id", referencedColumnName="id", onDelete="cascade")
      * @Serializer\Expose()
@@ -193,11 +196,11 @@ class UserFollow
     /**
      * Set user.
      *
-     * @param \Civix\CoreBundle\Entity\User $user
+     * @param User $user
      *
      * @return UserFollow
      */
-    public function setUser(\Civix\CoreBundle\Entity\User $user)
+    public function setUser(User $user)
     {
         $this->user = $user;
 
@@ -207,7 +210,7 @@ class UserFollow
     /**
      * Get user.
      *
-     * @return \Civix\CoreBundle\Entity\User
+     * @return User
      */
     public function getUser()
     {
@@ -217,11 +220,11 @@ class UserFollow
     /**
      * Set follower.
      *
-     * @param \Civix\CoreBundle\Entity\User $follower
+     * @param User $follower
      *
      * @return UserFollow
      */
-    public function setFollower(\Civix\CoreBundle\Entity\User $follower)
+    public function setFollower(User $follower)
     {
         $this->follower = $follower;
 
@@ -231,7 +234,7 @@ class UserFollow
     /**
      * Get follower.
      *
-     * @return \Civix\CoreBundle\Entity\User
+     * @return User
      */
     public function getFollower()
     {
@@ -257,5 +260,33 @@ class UserFollow
     public function isActive()
     {
         return $this->getStatus() == self::STATUS_ACTIVE;
+    }
+
+    /**
+     * @Serializer\VirtualProperty()
+     * @Serializer\Inline()
+     * @Serializer\Type("Civix\CoreBundle\Entity\User")
+     * @Serializer\Since("2")
+     * @Serializer\Groups({"api-following"})
+     *
+     * @return User
+     */
+    public function getInlineUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @Serializer\VirtualProperty()
+     * @Serializer\Inline()
+     * @Serializer\Type("Civix\CoreBundle\Entity\User")
+     * @Serializer\Since("2")
+     * @Serializer\Groups({"api-followers"})
+     *
+     * @return User
+     */
+    public function getInlineFollower()
+    {
+        return $this->follower;
     }
 }

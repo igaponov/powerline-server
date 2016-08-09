@@ -52,7 +52,7 @@ class ProfileController extends BaseController
      * @Method("GET")
      * @ParamConverter("user", class="CivixCoreBundle:User")
      * @ApiDoc(
-     *     section="Users",
+     *     section="Followers",
      *     description="Get information on user",
      *     statusCodes={
      *         200="Get information on user",
@@ -77,6 +77,7 @@ class ProfileController extends BaseController
     }
 
     /**
+     * Deprecated, use `PUT|DELETE /api/v2/followings/{id}` instead
      * @Route(
      *     "/follow/{status}/{targetUser}", 
      *     requirements={"targetUser"="\d+", "status"="follow|unfollow|active|reject"},
@@ -84,6 +85,11 @@ class ProfileController extends BaseController
      * )
      * @Method("POST")
      * @ParamConverter("targetUser", class="CivixCoreBundle:User")
+     *
+     * @ApiDoc(
+     *     section="Followers",
+     *     deprecated=true
+     * )
      *
      * @deprecated
      */
@@ -120,6 +126,11 @@ class ProfileController extends BaseController
      * @Route("/waiting-followers")
      * @Method("GET")
      *
+     * @ApiDoc(
+     *     section="Followers",
+     *     deprecated=true
+     * )
+     *
      * @deprecated
      */
     public function getWaitingFollowersAction()
@@ -131,6 +142,11 @@ class ProfileController extends BaseController
      * @Route("/followers")
      * @Method("GET")
      *
+     * @ApiDoc(
+     *     section="Followers",
+     *     deprecated=true
+     * )
+     *
      * @deprecated
      */
     public function getMyFollowers()
@@ -141,6 +157,11 @@ class ProfileController extends BaseController
     /**
      * @Route("/following")
      * @Method("GET")
+     *
+     * @ApiDoc(
+     *     section="Followers",
+     *     deprecated=true
+     * )
      *
      * @deprecated
      */
@@ -158,6 +179,11 @@ class ProfileController extends BaseController
     /**
      * @Route("/following/{targetUser}")
      * @Method("GET")
+     *
+     * @ApiDoc(
+     *     section="Followers",
+     *     deprecated=true
+     * )
      *
      * @deprecated
      */
@@ -180,6 +206,11 @@ class ProfileController extends BaseController
     /**
      * @Route("/last-following")
      * @Method("GET")
+     *
+     * @ApiDoc(
+     *     section="Followers",
+     *     deprecated=true
+     * )
      *
      * @deprecated
      */

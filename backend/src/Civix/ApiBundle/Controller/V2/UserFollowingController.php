@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle\Controller\V2;
 
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Service\FollowerManager;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
@@ -16,9 +17,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @Route("/user/followers")
+ * @Route("/user/followings")
  */
-class UserFollowerController extends FOSRestController
+class UserFollowingController extends FOSRestController
 {
     /**
      * @var FollowerManager
@@ -27,7 +28,7 @@ class UserFollowerController extends FOSRestController
     private $manager;
 
     /**
-     * List followers of a user
+     * List users followed by the authenticated user
      *
      * @Route("")
      * @Method("GET")
@@ -39,14 +40,14 @@ class UserFollowerController extends FOSRestController
      *     authentication = true,
      *     resource=true,
      *     section="Followers",
-     *     description="List the authenticated user's followers",
+     *     description="List the authenticated user's followed users",
      *     output = "Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination",
      *     statusCodes={
      *         405="Method Not Allowed"
      *     }
      * )
      *
-     * @View(serializerGroups={"paginator", "api-follow", "api-info", "api-followers"})
+     * @View(serializerGroups={"paginator", "api-follow", "api-info", "api-following"})
      *
      * @param ParamFetcher $params
      * 
@@ -55,7 +56,7 @@ class UserFollowerController extends FOSRestController
     public function getcAction(ParamFetcher $params)
     {
         $query = $this->getDoctrine()->getRepository(UserFollow::class)
-            ->getFindByUserQuery($this->getUser());
+            ->getFindByFollowerQuery($this->getUser());
 
         return $this->get('knp_paginator')->paginate(
             $query,
@@ -65,31 +66,30 @@ class UserFollowerController extends FOSRestController
     }
 
     /**
-     * Profile of a follower of the authenticated user
+     * Profile of a followed user
      *
      * @Route("/{id}")
      * @Method("GET")
      *
-     * @ParamConverter("userFollow", options={"mapping" = {"loggedInUser" = "user", "id" = "follower"}}, converter="doctrine.param_converter")
+     * @ParamConverter("userFollow", options={"mapping" = {"id" = "user", "loggedInUser" = "follower"}}, converter="doctrine.param_converter")
      *
      * @ApiDoc(
      *     authentication = true,
      *     section="Followers",
-     *     description="Follower's profile",
+     *     description="Authenticated user's profile",
      *     output = {
      *          "class" = "Civix\CoreBundle\Entity\User",
-     *          "groups" = {"api-info", "api-followers", "api-full-info"},
+     *          "groups" = {"api-info", "api-following"},
      *          "parsers" = {
      *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
      *          }
      *     },
      *     statusCodes={
-     *         404="Follower Not Found",
      *         405="Method Not Allowed"
      *     }
      * )
      *
-     * @View(serializerGroups={"api-info", "api-followers"})
+     * @View(serializerGroups={"api-info", "api-following"})
      *
      * @param Request $request
      * @param UserFollow $userFollow
@@ -110,17 +110,17 @@ class UserFollowerController extends FOSRestController
     }
 
     /**
-     * Approve a follow request
+     * Follow a user
      *
      * @Route("/{id}", requirements={"id"="\d+"})
-     * @Method("PATCH")
-     *
-     * @ParamConverter("userFollow", options={"mapping" = {"loggedInUser" = "user", "id" = "follower"}}, converter="doctrine.param_converter")
-     *
+     * @Method("PUT")
+     * 
+     * @ParamConverter("user")
+     * 
      * @ApiDoc(
      *     authentication=true,
      *     section="Followers",
-     *     description="Approve a follow request",
+     *     description="Follow a user",
      *     requirements={
      *         {
      *             "name"="id",
@@ -131,39 +131,40 @@ class UserFollowerController extends FOSRestController
      *     },
      *     statusCodes={
      *         204="Success",
-     *         404="Follow Request Not Found",
+     *         404="User Not Found",
      *         405="Method Not Allowed"
      *     }
      * )
      *
-     * @param UserFollow $userFollow
+     * @param User $user
      */
-    public function patchAction(UserFollow $userFollow)
+    public function putAction(User $user)
     {
-        $this->manager->approve($userFollow);
+        $this->manager->follow($user, $this->getUser());
     }
 
     /**
-     * Unapprove a user's follow request
+     * Unfollow a user
      *
      * @Route("/{id}")
      * @Method("DELETE")
      *
-     * @ParamConverter("userFollow", options={"mapping" = {"loggedInUser" = "user", "id" = "follower"}}, converter="doctrine.param_converter")
+     * @ParamConverter("userFollow", options={"mapping" = {"id" = "user", "loggedInUser" = "follower"}}, converter="doctrine.param_converter")
      *
      * @ApiDoc(
      *     authentication=true,
      *     section="Followers",
-     *     description="Unapprove a user's follow request",
+     *     description="Unfollow a user",
      *     requirements={
      *         {
      *             "name"="id",
      *             "dataType"="integer",
      *             "requirement"="\d+",
-     *             "description"="Follower's id"
+     *             "description"="User id"
      *         }
      *     },
      *     statusCodes={
+     *         204="Success",
      *         404="Follow Request Not Found",
      *         405="Method Not Allowed"
      *     }
