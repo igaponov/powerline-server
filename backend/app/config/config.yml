@@ -255,4 +255,6 @@ hwi_oauth:
             type:                facebook
             client_id:           '%facebook_client_id%'
             client_secret:       '%facebook_client_secret%'
-            scope:               "email"
+            infos_url:           'https://graph.facebook.com/me?fields=first_name,last_name,name,email,picture.type(large)'
+            paths:
+                profilepicture: 'picture.data.url'

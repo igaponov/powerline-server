@@ -6,6 +6,7 @@ use Buzz\Message\Request;
 use Buzz\Message\Response;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Service\CropAvatar;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Faker\Factory;
 use FOS\RestBundle\Util\Codes;
@@ -97,6 +98,14 @@ class SecurityControllerTest extends WebTestCase
         $httpClient->expects($this->at(1))->method('send')->will($this->returnCallback(
             $this->getUserInformationCallback($resourceOwner, $userProviderId)
         ));
+        $cropAvatar = $this->getMockBuilder(CropAvatar::class)
+            ->setMethods(['saveSquareAvatarFromPath'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $cropAvatar->expects($this->once())
+            ->method('saveSquareAvatarFromPath')
+            ->with($this->logicalNot($this->isEmpty()));
+        $client->getContainer()->set('civix_core.crop_avatar', $cropAvatar);
 
         $client->request('GET', self::API_ENDPOINT.'?'.http_build_query($params));
         $response = $client->getResponse();
@@ -229,6 +238,9 @@ class SecurityControllerTest extends WebTestCase
         }
         if (isset($paths['nickname'])) {
             $data[$paths['nickname']] = $faker->userName;
+        }
+        if (isset($paths['profilepicture'])) {
+            $data[$paths['profilepicture']] = $faker->url;
         }
         $options = $this->getProperty($resourceOwner, 'options');
         return function (Request $request, Response $response) use ($data, $options) {

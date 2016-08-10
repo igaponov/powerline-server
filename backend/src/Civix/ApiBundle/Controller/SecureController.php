@@ -309,7 +309,8 @@ class SecureController extends BaseController
      *         {"name"="city", "dataType"="string"},
      *         {"name"="state", "dataType"="string"},
      *         {"name"="zip", "dataType"="string"},
-     *         {"name"="birth", "dataType"="string"}
+     *         {"name"="birth", "dataType"="string"},
+     *         {"name"="avatar_file_name", "dataType"="string"}
      *     },
      *     statusCodes={
      *         200="Returns authorization token",

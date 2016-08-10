@@ -3,6 +3,7 @@
 namespace Civix\ApiBundle\Security\Core;
 
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Service\CropAvatar;
 use HWI\Bundle\OAuthBundle\OAuth\Response\UserResponseInterface;
 use HWI\Bundle\OAuthBundle\Security\Core\User\OAuthAwareUserProviderInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
@@ -19,6 +20,10 @@ class ApiUserProvider implements UserProviderInterface, OAuthAwareUserProviderIn
      */
     private $em;
     /**
+     * @var CropAvatar
+     */
+    private $cropAvatar;
+    /**
      * @var array
      */
     protected $properties = array(
@@ -27,11 +32,13 @@ class ApiUserProvider implements UserProviderInterface, OAuthAwareUserProviderIn
 
     /**
      * @param EntityManager $em
+     * @param CropAvatar $cropAvatar
      * @param array $properties
      */
-    public function __construct(EntityManager $em, array $properties)
+    public function __construct(EntityManager $em, CropAvatar $cropAvatar, array $properties)
     {
         $this->em = $em;
+        $this->cropAvatar = $cropAvatar;
         $this->properties = array_merge($this->properties, $properties);
     }
 
@@ -138,6 +145,7 @@ class ApiUserProvider implements UserProviderInterface, OAuthAwareUserProviderIn
             $user->setPassword(sha1(uniqid('pass', true)));
             $user->{'set'.ucfirst($property)}($username);
             $user->{'set'.ucfirst($propertySecret)}($response->getTokenSecret());
+            $this->cropAvatar->saveSquareAvatarFromPath($user, $response->getProfilePicture());
         }
         $user->generateToken();
         $this->em->persist($user);
