@@ -118,7 +118,7 @@ class GroupMicropetitionsControllerTest extends WebTestCase
         $this->assertSame($params['type'], $data['type']);
         $this->assertSame($group->getId(), $data['group']['id']);
         $this->assertSame('userfollowtest1', $data['user']['username']);
-        $this->assertSame(Petition::STATUS_USER, $data['publish_status']);
+        $this->assertSame(Petition::STATUS_PUBLISH, $data['publish_status']);
         // check setExpire event listener
         $this->assertSame(100, $data['user_expire_interval']);
         $this->assertThat(
@@ -254,7 +254,7 @@ class GroupMicropetitionsControllerTest extends WebTestCase
         $this->assertSame($params['type'], $data['type']);
         $this->assertSame($group->getId(), $data['group']['id']);
         $this->assertSame('userfollowtest1', $data['user']['username']);
-        $this->assertSame(Petition::STATUS_USER, $data['publish_status']);
+        $this->assertSame(Petition::STATUS_PUBLISH, $data['publish_status']);
     }
 
     /**
