@@ -309,6 +309,7 @@ class MicropetitionControllerTest extends WebTestCase
         // check activity
         $description = $conn->fetchColumn('SELECT description FROM activities WHERE petition_id = ?', [$petition->getId()]);
         $this->assertSame($petition->getPetitionBody(), $description);
+        $this->assertEquals(Petition::STATUS_PUBLISH, $petition->getPublishStatus());
     }
 
     public function testUpdateAnswer()

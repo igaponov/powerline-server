@@ -90,9 +90,10 @@ class ActivityUpdate
             $expireDate = new \DateTime('now');
             $expireDate->add(new \DateInterval('P'.$petition->getUserExpireInterval().'D'));
             $petition->setExpireAt($expireDate);
-            $petition->setPublishStatus(MicroPetition::STATUS_PUBLISH);
-            $this->entityManager->persist($petition);
         }
+
+        $petition->setPublishStatus(MicroPetition::STATUS_PUBLISH);
+        $this->entityManager->persist($petition);
 
         //create activity
         $activity = new ActivityMicroPetition();
