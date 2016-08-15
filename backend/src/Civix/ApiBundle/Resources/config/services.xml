@@ -78,6 +78,10 @@
             <tag name="security.voter"/>
         </service>
 
+        <service class="Civix\ApiBundle\Security\Authorization\Voter\PostVoter" id="civix_api.security_authorization_voter.post_voter">
+            <tag name="security.voter"/>
+        </service>
+
         <service class="Civix\ApiBundle\Security\Authorization\Voter\GroupFieldVoter" id="tough_domains_security.group_field_voter">
             <argument id="civix_api.security_authorization_voter.group_voter" type="service"/>
             <tag name="security.voter"/>
