@@ -2,9 +2,11 @@
 
 namespace Civix\CoreBundle\Repository;
 
+use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Superuser;
 use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\UserPetition;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\EntityManager;
@@ -95,7 +97,7 @@ class ActivityRepository extends EntityRepository
             (CASE WHEN act.expireAt < CURRENT_TIMESTAMP()
             THEN 2 
             WHEN 
-                (qa.id IS NULL AND pa.id IS NULL AND act NOT INSTANCE OF (
+                (qa.id IS NULL AND ups.id IS NULL AND pv.id IS NULL AND act NOT INSTANCE OF (
                     Civix\CoreBundle\Entity\Activities\LeaderNews, 
                     Civix\CoreBundle\Entity\Activities\Petition
                 ))
@@ -111,9 +113,11 @@ class ActivityRepository extends EntityRepository
             ->leftJoin('act.activityConditions', 'act_c')
             ->leftJoin('act.activityRead', 'act_r', Query\Expr\Join::WITH, 'act_r.user = :user')
             ->leftJoin('act.question', 'q')
-            ->leftJoin('act.petition', 'p')
+            ->leftJoin('act.petition', 'up')
+            ->leftJoin('act.post', 'p')
             ->leftJoin('q.answers', 'qa')
-            ->leftJoin('p.answers', 'pa')
+            ->leftJoin('up.signatures', 'ups')
+            ->leftJoin('p.votes', 'pv')
             ->where($expr->gt('act.sentAt', ':start'))
             ->andWhere(
                 $expr->orX(
@@ -281,25 +285,50 @@ class ActivityRepository extends EntityRepository
         ;
     }
 
-    public function updateResponseCountMicroPetition(Petition $micropetition)
+    public function updateResponseCountUserPetition(UserPetition $petition)
     {
-        $count = $this->getEntityManager()
-            ->createQuery('SELECT count(a) FROM CivixCoreBundle:Micropetitions\Answer a '.
-                'WHERE a.petition = :micropetition')
-            ->setParameter('micropetition', $micropetition)
+        $count = $this->getEntityManager()->createQueryBuilder()
+            ->select('count(a)')
+            ->from(UserPetition\Signature::class, 'a')
+            ->where('a.petition = :petition')
+            ->setParameter('petition', $petition)
+            ->getQuery()
             ->getSingleScalarResult()
         ;
 
-        $quorum = $micropetition->getQuorumCount();
-        $query = $this->getEntityManager()
-            ->createQuery('UPDATE Civix\CoreBundle\Entity\Activities\MicroPetition a
-                              SET a.responsesCount = :a_count, a.quorum = :quorum
-                            WHERE a.petition = :petition');
-        $query->setParameter('petition', $micropetition)
-            ->setParameter('quorum', $quorum)
-            ->setParameter('a_count', $count);
+        $quorum = $petition->getQuorumCount();
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->update()
+            ->from(\Civix\CoreBundle\Entity\Activities\UserPetition::class, 'a')
+            ->set('a.responsesCount', $count)
+            ->set('a.quorum', $quorum)
+            ->where('a.petition = :petition')
+            ->setParameter('petition', $petition);
 
-        return $query->execute();
+        return $qb->getQuery()->execute();
+    }
+
+    public function updateResponseCountPost(Post $post)
+    {
+        $count = $this->getEntityManager()->createQueryBuilder()
+            ->select('count(a)')
+            ->from(UserPetition\Signature::class, 'a')
+            ->where('a.petition = :petition')
+            ->setParameter('petition', $post)
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+
+        $quorum = $post->getQuorumCount();
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->update()
+            ->from(\Civix\CoreBundle\Entity\Activities\UserPetition::class, 'a')
+            ->set('a.responsesCount', $count)
+            ->set('a.quorum', $quorum)
+            ->where('a.petition = :petition')
+            ->setParameter('petition', $post);
+
+        return $qb->getQuery()->execute();
     }
 
     public function getActivitiesByGroupId($groupId, $maxResults = 500)
@@ -465,13 +494,15 @@ class ActivityRepository extends EntityRepository
     protected function getActivitiesQueryBuilder(User $user, \DateTime $start = null)
     {
         $qb = $this->createQueryBuilder('act')
-            ->select('act', 'act_r', 'p', 'pa')
+            ->select('act', 'act_r', 'p', 'up', 'ups', 'pv')
             // 0 = Prioritized Zone (unread, unanswered)
             // 2 = Expired Zone (expired)
             // 1 = Non-Prioritized Zone (others)
             ->addSelect('
-            (CASE WHEN 
-                (qa.id IS NULL AND pa.id IS NULL AND act NOT INSTANCE OF (
+            (CASE WHEN act.expireAt < CURRENT_TIMESTAMP()
+            THEN 2 
+            WHEN 
+                (qa.id IS NULL AND ups.id IS NULL AND pv.id IS NULL AND act NOT INSTANCE OF (
                     Civix\CoreBundle\Entity\Activities\LeaderNews, 
                     Civix\CoreBundle\Entity\Activities\Petition
                 ))
@@ -481,17 +512,17 @@ class ActivityRepository extends EntityRepository
                     Civix\CoreBundle\Entity\Activities\Petition
                 ))
             THEN 0
-            WHEN act.expireAt < CURRENT_TIMESTAMP()
-            THEN 2 
             ELSE 1
             END) AS zone')
             ->leftJoin('act.activityConditions', 'act_c')
             ->leftJoin('act.activityRead', 'act_r', Query\Expr\Join::WITH, 'act_r.user = :user')
             ->setParameter(':user', $user)
             ->leftJoin('act.question', 'q')
-            ->leftJoin('act.petition', 'p')
+            ->leftJoin('act.petition', 'up')
+            ->leftJoin('act.post', 'p')
             ->leftJoin('q.answers', 'qa')
-            ->leftJoin('p.answers', 'pa', Query\Expr\Join::WITH, 'pa.user = :user')
+            ->leftJoin('up.signatures', 'ups', Query\Expr\Join::WITH, 'ups.user = :user')
+            ->leftJoin('p.votes', 'pv', Query\Expr\Join::WITH, 'pv.user = :user')
             ->orderBy('zone', 'ASC') // order by priority zone
             ->addOrderBy('act.sentAt', 'DESC')
             ->groupBy('act.id');

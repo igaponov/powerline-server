@@ -1,14 +1,13 @@
 <?php
 
-namespace Civix\CoreBundle\Repository\Micropetitions;
+namespace Civix\CoreBundle\Repository\Post;
 
 use Civix\CoreBundle\Repository\CommentRepository as BaseCommentRepository;
-use Civix\CoreBundle\Entity\Micropetitions\Petition;
 
 class CommentRepository extends BaseCommentRepository
 {
     public function getCommentEntityField()
     {
-        return 'petition';
+        return 'post';
     }
 }

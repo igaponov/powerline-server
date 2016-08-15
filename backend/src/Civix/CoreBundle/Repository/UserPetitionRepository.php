@@ -1,17 +1,18 @@
 <?php
 
-namespace Civix\CoreBundle\Repository\Micropetitions;
+namespace Civix\CoreBundle\Repository;
 
-use Doctrine\ORM\EntityRepository;
-use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Entity\Micropetitions\Petition;
+use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserGroup;
+use Civix\CoreBundle\Entity\UserPetition;
+use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\Expr\Join;
 
-class PetitionRepository extends EntityRepository
+class UserPetitionRepository extends EntityRepository
 {
-    public function getMyGroupsMicropitions(User $user)
+    public function getMyGroupsUserPetitions(User $user)
     {
         $entityManager = $this->getEntityManager();
 
@@ -25,10 +26,10 @@ class PetitionRepository extends EntityRepository
 
         return $entityManager->createQueryBuilder()
                 ->select('p, u, g')
-                ->from('CivixCoreBundle:Micropetitions\Petition', 'p')
+                ->from(UserPetition::class, 'p')
                 ->leftJoin('p.user', 'u')
                 ->leftJoin('p.group', 'g')
-                ->where('p.expireAt >= :currentDate')
+                ->where('p.expiredAt >= :currentDate')
                 ->andWhere('p.group IN (:userGroups)')
                 ->setParameter('currentDate', new \DateTime())
                 ->setParameter('userGroups', empty($activeGroups) ? 0 : $activeGroups)
@@ -64,7 +65,7 @@ class PetitionRepository extends EntityRepository
         $petitionCount = $this->getEntityManager()
                 ->createQueryBuilder()
                 ->select('count(p) as petitionCount')
-                ->from('CivixCoreBundle:Micropetitions\Petition', 'p')
+                ->from(UserPetition::class, 'p')
                 ->where('p.user = :user')
                 ->andWhere('p.group = :group')
                 ->andWhere('p.createdAt >= :startOfMonth')
@@ -83,8 +84,8 @@ class PetitionRepository extends EntityRepository
     {
         return $this->getEntityManager()->createQueryBuilder()
             ->select('p, a')
-            ->from('CivixCoreBundle:Micropetitions\Petition', 'p')
-            ->leftJoin('p.answers', 'a', 'WITH', 'a.user = :user')
+            ->from(UserPetition::class, 'p')
+            ->leftJoin('p.signatures', 'a', 'WITH', 'a.user = :user')
             ->where('p.id = :petitionId')
             ->setParameter('petitionId', $petitionId)
             ->setParameter('user', $user)
@@ -96,11 +97,11 @@ class PetitionRepository extends EntityRepository
     {
         return $this->getEntityManager()->createQueryBuilder()
                 ->select('p, u')
-                ->from('CivixCoreBundle:Micropetitions\Petition', 'p')
+                ->from(UserPetition::class, 'p')
                 ->leftJoin('p.user', 'u')
-                ->where('p.expireAt < :currentDate')
+                ->where('p.expiredAt < :currentDate')
                 ->andWhere('p.group = :group')
-                ->orderBy('p.expireAt', 'DESC')
+                ->orderBy('p.expiredAt', 'DESC')
                 ->setParameter('currentDate', new \DateTime())
                 ->setParameter('group', $group->getId())
                 ->getQuery();
@@ -110,12 +111,12 @@ class PetitionRepository extends EntityRepository
     {
         return $this->getEntityManager()->createQueryBuilder()
             ->select('p, u')
-            ->from('CivixCoreBundle:Micropetitions\Petition', 'p')
+            ->from(UserPetition::class, 'p')
             ->leftJoin('p.user', 'u')
-            ->where('p.expireAt > :currentDate')
+            ->where('p.expiredAt > :currentDate')
             ->andWhere('p.group = :group')
             ->andWhere('p.publishStatus != 1')
-            ->orderBy('p.expireAt', 'DESC')
+            ->orderBy('p.expiredAt', 'DESC')
             ->setParameter('currentDate', new \DateTime())
             ->setParameter('group', $group->getId())
             ->getQuery();
@@ -125,13 +126,13 @@ class PetitionRepository extends EntityRepository
     {
         return $this->getEntityManager()->createQueryBuilder()
             ->select('p, u, g')
-            ->from('CivixCoreBundle:Micropetitions\Petition', 'p')
+            ->from(UserPetition::class, 'p')
             ->leftJoin('p.user', 'u')
             ->leftJoin('p.group', 'g')
             ->leftJoin('p.hashTags', 'h')
             ->leftJoin('g.users', 'ug')
-            ->where('p.expireAt >= :currentDate')
-            ->andwhere('h.name = :query')
+            ->where('p.expiredAt >= :currentDate')
+            ->andWhere('h.name = :query')
             ->andWhere('ug.user = :user')
             ->andWhere('ug.status = :status')
             ->setParameter('query', $query)
@@ -149,7 +150,7 @@ class PetitionRepository extends EntityRepository
             ->select('p, u, g, a')
             ->leftJoin('p.user', 'u')
             ->leftJoin('p.group', 'g')
-            ->leftJoin('p.answers', 'a', Join::WITH, 'a.user = :user')
+            ->leftJoin('p.signatures', 'a', Join::WITH, 'a.user = :user')
             ->setParameter(':user', $user)
         ;
         if (!empty($criteria['start'])) {
@@ -167,25 +168,15 @@ class PetitionRepository extends EntityRepository
 
     public function getFindByUserGroupsQuery(User $user)
     {
-        $entityManager = $this->getEntityManager();
-
-        $activeGroups = $entityManager
-            ->getRepository('CivixCoreBundle:UserGroup')
-            ->getSubQueryGroupByJoinStatus()
-            ->setParameter('user', $user)
-            ->setParameter('joinSubqueryStatus', UserGroup::STATUS_ACTIVE)
-            ->getQuery()
-            ->getResult();
-
-        return $entityManager->createQueryBuilder()
-            ->select('p, u, g')
-            ->from('CivixCoreBundle:Micropetitions\Petition', 'p')
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('p')
+            ->from(UserPetition::class, 'p')
             ->leftJoin('p.user', 'u')
-            ->leftJoin('p.group', 'g')
-            ->where('p.expireAt >= :currentDate')
-            ->andWhere('p.group IN (:userGroups)')
-            ->setParameter('currentDate', new \DateTime())
-            ->setParameter('userGroups', empty($activeGroups) ? 0 : $activeGroups)
+            ->leftJoin('u.groups', 'ug')
+            ->where('ug.user = :user')
+            ->setParameter(':user', $user)
+            ->andWhere('ug.status = :status')
+            ->setParameter(':status', UserGroup::STATUS_ACTIVE)
             ->getQuery();
     }
 }
