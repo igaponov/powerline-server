@@ -2,8 +2,7 @@
 
 namespace Civix\ApiBundle\Controller\V2;
 
-use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\Micropetitions\Answer;
+use Civix\CoreBundle\Entity\UserPetition\Signature;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -14,15 +13,12 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\Validator\Constraints\DateTime;
 
 /**
- * Class MicropetitionController
- * @package Civix\ApiBundle\Controller\V2
- * 
- * @Route("/user/micro-petition-answers")
+ * @Route("/user/user-petition-signatures")
  */
-class UserMicropetitionAnswerController extends FOSRestController
+class UserPetitionSignatureController extends FOSRestController
 {
     /**
-     * List the authenticated user's micropetition answers
+     * List the authenticated user's petition signatures
      *
      * @Route("")
      * @Method("GET")
@@ -33,21 +29,18 @@ class UserMicropetitionAnswerController extends FOSRestController
      * @ApiDoc(
      *     authentication=true,
      *     resource=true,
-     *     section="Micropetitions",
-     *     description="List micropetition answers of user",
+     *     section="User Petitions",
+     *     description="List petition signatures of user",
      *     output="Knp\Component\Pager\Pagination\SlidingPagination",
      *     filters={
      *         {"name"="start", "dataType"="datetime", "description"="Start date"}
      *     },
      *     statusCodes={
-     *         200="Returns list micropetitions",
      *         401="Unauthorized Request",
      *         405="Method Not Allowed"
      *     }
      * )
      *
-     * @View(serializerGroups={"paginator", "api-answers-list"})
-     * 
      * @param ParamFetcher $params
      * 
      * @return \Knp\Component\Pager\Pagination\PaginationInterface
@@ -59,7 +52,7 @@ class UserMicropetitionAnswerController extends FOSRestController
         $param->name = 'start';
         $params->addParam($param);
 
-        $query = $this->getDoctrine()->getRepository(Answer::class)
+        $query = $this->getDoctrine()->getRepository(Signature::class)
             ->getFindByUserAndCriteriaQuery($this->getUser(), $params->all());
         
         return $this->get('knp_paginator')->paginate(

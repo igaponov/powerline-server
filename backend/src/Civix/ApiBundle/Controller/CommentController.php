@@ -3,17 +3,16 @@
 namespace Civix\ApiBundle\Controller;
 
 use Civix\CoreBundle\Entity\BaseComment;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
+use Civix\CoreBundle\Model\Comment\CommentModelInterface;
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Civix\CoreBundle\Model\Comment\CommentModelInterface;
-use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
-use Civix\CoreBundle\Entity\Micropetitions;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CommentController extends BaseController
 {
@@ -22,7 +21,7 @@ class CommentController extends BaseController
      * 
      * @Route(
      *      "/{typeEntity}/{entityId}/comments/",
-     *      requirements={"entityId"="\d+", "typeEntity" = "poll|micro-petitions"},
+     *      requirements={"entityId"="\d+", "typeEntity" = "poll|micro-petitions|post"},
      *      name="api_comments"
      * )
      * @Method("GET")
@@ -71,7 +70,7 @@ class CommentController extends BaseController
      * 
      * @Route(
      *      "/{typeEntity}/{entityId}/comments/",
-     *      requirements={"entityId"="\d+", "typeEntity" = "poll|micro-petitions"},
+     *      requirements={"entityId"="\d+", "typeEntity" = "poll|micro-petitions|post"},
      *      name="api_comments_add"
      * )
      * @Method("POST")
@@ -127,8 +126,10 @@ class CommentController extends BaseController
         }
         if ($comment instanceof \Civix\CoreBundle\Entity\Poll\Comment) {
             $this->get('civix_core.social_activity_manager')->noticePollCommented($comment);
-        } elseif ($comment instanceof Micropetitions\Comment) {
-            $this->get('civix_core.social_activity_manager')->noticeMicropetitionCommented($comment);
+        } elseif ($comment instanceof \Civix\CoreBundle\Entity\UserPetition\Comment) {
+            $this->get('civix_core.social_activity_manager')->noticeUserPetitionCommented($comment);
+        } elseif ($comment instanceof \Civix\CoreBundle\Entity\Post\Comment) {
+            $this->get('civix_core.social_activity_manager')->noticePostCommented($comment);
         }
 
         $this->get('civix_core.content_manager')->handleCommentContent($comment);
@@ -241,7 +242,7 @@ class CommentController extends BaseController
      *      "/{typeEntity}/{entityId}/comments/{id}",
      *      requirements={
      *          "entityId"="\d+",
-     *          "typeEntity"="poll|micro-petitions",
+     *          "typeEntity"="poll|micro-petitions|post",
      *          "id"="\d+"
      *      },
      *      name="api_comments_update"
@@ -299,7 +300,7 @@ class CommentController extends BaseController
      *      "/{typeEntity}/{entityId}/comments/{id}",
      *      requirements={
      *          "entityId"="\d+",
-     *          "typeEntity"="poll|micro-petitions",
+     *          "typeEntity"="poll|micro-petitions|post",
      *          "id"="\d+"
      *      },
      *      name="api_comments_delete"

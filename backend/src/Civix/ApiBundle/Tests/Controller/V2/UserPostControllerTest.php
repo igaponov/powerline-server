@@ -1,16 +1,16 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadMicropetitionData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\DBAL\Connection;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
-class UserMicropetitionControllerTest extends WebTestCase
+class UserPostControllerTest extends WebTestCase
 {
-    const API_ENDPOINT = '/api/v2/user/micro-petitions';
+    const API_ENDPOINT = '/api/v2/user/posts';
 
     /**
      * @var null|Client
@@ -25,8 +25,8 @@ class UserMicropetitionControllerTest extends WebTestCase
     public function setUp()
     {
         $this->repository = $this->loadFixtures([
-            LoadUserGroupFollowerTestData::class,
-            LoadMicropetitionData::class,
+            LoadUserGroupData::class,
+            LoadPostData::class,
         ])->getReferenceRepository();
         // Creates a initial client
         $this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
@@ -39,26 +39,26 @@ class UserMicropetitionControllerTest extends WebTestCase
         parent::tearDown();
     }
 
-    public function testGetMicropetitions()
+    public function testGetPosts()
     {
         $client = $this->client;
         $client->request('GET',
             self::API_ENDPOINT, [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest3"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="user3"']
         );
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertSame(5, $data['totalItems']);
-        $this->assertCount(5, $data['payload']);
+        $this->assertSame(3, $data['totalItems']);
+        $this->assertCount(3, $data['payload']);
     }
 
-    public function testGetMicropetitionsEmpty()
+    public function testGetPostsEmpty()
     {
         $client = $this->client;
         $client->request('GET',
             self::API_ENDPOINT, [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
         );
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -67,68 +67,68 @@ class UserMicropetitionControllerTest extends WebTestCase
         $this->assertCount(0, $data['payload']);
     }
 
-    public function testSubscribeToMicropetition()
+    public function testSubscribeToPost()
     {
-        $petition = $this->repository->getReference('micropetition_1');
+        $post = $this->repository->getReference('post_1');
         $client = $this->client;
         $client->request('PUT',
-            self::API_ENDPOINT.'/'.$petition->getId(), [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest2"']
+            self::API_ENDPOINT.'/'.$post->getId(), [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user4"']
         );
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
         $count = $conn->fetchColumn(
-            'SELECT COUNT(*) FROM petition_subscribers WHERE petition_id = ?',
-            [$petition->getId()]
+            'SELECT COUNT(*) FROM post_subscribers WHERE post_id = ?',
+            [$post->getId()]
         );
         $this->assertEquals(1, $count);
     }
 
-    public function testSubscribeToMicropetitionAccessDenied()
+    public function testSubscribeToPostAccessDenied()
     {
-        $petition = $this->repository->getReference('micropetition_1');
+        $petition = $this->repository->getReference('post_1');
         $client = $this->client;
         $client->request('PUT',
             self::API_ENDPOINT.'/'.$petition->getId(), [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="user3"']
         );
         $response = $client->getResponse();
         $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
 
-    public function testUnsubscribeFromMicropetition()
+    public function testUnsubscribeFromPost()
     {
         $client = $this->client;
-        $petition = $this->repository->getReference('micropetition_1');
-        $user = $this->repository->getReference('userfollowtest2');
+        $petition = $this->repository->getReference('post_1');
+        $user = $this->repository->getReference('user_2');
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
         $conn->insert(
-            'petition_subscribers',
-            ['user_id' => $user->getId(), 'petition_id' => $petition->getId()]
+            'post_subscribers',
+            ['user_id' => $user->getId(), 'post_id' => $petition->getId()]
         );
         $client->request('DELETE',
             self::API_ENDPOINT.'/'.$petition->getId(), [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest2"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="user2"']
         );
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         $count = $conn->fetchColumn(
-            'SELECT COUNT(*) FROM petition_subscribers WHERE petition_id = ?',
+            'SELECT COUNT(*) FROM post_subscribers WHERE post_id = ?',
             [$petition->getId()]
         );
         $this->assertEquals(0, $count);
     }
 
-    public function testUnsubscribeFromNonSubscribedMicropetition()
+    public function testUnsubscribeFromNonSubscribedPost()
     {
         $client = $this->client;
-        $petition = $this->repository->getReference('micropetition_1');
+        $petition = $this->repository->getReference('post_1');
         $client->request('DELETE',
             self::API_ENDPOINT.'/'.$petition->getId(), [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest2"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="user2"']
         );
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());

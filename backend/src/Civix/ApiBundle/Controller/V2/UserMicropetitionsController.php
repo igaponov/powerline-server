@@ -5,9 +5,9 @@ namespace Civix\ApiBundle\Controller\V2;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
 /**
- * @Route("/micro-petitions")
+ * @Route("/user/micro-petitions")
  */
-class MicropetitionController extends UserPetitionController
+class UserMicropetitionsController extends UserPetitionsController
 {
 
 }

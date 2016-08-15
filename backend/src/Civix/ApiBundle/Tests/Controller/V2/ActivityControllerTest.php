@@ -80,12 +80,18 @@ class ActivityControllerTest extends WebTestCase
                 $this->assertArrayHasKey('answers', $next);
                 $this->assertInternalType('array', $next['answers']);
             }
-		    $this->assertSame('prioritized', $next['zone']);
+            if ($next['expire_at'] && strtotime($next['expire_at']) < time()) {
+                $this->assertSame('expired', $next['zone']);
+            } else {
+                $this->assertSame('prioritized', $next['zone']);
+            }
             $this->assertArrayHasKey('description_html', $next);
-			$this->assertLessThanOrEqual(
-				strtotime($current['sent_at']), 
-				strtotime($next['sent_at'])
-			);
+            if ($current['zone'] == $next['zone']) {
+                $this->assertLessThanOrEqual(
+                    strtotime($current['sent_at']),
+                    strtotime($next['sent_at'])
+                );
+            }
 			$current = $next;
 		}
 	}

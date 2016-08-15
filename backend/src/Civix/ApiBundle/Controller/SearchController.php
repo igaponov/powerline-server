@@ -67,7 +67,7 @@ class SearchController extends BaseController
      * @Method("GET")
      *
      * @ApiDoc(
-     *     section="Micropetitions",
+     *     section="User Petitions",
      *     description="Search micropetitions by hash tag",
      *     filters={
      *         {"name"="query", "dataType"="string"}

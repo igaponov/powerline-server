@@ -1,18 +1,16 @@
 <?php
-namespace Civix\ApiBundle\Form\Type\Micropetitions;
+namespace Civix\ApiBundle\Form\Type;
 
 use Civix\ApiBundle\Form\KeyToValueTransformer;
-use Civix\CoreBundle\Entity\Micropetitions\Answer;
-use Civix\CoreBundle\Entity\Micropetitions\Petition;
+use Civix\CoreBundle\Entity\Post\Vote;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class AnswerType extends AbstractType
+class VoteType extends AbstractType
 {
     public function getName()
     {
@@ -21,17 +19,16 @@ class AnswerType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $choices = Petition::getOptionTitles();
+        $choices = Vote::getOptionTitles();
         $builder->add('option', 'text', [
-            'property_path' => 'optionId',
-            'description' => 'Petition option, one of: '.implode(', ', $choices),
+            'description' => 'Option, one of: '.implode(', ', $choices),
         ]);
         $builder->get('option')->addModelTransformer(new KeyToValueTransformer($choices))
             ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
                 $form = $event->getForm();
                 $data = $form->getData();
-                if ($data && $data !== Petition::OPTION_ID_IGNORE) {
-                    $form->addError(new FormError('User is already answered this micropetition'));
+                if ($data && $data !== Vote::OPTION_IGNORE) {
+                    $form->addError(new FormError('User is already answered this petition'));
                 }
             });
     }
@@ -39,7 +36,7 @@ class AnswerType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => Answer::class,
+            'data_class' => Vote::class,
             'csrf_protection' => false,
         ]);
     }

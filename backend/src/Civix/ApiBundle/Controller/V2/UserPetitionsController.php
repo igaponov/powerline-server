@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Configuration\SecureParam;
 use Civix\CoreBundle\Entity\Micropetitions\Petition;
+use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Service\User\UserManager;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -15,12 +16,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
 /**
- * Class MicropetitionController
- * @package Civix\ApiBundle\Controller\V2
- * 
- * @Route("/user/micro-petitions")
+ * @Route("/user/user-petitions")
  */
-class UserMicropetitionController extends FOSRestController
+class UserPetitionsController extends FOSRestController
 {
     /**
      * @var UserManager
@@ -29,7 +27,7 @@ class UserMicropetitionController extends FOSRestController
     private $manager;
 
     /**
-     * List user group's micropetitions
+     * List user group's petitions
      *
      * @Route("")
      * @Method("GET")
@@ -39,18 +37,15 @@ class UserMicropetitionController extends FOSRestController
      *
      * @ApiDoc(
      *     authentication=true,
-     *     section="Micropetitions",
+     *     section="User Petitions",
      *     resource=true,
-     *     description="List micropetitions from user's groups",
+     *     description="List petitions from user's groups",
      *     output="Knp\Component\Pager\Pagination\SlidingPagination",
      *     statusCodes={
-     *         200="Returns list micropetitions",
      *         401="Unauthorized Request",
      *         405="Method Not Allowed"
      *     }
      * )
-     *
-     * @View(serializerGroups={"paginator", "api-petitions-list"})
      *
      * @param ParamFetcher $params
      *
@@ -59,7 +54,7 @@ class UserMicropetitionController extends FOSRestController
     public function getcAction(ParamFetcher $params)
     {
         $query = $this->getDoctrine()->getManager()
-            ->getRepository(Petition::class)
+            ->getRepository(UserPetition::class)
             ->getFindByUserGroupsQuery($this->getUser());
 
         return $this->get('knp_paginator')->paginate(
@@ -77,21 +72,21 @@ class UserMicropetitionController extends FOSRestController
      *
      * @ApiDoc(
      *     authentication=true,
-     *     section="Micropetitions",
-     *     description="Subscribe to micropetition",
+     *     section="User Petitions",
+     *     description="Subscribe to a petition",
      *     requirements={
-     *         {"name"="id", "dataType"="integer", "description"="Micropetition id"}
+     *         {"name"="id", "dataType"="integer", "description"="Petition id"}
      *     },
      *     statusCodes={
      *         204="Success",
-     *         404="Micropetition Not Found",
+     *         404="Petition Not Found",
      *         405="Method Not Allowed"
      *     }
      * )
      *
-     * @param Petition $petition
+     * @param UserPetition $petition
      */
-    public function putAction(Petition $petition)
+    public function putAction(UserPetition $petition)
     {
         $this->manager->subscribeToPetition($this->getUser(), $petition);
     }
@@ -102,21 +97,21 @@ class UserMicropetitionController extends FOSRestController
      *
      * @ApiDoc(
      *     authentication=true,
-     *     section="Micropetitions",
-     *     description="Unsubscribe from micropetition",
+     *     section="User Petitions",
+     *     description="Unsubscribe from a petition",
      *     requirements={
-     *         {"name"="id", "dataType"="integer", "description"="Micropetition id"}
+     *         {"name"="id", "dataType"="integer", "description"="Petition id"}
      *     },
      *     statusCodes={
      *         204="Success",
-     *         404="Micropetition Not Found",
+     *         404="Petition Not Found",
      *         405="Method Not Allowed"
      *     }
      * )
      *
-     * @param Petition $petition
+     * @param UserPetition $petition
      */
-    public function deleteAction(Petition $petition)
+    public function deleteAction(UserPetition $petition)
     {
         $this->manager->unsubscribeFromPetition($this->getUser(), $petition);
     }

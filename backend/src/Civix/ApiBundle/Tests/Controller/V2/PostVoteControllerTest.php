@@ -1,17 +1,14 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadMicropetitionAnswerData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadMicropetitionData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteData;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
-class UserMicropetitionAnswerControllerTest extends WebTestCase
+class PostVoteControllerTest extends WebTestCase
 {
-    const API_ENDPOINT = '/api/v2/user/micro-petition-answers';
+    const API_ENDPOINT = '/api/v2/user/post-votes';
 
     /**
      * @var null|Client
@@ -26,10 +23,7 @@ class UserMicropetitionAnswerControllerTest extends WebTestCase
     public function setUp()
     {
         $this->repository = $this->loadFixtures([
-            LoadUserData::class,
-            LoadGroupFollowerTestData::class,
-            LoadMicropetitionData::class,
-            LoadMicropetitionAnswerData::class,
+            LoadPostVoteData::class,
         ])->getReferenceRepository();
         // Creates a initial client
         $this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
@@ -42,12 +36,12 @@ class UserMicropetitionAnswerControllerTest extends WebTestCase
         parent::tearDown();
     }
 
-    public function testGetMicropetitions()
+    public function testGetPosts()
     {
         $client = $this->client;
         $client->request('GET',
             self::API_ENDPOINT, [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest2"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="user2"']
         );
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -56,12 +50,12 @@ class UserMicropetitionAnswerControllerTest extends WebTestCase
         $this->assertCount(2, $data['payload']);
     }
 
-    public function testGetMicropetitionsFilteredByEndDate()
+    public function testGetPostsFilteredByEndDate()
     {
         $client = $this->client;
         $client->request('GET',
             self::API_ENDPOINT, ['start' => date('Y-m-d H:i:s')], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest2"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="user2"']
         );
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());

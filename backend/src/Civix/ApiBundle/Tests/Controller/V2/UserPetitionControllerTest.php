@@ -3,19 +3,20 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\CoreBundle\Entity\Micropetitions\Petition;
 use Civix\CoreBundle\Entity\SocialActivity;
-use Civix\CoreBundle\Service\Micropetitions\PetitionManager;
+use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Service\PushTask;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadMicropetitionAnswerData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadMicropetitionData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
+use Civix\CoreBundle\Service\UserPetitionManager;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
-class MicropetitionControllerTest extends WebTestCase
+class UserPetitionControllerTest extends WebTestCase
 {
-    const API_ENDPOINT = '/api/v2/micro-petitions';
+    const API_ENDPOINT = '/api/v2/user-petitions';
 
     /**
      * @var null|Client
@@ -33,19 +34,19 @@ class MicropetitionControllerTest extends WebTestCase
         parent::tearDown();
     }
 
-    public function testGetMicropetitions()
+    public function testGetPetitions()
     {
         $repository = $this->loadFixtures([
-            LoadUserGroupFollowerTestData::class,
-            LoadMicropetitionData::class,
-            LoadMicropetitionAnswerData::class,
+            LoadUserGroupData::class,
+            LoadUserPetitionData::class,
+            LoadUserPetitionSignatureData::class,
         ])->getReferenceRepository();
-        $petition = $repository->getReference('micropetition_1');
-        $answer = $repository->getReference('micropetition_answer_1');
+        $petition = $repository->getReference('user_petition_1');
+        $signature = $repository->getReference('petition_answer_1');
         $client = $this->client;
         $client->request('GET',
             self::API_ENDPOINT, [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
         );
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -55,22 +56,22 @@ class MicropetitionControllerTest extends WebTestCase
         foreach ($data['payload'] as $item) {
             if ($petition->getId() == $item['id']) {
                 $this->assertCount(1, $item['answers']);
-                $this->assertEquals($answer->getOptionId(), $item['answers'][0]['option_id']);
-                $this->assertArrayHasKey('petition_body_html', $item);
+                $this->assertEquals($signature->getOptionId(), $item['answers'][0]['option_id']);
+                $this->assertArrayHasKey('html_body', $item);
             }
         }
     }
 
-    public function testGetMicropetitionsByTag()
+    public function testGetPetitionsByTag()
     {
         $this->loadFixtures([
-            LoadUserGroupFollowerTestData::class,
-            LoadMicropetitionData::class,
+            LoadUserGroupData::class,
+            LoadUserPetitionData::class,
         ]);
         $client = $this->client;
         $client->request('GET',
             self::API_ENDPOINT, ['tag' => 'hash_tag_name'], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
         );
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -79,35 +80,35 @@ class MicropetitionControllerTest extends WebTestCase
         $this->assertCount(0, $data['payload']);
     }
 
-    public function testGetMicropetition()
+    public function testGetUserPetition()
     {
         $repository = $this->loadFixtures([
-            LoadMicropetitionData::class,
+            LoadUserPetitionData::class,
         ])->getReferenceRepository();
-        /** @var Petition $petition */
-        $petition = $repository->getReference('micropetition_1');
+        /** @var UserPetition $petition */
+        $petition = $repository->getReference('user_petition_1');
         $client = $this->client;
         $client->request('GET',
             self::API_ENDPOINT.'/'.$petition->getId(), [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
         );
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertSame($petition->getPetitionBody(), $data['petition_body']);
+        $this->assertSame($petition->getBody(), $data['body']);
     }
 
-    public function testGetDeletedMicropetition()
+    public function testGetDeletedUserPetition()
     {
         $repository = $this->loadFixtures([
-            LoadMicropetitionData::class,
+            LoadUserPetitionData::class,
         ])->getReferenceRepository();
-        /** @var Petition $petition */
-        $petition = $repository->getReference('micropetition_7');
+        /** @var UserPetition $petition */
+        $petition = $repository->getReference('user_petition_7');
         $client = $this->client;
         $client->request('GET',
             self::API_ENDPOINT.'/'.$petition->getId(), [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
         );
         $response = $client->getResponse();
         $this->assertEquals(404, $response->getStatusCode(), $response->getContent());
@@ -116,39 +117,36 @@ class MicropetitionControllerTest extends WebTestCase
     public function testUpdateMicropetitionAccessDenied()
     {
         $repository = $this->loadFixtures([
-            LoadMicropetitionData::class,
+            LoadUserPetitionData::class,
         ])->getReferenceRepository();
-        /** @var Petition $petition */
-        $petition = $repository->getReference('micropetition_1');
+        /** @var UserPetition $petition */
+        $petition = $repository->getReference('user_petition_1');
         $client = $this->client;
         $client->request('PUT',
             self::API_ENDPOINT.'/'.$petition->getId(), [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest2"'],
-            json_encode([])
+            ['HTTP_Authorization'=>'Bearer type="user" token="user2"']
         );
         $response = $client->getResponse();
         $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
 
-    public function testUpdateMicropetitionReturnsErrors()
+    public function testUpdateUserPetitionReturnsErrors()
     {
         $repository = $this->loadFixtures([
-            LoadMicropetitionData::class,
+            LoadUserPetitionData::class,
         ])->getReferenceRepository();
-        /** @var Petition $petition */
-        $petition = $repository->getReference('micropetition_1');
+        /** @var UserPetition $petition */
+        $petition = $repository->getReference('user_petition_1');
         $expectedErrors = [
-            'petition_body' => 'This value should not be blank.',
-            'type' => 'The value you selected is not a valid choice.',
+            'body' => 'This value should not be blank.',
         ];
         $client = $this->client;
         $params = [
-            'petition_body' => '',
-            'type' => 'invalid type',
+            'body' => '',
         ];
         $client->request('PUT',
             self::API_ENDPOINT.'/'.$petition->getId(), [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"'],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user1"'],
             json_encode($params)
         );
         $response = $client->getResponse();
@@ -167,31 +165,31 @@ class MicropetitionControllerTest extends WebTestCase
         }
     }
 
-    public function testUpdateMicropetition()
+    public function testUpdateUserPetition()
     {
         $repository = $this->loadFixtures([
-            LoadMicropetitionData::class,
+            LoadUserPetitionData::class,
         ])->getReferenceRepository();
         $faker = Factory::create();
-        /** @var Petition $petition */
-        $petition = $repository->getReference('micropetition_1');
+        /** @var UserPetition $petition */
+        $petition = $repository->getReference('user_petition_1');
         $client = $this->client;
         $hashTags = [
             '#testHashTag',
             '#powerlineHashTag',
         ];
         $params = [
-            'petition_body' => $faker->text."\n".implode(' ', $hashTags),
+            'body' => $faker->text."\n".implode(' ', $hashTags),
         ];
         $client->request('PUT',
             self::API_ENDPOINT.'/'.$petition->getId(), [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"'],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user1"'],
             json_encode($params)
         );
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertSame($params['petition_body'], $data['petition_body']);
+        $this->assertSame($params['body'], $data['body']);
         // check addHashTags event listener
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
@@ -204,103 +202,83 @@ class MicropetitionControllerTest extends WebTestCase
         $this->assertSame($data['petition_body'], $description);
     }
 
-    public function testDeleteMicropetitionAccessDenied()
+    public function testDeleteUserPetitionAccessDenied()
     {
         $repository = $this->loadFixtures([
-            LoadMicropetitionData::class,
+            LoadUserPetitionData::class,
         ])->getReferenceRepository();
-        /** @var Petition $petition */
-        $petition = $repository->getReference('micropetition_1');
+        /** @var UserPetition $petition */
+        $petition = $repository->getReference('user_petition_1');
         $client = $this->client;
         $client->request('DELETE',
             self::API_ENDPOINT.'/'.$petition->getId(), [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest2"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="user2"']
         );
         $response = $client->getResponse();
         $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
 
-    public function testDeleteMicropetition()
+    public function testDeleteUserPetition()
     {
         $repository = $this->loadFixtures([
-            LoadMicropetitionData::class,
+            LoadUserPetitionData::class,
         ])->getReferenceRepository();
-        /** @var Petition $petition */
-        $petition = $repository->getReference('micropetition_1');
+        /** @var UserPetition $petition */
+        $petition = $repository->getReference('user_petition_1');
         $client = $this->client;
         $client->request('DELETE',
             self::API_ENDPOINT.'/'.$petition->getId(), [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
         );
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
             ->getConnection();
-        $count = $conn->fetchColumn('SELECT COUNT(*) FROM micropetitions WHERE id = ?', [$petition->getId()]);
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM user_petitions WHERE id = ?', [$petition->getId()]);
         $this->assertEquals(0, $count);
     }
 
-    public function testSignMicropetitionReturnsErrors()
+    public function testSignUserPetitionThrowsException()
     {
         $repository = $this->loadFixtures([
-            LoadMicropetitionData::class,
+            LoadUserPetitionData::class,
         ])->getReferenceRepository();
-        /** @var Petition $petition */
-        $petition = $repository->getReference('micropetition_6');
-        $expectedErrors = [
-            'You could not answer to expired micropetition.',
-            'You could not answer to your micropetition.',
-            'option' => 'This value should not be blank.',
-        ];
+        /** @var UserPetition $petition */
+        $petition = $repository->getReference('user_petition_6');
         $client = $this->client;
         $client->request('POST',
-            self::API_ENDPOINT.'/'.$petition->getId().'/answer', [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest3"']
+            self::API_ENDPOINT.'/'.$petition->getId().'/sign', [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user3"']
         );
         $response = $client->getResponse();
-        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertSame('Validation Failed', $data['message']);
-        $errors = $data['errors'];
-        foreach ($expectedErrors as $child => $error) {
-            if (is_int($child)) {
-                $this->assertContains($error, $errors['errors']);
-            } elseif ($error) {
-                $this->assertContains($error, $errors['children'][$child]['errors']);
-            } else {
-                $this->assertEmpty($errors['children'][$child]);
-            }
-        }
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
 
-    public function testSignMicropetition()
+    public function testSignUserPetition()
     {
         $repository = $this->loadFixtures([
-            LoadMicropetitionData::class,
+            LoadUserPetitionData::class,
         ])->getReferenceRepository();
         $client = $this->client;
         $manager = $this->getPetitionManagerMock([
-            'checkIfNeedPublish',
+            'checkIfNeedBoost',
         ]);
         $manager->expects($this->once())
-            ->method('checkIfNeedPublish')
+            ->method('checkIfNeedBoost')
             ->will($this->returnValue(true));
-        $client->getContainer()->set('civix_core.poll.micropetition_manager', $manager);
+        $client->getContainer()->set('civix_core.user_petition_manager', $manager);
         $service = $this->getMock(PushTask::class, ['addToQueue'], [], '', false);
         $service->expects($this->once())->method('addToQueue')->with('sendGroupPetitionPush');
         $client->getContainer()->set('civix_core.push_task', $service);
-        /** @var Petition $petition */
-        $petition = $repository->getReference('micropetition_2');
+        /** @var UserPetition $petition */
+        $petition = $repository->getReference('user_petition_2');
         $client->request('POST',
-            self::API_ENDPOINT.'/'.$petition->getId().'/answer', [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest2"'],
-            json_encode(['option' => 'upvote'])
+            self::API_ENDPOINT.'/'.$petition->getId().'/sign', [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user2"']
         );
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertSame(Petition::OPTION_ID_UPVOTE, $data['option_id']);
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
             ->getConnection();
@@ -308,51 +286,38 @@ class MicropetitionControllerTest extends WebTestCase
         $this->assertSame(1, $count);
         // check activity
         $description = $conn->fetchColumn('SELECT description FROM activities WHERE petition_id = ?', [$petition->getId()]);
-        $this->assertSame($petition->getPetitionBody(), $description);
-        $this->assertEquals(Petition::STATUS_PUBLISH, $petition->getPublishStatus());
+        $this->assertSame($petition->getBody(), $description);
+        $this->assertTrue($petition->isBoosted());
     }
 
     public function testUpdateAnswer()
     {
         $repository = $this->loadFixtures([
-            LoadMicropetitionAnswerData::class,
+            LoadUserPetitionSignatureData::class,
         ])->getReferenceRepository();
         $client = $this->client;
-        /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
-            ->getConnection();
         /** @var Petition $petition */
-        $petition = $repository->getReference('micropetition_1');
-        $user = $repository->getReference('userfollowtest3');
-        $answer = $conn->fetchAssoc('SELECT id, option_id FROM micropetitions_answers WHERE petition_id = ? AND user_id = ?', [$petition->getId(), $user->getId()]);
+        $petition = $repository->getReference('user_petition_1');
         $client->request('POST',
-            self::API_ENDPOINT.'/'.$petition->getId().'/answer', [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest3"'],
-            json_encode(['option' => 'downvote'])
+            self::API_ENDPOINT.'/'.$petition->getId().'/sign', [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user3"']
         );
         $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertSame(Petition::OPTION_ID_DOWNVOTE, $data['option_id']);
-        $this->assertEquals($answer['id'], $data['id']);
-        $this->assertNotEquals($answer['option_id'], $data['option_id']);
-        // check social activity
-        $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM social_activities WHERE type = ?', [SocialActivity::TYPE_OWN_POST_VOTED]);
-        $this->assertSame(1, $count);
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
     }
 
-    public function testUnsignMicropetition()
+    public function testUnsignUserPetition()
     {
         $repository = $this->loadFixtures([
-            LoadMicropetitionAnswerData::class,
+            LoadUserPetitionSignatureData::class,
         ])->getReferenceRepository();
         $client = $this->client;
         /** @var Petition $petition */
-        $petition = $repository->getReference('micropetition_1');
-        $user = $repository->getReference('userfollowtest2');
+        $petition = $repository->getReference('user_petition_1');
+        $user = $repository->getReference('user_2');
         $client->request('DELETE',
-            self::API_ENDPOINT.'/'.$petition->getId().'/answer', [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest2"']
+            self::API_ENDPOINT.'/'.$petition->getId().'/sign', [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user2"']
         );
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
@@ -360,18 +325,18 @@ class MicropetitionControllerTest extends WebTestCase
         $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
             ->getConnection();
         // check social activity
-        $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM micropetitions_answers WHERE petition_id = ? AND user_id = ?', [$petition->getId(), $user->getId()]);
+        $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM user_petition_signatures WHERE petition_id = ? AND user_id = ?', [$petition->getId(), $user->getId()]);
         $this->assertSame(0, $count);
     }
 
     /**
      * @param array $methods
-     * @return \PHPUnit_Framework_MockObject_MockObject|PetitionManager
+     * @return \PHPUnit_Framework_MockObject_MockObject|UserPetitionManager
      */
     private function getPetitionManagerMock($methods = [])
     {
         $container = $this->client->getContainer();
-        return $this->getMockBuilder(PetitionManager::class)
+        return $this->getMockBuilder(UserPetitionManager::class)
             ->setMethods($methods)
             ->setConstructorArgs([
                 $container->get('doctrine.orm.entity_manager'),

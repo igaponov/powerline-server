@@ -1,12 +1,12 @@
 <?php
-namespace Civix\ApiBundle\Form\Type\Micropetitions;
+namespace Civix\ApiBundle\Form\Type;
 
-use Civix\CoreBundle\Entity\Micropetitions\Petition;
+use Civix\CoreBundle\Entity\Post;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class PetitionUpdateType extends AbstractType
+class PostType extends AbstractType
 {
     public function getName()
     {
@@ -15,17 +15,13 @@ class PetitionUpdateType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder
-            ->add('petition_body', null, [
-                'property_path' => 'petitionBody',
-            ])
-        ;
+        $builder->add('body');
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => Petition::class,
+            'data_class' => Post::class,
             'csrf_protection' => false,
         ]);
     }

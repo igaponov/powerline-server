@@ -1,11 +1,12 @@
 <?php
 
-namespace Civix\ApiBundle\Controller\V2;
+namespace Civix\ApiBundle\Controller\V2\Group;
 
-use Civix\ApiBundle\Form\Type\Micropetitions\PetitionCreateType;
+use Civix\ApiBundle\Form\Type\UserPetitionCreateType;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Micropetitions\Petition;
-use Civix\CoreBundle\Service\Micropetitions\PetitionManager;
+use Civix\CoreBundle\Entity\UserPetition;
+use Civix\CoreBundle\Service\UserPetitionManager;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Util\Codes;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -17,23 +18,20 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Class MicropetitionController
- * @package Civix\ApiBundle\Controller\V2
- *
- * @Route("/groups")
+ * @Route("/groups/{group}/user-petitions")
  */
-class GroupMicropetitionsController extends FOSRestController
+class UserPetitionController extends FOSRestController
 {
     /**
-     * @var PetitionManager
-     * @DI\Inject("civix_core.poll.micropetition_manager")
+     * @var UserPetitionManager
+     * @DI\Inject("civix_core.user_petition_manager")
      */
     private $petitionManager;
 
     /**
-     * Create a micropetition in a group
-     * 
-     * @Route("/{id}/micro-petitions")
+     * Create a user's petition in a group
+     *
+     * @Route("")
      * @Method("POST")
      *
      * @ParamConverter("group")
@@ -41,20 +39,21 @@ class GroupMicropetitionsController extends FOSRestController
      * @ApiDoc(
      *     authentication=true,
      *     resource=true,
-     *     section="Micropetitions",
-     *     description="Create a micropetition in a group",
-     *     input="Civix\ApiBundle\Form\Type\Micropetitions\PetitionCreateType",
-     *     output={
-     *         "class"="Civix\CoreBundle\Entity\Micropetitions\Petition",
-     *         "groups"={"api-petitions-create"},
-     *         "parsers" = {
-     *             "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
-     *         }
-     *     },
+     *     section="User Petitions",
+     *     description="Create a user's petition in a group",
+     *     input="Civix\ApiBundle\Form\Type\UserPetitionCreateType",
      *     statusCodes={
-     *         201="Returns new micropetition",
      *         400="Bad Request",
      *         405="Method Not Allowed"
+     *     },
+     *     responseMap={
+     *          201 = {
+     *              "class"="Civix\CoreBundle\Entity\UserPetition",
+     *              "groups"={"api-petitions-create"},
+     *              "parsers" = {
+     *                  "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *              }
+     *          }
      *     }
      * )
      *
@@ -65,7 +64,7 @@ class GroupMicropetitionsController extends FOSRestController
      */
     public function postAction(Request $request, Group $group)
     {
-        $form = $this->createForm(new PetitionCreateType(), null, ['validation_groups' => 'create']);
+        $form = $this->createForm(new UserPetitionCreateType(), null, ['validation_groups' => 'create']);
         $form->submit($request);
 
         // check limit petition
@@ -74,16 +73,15 @@ class GroupMicropetitionsController extends FOSRestController
         }
 
         if ($form->isValid()) {
-            /** @var Petition $petition */
+            /** @var UserPetition $petition */
             $petition = $form->getData();
             $petition->setUser($this->getUser());
             $petition->setGroup($group);
-            $petition->setGroupId($group->getId());
             $petition = $this->petitionManager->savePetition($petition);
 
             return $this->view($petition, Codes::HTTP_CREATED);
         }
-        
+
         return $form;
     }
 }
