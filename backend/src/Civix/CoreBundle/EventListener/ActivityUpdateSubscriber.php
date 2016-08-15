@@ -4,11 +4,7 @@ namespace Civix\CoreBundle\EventListener;
 use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
 use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
 use Civix\CoreBundle\Entity\Poll\Question\Petition;
-use Civix\CoreBundle\Event\Micropetition\AnswerEvent;
-use Civix\CoreBundle\Event\Micropetition\PetitionEvent;
-use Civix\CoreBundle\Event\MicropetitionEvents;
-use Civix\CoreBundle\Event\Poll\QuestionEvent;
-use Civix\CoreBundle\Event\PollEvents;
+use Civix\CoreBundle\Event;
 use Civix\CoreBundle\Service\ActivityUpdate;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -27,35 +23,61 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            MicropetitionEvents::PETITION_CREATE => 'publishMicroPetitionToActivity',
-            MicropetitionEvents::PETITION_UPDATE => 'publishMicroPetitionToActivity',
-            MicropetitionEvents::PETITION_SIGN => [
+            Event\UserPetitionEvents::PETITION_CREATE => 'publishUserPetitionToActivity',
+            Event\UserPetitionEvents::PETITION_UPDATE => 'publishUserPetitionToActivity',
+            Event\UserPetitionEvents::PETITION_SIGN => [
                 ['updateResponsesPetition'],
-                ['updateAuthorActivity'],
+                ['updatePetitionAuthorActivity'],
             ],
-            MicropetitionEvents::PETITION_UNSIGN => 'updateAuthorActivity',
-            MicropetitionEvents::PETITION_BOOST => 'publishMicroPetitionToActivity',
-            PollEvents::QUESTION_PUBLISHED => 'publishQuestionToActivity',
+            Event\UserPetitionEvents::PETITION_UNSIGN => 'updatePetitionAuthorActivity',
+            Event\UserPetitionEvents::PETITION_BOOST => 'publishUserPetitionToActivity',
+
+            Event\PostEvents::POST_CREATE => 'publishPostToActivity',
+            Event\PostEvents::POST_UPDATE => 'publishPostToActivity',
+            Event\PostEvents::POST_SIGN => [
+                ['updateResponsesPost'],
+                ['updatePostAuthorActivity'],
+            ],
+            Event\PostEvents::POST_UNSIGN => 'updatePostAuthorActivity',
+            Event\PostEvents::POST_BOOST => 'publishPostToActivity',
+
+            Event\PollEvents::QUESTION_PUBLISHED => 'publishQuestionToActivity',
         ];
     }
 
-    public function publishMicroPetitionToActivity(PetitionEvent $event)
+    public function publishUserPetitionToActivity(Event\UserPetitionEvent $event)
     {
-        $this->activityUpdate->publishMicroPetitionToActivity($event->getPetition());
+        $this->activityUpdate->publishUserPetitionToActivity($event->getPetition());
     }
 
-    public function updateResponsesPetition(AnswerEvent $event)
+    public function publishPostToActivity(Event\PostEvent $event)
     {
-        $this->activityUpdate->updateResponsesPetition($event->getAnswer()->getPetition());
+        $this->activityUpdate->publishPostToActivity($event->getPost());
     }
 
-    public function updateAuthorActivity(AnswerEvent $event)
+    public function updateResponsesPetition(Event\UserPetition\SignatureEvent $event)
+    {
+        $this->activityUpdate->updateResponsesPetition($event->getSignature()->getPetition());
+    }
+
+    public function updateResponsesPost(Event\Post\AnswerEvent $event)
+    {
+        $this->activityUpdate->updateResponsesPost($event->getAnswer()->getPost());
+    }
+
+    public function updatePetitionAuthorActivity(Event\UserPetition\SignatureEvent $event)
+    {
+        $answer = $event->getSignature();
+        $this->activityUpdate->updatePetitionAuthorActivity($answer->getPetition(), $answer->getUser());
+    }
+
+    public function updatePostAuthorActivity(Event\Post\AnswerEvent $event)
     {
         $answer = $event->getAnswer();
-        $this->activityUpdate->updateAuthorActivity($answer->getPetition(), $answer->getUser());
+        $this->activityUpdate->updatePostAuthorActivity($answer->getPost(), $answer->getUser());
     }
 
-    public function publishQuestionToActivity(QuestionEvent $event)
+    public function publishQuestionToActivity(Event\Poll\QuestionEvent $event)
     {
         $question = $event->getQuestion();
         if ($question instanceof Petition) {

@@ -2,19 +2,19 @@
 
 namespace Civix\CoreBundle\Service;
 
-use Civix\CoreBundle\Entity\SocialActivity;
-use Doctrine\ORM\EntityManager;
-use Civix\CoreBundle\Entity\UserFollow;
-use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\UserGroup;
-use Civix\CoreBundle\Entity\Micropetitions\Petition as Micropetition;
-use Civix\CoreBundle\Entity\Poll\Answer;
-use Civix\CoreBundle\Entity\Poll\Question;
-use Civix\CoreBundle\Entity\Micropetitions;
 use Civix\CoreBundle\Entity\BaseComment;
-use Civix\CoreBundle\Entity\Micropetitions\Comment as MicropetitionComment;
+use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Comment;
+use Civix\CoreBundle\Entity\Poll\Question;
+use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\SocialActivity;
+use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserFollow;
+use Civix\CoreBundle\Entity\UserGroup;
+use Civix\CoreBundle\Entity\UserPetition;
+use Civix\CoreBundle\Entity\UserPetition\Comment as MicropetitionComment;
+use Doctrine\ORM\EntityManager;
 
 class SocialActivityManager
 {
@@ -54,15 +54,31 @@ class SocialActivityManager
         return $socialActivity;
     }
 
-    public function noticeMicropetitionCreated(Micropetition $micropetition)
+    public function noticeUserPetitionCreated(UserPetition $petition)
     {
-        $socialActivity = (new SocialActivity(SocialActivity::TYPE_GROUP_POST_CREATED, $micropetition->getUser(),
-            $micropetition->getGroup()))
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_GROUP_USER_PETITION_CREATED, $petition->getUser(),
+            $petition->getGroup()))
             ->setTarget([
-                'id' => $micropetition->getId(),
-                'title' => $micropetition->getTitle(),
-                'type' => $micropetition->getType(),
-                'body' => $micropetition->getPetitionBody(),
+                'id' => $petition->getId(),
+                'title' => $petition->getTitle(),
+                'body' => $petition->getBody(),
+                'type' => 'user-petition',
+            ])
+        ;
+        $this->em->persist($socialActivity);
+        $this->em->flush($socialActivity);
+
+        return $socialActivity;
+    }
+
+    public function noticePostCreated(Post $post)
+    {
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_GROUP_POST_CREATED, $post->getUser(),
+            $post->getGroup()))
+            ->setTarget([
+                'id' => $post->getId(),
+                'body' => $post->getBody(),
+                'type' => 'post',
             ])
         ;
         $this->em->persist($socialActivity);
@@ -129,19 +145,19 @@ class SocialActivityManager
         }
     }
 
-    public function noticeMicropetitionCommented(Micropetitions\Comment $comment)
+    public function noticeUserPetitionCommented(\Civix\CoreBundle\Entity\UserPetition\Comment $comment)
     {
         $micropetition = $comment->getPetition();
         $target = [
             'id' => $micropetition->getId(),
             'preview' => $this->preparePreview($comment->getCommentBody()),
-            'type' => $micropetition->getType(),
-            'label' => $micropetition->getType() === $micropetition::TYPE_QUORUM ? 'post' : 'petition',
+            'type' => 'user-petition',
+            'label' => 'petition',
         ];
         if ($comment->getParentComment()->getUser()) {
             $target['comment_id'] = $comment->getId();
         }
-        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_MICROPETITION_COMMENTED, $comment->getUser(),
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED, $comment->getUser(),
             $micropetition->getGroup()))
             ->setTarget($target)
         ;
@@ -159,12 +175,54 @@ class SocialActivityManager
 
         if ($micropetition->getUser()->getIsNotifOwnPostChanged()) {
             $socialActivity3 = new SocialActivity(
-                SocialActivity::TYPE_OWN_POST_COMMENTED,
+                SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED,
                 $comment->getUser(),
                 $micropetition->getGroup()
             );
                 $socialActivity->setTarget($target)
                 ->setRecipient($micropetition->getUser())
+            ;
+            $this->em->persist($socialActivity3);
+        }
+        $this->em->flush();
+    }
+
+    public function noticePostCommented(\Civix\CoreBundle\Entity\Post\Comment $comment)
+    {
+        $post = $comment->getPost();
+        $target = [
+            'id' => $post->getId(),
+            'preview' => $this->preparePreview($comment->getCommentBody()),
+            'type' => 'post',
+            'label' => 'post',
+        ];
+        if ($comment->getParentComment()->getUser()) {
+            $target['comment_id'] = $comment->getId();
+        }
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_POST_COMMENTED, $comment->getUser(),
+            $post->getGroup()))
+            ->setTarget($target)
+        ;
+        $this->em->persist($socialActivity);
+
+        if ($comment->getParentComment()->getUser()
+            && $comment->getUser() !== $comment->getParentComment()->getUser()) {
+            $socialActivity2 = (new SocialActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser(),
+                $post->getGroup()))
+                ->setTarget($target)
+                ->setRecipient($comment->getParentComment()->getUser())
+            ;
+            $this->em->persist($socialActivity2);
+        }
+
+        if ($post->getUser()->getIsNotifOwnPostChanged()) {
+            $socialActivity3 = new SocialActivity(
+                SocialActivity::TYPE_OWN_POST_COMMENTED,
+                $comment->getUser(),
+                $post->getGroup()
+            );
+                $socialActivity->setTarget($target)
+                ->setRecipient($post->getUser())
             ;
             $this->em->persist($socialActivity3);
         }
@@ -197,8 +255,8 @@ class SocialActivityManager
             $target = [
                 'id' => $micropetition->getId(),
                 'preview' => $this->preparePreview($comment->getCommentBody()),
-                'type' => $micropetition->getType(),
-                'label' => $micropetition->getType() === $micropetition::TYPE_QUORUM ? 'post' : 'petition',
+                'type' => 'petition',
+                'label' => 'post',
             ];
         } elseif ($comment instanceof Comment) {
             $question = $comment->getQuestion();

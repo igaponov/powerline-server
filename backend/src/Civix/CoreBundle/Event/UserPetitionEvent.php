@@ -1,23 +1,23 @@
 <?php
-namespace Civix\CoreBundle\Event\Micropetition;
+namespace Civix\CoreBundle\Event;
 
-use Civix\CoreBundle\Entity\Micropetitions\Petition;
+use Civix\CoreBundle\Entity\UserPetition;
 use Symfony\Component\EventDispatcher\Event;
 
-class PetitionEvent extends Event
+class UserPetitionEvent extends Event
 {
     /**
-     * @var Petition
+     * @var UserPetition
      */
     private $petition;
 
-    public function __construct(Petition $petition)
+    public function __construct(UserPetition $petition)
     {
         $this->petition = $petition;
     }
 
     /**
-     * @return Petition
+     * @return UserPetition
      */
     public function getPetition()
     {

@@ -3,7 +3,9 @@
 namespace Civix\CoreBundle\Service\User;
 
 use Civix\CoreBundle\Entity\Micropetitions\Petition;
+use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserPetition;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class UserManager
@@ -171,19 +173,37 @@ class UserManager
         return false;
     }
 
-    public function subscribeToPetition(User $user, Petition $petition)
+    public function subscribeToPetition(User $user, UserPetition $petition)
     {
-        if (!$user->getSubscriptions()->contains($petition)) {
-            $user->addSubscription($petition);
+        if (!$user->getPetitionSubscriptions()->contains($petition)) {
+            $user->addPetitionSubscription($petition);
             $this->entityManager->persist($petition);
             $this->entityManager->flush();
         }
     }
 
-    public function unsubscribeFromPetition(User $user, Petition $petition)
+    public function unsubscribeFromPetition(User $user, UserPetition $petition)
     {
-        if ($user->getSubscriptions()->contains($petition)) {
-            $user->removeSubscription($petition);
+        if ($user->getPetitionSubscriptions()->contains($petition)) {
+            $user->removePetitionSubscription($petition);
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+        }
+    }
+
+    public function subscribeToPost(User $user, Post $post)
+    {
+        if (!$user->getPostSubscriptions()->contains($post)) {
+            $user->addPostSubscription($post);
+            $this->entityManager->persist($post);
+            $this->entityManager->flush();
+        }
+    }
+
+    public function unsubscribeFromPost(User $user, Post $post)
+    {
+        if ($user->getPostSubscriptions()->contains($post)) {
+            $user->removePostSubscription($post);
             $this->entityManager->persist($user);
             $this->entityManager->flush();
         }

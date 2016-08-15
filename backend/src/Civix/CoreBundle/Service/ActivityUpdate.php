@@ -2,8 +2,10 @@
 
 namespace Civix\CoreBundle\Service;
 
+use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\UserInterface;
 use Civix\CoreBundle\Entity\SocialActivity;
+use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Comment;
@@ -13,18 +15,17 @@ use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
 use Civix\CoreBundle\Entity\Poll\Question\LeaderEvent;
 use Civix\CoreBundle\Entity\Poll\EducationalContext;
 use Civix\CoreBundle\Entity\Activities\Question as ActivityQuestion;
-use Civix\CoreBundle\Entity\Activities\MicroPetition as ActivityMicroPetition;
+use Civix\CoreBundle\Entity\Activities\UserPetition as ActivityUserPetition;
 use Civix\CoreBundle\Entity\Activities\Petition as ActivityPetition;
 use Civix\CoreBundle\Entity\Activities\LeaderNews as ActivityLeaderNews;
 use Civix\CoreBundle\Entity\Activities\LeaderEvent as ActivityLeaderEvent;
 use Civix\CoreBundle\Entity\Activities\PaymentRequest as ActivityPaymentRequest;
 use Civix\CoreBundle\Entity\Activities\CrowdfundingPaymentRequest as ActivityCrowdfundingPaymentRequest;
+use Civix\CoreBundle\Entity\Activities\Post as ActivityPost;
 use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\ActivityCondition;
-use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\GroupSection;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\Micropetitions\Petition as MicroPetition;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Validator\ValidatorInterface;
@@ -83,32 +84,19 @@ class ActivityUpdate
         return $activity;
     }
 
-    public function publishMicroPetitionToActivity(MicroPetition $petition, $isPublic = false)
+    public function publishUserPetitionToActivity(UserPetition $petition, $isPublic = false)
     {
-        //update petition
-        if ($isPublic) {
-            $expireDate = new \DateTime('now');
-            $expireDate->add(new \DateInterval('P'.$petition->getUserExpireInterval().'D'));
-            $petition->setExpireAt($expireDate);
-        }
-
-        $petition->setPublishStatus(MicroPetition::STATUS_PUBLISH);
+        $petition->boost();
         $this->entityManager->persist($petition);
 
         //create activity
-        $activity = new ActivityMicroPetition();
+        $activity = new ActivityUserPetition();
         $activity->setPetition($petition);
-        $activity->setTitle('');
-        if ($petition->getType() === MicroPetition::TYPE_LONG_PETITION) {
-            $activity->setTitle($petition->getTitle());
-            $activity->setDescription($petition->getPetitionBody());
-        } else {
-            $activity->setDescription($petition->getPetitionBody());
-        }
+        $activity->setTitle($petition->getTitle());
+        $activity->setDescription($petition->getBody());
         $activity->setSentAt(new \DateTime());
-        $activity->setExpireAt($petition->getExpireAt());
-        $activity->setResponsesCount($petition->getAnswers()->count());
-        $activity->setIsOutsiders($petition->getIsOutsidersSign());
+        $activity->setResponsesCount($petition->getSignatures()->count());
+        $activity->setIsOutsiders($petition->isOutsidersSign());
         $activity->setGroup($petition->getGroup());
         $activity->setQuorum($petition->getQuorumCount());
         if (!$isPublic) {
@@ -118,7 +106,33 @@ class ActivityUpdate
         $this->entityManager->persist($activity);
         $this->entityManager->flush();
 
-        $this->createActivityConditionsForMicroPetition($activity, $petition);
+        $this->createActivityConditionsForUserPetition($activity, $petition);
+
+        return true;
+    }
+
+    public function publishPostToActivity(Post $post, $isPublic = false)
+    {
+        $post->boost();
+        $this->entityManager->persist($post);
+
+        //create activity
+        $activity = new ActivityPost();
+        $activity->setPost($post);
+        $activity->setTitle('');
+        $activity->setDescription($post->getBody());
+        $activity->setSentAt(new \DateTime());
+        $activity->setResponsesCount($post->getVotes()->count());
+        $activity->setGroup($post->getGroup());
+        $activity->setQuorum($post->getQuorumCount());
+        if (!$isPublic) {
+            $activity->setUser($post->getUser());
+        }
+
+        $this->entityManager->persist($activity);
+        $this->entityManager->flush();
+
+        $this->createActivityConditionsForPost($activity, $post);
 
         return true;
     }
@@ -248,12 +262,17 @@ class ActivityUpdate
         }
     }
 
-    public function updateResponsesPetition(MicroPetition $petition)
+    public function updateResponsesPetition(UserPetition $petition)
     {
-        $this->entityManager->getRepository('CivixCoreBundle:Activity')->updateResponseCountMicroPetition($petition);
+        $this->entityManager->getRepository('CivixCoreBundle:Activity')->updateResponseCountUserPetition($petition);
     }
 
-    public function updateAuthorActivity(MicroPetition $petition, User $answerer)
+    public function updateResponsesPost(Post $post)
+    {
+        $this->entityManager->getRepository('CivixCoreBundle:Activity')->updateResponseCountPost($post);
+    }
+
+    public function updatePetitionAuthorActivity(UserPetition $petition, User $answerer)
     {
         if ($petition->getUser()->getIsNotifOwnPostChanged()) {
             $socialActivity = new SocialActivity(
@@ -263,13 +282,35 @@ class ActivityUpdate
             );
             $socialActivity->setTarget([
                 'id' => $petition->getId(),
-                'type' => $petition->getType(),
+                'type' => 'user-petition',
                 'user_id' => $answerer->getId(),
                 'first_name' => $answerer->getFirstName(),
                 'last_name' => $answerer->getLastName(),
                 'image' => $answerer->getAvatarFileName(),
             ]);
             $socialActivity->setRecipient($petition->getUser());
+            $this->entityManager->persist($socialActivity);
+            $this->entityManager->flush();
+        }
+    }
+
+    public function updatePostAuthorActivity(Post $post, User $answerer)
+    {
+        if ($post->getUser()->getIsNotifOwnPostChanged()) {
+            $socialActivity = new SocialActivity(
+                SocialActivity::TYPE_OWN_POST_VOTED,
+                $answerer,
+                $post->getGroup()
+            );
+            $socialActivity->setTarget([
+                'id' => $post->getId(),
+                'type' => 'post',
+                'user_id' => $answerer->getId(),
+                'first_name' => $answerer->getFirstName(),
+                'last_name' => $answerer->getLastName(),
+                'image' => $answerer->getAvatarFileName(),
+            ]);
+            $socialActivity->setRecipient($post->getUser());
             $this->entityManager->persist($socialActivity);
             $this->entityManager->flush();
         }
@@ -333,13 +374,19 @@ class ActivityUpdate
         $this->entityManager->flush($condition);
     }
 
-    private function createActivityConditionsForMicroPetition(Activity $activity, MicroPetition $microPetition)
+    private function createActivityConditionsForUserPetition(Activity $activity, UserPetition $petition)
     {
         $this->createGroupActivityConditions($activity);
-        if ($microPetition->getIsOutsidersSign() ||
-            $microPetition->getPublishStatus() === $microPetition::STATUS_USER
-        ) {
-            $this->createUserActivityConditions($activity, $microPetition->getUser());
+        if ($petition->isOutsidersSign() || !$petition->isBoosted()) {
+            $this->createUserActivityConditions($activity, $petition->getUser());
+        }
+    }
+
+    private function createActivityConditionsForPost(Activity $activity, Post $post)
+    {
+        $this->createGroupActivityConditions($activity);
+        if (!$post->isBoosted()) {
+            $this->createUserActivityConditions($activity, $post->getUser());
         }
     }
 

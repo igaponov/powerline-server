@@ -4,12 +4,14 @@ namespace Civix\CoreBundle\Service;
 
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Question\Petition;
+use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Micropetitions\Petition as Micropetition;
 use Civix\CoreBundle\Entity\Notification\AbstractEndpoint;
 use Civix\CoreBundle\Entity\SocialActivity;
+use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Service\Poll\QuestionUserPush;
 use Doctrine\ORM\EntityManager;
 use Imgix\UrlBuilder;
@@ -29,7 +31,8 @@ class PushSender
     const TYPE_PUSH_ANNOUNCEMENT = 'announcement';
     const TYPE_PUSH_INFLUENCE = 'influence';
     const TYPE_PUSH_INVITE = 'invite';
-    const TYPE_PUSH_MICRO_PETITION = 'micro_petition';
+    const TYPE_PUSH_USER_PETITION = 'user_petition';
+    const TYPE_PUSH_POST = 'post';
     /*Not used in push notification but reserved and use in settings*/
     const TYPE_PUSH_PETITION = 'petition';
     const TYPE_PUSH_NEWS = 'leader_news';
@@ -106,28 +109,54 @@ class PushSender
         } while ($users);
     }
 
-    public function sendGroupPetitionPush($groupId, $microPetitionId = null)
+    public function sendGroupPetitionPush($groupId, $petitionId = null)
     {
         $users = $this->entityManager
                 ->getRepository('CivixCoreBundle:User')
                 ->getUsersByGroupForPush($groupId, self::TYPE_PUSH_PETITION);
 
-        $microPetition = $this->entityManager->getRepository(Micropetition::class)->find($microPetitionId);
+        $petition = $this->entityManager->getRepository(UserPetition::class)->find($petitionId);
 
         foreach ($users as $recipient) {
             $this->send(
                 $recipient,
                 sprintf(
                     "%s in %s",
-                    $microPetition->getUser()
+                    $petition->getUser()
                         ->getFullName(),
-                    $microPetition->getGroup()
+                    $petition->getGroup()
                         ->getOfficialName()
                 ),
-                "Boosted: {$microPetition->getPetitionBody()}",
-                self::TYPE_PUSH_MICRO_PETITION,
-                ['id' => $microPetitionId],
-                $this->getLinkByFilename($microPetition->getUser()->getAvatarFileName())
+                "Boosted: {$petition->getBody()}",
+                self::TYPE_PUSH_USER_PETITION,
+                ['id' => $petitionId],
+                $this->getLinkByFilename($petition->getUser()->getAvatarFileName())
+            );
+        }
+    }
+
+    public function sendGroupPostPush($groupId, $postId = null)
+    {
+        $users = $this->entityManager
+                ->getRepository('CivixCoreBundle:User')
+                ->getUsersByGroupForPush($groupId, self::TYPE_PUSH_PETITION);
+
+        $post = $this->entityManager->getRepository(Post::class)->find($postId);
+
+        foreach ($users as $recipient) {
+            $this->send(
+                $recipient,
+                sprintf(
+                    "%s in %s",
+                    $post->getUser()
+                        ->getFullName(),
+                    $post->getGroup()
+                        ->getOfficialName()
+                ),
+                "Boosted: {$post->getBody()}",
+                self::TYPE_PUSH_POST,
+                ['id' => $postId],
+                $this->getLinkByFilename($post->getUser()->getAvatarFileName())
             );
         }
     }

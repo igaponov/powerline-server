@@ -1,10 +1,12 @@
 <?php
 namespace Civix\ApiBundle\EventListener;
 
-use Civix\CoreBundle\Event\Micropetition\PetitionEvent;
-use Civix\CoreBundle\Event\MicropetitionEvents;
 use Civix\CoreBundle\Event\Poll\QuestionEvent;
 use Civix\CoreBundle\Event\PollEvents;
+use Civix\CoreBundle\Event\PostEvent;
+use Civix\CoreBundle\Event\PostEvents;
+use Civix\CoreBundle\Event\UserPetitionEvent;
+use Civix\CoreBundle\Event\UserPetitionEvents;
 use Civix\CoreBundle\Service\Micropetitions\PetitionManager;
 use Civix\CoreBundle\Service\Poll\CommentManager;
 use Civix\CoreBundle\Service\Settings;
@@ -33,12 +35,19 @@ class LeaderContentSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            MicropetitionEvents::PETITION_PRE_CREATE => 'setPetitionExpire',
-            MicropetitionEvents::PETITION_CREATE => [
+            UserPetitionEvents::PETITION_CREATE => [
                 ['addPetitionHashTags'],
-                ['addMicropetitionRootComment'],
+                ['addPetitionRootComment'],
             ],
-            MicropetitionEvents::PETITION_UPDATE => 'addPetitionHashTags',
+            UserPetitionEvents::PETITION_UPDATE => 'addPetitionHashTags',
+
+            PostEvents::POST_PRE_CREATE => 'setPostExpire',
+            PostEvents::POST_CREATE => [
+                ['addPostHashTags'],
+                ['addPostRootComment'],
+            ],
+            PostEvents::POST_UPDATE => 'addPostHashTags',
+
             PollEvents::QUESTION_PUBLISHED => [
                 ['addQuestionHashTags'],
                 ['setQuestionExpire'],
@@ -58,13 +67,13 @@ class LeaderContentSubscriber implements EventSubscriberInterface
         $this->commentManager = $commentManager;
     }
 
-    public function setPetitionExpire(PetitionEvent $event)
+    public function setPostExpire(PostEvent $event)
     {
-        $petition = $event->getPetition();
-        $key = 'micropetition_expire_interval_'.$petition->getGroup()->getGroupType();
+        $post = $event->getPost();
+        $key = 'micropetition_expire_interval_'.$post->getGroup()->getGroupType();
         $interval = $this->settings->get($key)->getValue();
-        $petition->setExpireAt(new \DateTime("+$interval days"));
-        $petition->setUserExpireInterval($interval);
+        $post->setExpiredAt(new \DateTime("+$interval days"));
+        $post->setUserExpireInterval($interval);
     }
 
     public function setQuestionExpire(QuestionEvent $event)
@@ -73,10 +82,16 @@ class LeaderContentSubscriber implements EventSubscriberInterface
         $event->getQuestion()->setExpireAt(new \DateTime("+$expireInterval days"));
     }
 
-    public function addPetitionHashTags(PetitionEvent $event)
+    public function addPetitionHashTags(UserPetitionEvent $event)
     {
         $this->em->getRepository('CivixCoreBundle:HashTag')
             ->addForPetition($event->getPetition());
+    }
+
+    public function addPostHashTags(PostEvent $event)
+    {
+        $this->em->getRepository('CivixCoreBundle:HashTag')
+            ->addForPost($event->getPost());
     }
 
     public function addQuestionHashTags(QuestionEvent $event)
@@ -85,8 +100,13 @@ class LeaderContentSubscriber implements EventSubscriberInterface
             ->addForQuestion($event->getQuestion());
     }
 
-    public function addMicropetitionRootComment(PetitionEvent $event)
+    public function addPetitionRootComment(UserPetitionEvent $event)
     {
-        $this->commentManager->addMicropetitionRootComment($event->getPetition());
+        $this->commentManager->addUserPetitionRootComment($event->getPetition());
+    }
+
+    public function addPostRootComment(PostEvent $event)
+    {
+        $this->commentManager->addPostRootComment($event->getPost());
     }
 }

@@ -2,15 +2,16 @@
 
 namespace Civix\CoreBundle\Service\Poll;
 
-use Doctrine\ORM\EntityManager;
 use Civix\CoreBundle\Entity\BaseComment;
-use Civix\CoreBundle\Entity\Poll\Comment;
 use Civix\CoreBundle\Entity\Poll\Answer;
+use Civix\CoreBundle\Entity\Poll\Comment;
 use Civix\CoreBundle\Entity\Poll\Question;
+use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\UserPetition;
+use Civix\CoreBundle\Entity\UserPetition\Comment as MicropetitionComment;
 use Civix\CoreBundle\Service\ContentManager;
 use Civix\CoreBundle\Service\SocialActivityManager;
-use Civix\CoreBundle\Entity\Micropetitions\Petition as Micropetition;
-use Civix\CoreBundle\Entity\Micropetitions\Comment as MicropetitionComment;
+use Doctrine\ORM\EntityManager;
 
 class CommentManager
 {
@@ -84,12 +85,22 @@ class CommentManager
         }
     }
 
-    public function addMicropetitionRootComment(Micropetition $micropetition)
+    public function addUserPetitionRootComment(UserPetition $petition)
     {
         $comment = new MicropetitionComment();
-        $comment->setPetition($micropetition);
-        $comment->setCommentBody($micropetition->getPetitionBody());
-        $comment->setUser($micropetition->getUser());
+        $comment->setPetition($petition);
+        $comment->setCommentBody($petition->getBody());
+        $comment->setUser($petition->getUser());
+
+        return $this->saveComment($comment);
+    }
+
+    public function addPostRootComment(Post $post)
+    {
+        $comment = new Post\Comment();
+        $comment->setPost($post);
+        $comment->setCommentBody($post->getBody());
+        $comment->setUser($post->getUser());
 
         return $this->saveComment($comment);
     }

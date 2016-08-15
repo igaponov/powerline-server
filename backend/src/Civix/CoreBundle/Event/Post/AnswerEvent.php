@@ -1,23 +1,23 @@
 <?php
-namespace Civix\CoreBundle\Event\Micropetition;
+namespace Civix\CoreBundle\Event\Post;
 
-use Civix\CoreBundle\Entity\Micropetitions\Answer;
+use Civix\CoreBundle\Entity\Post\Vote;
 use Symfony\Component\EventDispatcher\Event;
 
 class AnswerEvent extends Event
 {
     /**
-     * @var Answer
+     * @var Vote
      */
     private $answer;
 
-    public function __construct(Answer $answer)
+    public function __construct(Vote $answer)
     {
         $this->answer = $answer;
     }
 
     /**
-     * @return Answer
+     * @return Vote
      */
     public function getAnswer()
     {

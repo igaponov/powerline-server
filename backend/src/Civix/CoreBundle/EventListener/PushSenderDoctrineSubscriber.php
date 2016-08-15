@@ -1,8 +1,8 @@
 <?php
 namespace Civix\CoreBundle\EventListener;
 
-use Civix\CoreBundle\Entity\Micropetitions\Comment;
 use Civix\CoreBundle\Entity\SocialActivity;
+use Civix\CoreBundle\Entity\UserPetition\Comment;
 use Civix\CoreBundle\Service\PushTask;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
