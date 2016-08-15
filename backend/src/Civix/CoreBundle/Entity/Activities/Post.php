@@ -2,17 +2,17 @@
 
 namespace Civix\CoreBundle\Entity\Activities;
 
+use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\Micropetitions;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Civix\CoreBundle\Entity\Activity;
 
 /**
  * @ORM\Entity
  * @Serializer\ExclusionPolicy("all")
  */
-class MicroPetition extends Activity
+class Post extends Activity
 {
     /**
      * @var int
@@ -29,8 +29,8 @@ class MicroPetition extends Activity
      */
     public function getMetadata()
     {
-        if ($this->petition) {
-            return $this->petition->getMetadata();
+        if ($this->post) {
+            return $this->post->getMetadata();
         }
 
         return null;
@@ -38,13 +38,9 @@ class MicroPetition extends Activity
 
     public function getEntity()
     {
-        $type = self::TYPE_MICRO_PETITION;
-        if ($this->getPetition()) {
-            $type .= ':'.str_replace(' ', '-', $this->getPetition()->getType());
-        }
         return array(
-            'type' => $type,
-            'id' => $this->getPetition() ? $this->getPetition()->getId() : null,
+            'type' => self::TYPE_POST,
+            'id' => $this->getPost() ? $this->getPost()->getId() : null,
             'group_id' => $this->getGroup() ? $this->getGroup()->getId() : null,
         );
     }
@@ -82,7 +78,7 @@ class MicroPetition extends Activity
     }
 
     /**
-     * @return ArrayCollection|Micropetitions\Answer[]
+     * @return ArrayCollection|\Civix\CoreBundle\Entity\UserPetition\Signature[]
      *
      * @Serializer\VirtualProperty()
      * @Serializer\Type("ArrayCollection")
@@ -91,7 +87,7 @@ class MicroPetition extends Activity
     public function getAnswers()
     {
         if ($this->petition) {
-            return $this->petition->getAnswers();
+            return $this->petition->getSignatures();
         }
 
         return new ArrayCollection();

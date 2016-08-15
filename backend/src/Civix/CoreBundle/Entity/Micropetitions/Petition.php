@@ -2,21 +2,18 @@
 
 namespace Civix\CoreBundle\Entity\Micropetitions;
 
-use Civix\CoreBundle\Entity\Activities\MicroPetition;
+use Civix\CoreBundle\Entity\Activities\UserPetition;
 use Civix\CoreBundle\Entity\HtmlBodyInterface;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Serializer\Type\Image;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
-use Civix\CoreBundle\Serializer\Type\Image;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Micropetitions\PetitionRepository")
- * @ORM\Table(name="micropetitions")
- * @ORM\HasLifecycleCallbacks
  * @Serializer\ExclusionPolicy("all")
  */
 class Petition implements HtmlBodyInterface
@@ -208,7 +205,7 @@ class Petition implements HtmlBodyInterface
      * @var ArrayCollection|User[]
      *
      * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\User",
-     *     cascade={"persist"}, orphanRemoval=true, mappedBy="subscriptions")
+     *     cascade={"persist"}, orphanRemoval=true, mappedBy="petitionSubscriptions")
      * @ORM\JoinTable(name="petition_subscribers")
      */
     private $subscribers;
@@ -225,7 +222,7 @@ class Petition implements HtmlBodyInterface
     /**
      * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\Activities\MicroPetition", mappedBy="petition", cascade={"remove"})
      *
-     * @var ArrayCollection|MicroPetition
+     * @var ArrayCollection|UserPetition
      */
     private $micropetitions;
 
@@ -661,11 +658,11 @@ class Petition implements HtmlBodyInterface
     /**
      * Add answers.
      *
-     * @param \Civix\CoreBundle\Entity\Micropetitions\Answer $answers
+     * @param \Civix\CoreBundle\Entity\UserPetition\Signature $answers
      *
      * @return Petition
      */
-    public function addAnswer(\Civix\CoreBundle\Entity\Micropetitions\Answer $answers)
+    public function addAnswer(\Civix\CoreBundle\Entity\UserPetition\Signature $answers)
     {
         $this->answers[] = $answers;
 
@@ -675,9 +672,9 @@ class Petition implements HtmlBodyInterface
     /**
      * Remove answers.
      *
-     * @param \Civix\CoreBundle\Entity\Micropetitions\Answer $answers
+     * @param \Civix\CoreBundle\Entity\UserPetition\Signature $answers
      */
-    public function removeAnswer(\Civix\CoreBundle\Entity\Micropetitions\Answer $answers)
+    public function removeAnswer(\Civix\CoreBundle\Entity\UserPetition\Signature $answers)
     {
         $this->answers->removeElement($answers);
     }
@@ -811,7 +808,7 @@ class Petition implements HtmlBodyInterface
     }
 
     /**
-     * @return MicroPetition|ArrayCollection
+     * @return UserPetition|ArrayCollection
      */
     public function getMicropetitions()
     {

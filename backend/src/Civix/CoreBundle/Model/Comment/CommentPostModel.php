@@ -2,22 +2,22 @@
 
 namespace Civix\CoreBundle\Model\Comment;
 
-class CommentMicropetitionModel implements CommentModelInterface
+class CommentPostModel implements CommentModelInterface
 {
     public function getRepositoryName()
     {
-        return 'Civix\CoreBundle\Entity\Micropetitions\Comment';
+        return 'Civix\CoreBundle\Entity\Post\Comment';
     }
 
     public function setEntityForComment($entity, $comment)
     {
-        $comment->setPetition($entity);
+        $comment->setPost($entity);
 
         return $comment;
     }
 
     public function getEntityForComment($comment)
     {
-        return $comment->getPetition();
+        return $comment->getPost();
     }
 }

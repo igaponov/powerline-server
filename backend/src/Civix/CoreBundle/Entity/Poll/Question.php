@@ -24,6 +24,11 @@ use Civix\CoreBundle\Entity\Representative;
  * @ORM\Table(name="poll_questions")
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Poll\QuestionRepository")
  * @ORM\HasLifecycleCallbacks
+ * @ORM\AssociationOverrides({
+ *      @ORM\AssociationOverride(name="hashTags",
+ *          joinTable=@ORM\JoinTable(name="hash_tags_questions")
+ *      )
+ * })
  * @InheritanceType("SINGLE_TABLE")
  * @DiscriminatorColumn(name="type", type="string")
  * @DiscriminatorMap({
@@ -200,7 +205,7 @@ abstract class Question implements LeaderContentInterface
     protected $recipients;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\HashTag", mappedBy="questions")
+     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\HashTag")
      */
     protected $hashTags;
 

@@ -2,10 +2,10 @@
 
 namespace Civix\ApiBundle\Tests\DataFixtures\ORM\Micropetitions;
 
+use Civix\CoreBundle\Entity\UserPetition\Signature;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
-use Civix\CoreBundle\Entity\Micropetitions\Answer;
 
 class LoadAnswerData extends AbstractFixture implements FixtureInterface
 {
@@ -37,7 +37,7 @@ class LoadAnswerData extends AbstractFixture implements FixtureInterface
         );
 
         foreach ($answers as $data) {
-            $answer = new Answer();
+            $answer = new Signature();
 
             $answer
                 ->setUser($data['user'])

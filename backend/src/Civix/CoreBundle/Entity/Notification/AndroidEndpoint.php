@@ -32,7 +32,7 @@ class AndroidEndpoint extends AbstractEndpoint
         $actionButton = array();
 
         switch ($type) {
-            case PushSender::TYPE_PUSH_MICRO_PETITION:
+            case PushSender::TYPE_PUSH_USER_PETITION:
                 $actionButton = array(
                     array("icon" => "Upvote", "title" => "Upvote", "callback" => "app.upvote"),
                     array("icon" => "Downvote", "title" => "Downvote", "callback" => "app.downvote")

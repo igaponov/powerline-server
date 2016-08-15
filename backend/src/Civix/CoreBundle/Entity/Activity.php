@@ -2,7 +2,6 @@
 
 namespace Civix\CoreBundle\Entity;
 
-use Civix\CoreBundle\Entity\Activities\MicroPetition;
 use Civix\CoreBundle\Entity\Activities\Petition;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
@@ -23,7 +22,8 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  * @DiscriminatorColumn(name="type", type="string")
  * @DiscriminatorMap({
  *      "question"  = "Civix\CoreBundle\Entity\Activities\Question",
- *      "micro-petition" = "Civix\CoreBundle\Entity\Activities\MicroPetition",
+ *      "user-petition" = "Civix\CoreBundle\Entity\Activities\UserPetition",
+ *      "post" = "Civix\CoreBundle\Entity\Activities\Post",
  *      "petition" = "Civix\CoreBundle\Entity\Activities\Petition",
  *      "leader-news" = "Civix\CoreBundle\Entity\Activities\LeaderNews",
  *      "payment-request" = "Civix\CoreBundle\Entity\Activities\PaymentRequest",
@@ -39,10 +39,11 @@ abstract class Activity implements HtmlBodyInterface
 {
     const TYPE_QUESTION = "question";
     const TYPE_PETITION = "petition";
-    const TYPE_MICRO_PETITION = "micro-petition";
+    const TYPE_USER_PETITION = "user-petition";
+    const TYPE_POST = "post";
     const TYPE_LEADER_NEWS = "leader-news";
     const TYPE_PAYMENT_REQUEST = "payment-request";
-    const TYPE_CRWODFUNDING_PAYMENT_REQUEST = "crowdfunding-payment-request";
+    const TYPE_CROWDFUNDING_PAYMENT_REQUEST = "crowdfunding-payment-request";
     const TYPE_LEADER_EVENT = "leader-event";
     const TYPE_ALL = "all";
 
@@ -250,11 +251,18 @@ abstract class Activity implements HtmlBodyInterface
     private $question;
 
     /**
-     * @var Micropetitions\Petition
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Micropetitions\Petition", inversedBy="micropetitions")
-     * @ORM\JoinColumn(name="petition_id", referencedColumnName="id", onDelete="CASCADE")
+     * @var UserPetition
+     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\UserPetition")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     protected $petition;
+
+    /**
+     * @var Post
+     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Post")
+     * @ORM\JoinColumn(onDelete="CASCADE")
+     */
+    protected $post;
 
     /**
      * @var int
@@ -743,7 +751,7 @@ abstract class Activity implements HtmlBodyInterface
             return Activities\LeaderEvent::class;
         }
         if ($question instanceof Micropetitions\Petition) {
-            return Activities\MicroPetition::class;
+            return Activities\UserPetition::class;
         }
         if ($question instanceof Question\Petition) {
             return Activities\Petition::class;
@@ -837,7 +845,7 @@ abstract class Activity implements HtmlBodyInterface
     }
 
     /**
-     * @return \Civix\CoreBundle\Entity\Micropetitions\Petition
+     * @return UserPetition
      */
     public function getPetition()
     {
@@ -845,10 +853,10 @@ abstract class Activity implements HtmlBodyInterface
     }
 
     /**
-     * @param Micropetitions\Petition $petition
+     * @param UserPetition $petition
      * @return $this
      */
-    public function setPetition(Micropetitions\Petition $petition)
+    public function setPetition(UserPetition $petition)
     {
         $this->petition = $petition;
 
@@ -899,5 +907,24 @@ abstract class Activity implements HtmlBodyInterface
     public function setHtmlBody($html)
     {
         $this->setDescriptionHtml($html);
+    }
+
+    /**
+     * @return Post
+     */
+    public function getPost()
+    {
+        return $this->post;
+    }
+
+    /**
+     * @param Post $post
+     * @return Activity
+     */
+    public function setPost($post)
+    {
+        $this->post = $post;
+
+        return $this;
     }
 }
