@@ -176,7 +176,7 @@ class PaymentAccountSettingsControllerTest extends WebTestCase
 		$balancedPaymentManager = $this->getMockBuilder(BalancedPaymentManager::class)
 			->disableOriginalConstructor()
 			->getMock();
-		$balancedPaymentManager->expects($this->once())->method('updateCustomer');
+		$balancedPaymentManager->expects($this->never())->method('updateCustomer');
 		$client = $this->client;
 		$client->getContainer()->set('civix_balanced.payment_manager', $balancedPaymentManager);
         $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
