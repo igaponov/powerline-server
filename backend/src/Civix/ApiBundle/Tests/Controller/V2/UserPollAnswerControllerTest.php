@@ -3,7 +3,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Civix\ApiBundle\Tests\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class UserPollAnswerControllerTest extends WebTestCase

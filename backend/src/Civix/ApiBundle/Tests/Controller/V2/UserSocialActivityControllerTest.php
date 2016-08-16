@@ -7,7 +7,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Civix\ApiBundle\Tests\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class UserSocialActivityControllerTest extends WebTestCase

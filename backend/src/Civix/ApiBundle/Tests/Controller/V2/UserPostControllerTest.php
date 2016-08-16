@@ -5,7 +5,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\DBAL\Connection;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Civix\ApiBundle\Tests\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class UserPostControllerTest extends WebTestCase

@@ -2,10 +2,10 @@
 
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
+use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFieldsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class GroupFieldsControllerTest extends WebTestCase

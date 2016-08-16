@@ -11,7 +11,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Civix\ApiBundle\Tests\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class UserPetitionControllerTest extends WebTestCase

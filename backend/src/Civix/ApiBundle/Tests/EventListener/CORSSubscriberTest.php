@@ -3,7 +3,7 @@
 namespace Civix\ApiBundle\Tests\EventListener;
 
 use FOS\RestBundle\Util\Codes;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Civix\ApiBundle\Tests\WebTestCase;
 
 class CORSSubscriberTest extends WebTestCase
 {

@@ -7,6 +7,12 @@ use JMS\Serializer\SerializationContext;
 
 abstract class WebTestCase extends \Liip\FunctionalTestBundle\Test\WebTestCase
 {
+    protected function onNotSuccessfulTest(\Exception $e)
+    {
+        $this->containers = [];
+        parent::onNotSuccessfulTest($e);
+    }
+
     /**
      * Get the login token user passing the user object.
      * 

@@ -7,7 +7,7 @@ use Civix\CoreBundle\Service\Subscription\SubscriptionManager;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Civix\ApiBundle\Tests\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class MembershipControllerTest extends WebTestCase

@@ -6,7 +6,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\DBAL\Connection;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Civix\ApiBundle\Tests\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class UserPetitionsControllerTest extends WebTestCase

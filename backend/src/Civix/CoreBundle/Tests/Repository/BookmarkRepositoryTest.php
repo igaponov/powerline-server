@@ -8,7 +8,7 @@ use Civix\CoreBundle\Repository\BookmarkRepository;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Civix\ApiBundle\Tests\WebTestCase;
 
 class BookmarkRepositoryTest extends WebTestCase
 {

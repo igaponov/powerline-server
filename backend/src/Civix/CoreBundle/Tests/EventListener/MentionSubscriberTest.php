@@ -5,7 +5,7 @@ use Civix\CoreBundle\Entity\Activities\UserPetition;
 use Civix\CoreBundle\Entity\Metadata;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Civix\ApiBundle\Tests\WebTestCase;
 
 class MentionSubscriberTest extends WebTestCase
 {
