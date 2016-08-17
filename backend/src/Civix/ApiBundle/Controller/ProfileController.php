@@ -77,7 +77,8 @@ class ProfileController extends BaseController
     }
 
     /**
-     * Deprecated, use `PUT|DELETE /api/v2/followings/{id}` instead
+     * Deprecated, use `PUT|DELETE /api/v2/user/followings/{id}` instead
+     *
      * @Route(
      *     "/follow/{status}/{targetUser}", 
      *     requirements={"targetUser"="\d+", "status"="follow|unfollow|active|reject"},
