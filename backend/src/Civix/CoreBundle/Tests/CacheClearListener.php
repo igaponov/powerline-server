@@ -108,4 +108,9 @@ class CacheClearListener implements \PHPUnit_Framework_TestListener
     {
         // TODO: Implement endTest() method.
     }
+
+    public function addRiskyTest(PHPUnit_Framework_Test $test, Exception $e, $time)
+    {
+
+    }
 }
