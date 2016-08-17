@@ -2368,7 +2368,8 @@ class User implements UserInterface, \Serializable
     public function addPetitionSubscription(UserPetition $subscription)
     {
         $this->petitionSubscriptions[] = $subscription;
-    
+        $subscription->addSubscriber($this);
+
         return $this;
     }
 
@@ -2380,6 +2381,7 @@ class User implements UserInterface, \Serializable
     public function removePetitionSubscription(UserPetition $subscriptions)
     {
         $this->petitionSubscriptions->removeElement($subscriptions);
+        $subscriptions->removeSubscriber($this);
     }
 
     /**
@@ -2401,6 +2403,7 @@ class User implements UserInterface, \Serializable
     public function addPostSubscription(Post $subscription)
     {
         $this->postSubscriptions[] = $subscription;
+        $subscription->addSubscriber($this);
 
         return $this;
     }
@@ -2413,6 +2416,7 @@ class User implements UserInterface, \Serializable
     public function removePostSubscription(Post $subscriptions)
     {
         $this->postSubscriptions->removeElement($subscriptions);
+        $subscriptions->removeSubscriber($this);
     }
 
     /**

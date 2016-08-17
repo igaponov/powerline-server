@@ -5,6 +5,7 @@ namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 use Civix\CoreBundle\Entity\Activities\CrowdfundingPaymentRequest;
 use Civix\CoreBundle\Entity\Activities\LeaderEvent;
 use Civix\CoreBundle\Entity\Activities\LeaderNews;
+use Civix\CoreBundle\Entity\Activities\Post;
 use Civix\CoreBundle\Entity\Activities\UserPetition;
 use Civix\CoreBundle\Entity\Activities\PaymentRequest;
 use Civix\CoreBundle\Entity\Activities\Petition;
@@ -16,49 +17,40 @@ use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Faker\Factory;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * LoadUserData.
  */
-class LoadActivityData extends AbstractFixture implements ContainerAwareInterface, DependentFixtureInterface
+class LoadActivityData extends AbstractFixture implements DependentFixtureInterface
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    public function setContainer(ContainerInterface $container = null)
-    {
-        $this->container = $container;
-    }
-
     public function load(ObjectManager $manager)
     {
-        $user = $this->getReference('followertest');
-        $leaderNews = $this->generateActivity(new LeaderNews(), $user);
+        $user1 = $this->getReference('user_1');
+        $leaderNews = $this->generateActivity(new LeaderNews(), $user1);
         $manager->persist($leaderNews);
         $this->addReference('activity_leader_news', $leaderNews);
         $crowdfundingPaymentRequest = $this->generateActivity(
             new CrowdfundingPaymentRequest(),
-            $user,
+            $user1,
             new \DateTime('-1 hour')
         );
         $manager->persist($crowdfundingPaymentRequest);
         $this->addReference('activity_crowdfunding_payment_request', $crowdfundingPaymentRequest);
-        $micropetition = $this->generateActivity(new UserPetition(), $user);
-        $manager->persist($micropetition);
-        $this->addReference('activity_micropetition', $micropetition);
-        $group = $this->getReference('testfollowprivategroups');
-        $user2 = $this->getReference('userfollowtest1');
+        $userPetition = $this->generateActivity(new UserPetition(), $user1);
+        $manager->persist($userPetition);
+        $this->addReference('activity_user_petition', $userPetition);
+        $post = $this->generateActivity(new Post(), $user1);
+        $manager->persist($post);
+        $this->addReference('activity_post', $post);
+        $group = $this->getReference('group_1');
+        $user2 = $this->getReference('user_2');
         $petition = $this->generateActivity(new Petition(), $user2, null, $group);
         $manager->persist($petition);
         $this->addReference('activity_petition', $petition);
         $question = $this->generateActivity(new Question(), $user2, new \DateTime('-1 day'));
         $manager->persist($question);
         $this->addReference('activity_question', $question);
-        $user3 = $this->getReference('userfollowtest2');
+        $user3 = $this->getReference('user_3');
         $leaderEvent = $this->generateActivity(new LeaderEvent(), $user3, new \DateTime('-1 month'));
         $manager->persist($leaderEvent);
         $this->addReference('activity_leader_event', $leaderEvent);
@@ -94,6 +86,6 @@ class LoadActivityData extends AbstractFixture implements ContainerAwareInterfac
 
     public function getDependencies()
     {
-        return [LoadUserData::class, LoadGroupFollowerTestData::class];
+        return [LoadUserData::class, LoadGroupData::class];
     }
 }

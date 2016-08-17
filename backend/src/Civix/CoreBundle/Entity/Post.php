@@ -429,4 +429,16 @@ class Post implements HtmlBodyInterface
     {
         return $this->votes;
     }
+
+    /**
+     * @return bool
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Type("boolean")
+     * @Serializer\Groups({"activity-list"})
+     */
+    public function isSubscribed()
+    {
+        return (bool)$this->subscribers->count();
+    }
 }

@@ -130,6 +130,7 @@ class UserPetition implements HtmlBodyInterface
         $this->hashTags = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->metadata = new Metadata();
+        $this->subscribers = new ArrayCollection();
     }
 
     /**
@@ -584,5 +585,17 @@ class UserPetition implements HtmlBodyInterface
     public function getAnswers()
     {
         return $this->signatures;
+    }
+
+    /**
+     * @return bool
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Type("boolean")
+     * @Serializer\Groups({"activity-list"})
+     */
+    public function isSubscribed()
+    {
+        return (bool)$this->subscribers->count();
     }
 }
