@@ -13,7 +13,7 @@ class SocialActivityConverter
         SocialActivity::TYPE_GROUP_POST_CREATED => 'getMicropetitionCreated',
         SocialActivity::TYPE_ANSWERED => 'getAnswered',
         SocialActivity::TYPE_FOLLOW_POLL_COMMENTED => 'getFollowPollCommented',
-        SocialActivity::TYPE_FOLLOW_MICROPETITION_COMMENTED => 'getFollowMicropetitionCommented',
+        SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED => 'getFollowMicropetitionCommented',
         SocialActivity::TYPE_COMMENT_REPLIED => 'getCommentReplied',
         SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED => 'getGroupPermissionsChanged',
         SocialActivity::TYPE_COMMENT_MENTIONED => 'getCommentMentioned',

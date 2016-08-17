@@ -14,14 +14,18 @@ class SocialActivity
 {
     const TYPE_FOLLOW_REQUEST = 'follow-request';
     const TYPE_JOIN_TO_GROUP_APPROVED = 'joinToGroup-approved';
-    const TYPE_GROUP_POST_CREATED = 'micropetition-created';
+    const TYPE_GROUP_USER_PETITION_CREATED = 'user-petition-created';
+    const TYPE_GROUP_POST_CREATED = 'post-created';
     const TYPE_ANSWERED = 'answered';
     const TYPE_FOLLOW_POLL_COMMENTED = 'follow-pollCommented';
     const TYPE_COMMENT_REPLIED = 'comment-replied';
-    const TYPE_FOLLOW_MICROPETITION_COMMENTED = 'follow-micropetitionCommented';
+    const TYPE_FOLLOW_USER_PETITION_COMMENTED = 'follow-micropetitionCommented';
+    const TYPE_FOLLOW_POST_COMMENTED = 'follow-postCommented';
     const TYPE_GROUP_PERMISSIONS_CHANGED = 'groupPermissions-changed';
     const TYPE_COMMENT_MENTIONED = 'comment-mentioned';
     const TYPE_OWN_POST_COMMENTED = 'own-post-commented';
+    const TYPE_OWN_USER_PETITION_COMMENTED = 'own-user-petition-commented';
+    const TYPE_OWN_USER_PETITION_VOTED = 'own-user-petition-voted';
     const TYPE_OWN_POST_VOTED = 'own-post-voted';
 
     /**

@@ -7,7 +7,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadCustomerGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Faker\Factory;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Civix\ApiBundle\Tests\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class PaymentAccountSettingsControllerTest extends WebTestCase

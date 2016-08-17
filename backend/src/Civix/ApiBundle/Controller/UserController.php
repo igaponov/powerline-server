@@ -104,7 +104,7 @@ class UserController extends BaseController
      * @Method("POST")
      * 
      * @ApiDoc(
-     *     section="Micropetitions",
+     *     section="User Petitions",
      *     description="Subscribe to activity",
      *     statusCodes={
      *         201="Returns null",

@@ -2,8 +2,8 @@
 
 namespace Civix\FrontBundle\Controller\Group;
 
-use Civix\CoreBundle\Event\Micropetition\PetitionEvent;
-use Civix\CoreBundle\Event\MicropetitionEvents;
+use Civix\CoreBundle\Event\Micropetition\UserPetitionEvent;
+use Civix\CoreBundle\Event\UserPetitionEvents;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -68,8 +68,8 @@ class MicropetitionController extends Controller
         }
         if (!$petition->getPublishStatus()) {
             $this->get('civix_core.activity_update')->publishMicroPetitionToActivity($petition, true);
-            $event = new PetitionEvent($petition);
-            $this->get('event_dispatcher')->dispatch(MicropetitionEvents::PETITION_BOOST, $event);
+            $event = new UserPetitionEvent($petition);
+            $this->get('event_dispatcher')->dispatch(UserPetitionEvents::PETITION_BOOST, $event);
         }
 
         return $this->redirect($this->generateUrl('civix_front_petitions_open'));
@@ -105,7 +105,7 @@ class MicropetitionController extends Controller
         $isChangeConfig = $this->isAvailableChangeConfig();
         if (!$isChangeConfig) {
             $this->get('session')->getFlashBag()
-                ->add('danger', 'MicroPetition\'s configuration is not available for this subscription');
+                ->add('danger', 'UserPetition\'s configuration is not available for this subscription');
         }
 
         $petitionConfigForm = $this->createForm(
@@ -131,7 +131,7 @@ class MicropetitionController extends Controller
         $isChangeConfig = $this->isAvailableChangeConfig();
         if (!$isChangeConfig) {
             $this->get('session')->getFlashBag()
-                ->add('danger', 'MicroPetition\'s configuration is not available for this subscription');
+                ->add('danger', 'UserPetition\'s configuration is not available for this subscription');
 
             return $this->redirect($this->generateUrl('civix_front_petitions'));
         }

@@ -130,10 +130,10 @@ class BookmarkRepository extends EntityRepository
         $types = [
             Activity::TYPE_QUESTION => Activities\Question::class,
             Activity::TYPE_PETITION => Activities\Petition::class,
-            Activity::TYPE_MICRO_PETITION => Activities\MicroPetition::class,
+            Activity::TYPE_USER_PETITION => Activities\UserPetition::class,
             Activity::TYPE_LEADER_NEWS => Activities\LeaderNews::class,
             Activity::TYPE_PAYMENT_REQUEST => Activities\PaymentRequest::class,
-            Activity::TYPE_CRWODFUNDING_PAYMENT_REQUEST => Activities\CrowdfundingPaymentRequest::class,
+            Activity::TYPE_CROWDFUNDING_PAYMENT_REQUEST => Activities\CrowdfundingPaymentRequest::class,
             Activity::TYPE_LEADER_EVENT => Activities\LeaderEvent::class,
         ];
 

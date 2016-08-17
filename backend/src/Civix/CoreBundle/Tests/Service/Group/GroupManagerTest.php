@@ -8,7 +8,7 @@ use Civix\CoreBundle\Service\Google\Geocode;
 use Civix\CoreBundle\Service\Group\GroupManager;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Civix\ApiBundle\Tests\WebTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

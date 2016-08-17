@@ -2,10 +2,10 @@
 
 namespace Civix\ApiBundle\Tests\DataFixtures\ORM\Micropetitions;
 
+use Civix\CoreBundle\Entity\UserPetition\Comment;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
-use Civix\CoreBundle\Entity\Micropetitions\Comment;
 
 class LoadCommentData extends AbstractFixture implements FixtureInterface
 {

@@ -10,9 +10,11 @@ class CommentModelFactory
             case 'poll':
                 return new CommentPollModel();
             case 'micro-petitions':
-                return new CommentMicropetitionModel();
+                return new CommentUserPetitionModel();
+            case 'post':
+                return new CommentPostModel();
         }
 
-        return;
+        return null;
     }
 }

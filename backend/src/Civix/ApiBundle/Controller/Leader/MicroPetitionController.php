@@ -2,12 +2,12 @@
 
 namespace Civix\ApiBundle\Controller\Leader;
 
-use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Civix\ApiBundle\Controller\BaseController;
 use Civix\CoreBundle\Entity\Micropetitions\Petition;
-use Civix\CoreBundle\Entity\Micropetitions\Answer;
+use Civix\CoreBundle\Entity\UserPetition\Signature;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @Route("/micro-petitions")
@@ -39,7 +39,7 @@ class MicroPetitionController extends BaseController
         if ($microPetition->getGroup() !== $this->getUser()) {
             return $this->createJSONResponse('', 403);
         }
-        $answers = $this->getDoctrine()->getRepository(Answer::class)->findByPetition($microPetition);
+        $answers = $this->getDoctrine()->getRepository(Signature::class)->findByPetition($microPetition);
 
         return $this->createJSONResponse($this->jmsSerialization($answers, ['api-leader-answers']));
     }

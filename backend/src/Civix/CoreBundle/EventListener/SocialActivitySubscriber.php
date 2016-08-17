@@ -22,7 +22,8 @@ class SocialActivitySubscriber implements EventSubscriberInterface
         return [
             Event\UserEvents::FOLLOWED => 'sendUserFollowRequest',
             Event\GroupEvents::PERMISSIONS_CHANGED => 'noticeGroupsPermissionsChanged',
-            Event\MicropetitionEvents::PETITION_CREATE => 'noticeMicropetitionCreated',
+            Event\UserPetitionEvents::PETITION_CREATE => 'noticeUserPetitionCreated',
+            Event\PostEvents::POST_CREATE => 'noticePostCreated',
         ];
     }
 
@@ -36,8 +37,13 @@ class SocialActivitySubscriber implements EventSubscriberInterface
         $this->manager->noticeGroupsPermissionsChanged($event->getGroup());
     }
 
-    public function noticeMicropetitionCreated(Event\Micropetition\PetitionEvent $event)
+    public function noticeUserPetitionCreated(Event\UserPetitionEvent $event)
     {
-        $this->manager->noticeMicropetitionCreated($event->getPetition());
+        $this->manager->noticeUserPetitionCreated($event->getPetition());
+    }
+
+    public function noticePostCreated(Event\PostEvent $event)
+    {
+        $this->manager->noticePostCreated($event->getPost());
     }
 }

@@ -3,7 +3,7 @@
 namespace Civix\CoreBundle\Tests\Service;
 
 use Civix\CoreBundle\Service\CiceroApi;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\District;
 use Civix\CoreBundle\Tests\DataFixtures\ORM as ORM;

@@ -29,7 +29,7 @@ class BookmarkController extends BaseController
      *      "/list/{type}/{page}",
      *      requirements={
      *          "page"="\d+",
-     *          "type"="petition|micro-petition|question|leader-news|payment-request|crowdfunding-payment-request|leader-event|all"
+     *          "type"="petition|user-petition|question|leader-news|payment-request|crowdfunding-payment-request|leader-event|all"
      *      },
      *      name="api_bookmarks_list"
      * )

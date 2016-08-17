@@ -2,28 +2,18 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\InheritanceType;
-use Doctrine\ORM\Mapping\DiscriminatorColumn;
-use Doctrine\ORM\Mapping\DiscriminatorMap;
+use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Comments entity.
  *
- * @ORM\Table(name="comments")
- * @ORM\Entity()
- * @ORM\HasLifecycleCallbacks
- * @InheritanceType("SINGLE_TABLE")
- * @DiscriminatorColumn(name="type", type="string")
- * @DiscriminatorMap({
- *      "poll"  = "Civix\CoreBundle\Entity\Poll\Comment",
- *      "micropetition" = "Civix\CoreBundle\Entity\Micropetitions\Comment",
- * })
  * @Serializer\ExclusionPolicy("all")
  */
-class BaseComment
+abstract class BaseComment
 {
     const PRIVACY_PUBLIC = 0;
     const PRIVACY_PRIVATE = 1;
@@ -37,83 +27,86 @@ class BaseComment
      * @Serializer\Expose()
      * @Serializer\Groups({"api-comments", "api-comments-parent", "api-comments-add"})
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\Column(name="comment_body", type="text")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-comments", "api-comments-add", "api-comments-update"})
+     * @Serializer\Type("string")
      * @Assert\NotBlank()
      * @Assert\Length(max=500)
      */
-    private $commentBody;
+    protected $commentBody;
 
     /**
      * @ORM\Column(name="comment_body_html", type="text")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-comments", "api-comments-add"})
      */
-    private $commentBodyHtml;
+    protected $commentBodyHtml;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
+     * @Gedmo\Timestampable()
      * @Serializer\Expose()
      * @Serializer\Groups({"api-comments", "api-comments-add"})
      * @Serializer\Type("DateTime<'D, d M Y H:i:s O'>")
      */
-    private $createdAt;
+    protected $createdAt;
 
     /**
-     * @ORM\ManyToOne(targetEntity="BaseComment", inversedBy="childrenComments")
-     * @ORM\JoinColumn(name="pid", referencedColumnName="id", onDelete="CASCADE")
+     * @var BaseComment
+     *
      * @Serializer\Expose()
      * @Serializer\Groups({"api-comments", "api-comments-add"})
      * @Serializer\Type("integer")
      * @Serializer\Accessor(getter="getParentId")
      */
-    private $parentComment;
+    protected $parentComment;
 
     /**
-     * @ORM\OneToMany(targetEntity="BaseComment", mappedBy="parentComment")
+     * @var ArrayCollection|BaseComment[]
      */
-    private $childrenComments;
+    protected $childrenComments;
 
     /**
+     * @var User
      * @ORM\ManyToOne(targetEntity="\Civix\CoreBundle\Entity\User")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-comments-add"})
      */
-    private $user;
+    protected $user;
 
     /**
      * @ORM\OneToMany(targetEntity="\Civix\CoreBundle\Entity\Poll\CommentRate", mappedBy="comment")
      */
-    private $rates;
+    protected $rates;
 
     /**
      * @ORM\Column(name="rate_sum", type="integer")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-comments"})
      */
-    private $rateSum;
+    protected $rateSum = 0;
 
     /**
      * @ORM\Column(name="rates_count", type="integer", nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-comments"})
      */
-    private $ratesCount;
+    protected $ratesCount = 0;
 
     /**
      * @Serializer\Expose()
      * @Serializer\Groups({"api-comments"})
      */
-    private $rateStatus;
+    protected $rateStatus;
 
-    private $isOwner;
+    protected $isOwner;
 
     /**
      * @var int
@@ -121,14 +114,15 @@ class BaseComment
      * @ORM\Column(name="privacy", type="integer")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-comments", "api-comments-add", "api-comments-update"})
+     * @Serializer\Type("integer")
      */
-    private $privacy = self::PRIVACY_PUBLIC;
+    protected $privacy = self::PRIVACY_PUBLIC;
 
     public function __construct()
     {
-        $this->rateSum = 0;
-        $this->ratesCount = 0;
-        $this->rates = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->rates = new ArrayCollection();
+        $this->childrenComments = new ArrayCollection();
+        $this->createdAt = new \DateTime();
     }
 
     /**
@@ -146,7 +140,7 @@ class BaseComment
      *
      * @param string $commentBody
      * 
-     * @return Comment
+     * @return BaseComment
      */
     public function setCommentBody($commentBody)
     {
@@ -168,9 +162,9 @@ class BaseComment
     /**
      * Set parentComment.
      *
-     * @param \Civix\CoreBundle\Entity\BaseComment $parentComment
+     * @param BaseComment $parentComment
      * 
-     * @return Comment
+     * @return BaseComment
      */
     public function setParentComment(BaseComment $parentComment = null)
     {
@@ -182,7 +176,7 @@ class BaseComment
     /**
      * Get parentComment.
      *
-     * @return \Civix\CoreBundle\Entity\BaseComment
+     * @return BaseComment
      */
     public function getParentComment()
     {
@@ -192,11 +186,11 @@ class BaseComment
     /**
      * Set user.
      *
-     * @param \Civix\CoreBundle\Entity\User $user
+     * @param User $user
      * 
-     * @return Comment
+     * @return BaseComment
      */
-    public function setUser(\Civix\CoreBundle\Entity\User $user = null)
+    public function setUser(User $user = null)
     {
         $this->user = $user;
 
@@ -206,37 +200,11 @@ class BaseComment
     /**
      * Get user.
      *
-     * @return \Civix\CoreBundle\Entity\User
+     * @return User
      */
     public function getUser()
     {
         return $this->user;
-    }
-
-    /**
-     * @ORM\PrePersist()
-     */
-    public function setDefaultData()
-    {
-        $this->setCreatedAt(new \DateTime('now'));
-
-        if (is_null($this->rateSum)) {
-            $this->setRateSum(0);
-        }
-    }
-
-    /**
-     * Set createdAt.
-     *
-     * @param \DateTime $createdAt
-     *
-     * @return Comment
-     */
-    public function setCreatedAt($createdAt)
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
     }
 
     /**
@@ -254,7 +222,7 @@ class BaseComment
      *
      * @param int $rateSum
      *
-     * @return Comment
+     * @return BaseComment
      */
     public function setRateSum($rateSum)
     {
@@ -304,7 +272,7 @@ class BaseComment
      *
      * @param int $privacy
      *
-     * @return Comment
+     * @return BaseComment
      */
     public function setPrivacy($privacy)
     {
@@ -367,11 +335,11 @@ class BaseComment
     /**
      * Add childrenComments.
      *
-     * @param \Civix\CoreBundle\Entity\BaseComment $childrenComments
+     * @param BaseComment $childrenComments
      *
-     * @return Comment
+     * @return BaseComment
      */
-    public function addChildrenComment(\Civix\CoreBundle\Entity\BaseComment $childrenComments)
+    public function addChildrenComment(BaseComment $childrenComments)
     {
         $this->childrenComments[] = $childrenComments;
 
@@ -381,9 +349,9 @@ class BaseComment
     /**
      * Remove childrenComments.
      *
-     * @param \Civix\CoreBundle\Entity\BaseComment $childrenComments
+     * @param BaseComment $childrenComments
      */
-    public function removeChildrenComment(\Civix\CoreBundle\Entity\BaseComment $childrenComments)
+    public function removeChildrenComment(BaseComment $childrenComments)
     {
         $this->childrenComments->removeElement($childrenComments);
     }
@@ -401,11 +369,11 @@ class BaseComment
     /**
      * Add rates.
      *
-     * @param \Civix\CoreBundle\Entity\Poll\CommentRate $rates
+     * @param Poll\CommentRate $rates
      *
-     * @return Comment
+     * @return BaseComment
      */
-    public function addRate(\Civix\CoreBundle\Entity\Poll\CommentRate $rates)
+    public function addRate(Poll\CommentRate $rates)
     {
         $this->rates[] = $rates;
 
@@ -415,9 +383,9 @@ class BaseComment
     /**
      * Remove rates.
      *
-     * @param \Civix\CoreBundle\Entity\Poll\CommentRate $rates
+     * @param Poll\CommentRate $rates
      */
-    public function removeRate(\Civix\CoreBundle\Entity\Poll\CommentRate $rates)
+    public function removeRate(Poll\CommentRate $rates)
     {
         $this->rates->removeElement($rates);
     }

@@ -2,17 +2,17 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use Civix\CoreBundle\Entity\Activities\UserPetition;
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Invites\UserToGroup;
-use Civix\CoreBundle\Entity\Activities\MicroPetition;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Civix\CoreBundle\Entity\Micropetitions\Petition;
+use Civix\CoreBundle\Entity\UserPetition\Signature;
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\Micropetitions\Petition;
-use Civix\CoreBundle\Entity\Micropetitions\Answer;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class MicropetitionController extends BaseController
@@ -27,7 +27,7 @@ class MicropetitionController extends BaseController
      * @Method("POST")
      *
      * @ApiDoc(
-     *      section="Micropetitions",
+     *      section="User Petitions",
      *      description="Create micropetition by user",
      *      input={
      *          "class"="Civix\CoreBundle\Entity\Micropetitions\Petition",
@@ -108,7 +108,7 @@ class MicropetitionController extends BaseController
      *
      * @deprecated
      * @ApiDoc(
-     *      section="Micropetitions",
+     *      section="User Petitions",
      *      description="List micropetitions from user's groups",
      *      statusCodes={
      *          200="Returns list micropetitions",
@@ -144,7 +144,7 @@ class MicropetitionController extends BaseController
      * @Method("GET")
      *
      * @ApiDoc(
-     *     section="Micropetitions",
+     *     section="User Petitions",
      *     deprecated=true
      * )
      */
@@ -176,7 +176,7 @@ class MicropetitionController extends BaseController
      * @Method("GET")
      *
      * @ApiDoc(
-     *      section="Micropetitions",
+     *      section="User Petitions",
      *      description="Get micropetition by ID",
      *      statusCodes={
      *          200="Returns micropetition's info",
@@ -220,7 +220,7 @@ class MicropetitionController extends BaseController
      * @ApiDoc(
      *      authentication=true,
      *      resource=true,
-     *      section="Micropetitions",
+     *      section="User Petitions",
      *      description="Invite the upvoter of petition to a group",
      *      statusCodes={
      *          200="Returns micropetition's info",
@@ -294,7 +294,7 @@ class MicropetitionController extends BaseController
      * @Method("POST")
      * @ParamConverter("micropetition", class="CivixCoreBundle:Micropetitions\Petition")
      * @ApiDoc(
-     *      section="Micropetitions",
+     *      section="User Petitions",
      *      description="Answer to micropetition",
      *      statusCodes={
      *          200="Returns micropetition's info",
@@ -331,13 +331,13 @@ class MicropetitionController extends BaseController
      * @Method("GET")
      *
      * @ApiDoc(
-     *     section="Micropetitions",
+     *     section="User Petitions",
      *     deprecated=true
      * )
      */
     public function answersAction()
     {
-        $answers = $this->getDoctrine()->getRepository(Answer::class)
+        $answers = $this->getDoctrine()->getRepository(Signature::class)
             ->getFindByUserAndCriteriaQuery($this->getUser(), ['start' => new \DateTime('-35 days')])
             ->getResult();
 
@@ -354,7 +354,7 @@ class MicropetitionController extends BaseController
      * )
      * @Method("PUT")
      * @ApiDoc(
-     *     section="Micropetitions",
+     *     section="User Petitions",
      *     description="Update micropetition by ID",
      *     statusCodes={
      *         200="Returns micropetition's info",
@@ -364,7 +364,7 @@ class MicropetitionController extends BaseController
      *     deprecated=true
      * )
      */
-    public function putMicropetitionAction(Request $request, MicroPetition $microPetition)
+    public function putMicropetitionAction(Request $request, UserPetition $microPetition)
     {
         $manager = $this->getDoctrine()
             ->getManager();
@@ -373,7 +373,7 @@ class MicropetitionController extends BaseController
         if ($this->getUser() !== $microPetition->getUser()) {
             throw $this->createNotFoundException();
         }
-        /** @var MicroPetition $updated */
+        /** @var UserPetition $updated */
         $updated = $this->jmsDeserialization(
             $request->getContent(),
             'Civix\CoreBundle\Entity\Activities\MicroPetition',
@@ -405,7 +405,7 @@ class MicropetitionController extends BaseController
      * )
      * @Method("DELETE")
      * @ApiDoc(
-     *     section="Micropetitions",
+     *     section="User Petitions",
      *     description="Delete micropetition by ID",
      *     statusCodes={
      *         204="Returns null",
@@ -415,7 +415,7 @@ class MicropetitionController extends BaseController
      *     deprecated=true
      * )
      */
-    public function deleteMicropetitionAction(MicroPetition $microPetition)
+    public function deleteMicropetitionAction(UserPetition $microPetition)
     {
         if ($this->getUser() !== $microPetition->getUser()) {
             throw $this->createNotFoundException();

@@ -2,7 +2,7 @@
 namespace Civix\ApiBundle\Tests\Controller;
 
 use Civix\ApiBundle\Tests\WebTestCase;
-use Civix\CoreBundle\Entity\Activities\MicroPetition;
+use Civix\CoreBundle\Entity\Activities\UserPetition;
 use Civix\CoreBundle\Entity\Activities\Petition;
 use Civix\CoreBundle\Entity\Activities\Question;
 use Civix\CoreBundle\Entity\Activity;
@@ -27,7 +27,7 @@ class BookmarkControllerTest extends WebTestCase
     /** @var  Petition[] */
     private $petitions;
 
-    /** @var MicroPetition[] */
+    /** @var UserPetition[] */
     private $microPetitions;
 
     /** @var  Question[] */
@@ -67,7 +67,7 @@ class BookmarkControllerTest extends WebTestCase
             $repo->save(Activity::TYPE_PETITION, $this->user, $item->getId());
 
         foreach ($this->microPetitions as $item)
-            $repo->save(Activity::TYPE_MICRO_PETITION, $this->user, $item->getId());
+            $repo->save(Activity::TYPE_USER_PETITION, $this->user, $item->getId());
 
         foreach ($this->questions as $item)
             $repo->save(Activity::TYPE_QUESTION, $this->user, $item->getId());
@@ -102,7 +102,7 @@ class BookmarkControllerTest extends WebTestCase
         $content = $client->getResponse()->getContent();
         $this->assertEquals($this->toJsonObject($this->petitions), $this->buildResponse($content));
 
-        $client->request('GET', '/api/bookmarks/list/' . Activity::TYPE_MICRO_PETITION);
+        $client->request('GET', '/api/bookmarks/list/' . Activity::TYPE_USER_PETITION);
         $content = $client->getResponse()->getContent();
         $this->assertEquals($this->toJsonObject($this->microPetitions), $this->buildResponse($content));
 

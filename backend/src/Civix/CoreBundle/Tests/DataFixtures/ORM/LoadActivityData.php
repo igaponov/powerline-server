@@ -5,7 +5,7 @@ namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 use Civix\CoreBundle\Entity\Activities\CrowdfundingPaymentRequest;
 use Civix\CoreBundle\Entity\Activities\LeaderEvent;
 use Civix\CoreBundle\Entity\Activities\LeaderNews;
-use Civix\CoreBundle\Entity\Activities\MicroPetition;
+use Civix\CoreBundle\Entity\Activities\UserPetition;
 use Civix\CoreBundle\Entity\Activities\PaymentRequest;
 use Civix\CoreBundle\Entity\Activities\Petition;
 use Civix\CoreBundle\Entity\Activities\Question;
@@ -47,7 +47,7 @@ class LoadActivityData extends AbstractFixture implements ContainerAwareInterfac
         );
         $manager->persist($crowdfundingPaymentRequest);
         $this->addReference('activity_crowdfunding_payment_request', $crowdfundingPaymentRequest);
-        $micropetition = $this->generateActivity(new MicroPetition(), $user);
+        $micropetition = $this->generateActivity(new UserPetition(), $user);
         $manager->persist($micropetition);
         $this->addReference('activity_micropetition', $micropetition);
         $group = $this->getReference('testfollowprivategroups');

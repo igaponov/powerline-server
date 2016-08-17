@@ -605,11 +605,20 @@ class User implements UserInterface, \Serializable
     /**
      * @var ArrayCollection|Petition[]
      *
-     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\Micropetitions\Petition",
-     *     cascade={"persist"}, orphanRemoval=true, inversedBy="subscribers")
+     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\UserPetition",
+     *     cascade={"persist"}, inversedBy="subscribers")
      * @ORM\JoinTable(name="petition_subscribers")
      */
-    private $subscriptions;
+    private $petitionSubscriptions;
+
+    /**
+     * @var ArrayCollection|Petition[]
+     *
+     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\Post",
+     *     cascade={"persist"}, inversedBy="subscribers")
+     * @ORM\JoinTable(name="post_subscribers")
+     */
+    private $postSubscriptions;
 
     /**
      * @var UserGroupManager[]|ArrayCollection
@@ -635,7 +644,8 @@ class User implements UserInterface, \Serializable
         $this->invites = new \Doctrine\Common\Collections\ArrayCollection();
         $this->districts = new \Doctrine\Common\Collections\ArrayCollection();
         $this->groupSections = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->subscriptions = new ArrayCollection();
+        $this->petitionSubscriptions = new ArrayCollection();
+        $this->postSubscriptions = new ArrayCollection();
         $this->interests = [];
 
         $this->isRegistrationComplete = true;
@@ -2352,12 +2362,12 @@ class User implements UserInterface, \Serializable
     /**
      * Add subscriptions
      *
-     * @param Petition $subscription
+     * @param UserPetition $subscription
      * @return User
      */
-    public function addSubscription(Petition $subscription)
+    public function addPetitionSubscription(UserPetition $subscription)
     {
-        $this->subscriptions[] = $subscription;
+        $this->petitionSubscriptions[] = $subscription;
     
         return $this;
     }
@@ -2365,11 +2375,11 @@ class User implements UserInterface, \Serializable
     /**
      * Remove subscriptions
      *
-     * @param Petition $subscriptions
+     * @param UserPetition $subscriptions
      */
-    public function removeSubscription(Petition $subscriptions)
+    public function removePetitionSubscription(UserPetition $subscriptions)
     {
-        $this->subscriptions->removeElement($subscriptions);
+        $this->petitionSubscriptions->removeElement($subscriptions);
     }
 
     /**
@@ -2377,9 +2387,42 @@ class User implements UserInterface, \Serializable
      *
      * @return \Doctrine\Common\Collections\Collection 
      */
-    public function getSubscriptions()
+    public function getPetitionSubscriptions()
     {
-        return $this->subscriptions;
+        return $this->petitionSubscriptions;
+    }
+
+    /**
+     * Add subscriptions
+     *
+     * @param Post $subscription
+     * @return User
+     */
+    public function addPostSubscription(Post $subscription)
+    {
+        $this->postSubscriptions[] = $subscription;
+
+        return $this;
+    }
+
+    /**
+     * Remove subscriptions
+     *
+     * @param Post $subscriptions
+     */
+    public function removePostSubscription(Post $subscriptions)
+    {
+        $this->postSubscriptions->removeElement($subscriptions);
+    }
+
+    /**
+     * Get subscriptions
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getPostSubscriptions()
+    {
+        return $this->postSubscriptions;
     }
 
     /**

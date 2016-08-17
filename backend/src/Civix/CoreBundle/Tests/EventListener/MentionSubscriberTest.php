@@ -1,12 +1,11 @@
 <?php
 namespace Civix\CoreBundle\Tests\EventListener;
 
-use Civix\CoreBundle\Entity\Activities\MicroPetition;
-use Civix\CoreBundle\Entity\Micropetitions\Metadata;
-use Civix\CoreBundle\Entity\Micropetitions\Petition;
+use Civix\CoreBundle\Entity\Activities\UserPetition;
+use Civix\CoreBundle\Entity\Metadata;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Civix\ApiBundle\Tests\WebTestCase;
 
 class MentionSubscriberTest extends WebTestCase
 {
@@ -17,7 +16,7 @@ class MentionSubscriberTest extends WebTestCase
         ])->getReferenceRepository();
         $user = $repository->getReference('user_2');
         $username = $user->getUsername();
-        $activity = new MicroPetition();
+        $activity = new UserPetition();
         $activity->setTitle('Title')
             ->setDescription('Hello, @'.$username.'!')
             ->setResponsesCount(2)
@@ -37,7 +36,7 @@ class MentionSubscriberTest extends WebTestCase
             LoadUserData::class,
         ]);
         $username = 'mention';
-        $activity = new MicroPetition();
+        $activity = new UserPetition();
         $activity->setTitle('Title')
             ->setDescription('Hello, @'.$username.'!')
             ->setResponsesCount(2)
@@ -59,21 +58,18 @@ class MentionSubscriberTest extends WebTestCase
         $user = $repository->getReference('user_2');
         $group = $repository->getReference('group_2');
         $username = $user->getUsername();
-        $activity = new Petition();
-        $activity->setTitle('Title')
+        $petition = new \Civix\CoreBundle\Entity\UserPetition();
+        $petition->setTitle('Title')
+            ->setUser($user)
             ->setGroup($group)
-            ->setPetitionBody('Hello, @'.$username.'!')
-            ->setIsOutsidersSign(true)
-            ->setExpireAt(new \DateTime())
-            ->setUserExpireInterval(1)
-            ->setPublishStatus(Petition::STATUS_PUBLISH)
+            ->setBody('Hello, @'.$username.'!')
             ->setMetadata(new Metadata());
         $manager = $this->getContainer()->get('doctrine.orm.entity_manager');
-        $manager->persist($activity);
+        $manager->persist($petition);
         $manager->flush();
         $this->assertEquals(
             'Hello, <a data-user-id="'.$user->getId().'">@'.$username.'</a>!',
-            $activity->getPetitionBodyHtml()
+            $petition->getHtmlBody()
         );
     }
 
@@ -82,23 +78,21 @@ class MentionSubscriberTest extends WebTestCase
         $repository = $this->loadFixtures([
             LoadGroupData::class,
         ])->getReferenceRepository();
+        $user = $repository->getReference('user_2');
         $group = $repository->getReference('group_2');
         $username = 'mention';
-        $activity = new Petition();
+        $activity = new \Civix\CoreBundle\Entity\UserPetition();
         $activity->setTitle('Title')
+            ->setUser($user)
             ->setGroup($group)
-            ->setPetitionBody('Hello, @'.$username.'!')
-            ->setIsOutsidersSign(true)
-            ->setExpireAt(new \DateTime())
-            ->setUserExpireInterval(1)
-            ->setPublishStatus(Petition::STATUS_PUBLISH)
+            ->setBody('Hello, @'.$username.'!')
             ->setMetadata(new Metadata());
         $manager = $this->getContainer()->get('doctrine.orm.entity_manager');
         $manager->persist($activity);
         $manager->flush();
         $this->assertEquals(
             'Hello, @mention!',
-            $activity->getPetitionBodyHtml()
+            $activity->getHtmlBody()
         );
     }
 }

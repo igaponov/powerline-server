@@ -3,7 +3,7 @@
 namespace Civix\CoreBundle\Tests\Command;
 
 use Civix\CoreBundle\Service\CiceroApi;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Civix\ApiBundle\Tests\WebTestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Civix\CoreBundle\Command\CiceroSynchCommand;

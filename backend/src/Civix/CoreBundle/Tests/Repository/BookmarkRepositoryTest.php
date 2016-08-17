@@ -8,7 +8,7 @@ use Civix\CoreBundle\Repository\BookmarkRepository;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Civix\ApiBundle\Tests\WebTestCase;
 
 class BookmarkRepositoryTest extends WebTestCase
 {
@@ -46,8 +46,8 @@ class BookmarkRepositoryTest extends WebTestCase
 
         $this->repo = $this->getContainer()->get('doctrine')->getRepository(Bookmark::class);
 
-        $this->bookmark1 = $this->repo->save(Activity::TYPE_MICRO_PETITION, $this->user, $microPetition->getId());
-        $this->bookmark2 = $this->repo->save(Activity::TYPE_MICRO_PETITION, $this->user, $microPetition->getId());
+        $this->bookmark1 = $this->repo->save(Activity::TYPE_USER_PETITION, $this->user, $microPetition->getId());
+        $this->bookmark2 = $this->repo->save(Activity::TYPE_USER_PETITION, $this->user, $microPetition->getId());
         $this->bookmark3 = $this->repo->save(Activity::TYPE_QUESTION, $this->user, $question->getId());
         $this->bookmark4 = $this->repo->save(Activity::TYPE_PETITION, $this->user, $petition->getId());
     }
