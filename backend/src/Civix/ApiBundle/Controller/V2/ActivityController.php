@@ -48,7 +48,7 @@ class ActivityController extends FOSRestController
      *     }
      * )
      *
-     * @View(serializerGroups={"paginator", "api-activities"})
+     * @View(serializerGroups={"paginator", "api-activities", "activity-list"})
      *
      * @param ParamFetcher $params
      * @return Response

@@ -41,7 +41,7 @@ class BookmarkRepositoryTest extends WebTestCase
 
         $this->user = $reference->getReference('testuserbookmark1');
         $petition = $reference->getReference('activity_petition');
-        $microPetition = $reference->getReference('activity_micropetition');
+        $microPetition = $reference->getReference('activity_user_petition');
         $question = $reference->getReference('activity_question');
 
         $this->repo = $this->getContainer()->get('doctrine')->getRepository(Bookmark::class);

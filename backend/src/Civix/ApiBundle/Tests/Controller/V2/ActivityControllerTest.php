@@ -1,14 +1,16 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\Leader;
 
+use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityData;
-use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityRelationsData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
-use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSubscriberData;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -26,22 +28,10 @@ class ActivityControllerTest extends WebTestCase
 	 */
 	private $client = null;
 
-	/**
-	 * @var ProxyReferenceRepository
-	 */
-	private $repository;
-
 	public function setUp()
 	{
 		// Creates a initial client
 		$this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
-
-		$this->repository = $this->loadFixtures([
-			LoadUserData::class,
-			LoadUserFollowData::class,
-            LoadUserGroupFollowerTestData::class,
-			LoadActivityData::class,
-		])->getReferenceRepository();
 
 		$this->em = $this->getContainer()->get('doctrine')->getManager();
 	}
@@ -49,7 +39,6 @@ class ActivityControllerTest extends WebTestCase
 	public function tearDown()
 	{
 		$this->client = NULL;
-        $this->repository = null;
         $this->em = null;
         parent::tearDown();
     }
@@ -64,17 +53,32 @@ class ActivityControllerTest extends WebTestCase
 
 	public function testGetActivitiesIsOk()
 	{
+        $this->loadFixtures([
+            LoadUserFollowerData::class,
+            LoadActivityRelationsData::class,
+            LoadUserPetitionSubscriberData::class,
+            LoadPostSubscriberData::class,
+        ]);
 		$client = $this->client;
-		$client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']);
+		$client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
 		$this->assertSame(1, $data['page']);
 		$this->assertSame(20, $data['items']);
-		$this->assertSame(7, $data['totalItems']);
-		$this->assertCount(7, $data['payload']);
+		$this->assertSame(8, $data['totalItems']);
+		$this->assertCount(8, $data['payload']);
 		$current = reset($data['payload']);
+        $entityCount = 0;
 		while ($next = next($data['payload'])) {
+		    if ($current['entity']['type'] == 'user-petition') {
+		        $entityCount++;
+		        $this->assertTrue($current['petition']['is_subscribed']);
+            }
+		    if ($current['entity']['type'] == 'post') {
+                $entityCount++;
+		        $this->assertTrue($current['post']['is_subscribed']);
+            }
 		    if ($next['entity']['type'] == 'micro-petition') {
                 $this->assertArrayHasKey('comments_count', $next);
                 $this->assertArrayHasKey('answers', $next);
@@ -94,12 +98,16 @@ class ActivityControllerTest extends WebTestCase
             }
 			$current = $next;
 		}
+		$this->assertEquals(2, $entityCount);
 	}
 
 	public function testGetActivitiesIsEmpty()
 	{
+        $this->loadFixtures([
+            LoadUserData::class,
+        ]);
 		$client = $this->client;
-		$client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+		$client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user4"']);
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
@@ -111,15 +119,20 @@ class ActivityControllerTest extends WebTestCase
 
 	public function testGetActivitiesByFollowingIsOk()
 	{
+        $repository = $this->loadFixtures([
+            LoadGroupData::class,
+            LoadUserFollowerData::class,
+            LoadActivityData::class,
+        ])->getReferenceRepository();
 		/** @var User $user */
-		$user = $this->repository->getReference('userfollowtest1');
-        $following = $this->repository->getReference('followertest');
-        $group = $this->repository->getReference('testfollowprivategroups');
+		$user = $repository->getReference('user_2');
+        $following = $repository->getReference('user_1');
+        $group = $repository->getReference('group_1');
 		$client = $this->client;
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('database_connection');
         $conn->insert('users_groups', ['user_id' => $following->getId(), 'group_id' => $group->getId(), 'status' => UserGroup::STATUS_ACTIVE, 'created_at' => date('Y-m-d H:i:s')]);
-		$client->request('GET', self::API_ENDPOINT, ['following' => $user->getId()], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']);
+		$client->request('GET', self::API_ENDPOINT, ['following' => $user->getId()], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
@@ -140,10 +153,14 @@ class ActivityControllerTest extends WebTestCase
 
 	public function testGetActivitiesByFollowingIsEmpty()
 	{
+        $repository = $this->loadFixtures([
+            LoadUserFollowerData::class,
+            LoadActivityData::class,
+        ])->getReferenceRepository();
 		/** @var User $user */
-		$user = $this->repository->getReference('userfollowtest2');
+		$user = $repository->getReference('user_2');
 		$client = $this->client;
-		$client->request('GET', self::API_ENDPOINT, ['following' => $user->getId()], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']);
+		$client->request('GET', self::API_ENDPOINT, ['following' => $user->getId()], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
@@ -157,7 +174,7 @@ class ActivityControllerTest extends WebTestCase
 	{
 		$data = ['activities' => []];
 		$client = $this->client;
-		$client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode($data));
+		$client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($data));
 		$response = $client->getResponse();
 		$this->assertEquals(400, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
@@ -168,7 +185,7 @@ class ActivityControllerTest extends WebTestCase
 	{
 		$data = ['activities' => [['id' => '']]];
 		$client = $this->client;
-		$client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode($data));
+		$client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($data));
 		$response = $client->getResponse();
 		$this->assertEquals(400, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
@@ -184,9 +201,12 @@ class ActivityControllerTest extends WebTestCase
 
 	public function testPatchActivities()
 	{
-		$leaderNews = $this->repository->getReference('activity_leader_news');
-		$paymentRequest = $this->repository->getReference('activity_crowdfunding_payment_request');
-		$question = $this->repository->getReference('activity_question');
+        $repository = $this->loadFixtures([
+            LoadActivityData::class,
+        ])->getReferenceRepository();
+		$leaderNews = $repository->getReference('activity_leader_news');
+		$paymentRequest = $repository->getReference('activity_crowdfunding_payment_request');
+		$question = $repository->getReference('activity_question');
 		$params = [
 			'activities' => [
 				['id' => $leaderNews->getId(), 'read' => true],
@@ -195,7 +215,7 @@ class ActivityControllerTest extends WebTestCase
 			],
 		];
 		$client = $this->client;
-		$client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode($params));
+		$client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
@@ -219,7 +239,7 @@ class ActivityControllerTest extends WebTestCase
 		sort($arr);
 		$this->assertEquals($arr, array_map('intval', array_column($ids, 'activity_id')));
         // the same request does nothing
-        $client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode($params));
+        $client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $this->assertEquals($data, json_decode($response->getContent(), true));

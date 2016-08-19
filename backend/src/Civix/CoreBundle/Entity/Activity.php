@@ -254,6 +254,8 @@ abstract class Activity implements HtmlBodyInterface
      * @var UserPetition
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\UserPetition")
      * @ORM\JoinColumn(onDelete="CASCADE")
+     * @Serializer\Expose()
+     * @Serializer\Groups({"activity-list"})
      */
     protected $petition;
 
@@ -261,6 +263,8 @@ abstract class Activity implements HtmlBodyInterface
      * @var Post
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Post")
      * @ORM\JoinColumn(onDelete="CASCADE")
+     * @Serializer\Expose()
+     * @Serializer\Groups({"activity-list"})
      */
     protected $post;
 

@@ -523,6 +523,8 @@ class ActivityRepository extends EntityRepository
             ->leftJoin('q.answers', 'qa')
             ->leftJoin('up.signatures', 'ups', Query\Expr\Join::WITH, 'ups.user = :user')
             ->leftJoin('p.votes', 'pv', Query\Expr\Join::WITH, 'pv.user = :user')
+            ->leftJoin('up.subscribers', 'ps', Query\Expr\Join::WITH, 'ps = :user')
+            ->leftJoin('p.subscribers', 'pos', Query\Expr\Join::WITH, 'pos = :user')
             ->orderBy('zone', 'ASC') // order by priority zone
             ->addOrderBy('act.sentAt', 'DESC')
             ->groupBy('act.id');

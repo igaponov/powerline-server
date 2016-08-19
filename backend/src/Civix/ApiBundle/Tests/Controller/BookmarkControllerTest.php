@@ -53,7 +53,7 @@ class BookmarkControllerTest extends WebTestCase
         ];
 
         $this->microPetitions = [
-            $reference->getReference('activity_micropetition')
+            $reference->getReference('activity_user_petition')
         ];
 
         $this->questions = [
