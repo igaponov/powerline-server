@@ -33,7 +33,8 @@ class Version20160814122434 extends AbstractMigration
         $this->addSql('INSERT INTO user_posts(group_id, user_id, body, html_body, created_at, expired_at, user_expire_interval, boosted, cached_hash_tags, metadata) SELECT group_id, user_id, petition, petition_body_html, created_at, expire_at, user_expire_interval, publish_status, cached_hash_tags, metadata FROM micropetitions WHERE type = ?', ['quorum']);
         $this->addSql('ALTER TABLE activities ADD post_id INT DEFAULT NULL');
         // update table activities with posts
-        $this->addSql('UPDATE activities a LEFT JOIN micropetitions m ON a.petition_id = m.id SET a.post_id=a.petition_id, a.petition_id = NULL WHERE m.type = ?', ['quorum']);
+        $this->addSql('UPDATE activities a LEFT JOIN micropetitions m ON a.petition_id = m.id SET a.post_id=a.petition_id, a.petition_id = NULL, a.type = "post" WHERE m.type = ?', ['quorum']);
+        $this->addSql('UPDATE activities a LEFT JOIN micropetitions m ON a.petition_id = m.id SET a.type = "user-petition" WHERE m.type != ?', ['quorum']);
 
         $this->addSql('CREATE TABLE hash_tags_posts (post_id INT NOT NULL, hashtag_id INT NOT NULL, INDEX IDX_8923E3564B89032C (post_id), INDEX IDX_8923E356FB34EF56 (hashtag_id), PRIMARY KEY(post_id, hashtag_id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB');
         // fill table hash_tags_posts
