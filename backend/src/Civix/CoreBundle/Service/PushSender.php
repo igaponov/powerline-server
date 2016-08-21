@@ -67,6 +67,13 @@ class PushSender
         $this->urlBuilder = $urlBuilder;
     }
 
+    /**
+     * Leader publishes poll, petition, discussion, fundraiser, event (all group members notified)
+     *
+     * @param $questionId
+     * @param $title
+     * @param $message
+     */
     public function sendPushPublishQuestion($questionId, $title, $message)
     {
         /** @var Question $question */
@@ -108,6 +115,13 @@ class PushSender
         } while ($users);
     }
 
+    /**
+     * User petition is manually boosted by group leader.
+     * User petition is boosted automatically by system in a group.
+     *
+     * @param $groupId
+     * @param null $petitionId
+     */
     public function sendGroupPetitionPush($groupId, $petitionId = null)
     {
         $users = $this->entityManager
@@ -134,6 +148,13 @@ class PushSender
         }
     }
 
+    /**
+     * User post is manually boosted by group leader.
+     * User post is boosted automatically by system in a group.
+     *
+     * @param $groupId
+     * @param null $postId
+     */
     public function sendGroupPostPush($groupId, $postId = null)
     {
         $users = $this->entityManager
@@ -183,6 +204,12 @@ class PushSender
         }
     }
 
+    /**
+     * Leader sends announcement (all group members notified)
+     *
+     * @param $groupId
+     * @param string $message
+     */
     public function sendGroupAnnouncementPush($groupId, $message = self::ANNOUNCEMENT_PUSH_MESSAGE)
     {
         $users = $this->entityManager
@@ -201,6 +228,12 @@ class PushSender
         }
     }
 
+    /**
+     * User is invited to join group.
+     *
+     * @param $userId
+     * @param $groupId
+     */
     public function sendInvitePush($userId, $groupId)
     {
         $user = $this->entityManager
@@ -215,6 +248,12 @@ class PushSender
         }
     }
 
+    /**
+     * User A receives follow request from User B
+     *
+     * @param int $userId User A
+     * @param int $followerId User B
+     */
     public function sendInfluencePush($userId, $followerId = 0)
     {
         $user = $this->entityManager
