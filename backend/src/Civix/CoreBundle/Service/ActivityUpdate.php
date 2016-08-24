@@ -71,7 +71,7 @@ class ActivityUpdate
         $activity->setDescription($question->getSubject());
         $activity->setSentAt($question->getPublishedAt());
         $activity->setExpireAt($question->getExpireAt());
-        $userMethod = 'set'.$this->getClassName($question);
+        $userMethod = 'set'.ucfirst($question->getUser()->getType());
         $activity->$userMethod($question->getUser());
         $this->setImage($activity, $question);
 
@@ -238,7 +238,7 @@ class ActivityUpdate
         $activity->setDescription($event->getSubject());
         $activity->setSentAt($publishedAt);
         $activity->setExpireAt($event->getStartedAt());
-        $userMethod = 'set'.$this->getClassName($event->getUser());
+        $userMethod = 'set'.ucfirst($event->getUser()->getType());
         $activity->$userMethod($event->getUser());
         $this->setImage($activity, $event);
 
@@ -428,12 +428,5 @@ class ActivityUpdate
         $condition->setIsSuperuser(true);
         $this->entityManager->persist($condition);
         $this->entityManager->flush($condition);
-    }
-
-    private function getClassName($object)
-    {
-        $className = explode('\\', get_class($object));
-
-        return $className[count($className) - 1];
     }
 }
