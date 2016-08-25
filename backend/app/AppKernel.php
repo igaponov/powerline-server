@@ -39,7 +39,6 @@ class AppKernel extends Kernel
             new Civix\FrontBundle\CivixFrontBundle(),
             new Civix\CoreBundle\CivixCoreBundle(),
             new Civix\ApiBundle\CivixApiBundle(),
-            new Civix\BalancedBundle\CivixBalancedBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {

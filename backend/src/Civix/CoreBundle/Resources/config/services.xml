@@ -284,25 +284,6 @@
             <argument>%domain%</argument>
         </service>
 
-        <service id="civix_core.customer_manager" class="Civix\CoreBundle\Service\Customer\CustomerManager">
-            <argument type="service" id="doctrine.orm.entity_manager" />
-        </service>
-        <service id="civix_core.payments_transaction_manager" class="Civix\CoreBundle\Service\Payments\TransactionManager">
-            <argument type="service" id="doctrine.orm.entity_manager" />
-        </service>
-        <service id="civix_core.payments" class="Civix\CoreBundle\Service\Payments\BalancedPayment">
-            <argument type="service" id="civix_balanced.payment_manager" />
-            <argument type="service" id="doctrine.orm.entity_manager" />
-            <argument>%balanced_payment_marketplace_user_id%</argument>
-        </service>
-
-        <service id="civix_core.orders_manager" class="Civix\CoreBundle\Service\Customer\OrdersManager">
-            <argument type="service" id="civix_balanced.payment_calls" />
-            <argument type="service" id="civix_core.customer_manager" />
-            <argument type="service" id="doctrine.orm.entity_manager" />
-            <argument type="service" id="civix_core.email_sender"/>
-        </service>
-
         <service id="civix_core.comment_model_param_converter"
                  class="Civix\CoreBundle\Request\ParamConverter\Comment\CommentModelConverter">
             <tag name="request.param_converter" priority="-100" />
@@ -322,10 +303,6 @@
         <service id="civix_core.package_handler" class="Civix\CoreBundle\Service\Subscription\PackageHandler">
             <argument type="service" id="doctrine.orm.entity_manager"/>
             <argument type="service" id="civix_core.subscription_manager"/>
-        </service>
-
-        <service id="civix_core.discount_code_manager" class="Civix\CoreBundle\Service\Subscription\DiscountCodeManager">
-            <argument type="service" id="doctrine.orm.entity_manager"/>
         </service>
 
         <service id="civix_core.geocode" class="Civix\CoreBundle\Service\Google\Geocode"></service>

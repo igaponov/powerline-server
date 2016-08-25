@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity\Payment;
 
+use Civix\CoreBundle\Entity\Stripe\Customer;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -21,12 +22,6 @@ class Transaction
      * @ORM\Column(name="reference", type="string", length=255, unique=true)
      */
     private $referencePayment;
-
-    /**
-     * @ORM\JoinColumn(name="customer_id")
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Customer\Customer")
-     */
-    private $customer;
 
     /**
      * @ORM\JoinColumn(name="stripe_customer_id")
@@ -109,31 +104,7 @@ class Transaction
         return $this->data;
     }
 
-    /**
-     * Set customer.
-     *
-     * @param \Civix\CoreBundle\Entity\Customer\Customer $customer
-     *
-     * @return Transaction
-     */
-    public function setCustomer(\Civix\CoreBundle\Entity\Customer\Customer $customer)
-    {
-        $this->customer = $customer;
-
-        return $this;
-    }
-
-    /**
-     * Get customer.
-     *
-     * @return \Civix\CoreBundle\Entity\Customer\Customer
-     */
-    public function getCustomer()
-    {
-        return $this->customer;
-    }
-
-    public function setStripeCustomer(\Civix\CoreBundle\Entity\Stripe\Customer $customer)
+    public function setStripeCustomer(Customer $customer)
     {
         $this->stripeCustomer = $customer;
 
