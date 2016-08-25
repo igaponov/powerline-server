@@ -90,12 +90,6 @@ class ActivityControllerTest extends WebTestCase
                 $this->assertSame('prioritized', $next['zone']);
             }
             $this->assertArrayHasKey('description_html', $next);
-            if ($current['zone'] == $next['zone']) {
-                $this->assertLessThanOrEqual(
-                    strtotime($current['sent_at']),
-                    strtotime($next['sent_at'])
-                );
-            }
 			$current = $next;
 		}
 		$this->assertEquals(2, $entityCount);

@@ -514,6 +514,7 @@ class ActivityRepository extends EntityRepository
             THEN 0
             ELSE 1
             END) AS zone')
+            ->addSelect('CASE WHEN act_c.userId = :user THEN 0 ELSE 1 END AS HIDDEN is_followed')
             ->leftJoin('act.activityConditions', 'act_c')
             ->leftJoin('act.activityRead', 'act_r', Query\Expr\Join::WITH, 'act_r.user = :user')
             ->setParameter(':user', $user)
@@ -526,6 +527,7 @@ class ActivityRepository extends EntityRepository
             ->leftJoin('up.subscribers', 'ps', Query\Expr\Join::WITH, 'ps = :user')
             ->leftJoin('p.subscribers', 'pos', Query\Expr\Join::WITH, 'pos = :user')
             ->orderBy('zone', 'ASC') // order by priority zone
+            ->addOrderBy('is_followed', 'ASC') // order by followed user
             ->addOrderBy('act.sentAt', 'DESC')
             ->groupBy('act.id');
         if ($start) {
