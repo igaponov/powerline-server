@@ -5,11 +5,8 @@ namespace Civix\CoreBundle\Service\Subscription;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\ORM\EntityManager;
 use Civix\CoreBundle\Service\Stripe;
-use Civix\CoreBundle\Service\EmailSender;
 use Civix\CoreBundle\Entity\Subscription\Subscription;
-use Civix\CoreBundle\Entity\Subscription\DiscountCode;
 use Civix\CoreBundle\Model\Subscription\Package;
-use Civix\CoreBundle\Entity\Group;
 
 class SubscriptionManager
 {
@@ -129,11 +126,9 @@ class SubscriptionManager
         ];
     }
 
-    public function getPackagePrice($packageType, DiscountCode $discount = null)
+    public function getPackagePrice($packageType)
     {
-        $percents = ($discount) ? $discount->getPercents() : 0;
-
-        return $this->prices[$packageType] - ($this->prices[$packageType] * $percents / 100);
+        return $this->prices[$packageType];
     }
 
     /**

@@ -125,7 +125,6 @@ class RepresentativeController extends Controller
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($representative);
             $entityManager->flush();
-            $this->get('civix_core.customer_manager')->updateCustomer($representative);
 
             $this->get('session')->getFlashBag()->add('notice', 'Changes have been successfully saved');
         }

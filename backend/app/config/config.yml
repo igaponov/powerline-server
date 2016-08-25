@@ -61,8 +61,6 @@ doctrine:
 
     orm:
         auto_generate_proxy_classes: %kernel.debug%
-        resolve_target_entities:
-            Civix\BalancedBundle\Model\BalancedUserInterface: Civix\CoreBundle\Entity\Customer\Customer
         entity_managers:
             default:
                 auto_mapping: true
@@ -195,11 +193,6 @@ old_sound_rabbit_mq:
             exchange_options:   {name: 'push-queue', type: direct }
             queue_options:      {name: 'push-queue'}
             callback:           civix_core.rabbit.push_queue
-
-civix_balanced:
-    api_key: %balanced_payment_api_key%
-    user_class: Civix\CoreBundle\Entity\Customer\Customer
-    marketplace_user_id: %balanced_payment_marketplace_user_id%
 
 stof_doctrine_extensions:
     default_locale: en_US

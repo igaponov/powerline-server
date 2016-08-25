@@ -285,9 +285,6 @@ class ProfileController extends BaseController
                 $this->get('civix_core.user_manager')->updateDistrictsIds($user);
                 $this->get('civix_core.group_manager')->autoJoinUser($user);
             }
-            if ($isEmailChanged || $isAddressChanged) {
-                $this->get('civix_core.customer_manager')->updateCustomer($user);
-            }
         }
 
         $entityManager->persist($user);

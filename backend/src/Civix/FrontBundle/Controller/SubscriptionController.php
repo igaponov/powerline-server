@@ -37,8 +37,6 @@ abstract class SubscriptionController extends Controller
         $form = $this->createForm('form', null, ['show_legend' => false]);
         $form->add('coupon', 'text', ['required' => false]);
 
-        $appliedDiscountCode = null;
-
         /** @var Subscription $subscription */
         $subscription = $this->get('civix_core.subscription_manager')->getSubscription($this->getUser());
 
@@ -56,7 +54,7 @@ abstract class SubscriptionController extends Controller
             'package' => $this->get('civix_core.subscription_manager')->getPackagesInfo($subscription)[$id],
             'form' => $form->createView(),
             'discountPrice' => $this->get('civix_core.subscription_manager')
-                ->getPackagePrice($id, $appliedDiscountCode),
+                ->getPackagePrice($id),
         ];
     }
 

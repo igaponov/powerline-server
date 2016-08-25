@@ -55,17 +55,10 @@ abstract class PaymentSettingsController extends Controller
      */
     public function accountTypeAction($type, Request $request)
     {
-        /* @var Customer $customer */
-        $customer = $this->get('civix_core.customer_manager')
-            ->getCustomerByUser($this->getUser());
         $formClass = '\\Civix\\FrontBundle\\Form\\Type\\Settings\\'.ucfirst($type).'PaymentAccount';
         $form = $this->createForm(new $formClass());
 
         if ('POST' === $request->getMethod() && $form->submit($request)->isValid()) {
-            $this->get('civix_balanced.payment_manager')->updateCustomer($customer, $form->getData());
-            $customer->setAccountType($type);
-            $this->getDoctrine()->getManager()->flush($customer);
-
             return $this->redirect(
                 $this->generateUrl('civix_front_'.$this->getUser()->getType().'_paymentsettings_index')
             );

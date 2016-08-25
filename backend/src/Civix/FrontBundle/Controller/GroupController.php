@@ -132,7 +132,6 @@ class GroupController extends Controller
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($group);
             $entityManager->flush();
-            $this->get('civix_core.customer_manager')->updateCustomer($group);
             $this->get('civix_core.activity_update')->updateOwnerData($group);
             $this->get('session')->getFlashBag()->add('notice', 'Changes have been successfully saved');
         }

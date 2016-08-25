@@ -4,7 +4,6 @@ namespace Civix\FrontBundle\Controller\Group;
 
 use Civix\FrontBundle\Controller\PetitionController as Controller;
 use Civix\CoreBundle\Entity\Poll\Question\Petition;
-use Civix\CoreBundle\Entity\Customer\Card;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -58,12 +57,7 @@ class PetitionController extends Controller
             $packageInviteAmount = $package->getSumForPetitionInvites();
 
             if (0 < $packageInviteAmount) {
-                /* @var Customer $customer */
-                $customer = $this->get('civix_core.customer_manager')
-                    ->getCustomerByUser($this->getUser());
-                /* @var Card $card */
-                $card = $this->getDoctrine()->getRepository(Card::class)
-                    ->findOneByCustomer($customer);
+                $card = null;
 
                 if (!$card) {
                     return $this->redirect(
@@ -75,14 +69,6 @@ class PetitionController extends Controller
                 }
                 $form = $this->createForm('form');
                 if ('POST' === $request->getMethod() && $form->submit($request)->isValid()) {
-                    $paymentHistory = $this->get('civix_core.payments')
-                        ->buyPetitionsInvites($card, $customer, $packageInviteAmount * 100);
-                    if (!$paymentHistory->isSucceeded()) {
-                        return $this->redirect($this->generateUrl(
-                            "civix_front_{$this->getUser()->getType()}_invite",
-                            ['id' => $petition->getId()])
-                        );
-                    }
                 } else {
                     return [
                         'card' => $card,

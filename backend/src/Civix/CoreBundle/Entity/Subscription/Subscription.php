@@ -6,7 +6,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinColumn;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Entity\UserInterface;
-use Civix\CoreBundle\Entity\Customer\Card;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -96,14 +95,6 @@ class Subscription
      * @Serializer\Expose()
      */
     private $enabled;
-
-    /**
-     * @var Card
-     *
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Customer\Card")
-     * @JoinColumn(name="card_id", onDelete="SET NULL")
-     */
-    private $card;
 
     /**
      * @ORM\Column(name="stripe_id", type="string", nullable=true)
@@ -261,26 +252,6 @@ class Subscription
     public function getRepresentative()
     {
         return $this->representative;
-    }
-
-    /**
-     * @param Card $card
-     *
-     * @return $this
-     */
-    public function setCard(Card $card = null)
-    {
-        $this->card = $card;
-
-        return $this;
-    }
-
-    /**
-     * @return Card
-     */
-    public function getCard()
-    {
-        return $this->card;
     }
 
     /**

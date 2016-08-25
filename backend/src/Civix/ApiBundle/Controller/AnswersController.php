@@ -118,16 +118,7 @@ class AnswersController extends BaseController
      */
     public function paymentHistory(Answer $answer)
     {
-        if ($answer->getUser() !== $this->getUser()) {
-            throw $this->createNotFoundException();
-        }
-
-        $paymentHistory = $this->getDoctrine()->getRepository(PaymentHistory::class)->findOneBy([
-            'question_id' => $answer->getQuestion()->getId(),
-            'fromUser' => $this->get('civix_core.customer_manager')->getCustomerByUser($this->getUser()),
-        ]);
-
-        return $this->createJSONResponse($this->jmsSerialization($paymentHistory, ['api-answer-private']));
+        throw $this->createNotFoundException();
     }
 
     /**

@@ -2,19 +2,16 @@
 
 namespace Civix\FrontBundle\Controller;
 
-use Civix\CoreBundle\Event\Poll\QuestionEvent;
-use Civix\CoreBundle\Event\PollEvents;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Civix\BalancedBundle\Form\Type\CardFormType;
-use Civix\BalancedBundle\Model\Card as CardModel;
 use Civix\CoreBundle\Entity\Poll\Question\Petition;
 use Civix\CoreBundle\Entity\Stripe\Customer;
 use Civix\CoreBundle\Entity\Payment\Transaction;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 abstract class PaymentController extends Controller
 {
@@ -100,57 +97,7 @@ abstract class PaymentController extends Controller
      */
     public function buyPublicPetitionAction(Request $request, Petition $petition)
     {
-        if ($petition->getUser() !== $this->getUser()) {
-            throw new AccessDeniedHttpException();
-        }
-
-        $card = new CardModel();
-        $form = $this->createForm(new CardFormType(), $card);
-
-        //get marketplace
-        $marketplaceToken = $this->get('civix_core.payments')->getMarketPlaceToken();
-        if ('POST' === $request->getMethod()) {
-            if ($form->submit($request)->isValid()) {
-                try {
-                    $customer = $this->get('civix_core.customer_manager')
-                            ->getCustomerByUser($this->getUser());
-                    $this->get('civix_core.payments')
-                        ->buyPublishOutsiderPetition($card, $customer);
-
-                    $petition->setPublishedAt(new \DateTime());
-                    $this->getDoctrine()->getManager()->flush($petition);
-                    $event = new QuestionEvent($petition);
-                    $this->get('event_dispatcher')->dispatch(PollEvents::QUESTION_PUBLISHED, $event);
-                    $this->get('session')->getFlashBag()->add('notice', 'The petition has been successfully published');
-
-                    return $this->redirect(
-                        $this->generateUrl("civix_front_{$this->getUser()->getType()}_petition_index")
-                    );
-                } catch (\Balanced\Errors\DuplicateAccountEmailAddress $ex) {
-                    $this->get('session')->getFlashBag()
-                        ->add('error', 'User with this email exist in balanced system.');
-                } catch (\Balanced\Errors\Declined $ex) {
-                    $this->get('session')->getFlashBag()
-                        ->add('error', 'The processor declined the debit. '.$ex->description);
-                } catch (\Balanced\Errors\NoFundingSource $ex) {
-                    $this->get('session')->getFlashBag()
-                        ->add('error', 'The buyer has not active funding sources. '.$ex->description);
-                } catch (\Balanced\Errors\CannotDebit $ex) {
-                    $this->get('session')->getFlashBag()
-                        ->add('error', 'The buyer has no debitable funding sources. '.$ex->description);
-                } catch (\Balanced\Errors\Error $ex) {
-                    $this->get('session')->getFlashBag()
-                        ->add('error', $ex->description);
-                }
-            }
-        }
-
-        return array(
-            'formTitle' => '',
-            'marketplaceToken' => $marketplaceToken,
-            'petition' => $petition->getId(),
-            'form' => $form->createView(),
-        );
+        throw new AccessDeniedException();
     }
 
     /**

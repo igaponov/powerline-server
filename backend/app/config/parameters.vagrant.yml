@@ -32,9 +32,6 @@ parameters:
 
     sunlightapi_token: ~
     
-    balanced_payment_api_key: api_key
-    balanced_payment_marketplace_user_id: marketplace_user_id
-
     stripe_api_key:  sk_test_vpedTPsiXZZ8SSwS4isZzHWw
     stripe_publishable_key:  pk_test_QUgSE3ZhORW9yoDuCkMjnaA2
 

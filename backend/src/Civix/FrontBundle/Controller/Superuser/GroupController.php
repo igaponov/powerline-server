@@ -14,6 +14,7 @@ use Civix\FrontBundle\Form\Type\Poll\QuestionLimit;
 use Civix\FrontBundle\Form\Type\Superuser\LocalRepresentative;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\State;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * @Route("/group")
@@ -85,7 +86,7 @@ class GroupController extends Controller
             }
 
             try {
-                $this->get('civix_core.customer_manager')->removeCustomer($group);
+                throw new AccessDeniedException();
             } catch (\Exception $e) {
                 $this->get('session')->getFlashBag()->add('error', $e->getMessage());
 
