@@ -39,7 +39,7 @@ class Vote
     protected $user;
 
     /**
-     * @ORM\Column(name="option", type="integer")
+     * @ORM\Column(name="`option`", type="integer")
      * @Serializer\Expose()
      * @Assert\NotBlank()
      * @Assert\Choice(callback="getOptions", message="Incorrect vote's option")
