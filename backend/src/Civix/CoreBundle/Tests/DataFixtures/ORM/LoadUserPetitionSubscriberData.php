@@ -22,6 +22,18 @@ class LoadUserPetitionSubscriberData extends AbstractFixture implements Dependen
         $user->addPetitionSubscription($userPetition);
         $manager->persist($userPetition);
 
+        /** @var UserPetition $userPetition */
+        $userPetition = $this->getReference('user_petition_5');
+
+        /** @var User $user */
+        $user = $this->getReference('user_2');
+        $user->addPetitionSubscription($userPetition);
+
+        /** @var User $user */
+        $user = $this->getReference('user_3');
+        $user->addPetitionSubscription($userPetition);
+
+        $manager->persist($userPetition);
         $manager->flush();
     }
 

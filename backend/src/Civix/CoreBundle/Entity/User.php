@@ -2,7 +2,8 @@
 
 namespace Civix\CoreBundle\Entity;
 
-use Civix\CoreBundle\Entity\Micropetitions\Petition;
+use Civix\CoreBundle\Entity\UserPetition;
+use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Serializer\Type\Avatar;
 use Civix\CoreBundle\Validator\Constraints\ConstrainsFacebookToken;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -603,7 +604,7 @@ class User implements UserInterface, \Serializable
     private $plainPassword;
 
     /**
-     * @var ArrayCollection|Petition[]
+     * @var ArrayCollection|UserPetition[]
      *
      * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\UserPetition",
      *     cascade={"persist"}, inversedBy="subscribers")
@@ -612,13 +613,22 @@ class User implements UserInterface, \Serializable
     private $petitionSubscriptions;
 
     /**
-     * @var ArrayCollection|Petition[]
+     * @var ArrayCollection|Post[]
      *
      * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\Post",
      *     cascade={"persist"}, inversedBy="subscribers")
      * @ORM\JoinTable(name="post_subscribers")
      */
     private $postSubscriptions;
+
+    /**
+     * @var ArrayCollection|Question[]
+     *
+     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\Poll\Question",
+     *     cascade={"persist"}, inversedBy="subscribers")
+     * @ORM\JoinTable(name="poll_subscribers")
+     */
+    private $pollSubscriptions;
 
     /**
      * @var UserGroupManager[]|ArrayCollection
@@ -2427,6 +2437,41 @@ class User implements UserInterface, \Serializable
     public function getPostSubscriptions()
     {
         return $this->postSubscriptions;
+    }
+
+    /**
+     * Add subscription
+     *
+     * @param Question $subscription
+     * @return User
+     */
+    public function addPollSubscription(Question $subscription)
+    {
+        $this->pollSubscriptions[] = $subscription;
+        $subscription->addSubscriber($this);
+
+        return $this;
+    }
+
+    /**
+     * Remove subscription
+     *
+     * @param Question $subscription
+     */
+    public function removePollSubscription(Question $subscription)
+    {
+        $this->pollSubscriptions->removeElement($subscription);
+        $subscription->removeSubscriber($this);
+    }
+
+    /**
+     * Get subscriptions
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getPollSubscriptions()
+    {
+        return $this->pollSubscriptions;
     }
 
     /**

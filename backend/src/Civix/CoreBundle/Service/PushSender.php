@@ -8,7 +8,6 @@ use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\Micropetitions\Petition as Micropetition;
 use Civix\CoreBundle\Entity\Notification\AbstractEndpoint;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\UserPetition;
@@ -238,46 +237,33 @@ class PushSender
         }
     }
 
-    public function sendPostCommentedPush($commentId)
-    {
-        $comment = $this->entityManager
-            ->getRepository('CivixCoreBundle:Micropetitions\Comment')
-            ->find($commentId);
-        $petition = $comment->getPetition();
-        foreach ($petition->getSubscribers() as $recipient) {
-            $this->send(
-                $recipient,
-                $comment->getUser()->getFullName(),
-                $comment->getCommentBody(),
-                self::TYPE_PUSH_PETITION,
-                null,
-                $this->getLinkByFilename($comment->getUser()->getAvatarFileName())
-            );
-        }
-    }
-
     public function sendSocialActivity($id)
     {
         $socialActivity = $this->entityManager->getRepository(SocialActivity::class)->find($id);
+        $handledIds = [];
+        $target = $socialActivity->getTarget();
         if ($socialActivity->getRecipient()) {
             $user = $this->entityManager->getRepository('CivixCoreBundle:User')
                 ->getUserForPush($socialActivity->getRecipient()->getId());
             if ($user) {
+                $handledIds[] = $user->getId();
                 $this->send(
                     $user,
                     $socialActivity->getTitle(),
                     $socialActivity->getTextMessage(),
                     self::TYPE_PUSH_SOCIAL_ACTIVITY,
-                    ['id' => $socialActivity->getId(), 'target' => $socialActivity->getTarget()],
+                    ['id' => $socialActivity->getId(), 'target' => $target],
                     $this->getLinkByFilename($socialActivity->getImage())
                 );
             }
         } elseif ($socialActivity->getFollowing()) {
+            /** @var User[] $recipients */
             $recipients = $this->entityManager
                 ->getRepository('CivixCoreBundle:User')
                 ->getUsersByFollowingForPush($socialActivity->getFollowing());
             $userGroupRepository = $this->entityManager->getRepository('CivixCoreBundle:UserGroup');
             foreach ($recipients as $recipient) {
+                $handledIds[] = $recipient->getId();
                 if (!$socialActivity->getGroup() ||
                     $userGroupRepository->isJoinedUser($socialActivity->getGroup(), $recipient)) {
                     $this->send(
@@ -285,14 +271,57 @@ class PushSender
                         $socialActivity->getTitle(),
                         $socialActivity->getTextMessage(),
                         self::TYPE_PUSH_SOCIAL_ACTIVITY,
-                        ['id' => $socialActivity->getId(), 'target' => $socialActivity->getTarget()],
+                        ['id' => $socialActivity->getId(), 'target' => $target],
                         $this->getLinkByFilename($socialActivity->getImage())
                     );
                 }
             }
         }
+
+        $this->sendCommentedPush($socialActivity, $handledIds);
     }
-    
+
+    public function sendCommentedPush(SocialActivity $socialActivity, $handledIds = [])
+    {
+        $target = $socialActivity->getTarget();
+        if (!isset($target['id'])) {
+            return;
+        }
+        switch ($socialActivity->getType()) {
+            case SocialActivity::TYPE_FOLLOW_POLL_COMMENTED:
+                $repo = $this->entityManager->getRepository(Question::class);
+                break;
+            case SocialActivity::TYPE_FOLLOW_POST_COMMENTED:
+                $repo = $this->entityManager->getRepository(Post::class);
+                break;
+            case SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED:
+                $repo = $this->entityManager->getRepository(UserPetition::class);
+                break;
+            default:
+                return;
+        }
+        if (!$subscription = $repo->find($target['id'])) {
+            return;
+        }
+        $subscribers = $this->entityManager->getRepository(User::class)
+            ->getSubscribersIterator($subscription);
+        foreach ($subscribers as $subscriber) {
+            /** @var User $recipient */
+            $recipient = $subscriber[0];
+            if (in_array($recipient->getId(), $handledIds)) {
+                continue;
+            }
+            $this->send(
+                $recipient,
+                $socialActivity->getTitle(),
+                $socialActivity->getTextMessage(),
+                self::TYPE_PUSH_SOCIAL_ACTIVITY,
+                ['id' => $socialActivity->getId(), 'target' => $target],
+                $this->getLinkByFilename($socialActivity->getImage())
+            );
+        }
+    }
+
     public function send(User $recipient, $title, $message, $type, $entityData = null, $image = null)
     {
         $endpoints = $this->entityManager->getRepository(AbstractEndpoint::class)->findByUser($recipient);

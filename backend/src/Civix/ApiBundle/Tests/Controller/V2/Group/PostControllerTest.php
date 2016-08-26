@@ -1,19 +1,14 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2\Group;
 
-use Civix\CoreBundle\Entity\Micropetitions\Petition;
+use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\SocialActivity;
-use Civix\CoreBundle\Service\Micropetitions\PetitionManager;
 use Civix\CoreBundle\Service\PostManager;
 use Civix\CoreBundle\Service\UserPetitionManager;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
-use Civix\ApiBundle\Tests\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class PostControllerTest extends WebTestCase
@@ -120,6 +115,9 @@ class PostControllerTest extends WebTestCase
         // check activity
         $description = $conn->fetchColumn('SELECT description FROM activities WHERE post_id = ?', [$data['id']]);
         $this->assertSame($data['body'], $description);
+        // check author subscription
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM post_subscribers WHERE post_id = ?', [$data['id']]);
+        $this->assertEquals(1, $count);
     }
 
     public function testGetActivitiesOfDeletedUserPetition()

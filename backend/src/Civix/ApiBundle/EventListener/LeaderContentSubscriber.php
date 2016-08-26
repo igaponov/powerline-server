@@ -45,6 +45,7 @@ class LeaderContentSubscriber implements EventSubscriberInterface
             PostEvents::POST_CREATE => [
                 ['addPostHashTags'],
                 ['addPostRootComment'],
+                ['subscribePostAuthor'],
             ],
             PostEvents::POST_UPDATE => 'addPostHashTags',
 
@@ -108,5 +109,14 @@ class LeaderContentSubscriber implements EventSubscriberInterface
     public function addPostRootComment(PostEvent $event)
     {
         $this->commentManager->addPostRootComment($event->getPost());
+    }
+
+    public function subscribePostAuthor(PostEvent $event)
+    {
+        $post = $event->getPost();
+        $author = $post->getUser();
+        $author->addPostSubscription($post);
+        $this->em->persist($author);
+        $this->em->flush();
     }
 }

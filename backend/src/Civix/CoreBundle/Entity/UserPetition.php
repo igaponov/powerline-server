@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * })
  * @Serializer\ExclusionPolicy("all")
  */
-class UserPetition implements HtmlBodyInterface
+class UserPetition implements HtmlBodyInterface, SubscriptionInterface
 {
     use HashTaggableTrait, MetadataTrait;
 
@@ -119,7 +119,7 @@ class UserPetition implements HtmlBodyInterface
     /**
      * @var ArrayCollection|User[]
      *
-     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\User", cascade={"persist"}, orphanRemoval=true, mappedBy="petitionSubscriptions")
+     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\User", cascade={"persist"}, mappedBy="petitionSubscriptions")
      * @ORM\JoinTable(name="petition_subscribers", joinColumns={@ORM\JoinColumn(name="petition_id", referencedColumnName="id")})
      */
     private $subscribers;
@@ -439,12 +439,12 @@ class UserPetition implements HtmlBodyInterface
     /**
      * Add subscribers
      *
-     * @param User $subscribers
+     * @param User $subscriber
      * @return UserPetition
      */
-    public function addSubscriber(User $subscribers)
+    public function addSubscriber(User $subscriber)
     {
-        $this->subscribers[] = $subscribers;
+        $this->subscribers[] = $subscriber;
 
         return $this;
     }
@@ -452,11 +452,11 @@ class UserPetition implements HtmlBodyInterface
     /**
      * Remove subscribers
      *
-     * @param User $subscribers
+     * @param User $subscriber
      */
-    public function removeSubscriber(User $subscribers)
+    public function removeSubscriber(User $subscriber)
     {
-        $this->subscribers->removeElement($subscribers);
+        $this->subscribers->removeElement($subscriber);
     }
 
     /**
