@@ -29,7 +29,7 @@ class BookmarkController extends BaseController
      *      "/list/{type}/{page}",
      *      requirements={
      *          "page"="\d+",
-     *          "type"="petition|user-petition|question|leader-news|payment-request|crowdfunding-payment-request|leader-event|all"
+     *          "type"="petition|user-petition|question|leader-news|payment-request|crowdfunding-payment-request|leader-event|post|all"
      *      },
      *      name="api_bookmarks_list"
      * )
@@ -37,7 +37,7 @@ class BookmarkController extends BaseController
      * @ApiDoc(
      *     section="Bookmark",
      *     resource=true,
-     *     description="Get saved items. The saved item can be petition, micro-petition, question, leader-news, payment-request, crowdfunding-payment-request, leader-event, all",
+     *     description="Get saved items. The saved item can be petition, user-petition, question, leader-news, payment-request, crowdfunding-payment-request, leader-event, post, all",
      *     statusCodes={
      *         200="Returns saved items",
      *         401="Authorization required",
@@ -72,7 +72,7 @@ class BookmarkController extends BaseController
      *     "/add/{type}/{itemId}",
      *     requirements={
      *          "itemId"="\d+",
-     *          "type"="petition|micro-petition|question|leader-news|payment-request|crowdfunding-payment-request|leader-event"
+     *          "type"="petition|user-petition|question|leader-news|payment-request|crowdfunding-payment-request|leader-event|post"
      *      },
      *      name="api_bookmarks_add"
      * )
@@ -80,7 +80,7 @@ class BookmarkController extends BaseController
      * @ApiDoc(
      *     section="Bookmark",
      *     resource=true,
-     *     description="Add saved item. The saved item can be petition, micro-petition, question, leader-news, payment-request, crowdfunding-payment-request, leader-event",
+     *     description="Add saved item. The saved item can be petition, user-petition, question, leader-news, payment-request, crowdfunding-payment-request, leader-event, post",
      *     statusCodes={
      *         200="Returns saved item",
      *         401="Authorization required",
