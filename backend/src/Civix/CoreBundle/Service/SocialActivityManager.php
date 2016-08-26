@@ -127,13 +127,13 @@ class SocialActivityManager
             $comment->getQuestion()->getUser()))
             ->setTarget($target)
         ;
-        if ($comment->getParentComment()->getUser()) {
+        if ($comment->getParentComment()) {
             $target['comment_id'] = $comment->getId();
         }
         $this->em->persist($socialActivity1);
         $this->em->flush($socialActivity1);
 
-        if ($comment->getParentComment()->getUser()
+        if ($comment->getParentComment()
             && $comment->getUser() !== $comment->getParentComment()->getUser()) {
             $socialActivity2 = (new SocialActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser(),
                 $comment->getQuestion()->getUser()))
@@ -147,40 +147,40 @@ class SocialActivityManager
 
     public function noticeUserPetitionCommented(\Civix\CoreBundle\Entity\UserPetition\Comment $comment)
     {
-        $micropetition = $comment->getPetition();
+        $petition = $comment->getPetition();
         $target = [
-            'id' => $micropetition->getId(),
+            'id' => $petition->getId(),
             'preview' => $this->preparePreview($comment->getCommentBody()),
             'type' => 'user-petition',
             'label' => 'petition',
         ];
-        if ($comment->getParentComment()->getUser()) {
+        if ($comment->getParentComment()) {
             $target['comment_id'] = $comment->getId();
         }
         $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED, $comment->getUser(),
-            $micropetition->getGroup()))
+            $petition->getGroup()))
             ->setTarget($target)
         ;
         $this->em->persist($socialActivity);
 
-        if ($comment->getParentComment()->getUser()
+        if ($comment->getParentComment()
             && $comment->getUser() !== $comment->getParentComment()->getUser()) {
             $socialActivity2 = (new SocialActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser(),
-                $micropetition->getGroup()))
+                $petition->getGroup()))
                 ->setTarget($target)
                 ->setRecipient($comment->getParentComment()->getUser())
             ;
             $this->em->persist($socialActivity2);
         }
 
-        if ($micropetition->getUser()->getIsNotifOwnPostChanged()) {
+        if ($petition->getUser()->getIsNotifOwnPostChanged()) {
             $socialActivity3 = new SocialActivity(
                 SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED,
                 $comment->getUser(),
-                $micropetition->getGroup()
+                $petition->getGroup()
             );
                 $socialActivity->setTarget($target)
-                ->setRecipient($micropetition->getUser())
+                ->setRecipient($petition->getUser())
             ;
             $this->em->persist($socialActivity3);
         }
@@ -196,7 +196,7 @@ class SocialActivityManager
             'type' => 'post',
             'label' => 'post',
         ];
-        if ($comment->getParentComment()->getUser()) {
+        if ($comment->getParentComment()) {
             $target['comment_id'] = $comment->getId();
         }
         $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_POST_COMMENTED, $comment->getUser(),
@@ -205,7 +205,7 @@ class SocialActivityManager
         ;
         $this->em->persist($socialActivity);
 
-        if ($comment->getParentComment()->getUser()
+        if ($comment->getParentComment()
             && $comment->getUser() !== $comment->getParentComment()->getUser()) {
             $socialActivity2 = (new SocialActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser(),
                 $post->getGroup()))

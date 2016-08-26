@@ -22,6 +22,18 @@ class LoadPostSubscriberData extends AbstractFixture implements DependentFixture
         $user->addPostSubscription($post);
         $manager->persist($post);
 
+        /** @var Post $post */
+        $post = $this->getReference('post_5');
+
+        /** @var User $user */
+        $user = $this->getReference('user_2');
+        $user->addPostSubscription($post);
+
+        /** @var User $user */
+        $user = $this->getReference('user_3');
+        $user->addPostSubscription($post);
+        $manager->persist($post);
+
         $manager->flush();
     }
 

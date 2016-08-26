@@ -3,6 +3,10 @@
 namespace Civix\CoreBundle\Repository;
 
 use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\Poll\Question;
+use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\SubscriptionInterface;
+use Civix\CoreBundle\Entity\UserPetition;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
@@ -466,7 +470,7 @@ class UserRepository extends EntityRepository
         return $followEntity;
     }
 
-    private function setCommonFilterForPush($query, $expr)
+    private function setCommonFilterForPush(QueryBuilder $query, Query\Expr $expr)
     {
         $curDate = new \DateTime();
 
@@ -585,5 +589,26 @@ class UserRepository extends EntityRepository
             ->where('u.id <> u2.id')
             ->getQuery()
             ->getResult();
+    }
+
+    public function getSubscribersIterator(SubscriptionInterface $subscription)
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->distinct(true);
+        if ($subscription instanceof UserPetition) {
+            $qb->leftJoin('u.petitionSubscriptions', 's');
+        } elseif ($subscription instanceof Post) {
+            $qb->leftJoin('u.postSubscriptions', 's');
+        } elseif ($subscription instanceof Question) {
+            $qb->leftJoin('u.pollSubscriptions', 's');
+        } else {
+            throw new \RuntimeException(
+                sprintf('Wrong subscription type: %s', get_class($subscription))
+            );
+        }
+        return $qb->where('s = :subscription')
+            ->setParameter(':subscription', $subscription)
+            ->getQuery()
+            ->iterate();
     }
 }

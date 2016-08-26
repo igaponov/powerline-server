@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Service\User;
 
 use Civix\CoreBundle\Entity\Micropetitions\Petition;
+use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserPetition;
@@ -204,6 +205,24 @@ class UserManager
     {
         if ($user->getPostSubscriptions()->contains($post)) {
             $user->removePostSubscription($post);
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+        }
+    }
+
+    public function subscribeToPoll(User $user, Question $poll)
+    {
+        if (!$user->getPollSubscriptions()->contains($poll)) {
+            $user->addPollSubscription($poll);
+            $this->entityManager->persist($poll);
+            $this->entityManager->flush();
+        }
+    }
+
+    public function unsubscribeFromPoll(User $user, Question $poll)
+    {
+        if ($user->getPollSubscriptions()->contains($poll)) {
+            $user->removePollSubscription($poll);
             $this->entityManager->persist($user);
             $this->entityManager->flush();
         }

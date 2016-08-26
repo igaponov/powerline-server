@@ -5,6 +5,8 @@ namespace Civix\CoreBundle\Entity\Poll;
 use Civix\CoreBundle\Entity\GroupSection;
 use Civix\CoreBundle\Entity\HashTag;
 use Civix\CoreBundle\Entity\LeaderContentInterface;
+use Civix\CoreBundle\Entity\SubscriptionInterface;
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserInterface;
 use Civix\CoreBundle\Validator\Constraints\PublishDate;
 use Civix\CoreBundle\Validator\Constraints\PublishedPollAmount;
@@ -53,7 +55,7 @@ use Civix\CoreBundle\Entity\Representative;
  * @PublishDate(objectName="Poll", groups={"update", "publish"})
  * @PublishedPollAmount(groups={"publish"})
  */
-abstract class Question implements LeaderContentInterface
+abstract class Question implements LeaderContentInterface, SubscriptionInterface
 {
     /**
      * @var int
@@ -236,6 +238,14 @@ abstract class Question implements LeaderContentInterface
     protected $group;
 
     /**
+     * @var ArrayCollection|User[]
+     *
+     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\User", cascade={"persist"}, mappedBy="pollSubscriptions")
+     * @ORM\JoinTable(name="poll_subscribers", joinColumns={@ORM\JoinColumn(name="question_id", referencedColumnName="id")})
+     */
+    private $subscribers;
+
+    /**
      * Constructor.
      */
     public function __construct()
@@ -247,6 +257,7 @@ abstract class Question implements LeaderContentInterface
         $this->comments = new ArrayCollection();
         $this->hashTags = new ArrayCollection();
         $this->groupSections = new ArrayCollection();
+        $this->subscribers = new ArrayCollection();
     }
 
     abstract public function getType();
@@ -754,5 +765,38 @@ abstract class Question implements LeaderContentInterface
     public function getGroup()
     {
         return $this->getUser();
+    }
+
+    /**
+     * Add subscriber
+     *
+     * @param User $subscriber
+     * @return Question
+     */
+    public function addSubscriber(User $subscriber)
+    {
+        $this->subscribers[] = $subscriber;
+
+        return $this;
+    }
+
+    /**
+     * Remove subscriber
+     *
+     * @param User $subscriber
+     */
+    public function removeSubscriber(User $subscriber)
+    {
+        $this->subscribers->removeElement($subscriber);
+    }
+
+    /**
+     * Get subscribers
+     *
+     * @return ArrayCollection|User[]
+     */
+    public function getSubscribers()
+    {
+        return $this->subscribers;
     }
 }
