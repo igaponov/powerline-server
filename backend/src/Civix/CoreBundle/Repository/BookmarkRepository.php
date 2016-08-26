@@ -135,6 +135,7 @@ class BookmarkRepository extends EntityRepository
             Activity::TYPE_PAYMENT_REQUEST => Activities\PaymentRequest::class,
             Activity::TYPE_CROWDFUNDING_PAYMENT_REQUEST => Activities\CrowdfundingPaymentRequest::class,
             Activity::TYPE_LEADER_EVENT => Activities\LeaderEvent::class,
+            Activity::TYPE_POST => Activities\Post::class,
         ];
 
         return $types;
