@@ -264,7 +264,7 @@ class PollControllerTest extends WebTestCase
 		$this->assertNotNull($data['expire_at']);
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('database_connection');
-        $count = $conn->fetchColumn('SELECT COUNT(*) FROM activities WHERE question_id = ?', [$question->getId()]);
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM activities WHERE question_id = ? AND type = ?', [$question->getId(), 'question']);
         $this->assertEquals(1, $count);
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM hash_tags WHERE name = ?', ['#test-tag']);
         $this->assertEquals(1, $count);

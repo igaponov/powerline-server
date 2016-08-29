@@ -64,8 +64,9 @@ class ActivityUpdate
 
     public function publishQuestionToActivity(Question $question)
     {
-        //create activity
-        $activity = new ActivityQuestion();
+        $class = Activity::getActivityClassByEntity($question);
+        /** @var \Civix\CoreBundle\Entity\Activities\Question $activity */
+        $activity = new $class;
         $activity->setQuestionId($question->getId());
         $activity->setTitle('');
         $activity->setDescription($question->getSubject());
