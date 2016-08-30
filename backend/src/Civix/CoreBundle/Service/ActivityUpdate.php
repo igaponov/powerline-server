@@ -125,6 +125,7 @@ class ActivityUpdate
         $activity->setResponsesCount($post->getVotes()->count());
         $activity->setGroup($post->getGroup());
         $activity->setQuorum($post->getQuorumCount());
+        $activity->setExpireAt($post->getExpiredAt());
         if (!$isPublic) {
             $activity->setUser($post->getUser());
         }
@@ -139,17 +140,12 @@ class ActivityUpdate
 
     public function publishLeaderNewsToActivity(LeaderNews $news)
     {
-        $expireDate = new \DateTime('now');
-        $expireDate->add(
-            new \DateInterval('P'.$this->settings->get(Settings::DEFAULT_EXPIRE_INTERVAL)->getValue().'D')
-        );
-
         $activity = new ActivityLeaderNews();
         $activity->setQuestionId($news->getId());
         $activity->setTitle('');
         $activity->setDescription(strip_tags($news->getSubjectParsed()));
         $activity->setSentAt($news->getPublishedAt());
-        $activity->setExpireAt($expireDate);
+        $activity->setExpireAt($news->getExpireAt());
         $method = 'set'.ucfirst($news->getUser()->getType());
         $activity->$method($news->getUser());
         $this->setImage($activity, $news);
@@ -165,15 +161,11 @@ class ActivityUpdate
 
     public function publishPetitionToActivity(Petition $petition)
     {
-        $expireDate = new \DateTime('now');
-        $expireDate->add(
-            new \DateInterval('P'.$this->settings->get(Settings::DEFAULT_EXPIRE_INTERVAL)->getValue().'D')
-        );
         $activity = new ActivityPetition();
         $activity->setQuestionId($petition->getId())
             ->setTitle($petition->getPetitionTitle())
             ->setDescription($petition->getPetitionBody())
-            ->setExpireAt($expireDate)
+            ->setExpireAt($petition->getExpireAt())
             ->setSentAt($petition->getPublishedAt());
 
         $userMethod = 'set'.ucfirst($petition->getUser()->getType());
@@ -198,7 +190,7 @@ class ActivityUpdate
             $expireDate->add(
                 new \DateInterval('P'.$this->settings->get(Settings::DEFAULT_EXPIRE_INTERVAL)->getValue().'D')
             );
-            $activity->setExpireAt($expireDate);
+            $activity->setExpireAt($paymentRequest->getExpireAt());
         }
 
         $activity
