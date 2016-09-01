@@ -320,7 +320,7 @@ class PostControllerTest extends WebTestCase
         /** @var Post $post */
         $post = $repository->getReference('post_1');
         $user = $repository->getReference('user_3');
-        $answer = $conn->fetchAssoc('SELECT id, option FROM post_votes WHERE post_id = ? AND user_id = ?', [$post->getId(), $user->getId()]);
+        $answer = $conn->fetchAssoc('SELECT id, `option` FROM post_votes WHERE post_id = ? AND user_id = ?', [$post->getId(), $user->getId()]);
         $client->request('POST',
             self::API_ENDPOINT.'/'.$post->getId().'/vote', [], [],
             ['HTTP_Authorization'=>'Bearer type="user" token="user3"'],
@@ -335,6 +335,28 @@ class PostControllerTest extends WebTestCase
         // check social activity
         $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM social_activities WHERE type = ?', [SocialActivity::TYPE_OWN_POST_VOTED]);
         $this->assertSame(1, $count);
+    }
+
+    public function testUpdateAnswerWithErrors()
+    {
+        $repository = $this->loadFixtures([
+            LoadPostVoteData::class,
+        ])->getReferenceRepository();
+        $client = $this->client;
+        /** @var Post $post */
+        $post = $repository->getReference('post_1');
+        $client->request('POST',
+            self::API_ENDPOINT.'/'.$post->getId().'/vote', [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user2"'],
+            json_encode(['option' => 'upvote'])
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertContains(
+            'User is already answered this petition',
+            $data['errors']['children']['option']['errors']
+        );
     }
 
     public function testUnsignPost()

@@ -184,7 +184,8 @@ class PostController extends FOSRestController
      * @Route("/{id}/vote", requirements={"id"="\d+"})
      * @Method("POST")
      *
-     * @ParamConverter("vote", options={"mapping"={"petition"="petition", "loggedInUser"="user"}}, converter="doctrine.param_converter")
+     * @ParamConverter("post", class="Civix\CoreBundle\Entity\Post")
+     * @ParamConverter("vote", options={"mapping"={"post"="post", "loggedInUser"="user"}}, converter="doctrine.param_converter")
      *
      * @ApiDoc(
      *     authentication=true,
@@ -236,7 +237,8 @@ class PostController extends FOSRestController
      * @Route("/{id}/vote", requirements={"id"="\d+"})
      * @Method("DELETE")
      *
-     * @ParamConverter("vote", options={"mapping"={"loggedInUser"="user", "petition"="petition"}}, converter="doctrine.param_converter")
+     * @ParamConverter("post", class="Civix\CoreBundle\Entity\Post")
+     * @ParamConverter("vote", options={"mapping"={"loggedInUser"="user", "post"="post"}}, converter="doctrine.param_converter")
      *
      * @ApiDoc(
      *     authentication=true,
