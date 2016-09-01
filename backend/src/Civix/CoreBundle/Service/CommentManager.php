@@ -1,6 +1,6 @@
 <?php
 
-namespace Civix\CoreBundle\Service\Poll;
+namespace Civix\CoreBundle\Service;
 
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\Poll\Answer;
@@ -9,22 +9,23 @@ use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Entity\UserPetition\Comment as MicropetitionComment;
-use Civix\CoreBundle\Service\ContentManager;
-use Civix\CoreBundle\Service\SocialActivityManager;
+use Civix\CoreBundle\Event\CommentEvent;
+use Civix\CoreBundle\Event\CommentEvents;
 use Doctrine\ORM\EntityManager;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CommentManager
 {
     private $em;
-    private $cm;
-    private $sam;
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
 
-    public function __construct(EntityManager $em, ContentManager $cm,
-                                SocialActivityManager $sam)
+    public function __construct(EntityManager $em, EventDispatcherInterface $dispatcher)
     {
         $this->em = $em;
-        $this->cm = $cm;
-        $this->sam = $sam;
+        $this->dispatcher = $dispatcher;
     }
 
     public function updateRateToComment(BaseComment $comment, $user, $rateValue)
@@ -118,17 +119,28 @@ class CommentManager
 
     public function addComment(BaseComment $comment)
     {
-        return $this->saveComment($comment, true);
+        $this->em->persist($comment);
+        $this->em->flush($comment);
+
+        $event = new CommentEvent($comment);
+        $this->dispatcher->dispatch(CommentEvents::CREATE, $event);
+
+        return $comment;
     }
 
-    public function saveComment(BaseComment $comment, $notify = false)
+    public function saveComment(BaseComment $comment)
     {
         $this->em->persist($comment);
-        $users = $this->cm->handleCommentContent($comment);
         $this->em->flush($comment);
-        if ($notify) {
-            $this->sam->noticeCommentMentioned($comment, $users);
-        }
+
+        return $comment;
+    }
+
+    public function deleteComment(BaseComment $comment)
+    {
+        $comment->setCommentBody('Deleted by author');
+        $this->em->persist($comment);
+        $this->em->flush($comment);
 
         return $comment;
     }

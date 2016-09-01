@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Tests;
 use Civix\CoreBundle\Entity\User;
 use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializationContext;
+use Symfony\Component\HttpFoundation\Response;
 
 abstract class WebTestCase extends \Liip\FunctionalTestBundle\Test\WebTestCase
 {
@@ -11,6 +12,34 @@ abstract class WebTestCase extends \Liip\FunctionalTestBundle\Test\WebTestCase
     {
         $this->containers = [];
         parent::onNotSuccessfulTest($e);
+    }
+
+    public function assertResponseHasErrors(Response $response, $errors, $checkExtraErrors = true)
+    {
+        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame('Validation Failed', $data['message']);
+        foreach ($errors as $child => $error) {
+            if (is_int($child)) {
+                $index = array_search($error, $data['errors']['errors']);
+                $this->assertNotFalse($index, '"'.$error.'" is not in form errors.');
+                unset($data['errors']['errors'][$index]);
+            } else {
+                $index = array_search($error, $data['errors']['children'][$child]['errors']);
+                $this->assertNotFalse($index, '"'.$error.'" is not in form['.$child.'] errors.');
+                unset($data['errors']['children'][$child]['errors'][$index]);
+            }
+        }
+        if ($checkExtraErrors) {
+            if (!empty($data['errors']['errors'])) {
+                $this->fail('Form contains extra errors.');
+            }
+            foreach ($data['errors']['children'] as $child => $array) {
+                if (!empty($array['errors'])) {
+                    $this->fail('Form['.$child.'] contains extra errors.');
+                }
+            }
+        }
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\CoreBundle\Entity\Poll\CommentRate;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -13,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\ExclusionPolicy("all")
  */
-abstract class BaseComment
+abstract class BaseComment implements HtmlBodyInterface
 {
     const PRIVACY_PUBLIC = 0;
     const PRIVACY_PRIVATE = 1;
@@ -82,6 +83,7 @@ abstract class BaseComment
     protected $user;
 
     /**
+     * @var CommentRate[]|ArrayCollection
      * @ORM\OneToMany(targetEntity="\Civix\CoreBundle\Entity\Poll\CommentRate", mappedBy="comment")
      */
     protected $rates;
@@ -103,6 +105,7 @@ abstract class BaseComment
     /**
      * @Serializer\Expose()
      * @Serializer\Groups({"api-comments"})
+     * @Serializer\Until("1")
      */
     protected $rateStatus;
 
@@ -115,8 +118,30 @@ abstract class BaseComment
      * @Serializer\Expose()
      * @Serializer\Groups({"api-comments", "api-comments-add", "api-comments-update"})
      * @Serializer\Type("integer")
+     * @Serializer\Until("1")
      */
     protected $privacy = self::PRIVACY_PUBLIC;
+
+    /**
+     * @var array Users, mentioned in comment_body to send notification
+     */
+    protected $mentionedUsers = [];
+
+    public static function getPrivacyTypes()
+    {
+        return [
+            self::PRIVACY_PUBLIC,
+            self::PRIVACY_PRIVATE,
+        ];
+    }
+
+    public static function getPrivacyLabels()
+    {
+        return [
+            self::PRIVACY_PUBLIC => 'public',
+            self::PRIVACY_PRIVATE => 'private',
+        ];
+    }
 
     public function __construct()
     {
@@ -241,6 +266,11 @@ abstract class BaseComment
         return $this->rateSum;
     }
 
+    /**
+     * @deprecated
+     * @param $userStatus
+     * @return $this
+     */
     public function setRateStatus($userStatus)
     {
         $this->rateStatus = $userStatus;
@@ -248,9 +278,29 @@ abstract class BaseComment
         return $this;
     }
 
+    /**
+     * @deprecated
+     * @return mixed
+     */
     public function getRateStatus()
     {
         return $this->rateStatus;
+    }
+
+    /**
+     * @Serializer\VirtualProperty()
+     * @Serializer\Since("2")
+     * @Serializer\Groups({"comments-rate"})
+     * @Serializer\SerializedName("rate_value")
+     * @Serializer\Type("string")
+     */
+    public function getUserRateStatus()
+    {
+        if ($this->rates->count()) {
+            return $this->rates[0]->getRateValueLabel();
+        }
+
+        return '';
     }
 
     public function getRates()
@@ -291,6 +341,11 @@ abstract class BaseComment
         return $this->privacy;
     }
 
+    /**
+     * @deprecated
+     * @param $status
+     * @return $this
+     */
     public function setIsOwner($status)
     {
         $this->isOwner = $status;
@@ -299,13 +354,28 @@ abstract class BaseComment
     }
 
     /**
+     * @deprecated
      * @Serializer\VirtualProperty
      * @Serializer\Groups({"api-comments"})
      * @Serializer\SerializedName("is_owner")
+     * @Serializer\Until("1")
      */
     public function getIsOwner()
     {
         return $this->isOwner;
+    }
+
+    /**
+     * @return User
+     * @Serializer\VirtualProperty()
+     * @Serializer\Since("2")
+     * @Serializer\Type("Owner")
+     * @Serializer\Groups({"api-comments"})
+     * @Serializer\SerializedName("is_owner")
+     */
+    public function getIsUserOwner()
+    {
+        return $this->user;
     }
 
     /**
@@ -438,5 +508,53 @@ abstract class BaseComment
     public function getRateDown()
     {
         return $this->ratesCount ? ($this->ratesCount - $this->rateSum) / 2 : 0;
+    }
+
+    public function getBody()
+    {
+        return $this->getCommentBody();
+    }
+
+    public function setHtmlBody($html)
+    {
+        $this->setCommentBodyHtml($html);
+    }
+
+    /**
+     * @param User $user
+     * @return $this
+     */
+    public function addMentionedUser(User $user)
+    {
+        $this->mentionedUsers[] = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return User[]
+     */
+    public function getMentionedUsers()
+    {
+        return $this->mentionedUsers;
+    }
+
+    /**
+     * @return string|null
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Since("2")
+     * @Serializer\SerializedName("privacy")
+     * @Serializer\Type("string")
+     * @Serializer\Groups({"api-comments", "api-comments-add", "api-comments-update"})
+     */
+    public function getPrivacyLabel()
+    {
+        $labels = self::getPrivacyLabels();
+        if (isset($labels[$this->privacy])) {
+            return $labels[$this->privacy];
+        }
+
+        return null;
     }
 }

@@ -64,7 +64,7 @@
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="validator" />
             <argument type="service" id="civix_core.settings" />
-            <argument type="service" id="civix_core.poll.comment_manager" />
+            <argument type="service" id="civix_core.comment_manager" />
         </service>
 
         <service id="civix_core.social_activity_manager" class="Civix\CoreBundle\Service\SocialActivityManager">
@@ -119,6 +119,11 @@
             <argument type="service" id="security.context" />
         </service>
 
+        <service class="Civix\CoreBundle\Serializer\Handler\OwnerHandler" id="civix_core.serializer_handler.owner_handler">
+            <argument id="security.context" type="service"/>
+            <tag name="jms_serializer.handler" type="Owner" direction="serialization" format="json" method="serialize"/>
+        </service>
+
         <service id="civix_core.question_limit" class="Civix\CoreBundle\Service\QuestionLimit">
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="session" />
@@ -156,10 +161,9 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="civix_core.poll.comment_manager" class="Civix\CoreBundle\Service\Poll\CommentManager">
+        <service id="civix_core.comment_manager" class="Civix\CoreBundle\Service\CommentManager">
             <argument type="service" id="doctrine.orm.entity_manager" />
-            <argument type="service" id="civix_core.content_manager" />
-            <argument type="service" id="civix_core.social_activity_manager" />
+            <argument type="service" id="event_dispatcher" />
         </service>
 
         <service id="civix_core.poll.micropetition_manager" class="Civix\CoreBundle\Service\Micropetitions\PetitionManager">

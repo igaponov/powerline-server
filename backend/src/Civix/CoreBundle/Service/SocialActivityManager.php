@@ -4,8 +4,8 @@ namespace Civix\CoreBundle\Service;
 
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\Poll;
 use Civix\CoreBundle\Entity\Poll\Answer;
-use Civix\CoreBundle\Entity\Poll\Comment;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\SocialActivity;
@@ -13,7 +13,6 @@ use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Entity\UserPetition;
-use Civix\CoreBundle\Entity\UserPetition\Comment as MicropetitionComment;
 use Doctrine\ORM\EntityManager;
 
 class SocialActivityManager
@@ -110,7 +109,7 @@ class SocialActivityManager
         return $socialActivity;
     }
 
-    public function noticePollCommented(Comment $comment)
+    public function noticePollCommented(Poll\Comment $comment)
     {
         $question = $comment->getQuestion();
         if (!$question->getUser() instanceof Group) {
@@ -246,26 +245,40 @@ class SocialActivityManager
         }
     }
 
-    public function noticeCommentMentioned(BaseComment $comment, $recipients)
+    public function noticeCommentMentioned(BaseComment $comment)
     {
+        $recipients = $comment->getMentionedUsers();
+        if (empty($recipients)) {
+            return;
+        }
         $group = null;
-        if ($comment instanceof MicropetitionComment) {
-            $micropetition = $comment->getPetition();
-            $group = $micropetition->getGroup();
+        if ($comment instanceof UserPetition\Comment) {
+            $petition = $comment->getPetition();
+            $group = $petition->getGroup();
             $target = [
-                'id' => $micropetition->getId(),
+                'id' => $petition->getId(),
                 'preview' => $this->preparePreview($comment->getCommentBody()),
-                'type' => 'petition',
-                'label' => 'post',
+                'type' => 'user-petition',
+                'label' => 'petition',
             ];
-        } elseif ($comment instanceof Comment) {
+        } elseif ($comment instanceof Post\Comment) {
+            $post = $comment->getPost();
+            $group = $post->getGroup();
+            $target = [
+                'id' => $post->getId(),
+                'preview' => $this->preparePreview($comment->getCommentBody()),
+                'type' => 'user-petition',
+                'label' => 'petition',
+            ];
+        } elseif ($comment instanceof Poll\Comment) {
             $question = $comment->getQuestion();
+            $group = $question->getUser();
             $target = [
                 'id' => $question->getId(),
+                'preview' => $this->preparePreview($comment->getCommentBody()),
                 'type' => $question->getType(),
+                'label' => $this->getLabelByPoll($question),
             ];
-            $target['label'] = $this->getLabelByPoll($question);
-            $group = $question->getUser();
         }
         if ($comment->getParentComment()->getUser()) {
             $target['comment_id'] = $comment->getId();

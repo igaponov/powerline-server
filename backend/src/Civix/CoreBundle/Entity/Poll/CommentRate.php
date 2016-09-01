@@ -47,6 +47,15 @@ class CommentRate
      */
     private $createdAt;
 
+    public static function getRateValueLabels()
+    {
+        return [
+            self::RATE_UP => 'up',
+            self::RATE_DOWN => 'down',
+            self::RATE_DELETE => 'delete',
+        ];
+    }
+
     /**
      * Get id.
      *
@@ -79,6 +88,16 @@ class CommentRate
     public function getRateValue()
     {
         return $this->rateValue;
+    }
+
+    public function getRateValueLabel()
+    {
+        $labels = self::getRateValueLabels();
+        if (isset($labels[$this->rateValue])) {
+            return $labels[$this->rateValue];
+        }
+
+        return '';
     }
 
     /**
@@ -142,7 +161,7 @@ class CommentRate
      *
      * @param \DateTime $createdAt
      *
-     * @return Comment
+     * @return $this
      */
     public function setCreatedAt($createdAt)
     {

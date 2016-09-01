@@ -18,7 +18,8 @@ class CommentController extends BaseController
 {
     /**
      * Get list comments.
-     * 
+     * Deprecated, use `GET /api/v2/polls/{id}/comments`, `GET /api/v2/user-petitions/{id}/comments`, `GET /api/v2/posts/{id}/comments` instead
+     *
      * @Route(
      *      "/{typeEntity}/{entityId}/comments/",
      *      requirements={"entityId"="\d+", "typeEntity" = "poll|micro-petitions|post"},
@@ -33,7 +34,7 @@ class CommentController extends BaseController
      * )
      *
      * @ApiDoc(
-     *     resource=true,
+     *     section="Polls",
      *     description="Get comments (polls or micropetitions)",
      *     filters={
      *          {"name"="root", "dataType"="boolean", "description"="Show root comment", "default"=false}
@@ -42,7 +43,8 @@ class CommentController extends BaseController
      *         200="Returns comments",
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      */
     public function getCommentsAction(CommentModelInterface $commentModel, $entityId, Request $request)
@@ -67,6 +69,7 @@ class CommentController extends BaseController
 
     /**
      * Add comment.
+     * Deprecated, use `POST /api/v2/polls/{id}/comments`, `POST /api/v2/user-petitions/{id}/comments`, `POST /api/v2/posts/{id}/comments` instead
      * 
      * @Route(
      *      "/{typeEntity}/{entityId}/comments/",
@@ -80,13 +83,14 @@ class CommentController extends BaseController
      *      options={"typeEntity":"typeEntity"}
      * )
      * @ApiDoc(
-     *     resource=true,
+     *     section="Polls",
      *     description="Add comment (polls or micropetitions)",
      *     statusCodes={
      *         200="Returns created comment",
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      */
     public function addCommentAction(Request $request, CommentModelInterface $commentModel, $entityId)
@@ -119,7 +123,7 @@ class CommentController extends BaseController
         $comment->setUser($this->getUser());
         $commentModel->setEntityForComment($entityForComment, $comment);
 
-        $this->get('civix_core.poll.comment_manager')->addComment($comment);
+        $this->get('civix_core.comment_manager')->saveComment($comment);
 
         if ($entityForComment instanceof LeaderNews) {
             $this->get('civix_core.activity_update')->updateResponsesQuestion($entityForComment);
@@ -144,6 +148,7 @@ class CommentController extends BaseController
 
     /**
      * Get question comments.
+     * Deprecated, use `GET /api/v2/poll-comments/{id}` instead
      *
      * @Route(
      *      "/poll/comments/{questionId}",
@@ -153,13 +158,14 @@ class CommentController extends BaseController
      * @Method("GET")
      * @ApiDoc(
      *     resource=true,
+     *     section="Polls",
      *     description="Get question comments",
-     *     deprecated=true,
      *     statusCodes={
      *         200="Returns comments",
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      *
      * @deprecated Use getCommentsAction
@@ -180,6 +186,7 @@ class CommentController extends BaseController
 
     /**
      * Add question comments.
+     * Deprecated, use `POST /api/v2/polls/{id}/comments` instead
      *
      * @Route(
      *      "/poll/comments/add/{id}",
@@ -189,14 +196,14 @@ class CommentController extends BaseController
      * @ParamConverter("question", class="CivixCoreBundle:Poll\Question")
      * @Method("POST")
      * @ApiDoc(
-     *     resource=true,
+     *     section="Polls",
      *     description="Add comment to question",
-     *     deprecated=true,
      *     statusCodes={
      *         200="Returns comments",
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      *
      * @deprecated Use getCommentsAction
@@ -237,6 +244,7 @@ class CommentController extends BaseController
 
     /**
      * Update comment
+     * Deprecated, use `PUT /api/v2/poll-comments/{id}`, `PUT /api/v2/post-comments/{id}`, `PUT /api/v2/user-petition-comments/{id}` instead
      *
      * @Route(
      *      "/{typeEntity}/{entityId}/comments/{id}",
@@ -254,13 +262,14 @@ class CommentController extends BaseController
      *      options={"typeEntity":"typeEntity"}
      * )
      * @ApiDoc(
-     *     resource=true,
+     *     section="Polls",
      *     description="Update comment (polls or micropetitions)",
      *     statusCodes={
      *         200="Returns updated comment",
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      */
     public function putCommentAction(Request $request, CommentModelInterface $commentModel, $entityId)
@@ -283,7 +292,7 @@ class CommentController extends BaseController
         $comment->setCommentBody($updated->getCommentBody());
         $comment->setPrivacy($updated->getPrivacy());
 
-        $this->get('civix_core.poll.comment_manager')->saveComment($comment);
+        $this->get('civix_core.comment_manager')->saveComment($comment);
 
         $response = new Response($this->jmsSerialization(
             $comment,
@@ -295,6 +304,7 @@ class CommentController extends BaseController
 
     /**
      * Delete comment
+     * Deprecated, use `DELETE /api/v2/poll-comments/{id}`, `DELETE /api/v2/post-comments/{id}`, `DELETE /api/v2/user-petition-comments/{id}` instead
      *
      * @Route(
      *      "/{typeEntity}/{entityId}/comments/{id}",
@@ -313,12 +323,14 @@ class CommentController extends BaseController
      * )
      * @ApiDoc(
      *     resource=true,
+     *     section="Polls",
      *     description="Delete comment (polls or micropetitions)",
      *     statusCodes={
      *         200="Returns comment",
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      */
     public function deleteCommentAction(Request $request, CommentModelInterface $commentModel, $entityId)
@@ -332,7 +344,7 @@ class CommentController extends BaseController
         }
         $comment->setCommentBody('Deleted by author');
 
-        $this->get('civix_core.poll.comment_manager')->saveComment($comment);
+        $this->get('civix_core.comment_manager')->saveComment($comment);
 
         $response = new Response($this->jmsSerialization(
             $comment,

@@ -2,6 +2,8 @@
 
 namespace Civix\CoreBundle\Entity\Poll;
 
+use Civix\CoreBundle\Entity\BaseComment;
+use Civix\CoreBundle\Entity\CommentedInterface;
 use Civix\CoreBundle\Entity\GroupSection;
 use Civix\CoreBundle\Entity\HashTag;
 use Civix\CoreBundle\Entity\LeaderContentInterface;
@@ -11,6 +13,7 @@ use Civix\CoreBundle\Entity\UserInterface;
 use Civix\CoreBundle\Validator\Constraints\PublishDate;
 use Civix\CoreBundle\Validator\Constraints\PublishedPollAmount;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping\InheritanceType;
@@ -55,7 +58,7 @@ use Civix\CoreBundle\Entity\Representative;
  * @PublishDate(objectName="Poll", groups={"update", "publish"})
  * @PublishedPollAmount(groups={"publish"})
  */
-abstract class Question implements LeaderContentInterface, SubscriptionInterface
+abstract class Question implements LeaderContentInterface, SubscriptionInterface, CommentedInterface
 {
     /**
      * @var int
@@ -623,6 +626,36 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
         return $this->recipients;
     }
 
+
+    /**
+     * Add comment
+     *
+     * @param BaseComment|Comment $comment
+     * @return $this
+     */
+    public function addComment(BaseComment $comment)
+    {
+        $this->comments[] = $comment;
+        $comment->setQuestion($this);
+
+        return $this;
+    }
+
+    /**
+     * Remove comment
+     *
+     * @param BaseComment $comment
+     */
+    public function removeComment(BaseComment $comment)
+    {
+        $this->comments->removeElement($comment);
+    }
+
+    /**
+     * Get comments
+     *
+     * @return Collection|Comment[]
+     */
     public function getComments()
     {
         return $this->comments;

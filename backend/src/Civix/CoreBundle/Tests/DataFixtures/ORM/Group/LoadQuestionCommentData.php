@@ -47,9 +47,12 @@ class LoadQuestionCommentData extends AbstractFixture implements ContainerAwareI
             $this->getReference('group_question_1'),
             $this->getReference('question_comment_1')
         );
-        $this->createComment(
-            $this->getReference('user_4'),
-            $this->getReference('group_question_1')
+        $this->addReference(
+            'question_comment_3',
+            $this->createComment(
+                $this->getReference('user_4'),
+                $this->getReference('group_question_1')
+            )
         );
         $this->addReference(
             'question_comment_4',
@@ -67,7 +70,7 @@ class LoadQuestionCommentData extends AbstractFixture implements ContainerAwareI
 
     public function getDependencies()
     {
-        return [LoadGroupManagerData::class, LoadUserGroupData::class, LoadGroupQuestionData::class];
+        return [LoadGroupQuestionData::class];
     }
 
     /**
