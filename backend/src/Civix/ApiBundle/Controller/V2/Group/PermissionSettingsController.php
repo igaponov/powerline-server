@@ -31,8 +31,6 @@ class PermissionSettingsController extends Controller
      * @Route("")
      * @Method("GET")
      *
-     * @SecureParam("group", permission="view")
-     *
      * @ApiDoc(
      *     authentication=true,
      *     section="Groups",
