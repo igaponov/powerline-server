@@ -1753,7 +1753,11 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
 
     public function serializeRequiredPermissions()
     {
-        return array_values($this->requiredPermissions);
+        if (is_array($this->requiredPermissions)) {
+            return array_values($this->requiredPermissions);
+        }
+
+        return [];
     }
 
     public function setRequiredPermissions($permissions)

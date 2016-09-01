@@ -2,7 +2,6 @@
 namespace Civix\ApiBundle\Tests\Controller\V2\Group;
 
 use Civix\CoreBundle\Service\SocialActivityManager;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\ApiBundle\Tests\WebTestCase;
@@ -27,19 +26,6 @@ class PermissionSettingsControllerTest extends WebTestCase
 		$this->client = NULL;
         parent::tearDown();
     }
-
-	public function testGetPermissionSettingsWithWrongCredentialsThrowsException()
-	{
-        $repository = $this->loadFixtures([
-            LoadGroupData::class,
-        ])->getReferenceRepository();
-        $group = $repository->getReference('group_3');
-		$client = $this->client;
-        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
-        $client->request('GET', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
-		$response = $client->getResponse();
-		$this->assertEquals(403, $response->getStatusCode(), $response->getContent());
-	}
 
     /**
      * @param $user
@@ -137,6 +123,7 @@ class PermissionSettingsControllerTest extends WebTestCase
             'owner' => ['user3', 'group_3'],
             'manager' => ['user2', 'group_3'],
             'member' => ['user4', 'group_3'],
+            'outlier' => ['user1', 'group_3'],
         ];
     }
 }
