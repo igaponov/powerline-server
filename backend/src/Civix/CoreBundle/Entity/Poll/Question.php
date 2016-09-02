@@ -799,4 +799,16 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
     {
         return $this->subscribers;
     }
+
+    /**
+     * @return bool
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Type("boolean")
+     * @Serializer\Groups({"activity-list"})
+     */
+    public function isSubscribed()
+    {
+        return (bool)$this->subscribers->count();
+    }
 }

@@ -494,7 +494,8 @@ class ActivityRepository extends EntityRepository
     protected function getActivitiesQueryBuilder(User $user, \DateTime $start = null)
     {
         $qb = $this->createQueryBuilder('act')
-            ->select('act', 'act_r', 'p', 'up', 'ups', 'pv')
+            ->distinct(true)
+            ->select('act', 'act_r', 'p', 'up', 'ups', 'pv', 'q', 'qs', 'ps', 'pos')
             // 0 = Prioritized Zone (unread, unanswered)
             // 2 = Expired Zone (expired)
             // 1 = Non-Prioritized Zone (others)
@@ -526,10 +527,10 @@ class ActivityRepository extends EntityRepository
             ->leftJoin('p.votes', 'pv', Query\Expr\Join::WITH, 'pv.user = :user')
             ->leftJoin('up.subscribers', 'ps', Query\Expr\Join::WITH, 'ps = :user')
             ->leftJoin('p.subscribers', 'pos', Query\Expr\Join::WITH, 'pos = :user')
+            ->leftJoin('q.subscribers', 'qs', Query\Expr\Join::WITH, 'qs = :user')
             ->orderBy('zone', 'ASC') // order by priority zone
             ->addOrderBy('is_followed', 'ASC') // order by followed user
-            ->addOrderBy('act.sentAt', 'DESC')
-            ->groupBy('act.id');
+            ->addOrderBy('act.sentAt', 'DESC');
         if ($start) {
             $qb->where('act.sentAt > :start')
                 ->setParameter('start', $start->format('Y-m-d H:i:s'));

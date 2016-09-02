@@ -247,6 +247,9 @@ abstract class Activity implements HtmlBodyInterface
      * @var Question
      * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\Poll\Question")
      * @ORM\JoinColumn(name="question_id", referencedColumnName="id", onDelete="CASCADE")
+     * @Serializer\Expose()
+     * @Serializer\Groups({"activity-list"})
+     * @Serializer\SerializedName("poll")
      */
     private $question;
 
@@ -256,6 +259,7 @@ abstract class Activity implements HtmlBodyInterface
      * @ORM\JoinColumn(onDelete="CASCADE")
      * @Serializer\Expose()
      * @Serializer\Groups({"activity-list"})
+     * @Serializer\SerializedName("user_petition")
      */
     protected $petition;
 

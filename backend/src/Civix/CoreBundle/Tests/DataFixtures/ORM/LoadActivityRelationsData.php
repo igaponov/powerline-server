@@ -3,8 +3,10 @@
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
 use Civix\CoreBundle\Entity\Activity;
+use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\UserPetition;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -30,11 +32,25 @@ class LoadActivityRelationsData extends AbstractFixture implements DependentFixt
         $postActivity->setPost($post);
         $manager->persist($postActivity);
 
+        /** @var Activity $pollActivity */
+        $pollActivity = $this->getReference('activity_question');
+        /** @var Question $poll */
+        $poll = $this->getReference('group_question_3');
+        $pollActivity->setQuestion($poll);
+        $manager->persist($pollActivity);
+
+        /** @var Activity $pollActivity */
+        $pollActivity = $this->getReference('activity_petition');
+        /** @var Question $poll */
+        $poll = $this->getReference('group_question_2');
+        $pollActivity->setQuestion($poll);
+        $manager->persist($pollActivity);
+
         $manager->flush();
     }
 
     public function getDependencies()
     {
-        return [LoadActivityData::class, LoadUserPetitionData::class, LoadPostData::class];
+        return [LoadActivityData::class, LoadUserPetitionData::class, LoadPostData::class, LoadGroupQuestionData::class];
     }
 }
