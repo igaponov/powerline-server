@@ -7,6 +7,7 @@ use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityRelationsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPollSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
@@ -53,12 +54,13 @@ class ActivityControllerTest extends WebTestCase
 
 	public function testGetActivitiesIsOk()
 	{
-        $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserFollowerData::class,
             LoadActivityRelationsData::class,
             LoadUserPetitionSubscriberData::class,
             LoadPostSubscriberData::class,
-        ]);
+            LoadPollSubscriberData::class,
+        ])->getReferenceRepository();
 		$client = $this->client;
 		$client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
 		$response = $client->getResponse();
@@ -68,31 +70,28 @@ class ActivityControllerTest extends WebTestCase
 		$this->assertSame(20, $data['items']);
 		$this->assertSame(8, $data['totalItems']);
 		$this->assertCount(8, $data['payload']);
-		$current = reset($data['payload']);
-        $entityCount = 0;
-		while ($next = next($data['payload'])) {
-		    if ($current['entity']['type'] == 'user-petition') {
-		        $entityCount++;
-		        $this->assertTrue($current['petition']['is_subscribed']);
+        foreach ($data['payload'] as $item) {
+            if ($item['entity']['type'] == 'user-petition') {
+                $this->assertTrue($item['user_petition']['is_subscribed']);
+            } elseif ($item['entity']['type'] == 'post') {
+                $this->assertTrue($item['post']['is_subscribed']);
+            } elseif ($item['entity']['type'] == 'question') {
+                $this->assertTrue($item['poll']['is_subscribed']);
+            } elseif ($item['entity']['type'] == 'petition') {
+                $this->assertFalse($item['poll']['is_subscribed']);
             }
-		    if ($current['entity']['type'] == 'post') {
-                $entityCount++;
-		        $this->assertTrue($current['post']['is_subscribed']);
+            if ($item['entity']['type'] == 'micro-petition') {
+                $this->assertArrayHasKey('comments_count', $item);
+                $this->assertArrayHasKey('answers', $item);
+                $this->assertInternalType('array', $item['answers']);
             }
-		    if ($next['entity']['type'] == 'micro-petition') {
-                $this->assertArrayHasKey('comments_count', $next);
-                $this->assertArrayHasKey('answers', $next);
-                $this->assertInternalType('array', $next['answers']);
-            }
-            if ($next['expire_at'] && strtotime($next['expire_at']) < time()) {
-                $this->assertSame('expired', $next['zone']);
+            if ($item['expire_at'] && strtotime($item['expire_at']) < time()) {
+                $this->assertSame('expired', $item['zone']);
             } else {
-                $this->assertSame('prioritized', $next['zone']);
+                $this->assertSame('prioritized', $item['zone']);
             }
-            $this->assertArrayHasKey('description_html', $next);
-			$current = $next;
-		}
-		$this->assertEquals(2, $entityCount);
+            $this->assertArrayHasKey('description_html', $item);
+        }
 	}
 
 	public function testGetActivitiesIsEmpty()

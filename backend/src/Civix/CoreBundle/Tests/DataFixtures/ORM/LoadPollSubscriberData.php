@@ -25,6 +25,12 @@ class LoadPollSubscriberData extends AbstractFixture implements DependentFixture
         $user = $this->getReference('user_4');
         $user->addPollSubscription($poll);
 
+        /** @var Question $poll */
+        $poll = $this->getReference('group_question_2');
+        /** @var User $user */
+        $user = $this->getReference('user_2');
+        $user->addPollSubscription($poll);
+
         $manager->persist($poll);
         $manager->flush();
     }
