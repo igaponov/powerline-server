@@ -1,30 +1,15 @@
 <?php
 namespace Civix\ApiBundle\Security\Authorization\Voter;
 
-use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\UserGroup;
+use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\UserInterface;
-use Civix\CoreBundle\Entity\UserPetition;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class PetitionVoter implements VoterInterface
+class CommentVoter implements VoterInterface
 {
-    const VIEW = 'view';
     const EDIT = 'edit';
     const DELETE = 'delete';
-    const SUBSCRIBE = 'subscribe';
-    const SIGN = 'sign';
-    /**
-     * @var GroupVoter
-     */
-    private $groupVoter;
-
-    public function __construct(GroupVoter $groupVoter)
-    {
-        $this->groupVoter = $groupVoter;
-    }
 
     /**
      * Checks if the voter supports the given attribute.
@@ -36,11 +21,8 @@ class PetitionVoter implements VoterInterface
     public function supportsAttribute($attribute)
     {
         return in_array($attribute, array(
-            self::VIEW,
             self::EDIT,
             self::DELETE,
-            self::SUBSCRIBE,
-            self::SIGN,
         ));
     }
 
@@ -53,7 +35,7 @@ class PetitionVoter implements VoterInterface
      */
     public function supportsClass($class)
     {
-        $supportedClass = UserPetition::class;
+        $supportedClass = BaseComment::class;
         return $supportedClass === $class || is_subclass_of($class, $supportedClass);
     }
 
@@ -64,7 +46,7 @@ class PetitionVoter implements VoterInterface
      * ACCESS_GRANTED, ACCESS_DENIED, or ACCESS_ABSTAIN.
      *
      * @param TokenInterface $token A TokenInterface instance
-     * @param UserPetition $object
+     * @param BaseComment $object
      * @param array $attributes An array of attributes associated with the method being invoked
      *
      * @return int Either ACCESS_GRANTED, ACCESS_ABSTAIN, or ACCESS_DENIED
@@ -88,7 +70,7 @@ class PetitionVoter implements VoterInterface
         // set the attribute to check against
         $attribute = $attributes[0];
 
-        /** @var User $user */
+        /** @var UserInterface $user */
         $user = $token->getUser(); // get current logged in user
 
         // check if the given attribute is covered by this voter
@@ -106,29 +88,7 @@ class PetitionVoter implements VoterInterface
             return VoterInterface::ACCESS_DENIED;
         }
 
-        if ($attribute === self::SIGN) {
-            return $object->getUser()->isEqualTo($user) ? VoterInterface::ACCESS_DENIED : VoterInterface::ACCESS_GRANTED;
-        }
-
-        if ($attribute === self::SUBSCRIBE) {
-            $group = $object->getGroup();
-            $func = function($i, UserGroup $userGroup) use($group) {
-                return $userGroup->getStatus() == UserGroup::STATUS_ACTIVE
-                    && $group->getId() == $userGroup->getGroup()->getId();
-            };
-            if ($user->getUserGroups()->exists($func)) {
-                return VoterInterface::ACCESS_GRANTED;
-            }
-        }
-
-        if ($attribute === self::VIEW) {
-            $group = $object->getGroup();
-            if ($group instanceof Group) {
-                return $this->groupVoter->vote($token, $group, [GroupVoter::MEMBER]);
-            }
-        }
-
-        if ($attribute !== self::SUBSCRIBE && $object->getUser()->isEqualTo($user)) {
+        if ($object->getUser()->isEqualTo($user)) {
             return VoterInterface::ACCESS_GRANTED;
         }
 

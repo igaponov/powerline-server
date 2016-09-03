@@ -92,7 +92,7 @@ class MicropetitionController extends BaseController
             //publish to activity (for followers only)
             $this->get('civix_core.activity_update')->publishMicroPetitionToActivity($newPetition);
             $this->get('civix_core.social_activity_manager')->noticeMicropetitionCreated($newPetition);
-            $this->get('civix_core.poll.comment_manager')->addMicropetitionRootComment($newPetition);
+            $this->get('civix_core.comment_manager')->addMicropetitionRootComment($newPetition);
 
             $response->setContent($this->jmsSerialization($newPetition, array('api-petitions-info')));
 

@@ -46,15 +46,19 @@ class PetitionController extends BaseController
     }
 
     /**
+     * Deprecated, use `GET /api/v2/polls/{id}/comments` instead
+     *
      * @Route("/{id}/comments", requirements={"id"="\d+"}, name="api_public_petition_comments")
      * @Method("GET")
+     *
      * @ApiDoc(
-     *     resource=true,
+     *     section="Polls",
      *     description="Petition",
      *     statusCodes={
      *         200="Returns petition's comments",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      */
     public function getPetitionComments(Petition $petition)

@@ -350,7 +350,7 @@ class PollController extends BaseController
             $this->get('civix_core.activity_update')->updateResponsesQuestion($question);
 
             $this->get('civix_core.poll.answer_manager')->setVisibleAnswersForRecipent($answer);
-            $this->get('civix_core.poll.comment_manager')->addCommentByQuestionAnswer($answer);
+            $this->get('civix_core.comment_manager')->addCommentByQuestionAnswer($answer);
             $this->get('civix_core.social_activity_manager')->noticeAnsweredToQuestion($answer);
 
             $response->setContent($this->jmsSerialization($answer, array('api-answers-list')));
@@ -388,7 +388,7 @@ class PollController extends BaseController
             throw new BadRequestHttpException('You can\'t rate your comment');
         }
 
-        $comment = $this->get('civix_core.poll.comment_manager')
+        $comment = $this->get('civix_core.comment_manager')
                 ->updateRateToComment($comment, $user, constant($rateActionConstant));
 
         if ($comment instanceof \Civix\CoreBundle\Entity\Poll\Comment &&

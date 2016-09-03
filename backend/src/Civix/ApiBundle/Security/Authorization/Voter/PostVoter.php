@@ -1,6 +1,7 @@
 <?php
 namespace Civix\ApiBundle\Security\Authorization\Voter;
 
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
@@ -10,9 +11,19 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class PostVoter implements VoterInterface
 {
+    const VIEW = 'view';
     const EDIT = 'edit';
     const DELETE = 'delete';
     const SUBSCRIBE = 'subscribe';
+    /**
+     * @var GroupVoter
+     */
+    private $groupVoter;
+
+    public function __construct(GroupVoter $groupVoter)
+    {
+        $this->groupVoter = $groupVoter;
+    }
 
     /**
      * Checks if the voter supports the given attribute.
@@ -24,6 +35,7 @@ class PostVoter implements VoterInterface
     public function supportsAttribute($attribute)
     {
         return in_array($attribute, array(
+            self::VIEW,
             self::EDIT,
             self::DELETE,
             self::SUBSCRIBE,
@@ -100,6 +112,13 @@ class PostVoter implements VoterInterface
             };
             if ($user->getUserGroups()->exists($func)) {
                 return VoterInterface::ACCESS_GRANTED;
+            }
+        }
+
+        if ($attribute === self::VIEW) {
+            $group = $object->getGroup();
+            if ($group instanceof Group) {
+                return $this->groupVoter->vote($token, $group, [GroupVoter::MEMBER]);
             }
         }
 

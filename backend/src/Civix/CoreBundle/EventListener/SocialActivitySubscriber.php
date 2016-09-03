@@ -1,6 +1,9 @@
 <?php
 namespace Civix\CoreBundle\EventListener;
 
+use Civix\CoreBundle\Entity\Poll;
+use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Event;
 use Civix\CoreBundle\Service\SocialActivityManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -24,6 +27,10 @@ class SocialActivitySubscriber implements EventSubscriberInterface
             Event\GroupEvents::PERMISSIONS_CHANGED => 'noticeGroupsPermissionsChanged',
             Event\UserPetitionEvents::PETITION_CREATE => 'noticeUserPetitionCreated',
             Event\PostEvents::POST_CREATE => 'noticePostCreated',
+            Event\CommentEvents::CREATE => [
+                ['noticeEntityCommented'],
+                ['noticeCommentMentioned'],
+            ]
         ];
     }
 
@@ -45,5 +52,23 @@ class SocialActivitySubscriber implements EventSubscriberInterface
     public function noticePostCreated(Event\PostEvent $event)
     {
         $this->manager->noticePostCreated($event->getPost());
+    }
+
+    public function noticeEntityCommented(Event\CommentEvent $event)
+    {
+        $comment = $event->getComment();
+        if ($comment instanceof Poll\Comment) {
+            $this->manager->noticePollCommented($comment);
+        } elseif ($comment instanceof UserPetition\Comment) {
+            $this->manager->noticeUserPetitionCommented($comment);
+        } elseif ($comment instanceof Post\Comment) {
+            $this->manager->noticePostCommented($comment);
+        }
+    }
+
+    public function noticeCommentMentioned(Event\CommentEvent $event)
+    {
+        $comment = $event->getComment();
+        $this->manager->noticeCommentMentioned($comment);
     }
 }

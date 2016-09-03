@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\CoreBundle\Entity\UserPetition\Comment;
 use Civix\CoreBundle\Entity\UserPetition\Signature;
 use Civix\CoreBundle\Serializer\Type\Image;
 use Civix\CoreBundle\Service\Micropetitions\PetitionManager;
@@ -25,7 +26,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * })
  * @Serializer\ExclusionPolicy("all")
  */
-class UserPetition implements HtmlBodyInterface, SubscriptionInterface
+class UserPetition implements HtmlBodyInterface, SubscriptionInterface, CommentedInterface
 {
     use HashTaggableTrait, MetadataTrait;
 
@@ -431,6 +432,35 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface
         return new Image($entity, 'avatar');
     }
 
+    /**
+     * Add comment
+     *
+     * @param BaseComment|Comment $comment
+     * @return $this
+     */
+    public function addComment(BaseComment $comment)
+    {
+        $this->comments[] = $comment;
+        $comment->setPetition($this);
+
+        return $this;
+    }
+
+    /**
+     * Remove comment
+     *
+     * @param BaseComment $comment
+     */
+    public function removeComment(BaseComment $comment)
+    {
+        $this->comments->removeElement($comment);
+    }
+
+    /**
+     * Get comments
+     *
+     * @return Collection|Comment[]
+     */
     public function getComments()
     {
         return $this->comments;

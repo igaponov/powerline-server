@@ -7,8 +7,8 @@ use Civix\CoreBundle\Event\PostEvent;
 use Civix\CoreBundle\Event\PostEvents;
 use Civix\CoreBundle\Event\UserPetitionEvent;
 use Civix\CoreBundle\Event\UserPetitionEvents;
+use Civix\CoreBundle\Service\CommentManager;
 use Civix\CoreBundle\Service\Micropetitions\PetitionManager;
-use Civix\CoreBundle\Service\Poll\CommentManager;
 use Civix\CoreBundle\Service\Settings;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -28,19 +28,20 @@ class LeaderContentSubscriber implements EventSubscriberInterface
      */
     private $petitionManager;
     /**
-     * @var CommentManager
+     * @var \Civix\CoreBundle\Service\CommentManager
      */
     private $commentManager;
 
     public static function getSubscribedEvents()
     {
         return [
+            // petition
             UserPetitionEvents::PETITION_CREATE => [
                 ['addPetitionHashTags'],
                 ['addPetitionRootComment'],
             ],
             UserPetitionEvents::PETITION_UPDATE => 'addPetitionHashTags',
-
+            // post
             PostEvents::POST_PRE_CREATE => 'setPostExpire',
             PostEvents::POST_CREATE => [
                 ['addPostHashTags'],
@@ -48,11 +49,11 @@ class LeaderContentSubscriber implements EventSubscriberInterface
                 ['subscribePostAuthor'],
             ],
             PostEvents::POST_UPDATE => 'addPostHashTags',
-
+            // poll
             PollEvents::QUESTION_PUBLISHED => [
                 ['addQuestionHashTags'],
                 ['setQuestionExpire'],
-            ]
+            ],
         ];
     }
 

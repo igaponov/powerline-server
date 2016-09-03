@@ -75,10 +75,12 @@
         </service>
 
         <service class="Civix\ApiBundle\Security\Authorization\Voter\PetitionVoter" id="civix_api.security_authorization_voter.petition_voter">
+            <argument id="civix_api.security_authorization_voter.group_voter" type="service"/>
             <tag name="security.voter"/>
         </service>
 
         <service class="Civix\ApiBundle\Security\Authorization\Voter\PostVoter" id="civix_api.security_authorization_voter.post_voter">
+            <argument id="civix_api.security_authorization_voter.group_voter" type="service"/>
             <tag name="security.voter"/>
         </service>
 
@@ -88,6 +90,10 @@
 
         <service class="Civix\ApiBundle\Security\Authorization\Voter\GroupFieldVoter" id="tough_domains_security.group_field_voter">
             <argument id="civix_api.security_authorization_voter.group_voter" type="service"/>
+            <tag name="security.voter"/>
+        </service>
+
+        <service class="Civix\ApiBundle\Security\Authorization\Voter\CommentVoter" id="civix_api.security_authorization_voter.comment_voter">
             <tag name="security.voter"/>
         </service>
 
@@ -112,7 +118,7 @@
             <argument id="doctrine.orm.entity_manager" type="service"/>
             <argument id="civix_core.settings" type="service"/>
             <argument id="civix_core.poll.micropetition_manager" type="service"/>
-            <argument id="civix_core.poll.comment_manager" type="service"/>
+            <argument id="civix_core.comment_manager" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

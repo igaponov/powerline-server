@@ -2,30 +2,29 @@
 
 namespace Civix\CoreBundle\Service;
 
-use Civix\CoreBundle\Entity\Post;
-use Civix\CoreBundle\Entity\UserInterface;
-use Civix\CoreBundle\Entity\SocialActivity;
-use Civix\CoreBundle\Entity\UserPetition;
-use Civix\CoreBundle\Model\Group\GroupSectionInterface;
-use Civix\CoreBundle\Entity\Poll\Question;
-use Civix\CoreBundle\Entity\Poll\Comment;
-use Civix\CoreBundle\Entity\Poll\Question\Petition;
-use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
-use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
-use Civix\CoreBundle\Entity\Poll\Question\LeaderEvent;
-use Civix\CoreBundle\Entity\Poll\EducationalContext;
-use Civix\CoreBundle\Entity\Activities\Question as ActivityQuestion;
-use Civix\CoreBundle\Entity\Activities\UserPetition as ActivityUserPetition;
-use Civix\CoreBundle\Entity\Activities\Petition as ActivityPetition;
-use Civix\CoreBundle\Entity\Activities\LeaderNews as ActivityLeaderNews;
-use Civix\CoreBundle\Entity\Activities\LeaderEvent as ActivityLeaderEvent;
-use Civix\CoreBundle\Entity\Activities\PaymentRequest as ActivityPaymentRequest;
 use Civix\CoreBundle\Entity\Activities\CrowdfundingPaymentRequest as ActivityCrowdfundingPaymentRequest;
+use Civix\CoreBundle\Entity\Activities\LeaderEvent as ActivityLeaderEvent;
+use Civix\CoreBundle\Entity\Activities\LeaderNews as ActivityLeaderNews;
+use Civix\CoreBundle\Entity\Activities\PaymentRequest as ActivityPaymentRequest;
+use Civix\CoreBundle\Entity\Activities\Petition as ActivityPetition;
 use Civix\CoreBundle\Entity\Activities\Post as ActivityPost;
+use Civix\CoreBundle\Entity\Activities\UserPetition as ActivityUserPetition;
 use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\ActivityCondition;
 use Civix\CoreBundle\Entity\GroupSection;
+use Civix\CoreBundle\Entity\Poll\Comment;
+use Civix\CoreBundle\Entity\Poll\EducationalContext;
+use Civix\CoreBundle\Entity\Poll\Question;
+use Civix\CoreBundle\Entity\Poll\Question\LeaderEvent;
+use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
+use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
+use Civix\CoreBundle\Entity\Poll\Question\Petition;
+use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserInterface;
+use Civix\CoreBundle\Entity\UserPetition;
+use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Validator\ValidatorInterface;
@@ -45,7 +44,7 @@ class ActivityUpdate
      */
     private $settings;
     /**
-     * @var Poll\CommentManager
+     * @var \Civix\CoreBundle\Service\CommentManager
      */
     private $cm;
 
@@ -53,7 +52,7 @@ class ActivityUpdate
         EntityManager $entityManager,
         ValidatorInterface $validator,
         Settings $settings,
-        Poll\CommentManager $cm
+        \Civix\CoreBundle\Service\CommentManager $cm
     )
     {
         $this->entityManager = $entityManager;

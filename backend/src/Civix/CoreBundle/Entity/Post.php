@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\CoreBundle\Entity\Post\Comment;
 use Civix\CoreBundle\Entity\Post\Vote;
 use Civix\CoreBundle\Serializer\Type\Image;
 use Civix\CoreBundle\Service\Micropetitions\PetitionManager;
@@ -22,7 +23,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * })
  * @Serializer\ExclusionPolicy("all")
  */
-class Post implements HtmlBodyInterface, SubscriptionInterface
+class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterface
 {
     use HashTaggableTrait, MetadataTrait;
 
@@ -381,6 +382,36 @@ class Post implements HtmlBodyInterface, SubscriptionInterface
         return new Image($entity, 'avatar');
     }
 
+
+    /**
+     * Add comment
+     *
+     * @param BaseComment|Comment $comment
+     * @return $this
+     */
+    public function addComment(BaseComment $comment)
+    {
+        $this->comments[] = $comment;
+        $comment->setPost($this);
+
+        return $this;
+    }
+
+    /**
+     * Remove comment
+     *
+     * @param BaseComment $comment
+     */
+    public function removeComment(BaseComment $comment)
+    {
+        $this->comments->removeElement($comment);
+    }
+
+    /**
+     * Get comments
+     *
+     * @return Collection|Comment[]
+     */
     public function getComments()
     {
         return $this->comments;
