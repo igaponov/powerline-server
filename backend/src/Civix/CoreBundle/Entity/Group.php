@@ -402,7 +402,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
 
     /**
      * @ORM\ManyToOne(targetEntity="District")
-     * @ORM\JoinColumn(name="local_district", referencedColumnName="id")
+     * @ORM\JoinColumn(name="local_district", referencedColumnName="id", onDelete="SET NULL")
      */
     private $localDistrict;
 
