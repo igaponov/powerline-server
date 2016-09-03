@@ -71,7 +71,7 @@ class PollControllerTest extends WebTestCase
 		$container->set('request', $request, 'request');
 		
 		$question = new GroupQuestion();
-		$question->setUser($this->group);
+		$question->setOwner($this->group);
 
 		/*
 		 {"options":[],"educational_context":[],"is_answered":false,"cached_hash_tags":[],"user":{"id":370,"type":"group","group_type":0,"avatar_file_path":"http:\/\/localhost\/bundles\/civixfront\/img\/default_group.png"}}

@@ -169,7 +169,7 @@ abstract class PaymentRequestController extends Controller
     public function editAction(Request $request, $id)
     {
         $paymentRequest = $this->getPaymentRequest($id);
-        if ($paymentRequest->getUser() !== $this->getUser() || $paymentRequest->getPublishedAt()) {
+        if ($paymentRequest->getOwner() !== $this->getUser() || $paymentRequest->getPublishedAt()) {
             throw $this->createNotFoundException();
         }
         $formClass = $this->getPaymentRequestFormClass();
@@ -224,7 +224,7 @@ abstract class PaymentRequestController extends Controller
     public function publishAction(Request $request, $id)
     {
         $paymentRequest = $this->getPaymentRequest($id);
-        if ($paymentRequest->getUser() !== $this->getUser() || $paymentRequest->getPublishedAt() ||
+        if ($paymentRequest->getOwner() !== $this->getUser() || $paymentRequest->getPublishedAt() ||
             $request->get('token') !== $this->getToken()) {
             throw new AccessDeniedHttpException();
         }
@@ -250,7 +250,7 @@ abstract class PaymentRequestController extends Controller
     {
         $paymentRequest = $this->getPaymentRequest($id);
         $package = $this->get('civix_core.subscription_manager')->getPackage($this->getUser());
-        if ($paymentRequest->getUser() !== $this->getUser() || $paymentRequest->getPublishedAt()
+        if ($paymentRequest->getOwner() !== $this->getUser() || $paymentRequest->getPublishedAt()
             || !$package->isTargetedPetitionFundraisingAvailable()) {
             throw new AccessDeniedHttpException();
         }
@@ -313,7 +313,7 @@ abstract class PaymentRequestController extends Controller
     public function deleteAction(Request $request, $id)
     {
         $paymentRequest = $this->getPaymentRequest($id);
-        if ($paymentRequest->getUser() !== $this->getUser() || $paymentRequest->getPublishedAt() ||
+        if ($paymentRequest->getOwner() !== $this->getUser() || $paymentRequest->getPublishedAt() ||
             $request->get('token') !== $this->getToken()) {
             throw new AccessDeniedHttpException();
         }
@@ -333,7 +333,7 @@ abstract class PaymentRequestController extends Controller
     public function fundsAction(Request $request, $id)
     {
         $paymentRequest = $this->getPaymentRequest($id);
-        if ($paymentRequest->getUser() !== $this->getUser()) {
+        if ($paymentRequest->getOwner() !== $this->getUser()) {
             throw new AccessDeniedHttpException();
         }
 

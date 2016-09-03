@@ -210,7 +210,7 @@ class EmailSender
     {
         $message = $this->createMessage(
             'Powerline Payout: '.$history->getPublicId(),
-            $paymentRequest->getUser()->getEmail(),
+            $paymentRequest->getOwner()->getEmail(),
             'CivixCoreBundle:Email:payment_request_payout.html.twig',
             compact('history', 'paymentRequest', 'marketplaceAmount', 'customerAmount')
         );

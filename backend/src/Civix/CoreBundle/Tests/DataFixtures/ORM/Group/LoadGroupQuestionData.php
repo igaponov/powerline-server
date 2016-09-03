@@ -20,7 +20,8 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
         $group3 = $this->getReference('group_3');
 
         $question = new GroupQuestion();
-        $question->setUser($group1);
+        $question->setOwner($group1);
+        $question->setUser($group1->getOwner());
         $question->setSubject('subj with #test-tag '.$faker->sentence);
         $question->setExpireAt(new \DateTime('+1 day'));
         for ($i = 0; $i < 2; $i++) {
@@ -33,7 +34,8 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
 
         // expired
         $question = new GroupQuestion();
-        $question->setUser($group2);
+        $question->setOwner($group2);
+        $question->setUser($group2->getOwner());
         $question->setSubject('subj '.$faker->sentence);
         $question->setExpireAt(new \DateTime('-1 day'));
         for ($i = 0; $i < 2; $i++) {
@@ -46,7 +48,8 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
 
         // 3 options
         $question = new GroupQuestion();
-        $question->setUser($group3);
+        $question->setOwner($group3);
+        $question->setUser($group3->getOwner());
         $question->setSubject('subj '.$faker->sentence);
         $question->setExpireAt(new \DateTime('+1 week'));
         for ($i = 0; $i < 3; $i++) {
@@ -59,7 +62,8 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
 
         // published
         $question = new GroupQuestion();
-        $question->setUser($group3);
+        $question->setOwner($group3);
+        $question->setUser($group3->getOwner());
         $question->setSubject('subj '.$faker->sentence);
         $question->setExpireAt(new \DateTime('+1 month'));
         $question->setPublishedAt(new \DateTime('-1 day'));

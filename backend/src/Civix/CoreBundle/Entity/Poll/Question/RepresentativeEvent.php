@@ -3,7 +3,6 @@
 namespace Civix\CoreBundle\Entity\Poll\Question;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\JoinColumn;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
@@ -14,14 +13,6 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class RepresentativeEvent extends LeaderEvent
 {
-    /**
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Representative")
-     * @JoinColumn(name="representative_id", onDelete="CASCADE")
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
-     */
-    private $user;
-
     public function getType()
     {
         return 'representative_event';
@@ -30,13 +21,13 @@ class RepresentativeEvent extends LeaderEvent
     /**
      * Set user.
      *
-     * @param \Civix\CoreBundle\Entity\Representative $user
+     * @param \Civix\CoreBundle\Entity\Representative $representative
      *
-     * @return Representative
+     * @return RepresentativeEvent
      */
-    public function setUser(\Civix\CoreBundle\Entity\Representative $user = null)
+    public function setOwner(\Civix\CoreBundle\Entity\Representative $representative)
     {
-        $this->user = $user;
+        $this->representative = $representative;
 
         return $this;
     }
@@ -46,8 +37,8 @@ class RepresentativeEvent extends LeaderEvent
      *
      * @return \Civix\CoreBundle\Entity\Representative
      */
-    public function getUser()
+    public function getOwner()
     {
-        return $this->user;
+        return $this->representative;
     }
 }

@@ -106,7 +106,7 @@ class BookmarkControllerTest extends WebTestCase
      */
     public function testIndexAction()
     {
-        $client = static::createClient();
+        $client = $this->makeClient();
         $client->setServerParameter("HTTP_Token", $this->userToken);
 
         $client->request('GET', '/api/bookmarks/list');

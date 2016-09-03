@@ -112,8 +112,10 @@ class PollController extends FOSRestController
 
         $form->submit($request);
         if ($form->isValid()) {
+            /** @var Question $question */
             $question = $form->getData();
-            $question->setUser($group);
+            $question->setUser($this->getUser());
+            $question->setOwner($group);
 
             $em = $this->getDoctrine()->getManager();
             $em->persist($question);

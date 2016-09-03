@@ -89,7 +89,7 @@ class SocialActivityManager
     public function noticeAnsweredToQuestion(Answer $answer)
     {
         $question = $answer->getQuestion();
-        if (!$question->getUser() instanceof Group) {
+        if (!$question->getOwner() instanceof Group) {
             return;
         }
         $target = [
@@ -100,7 +100,7 @@ class SocialActivityManager
         $target['preview'] = $this->getPreviewByPoll($question);
 
         $socialActivity = (new SocialActivity(SocialActivity::TYPE_ANSWERED, $answer->getUser(),
-            $answer->getQuestion()->getUser()))
+            $answer->getQuestion()->getOwner()))
             ->setTarget($target)
         ;
         $this->em->persist($socialActivity);
@@ -112,7 +112,7 @@ class SocialActivityManager
     public function noticePollCommented(Poll\Comment $comment)
     {
         $question = $comment->getQuestion();
-        if (!$question->getUser() instanceof Group) {
+        if (!$question->getOwner() instanceof Group) {
             return;
         }
         $target = [
@@ -123,7 +123,7 @@ class SocialActivityManager
         $target['preview'] = $this->preparePreview($comment->getCommentBody());
 
         $socialActivity1 = (new SocialActivity(SocialActivity::TYPE_FOLLOW_POLL_COMMENTED, $comment->getUser(),
-            $comment->getQuestion()->getUser()))
+            $comment->getQuestion()->getOwner()))
             ->setTarget($target)
         ;
         if ($comment->getParentComment()) {
@@ -135,7 +135,7 @@ class SocialActivityManager
         if ($comment->getParentComment()
             && $comment->getUser() !== $comment->getParentComment()->getUser()) {
             $socialActivity2 = (new SocialActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser(),
-                $comment->getQuestion()->getUser()))
+                $comment->getQuestion()->getOwner()))
                 ->setTarget($target)
                 ->setRecipient($comment->getParentComment()->getUser())
             ;
@@ -272,7 +272,7 @@ class SocialActivityManager
             ];
         } elseif ($comment instanceof Poll\Comment) {
             $question = $comment->getQuestion();
-            $group = $question->getUser();
+            $group = $question->getOwner();
             $target = [
                 'id' => $question->getId(),
                 'preview' => $this->preparePreview($comment->getCommentBody()),

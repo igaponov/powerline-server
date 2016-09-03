@@ -125,7 +125,7 @@ abstract class PetitionController extends Controller
      */
     public function editAction(Request $request, Petition $petition)
     {
-        if ($petition->getUser() !== $this->getUser() || $petition->getPublishedAt()) {
+        if ($petition->getOwner() !== $this->getUser() || $petition->getPublishedAt()) {
             throw $this->createNotFoundException();
         }
 
@@ -177,7 +177,7 @@ abstract class PetitionController extends Controller
      */
     public function publishAction(Request $request, Petition $petition)
     {
-        if ($petition->getUser() !== $this->getUser() || $petition->getPublishedAt() ||
+        if ($petition->getOwner() !== $this->getUser() || $petition->getPublishedAt() ||
             $request->get('token') !== $this->getToken()) {
             throw new AccessDeniedHttpException();
         }
@@ -206,7 +206,7 @@ abstract class PetitionController extends Controller
      */
     public function deleteAction(Request $request, Petition $petition)
     {
-        if ($petition->getUser() !== $this->getUser() || $petition->getPublishedAt() ||
+        if ($petition->getOwner() !== $this->getUser() || $petition->getPublishedAt() ||
             $request->get('token') !== $this->getToken()) {
             throw new AccessDeniedHttpException();
         }

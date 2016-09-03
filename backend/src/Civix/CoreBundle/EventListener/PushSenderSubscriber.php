@@ -72,19 +72,19 @@ class PushSenderSubscriber implements EventSubscriberInterface
         } elseif ($entity instanceof Question\PaymentRequest) {
             $params = [
                 $entity->getId(),
-                "{$entity->getUser()->getOfficialName()} Fundraiser",
+                "{$entity->getOwner()->getOfficialName()} Fundraiser",
                 $entity->getTitle()
             ];
         } elseif ($entity instanceof Question\LeaderEvent) {
             $params = [
                 $entity->getId(),
-                "{$entity->getUser()->getOfficialName()} Event",
+                "{$entity->getOwner()->getOfficialName()} Event",
                 "RSVP: {$entity->getTitle()}"
             ];
         } else {
             $params = [
                 $entity->getId(),
-                "{$entity->getUser()->getOfficialName()} Poll",
+                "{$entity->getOwner()->getOfficialName()} Poll",
                 $entity->getSubject()
             ];
         }

@@ -109,7 +109,7 @@ class PollController extends FOSRestController
      */
     public function putAction(Request $request, Question $question)
     {
-        $form = $this->createForm(new QuestionType($question->getUser()), $question, ['validation_groups' => 'update']);
+        $form = $this->createForm(new QuestionType($question->getOwner()), $question, ['validation_groups' => 'update']);
 
         $form->submit($request, false);
         if ($form->isValid()) {

@@ -71,6 +71,7 @@ class ActivityControllerTest extends WebTestCase
 		$this->assertSame(8, $data['totalItems']);
 		$this->assertCount(8, $data['payload']);
         foreach ($data['payload'] as $item) {
+            $this->assertNotEmpty($item['user']);
             if ($item['entity']['type'] == 'user-petition') {
                 $this->assertTrue($item['user_petition']['is_subscribed']);
             } elseif ($item['entity']['type'] == 'post') {

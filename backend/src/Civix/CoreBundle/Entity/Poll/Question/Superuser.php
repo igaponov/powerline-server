@@ -3,7 +3,6 @@
 namespace Civix\CoreBundle\Entity\Poll\Question;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\JoinColumn;
 use Civix\CoreBundle\Entity\Poll\Question;
 use JMS\Serializer\Annotation as Serializer;
 
@@ -15,14 +14,6 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class Superuser extends Question
 {
-    /**
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Superuser")
-     * @JoinColumn(name="superuser_id", onDelete="CASCADE")
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll", "api-leader-poll"})
-     */
-    private $user;
-
     public function getType()
     {
         return 'superuser_question';
@@ -31,13 +22,13 @@ class Superuser extends Question
     /**
      * Set user.
      *
-     * @param \Civix\CoreBundle\Entity\Superuser $user
+     * @param \Civix\CoreBundle\Entity\Superuser $superuser
      *
      * @return Superuser
      */
-    public function setUser(\Civix\CoreBundle\Entity\Superuser $user = null)
+    public function setOwner(\Civix\CoreBundle\Entity\Superuser $superuser)
     {
-        $this->user = $user;
+        $this->superuser = $superuser;
 
         return $this;
     }
@@ -47,8 +38,8 @@ class Superuser extends Question
      *
      * @return \Civix\CoreBundle\Entity\Superuser
      */
-    public function getUser()
+    public function getOwner()
     {
-        return $this->user;
+        return $this->superuser;
     }
 }

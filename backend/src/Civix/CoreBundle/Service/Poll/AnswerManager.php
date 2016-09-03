@@ -48,7 +48,7 @@ class AnswerManager
                     //check if base has representatives with selected official title and districts
                     if ($representatives) {
                         foreach ($representatives as $recipient) {
-                            if ($question->getUser() != $recipient) {
+                            if ($question->getOwner() != $recipient) {
                                 $question->addRecipient($recipient);
                             }
                         }
@@ -67,7 +67,7 @@ class AnswerManager
             return true;
         }
 
-        $questionOwner = $question->getUser();
+        $questionOwner = $question->getOwner();
 
         if ($questionOwner instanceof Superuser) {
             return true;

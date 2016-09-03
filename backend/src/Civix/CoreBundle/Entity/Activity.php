@@ -151,6 +151,8 @@ abstract class Activity implements HtmlBodyInterface
     /**
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\User")
      * @ORM\JoinColumn(name="user_id",  referencedColumnName="id", onDelete="CASCADE")
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-activities"})
      */
     protected $user;
 

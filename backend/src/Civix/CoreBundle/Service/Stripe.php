@@ -136,8 +136,8 @@ class Stripe
             ->findOneBy(['user' => $user]);
 
         $account = $this->em
-            ->getRepository(Account::getEntityClassByUser($paymentRequest->getUser()))
-            ->findOneBy(['user' => $paymentRequest->getUser()])
+            ->getRepository(Account::getEntityClassByUser($paymentRequest->getOwner()))
+            ->findOneBy(['user' => $paymentRequest->getOwner()])
         ;
 
         $charge = new Charge($customer, $account, $paymentRequest->getId());
@@ -149,9 +149,9 @@ class Stripe
             'currency' => 'usd',
             'customer' => $customer->getStripeId(),
             'statement_descriptor' => 'PowerlinePay-'.
-                                        $this->getAppearsOnStatement($paymentRequest->getUser()),
+                                        $this->getAppearsOnStatement($paymentRequest->getOwner()),
             'destination' => $account->getStripeId(),
-            'description' => 'Powerline Payment: ('.$paymentRequest->getUser()->getOfficialName()
+            'description' => 'Powerline Payment: ('.$paymentRequest->getOwner()->getOfficialName()
                                         .') - ('.$paymentRequest->getTitle().')',
         ]);
 
