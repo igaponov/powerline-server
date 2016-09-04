@@ -161,7 +161,7 @@ abstract class QuestionController extends Controller
     {
         $questionFormClass = $this->getQuestionFormClass();
         $entityManager = $this->getDoctrine()->getManager();
-        if ($question->getUser() !== $this->getUser()) {
+        if ($question->getOwner() !== $this->getUser()) {
             throw new AccessDeniedHttpException();
         }
 
@@ -235,7 +235,7 @@ abstract class QuestionController extends Controller
         if (!$this->isCanPublishQuestion()) {
             return $this->redirect($this->generateUrl('civix_front_'.$this->getUser()->getType().'_question_index'));
         }
-        if ($question->getUser() !== $this->getUser()) {
+        if ($question->getOwner() !== $this->getUser()) {
             throw new AccessDeniedHttpException();
         }
         $flashBag = $this->get('session')->getFlashBag();
@@ -258,7 +258,7 @@ abstract class QuestionController extends Controller
     {
         $entityManager = $this->getDoctrine()->getManager();
 
-        if ($question->getUser() !== $this->getUser()) {
+        if ($question->getOwner() !== $this->getUser()) {
             throw new AccessDeniedHttpException();
         }
 

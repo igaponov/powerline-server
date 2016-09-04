@@ -41,7 +41,7 @@ class PetitionController extends Controller
     public function inviteAction(Request $request, Petition $petition)
     {
         $group = $this->getUser();
-        if ($petition->getUser() !== $group ||
+        if ($petition->getOwner() !== $group ||
             $request->get('token') !== $this->getToken()
         ) {
             throw new AccessDeniedHttpException();

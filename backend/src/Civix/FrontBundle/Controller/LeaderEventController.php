@@ -131,7 +131,7 @@ abstract class LeaderEventController extends Controller
     public function editAction(Request $request, LeaderEvent $leaderEvent)
     {
         //$leaderEvent = $this->getPaymentRequest($id);
-        if ($leaderEvent->getUser() !== $this->getUser() || $leaderEvent->getPublishedAt()) {
+        if ($leaderEvent->getOwner() !== $this->getUser() || $leaderEvent->getPublishedAt()) {
             throw $this->createNotFoundException();
         }
         $formClass = $this->getLeaderEventFormClass();
@@ -185,7 +185,7 @@ abstract class LeaderEventController extends Controller
      */
     public function deleteAction(Request $request, LeaderEvent $leaderEvent)
     {
-        if ($leaderEvent->getUser() !== $this->getUser() || $leaderEvent->getPublishedAt() ||
+        if ($leaderEvent->getOwner() !== $this->getUser() || $leaderEvent->getPublishedAt() ||
             $request->get('token') !== $this->getToken()) {
             throw new AccessDeniedHttpException();
         }
@@ -202,7 +202,7 @@ abstract class LeaderEventController extends Controller
      */
     public function publishAction(Request $request, LeaderEvent $leaderEvent)
     {
-        if ($leaderEvent->getUser() !== $this->getUser()) {
+        if ($leaderEvent->getOwner() !== $this->getUser()) {
             throw new AccessDeniedHttpException();
         }
 

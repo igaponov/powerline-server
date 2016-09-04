@@ -71,8 +71,9 @@ class ActivityUpdate
         $activity->setDescription($question->getSubject());
         $activity->setSentAt($question->getPublishedAt());
         $activity->setExpireAt($question->getExpireAt());
-        $userMethod = 'set'.ucfirst($question->getUser()->getType());
-        $activity->$userMethod($question->getUser());
+        $activity->setUser($question->getUser());
+        $userMethod = 'set'.ucfirst($question->getOwner()->getType());
+        $activity->$userMethod($question->getOwner());
         $this->setImage($activity, $question);
 
         $this->cm->addPollRootComment($question, $question->getSubject());
@@ -97,10 +98,11 @@ class ActivityUpdate
         $activity->setSentAt(new \DateTime());
         $activity->setResponsesCount($petition->getSignatures()->count());
         $activity->setIsOutsiders($petition->isOutsidersSign());
+        $activity->setUser($petition->getUser()); // set user attribute explicitly
         $activity->setGroup($petition->getGroup());
         $activity->setQuorum($petition->getQuorumCount());
         if (!$isPublic) {
-            $activity->setUser($petition->getUser());
+            $activity->setUser($petition->getUser()); // set user as owner
         }
 
         $this->entityManager->persist($activity);
@@ -123,11 +125,12 @@ class ActivityUpdate
         $activity->setDescription($post->getBody());
         $activity->setSentAt(new \DateTime());
         $activity->setResponsesCount($post->getVotes()->count());
+        $activity->setUser($post->getUser()); // set user attribute explicitly
         $activity->setGroup($post->getGroup());
         $activity->setQuorum($post->getQuorumCount());
         $activity->setExpireAt($post->getExpiredAt());
         if (!$isPublic) {
-            $activity->setUser($post->getUser());
+            $activity->setUser($post->getUser()); // set user as owner
         }
 
         $this->entityManager->persist($activity);
@@ -146,8 +149,9 @@ class ActivityUpdate
         $activity->setDescription(strip_tags($news->getSubjectParsed()));
         $activity->setSentAt($news->getPublishedAt());
         $activity->setExpireAt($news->getExpireAt());
-        $method = 'set'.ucfirst($news->getUser()->getType());
-        $activity->$method($news->getUser());
+        $activity->setUser($news->getUser());
+        $method = 'set'.ucfirst($news->getOwner()->getType());
+        $activity->$method($news->getOwner());
         $this->setImage($activity, $news);
 
         $this->cm->addPollRootComment($news, $news->getSubject());
@@ -166,10 +170,11 @@ class ActivityUpdate
             ->setTitle($petition->getPetitionTitle())
             ->setDescription($petition->getPetitionBody())
             ->setExpireAt($petition->getExpireAt())
-            ->setSentAt($petition->getPublishedAt());
+            ->setSentAt($petition->getPublishedAt())
+            ->setUser($petition->getUser());
 
-        $userMethod = 'set'.ucfirst($petition->getUser()->getType());
-        $activity->$userMethod($petition->getUser());
+        $userMethod = 'set'.ucfirst($petition->getOwner()->getType());
+        $activity->$userMethod($petition->getOwner());
         $this->setImage($activity, $petition);
 
         $this->cm->addPollRootComment($petition, $petition->getPetitionBody());
@@ -198,9 +203,10 @@ class ActivityUpdate
             ->setTitle($paymentRequest->getTitle())
             ->setDescription($paymentRequest->getSubject())
             ->setSentAt($paymentRequest->getPublishedAt())
+            ->setUser($paymentRequest->getUser())
         ;
-        $method = 'set'.ucfirst($paymentRequest->getUser()->getType());
-        $activity->$method($paymentRequest->getUser());
+        $method = 'set'.ucfirst($paymentRequest->getOwner()->getType());
+        $activity->$method($paymentRequest->getOwner());
         $this->setImage($activity, $paymentRequest);
 
         $this->cm->addPollRootComment($paymentRequest, $paymentRequest->getTitle());
@@ -230,8 +236,9 @@ class ActivityUpdate
         $activity->setDescription($event->getSubject());
         $activity->setSentAt($publishedAt);
         $activity->setExpireAt($event->getStartedAt());
-        $userMethod = 'set'.ucfirst($event->getUser()->getType());
-        $activity->$userMethod($event->getUser());
+        $activity->setUser($event->getUser());
+        $userMethod = 'set'.ucfirst($event->getOwner()->getType());
+        $activity->$userMethod($event->getOwner());
         $this->setImage($activity, $event);
 
         $this->cm->addPollRootComment($event, $event->getSubject());

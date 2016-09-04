@@ -69,7 +69,7 @@ class PollContentVoter implements VoterInterface
             return VoterInterface::ACCESS_ABSTAIN;
         }
 
-        $user = $object->getQuestion()->getUser();
+        $user = $object->getQuestion()->getOwner();
         if ($user instanceof Group) {
             return $this->groupVoter->vote($token, $user, $attributes);
         }

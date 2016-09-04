@@ -2,8 +2,8 @@
 
 namespace Civix\CoreBundle\Entity\Poll\Question;
 
+use Civix\CoreBundle\Model\Group\GroupSectionTrait;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\JoinColumn;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 
@@ -15,15 +15,7 @@ use Civix\CoreBundle\Model\Group\GroupSectionInterface;
  */
 class GroupNews extends LeaderNews  implements GroupSectionInterface
 {
-    use \Civix\CoreBundle\Model\Group\GroupSectionTrait;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Group")
-     * @JoinColumn(name="group_id", onDelete="CASCADE")
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll", "api-leader-poll"})
-     */
-    private $user;
+    use GroupSectionTrait;
 
     public function getType()
     {
@@ -33,13 +25,13 @@ class GroupNews extends LeaderNews  implements GroupSectionInterface
     /**
      * Set user.
      *
-     * @param \Civix\CoreBundle\Entity\Group $user
+     * @param \Civix\CoreBundle\Entity\Group $group
      *
      * @return $this
      */
-    public function setUser(\Civix\CoreBundle\Entity\Group $user = null)
+    public function setOwner(\Civix\CoreBundle\Entity\Group $group)
     {
-        $this->user = $user;
+        $this->group = $group;
 
         return $this;
     }
@@ -49,8 +41,8 @@ class GroupNews extends LeaderNews  implements GroupSectionInterface
      *
      * @return \Civix\CoreBundle\Entity\Group
      */
-    public function getUser()
+    public function getOwner()
     {
-        return $this->user;
+        return $this->group;
     }
 }

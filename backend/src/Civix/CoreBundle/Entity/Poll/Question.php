@@ -54,7 +54,7 @@ use Civix\CoreBundle\Entity\Representative;
  * })
  * @Serializer\ExclusionPolicy("all")
  * 
- * @method setUser(UserInterface $user)
+ * @method setOwner(UserInterface $group)
  * @PublishDate(objectName="Poll", groups={"update", "publish"})
  * @PublishedPollAmount(groups={"publish"})
  */
@@ -241,12 +241,37 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
     protected $group;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Representative")
+     * @ORM\JoinColumn(name="representative_id", onDelete="CASCADE")
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
+     */
+    protected $representative;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Superuser")
+     * @ORM\JoinColumn(name="superuser_id", onDelete="CASCADE")
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-poll", "api-leader-poll"})
+     */
+    protected $superuser;
+
+    /**
      * @var ArrayCollection|User[]
      *
      * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\User", cascade={"persist"}, mappedBy="pollSubscriptions")
      * @ORM\JoinTable(name="poll_subscribers", joinColumns={@ORM\JoinColumn(name="question_id", referencedColumnName="id")})
      */
     private $subscribers;
+
+    /**
+     * @var User
+     * @ORM\ManyToOne(targetEntity="\Civix\CoreBundle\Entity\User")
+     * @ORM\JoinColumn(name="user_id", onDelete="CASCADE")
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-poll", "api-leader-poll"})
+     */
+    protected $user;
 
     /**
      * Constructor.
@@ -268,7 +293,7 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
     /**
      * @return UserInterface
      */
-    abstract public function getUser();
+    abstract public function getOwner();
 
     /**
      * Return true if question answered
@@ -720,7 +745,7 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
      */
     public function getSharePicture()
     {
-        $entity = $this->getUser();
+        $entity = $this->getOwner();
         if ($entity instanceof Representative && !$entity->getAvatar()) {
             $entity = $entity->getRepresentativeStorage();
         }
@@ -797,7 +822,7 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
 
     public function getGroup()
     {
-        return $this->getUser();
+        return $this->getOwner();
     }
 
     /**
@@ -843,5 +868,24 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
     public function isSubscribed()
     {
         return (bool)$this->subscribers->count();
+    }
+
+    /**
+     * @return User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param User $user
+     * @return Question
+     */
+    public function setUser(User $user)
+    {
+        $this->user = $user;
+
+        return $this;
     }
 }

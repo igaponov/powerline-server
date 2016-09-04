@@ -21,7 +21,7 @@ class QuestionUserPush
     public function setQuestion(Question $question)
     {
         $this->question = $question;
-        $this->questionOwner = $this->getClassName($question->getUser());
+        $this->questionOwner = $this->getClassName($question->getOwner());
     }
 
     public function getUsersForPush($startId, $limitUser)

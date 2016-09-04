@@ -26,7 +26,7 @@ abstract class PaymentController extends Controller
      */
     public function buyEmailsAction(Request $request, Petition $petition)
     {
-        if ($petition->getUser() !== $this->getUser()) {
+        if ($petition->getOwner() !== $this->getUser()) {
             throw new AccessDeniedHttpException();
         }
 

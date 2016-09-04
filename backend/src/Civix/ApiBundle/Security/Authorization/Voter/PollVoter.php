@@ -84,7 +84,7 @@ class PollVoter implements VoterInterface
         }
 
         // make sure entity has owner attached to it
-        if (!$object->getUser() instanceof UserInterface) {
+        if (!$object->getOwner() instanceof UserInterface) {
             return VoterInterface::ACCESS_DENIED;
         }
 

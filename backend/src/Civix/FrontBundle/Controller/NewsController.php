@@ -146,7 +146,7 @@ abstract class NewsController extends Controller
     public function editAction(Request $request, $id)
     {
         $news = $this->getNews($id);
-        if ($news->getUser() !== $this->getUser() || $news->getPublishedAt()) {
+        if ($news->getOwner() !== $this->getUser() || $news->getPublishedAt()) {
             throw $this->createNotFoundException();
         }
 
@@ -201,7 +201,7 @@ abstract class NewsController extends Controller
     public function deleteAction(Request $request, $id)
     {
         $news = $this->getNews($id);
-        if ($news->getUser() !== $this->getUser() || $news->getPublishedAt() ||
+        if ($news->getOwner() !== $this->getUser() || $news->getPublishedAt() ||
             $request->get('token') !== $this->getToken()) {
             throw new AccessDeniedHttpException();
         }
@@ -219,7 +219,7 @@ abstract class NewsController extends Controller
     public function publishAction(Request $request, $id)
     {
         $news = $this->getNews($id);
-        if ($news->getUser() !== $this->getUser() || $news->getPublishedAt() ||
+        if ($news->getOwner() !== $this->getUser() || $news->getPublishedAt() ||
             $request->get('token') !== $this->getToken()) {
             throw new AccessDeniedHttpException();
         }
