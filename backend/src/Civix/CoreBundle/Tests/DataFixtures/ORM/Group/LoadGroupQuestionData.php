@@ -23,7 +23,6 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
         $question->setOwner($group1);
         $question->setUser($group1->getOwner());
         $question->setSubject('subj with #test-tag '.$faker->sentence);
-        $question->setExpireAt(new \DateTime('+1 day'));
         for ($i = 0; $i < 2; $i++) {
             $option = new Option();
             $option->setValue('val '.$faker->word);
@@ -37,7 +36,6 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
         $question->setOwner($group2);
         $question->setUser($group2->getOwner());
         $question->setSubject('subj '.$faker->sentence);
-        $question->setExpireAt(new \DateTime('-1 day'));
         for ($i = 0; $i < 2; $i++) {
             $option = new Option();
             $option->setValue('val '.$faker->word);
@@ -51,7 +49,6 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
         $question->setOwner($group3);
         $question->setUser($group3->getOwner());
         $question->setSubject('subj '.$faker->sentence);
-        $question->setExpireAt(new \DateTime('+1 week'));
         for ($i = 0; $i < 3; $i++) {
             $option = new Option();
             $option->setValue('val '.$faker->word);
