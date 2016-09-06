@@ -7,9 +7,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Representative;
-use Civix\CoreBundle\Model\User\BetaRequest;
 use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
-use Civix\BalancedBundle\Entity\PaymentHistory;
 
 class EmailSender
 {
@@ -110,17 +108,6 @@ class EmailSender
                     'username' => $username,
                     'password' => $password,
             )
-        );
-        $this->mailer->send($message);
-    }
-
-    public function sendBetaRequest(BetaRequest $request)
-    {
-        $message = $this->createMessage(
-            'Beta Request',
-            $this->mailBetaRequestRecipient,
-            'CivixCoreBundle:Email:beta_request.html.twig',
-            compact('request')
         );
         $this->mailer->send($message);
     }
