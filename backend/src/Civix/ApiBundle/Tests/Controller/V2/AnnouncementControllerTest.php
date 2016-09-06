@@ -227,7 +227,7 @@ class AnnouncementControllerTest extends WebTestCase
             LoadGroupAnnouncementData::class,
         ])->getReferenceRepository();
         $params = [
-            'content' => $faker->text,
+            'content' => $faker->sentence,
         ];
         $announcement = $repository->getReference($reference);
         $client = $this->client;

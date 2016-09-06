@@ -12,12 +12,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\DeferredInvites;
 use Civix\CoreBundle\Model\User\UserCreator;
-use Civix\CoreBundle\Model\User\BetaRequest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
@@ -476,37 +474,6 @@ class SecureController extends BaseController
 
             return $response;
         }
-    }
-
-    /**
-     * @Route("/beta", name="api_beta_request")
-     * @Method("POST")
-     * @ParamConverter("beta", class="Civix\CoreBundle\Model\User\BetaRequest")
-     * @ApiDoc(
-     *     resource=true,
-     *     description="Beta request",
-     *     statusCodes={
-     *         201="Returns success",
-     *         400="Bad Request",
-     *         405="Method Not Allowed"
-     *     }
-     * )
-     */
-    public function betaRequest(Request $request)
-    {
-        $beta = $this->jmsDeserialization($request->getContent(), BetaRequest::class, array('Default'));
-        $errors = $this->getValidator()->validate($beta);
-        $response = new Response(null, 201);
-        $response->headers->set('Content-Type', 'application/json');
-
-        if (count($errors) > 0) {
-            $response->setStatusCode(400)->setContent(json_encode(array('errors' => $this->transformErrors($errors))));
-
-            return $response;
-        }
-        $this->get('civix_core.email_sender')->sendBetaRequest($beta);
-
-        return $response;
     }
 
     private function getUserByResetToken($token)
