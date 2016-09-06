@@ -12,6 +12,10 @@
     syntaxCheck                 = "false"
     bootstrap                   = "bootstrap.php.cache" >
 
+    <php>
+        <const name="PHPUNIT_COMPOSER_INSTALL" value="autoload.php"/>
+    </php>
+
     <testsuites>
         <testsuite name="Project Test Suite">
             <directory>../src/Civix/*Bundle/Tests</directory>
