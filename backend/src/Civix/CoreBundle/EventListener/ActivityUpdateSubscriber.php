@@ -23,25 +23,25 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            Event\UserPetitionEvents::PETITION_CREATE => 'publishUserPetitionToActivity',
-            Event\UserPetitionEvents::PETITION_UPDATE => 'publishUserPetitionToActivity',
+            Event\UserPetitionEvents::PETITION_CREATE => ['publishUserPetitionToActivity', -100],
+            Event\UserPetitionEvents::PETITION_UPDATE => ['publishUserPetitionToActivity', -100],
             Event\UserPetitionEvents::PETITION_SIGN => [
-                ['updateResponsesPetition'],
-                ['updatePetitionAuthorActivity'],
+                ['updateResponsesPetition', -100],
+                ['updatePetitionAuthorActivity', -100],
             ],
-            Event\UserPetitionEvents::PETITION_UNSIGN => 'updatePetitionAuthorActivity',
-            Event\UserPetitionEvents::PETITION_BOOST => 'publishUserPetitionToActivity',
+            Event\UserPetitionEvents::PETITION_UNSIGN => ['updatePetitionAuthorActivity', -100],
+            Event\UserPetitionEvents::PETITION_BOOST => ['publishUserPetitionToActivity', -100],
 
-            Event\PostEvents::POST_CREATE => 'publishPostToActivity',
-            Event\PostEvents::POST_UPDATE => 'publishPostToActivity',
+            Event\PostEvents::POST_CREATE => ['publishPostToActivity', -100],
+            Event\PostEvents::POST_UPDATE => ['publishPostToActivity', -100],
             Event\PostEvents::POST_SIGN => [
-                ['updateResponsesPost'],
-                ['updatePostAuthorActivity'],
+                ['updateResponsesPost', -100],
+                ['updatePostAuthorActivity', -100],
             ],
-            Event\PostEvents::POST_UNSIGN => 'updatePostAuthorActivity',
-            Event\PostEvents::POST_BOOST => 'publishPostToActivity',
+            Event\PostEvents::POST_UNSIGN => ['updatePostAuthorActivity', -100],
+            Event\PostEvents::POST_BOOST => ['publishPostToActivity', -100],
 
-            Event\PollEvents::QUESTION_PUBLISHED => 'publishQuestionToActivity',
+            Event\PollEvents::QUESTION_PUBLISHED => ['publishQuestionToActivity', -100],
         ];
     }
 

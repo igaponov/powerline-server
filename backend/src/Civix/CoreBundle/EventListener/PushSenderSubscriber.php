@@ -22,12 +22,12 @@ class PushSenderSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            Event\AnnouncementEvents::PUBLISHED => 'sendAnnouncementPush',
-            Event\UserEvents::FOLLOWED => 'sendInfluencePush',
-            Event\PollEvents::QUESTION_PUBLISHED => 'sendPushPublishQuestion',
-            Event\UserPetitionEvents::PETITION_BOOST => 'sendGroupPetitionPush',
-            Event\PostEvents::POST_BOOST => 'sendGroupPostPush',
-            Event\InviteEvents::CREATE => 'sendUserToGroupInvites',
+            Event\AnnouncementEvents::PUBLISHED => ['sendAnnouncementPush', -200],
+            Event\UserEvents::FOLLOWED => ['sendInfluencePush', -200],
+            Event\PollEvents::QUESTION_PUBLISHED => ['sendPushPublishQuestion', -200],
+            Event\UserPetitionEvents::PETITION_BOOST => ['sendGroupPetitionPush', -200],
+            Event\PostEvents::POST_BOOST => ['sendGroupPostPush', -200],
+            Event\InviteEvents::CREATE => ['sendUserToGroupInvites', -200],
         ];
     }
 

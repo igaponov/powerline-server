@@ -23,13 +23,13 @@ class SocialActivitySubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            Event\UserEvents::FOLLOWED => 'sendUserFollowRequest',
-            Event\GroupEvents::PERMISSIONS_CHANGED => 'noticeGroupsPermissionsChanged',
-            Event\UserPetitionEvents::PETITION_CREATE => 'noticeUserPetitionCreated',
-            Event\PostEvents::POST_CREATE => 'noticePostCreated',
+            Event\UserEvents::FOLLOWED => ['sendUserFollowRequest', -100],
+            Event\GroupEvents::PERMISSIONS_CHANGED => ['noticeGroupsPermissionsChanged', -100],
+            Event\UserPetitionEvents::PETITION_CREATE => ['noticeUserPetitionCreated', -100],
+            Event\PostEvents::POST_CREATE => ['noticePostCreated', -100],
             Event\CommentEvents::CREATE => [
-                ['noticeEntityCommented'],
-                ['noticeCommentMentioned'],
+                ['noticeEntityCommented', -100],
+                ['noticeCommentMentioned', -100],
             ]
         ];
     }
