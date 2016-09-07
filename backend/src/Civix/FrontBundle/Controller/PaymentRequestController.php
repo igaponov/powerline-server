@@ -339,7 +339,7 @@ abstract class PaymentRequestController extends Controller
 
         $amount = $this->getDoctrine()
             ->getRepository(Charge::class)
-            ->getAmountForPaymentRequest($paymentRequest->getId());
+            ->getAmountForPaymentRequest($paymentRequest);
 
         return ['amount' => $amount];
     }

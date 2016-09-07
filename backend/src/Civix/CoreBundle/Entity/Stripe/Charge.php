@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity\Stripe;
 
+use Civix\CoreBundle\Entity\Poll\Question;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -53,28 +54,33 @@ class Charge
     private $created;
 
     /**
-     * @ORM\Column(name="question_id", type="integer", nullable=true)
+     * @var Question
+     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Poll\Question")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
-    private $questionId;
+    private $question;
 
     /**
      * @ORM\JoinColumn(name="from_customer", nullable=false)
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Stripe\Customer")
+     * @ORM\JoinColumn(onDelete="CASCADE", nullable=false)
      */
     private $fromCustomer;
 
     /**
      * @ORM\JoinColumn(name="to_account")
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Stripe\Account")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $toAccount;
 
     public function __construct(Customer $customer, Account $account = null,
-                                $questionId = null)
+                                Question $question = null)
     {
         $this->fromCustomer = $customer;
         $this->toAccount = $account;
-        $this->questionId = $questionId;
+        $this->questionId = $question->getId();
+        $this->question = $question;
     }
 
     public function updateStripeData(\Stripe\Charge $sc)
