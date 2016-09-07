@@ -44,7 +44,7 @@ class ActivityUpdate
      */
     private $settings;
     /**
-     * @var \Civix\CoreBundle\Service\CommentManager
+     * @var CommentManager
      */
     private $cm;
 
@@ -52,7 +52,7 @@ class ActivityUpdate
         EntityManager $entityManager,
         ValidatorInterface $validator,
         Settings $settings,
-        \Civix\CoreBundle\Service\CommentManager $cm
+        CommentManager $cm
     )
     {
         $this->entityManager = $entityManager;
@@ -392,7 +392,7 @@ class ActivityUpdate
     private function createRepresentativeActivityConditions(Activity $activity)
     {
         $condition = new ActivityCondition($activity);
-        $condition->setDistrictId($activity->getRepresentative()->getDistrictId());
+        $condition->setDistrict($activity->getRepresentative()->getDistrict());
         $this->entityManager->persist($condition);
         $this->entityManager->flush($condition);
     }
@@ -400,7 +400,7 @@ class ActivityUpdate
     private function createGroupActivityConditions(Activity $activity)
     {
         $condition = new ActivityCondition($activity);
-        $condition->setGroupId($activity->getGroup()->getId());
+        $condition->setGroup($activity->getGroup());
         $this->entityManager->persist($condition);
         $this->entityManager->flush($condition);
     }
@@ -408,7 +408,7 @@ class ActivityUpdate
     private function createGroupSectionActivityConditions(Activity $activity, GroupSection $section)
     {
         $condition = new ActivityCondition($activity);
-        $condition->setGroupSectionId($section->getId());
+        $condition->setGroupSection($section);
         $this->entityManager->persist($condition);
         $this->entityManager->flush($condition);
     }
@@ -416,7 +416,7 @@ class ActivityUpdate
     private function createUserActivityConditions(Activity $activity, User $user)
     {
         $condition = new ActivityCondition($activity);
-        $condition->setUserId($user->getId());
+        $condition->setUser($user);
         $this->entityManager->persist($condition);
         $this->entityManager->flush($condition);
     }

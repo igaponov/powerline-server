@@ -74,10 +74,10 @@ class LoadActivityData extends AbstractFixture implements DependentFixtureInterf
         $activity->setOwner([]);
         $activity->setUser($user);
         $activityCondition = new ActivityCondition();
-        $activityCondition->setUserId($user->getId());
+        $activityCondition->setUser($user);
         $activityCondition->addUsers($user);
         if ($group) {
-            $activityCondition->setGroupId($group->getId());
+            $activityCondition->setGroup($group);
         }
         $activity->addActivityCondition($activityCondition);
 
