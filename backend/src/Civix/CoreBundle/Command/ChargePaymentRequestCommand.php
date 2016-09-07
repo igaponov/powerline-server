@@ -68,7 +68,7 @@ class ChargePaymentRequestCommand extends ContainerAwareCommand
             }
 
             $charge = $chargeRepository->findOneBy([
-                    'questionId' => $answer->getQuestion()->getId(),
+                    'question' => $answer->getQuestion(),
                     'fromCustomer' => $customer,
                 ])
             ;

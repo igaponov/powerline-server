@@ -463,7 +463,7 @@ class User implements UserInterface, \Serializable
     private $androidDevice;
 
     /**
-     * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\UserGroup", mappedBy="user", cascade={"remove", "persist"})
+     * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\UserGroup", mappedBy="user", cascade={"persist"})
      */
     private $groups;
 
