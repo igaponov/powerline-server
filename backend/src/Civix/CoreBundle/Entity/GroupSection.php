@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
@@ -37,13 +38,13 @@ class GroupSection
     /**
      * @Serializer\Expose()
      * @Serializer\Groups({"api-groups"})
-     * @ORM\ManyToMany(targetEntity="User",  inversedBy="groupSections", cascade={"remove"})
+     * @ORM\ManyToMany(targetEntity="User",  inversedBy="groupSections")
      */
     private $users;
 
     /**
      * @ORM\ManyToOne(targetEntity="Group", inversedBy="groupSections")
-     * @ORM\JoinColumn(name="group_id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="group_id", onDelete="CASCADE", nullable=false)
      */
     private $group;
 
@@ -85,17 +86,17 @@ class GroupSection
      */
     public function __construct()
     {
-        $this->users = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     /**
      * Add users.
      *
-     * @param \Civix\CoreBundle\Entity\User $users
+     * @param User $users
      *
      * @return GroupSection
      */
-    public function addUser(\Civix\CoreBundle\Entity\User $users)
+    public function addUser(User $users)
     {
         $this->users[] = $users;
 
@@ -105,9 +106,9 @@ class GroupSection
     /**
      * Remove users.
      *
-     * @param \Civix\CoreBundle\Entity\User $users
+     * @param User $users
      */
-    public function removeUser(\Civix\CoreBundle\Entity\User $users)
+    public function removeUser(User $users)
     {
         $this->users->removeElement($users);
     }
@@ -125,11 +126,11 @@ class GroupSection
     /**
      * Set group.
      *
-     * @param \Civix\CoreBundle\Entity\Group $group
+     * @param Group $group
      *
      * @return GroupSection
      */
-    public function setGroup(\Civix\CoreBundle\Entity\Group $group = null)
+    public function setGroup(Group $group = null)
     {
         $this->group = $group;
 
@@ -139,7 +140,7 @@ class GroupSection
     /**
      * Get group.
      *
-     * @return \Civix\CoreBundle\Entity\Group
+     * @return Group
      */
     public function getGroup()
     {
