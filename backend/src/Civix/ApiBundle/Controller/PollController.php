@@ -367,7 +367,7 @@ class PollController extends BaseController
      *      requirements={"id"="\d+", "action"="up|down|delete"},
      *      name="api_question_rate_comment"
      * )
-     * @ParamConverter("comment", class="CivixCoreBundle:BaseComment")
+     * @ParamConverter("comment", class="Civix\CoreBundle\Entity\Poll\Comment")
      * @Method("POST")
      * @ApiDoc(
      *     section="Polls",
@@ -379,7 +379,7 @@ class PollController extends BaseController
      *     }
      * ) 
      */
-    public function rateCommentAction(\Civix\CoreBundle\Entity\BaseComment $comment, $action)
+    public function rateCommentAction(\Civix\CoreBundle\Entity\Poll\Comment $comment, $action)
     {
         $user = $this->getUser();
         $rateActionConstant = 'Civix\CoreBundle\Entity\Poll\CommentRate::RATE_'.strtoupper($action);

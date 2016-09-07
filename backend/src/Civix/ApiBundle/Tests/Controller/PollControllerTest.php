@@ -1,15 +1,15 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller;
 
-use Doctrine\ORM\EntityManager;
-
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadCommentRateData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Civix\ApiBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
 use Civix\ApiBundle\Tests\WebTestCase;
-use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Question\Group as GroupQuestion;
+use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 
@@ -21,30 +21,17 @@ class PollControllerTest extends WebTestCase
 	 * @var \Doctrine\ORM\EntityManager
 	 */
 	private $em;
-	
+
+    /**
+     * @var Client
+     */
 	private $client = null;
 
 	public function setUp()
 	{
-		// Creates a initial client
-		$this->client = static::createClient();
-
-		/** @var AbstractExecutor $fixtures */
-		$fixtures = $this->loadFixtures([
-				LoadUserData::class,
-				LoadGroupFollowerTestData::class,
-				LoadUserGroupFollowerTestData::class,
-				LoadSuperuserData::class
-		]);
-		
-		$reference = $fixtures->getReferenceRepository();
-		
-		$this->em = $this->getContainer()->get('doctrine')->getManager();
-		
-		$this->group = $reference->getReference('group');
-
-		$this->group_token = $this->getUserToken($this->group->getUsername(), LoadGroupFollowerTestData::GROUP_PASSWORD);
-	}
+		$this->client = $this->makeClient();
+        $this->em = $this->getContainer()->get('doctrine')->getManager();
+    }
 
 	public function tearDown()
 	{
@@ -58,7 +45,21 @@ class PollControllerTest extends WebTestCase
 	 */
 	public function testAddNewQuestion()
 	{
-		$this->assertNotEmpty($this->group_token, 'Login token should not empty');
+        $fixtures = $this->loadFixtures([
+            LoadUserData::class,
+            LoadGroupFollowerTestData::class,
+            LoadUserGroupFollowerTestData::class,
+            LoadSuperuserData::class
+        ]);
+
+        $reference = $fixtures->getReferenceRepository();
+
+
+        $group = $reference->getReference('group');
+
+        $group_token = $this->getUserToken($group->getUsername(), LoadGroupFollowerTestData::GROUP_PASSWORD);
+
+		$this->assertNotEmpty($group_token, 'Login token should not empty');
 		
 		// Create a request scope context that allows serialize the question object
 		$container = $this->getContainer();
@@ -71,14 +72,14 @@ class PollControllerTest extends WebTestCase
 		$container->set('request', $request, 'request');
 		
 		$question = new GroupQuestion();
-		$question->setOwner($this->group);
+		$question->setOwner($group);
 
 		/*
 		 {"options":[],"educational_context":[],"is_answered":false,"cached_hash_tags":[],"user":{"id":370,"type":"group","group_type":0,"avatar_file_path":"http:\/\/localhost\/bundles\/civixfront\/img\/default_group.png"}}
 		 */
 		$content = $this->jmsSerialization($question, ['api-poll']);
 
-		$this->client->request('PUT', self::API_POLL_QUESTION_NEW_ENDPOINT, [], [], ['HTTP_Token' => $this->group_token], $content);
+		$this->client->request('PUT', self::API_POLL_QUESTION_NEW_ENDPOINT, [], [], ['HTTP_Token' => $group_token], $content);
 		
 		$request = $this->client->getRequest();
 		
@@ -97,4 +98,51 @@ class PollControllerTest extends WebTestCase
 				'Should be authorized'
 				);
 	}
+
+    /**
+     * @param $action
+     * @dataProvider getActions
+     */
+    public function testRateComment($action)
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+            LoadQuestionCommentData::class,
+            LoadCommentRateData::class,
+        ])->getReferenceRepository();
+        $comment = $repository->getReference('question_comment_3');
+        $client = $this->client;
+        $uri = str_replace(['{id}', '{action}'], [$comment->getId(), $action], '/api/poll/comments/rate/{id}/{action}');
+        $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user2"']);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals($action == 'up' ? 2 : 0, $data['rate_sum']);
+        $this->assertEquals(3, $data['rates_count']);
+        $this->assertEquals($action == 'up' ? 1 : -1, $data['rate_status']);
+	}
+
+    public function getActions()
+    {
+        return ['up' => ['up'], 'down' => ['down']];
+	}
+
+    public function testDeleteRate()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+            LoadQuestionCommentData::class,
+            LoadCommentRateData::class,
+        ])->getReferenceRepository();
+        $comment = $repository->getReference('question_comment_1');
+        $client = $this->client;
+        $uri = str_replace(['{id}', '{action}'], [$comment->getId(), 'delete'], '/api/poll/comments/rate/{id}/{action}');
+        $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(1, $data['rate_sum']);
+        $this->assertEquals(2, $data['rates_count']);
+        $this->assertEquals(0, $data['rate_status']);
+    }
 }
