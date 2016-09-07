@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity\Group;
 
+use Civix\CoreBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use JMS\Serializer\Annotation as Serializer;
@@ -44,13 +45,13 @@ class FieldValue
      *      inversedBy="values",
      *      cascade={"persist","remove"}
      * )
-     * @ORM\JoinColumn(name="field_id", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="field_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      */
     private $field;
 
     /**
      * @ORM\ManyToOne(targetEntity="\Civix\CoreBundle\Entity\User", cascade={"persist"})
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      */
     private $user;
 
@@ -91,11 +92,11 @@ class FieldValue
     /**
      * Set field.
      *
-     * @param \Civix\CoreBundle\Entity\Group\GroupField $field
+     * @param GroupField $field
      *
      * @return FieldValue
      */
-    public function setField(\Civix\CoreBundle\Entity\Group\GroupField $field = null)
+    public function setField(GroupField $field = null)
     {
         $this->field = $field;
 
@@ -105,7 +106,7 @@ class FieldValue
     /**
      * Get field.
      *
-     * @return \Civix\CoreBundle\Entity\Group\GroupField
+     * @return GroupField
      */
     public function getField()
     {
@@ -115,11 +116,11 @@ class FieldValue
     /**
      * Set user.
      *
-     * @param \Civix\CoreBundle\Entity\User $user
+     * @param User $user
      *
      * @return FieldValue
      */
-    public function setUser(\Civix\CoreBundle\Entity\User $user = null)
+    public function setUser(User $user = null)
     {
         $this->user = $user;
 
@@ -129,7 +130,7 @@ class FieldValue
     /**
      * Get user.
      *
-     * @return \Civix\CoreBundle\Entity\User
+     * @return User
      */
     public function getUser()
     {
