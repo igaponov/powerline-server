@@ -86,8 +86,8 @@ class Post extends Activity
      */
     public function getAnswers()
     {
-        if ($this->petition) {
-            return $this->petition->getSignatures();
+        if ($this->post) {
+            return $this->post->getVotes();
         }
 
         return new ArrayCollection();
