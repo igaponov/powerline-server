@@ -28,7 +28,7 @@
     - php5-intl
     - supervisor
     - rabbitmq-server
-    - mysql-server
+    - mysql-server-5.6
 
 - name: fpm | configure pool
   tags: vagrant
