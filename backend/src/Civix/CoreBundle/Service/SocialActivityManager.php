@@ -132,7 +132,7 @@ class SocialActivityManager
         $this->em->persist($socialActivity1);
         $this->em->flush($socialActivity1);
 
-        if ($comment->getParentComment()
+        if ($comment->getParentComment() && $comment->getParentComment()->getUser()
             && $comment->getUser() !== $comment->getParentComment()->getUser()) {
             $socialActivity2 = (new SocialActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser(),
                 $comment->getQuestion()->getOwner()))
@@ -162,7 +162,7 @@ class SocialActivityManager
         ;
         $this->em->persist($socialActivity);
 
-        if ($comment->getParentComment()
+        if ($comment->getParentComment() && $comment->getParentComment()->getUser()
             && $comment->getUser() !== $comment->getParentComment()->getUser()) {
             $socialActivity2 = (new SocialActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser(),
                 $petition->getGroup()))
@@ -204,7 +204,7 @@ class SocialActivityManager
         ;
         $this->em->persist($socialActivity);
 
-        if ($comment->getParentComment()
+        if ($comment->getParentComment() && $comment->getParentComment()->getUser()
             && $comment->getUser() !== $comment->getParentComment()->getUser()) {
             $socialActivity2 = (new SocialActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser(),
                 $post->getGroup()))
