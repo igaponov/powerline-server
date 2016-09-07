@@ -39,6 +39,7 @@ class LeaderContentSubscriber implements EventSubscriberInterface
             UserPetitionEvents::PETITION_CREATE => [
                 ['addPetitionHashTags'],
                 ['addPetitionRootComment'],
+                ['subscribePetitionAuthor'],
             ],
             UserPetitionEvents::PETITION_UPDATE => 'addPetitionHashTags',
             // post
@@ -110,6 +111,15 @@ class LeaderContentSubscriber implements EventSubscriberInterface
     public function addPostRootComment(PostEvent $event)
     {
         $this->commentManager->addPostRootComment($event->getPost());
+    }
+
+    public function subscribePetitionAuthor(UserPetitionEvent $event)
+    {
+        $petition = $event->getPetition();
+        $author = $petition->getUser();
+        $author->addPetitionSubscription($petition);
+        $this->em->persist($author);
+        $this->em->flush();
     }
 
     public function subscribePostAuthor(PostEvent $event)
