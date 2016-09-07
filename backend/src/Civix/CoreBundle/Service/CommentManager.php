@@ -16,6 +16,11 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CommentManager
 {
+    const DELETED_COMMENT_BODY = 'Deleted by author';
+
+    /**
+     * @var EntityManager
+     */
     private $em;
     /**
      * @var EventDispatcherInterface
@@ -138,7 +143,8 @@ class CommentManager
 
     public function deleteComment(BaseComment $comment)
     {
-        $comment->setCommentBody('Deleted by author');
+        $comment->setCommentBody(self::DELETED_COMMENT_BODY);
+        $comment->setCommentBodyHtml(self::DELETED_COMMENT_BODY);
         $this->em->persist($comment);
         $this->em->flush($comment);
 

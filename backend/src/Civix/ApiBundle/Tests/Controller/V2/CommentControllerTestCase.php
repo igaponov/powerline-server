@@ -97,6 +97,7 @@ abstract class CommentControllerTestCase extends WebTestCase
         /** @var BaseComment $comment */
         $comment = $em->merge($comment);
         $this->assertEquals('Deleted by author', $comment->getCommentBody());
+        $this->assertEquals('Deleted by author', $comment->getCommentBodyHtml());
     }
 
     protected function deleteCommentWithWrongCredentials(BaseComment $comment)
