@@ -503,7 +503,11 @@ class ActivityRepository extends EntityRepository
             (CASE WHEN act.expireAt < CURRENT_TIMESTAMP()
             THEN 2 
             WHEN 
-                (qa.id IS NULL AND ups.id IS NULL AND pv.id IS NULL AND act NOT INSTANCE OF (
+                (
+                NOT EXISTS(SELECT 1 FROM \Civix\CoreBundle\Entity\Poll\Answer sub_pa WHERE sub_pa.question = act.question) AND 
+                NOT EXISTS(SELECT 1 FROM \Civix\CoreBundle\Entity\UserPetition\Signature sub_ups WHERE sub_ups.petition = act.petition) AND 
+                NOT EXISTS(SELECT 1 FROM \Civix\CoreBundle\Entity\Post\Vote sub_pv WHERE sub_pv.post = act.post) AND 
+                act NOT INSTANCE OF (
                     Civix\CoreBundle\Entity\Activities\LeaderNews, 
                     Civix\CoreBundle\Entity\Activities\Petition
                 ))
@@ -522,7 +526,7 @@ class ActivityRepository extends EntityRepository
             ->leftJoin('act.question', 'q')
             ->leftJoin('act.petition', 'up')
             ->leftJoin('act.post', 'p')
-            ->leftJoin('q.answers', 'qa')
+            ->leftJoin('q.answers', 'qa', Query\Expr\Join::WITH, 'qa.user = :user')
             ->leftJoin('up.signatures', 'ups', Query\Expr\Join::WITH, 'ups.user = :user')
             ->leftJoin('p.votes', 'pv', Query\Expr\Join::WITH, 'pv.user = :user')
             ->leftJoin('up.subscribers', 'ps', Query\Expr\Join::WITH, 'ps = :user')

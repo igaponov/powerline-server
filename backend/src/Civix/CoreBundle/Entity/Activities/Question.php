@@ -2,6 +2,8 @@
 
 namespace Civix\CoreBundle\Entity\Activities;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Entity\Activity;
@@ -39,5 +41,21 @@ class Question extends Activity
             'type' => self::TYPE_QUESTION,
             'id' => $this->getQuestionId(),
         );
+    }
+
+    /**
+     * @return Collection|\Civix\CoreBundle\Entity\UserPetition\Signature[]
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Type("ArrayCollection")
+     * @Serializer\Groups({"api-activities"})
+     */
+    public function getAnswers()
+    {
+        if ($this->getQuestion()) {
+            return $this->getQuestion()->getAnswers();
+        }
+
+        return new ArrayCollection();
     }
 }
