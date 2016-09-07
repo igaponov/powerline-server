@@ -24,7 +24,7 @@ class CommentRate
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\UserPetition\Comment", inversedBy="rates")
+     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Poll\Comment", inversedBy="rates")
      * @ORM\JoinColumn(name="comment_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $comment;
