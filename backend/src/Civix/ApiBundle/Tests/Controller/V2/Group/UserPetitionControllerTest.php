@@ -123,6 +123,9 @@ class UserPetitionControllerTest extends WebTestCase
         // check activity
         $description = $conn->fetchColumn('SELECT description FROM activities WHERE petition_id = ?', [$data['id']]);
         $this->assertSame($data['body'], $description);
+        // check author subscription
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM petition_subscribers WHERE userpetition_id = ?', [$data['id']]);
+        $this->assertEquals(1, $count);
     }
 
     public function testGetActivitiesOfDeletedUserPetition()
