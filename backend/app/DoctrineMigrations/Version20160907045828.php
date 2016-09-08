@@ -18,7 +18,7 @@ class Version20160907045828 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('DELETE sc FROM stripe_charges sc LEFT JOIN stripe_accounts sa ON sc.to_account = sa.id WHERE sa.id IS NULL');
+        $this->addSql('DELETE sc FROM stripe_charges sc LEFT JOIN stripe_accounts sa ON sc.to_account = sa.id WHERE sc.to_account IS NOT NULL AND sa.id IS NULL');
         $this->addSql('ALTER TABLE stripe_charges ADD CONSTRAINT FK_152861E01E27F6BF FOREIGN KEY (question_id) REFERENCES poll_questions (id) ON DELETE CASCADE');
         $this->addSql('CREATE INDEX IDX_152861E01E27F6BF ON stripe_charges (question_id)');
     }
