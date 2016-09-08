@@ -5,6 +5,7 @@ use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\HtmlBodyInterface;
 use Civix\CoreBundle\Entity\User;
 use Doctrine\Common\EventSubscriber;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
 
@@ -57,5 +58,11 @@ class MentionSubscriber implements EventSubscriber
             $content
         );
         $entity->setHtmlBody($content);
+        if ($event instanceof PreUpdateEventArgs) {
+            $em = $event->getEntityManager();
+            $uow = $em->getUnitOfWork();
+            $meta = $em->getClassMetadata(get_class($entity));
+            $uow->recomputeSingleEntityChangeSet($meta, $entity);
+        }
     }
 }

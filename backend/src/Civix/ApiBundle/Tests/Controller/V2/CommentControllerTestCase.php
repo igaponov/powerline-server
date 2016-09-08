@@ -40,6 +40,9 @@ abstract class CommentControllerTestCase extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertEquals($params['comment_body'], $data['comment_body']);
+        $this->assertEquals($params['comment_body'], $data['comment_body_html']);
+        $comment = $client->getContainer()->get('doctrine.orm.entity_manager')->merge($comment);
+        $this->assertEquals($params['comment_body'], $comment->getCommentBodyHtml());
         $this->assertEquals($params['privacy'], $data['privacy']);
     }
 
