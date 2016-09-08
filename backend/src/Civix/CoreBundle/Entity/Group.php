@@ -313,7 +313,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $owner;
 
@@ -396,7 +396,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
 
     /**
      * @ORM\ManyToOne(targetEntity="State", inversedBy="localGroups")
-     * @ORM\JoinColumn(name="local_state", referencedColumnName="code")
+     * @ORM\JoinColumn(name="local_state", referencedColumnName="code", onDelete="SET NULL")
      */
     private $localState;
 
@@ -481,6 +481,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      * @Serializer\Groups({"api-poll"})
      * @Serializer\SerializedName("group")
      * @ORM\ManyToOne(targetEntity="Group", inversedBy="children")
+     * @ORM\JoinColumn(onDelete="SET NULL")
      */
     private $parent;
 
