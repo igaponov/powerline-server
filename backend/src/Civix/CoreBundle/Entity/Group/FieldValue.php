@@ -43,7 +43,7 @@ class FieldValue
      * @ORM\ManyToOne(
      *      targetEntity="Civix\CoreBundle\Entity\Group\GroupField",
      *      inversedBy="values",
-     *      cascade={"persist","remove"}
+     *      cascade={"persist"}
      * )
      * @ORM\JoinColumn(name="field_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      */
