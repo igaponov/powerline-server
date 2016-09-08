@@ -24,7 +24,7 @@ class Transaction
     private $referencePayment;
 
     /**
-     * @ORM\JoinColumn(name="stripe_customer_id")
+     * @ORM\JoinColumn(name="stripe_customer_id", nullable=false, onDelete="CASCADE")
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Stripe\Customer")
      */
     private $stripeCustomer;
