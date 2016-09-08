@@ -32,22 +32,21 @@ class Answer
 
     /**
      * @Serializer\Expose()
-     *  @Serializer\Groups({"api-leader-answers"})
+     * @Serializer\Groups({"api-leader-answers"})
      * @ORM\ManyToOne(targetEntity="\Civix\CoreBundle\Entity\User")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      */
     private $user;
 
     /**
      * @ORM\ManyToOne(targetEntity="Option", inversedBy="answers")
-     * @ORM\JoinColumn(name="option_id", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="option_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll"})
      */
     private $option;
 
     /**
-     * @ORM\Column(name="option_id", type="integer")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-answer", "api-answers-list", "api-leader-answers"})
      */
@@ -55,6 +54,7 @@ class Answer
 
     /**
      * @ORM\ManyToOne(targetEntity="Question", inversedBy="answers")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll", "api-answers-list"})
      */
@@ -80,7 +80,7 @@ class Answer
     /**
      * @var int
      *
-     * @ORM\Column(name="privacy", type="integer")
+     * @ORM\Column(name="privacy", type="smallint")
      */
     private $privacy = self::PRIVACY_PUBLIC;
 
