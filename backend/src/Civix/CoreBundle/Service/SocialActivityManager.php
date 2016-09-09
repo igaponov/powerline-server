@@ -267,8 +267,8 @@ class SocialActivityManager
             $target = [
                 'id' => $post->getId(),
                 'preview' => $this->preparePreview($comment->getCommentBody()),
-                'type' => 'user-petition',
-                'label' => 'petition',
+                'type' => 'post',
+                'label' => 'post',
             ];
         } elseif ($comment instanceof Poll\Comment) {
             $question = $comment->getQuestion();

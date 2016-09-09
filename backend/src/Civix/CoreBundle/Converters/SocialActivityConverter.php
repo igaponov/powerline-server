@@ -10,7 +10,8 @@ class SocialActivityConverter
     private static $Converters = [
         SocialActivity::TYPE_FOLLOW_REQUEST => 'getFollowRequest',
         SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED => 'getJoinToGroupApproved',
-        SocialActivity::TYPE_GROUP_POST_CREATED => 'getMicropetitionCreated',
+        SocialActivity::TYPE_GROUP_POST_CREATED => 'getPostCreated',
+        SocialActivity::TYPE_GROUP_USER_PETITION_CREATED => 'getUserPetitionCreated',
         SocialActivity::TYPE_ANSWERED => 'getAnswered',
         SocialActivity::TYPE_FOLLOW_POLL_COMMENTED => 'getFollowPollCommented',
         SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED => 'getFollowMicropetitionCommented',
@@ -96,36 +97,46 @@ class SocialActivityConverter
         return $entity->getGroup()->getAvatarFileName();
     }
 
-    private static function getMicropetitionCreatedHTML(SocialActivity $entity)
+    private static function getPostCreatedHTML(SocialActivity $entity)
     {
-        if ($entity->getTarget()['type'] === Micropetition::TYPE_QUORUM) {
-            return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName())
-                .'</strong> posted in the <strong>'
-                .htmlspecialchars($entity->getGroup()->getOfficialName()).'</strong> community</p>';
-        }
-        if ($entity->getTarget()['type'] === Micropetition::TYPE_LONG_PETITION) {
-            return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName())
-                .'</strong> created a petition in the <strong>'
-                .htmlspecialchars($entity->getGroup()->getOfficialName()).'</strong> community</p>';
-        }
+        return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName())
+            .'</strong> posted in the <strong>'
+            .htmlspecialchars($entity->getGroup()->getOfficialName()).'</strong> community</p>';
     }
 
-    private static function getMicropetitionCreatedText(SocialActivity $entity)
+    private static function getPostCreatedText(SocialActivity $entity)
     {
-        if ($entity->getTarget()['type'] === Micropetition::TYPE_QUORUM) {
-            return 'Posted: '.$entity->getTarget()['body'];
-        }
-        if ($entity->getTarget()['type'] === Micropetition::TYPE_LONG_PETITION) {
-            return 'Posted: ' . $entity->getTarget()['title'];
-        }
+        return 'Posted: '.$entity->getTarget()['body'];
     }
 
-    private static function getMicropetitionCreatedTitle(SocialActivity $entity)
+    private static function getPostCreatedTitle(SocialActivity $entity)
     {
         return $entity->getFollowing()->getFullName();
     }
 
-    private static function getMicropetitionCreatedImage(SocialActivity $entity)
+    private static function getPostCreatedImage(SocialActivity $entity)
+    {
+        return $entity->getFollowing()->getAvatarFileName();
+    }
+
+    private static function getUserPetitionCreatedHTML(SocialActivity $entity)
+    {
+        return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName())
+            .'</strong> created a petition in the <strong>'
+            .htmlspecialchars($entity->getGroup()->getOfficialName()).'</strong> community</p>';
+    }
+
+    private static function getUserPetitionCreatedText(SocialActivity $entity)
+    {
+        return 'Posted: ' . $entity->getTarget()['title'];
+    }
+
+    private static function getUserPetitionCreatedTitle(SocialActivity $entity)
+    {
+        return $entity->getFollowing()->getFullName();
+    }
+
+    private static function getUserPetitionCreatedImage(SocialActivity $entity)
     {
         return $entity->getFollowing()->getAvatarFileName();
     }
