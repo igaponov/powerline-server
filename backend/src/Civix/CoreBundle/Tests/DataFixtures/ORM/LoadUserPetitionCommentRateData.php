@@ -1,20 +1,20 @@
 <?php
-namespace Civix\CoreBundle\Tests\DataFixtures\ORM\Group;
+namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
-use Civix\CoreBundle\Entity\Poll\CommentRate;
+use Civix\CoreBundle\Entity\UserPetition\CommentRate;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 
-class LoadCommentRateData extends AbstractFixture implements DependentFixtureInterface
+class LoadUserPetitionCommentRateData extends AbstractFixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager)
     {
         $user1 = $this->getReference('user_1');
         $user2 = $this->getReference('user_2');
         $user4 = $this->getReference('user_4');
-        $comment1 = $this->getReference('question_comment_1');
-        $comment3 = $this->getReference('question_comment_3');
+        $comment1 = $this->getReference('petition_comment_1');
+        $comment3 = $this->getReference('petition_comment_3');
 
         $rate = new CommentRate();
         $rate->setComment($comment1)
@@ -45,6 +45,6 @@ class LoadCommentRateData extends AbstractFixture implements DependentFixtureInt
 
     public function getDependencies()
     {
-        return [LoadQuestionCommentData::class];
+        return [LoadUserPetitionCommentData::class];
     }
 }

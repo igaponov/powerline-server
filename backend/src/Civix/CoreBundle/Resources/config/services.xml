@@ -405,6 +405,11 @@
             <tag name="doctrine.event_subscriber"/>
         </service>
 
+        <service class="Civix\CoreBundle\EventListener\CommentSubscriber" id="civix_core.event_listener.comment_subscriber">
+            <argument id="doctrine.orm.entity_manager" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service class="Civix\CoreBundle\Storage\VichArrayStorage" id="civix_core.storage.array">
             <argument id="vich_uploader.property_mapping_factory" type="service"/>
         </service>

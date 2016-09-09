@@ -94,6 +94,9 @@
         </service>
 
         <service class="Civix\ApiBundle\Security\Authorization\Voter\CommentVoter" id="civix_api.security_authorization_voter.comment_voter">
+            <argument id="civix_api.security_authorization_voter.leader_content_voter" type="service"/>
+            <argument id="civix_api.security_authorization_voter.post_voter" type="service"/>
+            <argument id="civix_api.security_authorization_voter.petition_voter" type="service"/>
             <tag name="security.voter"/>
         </service>
 

@@ -3,7 +3,9 @@ namespace Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Configuration\SecureParam;
 use Civix\CoreBundle\Entity\BaseComment;
+use Civix\CoreBundle\Entity\BaseCommentRate;
 use Civix\CoreBundle\Entity\Post\Comment;
+use Civix\CoreBundle\Entity\Post\CommentRate;
 use Civix\CoreBundle\Service\CommentManager;
 use FOS\RestBundle\Controller\Annotations\View;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -93,6 +95,57 @@ class PostCommentController extends AbstractCommentController
     public function deleteCommentAction(BaseComment $comment)
     {
         return $this->deleteComment($comment);
+    }
+
+    /**
+     * Rate comment
+     *
+     * @Route("/rate", requirements={"id"="\d+"})
+     * @Method("POST")
+     *
+     * @ParamConverter("comment", class="Civix\CoreBundle\Entity\Post\Comment")
+     * @ParamConverter("rate",
+     *     class="Civix\CoreBundle\Entity\Post\CommentRate",
+     *     options={"mapping" = {"comment" = "comment", "loggedInUser" = "user"}},
+     *     converter="doctrine.param_converter"
+     * )
+     *
+     * @SecureParam("comment", permission="view")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Posts",
+     *     description="Rate comment",
+     *     input="Civix\ApiBundle\Form\Type\CommentRateType",
+     *     output={
+     *          "class" = "Civix\CoreBundle\Entity\Post\Comment",
+     *          "groups" = {"api-comments", "api-comments-parent"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
+     *     },
+     *     statusCodes={
+     *         403="Access Denied",
+     *         404="Comment Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @View(serializerGroups={"api-comments", "api-comments-parent"})
+     *
+     * @param Request $request
+     * @param BaseComment $comment
+     * @param BaseCommentRate $rate
+     *
+     * @return BaseComment|\Symfony\Component\Form\Form
+     */
+    public function postCommentRateAction(Request $request, BaseComment $comment, BaseCommentRate $rate = null)
+    {
+        if (!$rate) {
+            $rate = new CommentRate();
+            $rate->setUser($this->getUser());
+        }
+        return $this->rateComment($request, $comment, $rate);
     }
 
     protected function getManager()

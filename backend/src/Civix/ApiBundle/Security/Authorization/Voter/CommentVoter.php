@@ -2,14 +2,42 @@
 namespace Civix\ApiBundle\Security\Authorization\Voter;
 
 use Civix\CoreBundle\Entity\BaseComment;
+use Civix\CoreBundle\Entity\Poll;
+use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Entity\UserInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class CommentVoter implements VoterInterface
 {
+    const VIEW = 'view';
     const EDIT = 'edit';
     const DELETE = 'delete';
+
+    /**
+     * @var LeaderContentVoter
+     */
+    private $leaderContentVoter;
+    /**
+     * @var PostVoter
+     */
+    private $postVoter;
+    /**
+     * @var PetitionVoter
+     */
+    private $petitionVoter;
+
+    public function __construct(
+        LeaderContentVoter $leaderContentVoter,
+        PostVoter $postVoter,
+        PetitionVoter $petitionVoter
+    )
+    {
+        $this->leaderContentVoter = $leaderContentVoter;
+        $this->postVoter = $postVoter;
+        $this->petitionVoter = $petitionVoter;
+    }
 
     /**
      * Checks if the voter supports the given attribute.
@@ -21,6 +49,7 @@ class CommentVoter implements VoterInterface
     public function supportsAttribute($attribute)
     {
         return in_array($attribute, array(
+            self::VIEW,
             self::EDIT,
             self::DELETE,
         ));
@@ -86,6 +115,20 @@ class CommentVoter implements VoterInterface
         // make sure entity has owner attached to it
         if (!$object->getUser() instanceof UserInterface) {
             return VoterInterface::ACCESS_DENIED;
+        }
+
+        if ($attribute === self::VIEW) {
+            if ($object instanceof Poll\Comment) {
+                $voter = $this->leaderContentVoter;
+            } elseif ($object instanceof Post\Comment) {
+                $voter = $this->postVoter;
+            } elseif ($object instanceof UserPetition\Comment) {
+                $voter = $this->petitionVoter;
+            } else {
+                throw new \RuntimeException('Unsupported object for attribute "view" of CommentVoter');
+            }
+
+            return $voter->vote($token, $object->getCommentedEntity(), $attributes);
         }
 
         if ($object->getUser()->isEqualTo($user)) {

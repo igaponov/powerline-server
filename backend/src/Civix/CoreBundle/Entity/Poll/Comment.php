@@ -33,6 +33,11 @@ class Comment extends BaseComment
     private $question;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Civix\CoreBundle\Entity\Poll\CommentRate", mappedBy="comment", fetch="EXTRA_LAZY")
+     */
+    protected $rates;
+
+    /**
      * Set question.
      *
      * @param Question $question
@@ -54,5 +59,10 @@ class Comment extends BaseComment
     public function getQuestion()
     {
         return $this->question;
+    }
+
+    public function getCommentedEntity()
+    {
+        return $this->getQuestion();
     }
 }

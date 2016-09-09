@@ -3,8 +3,10 @@
 namespace Civix\CoreBundle\Service;
 
 use Civix\CoreBundle\Entity\BaseComment;
+use Civix\CoreBundle\Entity\BaseCommentRate;
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Comment;
+use Civix\CoreBundle\Entity\Poll\CommentRate;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\UserPetition;
@@ -40,9 +42,11 @@ class CommentManager
             ->findOneBy(array('user' => $user, 'comment' => $comment));
 
         if (!$rateCommentObj) {
+            $rateComment = new CommentRate();
+            $rateComment->setRateValue($rateValue);
             $rateCommentObj = $this->em
                 ->getRepository('CivixCoreBundle:Poll\CommentRate')
-                ->addRateToComment($comment, $user, $rateValue);
+                ->addRateToComment($comment, $user, $rateComment);
         } else {
             $rateCommentObj->setRateValue($rateValue);
         }
@@ -147,6 +151,21 @@ class CommentManager
         $comment->setCommentBodyHtml(self::DELETED_COMMENT_BODY);
         $this->em->persist($comment);
         $this->em->flush($comment);
+
+        return $comment;
+    }
+
+    public function rateComment(BaseComment $comment, BaseCommentRate $rate)
+    {
+        if (!$this->em->contains($rate)) {
+            $comment->addRate($rate);
+        }
+
+        $this->em->persist($rate);
+        $this->em->flush($rate);
+
+        $event = new CommentEvent($comment);
+        $this->dispatcher->dispatch(CommentEvents::RATE, $event);
 
         return $comment;
     }

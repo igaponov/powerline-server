@@ -1,8 +1,10 @@
 <?php
 namespace Civix\ApiBundle\Controller\V2;
 
+use Civix\ApiBundle\Form\Type\CommentRateType;
 use Civix\ApiBundle\Form\Type\UpdateCommentType;
 use Civix\CoreBundle\Entity\BaseComment;
+use Civix\CoreBundle\Entity\BaseCommentRate;
 use Civix\CoreBundle\Service\CommentManager;
 use FOS\RestBundle\Controller\FOSRestController;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -11,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 abstract class AbstractCommentController extends FOSRestController
 {
     /**
-     * @return \Civix\CoreBundle\Service\CommentManager
+     * @return CommentManager
      */
     abstract protected function getManager();
 
@@ -30,5 +32,17 @@ abstract class AbstractCommentController extends FOSRestController
     protected function deleteComment(BaseComment $comment)
     {
         $this->getManager()->deleteComment($comment);
+    }
+
+    protected function rateComment(Request $request, BaseComment $comment, BaseCommentRate $rate)
+    {
+        $form = $this->createForm(new CommentRateType(get_class($rate)), $rate);
+        $form->submit($request);
+
+        if ($form->isValid()) {
+            return $this->getManager()->rateComment($comment, $rate);
+        }
+
+        return $form;
     }
 }

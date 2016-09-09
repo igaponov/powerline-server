@@ -361,6 +361,7 @@ class PollController extends BaseController
 
     /**
      * Add rate to comment.
+     * Deprecated, use `POST /api/v2/poll-comments/{id}/rate` instead
      *
      * @Route(
      *      "/comments/rate/{id}/{action}",
@@ -376,7 +377,8 @@ class PollController extends BaseController
      *         200="Returns comment with new rate",
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * ) 
      */
     public function rateCommentAction(\Civix\CoreBundle\Entity\Poll\Comment $comment, $action)
