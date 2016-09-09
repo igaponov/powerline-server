@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\BaseComment;
+use Civix\CoreBundle\Entity\BaseCommentRate;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -112,5 +113,89 @@ abstract class CommentControllerTestCase extends WebTestCase
         );
         $response = $client->getResponse();
         $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    protected function rateCommentWithWrongCredentials(BaseComment $comment)
+    {
+        $client = $this->client;
+        $uri = str_replace('{id}', $comment->getId(), $this->getApiEndpoint().'/rate');
+        $client->request('POST', $uri, [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user4"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    protected function rateCommentWithWrongData(BaseComment $comment, $params, $errors)
+    {
+        $client = $this->client;
+        $uri = str_replace('{id}', $comment->getId(), $this->getApiEndpoint().'/rate');
+        $client->request('POST', $uri, [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user1"'],
+            json_encode($params)
+        );
+        $response = $client->getResponse();
+        $this->assertResponseHasErrors($response, $errors);
+    }
+
+    public function getInvalidRates()
+    {
+        return [
+            'empty' => [
+                ['rate_value' => null],
+                ['rate_value' => 'This value should not be blank.'],
+            ],
+            'invalid' => [
+                ['rate_value' => 'invalid'],
+                ['rate_value' => 'This value should not be blank.'],
+            ],
+        ];
+    }
+
+    protected function rateComment(BaseComment $comment, $rate, $user)
+    {
+        $client = $this->client;
+        $uri = str_replace('{id}', $comment->getId(), $this->getApiEndpoint().'/rate');
+        $params = ['rate_value' => $rate];
+        $client->request('POST', $uri, [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"'],
+            json_encode($params)
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(
+            array_search($rate, BaseCommentRate::getRateValueLabels()),
+            $data['rate_sum']
+        );
+        $this->assertEquals(3, $data['rates_count']);
+    }
+
+    protected function updateCommentRate(BaseComment $comment, $rate)
+    {
+        $client = $this->client;
+        $uri = str_replace('{id}', $comment->getId(), $this->getApiEndpoint().'/rate');
+        $params = ['rate_value' => $rate];
+        $client->request('POST', $uri, [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user1"'],
+            json_encode($params)
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(
+            array_search($rate, BaseCommentRate::getRateValueLabels()),
+            $data['rate_sum']
+        );
+        $this->assertEquals(2, $data['rates_count']);
+    }
+
+    public function getRates()
+    {
+        return [
+            'up' => ['up', 'user3'],
+            'down' => ['down', 'user4'],
+            'delete' => ['delete', 'user3'],
+        ];
     }
 }

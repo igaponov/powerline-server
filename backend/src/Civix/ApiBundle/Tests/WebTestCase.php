@@ -22,11 +22,11 @@ abstract class WebTestCase extends \Liip\FunctionalTestBundle\Test\WebTestCase
         foreach ($errors as $child => $error) {
             if (is_int($child)) {
                 $index = array_search($error, $data['errors']['errors']);
-                $this->assertNotFalse($index, '"'.$error.'" is not in form errors.');
+                $this->assertNotFalse($index, "\"$error\" is not in form errors.\nErrors:\n - ".implode("\n - ", $data['errors']['errors']));
                 unset($data['errors']['errors'][$index]);
             } else {
                 $index = array_search($error, $data['errors']['children'][$child]['errors']);
-                $this->assertNotFalse($index, '"'.$error.'" is not in form['.$child.'] errors.');
+                $this->assertNotFalse($index, "\"$error\" is not in form[$child] errors.\nErrors:\n - ".implode("\n - ", $data['errors']['children'][$child]['errors']));
                 unset($data['errors']['children'][$child]['errors'][$index]);
             }
         }

@@ -1,7 +1,10 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionCommentData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionCommentRateData;
 
 class UserPetitionCommentControllerTest extends CommentControllerTestCase
 {
@@ -58,5 +61,59 @@ class UserPetitionCommentControllerTest extends CommentControllerTestCase
         ])->getReferenceRepository();
         $comment = $repository->getReference('petition_comment_3');
         $this->deleteCommentWithWrongCredentials($comment);
+    }
+
+    public function testRateCommentWithWrongCredentialsThrowsException()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserPetitionCommentRateData::class,
+        ])->getReferenceRepository();
+        $comment = $repository->getReference('petition_comment_1');
+        $this->rateCommentWithWrongCredentials($comment);
+    }
+
+    /**
+     * @param $params
+     * @param $errors
+     * @dataProvider getInvalidRates
+     */
+    public function testRateCommentWithWrongDataReturnsErrors($params, $errors)
+    {
+        $repository = $this->loadFixtures([
+            LoadUserPetitionCommentRateData::class,
+        ])->getReferenceRepository();
+        $comment = $repository->getReference('petition_comment_1');
+        $this->rateCommentWithWrongData($comment, $params, $errors);
+    }
+
+    /**
+     * @param $rate
+     * @param $user
+     * @dataProvider getRates
+     */
+    public function testRateCommentIsOk($rate, $user)
+    {
+        $repository = $this->loadFixtures([
+            LoadUserPetitionCommentRateData::class,
+            LoadGroupManagerData::class,
+            LoadUserGroupData::class,
+        ])->getReferenceRepository();
+        $comment = $repository->getReference('petition_comment_1');
+        $this->rateComment($comment, $rate, $user);
+    }
+
+    /**
+     * @param $rate
+     * @dataProvider getRates
+     */
+    public function testUpdateCommentRateIsOk($rate)
+    {
+        $repository = $this->loadFixtures([
+            LoadUserPetitionCommentRateData::class,
+            LoadGroupManagerData::class,
+            LoadUserGroupData::class,
+        ])->getReferenceRepository();
+        $comment = $repository->getReference('petition_comment_3');
+        $this->updateCommentRate($comment, $rate);
     }
 }

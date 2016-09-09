@@ -43,8 +43,6 @@ class LoadPostCommentData extends AbstractFixture implements DependentFixtureInt
 
         $manager->flush();
 
-
-
         $this->addReference('post_comment_1', $comment1);
         $this->addReference('post_comment_2', $comment2);
         $this->addReference('post_comment_3', $comment3);

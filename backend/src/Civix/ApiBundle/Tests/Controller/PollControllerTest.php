@@ -1,7 +1,7 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller;
 
-use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadCommentRateData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadPollCommentRateData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
@@ -108,7 +108,7 @@ class PollControllerTest extends WebTestCase
         $repository = $this->loadFixtures([
             LoadUserData::class,
             LoadQuestionCommentData::class,
-            LoadCommentRateData::class,
+            LoadPollCommentRateData::class,
         ])->getReferenceRepository();
         $comment = $repository->getReference('question_comment_3');
         $client = $this->client;
@@ -132,7 +132,7 @@ class PollControllerTest extends WebTestCase
         $repository = $this->loadFixtures([
             LoadUserData::class,
             LoadQuestionCommentData::class,
-            LoadCommentRateData::class,
+            LoadPollCommentRateData::class,
         ])->getReferenceRepository();
         $comment = $repository->getReference('question_comment_1');
         $client = $this->client;
