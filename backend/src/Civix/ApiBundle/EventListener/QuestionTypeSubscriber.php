@@ -56,7 +56,7 @@ class QuestionTypeSubscriber implements EventSubscriberInterface
 
         if (!$data) {
             $form->add('type', 'text', [
-                'description' => 'Poll type (group, representative, event, payment request, petition)',
+                'description' => 'Poll type (group (regular poll), representative, event, news, payment_request, petition)',
                 'mapped' => false,
                 'constraints' => [
                     new NotBlank([
