@@ -558,7 +558,7 @@ class GroupController extends BaseController
     		return new JsonResponse(['error' => 'The user is not member of the group'], 404);
     	}
     	
-    	if(!$group->isManager($user))
+    	if($group->isManager($user))
     	{
     		return new JsonResponse(['error' => 'The user is already group manager of this group'], 404);
     	}
@@ -569,7 +569,7 @@ class GroupController extends BaseController
     	$entityManager->flush();
     	
     	// Add the relation in the group object
-    	$group->addManagerUser($user_group_manager);
+    	$group->addManager($user_group_manager);
     	
     	$entityManager->persist($group);
     	$entityManager->flush();
