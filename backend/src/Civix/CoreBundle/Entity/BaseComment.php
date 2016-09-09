@@ -2,7 +2,6 @@
 
 namespace Civix\CoreBundle\Entity;
 
-use Civix\CoreBundle\Entity\Poll\CommentRate;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -83,8 +82,7 @@ abstract class BaseComment implements HtmlBodyInterface
     protected $user;
 
     /**
-     * @var CommentRate[]|ArrayCollection
-     * @ORM\OneToMany(targetEntity="\Civix\CoreBundle\Entity\Poll\CommentRate", mappedBy="comment")
+     * @var BaseCommentRate[]|ArrayCollection
      */
     protected $rates;
 
@@ -142,6 +140,11 @@ abstract class BaseComment implements HtmlBodyInterface
             self::PRIVACY_PRIVATE => 'private',
         ];
     }
+
+    /**
+     * @return CommentedInterface
+     */
+    abstract public function getCommentedEntity();
 
     public function __construct()
     {
@@ -303,11 +306,6 @@ abstract class BaseComment implements HtmlBodyInterface
         return '';
     }
 
-    public function getRates()
-    {
-        return $this->rates;
-    }
-
     public function getParentId()
     {
         if (isset($this->parentComment)) {
@@ -437,27 +435,36 @@ abstract class BaseComment implements HtmlBodyInterface
     }
 
     /**
-     * Add rates.
+     * @return BaseCommentRate[]|ArrayCollection
+     */
+    public function getRates()
+    {
+        return $this->rates;
+    }
+
+    /**
+     * Add rate.
      *
-     * @param Poll\CommentRate $rates
+     * @param BaseCommentRate $rate
      *
      * @return BaseComment
      */
-    public function addRate(Poll\CommentRate $rates)
+    public function addRate(BaseCommentRate $rate)
     {
-        $this->rates[] = $rates;
+        $this->rates[] = $rate;
+        $rate->setComment($this);
 
         return $this;
     }
 
     /**
-     * Remove rates.
+     * Remove rate.
      *
-     * @param Poll\CommentRate $rates
+     * @param BaseCommentRate $rate
      */
-    public function removeRate(Poll\CommentRate $rates)
+    public function removeRate(BaseCommentRate $rate)
     {
-        $this->rates->removeElement($rates);
+        $this->rates->removeElement($rate);
     }
 
     /**

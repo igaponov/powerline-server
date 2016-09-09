@@ -34,6 +34,11 @@ class Comment extends BaseComment
     private $petition;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Civix\CoreBundle\Entity\UserPetition\CommentRate", mappedBy="comment", fetch="EXTRA_LAZY")
+     */
+    protected $rates;
+
+    /**
      * Set a petition.
      *
      * @param UserPetition $petition
@@ -55,5 +60,10 @@ class Comment extends BaseComment
     public function getPetition()
     {
         return $this->petition;
+    }
+
+    public function getCommentedEntity()
+    {
+        return $this->getPetition();
     }
 }

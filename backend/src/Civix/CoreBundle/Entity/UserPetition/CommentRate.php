@@ -1,13 +1,13 @@
 <?php
 
-namespace Civix\CoreBundle\Entity\Poll;
+namespace Civix\CoreBundle\Entity\UserPetition;
 
 use Civix\CoreBundle\Entity\BaseCommentRate;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\CommentRateRepository")
- * @ORM\Table(name="poll_questions_comments_rate")
+ * @ORM\Table(name="user_petition_comment_rates")
  */
 class CommentRate extends BaseCommentRate
 {
