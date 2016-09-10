@@ -504,18 +504,37 @@ class ActivityRepository extends EntityRepository
             THEN 2 
             WHEN 
                 (
-                NOT EXISTS(SELECT 1 FROM \Civix\CoreBundle\Entity\Poll\Answer sub_pa WHERE sub_pa.question = act.question) AND 
-                NOT EXISTS(SELECT 1 FROM \Civix\CoreBundle\Entity\UserPetition\Signature sub_ups WHERE sub_ups.petition = act.petition) AND 
-                NOT EXISTS(SELECT 1 FROM \Civix\CoreBundle\Entity\Post\Vote sub_pv WHERE sub_pv.post = act.post) AND 
-                act NOT INSTANCE OF (
-                    Civix\CoreBundle\Entity\Activities\LeaderNews, 
-                    Civix\CoreBundle\Entity\Activities\Petition
-                ))
+                    NOT EXISTS(SELECT 1 FROM \Civix\CoreBundle\Entity\Poll\Answer sub_pa WHERE sub_pa.question = act.question) AND 
+                    act NOT INSTANCE OF (
+                        Civix\CoreBundle\Entity\Activities\LeaderNews, 
+                        Civix\CoreBundle\Entity\Activities\Petition
+                    )
+                )
                 OR 
-                (act_r.id IS NULL AND act INSTANCE OF (
-                    Civix\CoreBundle\Entity\Activities\LeaderNews, 
-                    Civix\CoreBundle\Entity\Activities\Petition
-                ))
+                (
+                    act_r.id IS NULL AND 
+                    act INSTANCE OF (
+                        Civix\CoreBundle\Entity\Activities\LeaderNews, 
+                        Civix\CoreBundle\Entity\Activities\Petition
+                    )
+                )
+                OR
+                (
+                    p.boosted = true AND
+                    NOT EXISTS(SELECT 1 FROM \Civix\CoreBundle\Entity\Post\Vote sub_pv WHERE sub_pv.post = act.post) AND 
+                    act INSTANCE OF (
+                        Civix\CoreBundle\Entity\Activities\Post
+                    )
+                )
+                OR
+                (
+                    up.boosted = true AND
+                    act_r.id IS NULL AND 
+                    NOT EXISTS(SELECT 1 FROM \Civix\CoreBundle\Entity\UserPetition\Signature sub_ups WHERE sub_ups.petition = act.petition) AND 
+                    act INSTANCE OF (
+                        Civix\CoreBundle\Entity\Activities\UserPetition
+                    )
+                )
             THEN 0
             ELSE 1
             END) AS zone')
