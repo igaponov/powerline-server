@@ -4,9 +4,6 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\CommentedInterface;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostCommentData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionCommentData;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -63,7 +60,7 @@ abstract class CommentsControllerTest extends WebTestCase
         $uri = str_replace('{id}', $entity->getId(), $this->getApiEndpoint());
         $params = ['comment_body' => 'comment text @user2', 'parent_comment' => $comment->getId()];
         $client->request('POST', $uri, [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user1"'],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user3"'],
             json_encode($params)
         );
         $response = $client->getResponse();

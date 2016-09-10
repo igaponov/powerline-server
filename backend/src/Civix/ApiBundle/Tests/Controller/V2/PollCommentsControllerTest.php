@@ -63,6 +63,7 @@ class PollCommentsControllerTest extends CommentsControllerTest
     {
         $repository = $this->loadFixtures([
             LoadQuestionCommentData::class,
+            LoadGroupManagerData::class,
         ])->getReferenceRepository();
         $entity = $repository->getReference('group_question_1');
         $comment = $repository->getReference('question_comment_1');
