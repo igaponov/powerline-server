@@ -90,7 +90,7 @@ class SocialActivityManager
     {
         $question = $answer->getQuestion();
         if (!$question->getOwner() instanceof Group) {
-            return;
+            return null;
         }
         $target = [
             'id' => $question->getId(),
@@ -144,7 +144,7 @@ class SocialActivityManager
         }
     }
 
-    public function noticeUserPetitionCommented(\Civix\CoreBundle\Entity\UserPetition\Comment $comment)
+    public function noticeUserPetitionCommented(UserPetition\Comment $comment)
     {
         $petition = $comment->getPetition();
         $target = [
@@ -178,7 +178,7 @@ class SocialActivityManager
                 $comment->getUser(),
                 $petition->getGroup()
             );
-                $socialActivity->setTarget($target)
+                $socialActivity3->setTarget($target)
                 ->setRecipient($petition->getUser())
             ;
             $this->em->persist($socialActivity3);
@@ -186,7 +186,7 @@ class SocialActivityManager
         $this->em->flush();
     }
 
-    public function noticePostCommented(\Civix\CoreBundle\Entity\Post\Comment $comment)
+    public function noticePostCommented(Post\Comment $comment)
     {
         $post = $comment->getPost();
         $target = [
@@ -214,13 +214,13 @@ class SocialActivityManager
             $this->em->persist($socialActivity2);
         }
 
-        if ($post->getUser()->getIsNotifOwnPostChanged()) {
+        if ($post->getUser()->getIsNotifOwnPostChanged() && $comment->getUser() != $post->getUser()) {
             $socialActivity3 = new SocialActivity(
                 SocialActivity::TYPE_OWN_POST_COMMENTED,
                 $comment->getUser(),
                 $post->getGroup()
             );
-                $socialActivity->setTarget($target)
+                $socialActivity3->setTarget($target)
                 ->setRecipient($post->getUser())
             ;
             $this->em->persist($socialActivity3);
@@ -322,13 +322,13 @@ class SocialActivityManager
 
     private function getPreviewByPoll(Question $question)
     {
-        if ($question instanceof \Civix\CoreBundle\Entity\Poll\Question\Petition) {
+        if ($question instanceof Question\Petition) {
             return $this->preparePreview($question->getPetitionTitle());
         }
-        if ($question instanceof \Civix\CoreBundle\Entity\Poll\Question\PaymentRequest) {
+        if ($question instanceof Question\PaymentRequest) {
             return $this->preparePreview($question->getTitle());
         }
-        if ($question instanceof \Civix\CoreBundle\Entity\Poll\Question\LeaderEvent) {
+        if ($question instanceof Question\LeaderEvent) {
             return $this->preparePreview($question->getTitle());
         }
 
@@ -337,13 +337,13 @@ class SocialActivityManager
 
     private function getLabelByPoll(Question $question)
     {
-        if ($question instanceof \Civix\CoreBundle\Entity\Poll\Question\Petition) {
+        if ($question instanceof Question\Petition) {
             return 'petition';
         }
-        if ($question instanceof \Civix\CoreBundle\Entity\Poll\Question\PaymentRequest) {
+        if ($question instanceof Question\PaymentRequest) {
             return 'payment request';
         }
-        if ($question instanceof \Civix\CoreBundle\Entity\Poll\Question\LeaderEvent) {
+        if ($question instanceof Question\LeaderEvent) {
             return 'event';
         }
 
