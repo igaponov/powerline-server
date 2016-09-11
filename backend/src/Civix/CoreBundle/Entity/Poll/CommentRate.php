@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\CommentRateRepository")
- * @ORM\Table(name="poll_questions_comments_rate")
+ * @ORM\Table(name="poll_comment_rates")
  */
 class CommentRate extends BaseCommentRate
 {
