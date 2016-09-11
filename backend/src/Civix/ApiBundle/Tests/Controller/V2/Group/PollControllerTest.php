@@ -5,8 +5,9 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Doctrine\DBAL\Connection;
 use Faker\Factory;
-use Symfony\Component\BrowserKit\Client;
+use Symfony\Bundle\FrameworkBundle\Client;
 
 class PollControllerTest extends WebTestCase
 {
@@ -175,6 +176,11 @@ class PollControllerTest extends WebTestCase
 				$this->assertSame($value, $data[$param]);
 			}
 		}
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        // check author subscription
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM poll_subscribers WHERE question_id = ?', [$data['id']]);
+        $this->assertEquals(1, $count);
 	}
 
     /**

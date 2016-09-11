@@ -55,6 +55,9 @@ class LeaderContentSubscriber implements EventSubscriberInterface
                 ['addQuestionHashTags'],
                 ['setQuestionExpire'],
             ],
+            PollEvents::QUESTION_CREATE => [
+                ['subscribePollAuthor'],
+            ],
         ];
     }
 
@@ -127,6 +130,15 @@ class LeaderContentSubscriber implements EventSubscriberInterface
         $post = $event->getPost();
         $author = $post->getUser();
         $author->addPostSubscription($post);
+        $this->em->persist($author);
+        $this->em->flush();
+    }
+
+    public function subscribePollAuthor(QuestionEvent $event)
+    {
+        $poll = $event->getQuestion();
+        $author = $poll->getUser();
+        $author->addPollSubscription($poll);
         $this->em->persist($author);
         $this->em->flush();
     }
