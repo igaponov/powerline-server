@@ -80,14 +80,12 @@ class PushSender
         $question = $this->entityManager
             ->getRepository('CivixCoreBundle:Poll\Question')
             ->find($questionId);
-        /** @var Petition $petition */
-        $petition = $this->entityManager
-            ->getRepository('CivixCoreBundle:Poll\Question\Petition')
-            ->find($questionId);
 
-        if (!$question || !$petition) {
+        if (!$question) {
             return;
         }
+
+        $avatar = $this->getLinkByFilename($question->getGroup()->getAvatarFileName());
 
         $this->questionUsersPush->setQuestion($question);
         $lastId = 0;
@@ -105,7 +103,8 @@ class PushSender
                         $question->getType(),
                         [
                             'id' => $question->getId(),
-                        ]
+                        ],
+                        $avatar
                     );
                     $lastId = $recipient->getId();
                 }
@@ -173,7 +172,7 @@ class PushSender
                     $post->getGroup()
                         ->getOfficialName()
                 ),
-                "Boosted: {$post->getBody()}",
+                "Boosted Post: {$this->preview($post->getBody())}",
                 self::TYPE_PUSH_POST,
                 ['id' => $postId],
                 $this->getLinkByFilename($post->getUser()->getAvatarFileName())
@@ -222,8 +221,10 @@ class PushSender
             $this->send(
                 $recipient,
                 $group->getOfficialName(),
-                $message,
-                self::TYPE_PUSH_ANNOUNCEMENT
+                $this->preview($message),
+                self::TYPE_PUSH_ANNOUNCEMENT,
+                null,
+                $this->getLinkByFilename($group->getAvatarFileName())
             );
         }
     }
@@ -371,7 +372,7 @@ class PushSender
             try {
                 $this->notification->send(
                     $title,
-                    $this->preview($message),
+                    $message,
                     $type,
                     $entityData,
                     $image,

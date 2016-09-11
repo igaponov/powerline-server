@@ -5,7 +5,7 @@ namespace Civix\CoreBundle\Entity;
 interface LeaderContentInterface
 {
     /**
-     * @return UserInterface
+     * @return UserInterface|Group
      */
     public function getGroup();
 }
