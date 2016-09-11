@@ -10,6 +10,9 @@ use Civix\CoreBundle\Service\PushSender;
 class QuestionUserPush
 {
     protected $entityManager;
+    /**
+     * @var Question
+     */
     private $question;
     private $questionOwner;
 
@@ -41,7 +44,7 @@ class QuestionUserPush
         return $this->entityManager
             ->getRepository('CivixCoreBundle:User')
             ->getUsersByDistrictForPush(
-                $this->question->getUser()->getDistrictId(),
+                $this->question->getOwner()->getDistrictId(),
                 ($this->question instanceof RepresentativeNews) ?
                 PushSender::TYPE_PUSH_NEWS :
                 PushSender::TYPE_PUSH_ACTIVITY,
@@ -67,7 +70,7 @@ class QuestionUserPush
             return $this->entityManager
                 ->getRepository('CivixCoreBundle:User')
                 ->getUsersByGroupForPush(
-                    $this->question->getUser()->getId(),
+                    $this->question->getOwner()->getId(),
                     PushSender::TYPE_PUSH_ACTIVITY,
                     $startId,
                     $limitUser
