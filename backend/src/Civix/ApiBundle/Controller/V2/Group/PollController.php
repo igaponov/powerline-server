@@ -6,10 +6,12 @@ use Civix\ApiBundle\Configuration\SecureParam;
 use Civix\ApiBundle\Form\Type\Poll\QuestionType;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Poll\Question;
+use Civix\CoreBundle\Service\PollManager;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
+use JMS\DiExtraBundle\Annotation as DI;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -22,6 +24,12 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class PollController extends FOSRestController
 {
+    /**
+     * @var PollManager
+     * @DI\Inject("civix_core.poll_manager")
+     */
+    private $manager;
+
     /**
      * List all the polls and questions based in the current user type.
      *
@@ -117,11 +125,7 @@ class PollController extends FOSRestController
             $question->setUser($this->getUser());
             $question->setOwner($group);
 
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($question);
-            $em->flush();
-
-            return $question;
+            return $this->manager->savePoll($question);
         }
 
         return $form;

@@ -39,4 +39,20 @@ class PollManager
 
         return $question;
     }
+
+    public function savePoll(Question $poll)
+    {
+        $isNew = !$poll->getId();
+        $event = new QuestionEvent($poll);
+
+        $this->em->persist($poll);
+        $this->em->flush();
+
+        if ($isNew) {
+            $eventName = PollEvents::QUESTION_CREATE;
+            $this->dispatcher->dispatch($eventName, $event);
+        }
+
+        return $poll;
+    }
 }
