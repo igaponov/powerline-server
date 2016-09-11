@@ -220,6 +220,7 @@ fos_rest:
                 path: ^/api
                 priorities: [ json ]
                 fallback_format: json
+            - { path: '^/', priorities: [ 'html', '*/*'], fallback_format: html, prefer_extension: True }
     exception:
         enabled: true
         codes:
