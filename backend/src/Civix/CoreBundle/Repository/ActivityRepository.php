@@ -72,6 +72,8 @@ class ActivityRepository extends EntityRepository
      * @param $limit
      *
      * @return array
+     *
+     * @deprecated
      */
     public function findActivitiesByUser(User $user, \DateTime $start, $offset, $limit)
     {
@@ -504,7 +506,7 @@ class ActivityRepository extends EntityRepository
             THEN 2 
             WHEN 
                 (
-                    NOT EXISTS(SELECT 1 FROM \Civix\CoreBundle\Entity\Poll\Answer sub_pa WHERE sub_pa.question = act.question) AND 
+                    qa.id IS NULL AND 
                     act NOT INSTANCE OF (
                         Civix\CoreBundle\Entity\Activities\LeaderNews, 
                         Civix\CoreBundle\Entity\Activities\Petition
@@ -521,7 +523,7 @@ class ActivityRepository extends EntityRepository
                 OR
                 (
                     p.boosted = true AND
-                    NOT EXISTS(SELECT 1 FROM \Civix\CoreBundle\Entity\Post\Vote sub_pv WHERE sub_pv.post = act.post) AND 
+                    pv.id IS NULL AND 
                     act INSTANCE OF (
                         Civix\CoreBundle\Entity\Activities\Post
                     )
@@ -530,7 +532,7 @@ class ActivityRepository extends EntityRepository
                 (
                     up.boosted = true AND
                     act_r.id IS NULL AND 
-                    NOT EXISTS(SELECT 1 FROM \Civix\CoreBundle\Entity\UserPetition\Signature sub_ups WHERE sub_ups.petition = act.petition) AND 
+                    ups.id IS NULL AND 
                     act INSTANCE OF (
                         Civix\CoreBundle\Entity\Activities\UserPetition
                     )
