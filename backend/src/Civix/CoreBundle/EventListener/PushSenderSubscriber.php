@@ -61,31 +61,32 @@ class PushSenderSubscriber implements EventSubscriberInterface
         if ($entity instanceof Question\LeaderNews) {
             $params = [
                 $entity->getId(),
-                "Discuss: {$entity->getSubject()}",
+                "{$entity->getOwner()->getOfficialName()} Discussion",
+                $this->preview($entity->getSubject()),
             ];
         } elseif ($entity instanceof Question\Petition) {
             $params = [
                 $entity->getId(),
-                "Sign: {$entity->getPetitionTitle()}",
-                "Sign: {$entity->getPetitionBody()}",
+                "{$entity->getOwner()->getOfficialName()} Petition",
+                $entity->getPetitionTitle(),
             ];
         } elseif ($entity instanceof Question\PaymentRequest) {
             $params = [
                 $entity->getId(),
                 "{$entity->getOwner()->getOfficialName()} Fundraiser",
-                $entity->getTitle()
+                $entity->getTitle(),
             ];
         } elseif ($entity instanceof Question\LeaderEvent) {
             $params = [
                 $entity->getId(),
                 "{$entity->getOwner()->getOfficialName()} Event",
-                "RSVP: {$entity->getTitle()}"
+                $entity->getTitle(),
             ];
         } else {
             $params = [
                 $entity->getId(),
                 "{$entity->getOwner()->getOfficialName()} Poll",
-                $entity->getSubject()
+                $this->preview($entity->getSubject()),
             ];
         }
 
@@ -117,5 +118,14 @@ class PushSenderSubscriber implements EventSubscriberInterface
             'sendInvitePush',
             [$invite->getUser()->getId(), $invite->getGroup()->getId()]
         );
+    }
+
+    private function preview($text)
+    {
+        if (mb_strlen($text) > 300) {
+            return mb_substr($text, 0, 300) . '...';
+        }
+
+        return $text;
     }
 }

@@ -3,7 +3,6 @@
 namespace Civix\CoreBundle\Converters;
 
 use Civix\CoreBundle\Entity\SocialActivity;
-use Civix\CoreBundle\Entity\Micropetitions\Petition as Micropetition;
 
 class SocialActivityConverter
 {
@@ -14,6 +13,7 @@ class SocialActivityConverter
         SocialActivity::TYPE_GROUP_USER_PETITION_CREATED => 'getUserPetitionCreated',
         SocialActivity::TYPE_ANSWERED => 'getAnswered',
         SocialActivity::TYPE_FOLLOW_POLL_COMMENTED => 'getFollowPollCommented',
+        SocialActivity::TYPE_FOLLOW_POST_COMMENTED => 'getFollowPostCommented',
         SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED => 'getFollowMicropetitionCommented',
         SocialActivity::TYPE_COMMENT_REPLIED => 'getCommentReplied',
         SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED => 'getGroupPermissionsChanged',
@@ -58,12 +58,12 @@ class SocialActivityConverter
 
     private static function getFollowRequestHTML(SocialActivity $entity)
     {
-        return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName()).'</strong> wants to follow you</p>';
+        return '<p> wants to follow you</p>';
     }
 
     private static function getFollowRequestText(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getFullName() . ' wants to follow you. Approve?';
+        return ' wants to follow you. Approve?';
     }
 
     private static function getFollowRequestTitle(SocialActivity $entity)
@@ -106,7 +106,7 @@ class SocialActivityConverter
 
     private static function getPostCreatedText(SocialActivity $entity)
     {
-        return 'Posted: '.$entity->getTarget()['body'];
+        return 'posted: '.self::preview($entity->getTarget()['body']);
     }
 
     private static function getPostCreatedTitle(SocialActivity $entity)
@@ -128,7 +128,7 @@ class SocialActivityConverter
 
     private static function getUserPetitionCreatedText(SocialActivity $entity)
     {
-        return 'Posted: ' . $entity->getTarget()['title'];
+        return self::preview($entity->getTarget()['body']);
     }
 
     private static function getUserPetitionCreatedTitle(SocialActivity $entity)
@@ -185,6 +185,26 @@ class SocialActivityConverter
     }
 
     private static function getFollowPollCommentedImage(SocialActivity $entity)
+    {
+        return $entity->getFollowing()->getAvatarFileName();
+    }
+
+    private static function getFollowPostCommentedHTML(SocialActivity $entity)
+    {
+        return '<p> commented on the post you subscribed to</p>';
+    }
+
+    private static function getFollowPostCommentedText(SocialActivity $entity)
+    {
+        return ' commented on the post you subscribed to';
+    }
+
+    private static function getFollowPostCommentedTitle(SocialActivity $entity)
+    {
+        return $entity->getFollowing()->getFullName();
+    }
+
+    private static function getFollowPostCommentedImage(SocialActivity $entity)
     {
         return $entity->getFollowing()->getAvatarFileName();
     }
@@ -256,7 +276,7 @@ class SocialActivityConverter
 
     private static function getCommentMentionedText(SocialActivity $entity)
     {
-        return $entity->getTarget()['first_name'].' mentioned you in a comment';
+        return ' mentioned you in a comment';
     }
 
     private static function getCommentMentionedTitle(SocialActivity $entity)
@@ -271,13 +291,12 @@ class SocialActivityConverter
 
     private static function getCommentMentionedHTML(SocialActivity $entity)
     {
-        return '<p><strong>'.htmlspecialchars($entity->getTarget()['first_name'])
-            .'</strong> mentioned you in a comment</p>';
+        return '<p> mentioned you in a comment</p>';
     }
 
     private static function getOwnPostCommentedText(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getFullName().' commented on your post';
+        return ' commented on your post';
     }
 
     private static function getOwnPostCommentedTitle(SocialActivity $entity)
@@ -292,13 +311,12 @@ class SocialActivityConverter
 
     private static function getOwnPostCommentedHTML(SocialActivity $entity)
     {
-        return '<p><strong>'. htmlspecialchars($entity->getFollowing()->getFullName())
-        . '</strong> commented on your post</p>';
+        return '<p> commented on your post</p>';
     }
 
     private static function getOwnPostVotedText(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getFullName().' voted on your post';
+        return ' voted on your post';
     }
 
     private static function getOwnPostVotedTitle(SocialActivity $entity)
@@ -313,7 +331,15 @@ class SocialActivityConverter
 
     private static function getOwnPostVotedHTML(SocialActivity $entity)
     {
-        return '<p><strong>'. htmlspecialchars($entity->getFollowing()->getFullName())
-        . '</strong> voted on your post</p>';
+        return '<p> voted on your post</p>';
+    }
+
+    private static function preview($text)
+    {
+        if (mb_strlen($text) > 300) {
+            return mb_substr($text, 0, 300) . '...';
+        }
+
+        return $text;
     }
 }

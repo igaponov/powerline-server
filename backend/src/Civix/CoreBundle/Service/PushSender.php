@@ -67,20 +67,25 @@ class PushSender
         $this->urlBuilder = $urlBuilder;
     }
 
+    /**
+     * Leader publishes poll, petition, discussion, fundraiser, event (all group members notified)
+     *
+     * @param $questionId
+     * @param $title
+     * @param $message
+     */
     public function sendPushPublishQuestion($questionId, $title, $message)
     {
         /** @var Question $question */
         $question = $this->entityManager
             ->getRepository('CivixCoreBundle:Poll\Question')
             ->find($questionId);
-        /** @var Petition $petition */
-        $petition = $this->entityManager
-            ->getRepository('CivixCoreBundle:Poll\Question\Petition')
-            ->find($questionId);
 
-        if (!$question || !$petition) {
+        if (!$question) {
             return;
         }
+
+        $avatar = $this->getLinkByFilename($question->getGroup()->getAvatarFileName());
 
         $this->questionUsersPush->setQuestion($question);
         $lastId = 0;
@@ -98,7 +103,8 @@ class PushSender
                         $question->getType(),
                         [
                             'id' => $question->getId(),
-                        ]
+                        ],
+                        $avatar
                     );
                     $lastId = $recipient->getId();
                 }
@@ -108,6 +114,13 @@ class PushSender
         } while ($users);
     }
 
+    /**
+     * User petition is manually boosted by group leader.
+     * User petition is boosted automatically by system in a group.
+     *
+     * @param $groupId
+     * @param null $petitionId
+     */
     public function sendGroupPetitionPush($groupId, $petitionId = null)
     {
         $users = $this->entityManager
@@ -134,6 +147,13 @@ class PushSender
         }
     }
 
+    /**
+     * User post is manually boosted by group leader.
+     * User post is boosted automatically by system in a group.
+     *
+     * @param $groupId
+     * @param null $postId
+     */
     public function sendGroupPostPush($groupId, $postId = null)
     {
         $users = $this->entityManager
@@ -152,7 +172,7 @@ class PushSender
                     $post->getGroup()
                         ->getOfficialName()
                 ),
-                "Boosted: {$post->getBody()}",
+                "Boosted Post: {$this->preview($post->getBody())}",
                 self::TYPE_PUSH_POST,
                 ['id' => $postId],
                 $this->getLinkByFilename($post->getUser()->getAvatarFileName())
@@ -183,6 +203,12 @@ class PushSender
         }
     }
 
+    /**
+     * Leader sends announcement (all group members notified)
+     *
+     * @param $groupId
+     * @param string $message
+     */
     public function sendGroupAnnouncementPush($groupId, $message = self::ANNOUNCEMENT_PUSH_MESSAGE)
     {
         $users = $this->entityManager
@@ -195,12 +221,20 @@ class PushSender
             $this->send(
                 $recipient,
                 $group->getOfficialName(),
-                $message,
-                self::TYPE_PUSH_ANNOUNCEMENT
+                $this->preview($message),
+                self::TYPE_PUSH_ANNOUNCEMENT,
+                null,
+                $this->getLinkByFilename($group->getAvatarFileName())
             );
         }
     }
 
+    /**
+     * User is invited to join group.
+     *
+     * @param $userId
+     * @param $groupId
+     */
     public function sendInvitePush($userId, $groupId)
     {
         $user = $this->entityManager
@@ -215,6 +249,12 @@ class PushSender
         }
     }
 
+    /**
+     * User A receives follow request from User B
+     *
+     * @param int $userId User A
+     * @param int $followerId User B
+     */
     public function sendInfluencePush($userId, $followerId = 0)
     {
         $user = $this->entityManager
@@ -332,7 +372,7 @@ class PushSender
             try {
                 $this->notification->send(
                     $title,
-                    $this->preview($message),
+                    $message,
                     $type,
                     $entityData,
                     $image,
