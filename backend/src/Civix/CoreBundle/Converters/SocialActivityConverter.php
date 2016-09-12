@@ -58,7 +58,7 @@ class SocialActivityConverter
 
     private static function getFollowRequestHTML(SocialActivity $entity)
     {
-        return '<p> wants to follow you</p>';
+        return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName()).'</strong> wants to follow you</p>';
     }
 
     private static function getFollowRequestText(SocialActivity $entity)
@@ -191,7 +191,7 @@ class SocialActivityConverter
 
     private static function getFollowPostCommentedHTML(SocialActivity $entity)
     {
-        return '<p> commented on the post you subscribed to</p>';
+        return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName()).'</strong> commented on the post you subscribed to</p>';
     }
 
     private static function getFollowPostCommentedText(SocialActivity $entity)
@@ -291,7 +291,8 @@ class SocialActivityConverter
 
     private static function getCommentMentionedHTML(SocialActivity $entity)
     {
-        return '<p> mentioned you in a comment</p>';
+        return '<p><strong>'.htmlspecialchars($entity->getTarget()['first_name'])
+            .'</strong> mentioned you in a comment</p>';
     }
 
     private static function getOwnPostCommentedText(SocialActivity $entity)
@@ -311,7 +312,8 @@ class SocialActivityConverter
 
     private static function getOwnPostCommentedHTML(SocialActivity $entity)
     {
-        return '<p> commented on your post</p>';
+        return '<p><strong>'. htmlspecialchars($entity->getFollowing()->getFullName())
+        . '</strong> commented on your post</p>';
     }
 
     private static function getOwnPostVotedText(SocialActivity $entity)
@@ -331,7 +333,8 @@ class SocialActivityConverter
 
     private static function getOwnPostVotedHTML(SocialActivity $entity)
     {
-        return '<p> voted on your post</p>';
+        return '<p><strong>'. htmlspecialchars($entity->getFollowing()->getFullName())
+        . '</strong> voted on your post</p>';
     }
 
     private static function preview($text)
