@@ -67,7 +67,11 @@ class ActivityUpdate
         /** @var \Civix\CoreBundle\Entity\Activities\Question $activity */
         $activity = new $class;
         $activity->setQuestionId($question->getId());
-        $activity->setTitle('');
+        if ($question instanceof LeaderEvent) {
+            $activity->setTitle($question->getTitle());
+        } else {
+            $activity->setTitle('');
+        }
         $activity->setDescription($question->getSubject());
         $activity->setSentAt($question->getPublishedAt());
         $activity->setExpireAt($question->getExpireAt());
