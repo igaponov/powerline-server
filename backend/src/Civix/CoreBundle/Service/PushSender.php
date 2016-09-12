@@ -291,7 +291,7 @@ class PushSender
                     $user,
                     $socialActivity->getTitle(),
                     $socialActivity->getTextMessage(),
-                    self::TYPE_PUSH_SOCIAL_ACTIVITY,
+                    $socialActivity->getType(),
                     ['id' => $socialActivity->getId(), 'target' => $target],
                     $this->getLinkByFilename($socialActivity->getImage())
                 );
@@ -310,7 +310,7 @@ class PushSender
                         $recipient,
                         $socialActivity->getTitle(),
                         $socialActivity->getTextMessage(),
-                        self::TYPE_PUSH_SOCIAL_ACTIVITY,
+                        $socialActivity->getType(),
                         ['id' => $socialActivity->getId(), 'target' => $target],
                         $this->getLinkByFilename($socialActivity->getImage())
                     );
@@ -355,7 +355,7 @@ class PushSender
                 $recipient,
                 $socialActivity->getTitle(),
                 $socialActivity->getTextMessage(),
-                self::TYPE_PUSH_SOCIAL_ACTIVITY,
+                $socialActivity->getType(),
                 ['id' => $socialActivity->getId(), 'target' => $target],
                 $this->getLinkByFilename($socialActivity->getImage())
             );
