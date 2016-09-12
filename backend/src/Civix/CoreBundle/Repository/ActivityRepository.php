@@ -509,6 +509,16 @@ class ActivityRepository extends EntityRepository
                     qa.id IS NULL AND 
                     act NOT INSTANCE OF (
                         Civix\CoreBundle\Entity\Activities\LeaderNews, 
+                        Civix\CoreBundle\Entity\Activities\Petition,
+                        Civix\CoreBundle\Entity\Activities\Post,
+                        Civix\CoreBundle\Entity\Activities\UserPetition
+                    )
+                )
+                OR 
+                (
+                    qa.id IS NULL AND
+                    act_r.id IS NULL AND 
+                    act INSTANCE OF (
                         Civix\CoreBundle\Entity\Activities\Petition
                     )
                 )
@@ -516,8 +526,7 @@ class ActivityRepository extends EntityRepository
                 (
                     act_r.id IS NULL AND 
                     act INSTANCE OF (
-                        Civix\CoreBundle\Entity\Activities\LeaderNews, 
-                        Civix\CoreBundle\Entity\Activities\Petition
+                        Civix\CoreBundle\Entity\Activities\LeaderNews
                     )
                 )
                 OR

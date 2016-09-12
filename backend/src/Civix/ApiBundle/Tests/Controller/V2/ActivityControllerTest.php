@@ -54,13 +54,13 @@ class ActivityControllerTest extends WebTestCase
 
 	public function testGetActivitiesIsOk()
 	{
-        $repository = $this->loadFixtures([
+        $this->loadFixtures([
             LoadUserFollowerData::class,
             LoadActivityRelationsData::class,
             LoadUserPetitionSubscriberData::class,
             LoadPostSubscriberData::class,
             LoadPollSubscriberData::class,
-        ])->getReferenceRepository();
+        ]);
 		$client = $this->client;
 		$client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
 		$response = $client->getResponse();
