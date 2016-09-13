@@ -32,7 +32,7 @@ class SocialActivityManager
     public function sendUserFollowRequest(UserFollow $follow)
     {
         $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_REQUEST, $follow->getFollower()))
-            ->setTarget(['id' => $follow->getId(), 'type' => 'user'])
+            ->setTarget(['id' => $follow->getFollower()->getId(), 'type' => 'user'])
             ->setRecipient($follow->getUser())
         ;
         $this->em->persist($socialActivity);
