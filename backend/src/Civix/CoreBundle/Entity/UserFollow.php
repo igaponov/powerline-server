@@ -58,7 +58,7 @@ class UserFollow
 
     /**
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\User", inversedBy="followers", cascade={"persist"})
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="cascade")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-following", "api-follow", "api-follow-create"})
      */
@@ -68,7 +68,7 @@ class UserFollow
      * Deprecated, this property is serialized inline in v2
      *
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\User", inversedBy="following", cascade={"persist"})
-     * @ORM\JoinColumn(name="follower_id", referencedColumnName="id", onDelete="cascade")
+     * @ORM\JoinColumn(name="follower_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-followers", "api-follow"})
      */
