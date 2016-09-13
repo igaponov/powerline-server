@@ -34,25 +34,18 @@ class UserGroupManager
 
     /**
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\User", inversedBy="managedGroups", cascade={"persist"})
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="cascade")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      * @Serializer\Expose()
      */
     private $user;
 
     /**
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Group", inversedBy="users", cascade={"persist"})
-     * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="cascade")
+     * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-groups"})
      */
     private $group;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="group_id", type="integer", nullable=true)
-     */
-    private $group_id;
 
     /**
      * @var \DateTime created_at
@@ -99,7 +92,7 @@ class UserGroupManager
      *
      * @param int $status
      *
-     * @return UserGroup
+     * @return UserGroupManager
      */
     public function setStatus($status)
     {
@@ -121,11 +114,11 @@ class UserGroupManager
     /**
      * Set user.
      *
-     * @param \Civix\CoreBundle\Entity\User $user
+     * @param User $user
      *
-     * @return UserGroup
+     * @return UserGroupManager
      */
-    public function setUser(\Civix\CoreBundle\Entity\User $user)
+    public function setUser(User $user)
     {
         $this->user = $user;
 
@@ -135,7 +128,7 @@ class UserGroupManager
     /**
      * Get user.
      *
-     * @return \Civix\CoreBundle\Entity\User
+     * @return User
      */
     public function getUser()
     {
@@ -145,11 +138,11 @@ class UserGroupManager
     /**
      * Set group.
      *
-     * @param \Civix\CoreBundle\Entity\Group $group
+     * @param Group $group
      *
-     * @return UserGroup
+     * @return UserGroupManager
      */
-    public function setGroup(\Civix\CoreBundle\Entity\Group $group)
+    public function setGroup(Group $group)
     {
         $this->group = $group;
 
@@ -159,7 +152,7 @@ class UserGroupManager
     /**
      * Get group.
      *
-     * @return \Civix\CoreBundle\Entity\Group
+     * @return Group
      */
     public function getGroup()
     {
@@ -167,31 +160,11 @@ class UserGroupManager
     }
 
     /**
-     * @return int
-     */
-    public function getGroupId()
-    {
-        return $this->group_id;
-    }
-
-    /**
-     * @param int $group_id
-     *
-     * @return $this
-     */
-    public function setGroupId($group_id)
-    {
-        $this->group_id = $group_id;
-
-        return $this;
-    }
-
-    /**
      * Set createAt.
      *
      * @param \DateTime $createdAt
      *
-     * @return UserGroup
+     * @return UserGroupManager
      */
     public function setCreatedAt($createdAt)
     {
