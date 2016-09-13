@@ -55,7 +55,7 @@ class Option implements ContentInterface
 
     /**
      * @ORM\ManyToOne(targetEntity="Question", inversedBy="options")
-     * @ORM\JoinColumn(name="question_id", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="question_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      */
     private $question;
 
