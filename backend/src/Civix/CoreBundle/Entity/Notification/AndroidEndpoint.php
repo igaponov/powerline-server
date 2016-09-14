@@ -36,37 +36,37 @@ class AndroidEndpoint extends AbstractEndpoint
             case PushSender::TYPE_PUSH_USER_PETITION:
                 $actionButton = array(
                     array("icon" => "Sign", "title" => "Sign", "callback" => "app.sign"),
-                    array("icon" => "Ignore", "title" => "Ignore", "callback" => "app.ignore"),
+                    array("icon" => "Ignore", "title" => "Ignore"),
                 );
                 break;
             case PushSender::TYPE_PUSH_INFLUENCE:
                 $actionButton = array(
                     array("icon" => "Approve", "title" => "Approve", "callback" => "app.approve"),
-                    array("icon" => "Ignore", "title" => "Ignore", "callback" => "app.ignore"),
+                    array("icon" => "Ignore", "title" => "Ignore"),
                 );
                 break;
             case SocialActivity::TYPE_COMMENT_MENTIONED:
                 $actionButton = array(
                     array("icon" => "Open", "title" => "Open", "callback" => "app.open"),
-                    array("icon" => "Ignore", "title" => "Ignore", "callback" => "app.ignore"),
+                    array("icon" => "Ignore", "title" => "Ignore"),
                 );
                 break;
             case SocialActivity::TYPE_FOLLOW_REQUEST:
                 $actionButton = array(
                     array("icon" => "Approve", "title" => "Approve", "callback" => "app.approve"),
-                    array("icon" => "Ignore", "title" => "Ignore", "callback" => "app.ignore"),
+                    array("icon" => "Ignore", "title" => "Ignore"),
                 );
                 break;
             case SocialActivity::TYPE_GROUP_POST_CREATED:
                 $actionButton = array(
                     array("icon" => "Upvote", "title" => "Upvote", "callback" => "app.upvote"),
-                    array("icon" => "Ignore", "title" => "Ignore", "callback" => "app.ignore"),
+                    array("icon" => "Ignore", "title" => "Ignore"),
                 );
                 break;
             case SocialActivity::TYPE_GROUP_USER_PETITION_CREATED:
                 $actionButton = array(
                     array("icon" => "Sign", "title" => "Sign", "callback" => "app.sign"),
-                    array("icon" => "Ignore", "title" => "Ignore", "callback" => "app.ignore"),
+                    array("icon" => "Ignore", "title" => "Ignore"),
                 );
                 break;
             case PushSender::TYPE_PUSH_POST:
@@ -78,13 +78,13 @@ class AndroidEndpoint extends AbstractEndpoint
             case PushSender::TYPE_PUSH_INVITE:
                 $actionButton = array(
                     array("icon" => "Join", "title" => "Join", "callback" => "app.join"),
-                    array("icon" => "Ignore", "title" => "Ignore", "callback" => "app.ignore"),
+                    array("icon" => "Ignore", "title" => "Ignore"),
                 );
                 break;
             case SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED:
                 $actionButton = array(
                     array("icon" => "Open", "title" => "Open", "callback" => "app.open"),
-                    array("icon" => "Ignore", "title" => "Ignore", "callback" => "app.ignore"),
+                    array("icon" => "Ignore", "title" => "Ignore"),
                 );
                 break;
             case SocialActivity::TYPE_OWN_POST_COMMENTED:
@@ -101,7 +101,7 @@ class AndroidEndpoint extends AbstractEndpoint
             case PushSender::TYPE_PUSH_ANNOUNCEMENT:
                 $actionButton = array(
                     array("icon" => "Share", "title" => "Share", "callback" => "app.share"),
-                    array("icon" => "Ignore", "title" => "Ignore", "callback" => "app.ignore"),
+                    array("icon" => "Ignore", "title" => "Ignore"),
                 );
                 break;
             case 'group_petition':
@@ -113,26 +113,26 @@ class AndroidEndpoint extends AbstractEndpoint
             case 'group_question':
                 $actionButton = array(
                     array("icon" => "Respond", "title" => "Respond", "callback" => "app.respond"),
-                    array("icon" => "Ignore", "title" => "Ignore", "callback" => "app.ignore"),
+                    array("icon" => "Ignore", "title" => "Ignore"),
                 );
                 break;
             case 'group_news':
                 $actionButton = array(
                     array("icon" => "Open", "title" => "Open", "callback" => "app.open"),
-                    array("icon" => "Ignore", "title" => "Ignore", "callback" => "app.ignore"),
+                    array("icon" => "Ignore", "title" => "Ignore"),
                 );
                 break;
             case 'group_event':
                 $actionButton = array(
                     array("icon" => "RSVP", "title" => "RSVP", "callback" => "app.rsvp"),
-                    array("icon" => "Ignore", "title" => "Ignore", "callback" => "app.ignore"),
+                    array("icon" => "Ignore", "title" => "Ignore"),
                 );
                 break;
             case 'group_payment_request':
             case 'group_payment_request_crowdfunding':
                 $actionButton = array(
                     array("icon" => "Donate", "title" => "Donate", "callback" => "app.donate"),
-                    array("icon" => "Ignore", "title" => "Ignore", "callback" => "app.ignore"),
+                    array("icon" => "Ignore", "title" => "Ignore"),
                 );
                 break;
         }
