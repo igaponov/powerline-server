@@ -73,6 +73,10 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 SocialActivity::TYPE_OWN_POST_VOTED,
                 '<p><strong>John &lt;Doe&gt;</strong> voted on your post</p>',
             ],
+            [
+                SocialActivity::TYPE_OWN_USER_PETITION_SIGNED,
+                '<p><strong>John &lt;Doe&gt;</strong> signed your petition</p>',
+            ],
         ];
     }
 
@@ -119,7 +123,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED,
-                'John <Doe> commented on Label in the <US> community',
+                ' commented on your petition',
             ],
             [
                 SocialActivity::TYPE_COMMENT_REPLIED,
@@ -140,6 +144,10 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             [
                 SocialActivity::TYPE_OWN_POST_VOTED,
                 ' voted on your post',
+            ],
+            [
+                SocialActivity::TYPE_OWN_USER_PETITION_SIGNED,
+                ' signed your petition',
             ],
         ];
     }
@@ -209,6 +217,10 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 SocialActivity::TYPE_OWN_POST_VOTED,
                 'John <Doe>',
             ],
+            [
+                SocialActivity::TYPE_OWN_USER_PETITION_SIGNED,
+                'John <Doe>',
+            ],
         ];
     }
 
@@ -275,6 +287,10 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_OWN_POST_VOTED,
+                '/avatar.jpg',
+            ],
+            [
+                SocialActivity::TYPE_OWN_USER_PETITION_SIGNED,
                 '/avatar.jpg',
             ],
         ];

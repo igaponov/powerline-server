@@ -25,7 +25,7 @@ class SocialActivity
     const TYPE_COMMENT_MENTIONED = 'comment-mentioned';
     const TYPE_OWN_POST_COMMENTED = 'own-post-commented';
     const TYPE_OWN_USER_PETITION_COMMENTED = 'own-user-petition-commented';
-    const TYPE_OWN_USER_PETITION_VOTED = 'own-user-petition-voted';
+    const TYPE_OWN_USER_PETITION_SIGNED = 'own-user-petition-signed';
     const TYPE_OWN_POST_VOTED = 'own-post-voted';
 
     /**

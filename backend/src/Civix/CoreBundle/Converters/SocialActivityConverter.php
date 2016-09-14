@@ -20,6 +20,7 @@ class SocialActivityConverter
         SocialActivity::TYPE_COMMENT_MENTIONED => 'getCommentMentioned',
         SocialActivity::TYPE_OWN_POST_COMMENTED => 'getOwnPostCommented',
         SocialActivity::TYPE_OWN_POST_VOTED => 'getOwnPostVoted',
+        SocialActivity::TYPE_OWN_USER_PETITION_SIGNED => 'getOwnUserPetitionSigned',
     ];
 
     public static function toHTML(SocialActivity $entity)
@@ -218,8 +219,7 @@ class SocialActivityConverter
 
     private static function getFollowUserPetitionCommentedText(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getFullName().' commented on '.$entity->getTarget()['label']
-            .' in the '.$entity->getGroup()->getOfficialName().' community';
+        return ' commented on your petition';
     }
 
     private static function getFollowUserPetitionCommentedTitle(SocialActivity $entity)
@@ -335,6 +335,27 @@ class SocialActivityConverter
     {
         return '<p><strong>'. htmlspecialchars($entity->getFollowing()->getFullName())
         . '</strong> voted on your post</p>';
+    }
+
+    private static function getOwnUserPetitionSignedText(SocialActivity $entity)
+    {
+        return ' signed your petition';
+    }
+
+    private static function getOwnUserPetitionSignedTitle(SocialActivity $entity)
+    {
+        return $entity->getFollowing()->getFullName();
+    }
+
+    private static function getOwnUserPetitionSignedImage(SocialActivity $entity)
+    {
+        return $entity->getFollowing()->getAvatarFileName();
+    }
+
+    private static function getOwnUserPetitionSignedHTML(SocialActivity $entity)
+    {
+        return '<p><strong>'. htmlspecialchars($entity->getFollowing()->getFullName())
+        . '</strong> signed your petition</p>';
     }
 
     private static function preview($text)
