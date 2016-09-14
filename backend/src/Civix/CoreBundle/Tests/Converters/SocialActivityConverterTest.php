@@ -1,0 +1,310 @@
+<?php
+namespace Civix\CoreBundle\Tests\Converters;
+
+use Civix\CoreBundle\Converters\SocialActivityConverter;
+use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\SocialActivity;
+use Civix\CoreBundle\Entity\User;
+
+class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
+{
+    /**
+     * @param $type
+     * @param $html
+     * @dataProvider getHTML
+     */
+    public function testToHTML($type, $html)
+    {
+        $this->assertEquals($html, SocialActivityConverter::toHTML($this->createActivity($type)));
+    }
+
+    public function getHTML()
+    {
+        return [
+            [
+                SocialActivity::TYPE_FOLLOW_REQUEST,
+                '<p><strong>John &lt;Doe&gt;</strong> wants to follow you</p>',
+            ],
+            [
+                SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED,
+                '<p>Request to join <strong>&lt;US&gt;</strong> has been approved</p>',
+            ],
+            [
+                SocialActivity::TYPE_GROUP_POST_CREATED,
+                '<p><strong>John &lt;Doe&gt;</strong> posted in the <strong>&lt;US&gt;</strong> community</p>',
+            ],
+            [
+                SocialActivity::TYPE_GROUP_USER_PETITION_CREATED,
+                '<p><strong>John &lt;Doe&gt;</strong> created a petition in the <strong>&lt;US&gt;</strong> community</p>',
+            ],
+            [
+                SocialActivity::TYPE_ANSWERED,
+                '<p><strong>John &lt;Doe&gt;</strong> responded to a Label "&lt;Preview&gt;" in the <strong>&lt;US&gt;</strong> community</p>',
+            ],
+            [
+                SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
+                '<p><strong>John &lt;Doe&gt;</strong> commented on Label in the <strong>&lt;US&gt;</strong> community</p>',
+            ],
+            [
+                SocialActivity::TYPE_FOLLOW_POST_COMMENTED,
+                '<p><strong>John &lt;Doe&gt;</strong> commented on the post you subscribed to</p>',
+            ],
+            [
+                SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED,
+                '<p><strong>John &lt;Doe&gt;</strong> commented on Label in the <strong>&lt;US&gt;</strong> community</p>',
+            ],
+            [
+                SocialActivity::TYPE_COMMENT_REPLIED,
+                '<p><strong>John &lt;Doe&gt;</strong> replied to your comment</p>',
+            ],
+            [
+                SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED,
+                '<p>Permissions changed for <strong>&lt;US&gt;</strong></p>',
+            ],
+            [
+                SocialActivity::TYPE_COMMENT_MENTIONED,
+                '<p><strong>&lt;Jane&gt;</strong> mentioned you in a comment</p>',
+            ],
+            [
+                SocialActivity::TYPE_OWN_POST_COMMENTED,
+                '<p><strong>John &lt;Doe&gt;</strong> commented on your post</p>',
+            ],
+            [
+                SocialActivity::TYPE_OWN_POST_VOTED,
+                '<p><strong>John &lt;Doe&gt;</strong> voted on your post</p>',
+            ],
+        ];
+    }
+
+    /**
+     * @param $type
+     * @param $text
+     * @dataProvider getText
+     */
+    public function testToText($type, $text)
+    {
+        $this->assertEquals($text, SocialActivityConverter::toText($this->createActivity($type)));
+    }
+
+    public function getText()
+    {
+        return [
+            [
+                SocialActivity::TYPE_FOLLOW_REQUEST,
+                ' wants to follow you. Approve?',
+            ],
+            [
+                SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED,
+                'Request to join <US> has been approved',
+            ],
+            [
+                SocialActivity::TYPE_GROUP_POST_CREATED,
+                'posted: '.str_repeat('b', 300).'...',
+            ],
+            [
+                SocialActivity::TYPE_GROUP_USER_PETITION_CREATED,
+                str_repeat('b', 300).'...',
+            ],
+            [
+                SocialActivity::TYPE_ANSWERED,
+                'John <Doe> responded to a Label "<Preview>" in the <US> community',
+            ],
+            [
+                SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
+                'John <Doe> commented on Label in the <US> community',
+            ],
+            [
+                SocialActivity::TYPE_FOLLOW_POST_COMMENTED,
+                ' commented on the post you subscribed to',
+            ],
+            [
+                SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED,
+                'John <Doe> commented on Label in the <US> community',
+            ],
+            [
+                SocialActivity::TYPE_COMMENT_REPLIED,
+                'John <Doe> replied to your comment',
+            ],
+            [
+                SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED,
+                '<US> has changed the information it is asking for from you as a group member. Open to learn more.',
+            ],
+            [
+                SocialActivity::TYPE_COMMENT_MENTIONED,
+                ' mentioned you in a comment',
+            ],
+            [
+                SocialActivity::TYPE_OWN_POST_COMMENTED,
+                ' commented on your post',
+            ],
+            [
+                SocialActivity::TYPE_OWN_POST_VOTED,
+                ' voted on your post',
+            ],
+        ];
+    }
+
+    /**
+     * @param $type
+     * @param $title
+     * @dataProvider getTitle
+     */
+    public function testToTitle($type, $title)
+    {
+        $this->assertEquals($title, SocialActivityConverter::toTitle($this->createActivity($type)));
+    }
+
+    public function getTitle()
+    {
+        return [
+            [
+                SocialActivity::TYPE_FOLLOW_REQUEST,
+                'John <Doe>',
+            ],
+            [
+                SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED,
+                '<US>',
+            ],
+            [
+                SocialActivity::TYPE_GROUP_POST_CREATED,
+                'John <Doe>',
+            ],
+            [
+                SocialActivity::TYPE_GROUP_USER_PETITION_CREATED,
+                'John <Doe>',
+            ],
+            [
+                SocialActivity::TYPE_ANSWERED,
+                'John <Doe>',
+            ],
+            [
+                SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
+                'John <Doe>',
+            ],
+            [
+                SocialActivity::TYPE_FOLLOW_POST_COMMENTED,
+                'John <Doe>',
+            ],
+            [
+                SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED,
+                'John <Doe>',
+            ],
+            [
+                SocialActivity::TYPE_COMMENT_REPLIED,
+                'John <Doe>',
+            ],
+            [
+                SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED,
+                'Group Permissions Changed',
+            ],
+            [
+                SocialActivity::TYPE_COMMENT_MENTIONED,
+                '<Jane> <Roe>',
+            ],
+            [
+                SocialActivity::TYPE_OWN_POST_COMMENTED,
+                'John <Doe>',
+            ],
+            [
+                SocialActivity::TYPE_OWN_POST_VOTED,
+                'John <Doe>',
+            ],
+        ];
+    }
+
+    /**
+     * @param $type
+     * @param $title
+     * @dataProvider getImage
+     */
+    public function testToImage($type, $title)
+    {
+        $this->assertEquals($title, SocialActivityConverter::toImage($this->createActivity($type)));
+    }
+
+    public function getImage()
+    {
+        return [
+            [
+                SocialActivity::TYPE_FOLLOW_REQUEST,
+                '/avatar.jpg',
+            ],
+            [
+                SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED,
+                '/group.jpg',
+            ],
+            [
+                SocialActivity::TYPE_GROUP_POST_CREATED,
+                '/avatar.jpg',
+            ],
+            [
+                SocialActivity::TYPE_GROUP_USER_PETITION_CREATED,
+                '/avatar.jpg',
+            ],
+            [
+                SocialActivity::TYPE_ANSWERED,
+                '/avatar.jpg',
+            ],
+            [
+                SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
+                '/avatar.jpg',
+            ],
+            [
+                SocialActivity::TYPE_FOLLOW_POST_COMMENTED,
+                '/avatar.jpg',
+            ],
+            [
+                SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED,
+                '/avatar.jpg',
+            ],
+            [
+                SocialActivity::TYPE_COMMENT_REPLIED,
+                '/avatar.jpg',
+            ],
+            [
+                SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED,
+                '/group.jpg',
+            ],
+            [
+                SocialActivity::TYPE_COMMENT_MENTIONED,
+                '/image',
+            ],
+            [
+                SocialActivity::TYPE_OWN_POST_COMMENTED,
+                '/avatar.jpg',
+            ],
+            [
+                SocialActivity::TYPE_OWN_POST_VOTED,
+                '/avatar.jpg',
+            ],
+        ];
+    }
+
+    /**
+     * @param $type
+     * @return SocialActivity
+     */
+    private function createActivity($type)
+    {
+        $user = new User();
+        $user->setFirstName('John')
+            ->setLastName('<Doe>')
+            ->setAvatarFileName('/avatar.jpg');
+        $group = new Group();
+        $group->setOfficialName('<US>')
+            ->setAvatarFileName('/group.jpg');
+        $activity = new SocialActivity($type, $user, $group);
+        $activity->setTarget(
+            [
+                'body' => str_repeat('b', 400),
+                'label' => 'Label',
+                'first_name' => '<Jane>',
+                'last_name' => '<Roe>',
+                'preview' => '<Preview>',
+                'image' => '/image',
+            ]
+        );
+
+        return $activity;
+    }
+}
