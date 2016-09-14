@@ -99,7 +99,7 @@ class SocialActivityManager
         $target['label'] = $this->getLabelByPoll($question);
         $target['preview'] = $this->getPreviewByPoll($question);
 
-        $socialActivity = (new SocialActivity(SocialActivity::TYPE_ANSWERED, $answer->getUser(),
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_OWN_POLL_ANSWERED, $answer->getUser(),
             $answer->getQuestion()->getOwner()))
             ->setTarget($target)
         ;
@@ -120,7 +120,7 @@ class SocialActivityManager
             'type' => $question->getType(),
         ];
         $target['label'] = $this->getLabelByPoll($question);
-        $target['preview'] = $this->preparePreview($comment->getCommentBody());
+        $target['preview'] = $comment->getCommentBody();
 
         $socialActivity1 = (new SocialActivity(SocialActivity::TYPE_FOLLOW_POLL_COMMENTED, $comment->getUser(),
             $comment->getQuestion()->getOwner()))
@@ -149,7 +149,7 @@ class SocialActivityManager
         $petition = $comment->getPetition();
         $target = [
             'id' => $petition->getId(),
-            'preview' => $this->preparePreview($comment->getCommentBody()),
+            'preview' => $comment->getCommentBody(),
             'type' => 'user-petition',
             'label' => 'petition',
         ];
@@ -191,7 +191,7 @@ class SocialActivityManager
         $post = $comment->getPost();
         $target = [
             'id' => $post->getId(),
-            'preview' => $this->preparePreview($comment->getCommentBody()),
+            'preview' => $comment->getCommentBody(),
             'type' => 'post',
             'label' => 'post',
         ];

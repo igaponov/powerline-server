@@ -98,6 +98,12 @@ class AndroidEndpoint extends AbstractEndpoint
                     array("icon" => "Mute", "title" => "Mute", "callback" => "app.mute"),
                 );
                 break;
+            case SocialActivity::TYPE_COMMENT_REPLIED:
+                $actionButton = array(
+                    array("icon" => "Reply", "title" => "Reply", "callback" => "app.reply"),
+                    array("icon" => "Ignore", "title" => "Ignore"),
+                );
+                break;
             case PushSender::TYPE_PUSH_ANNOUNCEMENT:
                 $actionButton = array(
                     array("icon" => "Share", "title" => "Share", "callback" => "app.share"),

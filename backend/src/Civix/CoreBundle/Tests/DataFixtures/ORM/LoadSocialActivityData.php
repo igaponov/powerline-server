@@ -33,7 +33,7 @@ class LoadSocialActivityData extends AbstractFixture implements ContainerAwareIn
         $group1 = $this->getReference('testfollowsecretgroups');
         $group2 = $this->getReference('testfollowprivategroups');
         $activity = $this->generateSocialActivity(
-            SocialActivity::TYPE_ANSWERED,
+            SocialActivity::TYPE_OWN_POLL_ANSWERED,
             $user2,
             $group1,
             $user1

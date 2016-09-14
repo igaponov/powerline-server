@@ -38,8 +38,8 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 '<p><strong>John &lt;Doe&gt;</strong> created a petition in the <strong>&lt;US&gt;</strong> community</p>',
             ],
             [
-                SocialActivity::TYPE_ANSWERED,
-                '<p><strong>John &lt;Doe&gt;</strong> responded to a Label "&lt;Preview&gt;" in the <strong>&lt;US&gt;</strong> community</p>',
+                SocialActivity::TYPE_OWN_POLL_ANSWERED,
+                '<p><strong>John &lt;Doe&gt;</strong> responded to a Label "&lt;Preview&gt;'.str_repeat('r', 400).'" in the <strong>&lt;US&gt;</strong> community</p>',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
@@ -110,12 +110,12 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 str_repeat('b', 300).'...',
             ],
             [
-                SocialActivity::TYPE_ANSWERED,
-                'John <Doe> responded to a Label "<Preview>" in the <US> community',
+                SocialActivity::TYPE_OWN_POLL_ANSWERED,
+                ' responded to your poll',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
-                'John <Doe> commented on Label in the <US> community',
+                ' commented on your poll',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POST_COMMENTED,
@@ -123,11 +123,11 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED,
-                ' commented on your petition',
+                ' commented on the user petition you subscribed to',
             ],
             [
                 SocialActivity::TYPE_COMMENT_REPLIED,
-                'John <Doe> replied to your comment',
+                ' replied and said <Preview>'.str_repeat('r', 273).'...',
             ],
             [
                 SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED,
@@ -182,7 +182,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 'John <Doe>',
             ],
             [
-                SocialActivity::TYPE_ANSWERED,
+                SocialActivity::TYPE_OWN_POLL_ANSWERED,
                 'John <Doe>',
             ],
             [
@@ -254,7 +254,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 '/avatar.jpg',
             ],
             [
-                SocialActivity::TYPE_ANSWERED,
+                SocialActivity::TYPE_OWN_POLL_ANSWERED,
                 '/avatar.jpg',
             ],
             [
@@ -316,7 +316,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 'label' => 'Label',
                 'first_name' => '<Jane>',
                 'last_name' => '<Roe>',
-                'preview' => '<Preview>',
+                'preview' => '<Preview>'.str_repeat('r', 400),
                 'image' => '/image',
             ]
         );
