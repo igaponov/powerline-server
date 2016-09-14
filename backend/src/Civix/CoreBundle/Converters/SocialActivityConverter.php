@@ -14,7 +14,7 @@ class SocialActivityConverter
         SocialActivity::TYPE_ANSWERED => 'getAnswered',
         SocialActivity::TYPE_FOLLOW_POLL_COMMENTED => 'getFollowPollCommented',
         SocialActivity::TYPE_FOLLOW_POST_COMMENTED => 'getFollowPostCommented',
-        SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED => 'getFollowMicropetitionCommented',
+        SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED => 'getFollowUserPetitionCommented',
         SocialActivity::TYPE_COMMENT_REPLIED => 'getCommentReplied',
         SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED => 'getGroupPermissionsChanged',
         SocialActivity::TYPE_COMMENT_MENTIONED => 'getCommentMentioned',
@@ -209,25 +209,25 @@ class SocialActivityConverter
         return $entity->getFollowing()->getAvatarFileName();
     }
 
-    private static function getFollowMicropetitionCommentedHTML(SocialActivity $entity)
+    private static function getFollowUserPetitionCommentedHTML(SocialActivity $entity)
     {
         return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName()).'</strong> commented on '
             .$entity->getTarget()['label'].' in the <strong>'
             .htmlspecialchars($entity->getGroup()->getOfficialName()).'</strong> community</p>';
     }
 
-    private static function getFollowMicropetitionCommentedText(SocialActivity $entity)
+    private static function getFollowUserPetitionCommentedText(SocialActivity $entity)
     {
         return $entity->getFollowing()->getFullName().' commented on '.$entity->getTarget()['label']
-            .' in the <strong>'.$entity->getGroup()->getOfficialName().' community';
+            .' in the '.$entity->getGroup()->getOfficialName().' community';
     }
 
-    private static function getFollowMicropetitionCommentedTitle(SocialActivity $entity)
+    private static function getFollowUserPetitionCommentedTitle(SocialActivity $entity)
     {
         return $entity->getFollowing()->getFullName();
     }
 
-    private static function getFollowMicropetitionCommentedImage(SocialActivity $entity)
+    private static function getFollowUserPetitionCommentedImage(SocialActivity $entity)
     {
         return $entity->getFollowing()->getAvatarFileName();
     }
