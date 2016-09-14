@@ -282,7 +282,7 @@ class UserPetitionControllerTest extends WebTestCase
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
             ->getConnection();
-        $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM social_activities WHERE type = ?', [SocialActivity::TYPE_OWN_POST_VOTED]);
+        $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM social_activities WHERE type = ?', [SocialActivity::TYPE_OWN_USER_PETITION_SIGNED]);
         $this->assertSame(1, $count);
         // check activity
         $description = $conn->fetchColumn('SELECT description FROM activities WHERE petition_id = ?', [$petition->getId()]);

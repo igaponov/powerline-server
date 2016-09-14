@@ -279,7 +279,7 @@ class ActivityUpdate
     {
         if ($petition->getUser()->getIsNotifOwnPostChanged()) {
             $socialActivity = new SocialActivity(
-                SocialActivity::TYPE_OWN_POST_VOTED,
+                SocialActivity::TYPE_OWN_USER_PETITION_SIGNED,
                 $answerer,
                 $petition->getGroup()
             );
