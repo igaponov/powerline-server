@@ -100,7 +100,6 @@ class CommentManager
         $comment = new MicropetitionComment();
         $comment->setPetition($petition);
         $comment->setCommentBody($petition->getBody());
-        $comment->setUser($petition->getUser());
 
         return $this->saveComment($comment);
     }
@@ -110,7 +109,6 @@ class CommentManager
         $comment = new Post\Comment();
         $comment->setPost($post);
         $comment->setCommentBody($post->getBody());
-        $comment->setUser($post->getUser());
 
         return $this->saveComment($comment);
     }
