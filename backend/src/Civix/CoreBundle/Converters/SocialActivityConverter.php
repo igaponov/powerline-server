@@ -11,7 +11,7 @@ class SocialActivityConverter
         SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED => 'getJoinToGroupApproved',
         SocialActivity::TYPE_GROUP_POST_CREATED => 'getPostCreated',
         SocialActivity::TYPE_GROUP_USER_PETITION_CREATED => 'getUserPetitionCreated',
-        SocialActivity::TYPE_ANSWERED => 'getAnswered',
+        SocialActivity::TYPE_OWN_POLL_ANSWERED => 'getOwnPollAnswered',
         SocialActivity::TYPE_FOLLOW_POLL_COMMENTED => 'getFollowPollCommented',
         SocialActivity::TYPE_FOLLOW_POST_COMMENTED => 'getFollowPostCommented',
         SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED => 'getFollowUserPetitionCommented',
@@ -142,7 +142,7 @@ class SocialActivityConverter
         return $entity->getFollowing()->getAvatarFileName();
     }
 
-    private static function getAnsweredHTML(SocialActivity $entity)
+    private static function getOwnPollAnsweredHTML(SocialActivity $entity)
     {
         return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName()).'</strong> responded to a '
             .$entity->getTarget()['label'].' "'.htmlspecialchars($entity->getTarget()['preview'])
@@ -150,19 +150,17 @@ class SocialActivityConverter
             .'</strong> community</p>';
     }
 
-    private static function getAnsweredText(SocialActivity $entity)
+    private static function getOwnPollAnsweredText(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getFullName().' responded to a '
-            .$entity->getTarget()['label'].' "'.$entity->getTarget()['preview']
-            .'" in the '.$entity->getGroup()->getOfficialName().' community';
+        return ' responded to your poll';
     }
 
-    private static function getAnsweredTitle(SocialActivity $entity)
+    private static function getOwnPollAnsweredTitle(SocialActivity $entity)
     {
         return $entity->getFollowing()->getFullName();
     }
 
-    private static function getAnsweredImage(SocialActivity $entity)
+    private static function getOwnPollAnsweredImage(SocialActivity $entity)
     {
         return $entity->getFollowing()->getAvatarFileName();
     }
@@ -176,8 +174,7 @@ class SocialActivityConverter
 
     private static function getFollowPollCommentedText(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getFullName().' commented on '
-            .$entity->getTarget()['label'].' in the '.$entity->getGroup()->getOfficialName().' community';
+        return ' commented on your poll';
     }
 
     private static function getFollowPollCommentedTitle(SocialActivity $entity)
@@ -219,7 +216,7 @@ class SocialActivityConverter
 
     private static function getFollowUserPetitionCommentedText(SocialActivity $entity)
     {
-        return ' commented on your petition';
+        return ' commented on the user petition you subscribed to';
     }
 
     private static function getFollowUserPetitionCommentedTitle(SocialActivity $entity)
@@ -240,7 +237,7 @@ class SocialActivityConverter
 
     private static function getCommentRepliedText(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getFullName().' replied to your comment';
+        return self::preview(' replied and said '.$entity->getTarget()['preview']);
     }
 
     private static function getCommentRepliedTitle(SocialActivity $entity)

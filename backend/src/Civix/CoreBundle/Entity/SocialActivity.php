@@ -16,7 +16,7 @@ class SocialActivity
     const TYPE_JOIN_TO_GROUP_APPROVED = 'joinToGroup-approved';
     const TYPE_GROUP_USER_PETITION_CREATED = 'user-petition-created';
     const TYPE_GROUP_POST_CREATED = 'post-created';
-    const TYPE_ANSWERED = 'answered';
+    const TYPE_OWN_POLL_ANSWERED = 'own-poll-answered';
     const TYPE_FOLLOW_POLL_COMMENTED = 'follow-pollCommented';
     const TYPE_COMMENT_REPLIED = 'comment-replied';
     const TYPE_FOLLOW_USER_PETITION_COMMENTED = 'follow-micropetitionCommented';
