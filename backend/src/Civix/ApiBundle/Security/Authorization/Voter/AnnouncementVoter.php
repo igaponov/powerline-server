@@ -79,14 +79,13 @@ class AnnouncementVoter implements VoterInterface
         $attribute = $attributes[0];
 
         /** @var UserInterface $user */
-        $user = $token->getUser(); // get current logged in user
+        $user = $object->getUser();
 
         // check if the given attribute is covered by this voter
         if (!$this->supportsAttribute($attribute)) {
             return VoterInterface::ACCESS_ABSTAIN;
         }
 
-        // make sure there is a user object (i.e. that the user is logged in)
         if (!$user instanceof UserInterface) {
             return VoterInterface::ACCESS_DENIED;
         }
