@@ -9,7 +9,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * ActivityCondition.
  *
  * @ORM\Table(name="activity_condition")
- * @ORM\Entity
+ * @ORM\Entity()
  */
 class ActivityCondition
 {
@@ -23,18 +23,20 @@ class ActivityCondition
     private $id;
 
     /**
-     * @var int
+     * @var Group
      *
-     * @ORM\Column(name="group_id", type="integer", nullable=true)
+     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Group")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
-    private $groupId;
+    private $group;
 
     /**
-     * @var int
+     * @var District
      *
-     * @ORM\Column(name="district_id", type="integer", nullable=true)
+     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\District")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
-    private $districtId;
+    private $district;
 
     /**
      * @var bool
@@ -44,22 +46,24 @@ class ActivityCondition
     private $isSuperuser;
 
     /**
-     * @var int
+     * @var User
      *
-     * @ORM\Column(name="user_id", type="integer", nullable=true)
+     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\User")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
-    private $userId;
+    private $user;
 
     /**
-     * @var int
+     * @var GroupSection
      *
-     * @ORM\Column(name="group_section_id", type="integer", nullable=true)
+     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\GroupSection")
+     * @ORM\JoinColumn(name="group_section_id", referencedColumnName="id", onDelete="CASCADE")
      */
-    private $groupSectionId;
+    private $groupSection;
 
     /**
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Activity")
-     * @ORM\JoinColumn(name="activity_id", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="activity_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      */
     protected $activity;
 
@@ -90,51 +94,51 @@ class ActivityCondition
     }
 
     /**
-     * Set groupId.
+     * Set group.
      *
-     * @param int $groupId
+     * @param Group $group
      *
      * @return ActivityCondition
      */
-    public function setGroupId($groupId)
+    public function setGroup($group)
     {
-        $this->groupId = $groupId;
+        $this->group = $group;
 
         return $this;
     }
 
     /**
-     * Get groupId.
+     * Get group.
      *
-     * @return int
+     * @return Group
      */
-    public function getGroupId()
+    public function getGroup()
     {
-        return $this->groupId;
+        return $this->group;
     }
 
     /**
-     * Set districtId.
+     * Set district.
      *
-     * @param int $districtId
+     * @param District $district
      *
      * @return ActivityCondition
      */
-    public function setDistrictId($districtId)
+    public function setDistrict($district)
     {
-        $this->districtId = $districtId;
+        $this->district = $district;
 
         return $this;
     }
 
     /**
-     * Get districtId.
+     * Get district.
      *
-     * @return int
+     * @return District
      */
-    public function getDistrictId()
+    public function getDistrict()
     {
-        return $this->districtId;
+        return $this->district;
     }
 
     /**
@@ -162,49 +166,56 @@ class ActivityCondition
     }
 
     /**
-     * Set userId.
+     * Set user.
      *
-     * @param int $userId
+     * @param User $user
      *
      * @return ActivityCondition
      */
-    public function setUserId($userId)
+    public function setUser($user)
     {
-        $this->userId = $userId;
+        $this->user = $user;
 
         return $this;
     }
 
     /**
-     * Get userId.
+     * Get user.
      *
-     * @return int
+     * @return User
      */
-    public function getUserId()
+    public function getUser()
     {
-        return $this->userId;
+        return $this->user;
     }
 
-    public function setGroupSectionId($sectionId)
+    /**
+     * @param GroupSection $section
+     * @return $this
+     */
+    public function setGroupSection($section)
     {
-        $this->groupSectionId = $sectionId;
+        $this->groupSection = $section;
 
         return $this;
     }
 
-    public function getGroupSectionId()
+    /**
+     * @return GroupSection
+     */
+    public function getGroupSection()
     {
-        return $this->groupSectionId;
+        return $this->groupSection;
     }
 
     /**
      * Set activity.
      *
-     * @param \Civix\CoreBundle\Entity\Activity $activity
+     * @param Activity $activity
      *
      * @return ActivityCondition
      */
-    public function setActivity(\Civix\CoreBundle\Entity\Activity $activity = null)
+    public function setActivity(Activity $activity = null)
     {
         $this->activity = $activity;
 
@@ -214,7 +225,7 @@ class ActivityCondition
     /**
      * Get activity.
      *
-     * @return \Civix\CoreBundle\Entity\Activity
+     * @return Activity
      */
     public function getActivity()
     {

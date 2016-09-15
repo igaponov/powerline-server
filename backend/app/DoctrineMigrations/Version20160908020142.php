@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Schema;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-class Version20160907045828 extends AbstractMigration
+class Version20160908020142 extends AbstractMigration
 {
     /**
      * @param Schema $schema
@@ -18,9 +18,14 @@ class Version20160907045828 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('DELETE sc FROM stripe_charges sc LEFT JOIN stripe_accounts sa ON sc.to_account = sa.id WHERE sc.to_account IS NOT NULL AND sa.id IS NULL');
-        $this->addSql('ALTER TABLE stripe_charges ADD CONSTRAINT FK_152861E01E27F6BF FOREIGN KEY (question_id) REFERENCES poll_questions (id) ON DELETE CASCADE');
-        $this->addSql('CREATE INDEX IDX_152861E01E27F6BF ON stripe_charges (question_id)');
+        $this->addSql('ALTER TABLE notification_endpoints DROP FOREIGN KEY FK_7AF462EFA76ED395');
+        $this->addSql('
+            DELETE ne FROM notification_endpoints ne 
+            LEFT JOIN user u ON ne.user_id = u.id
+            WHERE ne.user_id IS NULL OR u.id IS NULL
+        ');
+        $this->addSql('ALTER TABLE notification_endpoints CHANGE user_id user_id INT NOT NULL');
+        $this->addSql('ALTER TABLE notification_endpoints ADD CONSTRAINT FK_7AF462EFA76ED395 FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE');
     }
 
     /**
@@ -31,7 +36,6 @@ class Version20160907045828 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE stripe_charges DROP FOREIGN KEY FK_152861E01E27F6BF');
-        $this->addSql('DROP INDEX IDX_152861E01E27F6BF ON stripe_charges');
+        $this->addSql('ALTER TABLE notification_endpoints CHANGE user_id user_id INT DEFAULT NULL');
     }
 }

@@ -40,11 +40,11 @@ class ActivityRepository extends EntityRepository
             ->where($expr->gt('act.sentAt', ':start'))
             ->andWhere(
                 $expr->orX(
-                    $expr->in('act_c.districtId', ':userDistrictsIds'),
+                    $expr->in('act_c.district', ':userDistrictsIds'),
                     'act_c.isSuperuser = 1',
-                    $expr->in('act_c.groupId', ':userGroupsIds'),
-                    $expr->in('act_c.userId', ':userFollowingIds'),
-                    $expr->in('act_c.groupSectionId', ':userGroupSectionIds'),
+                    $expr->in('act_c.group', ':userGroupsIds'),
+                    $expr->in('act_c.user', ':userFollowingIds'),
+                    $expr->in('act_c.groupSection', ':userGroupSectionIds'),
                     ':user MEMBER OF act_c.users'
                 )
             )
@@ -123,11 +123,11 @@ class ActivityRepository extends EntityRepository
             ->where($expr->gt('act.sentAt', ':start'))
             ->andWhere(
                 $expr->orX(
-                    $expr->in('act_c.districtId', ':userDistrictsIds'),
+                    $expr->in('act_c.district', ':userDistrictsIds'),
                     'act_c.isSuperuser = 1',
-                    $expr->in('act_c.groupId', ':userGroupsIds'),
-                    $expr->in('act_c.userId', ':userFollowingIds'),
-                    $expr->in('act_c.groupSectionId', ':userGroupSectionIds'),
+                    $expr->in('act_c.group', ':userGroupsIds'),
+                    $expr->in('act_c.user', ':userFollowingIds'),
+                    $expr->in('act_c.groupSection', ':userGroupSectionIds'),
                     ':user MEMBER OF act_c.users'
                 )
             )
@@ -192,11 +192,11 @@ class ActivityRepository extends EntityRepository
             ->where($expr->gt('act.sentAt', ':start'))
             ->andWhere(
                 $expr->orX(
-                    $expr->in('act_c.districtId', ':userDistrictsIds'),
+                    $expr->in('act_c.district', ':userDistrictsIds'),
                     'act_c.isSuperuser = 1',
-                    $expr->in('act_c.groupId', ':userGroupsIds'),
-                    $expr->in('act_c.userId', ':userFollowingIds'),
-                    $expr->in('act_c.groupSectionId', ':userGroupSectionIds'),
+                    $expr->in('act_c.group', ':userGroupsIds'),
+                    $expr->in('act_c.user', ':userFollowingIds'),
+                    $expr->in('act_c.groupSection', ':userGroupSectionIds'),
                     ':user MEMBER OF act_c.users'
                 )
             )
@@ -244,7 +244,7 @@ class ActivityRepository extends EntityRepository
     {
         return $this->createQueryBuilder('act')
             ->leftJoin('act.activityConditions', 'act_c')
-            ->where('act_c.userId = :following')
+            ->where('act_c.user = :following')
             ->setParameter('following', $following->getId())
             ->orderBy('act.sentAt', 'DESC')
             ->setFirstResult($offset)
@@ -258,7 +258,7 @@ class ActivityRepository extends EntityRepository
         $query = $this->getEntityManager()
             ->createQuery('UPDATE Civix\CoreBundle\Entity\Activities\Question a
                               SET a.responsesCount = :questions_count
-                            WHERE a.questionId = :question');
+                            WHERE a.question = :question');
         $query->setParameter('question', $question->getId())
             ->setParameter('questions_count', $question->getAnswersCount())
         ;
@@ -280,7 +280,7 @@ class ActivityRepository extends EntityRepository
         $this->getEntityManager()
             ->createQuery('UPDATE Civix\CoreBundle\Entity\Activities\LeaderNews rn
                               SET rn.responsesCount = :rn_count
-                            WHERE rn.questionId = :question')
+                            WHERE rn.question = :question')
             ->setParameter('question', $question->getId())
             ->setParameter('rn_count', $count)
             ->execute()
@@ -437,11 +437,11 @@ class ActivityRepository extends EntityRepository
         $query = $this->getActivitiesQueryBuilder($user, $start)
             ->andWhere(
                 $expr->orX(
-                    $expr->in('act_c.districtId', ':userDistrictsIds'),
+                    $expr->in('act_c.district', ':userDistrictsIds'),
                     'act_c.isSuperuser != 1',
-                    $expr->in('act_c.groupId', ':userGroupsIds'),
-                    $expr->in('act_c.userId', ':userFollowingIds'),
-                    $expr->in('act_c.groupSectionId', ':userGroupSectionIds'),
+                    $expr->in('act_c.group', ':userGroupsIds'),
+                    $expr->in('act_c.user', ':userFollowingIds'),
+                    $expr->in('act_c.groupSection', ':userGroupSectionIds'),
                     ':user MEMBER OF act_c.users'
                 )
             )
@@ -473,13 +473,13 @@ class ActivityRepository extends EntityRepository
             ->getActiveGroupIds($user);
 
         $query = $this->getActivitiesQueryBuilder($following, $start)
-            ->andWhere('act_c.userId = :following')
+            ->andWhere('act_c.user = :following')
             ->andWhere(
                 $expr->orX(
-                    $expr->in('act_c.districtId', ':userDistrictsIds'),
+                    $expr->in('act_c.district', ':userDistrictsIds'),
                     'act_c.isSuperuser != 1',
-                    $expr->in('act_c.groupId', ':userGroupsIds'),
-                    $expr->in('act_c.groupSectionId', ':userGroupSectionIds'),
+                    $expr->in('act_c.group', ':userGroupsIds'),
+                    $expr->in('act_c.groupSection', ':userGroupSectionIds'),
                     ':user MEMBER OF act_c.users'
                 )
             )
@@ -549,7 +549,7 @@ class ActivityRepository extends EntityRepository
             THEN 0
             ELSE 1
             END) AS zone')
-            ->addSelect('CASE WHEN act_c.userId = :user THEN 0 ELSE 1 END AS HIDDEN is_followed')
+            ->addSelect('CASE WHEN act_c.user = :user THEN 0 ELSE 1 END AS HIDDEN is_followed')
             ->leftJoin('act.activityConditions', 'act_c')
             ->leftJoin('act.activityRead', 'act_r', Query\Expr\Join::WITH, 'act_r.user = :user')
             ->setParameter(':user', $user)

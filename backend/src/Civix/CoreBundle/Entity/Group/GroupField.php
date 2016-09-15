@@ -42,7 +42,7 @@ class GroupField implements LeaderContentInterface
 
     /**
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Group", inversedBy="fields")
-     * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      */
     private $group;
 

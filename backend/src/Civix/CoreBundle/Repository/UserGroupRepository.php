@@ -80,7 +80,7 @@ class UserGroupRepository extends EntityRepository
         ]);
 
         return array_map(function (UserGroup $userGroup) {
-            return $userGroup->getGroupId();
+            return $userGroup->getGroup()->getId();
         }, $userGroups);
     }
 

@@ -55,7 +55,7 @@ class EducationalContext implements ContentInterface
 
     /**
      * @ORM\ManyToOne(targetEntity="Question", inversedBy="educationalContext", cascade={"persist"})
-     * @ORM\JoinColumn(name="question_id", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="question_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      * @Assert\Valid()
      */
     private $question;
