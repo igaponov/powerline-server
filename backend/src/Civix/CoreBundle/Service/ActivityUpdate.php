@@ -277,7 +277,7 @@ class ActivityUpdate
 
     public function updatePetitionAuthorActivity(UserPetition $petition, User $answerer)
     {
-        if ($petition->getUser()->getIsNotifOwnPostChanged()) {
+        if ($petition->getUser()->getIsNotifOwnPostChanged() && $petition->getSubscribers()->contains($petition->getUser())) {
             $socialActivity = new SocialActivity(
                 SocialActivity::TYPE_OWN_USER_PETITION_SIGNED,
                 $answerer,
@@ -299,7 +299,7 @@ class ActivityUpdate
 
     public function updatePostAuthorActivity(Post $post, User $answerer)
     {
-        if ($post->getUser()->getIsNotifOwnPostChanged()) {
+        if ($post->getUser()->getIsNotifOwnPostChanged() && $post->getSubscribers()->contains($post->getUser())) {
             $socialActivity = new SocialActivity(
                 SocialActivity::TYPE_OWN_POST_VOTED,
                 $answerer,

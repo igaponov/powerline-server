@@ -2,6 +2,7 @@
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPollSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\DBAL\Connection;
@@ -27,6 +28,7 @@ class UserPollControllerTest extends WebTestCase
         $this->repository = $this->loadFixtures([
             LoadUserGroupData::class,
             LoadGroupQuestionData::class,
+            LoadPollSubscriberData::class,
         ])->getReferenceRepository();
         // Creates a initial client
         $this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
@@ -55,7 +57,7 @@ class UserPollControllerTest extends WebTestCase
             'SELECT COUNT(*) FROM poll_subscribers WHERE question_id = ?',
             [$poll->getId()]
         );
-        $this->assertEquals(1, $count);
+        $this->assertEquals(2, $count);
     }
 
     public function testSubscribeToPollAccessDenied()
@@ -74,16 +76,11 @@ class UserPollControllerTest extends WebTestCase
     {
         $client = $this->client;
         $poll = $this->repository->getReference('group_question_3');
-        $user = $this->repository->getReference('user_2');
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
-        $conn->insert(
-            'poll_subscribers',
-            ['user_id' => $user->getId(), 'question_id' => $poll->getId()]
-        );
         $client->request('DELETE',
             self::API_ENDPOINT.'/'.$poll->getId(), [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user2"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
         );
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
@@ -91,7 +88,7 @@ class UserPollControllerTest extends WebTestCase
             'SELECT COUNT(*) FROM poll_subscribers WHERE question_id = ?',
             [$poll->getId()]
         );
-        $this->assertEquals(0, $count);
+        $this->assertEquals(2, $count);
     }
 
     public function testUnsubscribeFromNonSubscribedPoll()

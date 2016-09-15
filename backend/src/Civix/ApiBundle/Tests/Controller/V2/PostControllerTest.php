@@ -5,6 +5,7 @@ use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Service\PushTask;
 use Civix\CoreBundle\Service\PostManager;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
@@ -312,6 +313,7 @@ class PostControllerTest extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadPostVoteData::class,
+            LoadPostSubscriberData::class,
         ])->getReferenceRepository();
         $client = $this->client;
         /** @var Connection $conn */

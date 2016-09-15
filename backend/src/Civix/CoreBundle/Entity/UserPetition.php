@@ -120,7 +120,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
     /**
      * @var ArrayCollection|User[]
      *
-     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\User", cascade={"persist"}, mappedBy="petitionSubscriptions")
+     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\User", cascade={"persist"}, mappedBy="petitionSubscriptions", fetch="EXTRA_LAZY")
      * @ORM\JoinTable(name="petition_subscribers", joinColumns={@ORM\JoinColumn(name="petition_id", referencedColumnName="id")})
      */
     private $subscribers;

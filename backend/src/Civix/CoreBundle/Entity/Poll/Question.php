@@ -259,7 +259,7 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
     /**
      * @var ArrayCollection|User[]
      *
-     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\User", cascade={"persist"}, mappedBy="pollSubscriptions")
+     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\User", cascade={"persist"}, mappedBy="pollSubscriptions", fetch="EXTRA_LAZY")
      * @ORM\JoinTable(name="poll_subscribers", joinColumns={@ORM\JoinColumn(name="question_id", referencedColumnName="id")})
      */
     private $subscribers;

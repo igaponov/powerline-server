@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserPetition;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -14,8 +15,11 @@ class LoadUserPetitionData extends AbstractFixture implements DependentFixtureIn
      */
     public function load(ObjectManager $manager)
     {
+        /** @var User $user1 */
         $user1 = $this->getReference('user_1');
+        /** @var User $user1 */
         $user2 = $this->getReference('user_2');
+        /** @var User $user1 */
         $user3 = $this->getReference('user_3');
         $group1 = $this->getReference('group_1');
         $group2 = $this->getReference('group_2');
@@ -35,6 +39,7 @@ class LoadUserPetitionData extends AbstractFixture implements DependentFixtureIn
             ->setTitle('Whole Foods takes major step on food waste')
             ->setBody('A campaign supported by more than 110,000 people helped push grocery chain Whole Foods Market to join the fight against food waste in the U.S.')
             ->setGroup($group2);
+        $user1->addPetitionSubscription($petition);
         $manager->persist($petition);
         $this->addReference('user_petition_2', $petition);
 
@@ -46,6 +51,7 @@ Women WWII pilots get burial rights at Arlington National Cemetery')
             ->boost()
             ->setOrganizationNeeded(true)
             ->setGroup($group1);
+        $user2->addPetitionSubscription($petition);
         $manager->persist($petition);
         $this->addReference('user_petition_3', $petition);
 
@@ -55,6 +61,7 @@ Women WWII pilots get burial rights at Arlington National Cemetery')
             ->setBody('John Feal led a movement to pass the Zadroga Act to give healthcare coverage to 9/11 first responders and survivors. His campaign included a petition with more than 180,000 signatures.')
             ->boost()
             ->setGroup($group2);
+        $user3->addPetitionSubscription($petition);
         $manager->persist($petition);
         $this->addReference('user_petition_4', $petition);
 
@@ -74,6 +81,7 @@ Women WWII pilots get burial rights at Arlington National Cemetery')
             ->boost()
             ->setOrganizationNeeded(true)
             ->setGroup($group1);
+        $user3->addPetitionSubscription($petition);
         $manager->persist($petition);
         $this->addReference('user_petition_6', $petition);
 
