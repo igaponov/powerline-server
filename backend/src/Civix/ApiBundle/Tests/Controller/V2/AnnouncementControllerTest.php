@@ -3,6 +3,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Announcement;
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Model\Subscription\PackageLimitState;
 use Civix\CoreBundle\Service\Subscription\PackageHandler;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupAnnouncementData;
@@ -351,6 +352,7 @@ class AnnouncementControllerTest extends WebTestCase
         $packageLimitState->setLimitValue($limitValue);
         $service->expects($this->any())
             ->method('getPackageStateForAnnouncement')
+            ->with($this->isInstanceOf(Group::class))
             ->will($this->returnValue($packageLimitState));
 
         return $service;
