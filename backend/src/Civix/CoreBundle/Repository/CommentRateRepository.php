@@ -48,7 +48,7 @@ class CommentRateRepository extends EntityRepository
     public function getRateStatistics(BaseComment $comment)
     {
         $query = $this->createQueryBuilder('r')
-            ->select('SUM(r.rateValue) AS rateSum', 'COUNT(r) AS rateCount')
+            ->select('SUM(r.rateValue) AS rateSum', 'SUM(ABS(r.rateValue)) AS rateCount')
             ->where('r.comment = :comment')
             ->setParameter(':comment', $comment)
             ->getQuery();
