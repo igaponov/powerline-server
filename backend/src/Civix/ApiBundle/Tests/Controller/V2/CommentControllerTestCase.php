@@ -164,11 +164,12 @@ abstract class CommentControllerTestCase extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
+        $rate = array_search($rate, BaseCommentRate::getRateValueLabels());
         $this->assertEquals(
-            array_search($rate, BaseCommentRate::getRateValueLabels()),
+            $rate,
             $data['rate_sum']
         );
-        $this->assertEquals(3, $data['rates_count']);
+        $this->assertEquals($rate === BaseCommentRate::RATE_DELETE ? 2 : 3, $data['rates_count']);
     }
 
     protected function updateCommentRate(BaseComment $comment, $rate)
@@ -183,11 +184,12 @@ abstract class CommentControllerTestCase extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
+        $rate = array_search($rate, BaseCommentRate::getRateValueLabels());
         $this->assertEquals(
-            array_search($rate, BaseCommentRate::getRateValueLabels()),
+            $rate,
             $data['rate_sum']
         );
-        $this->assertEquals(2, $data['rates_count']);
+        $this->assertEquals($rate === BaseCommentRate::RATE_DELETE ? 0 : 1, $data['rates_count']);
     }
 
     public function getRates()
