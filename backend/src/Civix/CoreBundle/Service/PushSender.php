@@ -403,6 +403,10 @@ class PushSender
 
     private function getLinkByFilename($fileName)
     {
+        if (!$fileName) {
+            return null;
+        }
+
         return $this->urlBuilder->createURL(
             $fileName,
             array("dpr" => 0.75, "w" => self::IMAGE_WIDTH, "h" => self::IMAGE_HEIGHT)
