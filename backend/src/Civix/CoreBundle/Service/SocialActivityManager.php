@@ -92,21 +92,22 @@ class SocialActivityManager
         if (!$question->getOwner() instanceof Group) {
             return null;
         }
-        $target = [
-            'id' => $question->getId(),
-            'type' => $question->getType(),
-        ];
-        $target['label'] = $this->getLabelByPoll($question);
-        $target['preview'] = $this->getPreviewByPoll($question);
-
-        $socialActivity = (new SocialActivity(SocialActivity::TYPE_OWN_POLL_ANSWERED, $answer->getUser(),
-            $answer->getQuestion()->getOwner()))
-            ->setTarget($target)
-        ;
-        $this->em->persist($socialActivity);
-        $this->em->flush($socialActivity);
-
-        return $socialActivity;
+        if ($question->getSubscribers()->contains($question->getUser())) {
+            $target = [
+                'id' => $question->getId(),
+                'type' => $question->getType(),
+            ];
+            $target['label'] = $this->getLabelByPoll($question);
+            $target['preview'] = $this->getPreviewByPoll($question);
+            $socialActivity = (new SocialActivity(
+                SocialActivity::TYPE_OWN_POLL_ANSWERED,
+                $answer->getUser(),
+                $answer->getQuestion()
+                    ->getOwner()
+            ))->setTarget($target);
+            $this->em->persist($socialActivity);
+            $this->em->flush($socialActivity);
+        }
     }
 
     public function noticePollCommented(Poll\Comment $comment)
@@ -122,15 +123,19 @@ class SocialActivityManager
         $target['label'] = $this->getLabelByPoll($question);
         $target['preview'] = $comment->getCommentBody();
 
-        $socialActivity1 = (new SocialActivity(SocialActivity::TYPE_FOLLOW_POLL_COMMENTED, $comment->getUser(),
-            $comment->getQuestion()->getOwner()))
-            ->setTarget($target)
-        ;
-        if ($comment->getParentComment()) {
-            $target['comment_id'] = $comment->getId();
+        if ($question->getSubscribers()->contains($question->getUser())) {
+            $socialActivity1 = (new SocialActivity(
+                SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
+                $comment->getUser(),
+                $comment->getQuestion()
+                    ->getOwner()
+            ))->setTarget($target);
+            if ($comment->getParentComment()) {
+                $target['comment_id'] = $comment->getId();
+            }
+            $this->em->persist($socialActivity1);
+            $this->em->flush($socialActivity1);
         }
-        $this->em->persist($socialActivity1);
-        $this->em->flush($socialActivity1);
 
         if ($comment->getParentComment() && $comment->getParentComment()->getUser()
             && $comment->getUser() !== $comment->getParentComment()->getUser()) {
@@ -172,7 +177,7 @@ class SocialActivityManager
             $this->em->persist($socialActivity2);
         }
 
-        if ($petition->getUser()->getIsNotifOwnPostChanged()) {
+        if ($petition->getUser()->getIsNotifOwnPostChanged() && $petition->getSubscribers()->contains($petition->getUser())) {
             $socialActivity3 = new SocialActivity(
                 SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED,
                 $comment->getUser(),
@@ -214,7 +219,7 @@ class SocialActivityManager
             $this->em->persist($socialActivity2);
         }
 
-        if ($post->getUser()->getIsNotifOwnPostChanged() && $comment->getUser() != $post->getUser()) {
+        if ($post->getUser()->getIsNotifOwnPostChanged() && $post->getSubscribers()->contains($post->getUser()) && $comment->getUser() != $post->getUser()) {
             $socialActivity3 = new SocialActivity(
                 SocialActivity::TYPE_OWN_POST_COMMENTED,
                 $comment->getUser(),

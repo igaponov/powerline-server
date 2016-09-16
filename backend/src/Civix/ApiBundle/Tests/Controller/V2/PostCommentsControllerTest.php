@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostCommentData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
 use Doctrine\DBAL\Connection;
 
 class PostCommentsControllerTest extends CommentsControllerTest
@@ -36,6 +37,7 @@ class PostCommentsControllerTest extends CommentsControllerTest
         $repository = $this->loadFixtures([
             LoadPostCommentData::class,
             LoadGroupManagerData::class,
+            LoadPostSubscriberData::class,
         ])->getReferenceRepository();
         $entity = $repository->getReference('post_1');
         $comment = $repository->getReference('post_comment_3');

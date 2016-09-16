@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionCommentData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSubscriberData;
 use Doctrine\DBAL\Connection;
 
 class UserPetitionCommentsControllerTest extends CommentsControllerTest
@@ -36,6 +37,7 @@ class UserPetitionCommentsControllerTest extends CommentsControllerTest
         $repository = $this->loadFixtures([
             LoadUserPetitionCommentData::class,
             LoadGroupManagerData::class,
+            LoadUserPetitionSubscriberData::class,
         ])->getReferenceRepository();
         $entity = $repository->getReference('user_petition_1');
         $comment = $repository->getReference('petition_comment_3');

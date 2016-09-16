@@ -1303,7 +1303,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     }
     
     /**
-     * @return mixed
+     * @return User
      */
     public function getOwner()
     {

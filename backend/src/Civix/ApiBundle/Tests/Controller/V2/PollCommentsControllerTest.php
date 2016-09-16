@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadPollCommentRateData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPollSubscriberData;
 
 class PollCommentsControllerTest extends CommentsControllerTest
 {
@@ -64,6 +65,7 @@ class PollCommentsControllerTest extends CommentsControllerTest
         $repository = $this->loadFixtures([
             LoadQuestionCommentData::class,
             LoadGroupManagerData::class,
+            LoadPollSubscriberData::class,
         ])->getReferenceRepository();
         $entity = $repository->getReference('group_question_1');
         $comment = $repository->getReference('question_comment_1');

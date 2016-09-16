@@ -1,6 +1,7 @@
 <?php
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM\Group;
 
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Poll\Option;
 use Civix\CoreBundle\Entity\Poll\Question\Group as GroupQuestion;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
@@ -15,8 +16,11 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
     {
         $faker = Factory::create();
 
+        /** @var Group $group1 */
         $group1 = $this->getReference('group_1');
+        /** @var Group $group2 */
         $group2 = $this->getReference('group_2');
+        /** @var Group $group3 */
         $group3 = $this->getReference('group_3');
 
         $question = new GroupQuestion();
@@ -28,6 +32,7 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
             $option->setValue('val '.$faker->word);
             $question->addOption($option);
         }
+        $group1->getOwner()->addPollSubscription($question);
         $manager->persist($question);
         $this->addReference('group_question_1', $question);
 
@@ -54,6 +59,7 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
             $option->setValue('val '.$faker->word);
             $question->addOption($option);
         }
+        $group3->getOwner()->addPollSubscription($question);
         $manager->persist($question);
         $this->addReference('group_question_3', $question);
 
@@ -69,6 +75,7 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
             $option->setValue('val '.$faker->word);
             $question->addOption($option);
         }
+        $group3->getOwner()->addPollSubscription($question);
         $manager->persist($question);
         $this->addReference('group_question_4', $question);
 

@@ -115,7 +115,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      * @var ArrayCollection|User[]
      *
      * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\User",
-     *     cascade={"persist"}, mappedBy="postSubscriptions")
+     *     cascade={"persist"}, mappedBy="postSubscriptions", fetch="EXTRA_LAZY")
      * @ORM\JoinTable(name="post_subscribers")
      */
     private $subscribers;
