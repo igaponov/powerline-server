@@ -8,17 +8,25 @@ class SocialActivityConverter
 {
     private static $Converters = [
         SocialActivity::TYPE_FOLLOW_REQUEST => 'getFollowRequest',
+
         SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED => 'getJoinToGroupApproved',
+
         SocialActivity::TYPE_GROUP_POST_CREATED => 'getPostCreated',
         SocialActivity::TYPE_GROUP_USER_PETITION_CREATED => 'getUserPetitionCreated',
-        SocialActivity::TYPE_OWN_POLL_ANSWERED => 'getOwnPollAnswered',
+        SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED => 'getGroupPermissionsChanged',
+
+        SocialActivity::TYPE_COMMENT_REPLIED => 'getCommentReplied',
+        SocialActivity::TYPE_COMMENT_MENTIONED => 'getCommentMentioned',
+
         SocialActivity::TYPE_FOLLOW_POLL_COMMENTED => 'getFollowPollCommented',
         SocialActivity::TYPE_FOLLOW_POST_COMMENTED => 'getFollowPostCommented',
         SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED => 'getFollowUserPetitionCommented',
-        SocialActivity::TYPE_COMMENT_REPLIED => 'getCommentReplied',
-        SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED => 'getGroupPermissionsChanged',
-        SocialActivity::TYPE_COMMENT_MENTIONED => 'getCommentMentioned',
+
+        SocialActivity::TYPE_OWN_POLL_COMMENTED => 'getOwnPollCommented',
         SocialActivity::TYPE_OWN_POST_COMMENTED => 'getOwnPostCommented',
+        SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED => 'getOwnUserPetitionCommented',
+
+        SocialActivity::TYPE_OWN_POLL_ANSWERED => 'getOwnPollAnswered',
         SocialActivity::TYPE_OWN_POST_VOTED => 'getOwnPostVoted',
         SocialActivity::TYPE_OWN_USER_PETITION_SIGNED => 'getOwnUserPetitionSigned',
     ];
@@ -142,34 +150,74 @@ class SocialActivityConverter
         return $entity->getFollowing()->getAvatarFileName();
     }
 
-    private static function getOwnPollAnsweredHTML(SocialActivity $entity)
+    private static function getGroupPermissionsChangedHTML(SocialActivity $entity)
     {
-        return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName()).'</strong> responded to a '
-            .$entity->getTarget()['label'].' "'.htmlspecialchars($entity->getTarget()['preview'])
-            .'" in the <strong>'.htmlspecialchars($entity->getGroup()->getOfficialName())
-            .'</strong> community</p>';
+        return '<p>Permissions changed for <strong>'.htmlspecialchars($entity->getGroup()->getOfficialName())
+        .'</strong></p>';
     }
 
-    private static function getOwnPollAnsweredText(SocialActivity $entity)
+    private static function getGroupPermissionsChangedText(SocialActivity $entity)
     {
-        return ' responded to your poll';
+        return $entity->getGroup()->getOfficialName().' has changed the information it is asking for from you as a group member. Open to learn more.';
     }
 
-    private static function getOwnPollAnsweredTitle(SocialActivity $entity)
+    private static function getGroupPermissionsChangedTitle(SocialActivity $entity)
+    {
+        return 'Group Permissions Changed';
+    }
+
+    private static function getGroupPermissionsChangedImage(SocialActivity $entity)
+    {
+        return $entity->getGroup()->getAvatarFileName();
+    }
+
+    private static function getCommentRepliedHTML(SocialActivity $entity)
+    {
+        return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName())
+        .'</strong> replied to your comment</p>';
+    }
+
+    private static function getCommentRepliedText(SocialActivity $entity)
+    {
+        return self::preview(' replied and said '.$entity->getTarget()['preview']);
+    }
+
+    private static function getCommentRepliedTitle(SocialActivity $entity)
     {
         return $entity->getFollowing()->getFullName();
     }
 
-    private static function getOwnPollAnsweredImage(SocialActivity $entity)
+    private static function getCommentRepliedImage(SocialActivity $entity)
     {
         return $entity->getFollowing()->getAvatarFileName();
+    }
+
+    private static function getCommentMentionedText(SocialActivity $entity)
+    {
+        return ' mentioned you in a comment';
+    }
+
+    private static function getCommentMentionedTitle(SocialActivity $entity)
+    {
+        return $entity->getTarget()['first_name'].' '.$entity->getTarget()['last_name'];
+    }
+
+    private static function getCommentMentionedImage(SocialActivity $entity)
+    {
+        return $entity->getTarget()['image'];
+    }
+
+    private static function getCommentMentionedHTML(SocialActivity $entity)
+    {
+        return '<p><strong>'.htmlspecialchars($entity->getTarget()['first_name'])
+        .'</strong> mentioned you in a comment</p>';
     }
 
     private static function getFollowPollCommentedHTML(SocialActivity $entity)
     {
         return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName()).'</strong> commented on '
-            .$entity->getTarget()['label'].' in the <strong>'
-            .htmlspecialchars($entity->getGroup()->getOfficialName()).'</strong> community</p>';
+        .$entity->getTarget()['label'].' in the <strong>'
+        .htmlspecialchars($entity->getGroup()->getOfficialName()).'</strong> community</p>';
     }
 
     private static function getFollowPollCommentedText(SocialActivity $entity)
@@ -210,13 +258,13 @@ class SocialActivityConverter
     private static function getFollowUserPetitionCommentedHTML(SocialActivity $entity)
     {
         return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName()).'</strong> commented on '
-            .$entity->getTarget()['label'].' in the <strong>'
-            .htmlspecialchars($entity->getGroup()->getOfficialName()).'</strong> community</p>';
+        .$entity->getTarget()['label'].' in the <strong>'
+        .htmlspecialchars($entity->getGroup()->getOfficialName()).'</strong> community</p>';
     }
 
     private static function getFollowUserPetitionCommentedText(SocialActivity $entity)
     {
-        return ' commented on the user petition you subscribed to';
+        return ' commented on the petition you subscribed to';
     }
 
     private static function getFollowUserPetitionCommentedTitle(SocialActivity $entity)
@@ -229,67 +277,25 @@ class SocialActivityConverter
         return $entity->getFollowing()->getAvatarFileName();
     }
 
-    private static function getCommentRepliedHTML(SocialActivity $entity)
+    private static function getOwnPollCommentedText(SocialActivity $entity)
     {
-        return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName())
-            .'</strong> replied to your comment</p>';
+        return ' commented on your poll';
     }
 
-    private static function getCommentRepliedText(SocialActivity $entity)
-    {
-        return self::preview(' replied and said '.$entity->getTarget()['preview']);
-    }
-
-    private static function getCommentRepliedTitle(SocialActivity $entity)
+    private static function getOwnPollCommentedTitle(SocialActivity $entity)
     {
         return $entity->getFollowing()->getFullName();
     }
 
-    private static function getCommentRepliedImage(SocialActivity $entity)
+    private static function getOwnPollCommentedImage(SocialActivity $entity)
     {
         return $entity->getFollowing()->getAvatarFileName();
     }
 
-    private static function getGroupPermissionsChangedHTML(SocialActivity $entity)
+    private static function getOwnPollCommentedHTML(SocialActivity $entity)
     {
-        return '<p>Permissions changed for <strong>'.htmlspecialchars($entity->getGroup()->getOfficialName())
-            .'</strong></p>';
-    }
-
-    private static function getGroupPermissionsChangedText(SocialActivity $entity)
-    {
-        return $entity->getGroup()->getOfficialName().' has changed the information it is asking for from you as a group member. Open to learn more.';
-    }
-
-    private static function getGroupPermissionsChangedTitle(SocialActivity $entity)
-    {
-        return 'Group Permissions Changed';
-    }
-
-    private static function getGroupPermissionsChangedImage(SocialActivity $entity)
-    {
-        return $entity->getGroup()->getAvatarFileName();
-    }
-
-    private static function getCommentMentionedText(SocialActivity $entity)
-    {
-        return ' mentioned you in a comment';
-    }
-
-    private static function getCommentMentionedTitle(SocialActivity $entity)
-    {
-        return $entity->getTarget()['first_name'].' '.$entity->getTarget()['last_name'];
-    }
-
-    private static function getCommentMentionedImage(SocialActivity $entity)
-    {
-        return $entity->getTarget()['image'];
-    }
-
-    private static function getCommentMentionedHTML(SocialActivity $entity)
-    {
-        return '<p><strong>'.htmlspecialchars($entity->getTarget()['first_name'])
-            .'</strong> mentioned you in a comment</p>';
+        return '<p><strong>'. htmlspecialchars($entity->getFollowing()->getFullName())
+        . '</strong> commented on your poll</p>';
     }
 
     private static function getOwnPostCommentedText(SocialActivity $entity)
@@ -311,6 +317,50 @@ class SocialActivityConverter
     {
         return '<p><strong>'. htmlspecialchars($entity->getFollowing()->getFullName())
         . '</strong> commented on your post</p>';
+    }
+
+    private static function getOwnUserPetitionCommentedText(SocialActivity $entity)
+    {
+        return ' commented on your petition';
+    }
+
+    private static function getOwnUserPetitionCommentedTitle(SocialActivity $entity)
+    {
+        return $entity->getFollowing()->getFullName();
+    }
+
+    private static function getOwnUserPetitionCommentedImage(SocialActivity $entity)
+    {
+        return $entity->getFollowing()->getAvatarFileName();
+    }
+
+    private static function getOwnUserPetitionCommentedHTML(SocialActivity $entity)
+    {
+        return '<p><strong>'. htmlspecialchars($entity->getFollowing()->getFullName())
+        . '</strong> commented on your petition</p>';
+    }
+
+    private static function getOwnPollAnsweredHTML(SocialActivity $entity)
+    {
+        return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName()).'</strong> responded to a '
+            .$entity->getTarget()['label'].' "'.htmlspecialchars($entity->getTarget()['preview'])
+            .'" in the <strong>'.htmlspecialchars($entity->getGroup()->getOfficialName())
+            .'</strong> community</p>';
+    }
+
+    private static function getOwnPollAnsweredText(SocialActivity $entity)
+    {
+        return ' responded to your poll';
+    }
+
+    private static function getOwnPollAnsweredTitle(SocialActivity $entity)
+    {
+        return $entity->getFollowing()->getFullName();
+    }
+
+    private static function getOwnPollAnsweredImage(SocialActivity $entity)
+    {
+        return $entity->getFollowing()->getAvatarFileName();
     }
 
     private static function getOwnPostVotedText(SocialActivity $entity)

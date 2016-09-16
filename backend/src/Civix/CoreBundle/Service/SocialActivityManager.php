@@ -134,7 +134,6 @@ class SocialActivityManager
                 $target['comment_id'] = $comment->getId();
             }
             $this->em->persist($socialActivity1);
-            $this->em->flush($socialActivity1);
         }
 
         if ($comment->getParentComment() && $comment->getParentComment()->getUser()
@@ -145,8 +144,20 @@ class SocialActivityManager
                 ->setRecipient($comment->getParentComment()->getUser())
             ;
             $this->em->persist($socialActivity2);
-            $this->em->flush($socialActivity2);
         }
+
+        if ($question->getUser()->getIsNotifOwnPostChanged() && $question->getSubscribers()->contains($question->getUser())) {
+            $socialActivity3 = new SocialActivity(
+                SocialActivity::TYPE_OWN_POLL_COMMENTED,
+                $comment->getUser(),
+                $question->getGroup()
+            );
+            $socialActivity3->setTarget($target)
+                ->setRecipient($question->getUser())
+            ;
+            $this->em->persist($socialActivity3);
+        }
+        $this->em->flush();
     }
 
     public function noticeUserPetitionCommented(UserPetition\Comment $comment)

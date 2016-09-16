@@ -42,12 +42,5 @@ class UserPetitionCommentsControllerTest extends CommentsControllerTest
         $entity = $repository->getReference('user_petition_1');
         $comment = $repository->getReference('petition_comment_3');
         $this->createComment($entity, $comment);
-        /** @var Connection $conn */
-        $conn = $this->client->getContainer()->get('doctrine.dbal.default_connection');
-        $count = $conn->fetchColumn(
-            'SELECT COUNT(*) FROM social_activities sa WHERE type = ? and recipient_id = ?',
-            [SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED, $entity->getUser()->getId()]
-        );
-        $this->assertEquals(1, $count);
     }
 }
