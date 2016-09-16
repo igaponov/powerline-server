@@ -245,7 +245,14 @@ class PushSender
             ->find($groupId);
         
         if ($user instanceof User) {
-            $this->send($user, $group->getOfficialName(), self::INVITE_PUSH_MESSAGE, self::TYPE_PUSH_INVITE, null, $this->getLinkByFilename($group->getAvatarFileName()));
+            $this->send(
+                $user,
+                $group->getOfficialName(),
+                self::INVITE_PUSH_MESSAGE,
+                self::TYPE_PUSH_INVITE,
+                ['id' => $group->getId()],
+                $this->getLinkByFilename($group->getAvatarFileName())
+            );
         }
     }
 
