@@ -5,11 +5,12 @@ namespace Civix\ApiBundle\Controller\V2;
 use Civix\ApiBundle\Configuration\SecureParam;
 use Civix\ApiBundle\Form\Type\AnnouncementType;
 use Civix\CoreBundle\Entity\Announcement;
+use Civix\CoreBundle\Service\AnnouncementManager;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use JMS\DiExtraBundle\Annotation as DI;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
@@ -25,6 +26,12 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
  */
 class AnnouncementController extends FOSRestController
 {
+    /**
+     * @var AnnouncementManager
+     * @DI\Inject("civix_core.announcement_manager")
+     */
+    private $manager;
+
     /**
      * Return a user's list of announcements
      *
@@ -213,12 +220,7 @@ class AnnouncementController extends FOSRestController
     {
         $violations = $this->get('validator')->validate($announcement, ['publish']);
         if (!$violations->count()) {
-            $announcement->setPublishedAt(new \DateTime());
-            $manager = $this->getDoctrine()->getManager();
-            $manager->persist($announcement);
-            $manager->flush();
-
-            return $announcement;
+            return $this->manager->publish($announcement);
         }
 
         return $violations;

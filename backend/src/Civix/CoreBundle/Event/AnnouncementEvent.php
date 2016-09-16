@@ -2,8 +2,9 @@
 namespace Civix\CoreBundle\Event;
 
 use Civix\CoreBundle\Entity\Announcement;
+use Symfony\Component\EventDispatcher\Event;
 
-class AnnouncementEvent
+class AnnouncementEvent extends Event
 {
     /**
      * @var Announcement
