@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Announcement;
 use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\EventListener\PushSenderSubscriber;
 use Civix\CoreBundle\Model\Subscription\PackageLimitState;
 use Civix\CoreBundle\Service\Subscription\PackageHandler;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupAnnouncementData;
@@ -284,6 +285,7 @@ class AnnouncementControllerTest extends WebTestCase
         $announcement = $repository->getReference('announcement_group_1');
         $client = $this->client;
         $client->getContainer()->set('civix_core.package_handler', $this->getPackageHandlerMock());
+        $client->getContainer()->set('civix_core.event_listener.push_sender_subscriber', $this->getPushSenderSubscriberMock());
         $client->request('PATCH', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -354,6 +356,17 @@ class AnnouncementControllerTest extends WebTestCase
             ->method('getPackageStateForAnnouncement')
             ->with($this->isInstanceOf(Group::class))
             ->will($this->returnValue($packageLimitState));
+
+        return $service;
+    }
+
+    private function getPushSenderSubscriberMock()
+    {
+        $service = $this->getMockBuilder(PushSenderSubscriber::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $service->expects($this->once())
+            ->method('sendAnnouncementPush');
 
         return $service;
     }

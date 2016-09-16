@@ -71,6 +71,11 @@
             <argument type="service" id="doctrine.orm.entity_manager" />
         </service>
 
+        <service class="Civix\CoreBundle\Service\AnnouncementManager" id="civix_core.announcement_manager">
+            <argument id="doctrine.orm.entity_manager" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+        </service>
+
         <service id="civix_core.cicero_calls" class="%ciceroapi_class%">
             <argument>%ciceroapi_login%</argument>
             <argument>%ciceroapi_password%</argument>
