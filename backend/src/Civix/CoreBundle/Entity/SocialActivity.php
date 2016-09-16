@@ -13,20 +13,27 @@ use Civix\CoreBundle\Converters\SocialActivityConverter;
 class SocialActivity
 {
     const TYPE_FOLLOW_REQUEST = 'follow-request';
-    const TYPE_JOIN_TO_GROUP_APPROVED = 'joinToGroup-approved';
+
+    const TYPE_JOIN_TO_GROUP_APPROVED = 'join-to-group-approved';
+
     const TYPE_GROUP_USER_PETITION_CREATED = 'user-petition-created';
     const TYPE_GROUP_POST_CREATED = 'post-created';
-    const TYPE_OWN_POLL_ANSWERED = 'own-poll-answered';
-    const TYPE_FOLLOW_POLL_COMMENTED = 'follow-pollCommented';
+    const TYPE_GROUP_PERMISSIONS_CHANGED = 'group-permissions-changed';
+
     const TYPE_COMMENT_REPLIED = 'comment-replied';
-    const TYPE_FOLLOW_USER_PETITION_COMMENTED = 'follow-micropetitionCommented';
-    const TYPE_FOLLOW_POST_COMMENTED = 'follow-postCommented';
-    const TYPE_GROUP_PERMISSIONS_CHANGED = 'groupPermissions-changed';
     const TYPE_COMMENT_MENTIONED = 'comment-mentioned';
+
+    const TYPE_FOLLOW_POLL_COMMENTED = 'follow-poll-commented';
+    const TYPE_FOLLOW_POST_COMMENTED = 'follow-post-commented';
+    const TYPE_FOLLOW_USER_PETITION_COMMENTED = 'follow-user-petition-commented';
+
+    const TYPE_OWN_POLL_COMMENTED = 'own-poll-commented';
     const TYPE_OWN_POST_COMMENTED = 'own-post-commented';
     const TYPE_OWN_USER_PETITION_COMMENTED = 'own-user-petition-commented';
-    const TYPE_OWN_USER_PETITION_SIGNED = 'own-user-petition-signed';
+
+    const TYPE_OWN_POLL_ANSWERED = 'own-poll-answered';
     const TYPE_OWN_POST_VOTED = 'own-post-voted';
+    const TYPE_OWN_USER_PETITION_SIGNED = 'own-user-petition-signed';
 
     /**
      * @ORM\Id

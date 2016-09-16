@@ -42,12 +42,5 @@ class PostCommentsControllerTest extends CommentsControllerTest
         $entity = $repository->getReference('post_1');
         $comment = $repository->getReference('post_comment_3');
         $this->createComment($entity, $comment);
-        /** @var Connection $conn */
-        $conn = $this->client->getContainer()->get('doctrine.dbal.default_connection');
-        $count = $conn->fetchColumn(
-            'SELECT COUNT(*) FROM social_activities sa WHERE type = ? and recipient_id = ?',
-            [SocialActivity::TYPE_OWN_POST_COMMENTED, $entity->getUser()->getId()]
-        );
-        $this->assertEquals(1, $count);
     }
 }

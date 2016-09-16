@@ -4,6 +4,8 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\CommentedInterface;
+use Civix\CoreBundle\Entity\Poll\Question;
+use Civix\CoreBundle\Entity\Post;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -70,9 +72,27 @@ abstract class CommentsControllerTest extends WebTestCase
         $this->assertEquals($params['parent_comment'], $data['parent_comment']);
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
-        $count = $conn->fetchColumn('SELECT COUNT(*) FROM social_activities WHERE type LIKE ?', ["follow-%Commented"]);
+        if ($entity instanceof Question) {
+            $name = 'poll';
+        } elseif ($entity instanceof Post) {
+            $name = 'post';
+        } else {
+            $name = 'user-petition';
+        }
+        $count = $conn->fetchColumn(
+            'SELECT COUNT(*) FROM social_activities WHERE type = ? AND recipient_id IS NULL',
+            ["follow-$name-commented"]
+        );
         $this->assertEquals(1, $count);
-        $count = $conn->fetchColumn('SELECT COUNT(*) FROM social_activities WHERE type LIKE ?', ["comment-replied"]);
+        $count = $conn->fetchColumn(
+            'SELECT COUNT(*) FROM social_activities WHERE type = ? AND recipient_id = ?',
+            ["comment-replied", $comment->getUser()->getId()]
+        );
+        $this->assertEquals(1, $count);
+        $count = $conn->fetchColumn(
+            'SELECT COUNT(*) FROM social_activities WHERE type = ? AND recipient_id = ?',
+            ["own-$name-commented", $entity->getUser()->getId()]
+        );
         $this->assertEquals(1, $count);
         $this->assertRegExp('{comment text <a data-user-id="\d+">@user2</a>}', $data['comment_body_html']);
     }

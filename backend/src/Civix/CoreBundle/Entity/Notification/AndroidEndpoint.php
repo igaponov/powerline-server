@@ -87,11 +87,14 @@ class AndroidEndpoint extends AbstractEndpoint
                     array("icon" => "Ignore", "title" => "Ignore"),
                 );
                 break;
+            case SocialActivity::TYPE_OWN_POLL_COMMENTED:
             case SocialActivity::TYPE_OWN_POST_COMMENTED:
-            case SocialActivity::TYPE_OWN_POST_VOTED:
-            case SocialActivity::TYPE_FOLLOW_POST_COMMENTED:
             case SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED:
+            case SocialActivity::TYPE_OWN_POLL_ANSWERED:
+            case SocialActivity::TYPE_OWN_POST_VOTED:
             case SocialActivity::TYPE_OWN_USER_PETITION_SIGNED:
+            case SocialActivity::TYPE_FOLLOW_POLL_COMMENTED:
+            case SocialActivity::TYPE_FOLLOW_POST_COMMENTED:
             case SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED:
                 $actionButton = array(
                     array("icon" => "View", "title" => "View", "callback" => "app.view"),

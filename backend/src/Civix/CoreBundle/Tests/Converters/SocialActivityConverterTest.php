@@ -38,8 +38,16 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 '<p><strong>John &lt;Doe&gt;</strong> created a petition in the <strong>&lt;US&gt;</strong> community</p>',
             ],
             [
-                SocialActivity::TYPE_OWN_POLL_ANSWERED,
-                '<p><strong>John &lt;Doe&gt;</strong> responded to a Label "&lt;Preview&gt;'.str_repeat('r', 400).'" in the <strong>&lt;US&gt;</strong> community</p>',
+                SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED,
+                '<p>Permissions changed for <strong>&lt;US&gt;</strong></p>',
+            ],
+            [
+                SocialActivity::TYPE_COMMENT_REPLIED,
+                '<p><strong>John &lt;Doe&gt;</strong> replied to your comment</p>',
+            ],
+            [
+                SocialActivity::TYPE_COMMENT_MENTIONED,
+                '<p><strong>&lt;Jane&gt;</strong> mentioned you in a comment</p>',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
@@ -54,20 +62,20 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 '<p><strong>John &lt;Doe&gt;</strong> commented on Label in the <strong>&lt;US&gt;</strong> community</p>',
             ],
             [
-                SocialActivity::TYPE_COMMENT_REPLIED,
-                '<p><strong>John &lt;Doe&gt;</strong> replied to your comment</p>',
-            ],
-            [
-                SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED,
-                '<p>Permissions changed for <strong>&lt;US&gt;</strong></p>',
-            ],
-            [
-                SocialActivity::TYPE_COMMENT_MENTIONED,
-                '<p><strong>&lt;Jane&gt;</strong> mentioned you in a comment</p>',
+                SocialActivity::TYPE_OWN_POLL_COMMENTED,
+                '<p><strong>John &lt;Doe&gt;</strong> commented on your poll</p>',
             ],
             [
                 SocialActivity::TYPE_OWN_POST_COMMENTED,
                 '<p><strong>John &lt;Doe&gt;</strong> commented on your post</p>',
+            ],
+            [
+                SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED,
+                '<p><strong>John &lt;Doe&gt;</strong> commented on your petition</p>',
+            ],
+            [
+                SocialActivity::TYPE_OWN_POLL_ANSWERED,
+                '<p><strong>John &lt;Doe&gt;</strong> responded to a Label "&lt;Preview&gt;'.str_repeat('r', 400).'" in the <strong>&lt;US&gt;</strong> community</p>',
             ],
             [
                 SocialActivity::TYPE_OWN_POST_VOTED,
@@ -110,8 +118,16 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 str_repeat('b', 300).'...',
             ],
             [
-                SocialActivity::TYPE_OWN_POLL_ANSWERED,
-                ' responded to your poll',
+                SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED,
+                '<US> has changed the information it is asking for from you as a group member. Open to learn more.',
+            ],
+            [
+                SocialActivity::TYPE_COMMENT_REPLIED,
+                ' replied and said <Preview>'.str_repeat('r', 273).'...',
+            ],
+            [
+                SocialActivity::TYPE_COMMENT_MENTIONED,
+                ' mentioned you in a comment',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
@@ -123,23 +139,23 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED,
-                ' commented on the user petition you subscribed to',
+                ' commented on the petition you subscribed to',
             ],
             [
-                SocialActivity::TYPE_COMMENT_REPLIED,
-                ' replied and said <Preview>'.str_repeat('r', 273).'...',
-            ],
-            [
-                SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED,
-                '<US> has changed the information it is asking for from you as a group member. Open to learn more.',
-            ],
-            [
-                SocialActivity::TYPE_COMMENT_MENTIONED,
-                ' mentioned you in a comment',
+                SocialActivity::TYPE_OWN_POLL_COMMENTED,
+                ' commented on your poll',
             ],
             [
                 SocialActivity::TYPE_OWN_POST_COMMENTED,
                 ' commented on your post',
+            ],
+            [
+                SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED,
+                ' commented on your petition',
+            ],
+            [
+                SocialActivity::TYPE_OWN_POLL_ANSWERED,
+                ' responded to your poll',
             ],
             [
                 SocialActivity::TYPE_OWN_POST_VOTED,
@@ -182,8 +198,16 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 'John <Doe>',
             ],
             [
-                SocialActivity::TYPE_OWN_POLL_ANSWERED,
+                SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED,
+                'Group Permissions Changed',
+            ],
+            [
+                SocialActivity::TYPE_COMMENT_REPLIED,
                 'John <Doe>',
+            ],
+            [
+                SocialActivity::TYPE_COMMENT_MENTIONED,
+                '<Jane> <Roe>',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
@@ -198,19 +222,19 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 'John <Doe>',
             ],
             [
-                SocialActivity::TYPE_COMMENT_REPLIED,
+                SocialActivity::TYPE_OWN_POLL_COMMENTED,
                 'John <Doe>',
             ],
             [
-                SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED,
-                'Group Permissions Changed',
-            ],
-            [
-                SocialActivity::TYPE_COMMENT_MENTIONED,
-                '<Jane> <Roe>',
-            ],
-            [
                 SocialActivity::TYPE_OWN_POST_COMMENTED,
+                'John <Doe>',
+            ],
+            [
+                SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED,
+                'John <Doe>',
+            ],
+            [
+                SocialActivity::TYPE_OWN_POLL_ANSWERED,
                 'John <Doe>',
             ],
             [
@@ -254,8 +278,16 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 '/avatar.jpg',
             ],
             [
-                SocialActivity::TYPE_OWN_POLL_ANSWERED,
+                SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED,
+                '/group.jpg',
+            ],
+            [
+                SocialActivity::TYPE_COMMENT_REPLIED,
                 '/avatar.jpg',
+            ],
+            [
+                SocialActivity::TYPE_COMMENT_MENTIONED,
+                '/image',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
@@ -270,19 +302,19 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 '/avatar.jpg',
             ],
             [
-                SocialActivity::TYPE_COMMENT_REPLIED,
+                SocialActivity::TYPE_OWN_POLL_COMMENTED,
                 '/avatar.jpg',
             ],
             [
-                SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED,
-                '/group.jpg',
-            ],
-            [
-                SocialActivity::TYPE_COMMENT_MENTIONED,
-                '/image',
-            ],
-            [
                 SocialActivity::TYPE_OWN_POST_COMMENTED,
+                '/avatar.jpg',
+            ],
+            [
+                SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED,
+                '/avatar.jpg',
+            ],
+            [
+                SocialActivity::TYPE_OWN_POLL_ANSWERED,
                 '/avatar.jpg',
             ],
             [

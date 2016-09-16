@@ -28,7 +28,7 @@ class PushSenderTest extends WebTestCase
         $manager->noticeUserPetitionCommented($comment);
         $id = $conn->fetchColumn('SELECT id FROM social_activities');
         $sender = $this->getPushSenderMock();
-        $sender->expects($this->exactly(2))->method('send');
+        $sender->expects($this->exactly(1))->method('send');
         $sender->sendSocialActivity($id);
     }
 
@@ -46,7 +46,7 @@ class PushSenderTest extends WebTestCase
         $manager->noticePostCommented($comment);
         $id = $conn->fetchColumn('SELECT id FROM social_activities');
         $sender = $this->getPushSenderMock();
-        $sender->expects($this->exactly(2))->method('send');
+        $sender->expects($this->exactly(1))->method('send');
         $sender->sendSocialActivity($id);
     }
 
@@ -64,7 +64,7 @@ class PushSenderTest extends WebTestCase
         $manager->noticePollCommented($comment);
         $id = $conn->fetchColumn('SELECT id FROM social_activities');
         $sender = $this->getPushSenderMock();
-        $sender->expects($this->exactly(3))->method('send');
+        $sender->expects($this->exactly(2))->method('send');
         $sender->sendSocialActivity($id);
     }
 

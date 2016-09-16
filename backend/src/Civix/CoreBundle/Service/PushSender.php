@@ -348,7 +348,8 @@ class PushSender
         foreach ($subscribers as $subscriber) {
             /** @var User $recipient */
             $recipient = $subscriber[0];
-            if (in_array($recipient->getId(), $handledIds)) {
+            // user is already handled or is an owner of the subscription (use OWN_*ENTITY*_COMMENTED event)
+            if (in_array($recipient->getId(), $handledIds) || $recipient->isEqualTo($subscription->getUser())) {
                 continue;
             }
             $this->send(
