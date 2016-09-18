@@ -174,16 +174,19 @@ class BookmarkControllerTest extends WebTestCase
         $this->getContainer()->enterScope('request');
         $this->getContainer()->set('request', $request, 'request');
 
-        $json = $this->jmsSerialization($object, ['api-bookmarks', 'api-activities']);
+        $json = $this->jmsSerialization($object, ['api-bookmarks', 'api-activities', 'activity-list']);
 
-        return (array)json_decode($json);
+        $array = json_decode($json, true);
+        unset($array[0]['comments_count'], $array[0]['answers']);
+
+        return $array;
     }
 
     private function buildResponse($content)
     {
         $data = [];
-        foreach (json_decode($content)->items as $item)
-            $data[] = $item->detail;
+        foreach (json_decode($content, true)['items'] as $item)
+            $data[] = $item['detail'];
 
         return $data;
     }
