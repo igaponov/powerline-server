@@ -7,6 +7,7 @@ use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\Bookmark;
 use Civix\CoreBundle\Entity\User;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Query\Expr\Join;
 
 class BookmarkRepository extends EntityRepository
 {
@@ -22,39 +23,39 @@ class BookmarkRepository extends EntityRepository
         $itemPerPage = 10;
         $startRow = ($page -1) * $itemPerPage;
 
-        if ($type === Activity::TYPE_ALL) {
-            $dql = "SELECT COUNT(a) FROM CivixCoreBundle:Bookmark a WHERE a.user = :user";
-            $query = $this->_em->createQuery($dql);
-            $query->setParameters(array('user' => $user));
-            $totalItem = $query->getSingleScalarResult();
-            $bookmarks = $this->findBy(array('user' => $user), array('createdAt' => 'DESC'), $itemPerPage, $startRow);
+        $qb = $this->createQueryBuilder('b')
+            ->select('b', 'act', 'q', 'up', 'p', 'ps', 'pos', 'qs')
+            ->leftJoin('b.item', 'act')
+            ->leftJoin('act.question', 'q')
+            ->leftJoin('act.petition', 'up')
+            ->leftJoin('act.post', 'p')
+            ->leftJoin('up.subscribers', 'ps', Join::WITH, 'ps = :user')
+            ->leftJoin('p.subscribers', 'pos', Join::WITH, 'pos = :user')
+            ->leftJoin('q.subscribers', 'qs', Join::WITH, 'qs = :user')
+            ->where('b.user = :user')
+            ->setParameter(':user', $user)
+            ->orderBy('b.createdAt', 'DESC')
+            ->setFirstResult($startRow)
+            ->setMaxResults($itemPerPage);
+        $cqb = $this->createQueryBuilder('b')
+            ->select('COUNT(b)')
+            ->where('b.user = :user')
+            ->setParameter(':user', $user);
 
-        } else {
-            $dql = "SELECT COUNT(a) FROM CivixCoreBundle:Bookmark a WHERE a.type = :type AND a.user = :user";
-            $query = $this->_em->createQuery($dql);
-            $query->setParameters(array('type' => $type, 'user' => $user));
-            $totalItem = $query->getSingleScalarResult();
-            $bookmarks = $this->findBy(array('user' => $user, 'type' => $type), array('createdAt' => 'DESC'), $itemPerPage, $startRow);
+        if ($type !== Activity::TYPE_ALL) {
+            $qb->andWhere('b.type = :type')
+                ->setParameter(':type', $type);
+            $cqb->andWhere('b.type = :type')
+                ->setParameter(':type', $type);
         }
 
-        $totalPage = ceil($totalItem / $itemPerPage);
-
-        /** @var Bookmark $bookmark */
-        foreach($bookmarks as $id => $bookmark) {
-            $detail = $this->getItemDetail($bookmark->getType(), $bookmark->getItemId());
-            if ($detail == null) {
-                $this->delete($bookmark->getId());
-                unset($bookmarks[$id]);
-                continue;
-            }
-            $bookmark->setDetail($detail);
-        }
+        $totalItem = $cqb->getQuery()->getSingleScalarResult();
 
         $result = array(
             'page' => $page,
-            'total_pages' => $totalPage,
+            'total_pages' => ceil($totalItem / $itemPerPage),
             'total_items' => $totalItem,
-            'items' => array_values($bookmarks)
+            'items' => $qb->getQuery()->getResult()
         );
 
         return $result;
@@ -69,16 +70,18 @@ class BookmarkRepository extends EntityRepository
      */
     public function save($type, $user, $itemId)
     {
+        $item = $this->getEntityManager()->getReference(Activity::class, $itemId);
+
         $bookmark = $this->findOneBy(array(
             'type' => $type,
-            'itemId' => $itemId,
+            'item' => $item,
             'user' => $user
         ));
 
         if ($bookmark === null) {
             $bookmark = new Bookmark();
             $bookmark->setUser($user);
-            $bookmark->setItemId($itemId);
+            $bookmark->setItem($item);
             $bookmark->setType($type);
             $bookmark->setCreatedAt(date_create());
 
@@ -104,22 +107,6 @@ class BookmarkRepository extends EntityRepository
         $this->_em->flush();
 
         return true;
-    }
-
-    /**
-     * @author Habibillah <habibillah@gmail.com>
-     * @param $itemType
-     * @param $itemId
-     * @return null|object
-     */
-    private function getItemDetail($itemType, $itemId)
-    {
-        $item = null;
-        $allowedTypes = self::allowedTypes();
-        if (isset($allowedTypes[$itemType]))
-            $item = $this->_em->getRepository($allowedTypes[$itemType])->find($itemId);
-
-        return $item;
     }
 
     /**

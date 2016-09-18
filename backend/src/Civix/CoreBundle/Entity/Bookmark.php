@@ -34,13 +34,16 @@ class Bookmark
     private $user;
 
     /**
-     * @var integer
+     * @var Activity
      *
-     * @ORM\Column(name="item_id", type="integer")
+     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\Activity")
+     * @ORM\JoinColumn(onDelete="CASCADE", nullable=false)
      * @Serializer\Expose()
+     * @Serializer\Type("Civix\CoreBundle\Entity\Activity")
      * @Serializer\Groups({"api-bookmarks"})
+     * @Serializer\SerializedName("detail")
      */
-    private $itemId;
+    private $item;
 
     /**
      * @var string
@@ -50,13 +53,6 @@ class Bookmark
      * @Serializer\Groups({"api-bookmarks"})
      */
     private $type;
-
-    /**
-     * @var object | null
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-bookmarks"})
-     */
-    private $detail;
 
     /**
      * @var \DateTime $createdAt
@@ -125,26 +121,26 @@ class Bookmark
     }
 
     /**
-     * Set itemId
+     * Set item
      *
-     * @param integer $itemId
+     * @param Activity $item
      * @return Bookmark
      */
-    public function setItemId($itemId)
+    public function setItem(Activity $item)
     {
-        $this->itemId = $itemId;
+        $this->item = $item;
     
         return $this;
     }
 
     /**
-     * Get itemId
+     * Get item
      *
-     * @return integer 
+     * @return Activity
      */
-    public function getItemId()
+    public function getItem()
     {
-        return $this->itemId;
+        return $this->item;
     }
 
     /**
@@ -171,25 +167,15 @@ class Bookmark
     }
 
     /**
-     * Set detail
+     * @return int
+     * @deprecated For compatibility with old API version
      *
-     * @param null | object $detail
-     * @return Bookmark
+     * @Serializer\VirtualProperty()
+     * @Serializer\Type("integer")
+     * @Serializer\Groups({"api-bookmarks"})
      */
-    public function setDetail($detail)
+    public function getItemId()
     {
-        $this->detail = $detail;
-
-        return $this;
-    }
-
-    /**
-     * Get detail
-     *
-     * @return null | object
-     */
-    public function getDetail()
-    {
-        return $this->detail;
+        return $this->getItem()->getId();
     }
 }

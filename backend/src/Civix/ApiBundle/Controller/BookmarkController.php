@@ -5,12 +5,7 @@ namespace Civix\ApiBundle\Controller;
 use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\Bookmark;
 use Civix\CoreBundle\Repository\BookmarkRepository;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
@@ -57,7 +52,7 @@ class BookmarkController extends BaseController
         $repository = $this->getDoctrine()->getManager()->getRepository(Bookmark::class);
         $result = $repository->findByType($type, $this->getUser(), $page);
 
-        $response = new Response($this->jmsSerialization($result, ['api-bookmarks', 'api-activities']));
+        $response = new Response($this->jmsSerialization($result, ['api-bookmarks', 'api-activities', 'activity-list']));
         
         $response->headers->set('Content-Type', 'application/json');
 
@@ -98,7 +93,7 @@ class BookmarkController extends BaseController
 
         /** @var BookmarkRepository $bookmarkRepository */
         $bookmarkRepository = $this->getDoctrine()->getRepository(Bookmark::class);
-        $bookmark = $bookmarkRepository->save($type, $this->getUser(),$itemId);
+        $bookmark = $bookmarkRepository->save($type, $this->getUser(), $itemId);
 
         $response = new Response($this->jmsSerialization($bookmark, ['api-bookmarks', 'api-activities']));
         return $response;
