@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManager;
 use Aws\Sns\SnsClient;
 use Aws\Sns\Exception;
 use Civix\CoreBundle\Entity\Notification as Model;
+use Psr\Log\LoggerInterface;
 
 class Notification
 {
@@ -28,13 +29,18 @@ class Notification
      * @var string
      */
     private $iosArn;
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
-    public function __construct(EntityManager $em, SnsClient $sns, $androidArn, $iosArn)
+    public function __construct(EntityManager $em, SnsClient $sns, $androidArn, $iosArn, LoggerInterface $logger)
     {
         $this->em = $em;
         $this->sns = $sns;
         $this->androidArn = $androidArn;
         $this->iosArn = $iosArn;
+        $this->logger = $logger;
     }
 
     public function handleEndpoint(Model\AbstractEndpoint $newEndpoint)
@@ -60,10 +66,13 @@ class Notification
                 'MessageStructure' => 'json',
                 'Message' => $endpoint->getPlatformMessage($title, $message, $type, $entityData, $image)
             ));
+        } catch (Exception\EndpointDisabledException $e) {
+            $this->removeEndpoint($endpoint);
+        } catch (Exception\NotFoundException $e) {
+            $this->addEndpoint($endpoint);
+            $this->send($title, $message, $type, $entityData, $image, $endpoint);
         } catch (Exception\SnsException $e) {
-            if ($e instanceof Exception\EndpointDisabledException || $e instanceof Exception\NotFoundException) {
-                $this->removeEndpoint($endpoint);
-            }
+            $this->logger->warning($e->getMessage(), $e->getTrace());
         }
     }
 
