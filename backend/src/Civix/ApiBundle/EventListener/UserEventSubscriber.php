@@ -20,17 +20,17 @@ class UserEventSubscriber implements EventSubscriberInterface
     /**
      * @var int
      */
-    private $groupId;
+    private $groupName;
 
     public function __construct(
         EmailSender $emailSender,
         EntityManager $entityManager,
-        $groupId
+        $groupName
     )
     {
         $this->emailSender = $emailSender;
         $this->entityManager = $entityManager;
-        $this->groupId = (int)$groupId;
+        $this->groupName = $groupName;
     }
 
     public static function getSubscribedEvents()
@@ -45,7 +45,7 @@ class UserEventSubscriber implements EventSubscriberInterface
         $user = $event->getUser();
         $group = $this->entityManager
             ->getRepository('CivixCoreBundle:Group')
-            ->find($this->groupId);
+            ->findOneBy(['officialName' => $this->groupName]);
         if ($group) {
             $this->emailSender->sendInviteFromGroup($user->getEmail(), $group);
         }

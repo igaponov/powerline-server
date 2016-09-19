@@ -60,7 +60,7 @@ parameters:
     mailgun_public: public_key
     mailgun_private: private_key
 
-    auto_invite_group_id: 1
+    auto_invite_group_name: 'Powerline Powerusers'
     imgix.domain:  powerline-dev.imgix.net
 
     default_api_version: 1
