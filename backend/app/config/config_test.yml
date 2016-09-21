@@ -40,3 +40,11 @@ civix_core:
 
 vich_uploader:
     storage: civix_core.storage.array
+
+monolog:
+    handlers:
+        main:
+            type:  stream
+            path:  %kernel.logs_dir%/%kernel.environment%.log
+            level: info
+            channels: [!event]

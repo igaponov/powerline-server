@@ -252,3 +252,6 @@ hwi_oauth:
             infos_url:           'https://graph.facebook.com/me?fields=first_name,last_name,name,email,picture.type(large)'
             paths:
                 profilepicture: 'picture.data.url'
+
+monolog:
+    channels: ['push']
