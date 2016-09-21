@@ -372,6 +372,7 @@ class PushSender
 
     public function send(User $recipient, $title, $message, $type, $entityData = null, $image = null)
     {
+        /** @var AbstractEndpoint[] $endpoints */
         $endpoints = $this->entityManager->getRepository(AbstractEndpoint::class)->findByUser($recipient);
         if (empty($image)) {
             $image = self::IMAGE_LINK;
@@ -386,8 +387,20 @@ class PushSender
                     $image,
                     $endpoint
                 );
+                $this->logger->addDebug('Message is pushed', [
+                    'title' => $title,
+                    'message' => $message,
+                    'type' => $type,
+                    'entityData' => $entityData,
+                    'image' => $image,
+                    'arn' => $endpoint->getArn(),
+                    'user' => [
+                        'id' => $recipient->getId(),
+                        'username' => $recipient->getUsername(),
+                    ],
+                ]);
             } catch (\Exception $e) {
-                $this->logger->addError($e->getMessage());
+                $this->logger->addError($e->getMessage(), $e->getTrace());
             }
         }
     }

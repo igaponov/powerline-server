@@ -150,7 +150,7 @@
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="civix_core.question_users_push" />
             <argument type="service" id="civix_core.notification" />
-            <argument type="service" id="logger" />
+            <argument type="service" id="monolog.logger.push" />
             <argument type="service" id="imgix.url_builder" />
         </service>
 

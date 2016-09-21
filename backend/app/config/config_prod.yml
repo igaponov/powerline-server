@@ -25,3 +25,8 @@ monolog:
             type:  stream
             path:  %kernel.logs_dir%/%kernel.environment%.log
             level: debug
+        slack:
+            type: slack
+            token: '%slack_logger_token%'
+            channel: "#errors"
+            level: error

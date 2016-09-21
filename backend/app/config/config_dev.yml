@@ -18,9 +18,16 @@ monolog:
             path:  %kernel.logs_dir%/%kernel.environment%.log
             level: debug
             channels: [!event]
-        firephp:
-            type:  firephp
-            level: info
+        push:
+            type:  stream
+            path:  %kernel.logs_dir%/push_%kernel.environment%.log
+            level: debug
+            channels: [push]
+        slack:
+            type: slack
+            token: '%slack_logger_token%'
+            channel: "#errors"
+            level: error
 
 assetic:
     use_controller: false

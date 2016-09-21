@@ -45,3 +45,5 @@ parameters:
             password: 'guest'
             vhost: '/'
             lazy: true
+
+    slack_logger_token: 'xoxp'
