@@ -175,7 +175,6 @@ class MenuBuilder extends AbstractNavbarMenuBuilder
                     'civix_front_superuser_post_new',
                     'civix_front_superuser_post_edit', ),
                 ));
-            $menu->addChild('Discount', array('route' => 'civix_front_superuser_discount_index'));
 
             $this->createReportsDropDown($menu, 'superuser');
 
