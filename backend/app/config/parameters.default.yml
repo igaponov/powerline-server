@@ -68,4 +68,4 @@ parameters:
     facebook_client_id: xxx
     facebook_client_secret: yyy
 
-    slack_logger_token: 'xoxp-7707188001-19195306006-82332934786-1a9b284e4c0068126582568592a49f8e'
+    slack_logger_token: 'xoxp'
