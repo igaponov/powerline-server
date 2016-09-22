@@ -1,7 +1,9 @@
 <?php
 namespace Civix\CoreBundle\Service;
 
+use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Question;
+use Civix\CoreBundle\Event\Poll\AnswerEvent;
 use Civix\CoreBundle\Event\Poll\QuestionEvent;
 use Civix\CoreBundle\Event\PollEvents;
 use Doctrine\ORM\EntityManager;
@@ -54,5 +56,22 @@ class PollManager
         }
 
         return $poll;
+    }
+
+    /**
+     * @param Question $question
+     * @param Answer $answer
+     * @return Answer
+     */
+    public function addAnswer(Question $question, Answer $answer)
+    {
+        $question->addAnswer($answer);
+        $this->em->persist($answer);
+        $this->em->flush();
+
+        $event = new AnswerEvent($answer);
+        $this->dispatcher->dispatch(PollEvents::QUESTION_ANSWER, $event);
+
+        return $answer;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity\Poll;
 
+use Civix\CoreBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -47,12 +48,6 @@ class Answer
     private $option;
 
     /**
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-answer", "api-answers-list", "api-leader-answers"})
-     */
-    private $optionId;
-
-    /**
      * @ORM\ManyToOne(targetEntity="Question", inversedBy="answers")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      * @Serializer\Expose()
@@ -61,7 +56,7 @@ class Answer
     private $question;
 
     /**
-     * @ORM\Column(name="comment", type="text")
+     * @ORM\Column(name="comment", type="text", nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll", "api-answer"})
      * @Assert\Length(max=500, groups={"api-poll"})
@@ -71,9 +66,9 @@ class Answer
     /**
      * @var int
      *
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-leader-answers"})
      * @ORM\Column(name="payment_amount", type="integer", nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-leader-answers", "api-answer"})
      */
     private $payment_amount;
 
@@ -88,10 +83,26 @@ class Answer
      * @var \DateTime
      *
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-leader-answers"})
+     * @Serializer\Groups({"api-leader-answers", "api-answer"})
      * @ORM\Column(name="created_at", type="datetime", nullable=true)
      */
     private $createdAt;
+
+    public static function getPrivacyTypes()
+    {
+        return [
+            self::PRIVACY_PUBLIC,
+            self::PRIVACY_PRIVATE,
+        ];
+    }
+
+    public static function getPrivacyLabels()
+    {
+        return [
+            self::PRIVACY_PUBLIC => 'public',
+            self::PRIVACY_PRIVATE => 'private',
+        ];
+    }
 
     /**
      * Get id.
@@ -108,7 +119,7 @@ class Answer
      *
      * @param int $privacy
      *
-     * @return UserFollow
+     * @return Answer
      */
     public function setPrivacy($privacy)
     {
@@ -139,11 +150,11 @@ class Answer
     /**
      * Set user.
      *
-     * @param \Civix\CoreBundle\Entity\User $user
+     * @param User $user
      *
      * @return Answer
      */
-    public function setUser(\Civix\CoreBundle\Entity\User $user = null)
+    public function setUser(User $user = null)
     {
         $this->user = $user;
 
@@ -153,7 +164,7 @@ class Answer
     /**
      * Get user.
      *
-     * @return \Civix\CoreBundle\Entity\User
+     * @return User
      */
     public function getUser()
     {
@@ -187,11 +198,11 @@ class Answer
     /**
      * Set question.
      *
-     * @param \Civix\CoreBundle\Entity\Poll\Question $question
+     * @param Question $question
      *
      * @return Answer
      */
-    public function setQuestion(\Civix\CoreBundle\Entity\Poll\Question $question = null)
+    public function setQuestion(Question $question = null)
     {
         $this->question = $question;
 
@@ -201,7 +212,7 @@ class Answer
     /**
      * Get question.
      *
-     * @return \Civix\CoreBundle\Entity\Poll\Question
+     * @return Question
      */
     public function getQuestion()
     {
@@ -211,14 +222,13 @@ class Answer
     /**
      * Set option.
      *
-     * @param \Civix\CoreBundle\Entity\Poll\Option $option
+     * @param Option $option
      *
      * @return Answer
      */
-    public function setOption(\Civix\CoreBundle\Entity\Poll\Option $option = null)
+    public function setOption(Option $option = null)
     {
         $this->option = $option;
-        $this->optionId = $option->getId();
 
         return $this;
     }
@@ -226,7 +236,7 @@ class Answer
     /**
      * Get option.
      *
-     * @return \Civix\CoreBundle\Entity\Poll\Option
+     * @return Option
      */
     public function getOption()
     {
@@ -278,7 +288,7 @@ class Answer
      *
      * @param \DateTime $createdAt
      *
-     * @return Question
+     * @return Answer
      */
     public function setCreatedAt($createdAt)
     {
@@ -295,5 +305,16 @@ class Answer
     public function getCreatedAt()
     {
         return $this->createdAt;
+    }
+
+    /**
+     * @return int
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"api-answer", "api-answers-list", "api-leader-answers"})
+     */
+    public function getOptionId()
+    {
+        return $this->getOption()->getId();
     }
 }

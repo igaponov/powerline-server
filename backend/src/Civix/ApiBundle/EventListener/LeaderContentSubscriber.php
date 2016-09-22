@@ -1,6 +1,10 @@
 <?php
 namespace Civix\ApiBundle\EventListener;
 
+use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
+use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
+use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Event\Poll\AnswerEvent;
 use Civix\CoreBundle\Event\Poll\QuestionEvent;
 use Civix\CoreBundle\Event\PollEvents;
 use Civix\CoreBundle\Event\PostEvent;
@@ -57,6 +61,12 @@ class LeaderContentSubscriber implements EventSubscriberInterface
             ],
             PollEvents::QUESTION_CREATE => [
                 ['subscribePollAuthor'],
+            ],
+            PollEvents::QUESTION_ANSWER => [
+                ['updateCrowdfundingPledgedAmount'],
+                ['addCommentByQuestionAnswer'],
+                ['setVisibleAnswersForRecipient'],
+                ['updateResponsesQuestion'],
             ],
         ];
     }
@@ -141,5 +151,69 @@ class LeaderContentSubscriber implements EventSubscriberInterface
         $author->addPollSubscription($poll);
         $this->em->persist($author);
         $this->em->flush();
+    }
+
+    public function updateCrowdfundingPledgedAmount(AnswerEvent $event)
+    {
+        $answer = $event->getAnswer();
+        $question = $answer->getQuestion();
+
+        if ($question instanceof PaymentRequest && $question->getIsCrowdfunding() &&
+            $answer->getCurrentPaymentAmount()) {
+            $this->em->getRepository(PaymentRequest::class)->updateCrowdfundingPledgedAmount($answer);
+        }
+    }
+
+    public function addCommentByQuestionAnswer(AnswerEvent $event)
+    {
+        $this->commentManager->addCommentByQuestionAnswer($event->getAnswer());
+    }
+
+    public function setVisibleAnswersForRecipient(AnswerEvent $event)
+    {
+        $answer = $event->getAnswer();
+        $question = $answer->getQuestion();
+
+        $specRepresentative = $question->getReportRecipient();
+        $offTitleGroup = $question->getReportRecipientGroup();
+        //Add specific representative to recipients of this question
+        if (isset($specRepresentative)) {
+            $question->addRecipient($specRepresentative);
+        } elseif (isset($offTitleGroup)) {
+            //check if user has representative with recient official title
+            $districts = $answer->getUser()->getDistrictsIds();
+
+            //check if user has districts (fill profile info)
+            if (!empty($districts)) {
+                $representatives = $this->em->getRepository(Representative::class)
+                    ->getReprByDistrictsAndOffTitle($districts, $offTitleGroup);
+
+                //check if base has representatives with selected official title and districts
+                if ($representatives) {
+                    foreach ($representatives as $recipient) {
+                        if ($question->getOwner() != $recipient) {
+                            $question->addRecipient($recipient);
+                        }
+                    }
+                }
+            }
+        }
+
+        $this->em->persist($question);
+        $this->em->flush();
+    }
+
+    public function updateResponsesQuestion(AnswerEvent $event)
+    {
+        $question = $event->getAnswer()->getQuestion();
+        if ($question instanceof LeaderNews) {
+            $this->em->getRepository('CivixCoreBundle:Activity')
+                ->updateLeaderNewsResponseCountQuestion($question);
+        } else {
+            $this->em->getRepository('CivixCoreBundle:Poll\Question')
+                ->updateAnswersCount($question);
+            $this->em->getRepository('CivixCoreBundle:Activity')
+                ->updateResponseCountQuestion($question);
+        }
     }
 }

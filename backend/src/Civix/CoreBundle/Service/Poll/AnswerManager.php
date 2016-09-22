@@ -10,57 +10,26 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Superuser;
 use Civix\CoreBundle\Entity\UserGroup;
+use Doctrine\ORM\EntityManager;
 
 class AnswerManager
 {
     protected $entityManager;
 
     /**
-     * @param ContainerInterface $container
+     * @param EntityManager $entityManager
      */
-    public function __construct(\Doctrine\ORM\EntityManager $entityManager)
+    public function __construct(EntityManager $entityManager)
     {
         $this->entityManager = $entityManager;
     }
 
-    public function setVisibleAnswersForRecipent(Answer $answer)
-    {
-        /**
-         * @var \Civix\CoreBundle\Entity\Poll\Question
-         */
-        $question = $answer->getQuestion();
-
-        if ($question instanceof \Civix\CoreBundle\Entity\Poll\Question) {
-            $specRepresentative = $question->getReportRecipient();
-            $offTitleGroup = $question->getReportRecipientGroup();
-            //Add specific representative to recipients of this question
-            if (isset($specRepresentative)) {
-                $question->addRecipient($specRepresentative);
-            } elseif (isset($offTitleGroup)) {
-                //check if user has representative with recient official title
-                $districts = $answer->getUser()->getDistrictsIds();
-
-                //check if user has districts (fill profile info)
-                if (!empty($districts)) {
-                    $representatives = $this->entityManager->getRepository('CivixCoreBundle:Representative')
-                            ->getReprByDistrictsAndOffTitle($districts, $offTitleGroup);
-
-                    //check if base has representatives with selected official title and districts
-                    if ($representatives) {
-                        foreach ($representatives as $recipient) {
-                            if ($question->getOwner() != $recipient) {
-                                $question->addRecipient($recipient);
-                            }
-                        }
-                    }
-                }
-            }
-
-            $this->entityManager->persist($question);
-            $this->entityManager->flush();
-        }
-    }
-
+    /**
+     * @deprecated use PollVoter with `ANSWER` attribute instead
+     * @param User $user
+     * @param Question $question
+     * @return bool
+     */
     public function checkAccessAnswer(User $user, Question $question)
     {
         if ($question instanceof Petition && $question->getIsOutsidersSign()) {

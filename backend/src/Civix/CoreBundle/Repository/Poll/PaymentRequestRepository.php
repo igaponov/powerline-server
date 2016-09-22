@@ -66,12 +66,17 @@ class PaymentRequestRepository extends EntityRepository
 
     public function updateCrowdfundingPledgedAmount(Answer $answer)
     {
-        $this->getEntityManager()
-            ->createQuery('UPDATE CivixCoreBundle:Poll\Question\PaymentRequest q
-                SET q.crowdfundingPledgedAmount = COALESCE(q.crowdfundingPledgedAmount,0) + :amount WHERE q.id = :id')
+        $this->createQueryBuilder('q')
+            ->update()
+            ->set(
+                'q.crowdfundingPledgedAmount',
+                'COALESCE(q.crowdfundingPledgedAmount, 0) + :amount'
+            )
+            ->where('q.id = :id')
             ->setParameter('amount', $answer->getCurrentPaymentAmount())
             ->setParameter('id', $answer->getQuestion()->getId())
-            ->getSingleScalarResult()
+            ->getQuery()
+            ->execute()
         ;
     }
 

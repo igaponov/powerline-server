@@ -30,7 +30,8 @@ class SocialActivitySubscriber implements EventSubscriberInterface
             Event\CommentEvents::CREATE => [
                 ['noticeEntityCommented', -100],
                 ['noticeCommentMentioned', -100],
-            ]
+            ],
+            Event\PollEvents::QUESTION_ANSWER => ['noticeAnsweredToQuestion', -100],
         ];
     }
 
@@ -70,5 +71,11 @@ class SocialActivitySubscriber implements EventSubscriberInterface
     {
         $comment = $event->getComment();
         $this->manager->noticeCommentMentioned($comment);
+    }
+
+    public function noticeAnsweredToQuestion(Event\Poll\AnswerEvent $event)
+    {
+        $answer =  $event->getAnswer();
+        $this->manager->noticeAnsweredToQuestion($answer);
     }
 }

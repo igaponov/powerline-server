@@ -575,6 +575,7 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
     public function addAnswer(Answer $answers)
     {
         $this->answers[] = $answers;
+        $answers->setQuestion($this);
 
         return $this;
     }
