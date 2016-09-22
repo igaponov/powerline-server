@@ -86,6 +86,7 @@ class PushSenderTest extends WebTestCase
                         ->get('logger'),
                     $this->getContainer()
                         ->get('imgix.url_builder'),
+                    'powerli.ne',
                 ]
             )
             ->setMethods(['send'])

@@ -152,6 +152,7 @@
             <argument type="service" id="civix_core.notification" />
             <argument type="service" id="monolog.logger.push" />
             <argument type="service" id="imgix.url_builder" />
+            <argument type="string" >%domain%</argument>
         </service>
 
         <service id="civix_core.question_users_push" class="Civix\CoreBundle\Service\Poll\QuestionUserPush">
