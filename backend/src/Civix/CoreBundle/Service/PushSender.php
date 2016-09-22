@@ -42,7 +42,7 @@ class PushSender
 
     const IMAGE_WIDTH = 320;
     const IMAGE_HEIGHT = 400;
-    const IMAGE_LINK = 'www/images/notification_image.jpg';
+    const IMAGE_LINK = '/bundles/civixfront/img/logo.jpg';
 
     protected $entityManager;
     protected $questionUsersPush;
@@ -52,19 +52,25 @@ class PushSender
      * @var UrlBuilder
      */
     private $urlBuilder;
+    /**
+     * @var string
+     */
+    private $domain;
 
     public function __construct(
         EntityManager $entityManager,
         QuestionUserPush $questionUsersPush,
         Notification $notification,
         Logger $logger,
-        UrlBuilder $urlBuilder
+        UrlBuilder $urlBuilder,
+        $domain
     ) {
         $this->entityManager = $entityManager;
         $this->questionUsersPush = $questionUsersPush;
         $this->notification = $notification;
         $this->logger = $logger;
         $this->urlBuilder = $urlBuilder;
+        $this->domain = $domain;
     }
 
     /**
@@ -375,7 +381,7 @@ class PushSender
         /** @var AbstractEndpoint[] $endpoints */
         $endpoints = $this->entityManager->getRepository(AbstractEndpoint::class)->findByUser($recipient);
         if (empty($image)) {
-            $image = self::IMAGE_LINK;
+            $image = $this->domain.self::IMAGE_LINK;
         }
         foreach ($endpoints as $endpoint) {
             try {
