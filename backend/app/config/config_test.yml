@@ -48,3 +48,7 @@ monolog:
             path:  %kernel.logs_dir%/%kernel.environment%.log
             level: info
             channels: [!event]
+        push:
+            type: 'null'
+        slack:
+            type: 'null'
