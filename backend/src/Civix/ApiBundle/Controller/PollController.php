@@ -2,6 +2,8 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use Civix\CoreBundle\Event\Poll\AnswerEvent;
+use Civix\CoreBundle\Event\PollEvents;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,7 +15,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Civix\CoreBundle\Entity\Activities\Question;
 use Civix\CoreBundle\Entity\Poll\Answer;
-use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
 use Civix\CoreBundle\Entity\Poll\Option;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Poll\Question\Group as GroupQuestion;
@@ -277,12 +278,14 @@ class PollController extends BaseController
 
     /**
      * Add new Answer.
+     * Deprecated, use `PUT /api/v2/polls/{id}/answers/{option}` instead
      *
      * @Route("/question/{question_id}/answer/add", requirements={"question_id"="\d+"}, name="api_answer_add")
      * @Method("POST")
      *
      * @ApiDoc(
-     *     section="Polls"
+     *     section="Polls",
+     *     deprecated=true
      * )
      */
     public function answerAddAction(Request $request)
@@ -292,7 +295,7 @@ class PollController extends BaseController
 
         /** @var $user User */
         $user = $this->getUser();
-        /** @var $question Question */
+        /** @var $question \Civix\CoreBundle\Entity\Poll\Question */
         $question = $entityManager->getRepository('CivixCoreBundle:Poll\Question')->find($request->get('question_id'));
         if (is_null($question)) {
             throw new BadRequestHttpException('Question not found');
@@ -335,23 +338,11 @@ class PollController extends BaseController
             $response->setStatusCode(400)
                 ->setContent(json_encode(array('errors' => $this->transformErrors($errors))));
         } else {
-            if ($question instanceof PaymentRequest && !$question->getIsCrowdfunding() &&
-                $answer->getCurrentPaymentAmount()) {
-                $this->get('civix_core.stripe')->chargeToPaymentRequest($question, $answer, $user);
-            }
             $entityManager->persist($answer);
             $entityManager->flush();
 
-            if ($question instanceof PaymentRequest && $question->getIsCrowdfunding() &&
-                $answer->getCurrentPaymentAmount()) {
-                $entityManager->getRepository(PaymentRequest::class)->updateCrowdfundingPledgedAmount($answer);
-            }
-            //update activity responses
-            $this->get('civix_core.activity_update')->updateResponsesQuestion($question);
-
-            $this->get('civix_core.poll.answer_manager')->setVisibleAnswersForRecipent($answer);
-            $this->get('civix_core.comment_manager')->addCommentByQuestionAnswer($answer);
-            $this->get('civix_core.social_activity_manager')->noticeAnsweredToQuestion($answer);
+            $event = new AnswerEvent($answer);
+            $dispatcher->dispatch(PollEvents::QUESTION_ANSWER, $event);
 
             $response->setContent($this->jmsSerialization($answer, array('api-answers-list')));
         }

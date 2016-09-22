@@ -1,9 +1,11 @@
 <?php
 namespace Civix\ApiBundle\Security\Authorization\Voter;
 
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Poll\Question;
+use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\Superuser;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Entity\UserInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
@@ -11,6 +13,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 class PollVoter implements VoterInterface
 {
     const SUBSCRIBE = 'subscribe';
+    const ANSWER = 'answer';
 
     /**
      * Checks if the voter supports the given attribute.
@@ -23,6 +26,7 @@ class PollVoter implements VoterInterface
     {
         return in_array($attribute, array(
             self::SUBSCRIBE,
+            self::ANSWER,
         ));
     }
 
@@ -89,12 +93,22 @@ class PollVoter implements VoterInterface
         }
 
         if ($attribute === self::SUBSCRIBE) {
-            $group = $object->getGroup();
-            $func = function($i, UserGroup $userGroup) use($group) {
-                return $userGroup->getStatus() == UserGroup::STATUS_ACTIVE
-                    && $group->getId() == $userGroup->getGroup()->getId();
-            };
-            if ($user->getUserGroups()->exists($func)) {
+            if ($object->getGroup()->isMember($user)) {
+                return VoterInterface::ACCESS_GRANTED;
+            }
+        }
+
+        if ($attribute === self::ANSWER) {
+            if ($object instanceof Question\Petition && $object->getIsOutsidersSign()) {
+                return VoterInterface::ACCESS_GRANTED;
+            }
+            $questionOwner = $object->getOwner();
+            if ($questionOwner instanceof Superuser) {
+                return VoterInterface::ACCESS_GRANTED;
+            } elseif ($questionOwner instanceof Group && ($questionOwner->isMember($user) || $questionOwner->isManager($user) || $questionOwner->getOwner()->isEqualTo($user))) {
+                return VoterInterface::ACCESS_GRANTED;
+            } elseif ($questionOwner instanceof Representative
+            && array_search($questionOwner->getDistrictId(), $user->getDistrictsIds()) !== false) {
                 return VoterInterface::ACCESS_GRANTED;
             }
         }

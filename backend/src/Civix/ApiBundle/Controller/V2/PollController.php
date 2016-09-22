@@ -3,10 +3,10 @@
 namespace Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Configuration\SecureParam;
+use Civix\ApiBundle\Form\Type\Poll\AnswerType;
 use Civix\ApiBundle\Form\Type\Poll\OptionType;
 use Civix\ApiBundle\Form\Type\Poll\QuestionType;
 use Civix\CoreBundle\Entity\Poll\Answer;
-use Civix\CoreBundle\Entity\Poll\Comment;
 use Civix\CoreBundle\Entity\Poll\Option;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Service\PollManager;
@@ -17,8 +17,11 @@ use FOS\RestBundle\Request\ParamFetcher;
 use JMS\DiExtraBundle\Annotation as DI;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Validator;
 
 /**
@@ -300,5 +303,64 @@ class PollController extends FOSRestController
             $params->get('page'),
             $params->get('per_page')
         );
+    }
+
+    /**
+     * Add a new answer.
+     *
+     * @Route("/{id}/answers/{option}", requirements={"id"="\d+"})
+     * @Method("PUT")
+     *
+     * @ParamConverter("option", options={"mapping" = {"id" = "question", "option" = "id"}})
+     * @ParamConverter("answer", options={"mapping" = {"loggedInUser" = "user", "id" = "question"}}, converter="doctrine.param_converter")
+     *
+     * @SecureParam("question", permission="answer")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Polls",
+     *     description="Add a new answer.",
+     *     input="Civix\ApiBundle\Form\Type\Poll\AnswerType",
+     *     output={
+     *          "class" = "Civix\CoreBundle\Entity\Poll\Answer",
+     *          "groups" = {"api-answer"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
+     *     },
+     *     statusCodes={
+     *         403="Access Denied",
+     *         404="Question or Option Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @View(serializerGroups={"api-answer"})
+     *
+     * @param Request $request
+     * @param Question $question
+     * @param Option $option
+     * @param Answer $answer
+     *
+     * @return Answer|Form
+     */
+    public function putAnswersAction(Request $request, Question $question, Option $option, Answer $answer = null)
+    {
+        if (!is_null($answer)) {
+            throw new AccessDeniedException();
+        } else {
+            $answer = new Answer();
+            $answer->setUser($this->getUser())
+                ->setOption($option);
+        }
+
+        $form = $this->createForm(new AnswerType(), $answer, ['validation_groups' => 'api-poll']);
+        $form->submit($request);
+
+        if ($form->isValid()) {
+            return $this->manager->addAnswer($question, $answer);
+        }
+
+        return $form;
     }
 }

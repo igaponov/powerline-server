@@ -129,8 +129,15 @@ class Stripe
         return $customer && count($customer->getCards());
     }
 
-    public function chargeToPaymentRequest(PaymentRequest $paymentRequest, Answer $answer, UserInterface $user)
+    public function chargeToPaymentRequest(Answer $answer)
     {
+        $user = $answer->getUser();
+        $paymentRequest = $answer->getQuestion();
+
+        if (!$paymentRequest instanceof PaymentRequest) {
+            throw new \RuntimeException('Only an answer to payment request can be charged.');
+        }
+
         $customer = $this->em
             ->getRepository(Customer::getEntityClassByUser($user))
             ->findOneBy(['user' => $user]);

@@ -2,7 +2,13 @@
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Poll\Answer;
+use Civix\CoreBundle\Entity\Poll\Option;
+use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Question\Group;
+use Civix\CoreBundle\Entity\SocialActivity;
+use Civix\CoreBundle\Service\Stripe;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupPaymentRequestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
@@ -353,6 +359,192 @@ class PollControllerTest extends WebTestCase
 		$data = json_decode($response->getContent(), true);
 		$this->assertSame($value, $data['value']);
 	}
+
+    public function testAddAnswerWithWrongCredentialsThrowsException()
+    {
+        $repository = $this->loadFixtures([
+            LoadGroupQuestionData::class,
+        ])->getReferenceRepository();
+        /** @var Question $question */
+        $question = $repository->getReference('group_question_1');
+        /** @var Option $option */
+        $option = $question->getOptions()->get(1);
+        $client = $this->client;
+        $client->request('PUT', self::API_ENDPOINT.'/'.$question->getId().'/answers/'.$option->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user4"']);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testAddAnswerToAnsweredQuestionThrowsException()
+    {
+        $repository = $this->loadFixtures([
+            LoadQuestionAnswerData::class,
+        ])->getReferenceRepository();
+        /** @var Question $question */
+        $question = $repository->getReference('group_question_1');
+        /** @var Option $option */
+        $option = $question->getOptions()->get(1);
+        $client = $this->client;
+        $client->request('PUT', self::API_ENDPOINT.'/'.$question->getId().'/answers/'.$option->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user2"']);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testAddAnswerReturnsErrors()
+    {
+        $repository = $this->loadFixtures([
+            LoadGroupQuestionData::class,
+        ])->getReferenceRepository();
+        $question = $repository->getReference('group_question_1');
+        /** @var Option $option */
+        $option = $question->getOptions()->get(1);
+        $client = $this->client;
+        $client->request('PUT', self::API_ENDPOINT.'/'.$question->getId().'/answers/'.$option->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode(['comment' => str_repeat('x', 501)]));
+        $response = $client->getResponse();
+        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame('Validation Failed', $data['message']);
+        $children = $data['errors']['children'];
+        $this->assertEquals(['This value is too long. It should have 500 characters or less.'], $children['comment']['errors']);
+    }
+
+    /**
+     * @param $user
+     * @param $reference
+     * @dataProvider getValidPollCredentialsForGetRequest
+     */
+    public function testAddAnswerIsOk($user, $reference)
+    {
+        $repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+            LoadGroupQuestionData::class,
+        ])->getReferenceRepository();
+        /** @var Question $question */
+        $question = $repository->getReference($reference);
+        /** @var Option $option */
+        $option = $question->getOptions()->get(1);
+        $client = $this->client;
+        $stripe = $this->getMockBuilder(Stripe::class)
+            ->setMethods(['chargeToPaymentRequest'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $stripe->expects($this->never())->method('chargeToPaymentRequest');
+        $client->getContainer()->set('civix_core.stripe', $stripe);
+        $faker = Factory::create();
+        $params = [
+            'comment' => $faker->sentence,
+            'privacy' => 'private',
+            'payment_amount' => 1234,
+        ];
+        $client->request('PUT', self::API_ENDPOINT.'/'.$question->getId().'/answers/'.$option->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"'], json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals($option->getId(), $data['option_id']);
+        $this->assertEquals($params['comment'], $data['comment']);
+        $this->assertEquals($params['payment_amount'], $data['payment_amount']);
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM social_activities WHERE type = ?', [SocialActivity::TYPE_OWN_POLL_ANSWERED]);
+        $this->assertEquals(1, $count);
+        $amount = $conn->fetchColumn('SELECT crowdfunding_pledged_amount FROM poll_questions WHERE id = ?', [$question->getId()]);
+        $this->assertEquals(0, $amount);
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM poll_comments WHERE question_id = ?', [$question->getId()]);
+        $this->assertEquals(1, $count);
+        $count = $conn->fetchColumn('SELECT answers_count FROM poll_questions WHERE id = ?', [$question->getId()]);
+        $this->assertEquals(1, $count);
+    }
+
+    public function testAddPaymentAnswerToCrowdfundingRequestIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+            LoadGroupPaymentRequestData::class,
+        ])->getReferenceRepository();
+        /** @var Question $question */
+        $question = $repository->getReference('group_payment_request_1');
+        /** @var Option $option */
+        $option = $question->getOptions()->get(0);
+        $client = $this->client;
+        $stripe = $this->getMockBuilder(Stripe::class)
+            ->setMethods(['chargeToPaymentRequest'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $stripe->expects($this->never())->method('chargeToPaymentRequest');
+        $client->getContainer()->set('civix_core.stripe', $stripe);
+        $faker = Factory::create();
+        $params = [
+            'comment' => $faker->sentence,
+            'privacy' => 'private',
+            'payment_amount' => 1234,
+        ];
+        $client->request('PUT', self::API_ENDPOINT.'/'.$question->getId().'/answers/'.$option->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals($option->getId(), $data['option_id']);
+        $this->assertEquals($params['comment'], $data['comment']);
+        $this->assertEquals($params['payment_amount'], $data['payment_amount']);
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM social_activities WHERE type = ?', [SocialActivity::TYPE_OWN_POLL_ANSWERED]);
+        $this->assertEquals(1, $count);
+        $amount = $conn->fetchColumn('SELECT crowdfunding_pledged_amount FROM poll_questions WHERE id = ?', [$question->getId()]);
+        $this->assertEquals(1234, $amount);
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM poll_comments WHERE question_id = ?', [$question->getId()]);
+        $this->assertEquals(1, $count);
+        $count = $conn->fetchColumn('SELECT answers_count FROM poll_questions WHERE id = ?', [$question->getId()]);
+        $this->assertEquals(1, $count);
+    }
+
+    public function testAddPaymentAnswerToNotCrowdfundingRequestIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+            LoadGroupPaymentRequestData::class,
+        ])->getReferenceRepository();
+        /** @var Question $question */
+        $question = $repository->getReference('group_payment_request_2');
+        /** @var Option $option */
+        $option = $question->getOptions()->get(1);
+        $client = $this->client;
+        $stripe = $this->getMockBuilder(Stripe::class)
+            ->setMethods(['chargeToPaymentRequest'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $stripe->expects($this->once())
+            ->method('chargeToPaymentRequest')
+            ->with($this->callback(function(Answer $answer) {
+                $this->assertEquals(500, $answer->getCurrentPaymentAmount());
+
+                return true;
+            }));
+        $client->getContainer()->set('civix_core.stripe', $stripe);
+        $faker = Factory::create();
+        $params = [
+            'comment' => $faker->sentence,
+            'privacy' => 'private',
+        ];
+        $client->request('PUT', self::API_ENDPOINT.'/'.$question->getId().'/answers/'.$option->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals($option->getId(), $data['option_id']);
+        $this->assertEquals($params['comment'], $data['comment']);
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM social_activities WHERE type = ?', [SocialActivity::TYPE_OWN_POLL_ANSWERED]);
+        $this->assertEquals(1, $count);
+        $amount = $conn->fetchColumn('SELECT crowdfunding_pledged_amount FROM poll_questions WHERE id = ?', [$question->getId()]);
+        $this->assertEquals(0, $amount);
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM poll_comments WHERE question_id = ?', [$question->getId()]);
+        $this->assertEquals(1, $count);
+        $count = $conn->fetchColumn('SELECT answers_count FROM poll_questions WHERE id = ?', [$question->getId()]);
+        $this->assertEquals(1, $count);
+    }
 
     public function getValidPollCredentialsForGetRequest()
     {

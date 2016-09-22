@@ -397,6 +397,11 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service class="Civix\CoreBundle\EventListener\StripeSubscriber" id="civix_core.event_listener.stripe_subscriber">
+            <argument id="civix_core.stripe" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service class="Civix\CoreBundle\Service\FollowerManager" id="civix_core.service.follower_manager">
             <argument id="doctrine.orm.entity_manager" type="service"/>
             <argument id="event_dispatcher" type="service"/>
