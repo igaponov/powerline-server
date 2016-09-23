@@ -352,12 +352,18 @@ class PollControllerTest extends WebTestCase
         ])->getReferenceRepository();
 		$question = $repository->getReference($reference);
 		$client = $this->client;
-		$value = 'some_value';
-		$client->request('POST', self::API_ENDPOINT.'/'.$question->getId().'/options', [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"'], json_encode(['value' => $value]));
+        $params = [
+            'value' => 'some_value',
+            'payment_amount' => 100,
+            'is_user_amount' => false,
+        ];
+        $client->request('POST', self::API_ENDPOINT.'/'.$question->getId().'/options', [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"'], json_encode($params));
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
-		$this->assertSame($value, $data['value']);
+		$this->assertSame($params['value'], $data['value']);
+		$this->assertSame($params['payment_amount'], $data['payment_amount']);
+		$this->assertSame($params['is_user_amount'], $data['is_user_amount']);
 	}
 
     public function testAddAnswerWithWrongCredentialsThrowsException()

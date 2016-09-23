@@ -20,7 +20,15 @@ class OptionType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('value');
+        $builder->add('value', 'text')
+            ->add('payment_amount', 'integer', [
+                'property_path' => 'paymentAmount',
+                'required' => false,
+            ])
+            ->add('is_user_amount', 'checkbox', [
+                'property_path' => 'isUserAmount',
+                'required' => false,
+            ]);
     }
 
     /**

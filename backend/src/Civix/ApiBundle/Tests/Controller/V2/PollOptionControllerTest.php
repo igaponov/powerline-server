@@ -95,6 +95,8 @@ class PollOptionControllerTest extends WebTestCase
 		$faker = Factory::create();
 		$params = [
 			'value' => $faker->word,
+            'payment_amount' => 4321,
+            'is_user_amount' => true,
 		];
 		$question = $repository->getReference($reference);
 		$client = $this->client;
@@ -104,6 +106,8 @@ class PollOptionControllerTest extends WebTestCase
 		$data = json_decode($response->getContent(), true);
 		$this->assertSame($question->getId(), $data['id']);
 		$this->assertSame($params['value'], $data['value']);
+		$this->assertSame($params['payment_amount'], $data['payment_amount']);
+		$this->assertSame($params['is_user_amount'], $data['is_user_amount']);
 	}
 
     /**
