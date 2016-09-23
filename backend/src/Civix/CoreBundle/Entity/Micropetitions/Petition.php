@@ -205,7 +205,7 @@ class Petition implements HtmlBodyInterface
      * @var ArrayCollection|User[]
      *
      * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\User",
-     *     cascade={"persist"}, orphanRemoval=true, mappedBy="petitionSubscriptions")
+     *     cascade={"persist"}, mappedBy="petitionSubscriptions")
      * @ORM\JoinTable(name="petition_subscribers")
      */
     private $subscribers;
