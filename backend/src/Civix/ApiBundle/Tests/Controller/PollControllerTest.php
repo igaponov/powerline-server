@@ -1,6 +1,7 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller;
 
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadPollCommentRateData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
@@ -54,16 +55,20 @@ class PollControllerTest extends WebTestCase
 
         $reference = $fixtures->getReferenceRepository();
 
-
+        /** @var Group $group */
         $group = $reference->getReference('group');
+        $group->setOwner($reference->getReference('user_1'));
+        $container = $this->getContainer();
+        $em = $container->get('doctrine.orm.entity_manager');
+        $em->persist($group);
+        $em->flush();
 
         $group_token = $this->getUserToken($group->getUsername(), LoadGroupFollowerTestData::GROUP_PASSWORD);
 
 		$this->assertNotEmpty($group_token, 'Login token should not empty');
 		
 		// Create a request scope context that allows serialize the question object
-		$container = $this->getContainer();
-		
+
 		$request = Request::create( '/' );
 		
 		$request->setSession( new Session() );
@@ -80,8 +85,6 @@ class PollControllerTest extends WebTestCase
 		$content = $this->jmsSerialization($question, ['api-poll']);
 
 		$this->client->request('PUT', self::API_POLL_QUESTION_NEW_ENDPOINT, [], [], ['HTTP_Token' => $group_token], $content);
-		
-		$request = $this->client->getRequest();
 		
 		$response = $this->client->getResponse();
 		
