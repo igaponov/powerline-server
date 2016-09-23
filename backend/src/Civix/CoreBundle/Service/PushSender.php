@@ -43,6 +43,7 @@ class PushSender
     const IMAGE_WIDTH = 320;
     const IMAGE_HEIGHT = 400;
     const IMAGE_LINK = '/bundles/civixfront/img/logo.jpg';
+    const IMAGE_PATH = 'avatars';
 
     protected $entityManager;
     protected $questionUsersPush;
@@ -415,7 +416,7 @@ class PushSender
         }
 
         return $this->urlBuilder->createURL(
-            $fileName,
+            self::IMAGE_PATH.'/'.$fileName,
             array("dpr" => 0.75, "w" => self::IMAGE_WIDTH, "h" => self::IMAGE_HEIGHT)
         );
     }
