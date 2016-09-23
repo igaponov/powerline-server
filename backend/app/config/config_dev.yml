@@ -28,6 +28,8 @@ monolog:
             token: '%slack_logger_token%'
             channel: "#errors"
             level: error
+            excluded_404s:
+                - ^/
 
 assetic:
     use_controller: false
