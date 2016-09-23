@@ -26,6 +26,7 @@ class AnswerType extends AbstractType
                 'required' => false,
             ])
             ->add('payment_amount', 'number', [
+                'property_path' => 'paymentAmount',
                 'required' => false,
             ]);
         $builder->get('privacy')->addModelTransformer(new KeyToValueTransformer($choices));
