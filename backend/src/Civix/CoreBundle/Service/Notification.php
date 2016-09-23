@@ -66,13 +66,24 @@ class Notification
                 'MessageStructure' => 'json',
                 'Message' => $endpoint->getPlatformMessage($title, $message, $type, $entityData, $image)
             ));
+            $this->logger->debug('Message is pushed', array_merge([
+                    'title' => $title,
+                    'message' => $message,
+                    'type' => $type,
+                    'entityData' => $entityData,
+                    'image' => $image,
+                ],
+                $endpoint->getContext()
+            ));
         } catch (Exception\EndpointDisabledException $e) {
+            $this->logger->debug('Endpoint is disabled and will be removed', $endpoint->getContext());
             $this->removeEndpoint($endpoint);
         } catch (Exception\NotFoundException $e) {
+            $this->logger->debug('Endpoint is not found and will be added', $endpoint->getContext());
             $this->addEndpoint($endpoint);
             $this->send($title, $message, $type, $entityData, $image, $endpoint);
         } catch (Exception\SnsException $e) {
-            $this->logger->warning($e->getMessage(), $e->getTrace());
+            $this->logger->warning($e->getMessage(), $endpoint->getContext());
         }
     }
 

@@ -393,18 +393,6 @@ class PushSender
                     $image,
                     $endpoint
                 );
-                $this->logger->addDebug('Message is pushed', [
-                    'title' => $title,
-                    'message' => $message,
-                    'type' => $type,
-                    'entityData' => $entityData,
-                    'image' => $image,
-                    'arn' => $endpoint->getArn(),
-                    'user' => [
-                        'id' => $recipient->getId(),
-                        'username' => $recipient->getUsername(),
-                    ],
-                ]);
             } catch (\Exception $e) {
                 $this->logger->addError($e->getMessage(), $e->getTrace());
             }

@@ -144,4 +144,16 @@ abstract class AbstractEndpoint
     {
         return $this->user;
     }
+
+    public function getContext()
+    {
+        return [
+            'token' => $this->getToken(),
+            'arn' => $this->getArn(),
+            'user' => [
+                'id' => $this->getUser()->getId(),
+                'username' => $this->getUser()->getUsername(),
+            ],
+        ];
+    }
 }

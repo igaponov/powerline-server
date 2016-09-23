@@ -284,7 +284,7 @@
             <argument type="service" id="aws_sns.client" />
             <argument>%amazon_sns.android_arn%</argument>
             <argument>%amazon_sns.ios_arn%</argument>
-            <argument type="service" id="logger" />
+            <argument type="service" id="monolog.logger.push" />
         </service>
 
         <service id="civix_core.email_sender" class="Civix\CoreBundle\Service\EmailSender">
