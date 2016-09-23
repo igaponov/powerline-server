@@ -267,7 +267,7 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
     /**
      * @var User
      * @ORM\ManyToOne(targetEntity="\Civix\CoreBundle\Entity\User")
-     * @ORM\JoinColumn(name="user_id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="user_id", onDelete="CASCADE", nullable=false)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll", "api-leader-poll"})
      */
