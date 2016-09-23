@@ -70,7 +70,7 @@ class Answer
      * @Serializer\Expose()
      * @Serializer\Groups({"api-leader-answers", "api-answer"})
      */
-    private $payment_amount;
+    private $paymentAmount;
 
     /**
      * @var int
@@ -244,13 +244,13 @@ class Answer
     }
 
     /**
-     * @param int $payment_amount
+     * @param int $paymentAmount
      *
      * @return $this
      */
-    public function setPaymentAmount($payment_amount)
+    public function setPaymentAmount($paymentAmount)
     {
-        $this->payment_amount = $payment_amount;
+        $this->paymentAmount = $paymentAmount;
 
         return $this;
     }
@@ -260,7 +260,7 @@ class Answer
      */
     public function getPaymentAmount()
     {
-        return $this->payment_amount;
+        return $this->paymentAmount;
     }
 
     /**

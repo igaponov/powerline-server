@@ -44,7 +44,7 @@ class Option implements ContentInterface
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll", "api-leader-poll"})
      */
-    private $payment_amount;
+    private $paymentAmount;
 
     /**
      * @ORM\Column(name="is_user_amount", type="boolean", nullable=true)
@@ -177,13 +177,13 @@ class Option implements ContentInterface
     }
 
     /**
-     * @param float $payment_amount
+     * @param float $paymentAmount
      *
      * @return $this
      */
-    public function setPaymentAmount($payment_amount)
+    public function setPaymentAmount($paymentAmount)
     {
-        $this->payment_amount = $payment_amount;
+        $this->paymentAmount = $paymentAmount;
 
         return $this;
     }
@@ -193,7 +193,7 @@ class Option implements ContentInterface
      */
     public function getPaymentAmount()
     {
-        return $this->payment_amount;
+        return $this->paymentAmount;
     }
 
     /**
