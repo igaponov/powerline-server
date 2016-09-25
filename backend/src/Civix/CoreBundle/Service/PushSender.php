@@ -294,6 +294,9 @@ class PushSender
     public function sendSocialActivity($id)
     {
         $socialActivity = $this->entityManager->getRepository(SocialActivity::class)->find($id);
+        if (!$socialActivity) {
+            return;
+        }
         $handledIds = [];
         $target = $socialActivity->getTarget();
         if ($socialActivity->getRecipient()) {
