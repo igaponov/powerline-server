@@ -39,3 +39,7 @@
 - name: start supervisor payments
   tags: deploy
   supervisorctl: name=civix_payments state=started
+
+- name: reset application cache
+  tags: deploy
+  command: /srv/{{ project }}/app/console cache:clear --env={% if dev_env is defined %}dev{% else %}prod{% endif %} --no-debug
