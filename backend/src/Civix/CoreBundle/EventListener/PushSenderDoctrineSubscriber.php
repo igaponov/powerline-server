@@ -7,12 +7,21 @@ use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
 
+/**
+ * Class PushSenderDoctrineSubscriber
+ * collects entities on postPersist Doctrine's event
+ * and add it to external queue on postFlush,
+ * because postPersist event
+ * is called before UnitOfWork::commit() method
+ * and the entity can be not saved to db completely.
+ */
 class PushSenderDoctrineSubscriber implements EventSubscriber
 {
     public function getSubscribedEvents()
     {
         return [
             Events::postPersist,
+            Events::postFlush,
         ];
     }
 
@@ -21,9 +30,16 @@ class PushSenderDoctrineSubscriber implements EventSubscriber
      */
     private $pushTask;
 
+    /**
+     * @var \SplQueue
+     */
+    private $pushQueue;
+
     public function __construct(PushTask $pushTask)
     {
         $this->pushTask = $pushTask;
+        $this->pushQueue = new \SplQueue();
+        $this->pushQueue->setIteratorMode(\SplQueue::IT_MODE_DELETE);
     }
 
     public function postPersist(LifecycleEventArgs $event)
@@ -32,8 +48,19 @@ class PushSenderDoctrineSubscriber implements EventSubscriber
 
         switch (true) {
             case $entity instanceof SocialActivity:
-                $this->pushTask->addToQueue('sendSocialActivity', [$entity->getId()]);
+                $this->pushQueue->enqueue($entity);
                 break;
+        }
+    }
+
+    public function postFlush()
+    {
+        foreach ($this->pushQueue as $entity) {
+            switch (true) {
+                case $entity instanceof SocialActivity:
+                    $this->pushTask->addToQueue('sendSocialActivity', [$entity->getId()]);
+                    break;
+            }
         }
     }
 }
