@@ -14,7 +14,7 @@ use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Service\Poll\QuestionUserPush;
 use Doctrine\ORM\EntityManager;
 use Imgix\UrlBuilder;
-use Symfony\Bridge\Monolog\Logger;
+use Psr\Log\LoggerInterface;
 
 class PushSender
 {
@@ -48,6 +48,9 @@ class PushSender
     protected $entityManager;
     protected $questionUsersPush;
     protected $notification;
+    /**
+     * @var LoggerInterface
+     */
     protected $logger;
     /**
      * @var UrlBuilder
@@ -62,7 +65,7 @@ class PushSender
         EntityManager $entityManager,
         QuestionUserPush $questionUsersPush,
         Notification $notification,
-        Logger $logger,
+        LoggerInterface $logger,
         UrlBuilder $urlBuilder,
         $hostname
     ) {
@@ -295,7 +298,7 @@ class PushSender
     {
         $socialActivity = $this->entityManager->getRepository(SocialActivity::class)->find($id);
         if (!$socialActivity) {
-            return;
+            return $this->logger->error('Social activity is not found.', ['id' => $id]);
         }
         $handledIds = [];
         $target = $socialActivity->getTarget();
@@ -398,7 +401,7 @@ class PushSender
                     $endpoint
                 );
             } catch (\Exception $e) {
-                $this->logger->addError($e->getMessage(), $e->getTrace());
+                $this->logger->error($e->getMessage(), $e->getTrace());
             }
         }
     }
