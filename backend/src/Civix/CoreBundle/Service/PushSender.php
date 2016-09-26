@@ -56,7 +56,7 @@ class PushSender
     /**
      * @var string
      */
-    private $domain;
+    private $hostname;
 
     public function __construct(
         EntityManager $entityManager,
@@ -64,14 +64,14 @@ class PushSender
         Notification $notification,
         Logger $logger,
         UrlBuilder $urlBuilder,
-        $domain
+        $hostname
     ) {
         $this->entityManager = $entityManager;
         $this->questionUsersPush = $questionUsersPush;
         $this->notification = $notification;
         $this->logger = $logger;
         $this->urlBuilder = $urlBuilder;
-        $this->domain = $domain;
+        $this->hostname = $hostname;
     }
 
     /**
@@ -385,7 +385,7 @@ class PushSender
         /** @var AbstractEndpoint[] $endpoints */
         $endpoints = $this->entityManager->getRepository(AbstractEndpoint::class)->findByUser($recipient);
         if (empty($image)) {
-            $image = $this->domain.self::IMAGE_LINK;
+            $image = $this->hostname.self::IMAGE_LINK;
         }
         foreach ($endpoints as $endpoint) {
             try {

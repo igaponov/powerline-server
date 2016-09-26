@@ -36,6 +36,7 @@ parameters:
     stripe_publishable_key:  pk_test_QUgSE3ZhORW9yoDuCkMjnaA2
 
     domain: powerli.ne
+    hostname: api-dev.powerli.ne
 
     rabbitmq_connections:
         default:
