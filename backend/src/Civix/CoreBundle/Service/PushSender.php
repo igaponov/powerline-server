@@ -388,7 +388,7 @@ class PushSender
         /** @var AbstractEndpoint[] $endpoints */
         $endpoints = $this->entityManager->getRepository(AbstractEndpoint::class)->findByUser($recipient);
         if (empty($image)) {
-            $image = $this->hostname.self::IMAGE_LINK;
+            $image = 'https://'.$this->hostname.self::IMAGE_LINK;
         }
         foreach ($endpoints as $endpoint) {
             try {
