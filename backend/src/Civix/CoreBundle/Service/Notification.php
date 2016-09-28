@@ -127,7 +127,7 @@ class Notification
                     'CustomUserData' => $endpoint->getUser()->getId(),
                 ]);
             } else {
-                return;
+                throw $e;
             }
         }
 
