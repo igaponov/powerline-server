@@ -184,7 +184,6 @@ class BookmarkControllerTest extends WebTestCase
 
     private function buildResponse($content)
     {
-        var_dump($content);
         $data = [];
         foreach (json_decode($content, true)['items'] as $item)
             $data[] = $item['detail'];
