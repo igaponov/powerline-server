@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Repository\Poll;
 
+use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Question\Petition;
 use Doctrine\ORM\EntityRepository;
 use Civix\CoreBundle\Entity\User;
@@ -21,7 +22,7 @@ class AnswerRepository extends EntityRepository
                 ->getQuery();
     }
 
-    public function getAnswersByInfluence(\Civix\CoreBundle\Entity\User $follower, $questionId)
+    public function getAnswersByInfluence(\Civix\CoreBundle\Entity\User $follower, Question $question)
     {
         return $this->getEntityManager()
                 ->createQueryBuilder()
@@ -29,28 +30,28 @@ class AnswerRepository extends EntityRepository
                 ->from('CivixCoreBundle:Poll\Answer', 'a')
                 ->leftJoin('a.user', 'u')
                 ->leftJoin('CivixCoreBundle:UserFollow', 'uf', 'WITH', 'a.user = uf.user')
-                ->where('a.question  = :questionId')
-                ->AndWhere('uf.status  = :status')
-                ->AndWhere('uf.follower  = :followerId')
-                ->setParameter('questionId', $questionId)
+                ->where('a.question  = :question')
+                ->andWhere('uf.status  = :status')
+                ->andWhere('uf.follower  = :follower')
+                ->setParameter('question', $question)
                 ->setParameter('status', \Civix\CoreBundle\Entity\UserFollow::STATUS_ACTIVE)
-                ->setParameter('followerId', $follower)
+                ->setParameter('follower', $follower)
                 ->getQuery()
                 ->getResult();
     }
 
-    public function getAnswersByNotInfluence($follower, $questionId, $maxResults = 5)
+    public function getAnswersByNotInfluence(User $follower, Question $question, $maxResults = 5)
     {
         return $this->getEntityManager()
                 ->createQuery('SELECT a FROM CivixCoreBundle:Poll\Answer a 
                     WHERE a.user NOT IN(SELECT IDENTITY(uf.user) 
                     FROM  CivixCoreBundle:UserFollow uf 
-                    WHERE uf.follower = :followerId
+                    WHERE uf.follower = :follower
                     AND uf.status  = :status)
                     AND a.user <> :followerId
-                    AND a.question = :questionId')
-                ->setParameter('questionId', $questionId)
-                ->setParameter('followerId', $follower)
+                    AND a.question = :question')
+                ->setParameter('question', $question)
+                ->setParameter('follower', $follower)
                 ->setParameter('status', \Civix\CoreBundle\Entity\UserFollow::STATUS_ACTIVE)
                 ->setMaxResults($maxResults)
                 ->getResult();

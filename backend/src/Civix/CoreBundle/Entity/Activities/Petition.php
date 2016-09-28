@@ -17,7 +17,7 @@ class Petition extends Question
     {
         return array(
             'type' => self::TYPE_PETITION,
-            'id' => $this->getQuestionId(),
+            'id' => $this->getQuestion() ? $this->getQuestion()->getId() : null,
         );
     }
 }

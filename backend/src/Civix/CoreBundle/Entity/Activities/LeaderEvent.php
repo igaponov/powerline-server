@@ -18,7 +18,7 @@ class LeaderEvent extends Question
     {
         return [
             'type' => Activity::TYPE_LEADER_EVENT,
-            'id' => $this->getQuestionId(),
+            'id' => $this->getQuestion() ? $this->getQuestion()->getId() : null,
         ];
     }
 }

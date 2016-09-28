@@ -66,7 +66,7 @@ class ActivityUpdate
         $class = Activity::getActivityClassByEntity($question);
         /** @var \Civix\CoreBundle\Entity\Activities\Question $activity */
         $activity = new $class;
-        $activity->setQuestionId($question->getId());
+        $activity->setQuestion($question);
         if ($question instanceof LeaderEvent) {
             $activity->setTitle($question->getTitle());
         } else {
@@ -148,7 +148,7 @@ class ActivityUpdate
     public function publishLeaderNewsToActivity(LeaderNews $news)
     {
         $activity = new ActivityLeaderNews();
-        $activity->setQuestionId($news->getId());
+        $activity->setQuestion($news);
         $activity->setTitle('');
         $activity->setDescription(strip_tags($news->getSubjectParsed()));
         $activity->setSentAt($news->getPublishedAt());
@@ -170,7 +170,7 @@ class ActivityUpdate
     public function publishPetitionToActivity(Petition $petition)
     {
         $activity = new ActivityPetition();
-        $activity->setQuestionId($petition->getId())
+        $activity->setQuestion($petition)
             ->setTitle($petition->getPetitionTitle())
             ->setDescription($petition->getPetitionBody())
             ->setExpireAt($petition->getExpireAt())
@@ -203,7 +203,7 @@ class ActivityUpdate
         }
 
         $activity
-            ->setQuestionId($paymentRequest->getId())
+            ->setQuestion($paymentRequest)
             ->setTitle($paymentRequest->getTitle())
             ->setDescription($paymentRequest->getSubject())
             ->setSentAt($paymentRequest->getPublishedAt())
@@ -235,7 +235,7 @@ class ActivityUpdate
 
          //create activity
         $activity = new ActivityLeaderEvent();
-        $activity->setQuestionId($event->getId());
+        $activity->setQuestion($event);
         $activity->setTitle($event->getTitle());
         $activity->setDescription($event->getSubject());
         $activity->setSentAt($publishedAt);
@@ -327,7 +327,7 @@ class ActivityUpdate
     public function updateEntityRateCount(Comment $comment)
     {
         $activities = $this->entityManager->getRepository(Activity::getActivityClassByEntity($comment->getQuestion()))
-            ->findBy(['questionId' => $comment->getQuestion()->getId()]);
+            ->findBy(['question' => $comment->getQuestion()]);
 
         /* @var Activity $activity */
         foreach ($activities as $activity) {
