@@ -42,7 +42,7 @@ class PushSender
 
     const IMAGE_WIDTH = 320;
     const IMAGE_HEIGHT = 400;
-    const IMAGE_LINK = '/bundles/civixfront/img/logo.jpg';
+    const IMAGE_LINK = '/bundles/civixfront/img/logo_320x320.jpg';
     const IMAGE_PATH = 'avatars';
 
     protected $entityManager;
