@@ -154,6 +154,10 @@ class AnswersController extends BaseController
             ])
         ;
 
+        if (!$charge) {
+            throw $this->createNotFoundException();
+        }
+
         return $this->createJSONResponse(
             $this->jmsSerialization($charge->toArray(), ['api-answer-private'])
         );
