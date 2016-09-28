@@ -147,7 +147,7 @@ class Stripe
             ->findOneBy(['user' => $paymentRequest->getOwner()])
         ;
 
-        $charge = new Charge($customer, $account, $paymentRequest->getId());
+        $charge = new Charge($customer, $account, $paymentRequest);
         $amount = $answer->getCurrentPaymentAmount() * 100;
 
         $sc = \Stripe\Charge::create([
