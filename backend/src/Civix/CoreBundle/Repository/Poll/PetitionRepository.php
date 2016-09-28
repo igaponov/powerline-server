@@ -13,8 +13,8 @@ class PetitionRepository extends EntityRepository
     {
         return $this->createQueryBuilder('p')
             ->where('p.publishedAt IS NOT NULL')
-            ->andWhere('p.id = :questionId')
-            ->setParameter('questionId', $id)
+            ->andWhere('p.id = :id')
+            ->setParameter('id', $id)
             ->getQuery()
             ->getOneOrNullResult();
     }

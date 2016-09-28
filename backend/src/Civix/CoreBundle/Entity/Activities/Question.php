@@ -16,30 +16,11 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  */
 class Question extends Activity
 {
-    /**
-     * @ORM\Column(name="question_id", type="integer")
-     *
-     * @var int
-     */
-    protected $questionId;
-
-    public function setQuestionId($id)
-    {
-        $this->questionId = $id;
-
-        return $this;
-    }
-
-    public function getQuestionId()
-    {
-        return $this->questionId;
-    }
-
     public function getEntity()
     {
         return array(
             'type' => self::TYPE_QUESTION,
-            'id' => $this->getQuestionId(),
+            'id' => $this->getQuestion() ? $this->getQuestion()->getId() : null,
         );
     }
 

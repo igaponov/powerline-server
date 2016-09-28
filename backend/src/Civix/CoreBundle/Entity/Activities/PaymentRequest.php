@@ -17,7 +17,7 @@ class PaymentRequest extends Question
     {
         return array(
             'type' => self::TYPE_PAYMENT_REQUEST,
-            'id' => $this->getQuestionId(),
+            'id' => $this->getQuestion() ? $this->getQuestion()->getId() : null,
         );
     }
 }

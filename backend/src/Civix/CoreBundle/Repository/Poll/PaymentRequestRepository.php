@@ -15,8 +15,8 @@ class PaymentRequestRepository extends EntityRepository
     {
         return $this->createQueryBuilder('p')
             ->where('p.publishedAt IS NOT NULL')
-            ->andWhere('p.id = :questionId')
-            ->setParameter('questionId', $id)
+            ->andWhere('p.id = :id')
+            ->setParameter('id', $id)
             ->getQuery()
             ->getOneOrNullResult();
     }
@@ -25,9 +25,9 @@ class PaymentRequestRepository extends EntityRepository
     {
         return $this->createQueryBuilder('p')
             ->where('p.publishedAt IS NOT NULL')
-            ->andWhere('p.id = :questionId')
+            ->andWhere('p.id = :id')
             ->andWhere('p.isAllowOutsiders = true')
-            ->setParameter('questionId', $id)
+            ->setParameter('id', $id)
             ->getQuery()
             ->getOneOrNullResult();
     }

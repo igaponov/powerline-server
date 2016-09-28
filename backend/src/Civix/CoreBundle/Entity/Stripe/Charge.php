@@ -79,7 +79,6 @@ class Charge
     {
         $this->fromCustomer = $customer;
         $this->toAccount = $account;
-        $this->questionId = $question->getId();
         $this->question = $question;
     }
 
