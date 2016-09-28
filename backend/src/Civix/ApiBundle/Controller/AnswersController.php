@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use Civix\CoreBundle\Entity\UserPetition\Signature;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -10,7 +11,6 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Civix\CoreBundle\Entity\Poll\Question\Petition;
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Micropetitions\Petition as MicroPetition;
-use Civix\BalancedBundle\Entity\PaymentHistory;
 use Civix\CoreBundle\Entity\Stripe\Charge;
 use Civix\CoreBundle\Entity\Stripe\Customer;
 
@@ -40,6 +40,9 @@ class AnswersController extends BaseController
      *         405="Method Not Allowed"
      *     }
      * )
+     * @param Petition $petition
+     * @param $answerId
+     * @return Response
      */
     public function unsignPetitionAnswerAction(Petition $petition, $answerId)
     {
@@ -87,17 +90,19 @@ class AnswersController extends BaseController
      *     },
      *     deprecated=true
      * )
+     * @param MicroPetition $microPetition
+     * @return Response
      */
-    public function unsignMicroPetitionsAnswerAction(MicroPetition $microPetition, $answerId)
+    public function unsignMicroPetitionsAnswerAction(MicroPetition $microPetition)
     {
         $em = $this->getDoctrine()->getManager();
-
+        /** @var Signature $answer */
         $answer = $em->getRepository('CivixCoreBundle:Micropetitions\Answer')->findOneBy(array(
             'user' => $this->getUser(),
             'petition' => $microPetition,
         ));
 
-        if (!$answer || $answerId != $answer->getOptionId()) {
+        if (!$answer) {
             throw $this->createNotFoundException();
         }
 
@@ -116,7 +121,7 @@ class AnswersController extends BaseController
      *
      * @deprecated
      */
-    public function paymentHistory(Answer $answer)
+    public function paymentHistory()
     {
         throw $this->createNotFoundException();
     }
@@ -124,6 +129,8 @@ class AnswersController extends BaseController
     /**
      * @Route("/answers/{id}/charges/")
      * @Method("GET")
+     * @param Answer $answer
+     * @return Response
      */
     public function charges(Answer $answer)
     {
@@ -142,7 +149,7 @@ class AnswersController extends BaseController
         $charge = $this->getDoctrine()
             ->getRepository(Charge::class)
             ->findOneBy([
-                'questionId' => $answer->getQuestion()->getId(),
+                'question' => $answer->getQuestion(),
                 'fromCustomer' => $customer,
             ])
         ;
