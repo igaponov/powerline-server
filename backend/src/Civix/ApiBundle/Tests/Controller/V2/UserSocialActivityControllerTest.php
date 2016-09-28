@@ -43,10 +43,10 @@ class UserSocialActivityControllerTest extends WebTestCase
         parent::tearDown();
     }
 
-    public function testGetSocialActivitiesByRecipientAndFollowingIsOk()
+    public function testGetOwnSocialActivitiesIsOk()
     {
         $ids = [];
-        foreach ([1, 2, 3, 4, 8, 9, 10] as $key) {
+        foreach ([1, 2, 3, 4, 9] as $key) {
             $ids[] = $this->repository->getReference('social_activity_'.$key)->getId();
         }
         $client = $this->client;
@@ -56,28 +56,28 @@ class UserSocialActivityControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertSame(1, $data['page']);
         $this->assertSame(20, $data['items']);
-        $this->assertSame(7, $data['totalItems']);
-        $this->assertCount(7, $data['payload']);
+        $this->assertSame(5, $data['totalItems']);
+        $this->assertCount(5, $data['payload']);
         foreach ($data['payload'] as $item) {
             $this->assertContains($item['id'], $ids);
         }
     }
 
-    public function testGetSocialActivitiesByRecipientAndGroupsIsOk()
+    public function testGetFollowingSocialActivitiesIsOk()
     {
         $ids = [];
-        foreach ([5, 6, 7, 8, 10, 11] as $key) {
+        foreach ([6, 7, 8, 10] as $key) {
             $ids[] = $this->repository->getReference('social_activity_'.$key)->getId();
         }
         $client = $this->client;
-        $client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"']);
+        $client->request('GET', self::API_ENDPOINT, ['following' => true], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"']);
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertSame(1, $data['page']);
         $this->assertSame(20, $data['items']);
-        $this->assertSame(6, $data['totalItems']);
-        $this->assertCount(6, $data['payload']);
+        $this->assertSame(4, $data['totalItems']);
+        $this->assertCount(4, $data['payload']);
         foreach ($data['payload'] as $item) {
             $this->assertContains($item['id'], $ids);
         }

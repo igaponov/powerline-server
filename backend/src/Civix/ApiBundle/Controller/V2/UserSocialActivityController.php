@@ -31,6 +31,9 @@ class UserSocialActivityController extends FOSRestController
      *     section="Social Activity",
      *     description="eturns current user's social activities.",
      *     output="Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination",
+     *     filters={
+     *          {"name" = "following", "dataType" = "boolean", "default" = false, "description" = "Filter social activities of following users"}
+     *     },
      *     statusCodes={
      *         200="Returns list",
      *         401="Authorization required",
@@ -46,9 +49,12 @@ class UserSocialActivityController extends FOSRestController
      */
     public function getcAction(ParamFetcher $params)
     {
+        $param = new QueryParam();
+        $param->name = 'following';
+        $params->addParam($param);
         $query = $this->getDoctrine()
             ->getRepository(SocialActivity::class)
-            ->getFilteredByFollowingAndRecipientQuery($this->getUser());
+            ->getFilteredByFollowingAndRecipientQuery($this->getUser(), $params->get('following'));
         
         return $this->get('knp_paginator')->paginate(
             $query,

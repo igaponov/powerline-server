@@ -52,38 +52,39 @@ class SocialActivityRepository extends EntityRepository
         ;
     }
 
-    public function getFilteredByFollowingAndRecipientQuery(User $user)
+    public function getFilteredByFollowingAndRecipientQuery(User $user, $following = false)
     {
-        $userFollowingIds = $user->getFollowingIds();
-        $activeGroups = $this->getEntityManager()
-            ->getRepository('CivixCoreBundle:UserGroup')
-            ->getActiveGroupIds($user);
-        
-        $qb = $this->createQueryBuilder('sa');
-        $exprBuilder = $qb->expr();
-        $expr = $exprBuilder->andX('sa.recipient is NULL');
-        if (empty($activeGroups)) {
-            $expr->add('sa.group is NULL');
-        } else {
-            $expr->add(
-                $exprBuilder->orX(
-                    'sa.group is NULL',
-                    $exprBuilder->in('sa.group', $activeGroups)
-                )
-            );
-        }
-        if ($userFollowingIds) {
-            $expr->add($exprBuilder->in('sa.following', $userFollowingIds));
-        }
-        
-        return $qb->addSelect('f')
-            ->addSelect('g')
+        $qb = $this->createQueryBuilder('sa')
+            ->select('sa', 'f', 'g')
             ->leftJoin('sa.following', 'f')
             ->leftJoin('sa.group', 'g')
-            ->where('sa.recipient = :user')
-            ->orWhere($expr)
-            ->setParameter('user', $user)
-            ->orderBy('sa.id', 'DESC')
-            ->getQuery();
+            ->orderBy('sa.id', 'DESC');
+        $exprBuilder = $qb->expr();
+        if ($following) {
+            $userFollowingIds = $user->getFollowingIds();
+            $activeGroups = $this->getEntityManager()
+                ->getRepository('CivixCoreBundle:UserGroup')
+                ->getActiveGroupIds($user);
+            $expr = $exprBuilder->andX('sa.recipient is NULL');
+            if (empty($activeGroups)) {
+                $expr->add('sa.group is NULL');
+            } else {
+                $expr->add(
+                    $exprBuilder->orX(
+                        'sa.group is NULL',
+                        $exprBuilder->in('sa.group', $activeGroups)
+                    )
+                );
+            }
+            if ($userFollowingIds) {
+                $expr->add($exprBuilder->in('sa.following', $userFollowingIds));
+            }
+            $qb->where($expr);
+        } else {
+            $qb->where('sa.recipient = :user')
+                ->setParameter(':user', $user);
+        }
+        
+        return $qb->getQuery();
     }
 }
