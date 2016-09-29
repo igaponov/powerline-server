@@ -91,9 +91,6 @@ class ActivityUpdate
 
     public function publishUserPetitionToActivity(UserPetition $petition, $isPublic = false)
     {
-        $petition->boost();
-        $this->entityManager->persist($petition);
-
         //create activity
         $activity = new ActivityUserPetition();
         $activity->setPetition($petition);
@@ -119,9 +116,6 @@ class ActivityUpdate
 
     public function publishPostToActivity(Post $post, $isPublic = false)
     {
-        $post->boost();
-        $this->entityManager->persist($post);
-
         //create activity
         $activity = new ActivityPost();
         $activity->setPost($post);

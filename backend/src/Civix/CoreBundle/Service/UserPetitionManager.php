@@ -53,6 +53,9 @@ class UserPetitionManager
         if (!$petition->isBoosted()
             && $this->checkIfNeedBoost($petition)
         ) {
+            $petition->boost();
+            $this->entityManager->persist($petition);
+            $this->entityManager->flush();
             $petitionEvent = new UserPetitionEvent($petition);
             $this->dispatcher->dispatch(UserPetitionEvents::PETITION_BOOST, $petitionEvent);
         }

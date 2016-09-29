@@ -52,6 +52,9 @@ class PostManager
         if (!$post->isBoosted()
             && $this->checkIfNeedBoost($post)
         ) {
+            $post->boost();
+            $this->entityManager->persist($post);
+            $this->entityManager->flush();
             $petitionEvent = new PostEvent($post);
             $this->dispatcher->dispatch(PostEvents::POST_BOOST, $petitionEvent);
         }

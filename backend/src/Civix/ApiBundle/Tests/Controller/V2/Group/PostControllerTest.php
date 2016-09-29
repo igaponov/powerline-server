@@ -98,7 +98,7 @@ class PostControllerTest extends WebTestCase
         $this->assertEquals(201, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertSame($params['body'], $data['body']);
-        $this->assertTrue($data['boosted']);
+        $this->assertFalse($data['boosted']);
         // check addHashTags event listener
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
