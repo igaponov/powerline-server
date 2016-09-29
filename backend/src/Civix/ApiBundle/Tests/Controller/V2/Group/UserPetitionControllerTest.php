@@ -105,7 +105,7 @@ class UserPetitionControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertSame($params['body'], $data['body']);
         $this->assertSame($params['is_outsiders_sign'], $data['is_outsiders_sign']);
-        $this->assertTrue($data['boosted']);
+        $this->assertFalse($data['boosted']);
         $this->assertFalse($data['organization_needed']);
         // check addHashTags event listener
         /** @var Connection $conn */
@@ -227,7 +227,7 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertSame($params['body'], $data['body']);
         $this->assertSame($params['is_outsiders_sign'], $data['is_outsiders_sign']);
         $this->assertSame($params['organization_needed'], $data['organization_needed']);
-        $this->assertTrue($data['boosted']);
+        $this->assertFalse($data['boosted']);
     }
 
     /**
