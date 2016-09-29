@@ -27,7 +27,7 @@ monolog:
             type: slack
             token: '%slack_logger_token%'
             channel: "#errors"
-            level: error
+            level: critical
             excluded_404s:
                 - ^/
 
