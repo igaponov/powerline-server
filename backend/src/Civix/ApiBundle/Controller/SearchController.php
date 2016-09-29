@@ -61,7 +61,8 @@ class SearchController extends BaseController
     }
 
     /**
-     * Deprecated, use `GET /api/v2/micro-petitions?tag=hash` instead.
+     * Deprecated, use `GET /api/v2/posts?tag=hash`
+     * and `GET /api/v2/user-petitions?tag=hash` instead.
      *
      * @Route("/by-hash-tags", name="api_search_hash_tag")
      * @Method("GET")
