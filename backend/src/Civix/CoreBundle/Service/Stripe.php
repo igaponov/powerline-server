@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Service;
 
+use Civix\CoreBundle\Entity\Stripe\BankAccount;
 use Doctrine\ORM\EntityManager;
 use Civix\CoreBundle\Entity\UserInterface;
 use Civix\CoreBundle\Entity\Group;
@@ -60,41 +61,31 @@ class Stripe
             ->bank_accounts;
     }
 
-    public function addBankAccount(UserInterface $user, $dto)
+    public function addBankAccount(AccountInterface $account, BankAccount $bankAccount)
     {
-        $account = $this->em
-            ->getRepository(Account::getEntityClassByUser($user))
-            ->findOneBy(['user' => $user])
-        ;
-        if (!$account) {
-            $account = $this->createAccount($user);
-        }
-
+        /** @var \Stripe\Account|\stdClass $sa */
         $sa = \Stripe\Account::retrieve($account->getStripeId());
 
-        $sa->bank_account = $dto->source;
-        $sa->email = $user->getEmail();
-        $sa->default_currency = $dto->currency;
+        $sa->bank_account = $bankAccount->getSource();
+        $sa->email = $bankAccount->getEmail();
+        $sa->default_currency = $bankAccount->getCurrency();
 
-        $sa->legal_entity->type = $dto->type;
-        $sa->legal_entity->first_name = $dto->first_name;
-        $sa->legal_entity->last_name = $dto->last_name;
-        $sa->legal_entity->ssn_last_4 = $dto->ssn_last_4;
-        $sa->legal_entity->business_name = $dto->business_name;
+        $sa->legal_entity->type = $bankAccount->getType();
+        $sa->legal_entity->first_name = $bankAccount->getFirstName();
+        $sa->legal_entity->last_name = $bankAccount->getLastName();
+        $sa->legal_entity->ssn_last_4 = $bankAccount->getSsnLast4();
+        $sa->legal_entity->business_name = $bankAccount->getBusinessName();
 
         $sa->legal_entity->address = [
-            'line1' => $dto->address_line1,
-            'line2' => $dto->address_line2 ?: null,
-            'city' => $dto->city,
-            'state' => $dto->state,
-            'postal_code' => $dto->postal_code,
-            'country' => $dto->country,
+            'line1' => $bankAccount->getAddressLine1(),
+            'line2' => $bankAccount->getAddressLine2(),
+            'city' => $bankAccount->getCity(),
+            'state' => $bankAccount->getState(),
+            'postal_code' => $bankAccount->getPostalCode(),
+            'country' => $bankAccount->getCountry(),
         ];
 
         $sa->save();
-
-        $account->updateBankAccounts($this->getBankAccounts($account)->data);
-        $this->em->flush($account);
     }
 
     public function removeCard(CustomerInterface $customer, $cardId)
@@ -137,15 +128,23 @@ class Stripe
         if (!$paymentRequest instanceof PaymentRequest) {
             throw new \RuntimeException('Only an answer to payment request can be charged.');
         }
-
+        /** @var Customer $customer */
         $customer = $this->em
             ->getRepository(Customer::getEntityClassByUser($user))
             ->findOneBy(['user' => $user]);
+
+        if (!$customer) {
+            throw new \RuntimeException('User doesn\'t have an account in stripe');
+        }
 
         $account = $this->em
             ->getRepository(Account::getEntityClassByUser($paymentRequest->getOwner()))
             ->findOneBy(['user' => $paymentRequest->getOwner()])
         ;
+
+        if (!$account) {
+            throw new \RuntimeException('Group doesn\'t have an account in stripe');
+        }
 
         $charge = new Charge($customer, $account, $paymentRequest);
         $amount = $answer->getCurrentPaymentAmount() * 100;
@@ -325,29 +324,13 @@ class Stripe
         return $customer;
     }
 
-    private function createAccount(UserInterface $user)
+    public function createAccount(UserInterface $user)
     {
-        $entityClass = Account::getEntityClassByUser($user);
-        /* @var $account AccountInterface */
-        $account = new $entityClass();
-        $account->setUser($user);
-
-        $response = \Stripe\Account::create([
+        return \Stripe\Account::create([
             'managed' => true,
             'metadata' => ['id' => $user->getId(), 'type' => $user->getType()],
             'email' => $user->getEmail(),
         ]);
-
-        $account
-            ->setStripeId($response->id)
-            ->setSecretKey($response->keys->secret)
-            ->setPublishableKey($response->keys->publishable)
-        ;
-
-        $this->em->persist($account);
-        $this->em->flush($account);
-
-        return $account;
     }
 
     private function getAppearsOnStatement(UserInterface $user)
