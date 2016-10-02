@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Service;
 
 use Civix\CoreBundle\Entity\Stripe\BankAccount;
+use Civix\CoreBundle\Entity\Stripe\Card;
 use Doctrine\ORM\EntityManager;
 use Civix\CoreBundle\Entity\UserInterface;
 use Civix\CoreBundle\Entity\Group;
@@ -26,24 +27,18 @@ class Stripe
         \Stripe\Stripe::setApiKey($apiKey);
     }
 
-    public function addCard(UserInterface $user, $source)
+    public function addCard(CustomerInterface $customer, Card $card)
     {
-        $customer = $this->em
-            ->getRepository(Customer::getEntityClassByUser($user))
-            ->findOneBy(['user' => $user])
-        ;
-        if (!$customer) {
-            $customer = $this->createCustomer($user);
-        }
-
-        $stripeCustomer = \Stripe\Customer::retrieve($customer->getStripeId());
-        $stripeCustomer->source = $source;
+        /** @var \Stripe\Customer|\stdClass $stripeCustomer */
+        $stripeCustomer = $this->getStripeCustomer($customer);
+        $stripeCustomer->source = $card->getSource();
         $stripeCustomer->save();
-
-        $customer->updateCards($this->getCards($customer)->data);
-        $this->em->flush($customer);
     }
 
+    /**
+     * @param CustomerInterface $customer
+     * @return \Stripe\Customer|\stdClass
+     */
     public function getStripeCustomer(CustomerInterface $customer)
     {
         return \Stripe\Customer::retrieve($customer->getStripeId());
@@ -51,7 +46,7 @@ class Stripe
 
     public function getCards(CustomerInterface $customer)
     {
-        return \Stripe\Customer::retrieve($customer->getStripeId())
+        return $this->getStripeCustomer($customer)
             ->sources->all(['object' => 'card']);
     }
 
@@ -90,11 +85,8 @@ class Stripe
 
     public function removeCard(CustomerInterface $customer, $cardId)
     {
-        \Stripe\Customer::retrieve($customer->getStripeId())->sources
-            ->retrieve($cardId)->delete();
-
-        $customer->updateCards($this->getCards($customer)->data);
-        $this->em->flush($customer);
+        $this->getStripeCustomer($customer)
+            ->sources->retrieve($cardId)->delete();
     }
 
     public function hasPayoutAccount(UserInterface $user)
@@ -304,26 +296,22 @@ class Stripe
         ]);
     }
 
-    private function createCustomer(UserInterface $user)
+    /**
+     * @param UserInterface $user
+     * @return \Stripe\Customer|\stdClass
+     */
+    public function createCustomer(UserInterface $user)
     {
-        $entityClass = Customer::getEntityClassByUser($user);
-        /* @var $customer CustomerInterface */
-        $customer = new $entityClass();
-        $customer->setUser($user);
-
-        $response = \Stripe\Customer::create([
+        return \Stripe\Customer::create([
             'description' => $user->getOfficialName(),
             'email' => $user->getEmail(),
         ]);
-
-        $customer->setStripeId($response->id);
-
-        $this->em->persist($customer);
-        $this->em->flush($customer);
-
-        return $customer;
     }
 
+    /**
+     * @param UserInterface $user
+     * @return \Stripe\Account|\stdClass
+     */
     public function createAccount(UserInterface $user)
     {
         return \Stripe\Account::create([

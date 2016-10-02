@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
 use Civix\CoreBundle\Entity\UserInterface;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Stripe\CustomerRepository")
@@ -34,7 +35,9 @@ abstract class Customer implements CustomerInterface
     private $stripeId;
 
     /**
-     * @ORM\Column(name="cards", type="text", nullable=true)
+     * @ORM\Column(name="cards", type="json_array", nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Type("array")
      */
     private $cards;
 
@@ -80,23 +83,19 @@ abstract class Customer implements CustomerInterface
 
     public function getCards()
     {
-        if ($this->cards) {
-            return json_decode($this->cards, true);
-        }
-
-        return [];
+        return $this->cards;
     }
 
     public function updateCards($cards)
     {
-        $this->cards = json_encode(array_map(function ($card) {
+        $this->cards = array_map(function ($card) {
             return [
                 'id' => $card->id,
                 'last4' => $card->last4,
                 'brand' => $card->brand,
                 'funding' => $card->funding,
             ];
-        }, $cards));
+        }, $cards);
     }
 
     public static function getEntityClassByUser(UserInterface $user)
