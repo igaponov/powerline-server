@@ -5,6 +5,7 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe\LoadAccountGroupData;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -163,6 +164,7 @@ class PollControllerTest extends WebTestCase
             LoadUserGroupData::class,
             LoadGroupManagerData::class,
             LoadGroupQuestionData::class,
+            LoadAccountGroupData::class,
         ])->getReferenceRepository();
         $group = $repository->getReference('group_1');
         $client = $this->client;
@@ -181,6 +183,39 @@ class PollControllerTest extends WebTestCase
         // check author subscription
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM poll_subscribers WHERE question_id = ?', [$data['id']]);
         $this->assertEquals(1, $count);
+	}
+
+	public function testCreatePaymentRequestWithoutStripeAccountThrowsException()
+	{
+        $faker = Factory::create();
+        $params = [
+            'type' => 'payment_request',
+            'subject' => $faker->sentence,
+            'report_recipient_group' => $faker->word,
+            'title' => $faker->sentence,
+            'is_allow_outsiders' => $faker->boolean(),
+            'is_crowdfunding' => false,
+            'crowdfunding_goal_amount' => $faker->randomDigit,
+            'crowdfunding_deadline' => date('D, d M Y H:i:s', time() + 500000),
+            'is_crowdfunding_completed' => $faker->boolean(),
+            'crowdfunding_pledged_amount' => $faker->randomDigit,
+        ];
+        $repository = $this->loadFixtures([
+            LoadGroupQuestionData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_1');
+        $client = $this->client;
+        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
+        $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
+		$response = $client->getResponse();
+		$this->assertEquals(500, $response->getStatusCode(), $response->getContent());
+		$data = json_decode($response->getContent(), true);
+		$this->assertEquals('You must have a Stripe account to create a payment request.', $data['message']);
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        // check author subscription
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM poll_questions WHERE title = ?', [$params['title']]);
+        $this->assertEquals(0, $count);
 	}
 
     /**
@@ -271,7 +306,21 @@ class PollControllerTest extends WebTestCase
 					'report_recipient_group' => $faker->word,
 					'title' => $faker->sentence,
 					'is_allow_outsiders' => $faker->boolean(),
-					'is_crowdfunding' => $faker->boolean(),
+					'is_crowdfunding' => false,
+					'crowdfunding_goal_amount' => $faker->randomDigit,
+					'crowdfunding_deadline' => date('D, d M Y H:i:s', time() + 500000),
+					'is_crowdfunding_completed' => $faker->boolean(),
+					'crowdfunding_pledged_amount' => $faker->randomDigit,
+				]
+			],
+			'crowdfunding_request' => [
+				[
+					'type' => 'payment_request',
+					'subject' => $faker->sentence,
+					'report_recipient_group' => $faker->word,
+					'title' => $faker->sentence,
+					'is_allow_outsiders' => $faker->boolean(),
+					'is_crowdfunding' => true,
 					'crowdfunding_goal_amount' => $faker->randomDigit,
 					'crowdfunding_deadline' => date('D, d M Y H:i:s', time() + 500000),
 					'is_crowdfunding_completed' => $faker->boolean(),
