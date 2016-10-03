@@ -14,7 +14,6 @@ use Doctrine\ORM\EntityRepository;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\ActivityRead;
-use Civix\CoreBundle\Entity\Micropetitions\Petition;
 use Civix\CoreBundle\Entity\Poll\Question;
 
 class ActivityRepository extends EntityRepository
@@ -418,7 +417,12 @@ class ActivityRepository extends EntityRepository
      *
      * @return Query
      */
-    public function getActivitiesByUserQuery(User $user, \DateTime $start = null)
+    public function getActivitiesByUserQuery(User $user, \DateTime $start = null) {
+        return $this->getActivitiesByUserQueryBuilder($user, $start)
+            ->getQuery();
+    }
+
+    public function getActivitiesByUserQueryBuilder(User $user, \DateTime $start = null)
     {
         /** @var $em EntityManager */
         $em = $this->getEntityManager();
@@ -434,7 +438,7 @@ class ActivityRepository extends EntityRepository
 
         $userFollowingIds = $user->getFollowingIds();
 
-        $query = $this->getActivitiesQueryBuilder($user, $start)
+        return $this->getActivitiesQueryBuilder($user, $start)
             ->andWhere(
                 $expr->orX(
                     $expr->in('act_c.district', ':userDistrictsIds'),
@@ -449,10 +453,7 @@ class ActivityRepository extends EntityRepository
             ->setParameter('userGroupsIds', empty($activeGroups) ? false : $activeGroups)
             ->setParameter('userFollowingIds', empty($userFollowingIds) ? false : $userFollowingIds)
             ->setParameter('userGroupSectionIds', empty($sectionsIds) ? false : $sectionsIds)
-            ->setParameter('user', $user)
-            ->getQuery();
-        
-        return $query;
+            ->setParameter('user', $user);
     }
 
     /**
@@ -586,5 +587,62 @@ class ActivityRepository extends EntityRepository
             ->setParameter(':user', $user)
             ->where($this->_em->getExpressionBuilder()->in('a.id', $id))
             ->getQuery()->getResult();
+    }
+
+    public function countPriorityActivitiesByUser(User $user, \DateTime $start = null)
+    {
+        $qb = $this->getActivitiesByUserQueryBuilder($user, $start);
+        $query = $qb
+            ->resetDQLParts(['select', 'orderBy'])
+            ->select('COUNT(act)')
+            ->andWhere('
+            (act.expireAt > CURRENT_TIMESTAMP() OR act.expireAt IS NULL)
+            AND (
+                (
+                    qa.id IS NULL AND 
+                    act NOT INSTANCE OF (
+                        Civix\CoreBundle\Entity\Activities\LeaderNews, 
+                        Civix\CoreBundle\Entity\Activities\Petition,
+                        Civix\CoreBundle\Entity\Activities\Post,
+                        Civix\CoreBundle\Entity\Activities\UserPetition
+                    )
+                )
+                OR 
+                (
+                    qa.id IS NULL AND
+                    act_r.id IS NULL AND 
+                    act INSTANCE OF (
+                        Civix\CoreBundle\Entity\Activities\Petition
+                    )
+                )
+                OR 
+                (
+                    act_r.id IS NULL AND 
+                    act INSTANCE OF (
+                        Civix\CoreBundle\Entity\Activities\LeaderNews
+                    )
+                )
+                OR
+                (
+                    p.boosted = true AND
+                    pv.id IS NULL AND 
+                    act INSTANCE OF (
+                        Civix\CoreBundle\Entity\Activities\Post
+                    )
+                )
+                OR
+                (
+                    up.boosted = true AND
+                    act_r.id IS NULL AND 
+                    ups.id IS NULL AND 
+                    act INSTANCE OF (
+                        Civix\CoreBundle\Entity\Activities\UserPetition
+                    )
+                )
+            )
+            ') // prioritized
+            ->getQuery();
+
+        return (int)$query->getSingleScalarResult();
     }
 }

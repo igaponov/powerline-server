@@ -63,7 +63,7 @@ abstract class AbstractEndpoint
      */
     private $user;
 
-    abstract public function getPlatformMessage($title, $message, $type, $entityData, $image);
+    abstract public function getPlatformMessage($title, $message, $type, $entityData, $image, $badge = null);
 
     /**
      * @param string $arn

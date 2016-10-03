@@ -2,8 +2,8 @@
 
 namespace Civix\CoreBundle\Service;
 
+use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\Poll\Question;
-use Civix\CoreBundle\Entity\Poll\Question\Petition;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Group;
@@ -390,6 +390,7 @@ class PushSender
         if (empty($image)) {
             $image = 'https://'.$this->hostname.self::IMAGE_LINK;
         }
+        $badge = $this->getBadge($recipient);
         foreach ($endpoints as $endpoint) {
             try {
                 $this->notification->send(
@@ -398,7 +399,8 @@ class PushSender
                     $type,
                     $entityData,
                     $image,
-                    $endpoint
+                    $endpoint,
+                    $badge
                 );
             } catch (\Exception $e) {
                 $this->logger->error($e->getMessage(), $e->getTrace());
@@ -425,5 +427,11 @@ class PushSender
             self::IMAGE_PATH.'/'.$fileName,
             array("dpr" => 0.75, "w" => self::IMAGE_WIDTH, "h" => self::IMAGE_HEIGHT)
         );
+    }
+
+    private function getBadge(User $user)
+    {
+        return $this->entityManager->getRepository(Activity::class)
+            ->countPriorityActivitiesByUser($user, new \DateTime('-30 days'));
     }
 }
