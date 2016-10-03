@@ -4,18 +4,17 @@ namespace Civix\CoreBundle\Repository\Post;
 
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Post;
-use Civix\CoreBundle\Entity\Post\Vote;
 use Doctrine\ORM\EntityRepository;
 
 class VoteRepository extends EntityRepository
 {
-    public function calcVoices(Post $petition)
+    public function calcVoices(Post $post)
     {
         $calcResult = $this->createQueryBuilder('v')
             ->select('v.option, count(v.option) as voice_count')
-            ->where('v.petition = :petition')
+            ->where('v.post = :post')
             ->groupBy('v.option')
-            ->setParameter('petition', $petition)
+            ->setParameter('post', $post)
             ->getQuery()
             ->getResult();
 
@@ -31,12 +30,12 @@ class VoteRepository extends EntityRepository
     {
         return (int)$this->createQueryBuilder('v')
             ->select('COUNT(v)')
-            ->innerJoin('v.petition', 'p')
+            ->innerJoin('v.post', 'p')
             ->innerJoin('p.group', 'gr')
             ->innerJoin('gr.users', 'ug')
             ->innerJoin('ug.user', 'u', 'WITH', 'u.id = v.user')
-            ->where('v.petition = :petition')
-            ->setParameter('petition', $post)
+            ->where('v.post = :post')
+            ->setParameter('post', $post)
             ->getQuery()
             ->getSingleScalarResult();
     }
