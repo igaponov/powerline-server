@@ -225,6 +225,11 @@
             <argument type="service" id="request" />
         </service>
 
+        <service class="Civix\CoreBundle\Service\StripeAccountManager" id="civix_core.stripe_account_manager">
+            <argument id="doctrine.orm.entity_manager" type="service"/>
+            <argument id="event_dispatcher" type="service"/>
+        </service>
+
         <service class="Civix\CoreBundle\Service\PollManager" id="civix_core.poll_manager">
             <argument id="doctrine.orm.entity_manager" type="service"/>
             <argument id="event_dispatcher" type="service"/>

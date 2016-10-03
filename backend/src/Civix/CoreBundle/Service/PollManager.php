@@ -47,12 +47,13 @@ class PollManager
         $isNew = !$poll->getId();
         $event = new QuestionEvent($poll);
 
+        $this->dispatcher->dispatch(PollEvents::QUESTION_PRE_CREATE, $event);
+
         $this->em->persist($poll);
         $this->em->flush();
 
         if ($isNew) {
-            $eventName = PollEvents::QUESTION_CREATE;
-            $this->dispatcher->dispatch($eventName, $event);
+            $this->dispatcher->dispatch(PollEvents::QUESTION_CREATE, $event);
         }
 
         return $poll;

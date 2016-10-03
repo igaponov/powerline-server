@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
 use Civix\CoreBundle\Entity\UserInterface;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Stripe\AccountRepository")
@@ -17,6 +18,7 @@ use Civix\CoreBundle\Entity\UserInterface;
  *      "representative"  = "Civix\CoreBundle\Entity\Stripe\AccountRepresentative",
  *      "group"  = "Civix\CoreBundle\Entity\Stripe\AccountGroup"
  * })
+ * @Serializer\ExclusionPolicy("ALL")
  */
 abstract class Account implements AccountInterface
 {
@@ -43,7 +45,9 @@ abstract class Account implements AccountInterface
     private $publishableKey;
 
     /**
-     * @ORM\Column(name="bank_accounts", type="text", nullable=true)
+     * @ORM\Column(name="bank_accounts", type="json_array", nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Type("array")
      */
     private $bankAccounts;
 
@@ -129,16 +133,12 @@ abstract class Account implements AccountInterface
 
     public function getBankAccounts()
     {
-        if ($this->bankAccounts) {
-            return json_decode($this->bankAccounts, true);
-        }
-
-        return [];
+        return $this->bankAccounts;
     }
 
     public function updateBankAccounts($bankAccounts)
     {
-        $this->bankAccounts = json_encode(array_map(function ($bankAccount) {
+        $this->bankAccounts = array_map(function ($bankAccount) {
             return [
                 'id' => $bankAccount->id,
                 'last4' => $bankAccount->last4,
@@ -146,7 +146,7 @@ abstract class Account implements AccountInterface
                 'country' => $bankAccount->country,
                 'currency' => $bankAccount->currency,
             ];
-        }, $bankAccounts));
+        }, $bankAccounts);
     }
 
     public static function getEntityClassByUser(UserInterface $user)
