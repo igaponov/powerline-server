@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class AndroidEndpoint extends AbstractEndpoint
 {
-    public function getPlatformMessage($title, $message, $type, $entityData, $image)
+    public function getPlatformMessage($title, $message, $type, $entityData, $image, $badge = null)
     {
         return json_encode(array('GCM' => json_encode(array('data' => array(
             'message' => $message,
@@ -20,6 +20,7 @@ class AndroidEndpoint extends AbstractEndpoint
             'title' => $title,
             'image' => $image,
             'actions' => $this->getActionButtonInfo($type),
+            'badge' => $badge,
         )))));
     }
 

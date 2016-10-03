@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class IOSEndpoint extends AbstractEndpoint
 {
-    public function getPlatformMessage($title, $message, $type, $entityData, $image)
+    public function getPlatformMessage($title, $message, $type, $entityData, $image, $badge = null)
     {
         return json_encode(array('APNS' => json_encode(array('aps' => array(
             'alert' => $message,

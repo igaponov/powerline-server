@@ -2,9 +2,11 @@
 namespace Civix\CoreBundle\Tests\Service;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Service\Notification;
 use Civix\CoreBundle\Service\PushSender;
 use Civix\CoreBundle\Service\SocialActivityManager;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadEndpointData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPollSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
@@ -66,6 +68,41 @@ class PushSenderTest extends WebTestCase
         $sender = $this->getPushSenderMock();
         $sender->expects($this->exactly(2))->method('send');
         $sender->sendSocialActivity($id);
+    }
+
+    public function testGetBadgeIsCalled()
+    {
+        $repository = $this->loadFixtures([
+            LoadEndpointData::class,
+        ])->getReferenceRepository();
+        $user = $repository->getReference('user_1');
+        $notification = $this->getMockBuilder(Notification::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $notification->expects($this->exactly(2))
+            ->method('send')
+            ->with(
+                $this->anything(),
+                $this->anything(),
+                $this->anything(),
+                $this->anything(),
+                $this->anything(),
+                $this->anything(),
+                0
+            );
+        $sender = new PushSender(
+                $this->getContainer()
+                    ->get('doctrine.orm.entity_manager'),
+                $this->getContainer()
+                    ->get('civix_core.question_users_push'),
+                $notification,
+                $this->getContainer()
+                    ->get('logger'),
+                $this->getContainer()
+                    ->get('imgix.url_builder'),
+                'powerli.ne'
+            );
+        $sender->send($user, 'title', 'message', 'type', null, null);
     }
 
     /**

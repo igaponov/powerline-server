@@ -58,13 +58,13 @@ class Notification
         $this->addEndpoint($newEndpoint);
     }
 
-    public function send($title, $message, $type, $entityData, $image, Model\AbstractEndpoint $endpoint)
+    public function send($title, $message, $type, $entityData, $image, Model\AbstractEndpoint $endpoint, $badge = null)
     {
         try {
             $this->sns->publish(array(
                 'TargetArn' => $endpoint->getArn(),
                 'MessageStructure' => 'json',
-                'Message' => $endpoint->getPlatformMessage($title, $message, $type, $entityData, $image)
+                'Message' => $endpoint->getPlatformMessage($title, $message, $type, $entityData, $image, $badge)
             ));
             $this->logger->debug('Message is pushed', array_merge([
                     'title' => $title,
