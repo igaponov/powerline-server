@@ -48,7 +48,7 @@ class AnswerRepository extends EntityRepository
                     FROM  CivixCoreBundle:UserFollow uf 
                     WHERE uf.follower = :follower
                     AND uf.status  = :status)
-                    AND a.user <> :followerId
+                    AND a.user <> :follower
                     AND a.question = :question')
                 ->setParameter('question', $question)
                 ->setParameter('follower', $follower)
