@@ -21,6 +21,7 @@ class IOSEndpoint extends AbstractEndpoint
                     'sound' => 'default',
                     'title' => $title,
                     'image' => $image,
+                    'badge' => $badge,
                 )
             )
         );
