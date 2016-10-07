@@ -14,7 +14,10 @@ class IOSEndpoint extends AbstractEndpoint
         $payload = json_encode(
             array(
                 'aps' => array(
-                    'alert' => $message,
+                    'alert' => [
+                        'title' => $message,
+                        'body' => $message,
+                    ],
                     'entity' => json_encode($entityData),
                     'type' => $type,
                     'category' => $type,
@@ -22,6 +25,9 @@ class IOSEndpoint extends AbstractEndpoint
                     'title' => $title,
                     'image' => $image,
                     'badge' => $badge,
+                    'additionalData' => [
+                        'badgeCount' => $badge,
+                    ],
                 )
             )
         );

@@ -61,20 +61,16 @@ class Notification
     public function send($title, $message, $type, $entityData, $image, Model\AbstractEndpoint $endpoint, $badge = null)
     {
         try {
+            $platformMessage = $endpoint->getPlatformMessage($title, $message, $type, $entityData, $image, $badge);
             $this->sns->publish(array(
                 'TargetArn' => $endpoint->getArn(),
                 'MessageStructure' => 'json',
-                'Message' => $endpoint->getPlatformMessage($title, $message, $type, $entityData, $image, $badge)
+                'Message' => $platformMessage
             ));
-            $this->logger->debug('Message is pushed', array_merge([
-                    'title' => $title,
-                    'message' => $message,
-                    'type' => $type,
-                    'entityData' => $entityData,
-                    'image' => $image,
-                ],
+            $this->logger->debug(
+                'Message is pushed '.str_replace('\\', '', $platformMessage),
                 $endpoint->getContext()
-            ));
+            );
         } catch (Exception\EndpointDisabledException $e) {
             $this->logger->debug('Endpoint is disabled and will be removed', $endpoint->getContext());
             $this->removeEndpoint($endpoint);
@@ -112,7 +108,7 @@ class Notification
                 'Token' => $endpoint->getToken(),
                 'CustomUserData' => $endpoint->getUser()->getId(),
             ]);
-        } catch (\Aws\Sns\Exception\InvalidParameterException $e) {
+        } catch (Exception\InvalidParameterException $e) {
             if (preg_match(
                 '/Endpoint (.*) already exists/',
                 $e->getResponse()->getMessage(),
@@ -145,5 +141,8 @@ class Notification
         if ($endpoint instanceof Model\IOSEndpoint) {
             return $this->iosArn;
         }
+        throw new \InvalidArgumentException(
+            sprintf('Endpoint with class %s is not supported', get_class($endpoint))
+        );
     }
 }
