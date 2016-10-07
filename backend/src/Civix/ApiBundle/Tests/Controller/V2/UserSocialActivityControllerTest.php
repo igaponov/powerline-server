@@ -43,7 +43,7 @@ class UserSocialActivityControllerTest extends WebTestCase
         parent::tearDown();
     }
 
-    public function testGetOwnSocialActivitiesIsOk()
+    public function testGetSocialActivitiesForYouTabWithDefaultValueIsOk()
     {
         $ids = [];
         foreach ([1, 2, 3, 4, 9] as $key) {
@@ -63,14 +63,34 @@ class UserSocialActivityControllerTest extends WebTestCase
         }
     }
 
-    public function testGetFollowingSocialActivitiesIsOk()
+    public function testGetSocialActivitiesForYouTabIsOk()
+    {
+        $ids = [];
+        foreach ([5, 11] as $key) {
+            $ids[] = $this->repository->getReference('social_activity_'.$key)->getId();
+        }
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT, ['tab' => 'you'], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"']);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame(1, $data['page']);
+        $this->assertSame(20, $data['items']);
+        $this->assertSame(2, $data['totalItems']);
+        $this->assertCount(2, $data['payload']);
+        foreach ($data['payload'] as $item) {
+            $this->assertContains($item['id'], $ids);
+        }
+    }
+
+    public function testGetSocialActivitiesForFollowingTabIsOk()
     {
         $ids = [];
         foreach ([6, 7, 8, 10] as $key) {
             $ids[] = $this->repository->getReference('social_activity_'.$key)->getId();
         }
         $client = $this->client;
-        $client->request('GET', self::API_ENDPOINT, ['following' => true], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"']);
+        $client->request('GET', self::API_ENDPOINT, ['tab' => 'following'], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"']);
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
