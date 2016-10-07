@@ -2,6 +2,9 @@
 
 namespace Civix\CoreBundle\Command;
 
+use Aws\Sns\Exception\SnsException;
+use Civix\CoreBundle\Entity\Notification\AbstractEndpoint;
+use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -75,17 +78,25 @@ class SnsCommand extends ContainerAwareCommand
                     'EndpointArn' => $endpoint,
                 ));
             } else {
+                /** @var EntityManager $em */
+                $em = $this->getContainer()->get('doctrine.orm.entity_manager');
+                $endpoint = $em->getRepository(AbstractEndpoint::class)->findOneBy(['arn' => $endpoint]);
+                if (!$endpoint) {
+                    return;
+                }
                 $testMessage = 'Test notification';
+                $service = $this->getContainer()->get('civix_core.notification');
                 try {
-                    $client->publish(array(
-                        'TargetArn' => $endpoint,
-                        'MessageStructure' => 'json',
-                        'Message' => json_encode(array(
-                            'APNS' => json_encode(array('aps' => array('alert' => $testMessage))),
-                            'GCM' => json_encode(array('data' => array('message' => $testMessage))),
-                        )),
-                    ));
-                } catch (\Aws\Sns\Exception\SnsException $e) {
+                    $service->send(
+                        'Test title',
+                        $testMessage,
+                        'test-message',
+                        ['property' => 'value'],
+                        null,
+                        $endpoint,
+                        5
+                    );
+                } catch (SnsException $e) {
                     $output->writeln("<error>{$e->getMessage()}</error>");
                 }
             }

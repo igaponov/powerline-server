@@ -21,6 +21,9 @@ class AndroidEndpoint extends AbstractEndpoint
             'image' => $image,
             'actions' => $this->getActionButtonInfo($type),
             'badge' => $badge,
+            'additionalData' => [
+                'badgeCount' => $badge,
+            ],
         )))));
     }
 
