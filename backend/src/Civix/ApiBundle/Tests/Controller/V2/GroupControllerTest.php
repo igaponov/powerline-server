@@ -351,11 +351,6 @@ class GroupControllerTest extends WebTestCase
         $user2 = $this->repository->getReference('user_2');
         $user3 = $this->repository->getReference('user_3');
         $client = $this->client;
-        $service = $this->getServiceMockBuilder('civix_core.push_task')
-            ->setMethods(['addToQueue'])
-            ->getMock();
-        $service->expects($this->exactly(2))->method('addToQueue')->with('sendInvitePush');
-        $client->getContainer()->set('civix_core.push_task', $service);
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user4"'];
         $params = ['users' => json_encode([$user2->getUsername(), $user3->getUsername()])];
         $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/users', [], [], $headers, json_encode($params));
@@ -365,6 +360,10 @@ class GroupControllerTest extends WebTestCase
         $conn = $client->getContainer()->get('database_connection');
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM invites WHERE group_id = ?', [$group->getId()]);
         $this->assertEquals(2, $count);
+        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+        $this->assertEquals(2, $queue->count());
+        $this->assertEquals(1, $queue->hasMessageWithMethod('sendGroupInvitePush', [$user2->getId(), $group->getId()]));
+        $this->assertEquals(1, $queue->hasMessageWithMethod('sendGroupInvitePush', [$user3->getId(), $group->getId()]));
     }
 
 	protected function getGroups($username, $params)

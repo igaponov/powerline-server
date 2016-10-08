@@ -43,7 +43,7 @@ class InviteSender
     {
         foreach ($invites as $invite) {
             if ($invite instanceof User) {
-                $this->pushTask->addToQueue('sendInvitePush', array($invite->getId(), $group->getId()));
+                $this->pushTask->addToQueue('sendGroupInvitePush', array($invite->getId(), $group->getId()));
             } elseif ($invite instanceof DeferredInvites) {
                 $this->emailSender->sendInviteFromGroup($invite->getEmail(), $invite->getGroup());
             }
@@ -58,7 +58,7 @@ class InviteSender
     {
         /* @var $invite UserToGroup */
         foreach ($invites as $invite) {
-            $this->pushTask->addToQueue('sendInvitePush', array($invite->getUser()->getId(), $invite->getGroup()->getId()));
+            $this->pushTask->addToQueue('sendGroupInvitePush', array($invite->getUser()->getId(), $invite->getGroup()->getId()));
         }
     }
 
@@ -104,7 +104,7 @@ class InviteSender
             if (!$group->getInvites()->contains($signedUser) && !$group->getUsers()->contains($signedUser)) {
                 $signedUser->addInvite($group);
                 if ($signedUser->getIsRegistrationComplete()) {
-                    $this->pushTask->addToQueue('sendInvitePush', array($signedUser->getId(), $group->getId()));
+                    $this->pushTask->addToQueue('sendGroupInvitePush', array($signedUser->getId(), $group->getId()));
                 } else {
                     $this->emailSender->sendInviteFromGroup($signedUser->getEmail(), $group);
                 }

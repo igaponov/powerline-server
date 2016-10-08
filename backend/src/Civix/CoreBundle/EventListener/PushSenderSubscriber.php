@@ -106,7 +106,7 @@ class PushSenderSubscriber implements EventSubscriberInterface
     {
         $invite = $event->getInvite();
         $this->pushTask->addToQueue(
-            'sendInvitePush',
+            'sendGroupInvitePush',
             [$invite->getUser()->getId(), $invite->getGroup()->getId()]
         );
     }

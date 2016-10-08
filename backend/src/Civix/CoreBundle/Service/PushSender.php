@@ -243,7 +243,7 @@ class PushSender
      * @param $userId
      * @param $groupId
      */
-    public function sendInvitePush($userId, $groupId)
+    public function sendGroupInvitePush($userId, $groupId)
     {
         $user = $this->entityManager
             ->getRepository('CivixCoreBundle:User')
