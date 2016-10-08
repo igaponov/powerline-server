@@ -194,12 +194,12 @@ class SocialActivityConverter
 
     private static function getCommentMentionedText(SocialActivity $entity)
     {
-        return ' mentioned you in a comment';
+        return 'mentioned you in a comment';
     }
 
     private static function getCommentMentionedTitle(SocialActivity $entity)
     {
-        return $entity->getTarget()['first_name'].' '.$entity->getTarget()['last_name'];
+        return $entity->getTarget()['full_name'];
     }
 
     private static function getCommentMentionedImage(SocialActivity $entity)
@@ -209,7 +209,7 @@ class SocialActivityConverter
 
     private static function getCommentMentionedHTML(SocialActivity $entity)
     {
-        return '<p><strong>'.htmlspecialchars($entity->getTarget()['first_name'])
+        return '<p><strong>'.htmlspecialchars($entity->getTarget()['full_name'])
         .'</strong> mentioned you in a comment</p>';
     }
 

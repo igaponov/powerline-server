@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
 use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Entity\UserGroupManager;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -25,15 +26,23 @@ class LoadGroupManagerData extends AbstractFixture implements DependentFixtureIn
         /** @var Group $group3 */
         $group3 = $this->getReference('group_3');
 
+        $userGroup = new UserGroup($user2, $group1);
+        $manager->persist($userGroup);
         $groupManager = new UserGroupManager($user2, $group1);
         $manager->persist($groupManager);
 
+        $userGroup = new UserGroup($user3, $group1);
+        $manager->persist($userGroup);
         $groupManager = new UserGroupManager($user3, $group1);
         $manager->persist($groupManager);
 
+        $userGroup = new UserGroup($user2, $group3);
+        $manager->persist($userGroup);
         $groupManager = new UserGroupManager($user2, $group3);
         $manager->persist($groupManager);
 
+        $userGroup = new UserGroup($user3, $group2);
+        $manager->persist($userGroup);
         $groupManager = new UserGroupManager($user3, $group2);
         $manager->persist($groupManager);
 

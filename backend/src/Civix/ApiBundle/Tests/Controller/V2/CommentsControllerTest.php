@@ -6,6 +6,7 @@ use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\CommentedInterface;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Test\SocialActivityTester;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -95,5 +96,11 @@ abstract class CommentsControllerTest extends WebTestCase
         );
         $this->assertEquals(1, $count);
         $this->assertRegExp('{comment text <a data-user-id="\d+">@user2</a>}', $data['comment_body_html']);
+        $tester = new SocialActivityTester($client->getContainer()->get('doctrine.orm.entity_manager'));
+        $tester->assertActivitiesCount(4);
+        $tester->assertActivity("comment-mentioned", $comment->getUser()->getId());
+        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+        $this->assertEquals(4, $queue->count());
+        $this->assertEquals(4, $queue->hasMessageWithMethod('sendSocialActivity'));
     }
 }

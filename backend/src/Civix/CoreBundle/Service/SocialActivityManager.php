@@ -302,8 +302,7 @@ class SocialActivityManager
 
         $user = $comment->getUser();
         $target['user_id'] = $user->getId();
-        $target['first_name'] = $user->getFirstName();
-        $target['last_name'] = $user->getLastName();
+        $target['full_name'] = $user->getFullName();
         $target['image'] = $user->getAvatarFileName();
 
         foreach ($recipients as $recipient) {
