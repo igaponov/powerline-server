@@ -62,7 +62,7 @@ class AndroidEndpoint extends AbstractEndpoint
                     array("icon" => "Sign", "title" => "Sign", "callback" => "app.sign"),
                 );
                 break;
-            case PushSender::TYPE_PUSH_POST:
+            case PushSender::TYPE_PUSH_BOOSTED_POST:
                 $actionButton = array(
                     array("icon" => "Upvote", "title" => "Upvote", "callback" => "app.upvote"),
                     array("icon" => "Downvote", "title" => "Downvote", "callback" => "app.downvote"),

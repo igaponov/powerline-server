@@ -37,10 +37,10 @@ class QueueTask implements QueueTaskInterface
         return $this->queue->count();
     }
 
-    public function hasMessageWithMethod($method)
+    public function hasMessageWithMethod($method, $params = null)
     {
-        return array_reduce(iterator_to_array($this->queue), function ($count, $item) use ($method) {
-            if ($item['method'] === $method) {
+        return array_reduce(iterator_to_array($this->queue), function ($count, $item) use ($method, $params) {
+            if ($item['method'] === $method && ($params === null || $item['params'] === $params)) {
                 $count++;
             }
 

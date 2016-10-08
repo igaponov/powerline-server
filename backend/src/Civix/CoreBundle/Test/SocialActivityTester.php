@@ -1,7 +1,6 @@
 <?php
 namespace Civix\CoreBundle\Test;
 
-use Civix\CoreBundle\Entity\SocialActivity;
 use Doctrine\ORM\EntityManager;
 use Webmozart\Assert\Assert;
 
@@ -31,7 +30,8 @@ class SocialActivityTester
             return $activity['recipient_id'] == $recipient && $activity['following_id'] == $following;
         });
         if (!$message) {
-            $message = "A social activity with parameters type=$type, recipient=$recipient and following=$following is not found";
+            $message = "A social activity with parameters type=$type, recipient=$recipient and following=$following is not found. "
+                .json_encode($this->activities[$type]);
         }
         Assert::eq(1, count($activities), $message);
     }

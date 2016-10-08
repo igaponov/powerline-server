@@ -3,13 +3,14 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\Post;
-use Civix\CoreBundle\Service\PushTask;
 use Civix\CoreBundle\Service\PostManager;
+use Civix\CoreBundle\Test\SocialActivityTester;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManager;
 use Faker\Factory;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -278,16 +279,12 @@ class PostControllerTest extends WebTestCase
             LoadPostData::class,
         ])->getReferenceRepository();
         $client = $this->client;
-        $manager = $this->getPostManagerMock([
-            'checkIfNeedBoost',
-        ]);
+        $manager = $this->getPostManagerMock(['checkIfNeedBoost']);
         $manager->expects($this->once())
             ->method('checkIfNeedBoost')
-            ->will($this->returnValue(true));
+            ->willReturn(true);
         $client->getContainer()->set('civix_core.post_manager', $manager);
-        $service = $this->getMock(PushTask::class, ['addToQueue'], [], '', false);
-        $service->expects($this->once())->method('addToQueue')->with('sendGroupPostPush');
-        $client->getContainer()->set('civix_core.push_task', $service);
+        $user = $repository->getReference('user_2');
         /** @var Post $post */
         $post = $repository->getReference('post_2');
         $client->request('POST',
@@ -299,14 +296,20 @@ class PostControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertSame(Post\Vote::OPTION_UPVOTE, $data['option']);
-        /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
-            ->getConnection();
-        $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM social_activities WHERE type = ?', [SocialActivity::TYPE_OWN_POST_VOTED]);
-        $this->assertSame(1, $count);
+        /** @var EntityManager $em */
+        $em = $client->getContainer()
+            ->get('doctrine.orm.entity_manager');
+        $conn = $em->getConnection();
         // check activity
         $description = $conn->fetchColumn('SELECT description FROM activities WHERE post_id = ?', [$post->getId()]);
         $this->assertSame($post->getBody(), $description);
+        $tester = new SocialActivityTester($em);
+        $tester->assertActivitiesCount(1);
+        $tester->assertActivity(SocialActivity::TYPE_OWN_POST_VOTED, $post->getUser()->getId(), $user->getId());
+        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+        $this->assertEquals(2, $queue->count());
+        $this->assertEquals(1, $queue->hasMessageWithMethod('sendSocialActivity'));
+        $this->assertEquals(1, $queue->hasMessageWithMethod('sendBoostedPostPush', [$post->getGroup()->getId(), $post->getId()]));
     }
 
     public function testUpdateAnswer()
