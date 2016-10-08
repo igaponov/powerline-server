@@ -37,7 +37,7 @@ class AndroidEndpoint extends AbstractEndpoint
         $actionButton = array();
 
         switch ($type) {
-            case PushSender::TYPE_PUSH_USER_PETITION:
+            case PushSender::TYPE_PUSH_BOOSTED_USER_PETITION:
                 $actionButton = array(
                     array("icon" => "Sign", "title" => "Sign", "callback" => "app.sign"),
                 );

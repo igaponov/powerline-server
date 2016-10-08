@@ -28,7 +28,7 @@ class PushSender
     const TYPE_PUSH_ACTIVITY = 'activity';
     const TYPE_PUSH_ANNOUNCEMENT = 'announcement';
     const TYPE_PUSH_INVITE = 'invite';
-    const TYPE_PUSH_USER_PETITION = 'user_petition';
+    const TYPE_PUSH_BOOSTED_USER_PETITION = 'boosted_user_petition';
     const TYPE_PUSH_BOOSTED_POST = 'boosted_post';
     /*Not used in push notification but reserved and use in settings*/
     const TYPE_PUSH_PETITION = 'petition';
@@ -129,7 +129,7 @@ class PushSender
      * @param $groupId
      * @param null $petitionId
      */
-    public function sendGroupPetitionPush($groupId, $petitionId = null)
+    public function sendBoostedPetitionPush($groupId, $petitionId = null)
     {
         $users = $this->entityManager
                 ->getRepository('CivixCoreBundle:User')
@@ -147,8 +147,8 @@ class PushSender
                     $petition->getGroup()
                         ->getOfficialName()
                 ),
-                "Boosted: {$petition->getBody()}",
-                self::TYPE_PUSH_USER_PETITION,
+                "Boosted Petition: {$petition->getBody()}",
+                self::TYPE_PUSH_BOOSTED_USER_PETITION,
                 ['id' => $petitionId],
                 $this->getLinkByFilename($petition->getUser()->getAvatarFileName())
             );

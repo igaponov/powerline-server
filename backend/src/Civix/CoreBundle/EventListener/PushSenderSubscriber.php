@@ -25,7 +25,7 @@ class PushSenderSubscriber implements EventSubscriberInterface
         return [
             Event\AnnouncementEvents::PUBLISHED => ['sendAnnouncementPush', -200],
             Event\PollEvents::QUESTION_PUBLISHED => ['sendPushPublishQuestion', -200],
-            Event\UserPetitionEvents::PETITION_BOOST => ['sendGroupPetitionPush', -200],
+            Event\UserPetitionEvents::PETITION_BOOST => ['sendBoostedPetitionPush', -200],
             Event\PostEvents::POST_BOOST => ['sendBoostedPostPush', -200],
             Event\InviteEvents::CREATE => ['sendUserToGroupInvites', -200],
         ];
@@ -84,11 +84,11 @@ class PushSenderSubscriber implements EventSubscriberInterface
         $this->pushTask->addToQueue('sendPushPublishQuestion', $params);
     }
 
-    public function sendGroupPetitionPush(Event\UserPetitionEvent $event)
+    public function sendBoostedPetitionPush(Event\UserPetitionEvent $event)
     {
         $petition = $event->getPetition();
         $this->pushTask->addToQueue(
-            'sendGroupPetitionPush',
+            'sendBoostedPetitionPush',
             [$petition->getGroup()->getId(), $petition->getId()]
         );
     }
