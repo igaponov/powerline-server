@@ -77,12 +77,14 @@ class SocialActivityManager
 
     public function noticePostCreated(Post $post)
     {
-        $socialActivity = (new SocialActivity(SocialActivity::TYPE_GROUP_POST_CREATED, $post->getUser(),
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_POST_CREATED, null,
             $post->getGroup()))
             ->setTarget([
                 'id' => $post->getId(),
                 'body' => $post->getBody(),
                 'type' => 'post',
+                'full_name' => $post->getUser()->getFullName(),
+                'image' => $post->getUser()->getAvatarFileName(),
             ])
         ;
         $this->em->persist($socialActivity);

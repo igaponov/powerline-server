@@ -30,8 +30,8 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 '<p>Request to join <strong>&lt;US&gt;</strong> has been approved</p>',
             ],
             [
-                SocialActivity::TYPE_GROUP_POST_CREATED,
-                '<p><strong>John &lt;Doe&gt;</strong> posted in the <strong>&lt;US&gt;</strong> community</p>',
+                SocialActivity::TYPE_FOLLOW_POST_CREATED,
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> posted in the <strong>&lt;US&gt;</strong> community</p>',
             ],
             [
                 SocialActivity::TYPE_GROUP_USER_PETITION_CREATED,
@@ -110,7 +110,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 'Request to join <US> has been approved',
             ],
             [
-                SocialActivity::TYPE_GROUP_POST_CREATED,
+                SocialActivity::TYPE_FOLLOW_POST_CREATED,
                 'posted: '.str_repeat('b', 300).'...',
             ],
             [
@@ -190,8 +190,8 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 '<US>',
             ],
             [
-                SocialActivity::TYPE_GROUP_POST_CREATED,
-                'John <Doe>',
+                SocialActivity::TYPE_FOLLOW_POST_CREATED,
+                '<Jane> <Roe>',
             ],
             [
                 SocialActivity::TYPE_GROUP_USER_PETITION_CREATED,
@@ -270,8 +270,8 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 '/group.jpg',
             ],
             [
-                SocialActivity::TYPE_GROUP_POST_CREATED,
-                '/avatar.jpg',
+                SocialActivity::TYPE_FOLLOW_POST_CREATED,
+                '/image',
             ],
             [
                 SocialActivity::TYPE_GROUP_USER_PETITION_CREATED,
