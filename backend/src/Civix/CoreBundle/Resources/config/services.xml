@@ -139,13 +139,6 @@
             <argument type="service" id="civix_core.representative_storage_manager" />
         </service>
 
-        <service id="civix_core.push_task" class="Civix\CoreBundle\Service\PushTask">
-            <argument type="service" id="old_sound_rabbit_mq.push_queue_producer" />
-        </service>
-        <service id="civix_core.queue_task" class="Civix\CoreBundle\Service\QueueTask">
-            <argument type="service" id="old_sound_rabbit_mq.push_queue_producer" />
-        </service>
-
         <service id="civix_core.push_sender" class="Civix\CoreBundle\Service\PushSender">
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="civix_core.question_users_push" />

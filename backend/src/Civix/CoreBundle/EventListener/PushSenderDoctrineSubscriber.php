@@ -3,6 +3,7 @@ namespace Civix\CoreBundle\EventListener;
 
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Service\PushTask;
+use Civix\CoreBundle\Service\QueueTaskInterface;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
@@ -35,7 +36,7 @@ class PushSenderDoctrineSubscriber implements EventSubscriber
      */
     private $pushQueue;
 
-    public function __construct(PushTask $pushTask)
+    public function __construct(QueueTaskInterface $pushTask)
     {
         $this->pushTask = $pushTask;
         $this->pushQueue = new \SplQueue();

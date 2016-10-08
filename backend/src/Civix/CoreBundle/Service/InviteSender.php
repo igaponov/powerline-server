@@ -9,7 +9,7 @@ use Civix\CoreBundle\Service\Mailgun\MailgunApi;
 use Civix\CoreBundle\Entity\DeferredInvites;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
-use Cocur\Slugify\Slugify;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class InviteSender
@@ -27,8 +27,8 @@ class InviteSender
 
     public function __construct(
         EmailSender $emailSender,
-        PushTask $pushTask,
-        \Doctrine\ORM\EntityManager $entityManager,
+        QueueTaskInterface $pushTask,
+        EntityManager $entityManager,
         MailgunApi $mailgunApi,
         EventDispatcherInterface $dispatcher
     ) {

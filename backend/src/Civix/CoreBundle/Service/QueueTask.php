@@ -2,11 +2,16 @@
 
 namespace Civix\CoreBundle\Service;
 
-class QueueTask
+use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
+
+class QueueTask implements QueueTaskInterface
 {
+    /**
+     * @var ProducerInterface
+     */
     protected $rabbitMQ;
 
-    public function __construct($rabbitMq)
+    public function __construct(ProducerInterface $rabbitMq)
     {
         $this->rabbitMQ = $rabbitMq;
     }

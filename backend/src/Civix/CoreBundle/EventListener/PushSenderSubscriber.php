@@ -5,6 +5,7 @@ use Civix\CoreBundle\Entity\Announcement\RepresentativeAnnouncement;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Event;
 use Civix\CoreBundle\Service\PushTask;
+use Civix\CoreBundle\Service\QueueTaskInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PushSenderSubscriber implements EventSubscriberInterface
@@ -14,7 +15,7 @@ class PushSenderSubscriber implements EventSubscriberInterface
      */
     private $pushTask;
 
-    public function __construct(PushTask $pushTask)
+    public function __construct(QueueTaskInterface $pushTask)
     {
         $this->pushTask = $pushTask;
     }
