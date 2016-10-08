@@ -1,7 +1,6 @@
 <?php
 namespace Civix\CoreBundle\Service;
 
-use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Event\UserEvents;

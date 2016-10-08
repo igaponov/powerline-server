@@ -42,11 +42,6 @@ class AndroidEndpoint extends AbstractEndpoint
                     array("icon" => "Sign", "title" => "Sign", "callback" => "app.sign"),
                 );
                 break;
-            case PushSender::TYPE_PUSH_INFLUENCE:
-                $actionButton = array(
-                    array("icon" => "Approve", "title" => "Approve", "callback" => "app.approve"),
-                );
-                break;
             case SocialActivity::TYPE_COMMENT_MENTIONED:
                 $actionButton = array(
                     array("icon" => "Open", "title" => "Open", "callback" => "app.open"),

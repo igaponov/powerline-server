@@ -23,7 +23,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
         return [
             [
                 SocialActivity::TYPE_FOLLOW_REQUEST,
-                '<p><strong>John &lt;Doe&gt;</strong> wants to follow you</p>',
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> wants to follow you</p>',
             ],
             [
                 SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED,
@@ -103,7 +103,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
         return [
             [
                 SocialActivity::TYPE_FOLLOW_REQUEST,
-                ' wants to follow you. Approve?',
+                'wants to follow you. Approve?',
             ],
             [
                 SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED,
@@ -183,7 +183,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
         return [
             [
                 SocialActivity::TYPE_FOLLOW_REQUEST,
-                'John <Doe>',
+                '<Jane> <Roe>',
             ],
             [
                 SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED,
@@ -263,7 +263,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
         return [
             [
                 SocialActivity::TYPE_FOLLOW_REQUEST,
-                '/avatar.jpg',
+                '/image',
             ],
             [
                 SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED,

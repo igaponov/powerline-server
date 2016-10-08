@@ -31,8 +31,13 @@ class SocialActivityManager
 
     public function sendUserFollowRequest(UserFollow $follow)
     {
-        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_REQUEST, $follow->getFollower()))
-            ->setTarget(['id' => $follow->getFollower()->getId(), 'type' => 'user'])
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_REQUEST))
+            ->setTarget([
+                'id' => $follow->getFollower()->getId(),
+                'type' => 'user',
+                'full_name' => $follow->getFollower()->getFullName(),
+                'image' => $follow->getFollower()->getAvatarFileName(),
+            ])
             ->setRecipient($follow->getUser())
         ;
         $this->em->persist($socialActivity);

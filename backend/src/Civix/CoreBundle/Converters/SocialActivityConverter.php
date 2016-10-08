@@ -67,22 +67,22 @@ class SocialActivityConverter
 
     private static function getFollowRequestHTML(SocialActivity $entity)
     {
-        return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName()).'</strong> wants to follow you</p>';
+        return '<p><strong>'.htmlspecialchars($entity->getTarget()['full_name']).'</strong> wants to follow you</p>';
     }
 
     private static function getFollowRequestText(SocialActivity $entity)
     {
-        return ' wants to follow you. Approve?';
+        return 'wants to follow you. Approve?';
     }
 
     private static function getFollowRequestTitle(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getFullName();
+        return $entity->getTarget()['full_name'];
     }
 
     private static function getFollowRequestImage(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getAvatarFileName();
+        return $entity->getTarget()['image'];
     }
 
     private static function getJoinToGroupApprovedHTML(SocialActivity $entity)

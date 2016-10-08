@@ -24,7 +24,6 @@ class PushSenderSubscriber implements EventSubscriberInterface
     {
         return [
             Event\AnnouncementEvents::PUBLISHED => ['sendAnnouncementPush', -200],
-            Event\UserEvents::FOLLOWED => ['sendInfluencePush', -200],
             Event\PollEvents::QUESTION_PUBLISHED => ['sendPushPublishQuestion', -200],
             Event\UserPetitionEvents::PETITION_BOOST => ['sendGroupPetitionPush', -200],
             Event\PostEvents::POST_BOOST => ['sendGroupPostPush', -200],
@@ -43,15 +42,6 @@ class PushSenderSubscriber implements EventSubscriberInterface
         $this->pushTask->addToQueue($method, [
             $announcement->getUser()->getId(), 
             $announcement->getContent()
-        ]);
-    }
-
-    public function sendInfluencePush(Event\UserFollowEvent $event)
-    {
-        $follow = $event->getUserFollow();
-        $this->pushTask->addToQueue('sendInfluencePush', [
-            $follow->getUser()->getId(),
-            $follow->getFollower()->getId(),
         ]);
     }
 

@@ -20,7 +20,6 @@ class PushSender
 {
     const QUESTION_PUSH_MESSAGE = 'New question has been published';
     const INVITE_PUSH_MESSAGE = 'You have been invited to join this group';
-    const INFLUENCE_PUSH_MESSAGE = 'You got new followers';
     const ANNOUNCEMENT_PUSH_MESSAGE = 'New announcement has been published';
     const NEWS_PUSH_MESSAGE = 'New discussion has been published';
     const PAYMENT_REQUEST_PUSH_MESSAGE = 'New Payment Request';
@@ -28,7 +27,6 @@ class PushSender
 
     const TYPE_PUSH_ACTIVITY = 'activity';
     const TYPE_PUSH_ANNOUNCEMENT = 'announcement';
-    const TYPE_PUSH_INFLUENCE = 'influence';
     const TYPE_PUSH_INVITE = 'invite';
     const TYPE_PUSH_USER_PETITION = 'user_petition';
     const TYPE_PUSH_POST = 'post';
@@ -262,34 +260,6 @@ class PushSender
                 self::TYPE_PUSH_INVITE,
                 ['id' => $group->getId()],
                 $this->getLinkByFilename($group->getAvatarFileName())
-            );
-        }
-    }
-
-    /**
-     * User A receives follow request from User B
-     *
-     * @param int $userId User A
-     * @param int $followerId User B
-     */
-    public function sendInfluencePush($userId, $followerId = 0)
-    {
-        $user = $this->entityManager
-            ->getRepository('CivixCoreBundle:User')
-            ->getUserForPush($userId);
-
-        $follower = $this->entityManager
-            ->getRepository('CivixCoreBundle:User')
-            ->find($followerId);
-
-        if ($user instanceof User && $follower) {
-            $this->send(
-                $user,
-                $follower->getFullName(),
-                $follower->getFullName().' wants to follow you',
-                self::TYPE_PUSH_INFLUENCE,
-                null,
-                $this->getLinkByFilename($follower->getAvatarFileName())
             );
         }
     }
