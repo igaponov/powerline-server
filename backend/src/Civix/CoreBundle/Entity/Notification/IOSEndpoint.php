@@ -15,7 +15,7 @@ class IOSEndpoint extends AbstractEndpoint
             array(
                 'aps' => array(
                     'alert' => [
-                        'title' => $message,
+                        'title' => $title,
                         'body' => $message,
                     ],
                     'entity' => json_encode($entityData),
