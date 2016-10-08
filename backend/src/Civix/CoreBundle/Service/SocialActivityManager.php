@@ -60,13 +60,15 @@ class SocialActivityManager
 
     public function noticeUserPetitionCreated(UserPetition $petition)
     {
-        $socialActivity = (new SocialActivity(SocialActivity::TYPE_GROUP_USER_PETITION_CREATED, $petition->getUser(),
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_USER_PETITION_CREATED, null,
             $petition->getGroup()))
             ->setTarget([
                 'id' => $petition->getId(),
                 'title' => $petition->getTitle(),
                 'body' => $petition->getBody(),
                 'type' => 'user-petition',
+                'full_name' => $petition->getUser()->getFullName(),
+                'image' => $petition->getUser()->getAvatarFileName(),
             ])
         ;
         $this->em->persist($socialActivity);

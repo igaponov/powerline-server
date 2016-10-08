@@ -34,8 +34,8 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> posted in the <strong>&lt;US&gt;</strong> community</p>',
             ],
             [
-                SocialActivity::TYPE_GROUP_USER_PETITION_CREATED,
-                '<p><strong>John &lt;Doe&gt;</strong> created a petition in the <strong>&lt;US&gt;</strong> community</p>',
+                SocialActivity::TYPE_FOLLOW_USER_PETITION_CREATED,
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> created a petition in the <strong>&lt;US&gt;</strong> community</p>',
             ],
             [
                 SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED,
@@ -114,7 +114,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 'posted: '.str_repeat('b', 300).'...',
             ],
             [
-                SocialActivity::TYPE_GROUP_USER_PETITION_CREATED,
+                SocialActivity::TYPE_FOLLOW_USER_PETITION_CREATED,
                 str_repeat('b', 300).'...',
             ],
             [
@@ -194,8 +194,8 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 '<Jane> <Roe>',
             ],
             [
-                SocialActivity::TYPE_GROUP_USER_PETITION_CREATED,
-                'John <Doe>',
+                SocialActivity::TYPE_FOLLOW_USER_PETITION_CREATED,
+                '<Jane> <Roe> Petition',
             ],
             [
                 SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED,
@@ -274,8 +274,8 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 '/image',
             ],
             [
-                SocialActivity::TYPE_GROUP_USER_PETITION_CREATED,
-                '/avatar.jpg',
+                SocialActivity::TYPE_FOLLOW_USER_PETITION_CREATED,
+                '/image',
             ],
             [
                 SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED,

@@ -57,7 +57,7 @@ class AndroidEndpoint extends AbstractEndpoint
                     array("icon" => "Upvote", "title" => "Upvote", "callback" => "app.upvote"),
                 );
                 break;
-            case SocialActivity::TYPE_GROUP_USER_PETITION_CREATED:
+            case SocialActivity::TYPE_FOLLOW_USER_PETITION_CREATED:
                 $actionButton = array(
                     array("icon" => "Sign", "title" => "Sign", "callback" => "app.sign"),
                 );

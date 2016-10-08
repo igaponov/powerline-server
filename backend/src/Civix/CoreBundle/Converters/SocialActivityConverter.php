@@ -12,7 +12,7 @@ class SocialActivityConverter
         SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED => 'getJoinToGroupApproved',
 
         SocialActivity::TYPE_FOLLOW_POST_CREATED => 'getFollowPostCreated',
-        SocialActivity::TYPE_GROUP_USER_PETITION_CREATED => 'getUserPetitionCreated',
+        SocialActivity::TYPE_FOLLOW_USER_PETITION_CREATED => 'getFollowUserPetitionCreated',
         SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED => 'getGroupPermissionsChanged',
 
         SocialActivity::TYPE_COMMENT_REPLIED => 'getCommentReplied',
@@ -128,26 +128,26 @@ class SocialActivityConverter
         return $entity->getTarget()['image'];
     }
 
-    private static function getUserPetitionCreatedHTML(SocialActivity $entity)
+    private static function getFollowUserPetitionCreatedHTML(SocialActivity $entity)
     {
-        return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName())
+        return '<p><strong>'.htmlspecialchars($entity->getTarget()['full_name'])
             .'</strong> created a petition in the <strong>'
             .htmlspecialchars($entity->getGroup()->getOfficialName()).'</strong> community</p>';
     }
 
-    private static function getUserPetitionCreatedText(SocialActivity $entity)
+    private static function getFollowUserPetitionCreatedText(SocialActivity $entity)
     {
         return self::preview($entity->getTarget()['body']);
     }
 
-    private static function getUserPetitionCreatedTitle(SocialActivity $entity)
+    private static function getFollowUserPetitionCreatedTitle(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getFullName();
+        return $entity->getTarget()['full_name'].' Petition';
     }
 
-    private static function getUserPetitionCreatedImage(SocialActivity $entity)
+    private static function getFollowUserPetitionCreatedImage(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getAvatarFileName();
+        return $entity->getTarget()['image'];
     }
 
     private static function getGroupPermissionsChangedHTML(SocialActivity $entity)
