@@ -296,15 +296,14 @@ class ActivityUpdate
         if ($post->getUser()->getIsNotifOwnPostChanged() && $post->getSubscribers()->contains($post->getUser())) {
             $socialActivity = new SocialActivity(
                 SocialActivity::TYPE_OWN_POST_VOTED,
-                $answerer,
+                null,
                 $post->getGroup()
             );
             $socialActivity->setTarget([
                 'id' => $post->getId(),
                 'type' => 'post',
                 'user_id' => $answerer->getId(),
-                'first_name' => $answerer->getFirstName(),
-                'last_name' => $answerer->getLastName(),
+                'full_name' => $answerer->getFullName(),
                 'image' => $answerer->getAvatarFileName(),
             ]);
             $socialActivity->setRecipient($post->getUser());

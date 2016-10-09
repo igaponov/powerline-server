@@ -365,22 +365,22 @@ class SocialActivityConverter
 
     private static function getOwnPostVotedText(SocialActivity $entity)
     {
-        return ' voted on your post';
+        return 'voted on your post';
     }
 
     private static function getOwnPostVotedTitle(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getFullName();
+        return $entity->getTarget()['full_name'];
     }
 
     private static function getOwnPostVotedImage(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getAvatarFileName();
+        return $entity->getTarget()['image'];
     }
 
     private static function getOwnPostVotedHTML(SocialActivity $entity)
     {
-        return '<p><strong>'. htmlspecialchars($entity->getFollowing()->getFullName())
+        return '<p><strong>'. htmlspecialchars($entity->getTarget()['full_name'])
         . '</strong> voted on your post</p>';
     }
 

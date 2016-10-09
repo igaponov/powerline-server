@@ -79,7 +79,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_OWN_POST_VOTED,
-                '<p><strong>John &lt;Doe&gt;</strong> voted on your post</p>',
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> voted on your post</p>',
             ],
             [
                 SocialActivity::TYPE_OWN_USER_PETITION_SIGNED,
@@ -159,7 +159,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_OWN_POST_VOTED,
-                ' voted on your post',
+                'voted on your post',
             ],
             [
                 SocialActivity::TYPE_OWN_USER_PETITION_SIGNED,
@@ -239,7 +239,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_OWN_POST_VOTED,
-                'John <Doe>',
+                '<Jane> <Roe>',
             ],
             [
                 SocialActivity::TYPE_OWN_USER_PETITION_SIGNED,
@@ -319,7 +319,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_OWN_POST_VOTED,
-                '/avatar.jpg',
+                '/image',
             ],
             [
                 SocialActivity::TYPE_OWN_USER_PETITION_SIGNED,

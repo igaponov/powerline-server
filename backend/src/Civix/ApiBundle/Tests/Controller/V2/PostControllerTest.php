@@ -305,7 +305,7 @@ class PostControllerTest extends WebTestCase
         $this->assertSame($post->getBody(), $description);
         $tester = new SocialActivityTester($em);
         $tester->assertActivitiesCount(1);
-        $tester->assertActivity(SocialActivity::TYPE_OWN_POST_VOTED, $post->getUser()->getId(), $user->getId());
+        $tester->assertActivity(SocialActivity::TYPE_OWN_POST_VOTED, $post->getUser()->getId());
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
         $this->assertEquals(2, $queue->count());
         $this->assertEquals(1, $queue->hasMessageWithMethod('sendSocialActivity'));
@@ -319,9 +319,9 @@ class PostControllerTest extends WebTestCase
             LoadPostSubscriberData::class,
         ])->getReferenceRepository();
         $client = $this->client;
-        /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
-            ->getConnection();
+        /** @var EntityManager $em */
+        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
+        $conn = $em->getConnection();
         /** @var Post $post */
         $post = $repository->getReference('post_1');
         $user = $repository->getReference('user_3');
@@ -338,8 +338,12 @@ class PostControllerTest extends WebTestCase
         $this->assertEquals($answer['id'], $data['id']);
         $this->assertNotEquals($answer['option'], $data['option']);
         // check social activity
-        $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM social_activities WHERE type = ?', [SocialActivity::TYPE_OWN_POST_VOTED]);
-        $this->assertSame(1, $count);
+        $tester = new SocialActivityTester($em);
+        $tester->assertActivitiesCount(1);
+        $tester->assertActivity(SocialActivity::TYPE_OWN_POST_VOTED, $post->getUser()->getId());
+        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+        $this->assertEquals(1, $queue->count());
+        $this->assertEquals(1, $queue->hasMessageWithMethod('sendSocialActivity'));
     }
 
     public function testUpdateAnswerWithErrors()
