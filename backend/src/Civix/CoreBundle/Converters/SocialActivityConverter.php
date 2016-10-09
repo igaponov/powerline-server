@@ -279,64 +279,64 @@ class SocialActivityConverter
 
     private static function getOwnPollCommentedText(SocialActivity $entity)
     {
-        return ' commented on your poll';
+        return 'commented on your poll';
     }
 
     private static function getOwnPollCommentedTitle(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getFullName();
+        return $entity->getTarget()['full_name'];
     }
 
     private static function getOwnPollCommentedImage(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getAvatarFileName();
+        return $entity->getTarget()['image'];
     }
 
     private static function getOwnPollCommentedHTML(SocialActivity $entity)
     {
-        return '<p><strong>'. htmlspecialchars($entity->getFollowing()->getFullName())
+        return '<p><strong>'. htmlspecialchars($entity->getTarget()['full_name'])
         . '</strong> commented on your poll</p>';
     }
 
     private static function getOwnPostCommentedText(SocialActivity $entity)
     {
-        return ' commented on your post';
+        return 'commented on your post';
     }
 
     private static function getOwnPostCommentedTitle(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getFullName();
+        return $entity->getTarget()['full_name'];
     }
 
     private static function getOwnPostCommentedImage(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getAvatarFileName();
+        return $entity->getTarget()['image'];
     }
 
     private static function getOwnPostCommentedHTML(SocialActivity $entity)
     {
-        return '<p><strong>'. htmlspecialchars($entity->getFollowing()->getFullName())
+        return '<p><strong>'. htmlspecialchars($entity->getTarget()['full_name'])
         . '</strong> commented on your post</p>';
     }
 
     private static function getOwnUserPetitionCommentedText(SocialActivity $entity)
     {
-        return ' commented on your petition';
+        return 'commented on your petition';
     }
 
     private static function getOwnUserPetitionCommentedTitle(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getFullName();
+        return $entity->getTarget()['full_name'];
     }
 
     private static function getOwnUserPetitionCommentedImage(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getAvatarFileName();
+        return $entity->getTarget()['image'];
     }
 
     private static function getOwnUserPetitionCommentedHTML(SocialActivity $entity)
     {
-        return '<p><strong>'. htmlspecialchars($entity->getFollowing()->getFullName())
+        return '<p><strong>'. htmlspecialchars($entity->getTarget()['full_name'])
         . '</strong> commented on your petition</p>';
     }
 

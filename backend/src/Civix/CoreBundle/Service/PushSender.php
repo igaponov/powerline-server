@@ -193,7 +193,7 @@ class PushSender
         /** @var Representative $representative */
         $representative = $this->entityManager
             ->getRepository('CivixCoreBundle:Representative')
-            ->findOneById($representativeId);
+            ->find($representativeId);
 
         if (!$representative) {
             return;
@@ -268,10 +268,12 @@ class PushSender
     {
         $socialActivity = $this->entityManager->getRepository(SocialActivity::class)->find($id);
         if (!$socialActivity) {
-            return $this->logger->error('Social activity is not found.', ['id' => $id]);
+            $this->logger->error('Social activity is not found.', ['id' => $id]);
+            return;
         }
         $handledIds = [];
         $target = $socialActivity->getTarget();
+        // send to recipient
         if ($socialActivity->getRecipient()) {
             $user = $this->entityManager->getRepository('CivixCoreBundle:User')
                 ->getUserForPush($socialActivity->getRecipient()->getId());
@@ -286,6 +288,7 @@ class PushSender
                     $this->getLinkByFilename($socialActivity->getImage())
                 );
             }
+        // send to followers
         } elseif ($socialActivity->getFollowing()) {
             /** @var User[] $recipients */
             $recipients = $this->entityManager
@@ -306,9 +309,10 @@ class PushSender
                     );
                 }
             }
+        // send to subscribers
+        } else {
+            $this->sendCommentedPush($socialActivity, $handledIds);
         }
-
-        $this->sendCommentedPush($socialActivity, $handledIds);
     }
 
     public function sendCommentedPush(SocialActivity $socialActivity, $handledIds = [])
@@ -356,7 +360,7 @@ class PushSender
     public function send(User $recipient, $title, $message, $type, $entityData = null, $image = null)
     {
         /** @var AbstractEndpoint[] $endpoints */
-        $endpoints = $this->entityManager->getRepository(AbstractEndpoint::class)->findByUser($recipient);
+        $endpoints = $this->entityManager->getRepository(AbstractEndpoint::class)->findBy(['user' => $recipient]);
         if (empty($image)) {
             $image = 'https://'.$this->hostname.self::IMAGE_LINK;
         }

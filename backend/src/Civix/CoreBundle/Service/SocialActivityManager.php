@@ -128,6 +128,8 @@ class SocialActivityManager
         $target = [
             'id' => $question->getId(),
             'type' => $question->getType(),
+            'full_name' => $comment->getUser()->getFullName(),
+            'image' => $comment->getUser()->getAvatarFileName(),
         ];
         $target['label'] = $this->getLabelByPoll($question);
         $target['preview'] = $comment->getCommentBody();
@@ -158,7 +160,7 @@ class SocialActivityManager
         if ($question->getUser()->getIsNotifOwnPostChanged() && $question->getSubscribers()->contains($question->getUser())) {
             $socialActivity3 = new SocialActivity(
                 SocialActivity::TYPE_OWN_POLL_COMMENTED,
-                $comment->getUser(),
+                null,
                 $question->getGroup()
             );
             $socialActivity3->setTarget($target)
@@ -177,6 +179,8 @@ class SocialActivityManager
             'preview' => $comment->getCommentBody(),
             'type' => 'user-petition',
             'label' => 'petition',
+            'full_name' => $comment->getUser()->getFullName(),
+            'image' => $comment->getUser()->getAvatarFileName(),
         ];
         if ($comment->getParentComment()) {
             $target['comment_id'] = $comment->getId();
@@ -200,7 +204,7 @@ class SocialActivityManager
         if ($petition->getUser()->getIsNotifOwnPostChanged() && $petition->getSubscribers()->contains($petition->getUser())) {
             $socialActivity3 = new SocialActivity(
                 SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED,
-                $comment->getUser(),
+                null,
                 $petition->getGroup()
             );
                 $socialActivity3->setTarget($target)
@@ -219,6 +223,8 @@ class SocialActivityManager
             'preview' => $comment->getCommentBody(),
             'type' => 'post',
             'label' => 'post',
+            'full_name' => $comment->getUser()->getFullName(),
+            'image' => $comment->getUser()->getAvatarFileName(),
         ];
         if ($comment->getParentComment()) {
             $target['comment_id'] = $comment->getId();
@@ -242,7 +248,7 @@ class SocialActivityManager
         if ($post->getUser()->getIsNotifOwnPostChanged() && $post->getSubscribers()->contains($post->getUser()) && $comment->getUser() != $post->getUser()) {
             $socialActivity3 = new SocialActivity(
                 SocialActivity::TYPE_OWN_POST_COMMENTED,
-                $comment->getUser(),
+                null,
                 $post->getGroup()
             );
                 $socialActivity3->setTarget($target)

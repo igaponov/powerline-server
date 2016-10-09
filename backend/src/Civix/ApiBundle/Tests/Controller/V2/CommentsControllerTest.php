@@ -90,15 +90,11 @@ abstract class CommentsControllerTest extends WebTestCase
             ["comment-replied", $comment->getUser()->getId()]
         );
         $this->assertEquals(1, $count);
-        $count = $conn->fetchColumn(
-            'SELECT COUNT(*) FROM social_activities WHERE type = ? AND recipient_id = ?',
-            ["own-$name-commented", $entity->getUser()->getId()]
-        );
-        $this->assertEquals(1, $count);
         $this->assertRegExp('{comment text <a data-user-id="\d+">@user2</a>}', $data['comment_body_html']);
         $tester = new SocialActivityTester($client->getContainer()->get('doctrine.orm.entity_manager'));
         $tester->assertActivitiesCount(4);
         $tester->assertActivity("comment-mentioned", $comment->getUser()->getId());
+        $tester->assertActivity("own-$name-commented", $entity->getUser()->getId());
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
         $this->assertEquals(4, $queue->count());
         $this->assertEquals(4, $queue->hasMessageWithMethod('sendSocialActivity'));
