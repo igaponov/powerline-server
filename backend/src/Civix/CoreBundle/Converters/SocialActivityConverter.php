@@ -342,7 +342,7 @@ class SocialActivityConverter
 
     private static function getOwnPollAnsweredHTML(SocialActivity $entity)
     {
-        return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName()).'</strong> responded to a '
+        return '<p><strong>'.htmlspecialchars($entity->getTarget()['full_name']).'</strong> responded to a '
             .$entity->getTarget()['label'].' "'.htmlspecialchars($entity->getTarget()['preview'])
             .'" in the <strong>'.htmlspecialchars($entity->getGroup()->getOfficialName())
             .'</strong> community</p>';
@@ -350,17 +350,17 @@ class SocialActivityConverter
 
     private static function getOwnPollAnsweredText(SocialActivity $entity)
     {
-        return ' responded to your poll';
+        return 'responded to your poll';
     }
 
     private static function getOwnPollAnsweredTitle(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getFullName();
+        return $entity->getTarget()['full_name'];
     }
 
     private static function getOwnPollAnsweredImage(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getAvatarFileName();
+        return $entity->getTarget()['image'];
     }
 
     private static function getOwnPostVotedText(SocialActivity $entity)

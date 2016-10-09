@@ -75,7 +75,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_OWN_POLL_ANSWERED,
-                '<p><strong>John &lt;Doe&gt;</strong> responded to a Label "&lt;Preview&gt;'.str_repeat('r', 400).'" in the <strong>&lt;US&gt;</strong> community</p>',
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> responded to a Label "&lt;Preview&gt;'.str_repeat('r', 400).'" in the <strong>&lt;US&gt;</strong> community</p>',
             ],
             [
                 SocialActivity::TYPE_OWN_POST_VOTED,
@@ -155,7 +155,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_OWN_POLL_ANSWERED,
-                ' responded to your poll',
+                'responded to your poll',
             ],
             [
                 SocialActivity::TYPE_OWN_POST_VOTED,
@@ -235,7 +235,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_OWN_POLL_ANSWERED,
-                'John <Doe>',
+                '<Jane> <Roe>',
             ],
             [
                 SocialActivity::TYPE_OWN_POST_VOTED,
@@ -315,7 +315,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_OWN_POLL_ANSWERED,
-                '/avatar.jpg',
+                '/image',
             ],
             [
                 SocialActivity::TYPE_OWN_POST_VOTED,

@@ -8,6 +8,7 @@ use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Question\Group;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Service\Stripe;
+use Civix\CoreBundle\Test\SocialActivityTester;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupPaymentRequestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData;
@@ -15,6 +16,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManager;
 use Faker\Factory;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -450,16 +452,18 @@ class PollControllerTest extends WebTestCase
         $this->assertEquals($option->getId(), $data['option_id']);
         $this->assertEquals($params['comment'], $data['comment']);
         $this->assertEquals($params['payment_amount'], $data['payment_amount']);
-        /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
-        $count = $conn->fetchColumn('SELECT COUNT(*) FROM social_activities WHERE type = ?', [SocialActivity::TYPE_OWN_POLL_ANSWERED]);
-        $this->assertEquals(1, $count);
+        /** @var EntityManager $em */
+        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
+        $conn = $em->getConnection();
         $amount = $conn->fetchColumn('SELECT crowdfunding_pledged_amount FROM poll_questions WHERE id = ?', [$question->getId()]);
         $this->assertEquals(0, $amount);
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM poll_comments WHERE question_id = ?', [$question->getId()]);
         $this->assertEquals(1, $count);
         $count = $conn->fetchColumn('SELECT answers_count FROM poll_questions WHERE id = ?', [$question->getId()]);
         $this->assertEquals(1, $count);
+        $tester = new SocialActivityTester($em);
+        $tester->assertActivitiesCount(1);
+        $tester->assertActivity(SocialActivity::TYPE_OWN_POLL_ANSWERED, $question->getUser()->getId());
     }
 
     public function testAddPaymentAnswerToCrowdfundingRequestIsOk()
@@ -493,16 +497,18 @@ class PollControllerTest extends WebTestCase
         $this->assertEquals($option->getId(), $data['option_id']);
         $this->assertEquals($params['comment'], $data['comment']);
         $this->assertEquals($params['payment_amount'], $data['payment_amount']);
-        /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
-        $count = $conn->fetchColumn('SELECT COUNT(*) FROM social_activities WHERE type = ?', [SocialActivity::TYPE_OWN_POLL_ANSWERED]);
-        $this->assertEquals(1, $count);
+        /** @var EntityManager $em */
+        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
+        $conn = $em->getConnection();
         $amount = $conn->fetchColumn('SELECT crowdfunding_pledged_amount FROM poll_questions WHERE id = ?', [$question->getId()]);
         $this->assertEquals(1234, $amount);
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM poll_comments WHERE question_id = ?', [$question->getId()]);
         $this->assertEquals(1, $count);
         $count = $conn->fetchColumn('SELECT answers_count FROM poll_questions WHERE id = ?', [$question->getId()]);
         $this->assertEquals(1, $count);
+        $tester = new SocialActivityTester($em);
+        $tester->assertActivitiesCount(1);
+        $tester->assertActivity(SocialActivity::TYPE_OWN_POLL_ANSWERED, $question->getUser()->getId());
     }
 
     public function testAddPaymentAnswerToNotCrowdfundingRequestIsOk()
@@ -540,16 +546,18 @@ class PollControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertEquals($option->getId(), $data['option_id']);
         $this->assertEquals($params['comment'], $data['comment']);
-        /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
-        $count = $conn->fetchColumn('SELECT COUNT(*) FROM social_activities WHERE type = ?', [SocialActivity::TYPE_OWN_POLL_ANSWERED]);
-        $this->assertEquals(1, $count);
+        /** @var EntityManager $em */
+        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
+        $conn = $em->getConnection();
         $amount = $conn->fetchColumn('SELECT crowdfunding_pledged_amount FROM poll_questions WHERE id = ?', [$question->getId()]);
         $this->assertEquals(0, $amount);
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM poll_comments WHERE question_id = ?', [$question->getId()]);
         $this->assertEquals(1, $count);
         $count = $conn->fetchColumn('SELECT answers_count FROM poll_questions WHERE id = ?', [$question->getId()]);
         $this->assertEquals(1, $count);
+        $tester = new SocialActivityTester($em);
+        $tester->assertActivitiesCount(1);
+        $tester->assertActivity(SocialActivity::TYPE_OWN_POLL_ANSWERED, $question->getUser()->getId());
     }
 
     public function getValidPollCredentialsForGetRequest()

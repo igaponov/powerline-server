@@ -105,15 +105,18 @@ class SocialActivityManager
             $target = [
                 'id' => $question->getId(),
                 'type' => $question->getType(),
+                'label' => $this->getLabelByPoll($question),
+                'preview' => $this->getPreviewByPoll($question),
+                'full_name' => $answer->getUser()->getFullName(),
+                'image' => $answer->getUser()->getAvatarFileName(),
             ];
-            $target['label'] = $this->getLabelByPoll($question);
-            $target['preview'] = $this->getPreviewByPoll($question);
             $socialActivity = (new SocialActivity(
                 SocialActivity::TYPE_OWN_POLL_ANSWERED,
-                $answer->getUser(),
+                null,
                 $answer->getQuestion()
                     ->getOwner()
-            ))->setTarget($target);
+            ))->setTarget($target)
+                ->setRecipient($question->getUser());
             $this->em->persist($socialActivity);
             $this->em->flush($socialActivity);
         }
