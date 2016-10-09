@@ -1,7 +1,9 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2\Group;
 
-use Civix\CoreBundle\Service\SocialActivityManager;
+use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\SocialActivity;
+use Civix\CoreBundle\Test\SocialActivityTester;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\ApiBundle\Tests\WebTestCase;
@@ -69,15 +71,12 @@ class PermissionSettingsControllerTest extends WebTestCase
 	public function testUpdatePermissionSettingsIsOk()
 	{
         $repository = $this->loadFixtures([
+            LoadUserGroupData::class,
             LoadGroupManagerData::class,
         ])->getReferenceRepository();
+        /** @var Group $group */
         $group = $repository->getReference('group_3');
 		$client = $this->client;
-		$manager = $this->getMockBuilder(SocialActivityManager::class)
-			->disableOriginalConstructor()
-			->getMock();
-		$manager->expects($this->once())->method('noticeGroupsPermissionsChanged');
-		$client->getContainer()->set('civix_core.social_activity_manager', $manager);
 		$params = [
 			'required_permissions' => [
 				'permissions_name',
@@ -99,6 +98,14 @@ class PermissionSettingsControllerTest extends WebTestCase
 		$data = json_decode($response->getContent(), true);
 		$this->assertSame($params['required_permissions'], $data['required_permissions']);
 		$this->assertArrayHasKey('permissions_changed_at', $data);
+        $tester = new SocialActivityTester($client->getContainer()->get('doctrine.orm.entity_manager'));
+        $tester->assertActivitiesCount($group->getUsers()->count());
+        foreach ($group->getUsers() as $user) {
+            $tester->assertActivity(SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED, $user->getId());
+        }
+        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+        $this->assertEquals($group->getUsers()->count(), $queue->hasMessageWithMethod('sendSocialActivity'));
+        $this->assertEquals($group->getUsers()->count(), $queue->count());
         // manager - downgrade permissions
 		$params['required_permissions'] = array_slice($params['required_permissions'], 2, 4);
 		$client->request('PUT', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user2"'], json_encode($params));
@@ -107,7 +114,11 @@ class PermissionSettingsControllerTest extends WebTestCase
 		$data = json_decode($response->getContent(), true);
 		$this->assertSame($params['required_permissions'], $data['required_permissions']);
 		$this->assertArrayHasKey('permissions_changed_at', $data);
-	}
+        $tester = new SocialActivityTester($client->getContainer()->get('doctrine.orm.entity_manager'));
+        $tester->assertActivitiesCount($group->getUsers()->count());
+        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+        $this->assertEquals(0, $queue->count());
+    }
 
     public function getInvalidGroupCredentialsForUpdateRequest()
     {
