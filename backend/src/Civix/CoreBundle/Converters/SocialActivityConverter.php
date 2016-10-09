@@ -173,23 +173,23 @@ class SocialActivityConverter
 
     private static function getCommentRepliedHTML(SocialActivity $entity)
     {
-        return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName())
-        .'</strong> replied to your comment</p>';
+        return '<p><strong>'.htmlspecialchars($entity->getTarget()['full_name'])
+        .'</strong> '.htmlspecialchars(self::preview('replied and said '.$entity->getTarget()['preview'])).'</p>';
     }
 
     private static function getCommentRepliedText(SocialActivity $entity)
     {
-        return self::preview(' replied and said '.$entity->getTarget()['preview']);
+        return self::preview('replied and said '.$entity->getTarget()['preview']);
     }
 
     private static function getCommentRepliedTitle(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getFullName();
+        return $entity->getTarget()['full_name'];
     }
 
     private static function getCommentRepliedImage(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getAvatarFileName();
+        return $entity->getTarget()['image'];
     }
 
     private static function getCommentMentionedText(SocialActivity $entity)

@@ -151,7 +151,7 @@ class SocialActivityManager
 
         if ($comment->getParentComment() && $comment->getParentComment()->getUser()
             && $comment->getUser() !== $comment->getParentComment()->getUser()) {
-            $socialActivity2 = (new SocialActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser(),
+            $socialActivity2 = (new SocialActivity(SocialActivity::TYPE_COMMENT_REPLIED, null,
                 $comment->getQuestion()->getOwner()))
                 ->setTarget($target)
                 ->setRecipient($comment->getParentComment()->getUser())
@@ -195,7 +195,7 @@ class SocialActivityManager
 
         if ($comment->getParentComment() && $comment->getParentComment()->getUser()
             && $comment->getUser() !== $comment->getParentComment()->getUser()) {
-            $socialActivity2 = (new SocialActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser(),
+            $socialActivity2 = (new SocialActivity(SocialActivity::TYPE_COMMENT_REPLIED, null,
                 $petition->getGroup()))
                 ->setTarget($target)
                 ->setRecipient($comment->getParentComment()->getUser())
@@ -239,7 +239,7 @@ class SocialActivityManager
 
         if ($comment->getParentComment() && $comment->getParentComment()->getUser()
             && $comment->getUser() !== $comment->getParentComment()->getUser()) {
-            $socialActivity2 = (new SocialActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser(),
+            $socialActivity2 = (new SocialActivity(SocialActivity::TYPE_COMMENT_REPLIED, null,
                 $post->getGroup()))
                 ->setTarget($target)
                 ->setRecipient($comment->getParentComment()->getUser())

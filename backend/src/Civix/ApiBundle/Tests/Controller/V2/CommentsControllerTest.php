@@ -84,15 +84,11 @@ abstract class CommentsControllerTest extends WebTestCase
             $ownType = SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED;
             $followType = SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED;
         }
-        $count = $conn->fetchColumn(
-            'SELECT COUNT(*) FROM social_activities WHERE type = ? AND recipient_id = ?',
-            ["comment-replied", $comment->getUser()->getId()]
-        );
-        $this->assertEquals(1, $count);
         $this->assertRegExp('{comment text <a data-user-id="\d+">@user2</a>}', $data['comment_body_html']);
         $tester = new SocialActivityTester($client->getContainer()->get('doctrine.orm.entity_manager'));
         $tester->assertActivitiesCount(4);
         $tester->assertActivity(SocialActivity::TYPE_COMMENT_MENTIONED, $comment->getUser()->getId());
+        $tester->assertActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser()->getId());
         $tester->assertActivity($ownType, $entity->getUser()->getId());
         $tester->assertActivity($followType);
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');

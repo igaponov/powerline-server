@@ -43,7 +43,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_COMMENT_REPLIED,
-                '<p><strong>John &lt;Doe&gt;</strong> replied to your comment</p>',
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> replied and said &lt;Preview&gt;'.str_repeat('r', 274).'...</p>',
             ],
             [
                 SocialActivity::TYPE_COMMENT_MENTIONED,
@@ -123,7 +123,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_COMMENT_REPLIED,
-                ' replied and said <Preview>'.str_repeat('r', 273).'...',
+                'replied and said <Preview>'.str_repeat('r', 274).'...',
             ],
             [
                 SocialActivity::TYPE_COMMENT_MENTIONED,
@@ -203,7 +203,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_COMMENT_REPLIED,
-                'John <Doe>',
+                '<Jane> <Roe>',
             ],
             [
                 SocialActivity::TYPE_COMMENT_MENTIONED,
@@ -283,7 +283,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_COMMENT_REPLIED,
-                '/avatar.jpg',
+                '/image',
             ],
             [
                 SocialActivity::TYPE_COMMENT_MENTIONED,
