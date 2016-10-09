@@ -282,16 +282,19 @@ class AnnouncementControllerTest extends WebTestCase
         $repository = $this->loadFixtures([
             LoadGroupAnnouncementData::class,
         ])->getReferenceRepository();
+        /** @var Announcement $announcement */
         $announcement = $repository->getReference('announcement_group_1');
         $client = $this->client;
         $client->getContainer()->set('civix_core.package_handler', $this->getPackageHandlerMock());
-        $client->getContainer()->set('civix_core.event_listener.push_sender_subscriber', $this->getPushSenderSubscriberMock());
         $client->request('PATCH', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertSame($announcement->getId(), $data['id']);
         $this->assertNotNull($data['published_at']);
+        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+        $this->assertEquals(1, $queue->count());
+        $this->assertEquals(1, $queue->hasMessageWithMethod('sendGroupAnnouncementPush', [$announcement->getGroup()->getId(), $announcement->getContent()]));
     }
 
     /**
@@ -356,17 +359,6 @@ class AnnouncementControllerTest extends WebTestCase
             ->method('getPackageStateForAnnouncement')
             ->with($this->isInstanceOf(Group::class))
             ->will($this->returnValue($packageLimitState));
-
-        return $service;
-    }
-
-    private function getPushSenderSubscriberMock()
-    {
-        $service = $this->getMockBuilder(PushSenderSubscriber::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $service->expects($this->once())
-            ->method('sendAnnouncementPush');
 
         return $service;
     }

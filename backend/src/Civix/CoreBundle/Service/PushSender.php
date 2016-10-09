@@ -18,12 +18,7 @@ use Psr\Log\LoggerInterface;
 
 class PushSender
 {
-    const QUESTION_PUSH_MESSAGE = 'New question has been published';
     const INVITE_PUSH_MESSAGE = 'You have been invited to join this group';
-    const ANNOUNCEMENT_PUSH_MESSAGE = 'New announcement has been published';
-    const NEWS_PUSH_MESSAGE = 'New discussion has been published';
-    const PAYMENT_REQUEST_PUSH_MESSAGE = 'New Payment Request';
-    const EVENT_PUSH_MESSAGE = 'New event has been published';
 
     const TYPE_PUSH_ACTIVITY = 'activity';
     const TYPE_PUSH_ANNOUNCEMENT = 'announcement';
@@ -188,7 +183,7 @@ class PushSender
         }
     }
 
-    public function sendRepresentativeAnnouncementPush($representativeId, $message = self::ANNOUNCEMENT_PUSH_MESSAGE)
+    public function sendRepresentativeAnnouncementPush($representativeId, $message)
     {
         /** @var Representative $representative */
         $representative = $this->entityManager
@@ -217,7 +212,7 @@ class PushSender
      * @param $groupId
      * @param string $message
      */
-    public function sendGroupAnnouncementPush($groupId, $message = self::ANNOUNCEMENT_PUSH_MESSAGE)
+    public function sendGroupAnnouncementPush($groupId, $message)
     {
         $users = $this->entityManager
             ->getRepository('CivixCoreBundle:User')
