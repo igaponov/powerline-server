@@ -109,8 +109,6 @@ class MemberController extends Controller
         	$entityManager->persist($userGroup);
         	$entityManager->flush();
         	
-        	$this->get('civix_core.social_activity_manager')->noticeGroupJoiningApproved($userGroup);
-        	
         	return $this->createJSONResponse(null, 204);
         }           
 

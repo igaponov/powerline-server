@@ -237,9 +237,7 @@ class GroupController extends FOSRestController
      */
     public function patchUserAction(UserGroup $userGroup)
     {
-        $userGroup->setStatus(UserGroup::STATUS_ACTIVE);
-        $this->em->persist($userGroup);
-        $this->em->flush();
+        $this->manager->approveUser($userGroup);
     }
 
     /**

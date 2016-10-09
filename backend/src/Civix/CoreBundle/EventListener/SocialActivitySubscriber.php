@@ -32,6 +32,7 @@ class SocialActivitySubscriber implements EventSubscriberInterface
                 ['noticeCommentMentioned', -100],
             ],
             Event\PollEvents::QUESTION_ANSWER => ['noticeAnsweredToQuestion', -100],
+            Event\GroupEvents::USER_JOINED => ['noticeGroupJoiningApproved', -100],
         ];
     }
 
@@ -77,5 +78,10 @@ class SocialActivitySubscriber implements EventSubscriberInterface
     {
         $answer =  $event->getAnswer();
         $this->manager->noticeAnsweredToQuestion($answer);
+    }
+
+    public function noticeGroupJoiningApproved(Event\GroupUserEvent $event)
+    {
+        $this->manager->noticeGroupJoiningApproved($event->getUser(), $event->getGroup());
     }
 }

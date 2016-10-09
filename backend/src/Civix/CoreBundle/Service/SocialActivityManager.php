@@ -46,11 +46,11 @@ class SocialActivityManager
         return $socialActivity;
     }
 
-    public function noticeGroupJoiningApproved(UserGroup $userGroup)
+    public function noticeGroupJoiningApproved(User $user, Group $group)
     {
-        $socialActivity = (new SocialActivity(SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED, null, $userGroup->getGroup()))
-            ->setTarget(['id' => $userGroup->getGroup()->getId(), 'type' => 'group'])
-            ->setRecipient($userGroup->getUser())
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED, null, $group))
+            ->setTarget(['id' => $group->getId(), 'type' => 'group'])
+            ->setRecipient($user)
         ;
         $this->em->persist($socialActivity);
         $this->em->flush($socialActivity);

@@ -137,7 +137,6 @@ class MemberController extends Controller
                 $userGroup->setStatus(UserGroup::STATUS_ACTIVE);
                 $entityManager->persist($userGroup);
                 $entityManager->flush();
-                $this->get('civix_core.social_activity_manager')->noticeGroupJoiningApproved($userGroup);
                 $this->get('session')->getFlashBag()->add('notice', 'User has been successfully approved');
 
                 return $this->redirect($this->generateUrl('civix_front_group_manage_approvals'));
