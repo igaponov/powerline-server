@@ -255,6 +255,7 @@ class PollControllerTest extends WebTestCase
             LoadGroupManagerData::class,
             LoadGroupQuestionData::class,
         ])->getReferenceRepository();
+        /** @var Question $question */
 		$question = $repository->getReference($reference);
         $this->assertNull($question->getPublishedAt());
         $this->assertNull($question->getExpireAt());
@@ -278,6 +279,13 @@ class PollControllerTest extends WebTestCase
         $this->assertEquals(1, $count);
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM hash_tags WHERE name = ?', ['#test-tag']);
         $this->assertEquals(1, $count);
+        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+        $this->assertEquals(1, $queue->count());
+        $this->assertEquals(1, $queue->hasMessageWithMethod('sendPushPublishQuestion', [
+            $question->getId(),
+            $question->getGroup()->getOfficialName() . ' Poll',
+            $question->getSubject()
+        ]));
     }
 
     /**
