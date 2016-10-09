@@ -267,7 +267,6 @@ class UserPetitionControllerTest extends WebTestCase
             ->method('checkIfNeedBoost')
             ->willReturn(true);
         $client->getContainer()->set('civix_core.user_petition_manager', $manager);
-        $user = $repository->getReference('user_2');
         /** @var UserPetition $petition */
         $petition = $repository->getReference('user_petition_2');
         $client->request('POST',
@@ -286,7 +285,7 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertTrue($petition->isBoosted());
         $tester = new SocialActivityTester($em);
         $tester->assertActivitiesCount(1);
-        $tester->assertActivity(SocialActivity::TYPE_OWN_USER_PETITION_SIGNED, $petition->getUser()->getId(), $user->getId());
+        $tester->assertActivity(SocialActivity::TYPE_OWN_USER_PETITION_SIGNED, $petition->getUser()->getId());
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
         $this->assertEquals(2, $queue->count());
         $this->assertEquals(1, $queue->hasMessageWithMethod('sendSocialActivity'));

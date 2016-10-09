@@ -83,7 +83,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_OWN_USER_PETITION_SIGNED,
-                '<p><strong>John &lt;Doe&gt;</strong> signed your petition</p>',
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> signed your petition</p>',
             ],
         ];
     }
@@ -163,7 +163,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_OWN_USER_PETITION_SIGNED,
-                ' signed your petition',
+                'signed your petition',
             ],
         ];
     }
@@ -243,7 +243,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_OWN_USER_PETITION_SIGNED,
-                'John <Doe>',
+                '<Jane> <Roe>',
             ],
         ];
     }
@@ -323,7 +323,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_OWN_USER_PETITION_SIGNED,
-                '/avatar.jpg',
+                '/image',
             ],
         ];
     }

@@ -386,22 +386,22 @@ class SocialActivityConverter
 
     private static function getOwnUserPetitionSignedText(SocialActivity $entity)
     {
-        return ' signed your petition';
+        return 'signed your petition';
     }
 
     private static function getOwnUserPetitionSignedTitle(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getFullName();
+        return $entity->getTarget()['full_name'];
     }
 
     private static function getOwnUserPetitionSignedImage(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getAvatarFileName();
+        return $entity->getTarget()['image'];
     }
 
     private static function getOwnUserPetitionSignedHTML(SocialActivity $entity)
     {
-        return '<p><strong>'. htmlspecialchars($entity->getFollowing()->getFullName())
+        return '<p><strong>'. htmlspecialchars($entity->getTarget()['full_name'])
         . '</strong> signed your petition</p>';
     }
 

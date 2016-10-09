@@ -274,15 +274,14 @@ class ActivityUpdate
         if ($petition->getUser()->getIsNotifOwnPostChanged() && $petition->getSubscribers()->contains($petition->getUser())) {
             $socialActivity = new SocialActivity(
                 SocialActivity::TYPE_OWN_USER_PETITION_SIGNED,
-                $answerer,
+                null,
                 $petition->getGroup()
             );
             $socialActivity->setTarget([
                 'id' => $petition->getId(),
                 'type' => 'user-petition',
                 'user_id' => $answerer->getId(),
-                'first_name' => $answerer->getFirstName(),
-                'last_name' => $answerer->getLastName(),
+                'full_name' => $answerer->getFullName(),
                 'image' => $answerer->getAvatarFileName(),
             ]);
             $socialActivity->setRecipient($petition->getUser());
