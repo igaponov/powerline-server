@@ -51,15 +51,15 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
-                '<p><strong>John &lt;Doe&gt;</strong> commented on Label in the <strong>&lt;US&gt;</strong> community</p>',
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> commented on the poll you subscribed to</p>',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POST_COMMENTED,
-                '<p><strong>John &lt;Doe&gt;</strong> commented on the post you subscribed to</p>',
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> commented on the post you subscribed to</p>',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED,
-                '<p><strong>John &lt;Doe&gt;</strong> commented on Label in the <strong>&lt;US&gt;</strong> community</p>',
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> commented on the petition you subscribed to</p>',
             ],
             [
                 SocialActivity::TYPE_OWN_POLL_COMMENTED,
@@ -131,15 +131,15 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
-                ' commented on your poll',
+                'commented on the poll you subscribed to',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POST_COMMENTED,
-                ' commented on the post you subscribed to',
+                'commented on the post you subscribed to',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED,
-                ' commented on the petition you subscribed to',
+                'commented on the petition you subscribed to',
             ],
             [
                 SocialActivity::TYPE_OWN_POLL_COMMENTED,
@@ -211,15 +211,15 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
-                'John <Doe>',
+                '<Jane> <Roe>',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POST_COMMENTED,
-                'John <Doe>',
+                '<Jane> <Roe>',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED,
-                'John <Doe>',
+                '<Jane> <Roe>',
             ],
             [
                 SocialActivity::TYPE_OWN_POLL_COMMENTED,
@@ -291,15 +291,15 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
-                '/avatar.jpg',
+                '/image',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POST_COMMENTED,
-                '/avatar.jpg',
+                '/image',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED,
-                '/avatar.jpg',
+                '/image',
             ],
             [
                 SocialActivity::TYPE_OWN_POLL_COMMENTED,

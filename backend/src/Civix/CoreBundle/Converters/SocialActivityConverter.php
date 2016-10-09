@@ -215,66 +215,62 @@ class SocialActivityConverter
 
     private static function getFollowPollCommentedHTML(SocialActivity $entity)
     {
-        return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName()).'</strong> commented on '
-        .$entity->getTarget()['label'].' in the <strong>'
-        .htmlspecialchars($entity->getGroup()->getOfficialName()).'</strong> community</p>';
+        return '<p><strong>'.htmlspecialchars($entity->getTarget()['full_name']).'</strong> commented on the poll you subscribed to</p>';
     }
 
     private static function getFollowPollCommentedText(SocialActivity $entity)
     {
-        return ' commented on your poll';
+        return 'commented on the poll you subscribed to';
     }
 
     private static function getFollowPollCommentedTitle(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getFullName();
+        return $entity->getTarget()['full_name'];
     }
 
     private static function getFollowPollCommentedImage(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getAvatarFileName();
+        return $entity->getTarget()['image'];
     }
 
     private static function getFollowPostCommentedHTML(SocialActivity $entity)
     {
-        return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName()).'</strong> commented on the post you subscribed to</p>';
+        return '<p><strong>'.htmlspecialchars($entity->getTarget()['full_name']).'</strong> commented on the post you subscribed to</p>';
     }
 
     private static function getFollowPostCommentedText(SocialActivity $entity)
     {
-        return ' commented on the post you subscribed to';
+        return 'commented on the post you subscribed to';
     }
 
     private static function getFollowPostCommentedTitle(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getFullName();
+        return $entity->getTarget()['full_name'];
     }
 
     private static function getFollowPostCommentedImage(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getAvatarFileName();
+        return $entity->getTarget()['image'];
     }
 
     private static function getFollowUserPetitionCommentedHTML(SocialActivity $entity)
     {
-        return '<p><strong>'.htmlspecialchars($entity->getFollowing()->getFullName()).'</strong> commented on '
-        .$entity->getTarget()['label'].' in the <strong>'
-        .htmlspecialchars($entity->getGroup()->getOfficialName()).'</strong> community</p>';
+        return '<p><strong>'.htmlspecialchars($entity->getTarget()['full_name']).'</strong> commented on the petition you subscribed to</p>';
     }
 
     private static function getFollowUserPetitionCommentedText(SocialActivity $entity)
     {
-        return ' commented on the petition you subscribed to';
+        return 'commented on the petition you subscribed to';
     }
 
     private static function getFollowUserPetitionCommentedTitle(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getFullName();
+        return $entity->getTarget()['full_name'];
     }
 
     private static function getFollowUserPetitionCommentedImage(SocialActivity $entity)
     {
-        return $entity->getFollowing()->getAvatarFileName();
+        return $entity->getTarget()['image'];
     }
 
     private static function getOwnPollCommentedText(SocialActivity $entity)

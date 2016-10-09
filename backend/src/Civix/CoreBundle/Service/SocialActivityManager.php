@@ -133,14 +133,13 @@ class SocialActivityManager
             'type' => $question->getType(),
             'full_name' => $comment->getUser()->getFullName(),
             'image' => $comment->getUser()->getAvatarFileName(),
+            'label' => $this->getLabelByPoll($question),
+            'preview' => $comment->getCommentBody(),
         ];
-        $target['label'] = $this->getLabelByPoll($question);
-        $target['preview'] = $comment->getCommentBody();
-
         if ($question->getSubscribers()->contains($question->getUser())) {
             $socialActivity1 = (new SocialActivity(
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
-                $comment->getUser(),
+                null,
                 $comment->getQuestion()
                     ->getOwner()
             ))->setTarget($target);
@@ -188,7 +187,7 @@ class SocialActivityManager
         if ($comment->getParentComment()) {
             $target['comment_id'] = $comment->getId();
         }
-        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED, $comment->getUser(),
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED, null,
             $petition->getGroup()))
             ->setTarget($target)
         ;
@@ -232,7 +231,7 @@ class SocialActivityManager
         if ($comment->getParentComment()) {
             $target['comment_id'] = $comment->getId();
         }
-        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_POST_COMMENTED, $comment->getUser(),
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_POST_COMMENTED, null,
             $post->getGroup()))
             ->setTarget($target)
         ;
