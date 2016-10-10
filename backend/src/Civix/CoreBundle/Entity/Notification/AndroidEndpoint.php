@@ -16,7 +16,7 @@ class AndroidEndpoint extends AbstractEndpoint
         return json_encode(array('GCM' => json_encode(array('data' => array(
             'message' => $message,
             'type' => $type,
-            'entity' => json_encode($entityData),
+            'entity' => $entityData,
             'title' => $title,
             'image' => $image,
             'actions' => $this->getActionButtonInfo($type),
