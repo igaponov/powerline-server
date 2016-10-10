@@ -6,6 +6,8 @@ use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\CommentedInterface;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\SocialActivity;
+use Civix\CoreBundle\Test\SocialActivityTester;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -73,27 +75,24 @@ abstract class CommentsControllerTest extends WebTestCase
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
         if ($entity instanceof Question) {
-            $name = 'poll';
+            $ownType = SocialActivity::TYPE_OWN_POLL_COMMENTED;
+            $followType = SocialActivity::TYPE_FOLLOW_POLL_COMMENTED;
         } elseif ($entity instanceof Post) {
-            $name = 'post';
+            $ownType = SocialActivity::TYPE_OWN_POST_COMMENTED;
+            $followType = SocialActivity::TYPE_FOLLOW_POST_COMMENTED;
         } else {
-            $name = 'user-petition';
+            $ownType = SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED;
+            $followType = SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED;
         }
-        $count = $conn->fetchColumn(
-            'SELECT COUNT(*) FROM social_activities WHERE type = ? AND recipient_id IS NULL',
-            ["follow-$name-commented"]
-        );
-        $this->assertEquals(1, $count);
-        $count = $conn->fetchColumn(
-            'SELECT COUNT(*) FROM social_activities WHERE type = ? AND recipient_id = ?',
-            ["comment-replied", $comment->getUser()->getId()]
-        );
-        $this->assertEquals(1, $count);
-        $count = $conn->fetchColumn(
-            'SELECT COUNT(*) FROM social_activities WHERE type = ? AND recipient_id = ?',
-            ["own-$name-commented", $entity->getUser()->getId()]
-        );
-        $this->assertEquals(1, $count);
         $this->assertRegExp('{comment text <a data-user-id="\d+">@user2</a>}', $data['comment_body_html']);
+        $tester = new SocialActivityTester($client->getContainer()->get('doctrine.orm.entity_manager'));
+        $tester->assertActivitiesCount(4);
+        $tester->assertActivity(SocialActivity::TYPE_COMMENT_MENTIONED, $comment->getUser()->getId());
+        $tester->assertActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser()->getId());
+        $tester->assertActivity($ownType, $entity->getUser()->getId());
+        $tester->assertActivity($followType);
+        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+        $this->assertEquals(4, $queue->count());
+        $this->assertEquals(4, $queue->hasMessageWithMethod('sendSocialActivity'));
     }
 }

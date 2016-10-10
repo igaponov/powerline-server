@@ -292,4 +292,14 @@ class GroupManager
         }
         $this->entityManager->flush();
     }
+
+    public function approveUser(UserGroup $userGroup)
+    {
+        $userGroup->setStatus(UserGroup::STATUS_ACTIVE);
+        $this->entityManager->persist($userGroup);
+        $this->entityManager->flush();
+
+        $event = new GroupUserEvent($userGroup->getGroup(), $userGroup->getUser());
+        $this->dispatcher->dispatch(GroupEvents::USER_JOINED, $event);
+    }
 }

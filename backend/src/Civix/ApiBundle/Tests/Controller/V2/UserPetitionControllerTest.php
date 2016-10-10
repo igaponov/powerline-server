@@ -4,12 +4,13 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 use Civix\CoreBundle\Entity\Micropetitions\Petition;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\UserPetition;
-use Civix\CoreBundle\Service\PushTask;
 use Civix\CoreBundle\Service\UserPetitionManager;
+use Civix\CoreBundle\Test\SocialActivityTester;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManager;
 use Faker\Factory;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -261,16 +262,11 @@ class UserPetitionControllerTest extends WebTestCase
             LoadUserPetitionData::class,
         ])->getReferenceRepository();
         $client = $this->client;
-        $manager = $this->getPetitionManagerMock([
-            'checkIfNeedBoost',
-        ]);
+        $manager = $this->getPetitionManagerMock(['checkIfNeedBoost']);
         $manager->expects($this->once())
             ->method('checkIfNeedBoost')
-            ->will($this->returnValue(true));
+            ->willReturn(true);
         $client->getContainer()->set('civix_core.user_petition_manager', $manager);
-        $service = $this->getMock(PushTask::class, ['addToQueue'], [], '', false);
-        $service->expects($this->once())->method('addToQueue')->with('sendGroupPetitionPush');
-        $client->getContainer()->set('civix_core.push_task', $service);
         /** @var UserPetition $petition */
         $petition = $repository->getReference('user_petition_2');
         $client->request('POST',
@@ -279,15 +275,21 @@ class UserPetitionControllerTest extends WebTestCase
         );
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-        /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
-            ->getConnection();
-        $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM social_activities WHERE type = ?', [SocialActivity::TYPE_OWN_USER_PETITION_SIGNED]);
-        $this->assertSame(1, $count);
+        /** @var EntityManager $em */
+        $em = $client->getContainer()
+            ->get('doctrine.orm.entity_manager');
+        $conn = $em->getConnection();
         // check activity
         $description = $conn->fetchColumn('SELECT description FROM activities WHERE petition_id = ?', [$petition->getId()]);
         $this->assertSame($petition->getBody(), $description);
         $this->assertTrue($petition->isBoosted());
+        $tester = new SocialActivityTester($em);
+        $tester->assertActivitiesCount(1);
+        $tester->assertActivity(SocialActivity::TYPE_OWN_USER_PETITION_SIGNED, $petition->getUser()->getId());
+        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+        $this->assertEquals(2, $queue->count());
+        $this->assertEquals(1, $queue->hasMessageWithMethod('sendSocialActivity'));
+        $this->assertEquals(1, $queue->hasMessageWithMethod('sendBoostedPetitionPush', [$petition->getGroup()->getId(), $petition->getId()]));
     }
 
     public function testUpdateAnswer()

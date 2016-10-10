@@ -11,6 +11,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPollSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSubscriberData;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -114,18 +115,13 @@ class ActivityControllerTest extends WebTestCase
 	public function testGetActivitiesByFollowingIsOk()
 	{
         $repository = $this->loadFixtures([
-            LoadGroupData::class,
+            LoadUserGroupOwnerData::class,
             LoadUserFollowerData::class,
             LoadActivityData::class,
         ])->getReferenceRepository();
 		/** @var User $user */
 		$user = $repository->getReference('user_2');
-        $following = $repository->getReference('user_1');
-        $group = $repository->getReference('group_1');
 		$client = $this->client;
-        /** @var Connection $conn */
-        $conn = $client->getContainer()->get('database_connection');
-        $conn->insert('users_groups', ['user_id' => $following->getId(), 'group_id' => $group->getId(), 'status' => UserGroup::STATUS_ACTIVE, 'created_at' => date('Y-m-d H:i:s')]);
 		$client->request('GET', self::API_ENDPOINT, ['following' => $user->getId()], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());

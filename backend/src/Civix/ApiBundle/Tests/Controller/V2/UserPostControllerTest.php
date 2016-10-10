@@ -58,7 +58,7 @@ class UserPostControllerTest extends WebTestCase
         $client = $this->client;
         $client->request('GET',
             self::API_ENDPOINT, [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="user4"']
         );
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());

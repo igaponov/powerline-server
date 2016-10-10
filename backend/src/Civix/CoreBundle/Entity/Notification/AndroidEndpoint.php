@@ -37,14 +37,9 @@ class AndroidEndpoint extends AbstractEndpoint
         $actionButton = array();
 
         switch ($type) {
-            case PushSender::TYPE_PUSH_USER_PETITION:
+            case PushSender::TYPE_PUSH_BOOSTED_USER_PETITION:
                 $actionButton = array(
                     array("icon" => "Sign", "title" => "Sign", "callback" => "app.sign"),
-                );
-                break;
-            case PushSender::TYPE_PUSH_INFLUENCE:
-                $actionButton = array(
-                    array("icon" => "Approve", "title" => "Approve", "callback" => "app.approve"),
                 );
                 break;
             case SocialActivity::TYPE_COMMENT_MENTIONED:
@@ -57,17 +52,17 @@ class AndroidEndpoint extends AbstractEndpoint
                     array("icon" => "Approve", "title" => "Approve", "callback" => "app.approve"),
                 );
                 break;
-            case SocialActivity::TYPE_GROUP_POST_CREATED:
+            case SocialActivity::TYPE_FOLLOW_POST_CREATED:
                 $actionButton = array(
                     array("icon" => "Upvote", "title" => "Upvote", "callback" => "app.upvote"),
                 );
                 break;
-            case SocialActivity::TYPE_GROUP_USER_PETITION_CREATED:
+            case SocialActivity::TYPE_FOLLOW_USER_PETITION_CREATED:
                 $actionButton = array(
                     array("icon" => "Sign", "title" => "Sign", "callback" => "app.sign"),
                 );
                 break;
-            case PushSender::TYPE_PUSH_POST:
+            case PushSender::TYPE_PUSH_BOOSTED_POST:
                 $actionButton = array(
                     array("icon" => "Upvote", "title" => "Upvote", "callback" => "app.upvote"),
                     array("icon" => "Downvote", "title" => "Downvote", "callback" => "app.downvote"),

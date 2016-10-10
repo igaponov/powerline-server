@@ -27,5 +27,11 @@ class CivixCoreExtension extends Extension
         
         $container->setAlias('mailgun.client', $config['mailgun_client']);
         $container->setAlias('mailgun.public_client', $config['mailgun_public_client']);
+
+        if ($container->getParameter('kernel.environment') === 'test') {
+            $loader->load('test.xml');
+        } else {
+            $loader->load('prod.xml');
+        }
     }
 }

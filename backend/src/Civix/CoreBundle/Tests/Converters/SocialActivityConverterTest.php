@@ -23,19 +23,19 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
         return [
             [
                 SocialActivity::TYPE_FOLLOW_REQUEST,
-                '<p><strong>John &lt;Doe&gt;</strong> wants to follow you</p>',
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> wants to follow you</p>',
             ],
             [
                 SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED,
                 '<p>Request to join <strong>&lt;US&gt;</strong> has been approved</p>',
             ],
             [
-                SocialActivity::TYPE_GROUP_POST_CREATED,
-                '<p><strong>John &lt;Doe&gt;</strong> posted in the <strong>&lt;US&gt;</strong> community</p>',
+                SocialActivity::TYPE_FOLLOW_POST_CREATED,
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> posted in the <strong>&lt;US&gt;</strong> community</p>',
             ],
             [
-                SocialActivity::TYPE_GROUP_USER_PETITION_CREATED,
-                '<p><strong>John &lt;Doe&gt;</strong> created a petition in the <strong>&lt;US&gt;</strong> community</p>',
+                SocialActivity::TYPE_FOLLOW_USER_PETITION_CREATED,
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> created a petition in the <strong>&lt;US&gt;</strong> community</p>',
             ],
             [
                 SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED,
@@ -43,47 +43,47 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_COMMENT_REPLIED,
-                '<p><strong>John &lt;Doe&gt;</strong> replied to your comment</p>',
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> replied and said &lt;Preview&gt;'.str_repeat('r', 274).'...</p>',
             ],
             [
                 SocialActivity::TYPE_COMMENT_MENTIONED,
-                '<p><strong>&lt;Jane&gt;</strong> mentioned you in a comment</p>',
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> mentioned you in a comment</p>',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
-                '<p><strong>John &lt;Doe&gt;</strong> commented on Label in the <strong>&lt;US&gt;</strong> community</p>',
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> commented on the poll you subscribed to</p>',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POST_COMMENTED,
-                '<p><strong>John &lt;Doe&gt;</strong> commented on the post you subscribed to</p>',
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> commented on the post you subscribed to</p>',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED,
-                '<p><strong>John &lt;Doe&gt;</strong> commented on Label in the <strong>&lt;US&gt;</strong> community</p>',
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> commented on the petition you subscribed to</p>',
             ],
             [
                 SocialActivity::TYPE_OWN_POLL_COMMENTED,
-                '<p><strong>John &lt;Doe&gt;</strong> commented on your poll</p>',
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> commented on your poll</p>',
             ],
             [
                 SocialActivity::TYPE_OWN_POST_COMMENTED,
-                '<p><strong>John &lt;Doe&gt;</strong> commented on your post</p>',
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> commented on your post</p>',
             ],
             [
                 SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED,
-                '<p><strong>John &lt;Doe&gt;</strong> commented on your petition</p>',
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> commented on your petition</p>',
             ],
             [
                 SocialActivity::TYPE_OWN_POLL_ANSWERED,
-                '<p><strong>John &lt;Doe&gt;</strong> responded to a Label "&lt;Preview&gt;'.str_repeat('r', 400).'" in the <strong>&lt;US&gt;</strong> community</p>',
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> responded to a Label "&lt;Preview&gt;'.str_repeat('r', 400).'" in the <strong>&lt;US&gt;</strong> community</p>',
             ],
             [
                 SocialActivity::TYPE_OWN_POST_VOTED,
-                '<p><strong>John &lt;Doe&gt;</strong> voted on your post</p>',
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> voted on your post</p>',
             ],
             [
                 SocialActivity::TYPE_OWN_USER_PETITION_SIGNED,
-                '<p><strong>John &lt;Doe&gt;</strong> signed your petition</p>',
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> signed your petition</p>',
             ],
         ];
     }
@@ -103,18 +103,18 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
         return [
             [
                 SocialActivity::TYPE_FOLLOW_REQUEST,
-                ' wants to follow you. Approve?',
+                'wants to follow you. Approve?',
             ],
             [
                 SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED,
                 'Request to join <US> has been approved',
             ],
             [
-                SocialActivity::TYPE_GROUP_POST_CREATED,
+                SocialActivity::TYPE_FOLLOW_POST_CREATED,
                 'posted: '.str_repeat('b', 300).'...',
             ],
             [
-                SocialActivity::TYPE_GROUP_USER_PETITION_CREATED,
+                SocialActivity::TYPE_FOLLOW_USER_PETITION_CREATED,
                 str_repeat('b', 300).'...',
             ],
             [
@@ -123,47 +123,47 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_COMMENT_REPLIED,
-                ' replied and said <Preview>'.str_repeat('r', 273).'...',
+                'replied and said <Preview>'.str_repeat('r', 274).'...',
             ],
             [
                 SocialActivity::TYPE_COMMENT_MENTIONED,
-                ' mentioned you in a comment',
+                'mentioned you in a comment',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
-                ' commented on your poll',
+                'commented on the poll you subscribed to',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POST_COMMENTED,
-                ' commented on the post you subscribed to',
+                'commented on the post you subscribed to',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED,
-                ' commented on the petition you subscribed to',
+                'commented on the petition you subscribed to',
             ],
             [
                 SocialActivity::TYPE_OWN_POLL_COMMENTED,
-                ' commented on your poll',
+                'commented on your poll',
             ],
             [
                 SocialActivity::TYPE_OWN_POST_COMMENTED,
-                ' commented on your post',
+                'commented on your post',
             ],
             [
                 SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED,
-                ' commented on your petition',
+                'commented on your petition',
             ],
             [
                 SocialActivity::TYPE_OWN_POLL_ANSWERED,
-                ' responded to your poll',
+                'responded to your poll',
             ],
             [
                 SocialActivity::TYPE_OWN_POST_VOTED,
-                ' voted on your post',
+                'voted on your post',
             ],
             [
                 SocialActivity::TYPE_OWN_USER_PETITION_SIGNED,
-                ' signed your petition',
+                'signed your petition',
             ],
         ];
     }
@@ -183,19 +183,19 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
         return [
             [
                 SocialActivity::TYPE_FOLLOW_REQUEST,
-                'John <Doe>',
+                '<Jane> <Roe>',
             ],
             [
                 SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED,
                 '<US>',
             ],
             [
-                SocialActivity::TYPE_GROUP_POST_CREATED,
-                'John <Doe>',
+                SocialActivity::TYPE_FOLLOW_POST_CREATED,
+                '<Jane> <Roe>',
             ],
             [
-                SocialActivity::TYPE_GROUP_USER_PETITION_CREATED,
-                'John <Doe>',
+                SocialActivity::TYPE_FOLLOW_USER_PETITION_CREATED,
+                '<Jane> <Roe> Petition',
             ],
             [
                 SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED,
@@ -203,7 +203,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_COMMENT_REPLIED,
-                'John <Doe>',
+                '<Jane> <Roe>',
             ],
             [
                 SocialActivity::TYPE_COMMENT_MENTIONED,
@@ -211,39 +211,39 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
-                'John <Doe>',
+                '<Jane> <Roe>',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POST_COMMENTED,
-                'John <Doe>',
+                '<Jane> <Roe>',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED,
-                'John <Doe>',
+                '<Jane> <Roe>',
             ],
             [
                 SocialActivity::TYPE_OWN_POLL_COMMENTED,
-                'John <Doe>',
+                '<Jane> <Roe>',
             ],
             [
                 SocialActivity::TYPE_OWN_POST_COMMENTED,
-                'John <Doe>',
+                '<Jane> <Roe>',
             ],
             [
                 SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED,
-                'John <Doe>',
+                '<Jane> <Roe>',
             ],
             [
                 SocialActivity::TYPE_OWN_POLL_ANSWERED,
-                'John <Doe>',
+                '<Jane> <Roe>',
             ],
             [
                 SocialActivity::TYPE_OWN_POST_VOTED,
-                'John <Doe>',
+                '<Jane> <Roe>',
             ],
             [
                 SocialActivity::TYPE_OWN_USER_PETITION_SIGNED,
-                'John <Doe>',
+                '<Jane> <Roe>',
             ],
         ];
     }
@@ -263,19 +263,19 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
         return [
             [
                 SocialActivity::TYPE_FOLLOW_REQUEST,
-                '/avatar.jpg',
+                '/image',
             ],
             [
                 SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED,
                 '/group.jpg',
             ],
             [
-                SocialActivity::TYPE_GROUP_POST_CREATED,
-                '/avatar.jpg',
+                SocialActivity::TYPE_FOLLOW_POST_CREATED,
+                '/image',
             ],
             [
-                SocialActivity::TYPE_GROUP_USER_PETITION_CREATED,
-                '/avatar.jpg',
+                SocialActivity::TYPE_FOLLOW_USER_PETITION_CREATED,
+                '/image',
             ],
             [
                 SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED,
@@ -283,7 +283,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_COMMENT_REPLIED,
-                '/avatar.jpg',
+                '/image',
             ],
             [
                 SocialActivity::TYPE_COMMENT_MENTIONED,
@@ -291,39 +291,39 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
-                '/avatar.jpg',
+                '/image',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POST_COMMENTED,
-                '/avatar.jpg',
+                '/image',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED,
-                '/avatar.jpg',
+                '/image',
             ],
             [
                 SocialActivity::TYPE_OWN_POLL_COMMENTED,
-                '/avatar.jpg',
+                '/image',
             ],
             [
                 SocialActivity::TYPE_OWN_POST_COMMENTED,
-                '/avatar.jpg',
+                '/image',
             ],
             [
                 SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED,
-                '/avatar.jpg',
+                '/image',
             ],
             [
                 SocialActivity::TYPE_OWN_POLL_ANSWERED,
-                '/avatar.jpg',
+                '/image',
             ],
             [
                 SocialActivity::TYPE_OWN_POST_VOTED,
-                '/avatar.jpg',
+                '/image',
             ],
             [
                 SocialActivity::TYPE_OWN_USER_PETITION_SIGNED,
-                '/avatar.jpg',
+                '/image',
             ],
         ];
     }
@@ -348,6 +348,7 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 'label' => 'Label',
                 'first_name' => '<Jane>',
                 'last_name' => '<Roe>',
+                'full_name' => '<Jane> <Roe>',
                 'preview' => '<Preview>'.str_repeat('r', 400),
                 'image' => '/image',
             ]

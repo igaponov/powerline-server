@@ -31,8 +31,13 @@ class SocialActivityManager
 
     public function sendUserFollowRequest(UserFollow $follow)
     {
-        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_REQUEST, $follow->getFollower()))
-            ->setTarget(['id' => $follow->getFollower()->getId(), 'type' => 'user'])
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_REQUEST))
+            ->setTarget([
+                'id' => $follow->getFollower()->getId(),
+                'type' => 'user',
+                'full_name' => $follow->getFollower()->getFullName(),
+                'image' => $follow->getFollower()->getAvatarFileName(),
+            ])
             ->setRecipient($follow->getUser())
         ;
         $this->em->persist($socialActivity);
@@ -41,11 +46,11 @@ class SocialActivityManager
         return $socialActivity;
     }
 
-    public function noticeGroupJoiningApproved(UserGroup $userGroup)
+    public function noticeGroupJoiningApproved(User $user, Group $group)
     {
-        $socialActivity = (new SocialActivity(SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED, null, $userGroup->getGroup()))
-            ->setTarget(['id' => $userGroup->getGroup()->getId(), 'type' => 'group'])
-            ->setRecipient($userGroup->getUser())
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED, null, $group))
+            ->setTarget(['id' => $group->getId(), 'type' => 'group'])
+            ->setRecipient($user)
         ;
         $this->em->persist($socialActivity);
         $this->em->flush($socialActivity);
@@ -55,13 +60,15 @@ class SocialActivityManager
 
     public function noticeUserPetitionCreated(UserPetition $petition)
     {
-        $socialActivity = (new SocialActivity(SocialActivity::TYPE_GROUP_USER_PETITION_CREATED, $petition->getUser(),
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_USER_PETITION_CREATED, $petition->getUser(),
             $petition->getGroup()))
             ->setTarget([
                 'id' => $petition->getId(),
                 'title' => $petition->getTitle(),
                 'body' => $petition->getBody(),
                 'type' => 'user-petition',
+                'full_name' => $petition->getUser()->getFullName(),
+                'image' => $petition->getUser()->getAvatarFileName(),
             ])
         ;
         $this->em->persist($socialActivity);
@@ -72,12 +79,14 @@ class SocialActivityManager
 
     public function noticePostCreated(Post $post)
     {
-        $socialActivity = (new SocialActivity(SocialActivity::TYPE_GROUP_POST_CREATED, $post->getUser(),
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_POST_CREATED, $post->getUser(),
             $post->getGroup()))
             ->setTarget([
                 'id' => $post->getId(),
                 'body' => $post->getBody(),
                 'type' => 'post',
+                'full_name' => $post->getUser()->getFullName(),
+                'image' => $post->getUser()->getAvatarFileName(),
             ])
         ;
         $this->em->persist($socialActivity);
@@ -96,15 +105,18 @@ class SocialActivityManager
             $target = [
                 'id' => $question->getId(),
                 'type' => $question->getType(),
+                'label' => $this->getLabelByPoll($question),
+                'preview' => $this->getPreviewByPoll($question),
+                'full_name' => $answer->getUser()->getFullName(),
+                'image' => $answer->getUser()->getAvatarFileName(),
             ];
-            $target['label'] = $this->getLabelByPoll($question);
-            $target['preview'] = $this->getPreviewByPoll($question);
             $socialActivity = (new SocialActivity(
                 SocialActivity::TYPE_OWN_POLL_ANSWERED,
-                $answer->getUser(),
+                null,
                 $answer->getQuestion()
                     ->getOwner()
-            ))->setTarget($target);
+            ))->setTarget($target)
+                ->setRecipient($question->getUser());
             $this->em->persist($socialActivity);
             $this->em->flush($socialActivity);
         }
@@ -119,14 +131,15 @@ class SocialActivityManager
         $target = [
             'id' => $question->getId(),
             'type' => $question->getType(),
+            'full_name' => $comment->getUser()->getFullName(),
+            'image' => $comment->getUser()->getAvatarFileName(),
+            'label' => $this->getLabelByPoll($question),
+            'preview' => $comment->getCommentBody(),
         ];
-        $target['label'] = $this->getLabelByPoll($question);
-        $target['preview'] = $comment->getCommentBody();
-
         if ($question->getSubscribers()->contains($question->getUser())) {
             $socialActivity1 = (new SocialActivity(
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
-                $comment->getUser(),
+                null,
                 $comment->getQuestion()
                     ->getOwner()
             ))->setTarget($target);
@@ -138,7 +151,7 @@ class SocialActivityManager
 
         if ($comment->getParentComment() && $comment->getParentComment()->getUser()
             && $comment->getUser() !== $comment->getParentComment()->getUser()) {
-            $socialActivity2 = (new SocialActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser(),
+            $socialActivity2 = (new SocialActivity(SocialActivity::TYPE_COMMENT_REPLIED, null,
                 $comment->getQuestion()->getOwner()))
                 ->setTarget($target)
                 ->setRecipient($comment->getParentComment()->getUser())
@@ -149,7 +162,7 @@ class SocialActivityManager
         if ($question->getUser()->getIsNotifOwnPostChanged() && $question->getSubscribers()->contains($question->getUser())) {
             $socialActivity3 = new SocialActivity(
                 SocialActivity::TYPE_OWN_POLL_COMMENTED,
-                $comment->getUser(),
+                null,
                 $question->getGroup()
             );
             $socialActivity3->setTarget($target)
@@ -168,11 +181,13 @@ class SocialActivityManager
             'preview' => $comment->getCommentBody(),
             'type' => 'user-petition',
             'label' => 'petition',
+            'full_name' => $comment->getUser()->getFullName(),
+            'image' => $comment->getUser()->getAvatarFileName(),
         ];
         if ($comment->getParentComment()) {
             $target['comment_id'] = $comment->getId();
         }
-        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED, $comment->getUser(),
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED, null,
             $petition->getGroup()))
             ->setTarget($target)
         ;
@@ -180,7 +195,7 @@ class SocialActivityManager
 
         if ($comment->getParentComment() && $comment->getParentComment()->getUser()
             && $comment->getUser() !== $comment->getParentComment()->getUser()) {
-            $socialActivity2 = (new SocialActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser(),
+            $socialActivity2 = (new SocialActivity(SocialActivity::TYPE_COMMENT_REPLIED, null,
                 $petition->getGroup()))
                 ->setTarget($target)
                 ->setRecipient($comment->getParentComment()->getUser())
@@ -191,7 +206,7 @@ class SocialActivityManager
         if ($petition->getUser()->getIsNotifOwnPostChanged() && $petition->getSubscribers()->contains($petition->getUser())) {
             $socialActivity3 = new SocialActivity(
                 SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED,
-                $comment->getUser(),
+                null,
                 $petition->getGroup()
             );
                 $socialActivity3->setTarget($target)
@@ -210,11 +225,13 @@ class SocialActivityManager
             'preview' => $comment->getCommentBody(),
             'type' => 'post',
             'label' => 'post',
+            'full_name' => $comment->getUser()->getFullName(),
+            'image' => $comment->getUser()->getAvatarFileName(),
         ];
         if ($comment->getParentComment()) {
             $target['comment_id'] = $comment->getId();
         }
-        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_POST_COMMENTED, $comment->getUser(),
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_POST_COMMENTED, null,
             $post->getGroup()))
             ->setTarget($target)
         ;
@@ -222,7 +239,7 @@ class SocialActivityManager
 
         if ($comment->getParentComment() && $comment->getParentComment()->getUser()
             && $comment->getUser() !== $comment->getParentComment()->getUser()) {
-            $socialActivity2 = (new SocialActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser(),
+            $socialActivity2 = (new SocialActivity(SocialActivity::TYPE_COMMENT_REPLIED, null,
                 $post->getGroup()))
                 ->setTarget($target)
                 ->setRecipient($comment->getParentComment()->getUser())
@@ -233,7 +250,7 @@ class SocialActivityManager
         if ($post->getUser()->getIsNotifOwnPostChanged() && $post->getSubscribers()->contains($post->getUser()) && $comment->getUser() != $post->getUser()) {
             $socialActivity3 = new SocialActivity(
                 SocialActivity::TYPE_OWN_POST_COMMENTED,
-                $comment->getUser(),
+                null,
                 $post->getGroup()
             );
                 $socialActivity3->setTarget($target)
@@ -302,8 +319,7 @@ class SocialActivityManager
 
         $user = $comment->getUser();
         $target['user_id'] = $user->getId();
-        $target['first_name'] = $user->getFirstName();
-        $target['last_name'] = $user->getLastName();
+        $target['full_name'] = $user->getFullName();
         $target['image'] = $user->getAvatarFileName();
 
         foreach ($recipients as $recipient) {

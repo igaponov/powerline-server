@@ -26,15 +26,16 @@ class LoadSocialActivityData extends AbstractFixture implements ContainerAwareIn
 
     public function load(ObjectManager $manager)
     {
-        $user1 = $this->getReference('followertest');
-        $user2 = $this->getReference('userfollowtest1');
-        $user3 = $this->getReference('userfollowtest2');
-        $user4 = $this->getReference('userfollowtest3');
-        $group1 = $this->getReference('testfollowsecretgroups');
-        $group2 = $this->getReference('testfollowprivategroups');
+        $user1 = $this->getReference('user_1');
+        $user2 = $this->getReference('user_2');
+        $user4 = $this->getReference('user_4');
+
+        $group1 = $this->getReference('group_1');
+        $group2 = $this->getReference('group_2');
+
         $activity = $this->generateSocialActivity(
             SocialActivity::TYPE_OWN_POLL_ANSWERED,
-            $user2,
+            null,
             $group1,
             $user1
         );
@@ -42,7 +43,7 @@ class LoadSocialActivityData extends AbstractFixture implements ContainerAwareIn
         $this->addReference('social_activity_1', $activity);
         $activity = $this->generateSocialActivity(
             SocialActivity::TYPE_COMMENT_MENTIONED,
-            $user2,
+            null,
             $group2,
             $user1,
             false
@@ -51,7 +52,7 @@ class LoadSocialActivityData extends AbstractFixture implements ContainerAwareIn
         $this->addReference('social_activity_2', $activity);
         $activity = $this->generateSocialActivity(
             SocialActivity::TYPE_COMMENT_REPLIED,
-            $user3,
+            null,
             $group1,
             $user1,
             false
@@ -60,45 +61,45 @@ class LoadSocialActivityData extends AbstractFixture implements ContainerAwareIn
         $this->addReference('social_activity_3', $activity);
         $activity = $this->generateSocialActivity(
             SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED,
-            $user4,
-            $group2,
-            $user1
+            null,
+            $group2
         );
         $manager->persist($activity);
         $this->addReference('social_activity_4', $activity);
         $activity = $this->generateSocialActivity(
             SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
-            $user1,
-            $group1,
-            $user2
+            null,
+            $group1
         );
         $manager->persist($activity);
         $this->addReference('social_activity_5', $activity);
         $activity = $this->generateSocialActivity(
             SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED,
-            $user4,
-            $group1,
             null,
+            $group1,
+            $user1,
             false
         );
         $manager->persist($activity);
         $this->addReference('social_activity_6', $activity);
         $activity = $this->generateSocialActivity(
-            SocialActivity::TYPE_GROUP_POST_CREATED,
-            $user3,
+            SocialActivity::TYPE_FOLLOW_POST_CREATED,
+            $user4,
             $group2
         );
         $manager->persist($activity);
         $this->addReference('social_activity_7', $activity);
         $activity = $this->generateSocialActivity(
             SocialActivity::TYPE_OWN_POST_COMMENTED,
-            $user2
+            null,
+            $group1,
+            $user1
         );
         $manager->persist($activity);
         $this->addReference('social_activity_8', $activity);
         $activity = $this->generateSocialActivity(
             SocialActivity::TYPE_OWN_POST_VOTED,
-            $user3,
+            null,
             $group2,
             $user1,
             false
@@ -107,18 +108,59 @@ class LoadSocialActivityData extends AbstractFixture implements ContainerAwareIn
         $this->addReference('social_activity_9', $activity);
         $activity = $this->generateSocialActivity(
             SocialActivity::TYPE_FOLLOW_REQUEST,
-            $user4
+            null,
+            null,
+            $user1
         );
         $manager->persist($activity);
         $this->addReference('social_activity_10', $activity);
         $activity = $this->generateSocialActivity(
             SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED,
-            $user1,
+            null,
             $group2,
-            $user2
+            $user1
         );
         $manager->persist($activity);
         $this->addReference('social_activity_11', $activity);
+        $activity = $this->generateSocialActivity(
+            SocialActivity::TYPE_OWN_USER_PETITION_SIGNED,
+            null,
+            $group1,
+            $user1
+        );
+        $manager->persist($activity);
+        $this->addReference('social_activity_12', $activity);
+        $activity = $this->generateSocialActivity(
+            SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED,
+            null,
+            $group2,
+            $user1
+        );
+        $manager->persist($activity);
+        $this->addReference('social_activity_13', $activity);
+        $activity = $this->generateSocialActivity(
+            SocialActivity::TYPE_OWN_POLL_COMMENTED,
+            null,
+            $group2,
+            $user1
+        );
+        $manager->persist($activity);
+        $this->addReference('social_activity_14', $activity);
+        $activity = $this->generateSocialActivity(
+            SocialActivity::TYPE_FOLLOW_POST_COMMENTED,
+            null,
+            $group1
+        );
+        $manager->persist($activity);
+        $this->addReference('social_activity_15', $activity);
+        $activity = $this->generateSocialActivity(
+            SocialActivity::TYPE_FOLLOW_USER_PETITION_CREATED,
+            $user2,
+            $group2
+        );
+        $manager->persist($activity);
+        $this->addReference('social_activity_16', $activity);
+
         $manager->flush();
     }
 
@@ -140,6 +182,6 @@ class LoadSocialActivityData extends AbstractFixture implements ContainerAwareIn
 
     public function getDependencies()
     {
-        return [LoadUserData::class, LoadGroupFollowerTestData::class];
+        return [LoadGroupData::class];
     }
 }

@@ -1,11 +1,10 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSocialActivityData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -27,10 +26,9 @@ class UserSocialActivityControllerTest extends WebTestCase
     public function setUp()
     {
         $this->repository = $this->loadFixtures([
-            LoadUserData::class,
-            LoadGroupFollowerTestData::class,
-            LoadUserGroupFollowerTestData::class,
-            LoadUserFollowData::class,
+            LoadUserGroupData::class,
+            LoadUserFollowerData::class,
+            LoadUserGroupOwnerData::class,
             LoadSocialActivityData::class,
         ])->getReferenceRepository();
         $this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
@@ -43,63 +41,38 @@ class UserSocialActivityControllerTest extends WebTestCase
         parent::tearDown();
     }
 
-    public function testGetSocialActivitiesForYouTabWithDefaultValueIsOk()
+    /**
+     * @param $params
+     * @param $keys
+     * @param $count
+     * @dataProvider getTabs
+     */
+    public function testGetSocialActivitiesIsOk($params, $keys, $count)
     {
         $ids = [];
-        foreach ([1, 2, 3, 4, 9] as $key) {
+        foreach ($keys as $key) {
             $ids[] = $this->repository->getReference('social_activity_'.$key)->getId();
         }
         $client = $this->client;
-        $client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']);
+        $client->request('GET', self::API_ENDPOINT, $params, [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertSame(1, $data['page']);
         $this->assertSame(20, $data['items']);
-        $this->assertSame(5, $data['totalItems']);
-        $this->assertCount(5, $data['payload']);
+        $this->assertSame($count, $data['totalItems']);
+        $this->assertCount($count, $data['payload']);
         foreach ($data['payload'] as $item) {
             $this->assertContains($item['id'], $ids);
         }
     }
 
-    public function testGetSocialActivitiesForYouTabIsOk()
+    public function getTabs()
     {
-        $ids = [];
-        foreach ([5, 11] as $key) {
-            $ids[] = $this->repository->getReference('social_activity_'.$key)->getId();
-        }
-        $client = $this->client;
-        $client->request('GET', self::API_ENDPOINT, ['tab' => 'you'], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"']);
-        $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertSame(1, $data['page']);
-        $this->assertSame(20, $data['items']);
-        $this->assertSame(2, $data['totalItems']);
-        $this->assertCount(2, $data['payload']);
-        foreach ($data['payload'] as $item) {
-            $this->assertContains($item['id'], $ids);
-        }
-    }
-
-    public function testGetSocialActivitiesForFollowingTabIsOk()
-    {
-        $ids = [];
-        foreach ([6, 7, 8, 10] as $key) {
-            $ids[] = $this->repository->getReference('social_activity_'.$key)->getId();
-        }
-        $client = $this->client;
-        $client->request('GET', self::API_ENDPOINT, ['tab' => 'following'], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"']);
-        $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertSame(1, $data['page']);
-        $this->assertSame(20, $data['items']);
-        $this->assertSame(4, $data['totalItems']);
-        $this->assertCount(4, $data['payload']);
-        foreach ($data['payload'] as $item) {
-            $this->assertContains($item['id'], $ids);
-        }
+        return [
+            'default' => [[], [1, 2, 3, 6, 8, 9, 10, 11, 12, 13, 14], 11],
+            'you' => [['tab' => 'you'], [1, 2, 3, 6, 8, 9, 10, 11, 12, 13, 14], 11],
+            'following' => [['tab' => 'following'], [4, 5, 7, 15, 16], 5],
+        ];
     }
 }

@@ -5,6 +5,7 @@ use Civix\CoreBundle\Entity\Announcement\RepresentativeAnnouncement;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Event;
 use Civix\CoreBundle\Service\PushTask;
+use Civix\CoreBundle\Service\QueueTaskInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PushSenderSubscriber implements EventSubscriberInterface
@@ -14,7 +15,7 @@ class PushSenderSubscriber implements EventSubscriberInterface
      */
     private $pushTask;
 
-    public function __construct(PushTask $pushTask)
+    public function __construct(QueueTaskInterface $pushTask)
     {
         $this->pushTask = $pushTask;
     }
@@ -23,10 +24,9 @@ class PushSenderSubscriber implements EventSubscriberInterface
     {
         return [
             Event\AnnouncementEvents::PUBLISHED => ['sendAnnouncementPush', -200],
-            Event\UserEvents::FOLLOWED => ['sendInfluencePush', -200],
             Event\PollEvents::QUESTION_PUBLISHED => ['sendPushPublishQuestion', -200],
-            Event\UserPetitionEvents::PETITION_BOOST => ['sendGroupPetitionPush', -200],
-            Event\PostEvents::POST_BOOST => ['sendGroupPostPush', -200],
+            Event\UserPetitionEvents::PETITION_BOOST => ['sendBoostedPetitionPush', -200],
+            Event\PostEvents::POST_BOOST => ['sendBoostedPostPush', -200],
             Event\InviteEvents::CREATE => ['sendUserToGroupInvites', -200],
         ];
     }
@@ -42,15 +42,6 @@ class PushSenderSubscriber implements EventSubscriberInterface
         $this->pushTask->addToQueue($method, [
             $announcement->getUser()->getId(), 
             $announcement->getContent()
-        ]);
-    }
-
-    public function sendInfluencePush(Event\UserFollowEvent $event)
-    {
-        $follow = $event->getUserFollow();
-        $this->pushTask->addToQueue('sendInfluencePush', [
-            $follow->getUser()->getId(),
-            $follow->getFollower()->getId(),
         ]);
     }
 
@@ -93,20 +84,20 @@ class PushSenderSubscriber implements EventSubscriberInterface
         $this->pushTask->addToQueue('sendPushPublishQuestion', $params);
     }
 
-    public function sendGroupPetitionPush(Event\UserPetitionEvent $event)
+    public function sendBoostedPetitionPush(Event\UserPetitionEvent $event)
     {
         $petition = $event->getPetition();
         $this->pushTask->addToQueue(
-            'sendGroupPetitionPush',
+            'sendBoostedPetitionPush',
             [$petition->getGroup()->getId(), $petition->getId()]
         );
     }
 
-    public function sendGroupPostPush(Event\PostEvent $event)
+    public function sendBoostedPostPush(Event\PostEvent $event)
     {
         $post = $event->getPost();
         $this->pushTask->addToQueue(
-            'sendGroupPostPush',
+            'sendBoostedPostPush',
             [$post->getGroup()->getId(), $post->getId()]
         );
     }
@@ -115,7 +106,7 @@ class PushSenderSubscriber implements EventSubscriberInterface
     {
         $invite = $event->getInvite();
         $this->pushTask->addToQueue(
-            'sendInvitePush',
+            'sendGroupInvitePush',
             [$invite->getUser()->getId(), $invite->getGroup()->getId()]
         );
     }

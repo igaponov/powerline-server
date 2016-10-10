@@ -1,12 +1,9 @@
 <?php
-namespace Civix\ApiBundle\Tests\Controller;
+namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
-use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\SocialActivity;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSocialActivityData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -29,8 +26,6 @@ class SocialActivityControllerTest extends WebTestCase
 		$this->client = static::createClient();
 
 		$this->repository = $this->loadFixtures([
-			LoadUserData::class,
-			LoadGroupFollowerTestData::class,
 			LoadSocialActivityData::class,
 		])->getReferenceRepository();
 	}
@@ -47,7 +42,7 @@ class SocialActivityControllerTest extends WebTestCase
 		/** @var SocialActivity $activity */
 		$activity = $this->repository->getReference('social_activity_11');
 		$client = $this->client;
-		$client->request('PUT', self::API_ENDPOINT.$activity->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], '');
+		$client->request('PUT', self::API_ENDPOINT.$activity->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user2"'], '');
 		$response = $client->getResponse();
 		$this->assertEquals(403, $response->getStatusCode(), $response->getContent());
 	}
@@ -58,7 +53,7 @@ class SocialActivityControllerTest extends WebTestCase
 		$activity = $this->repository->getReference('social_activity_1');
 		$params = ['ignore' => !$activity->isIgnore()];
 		$client = $this->client;
-		$client->request('PUT', self::API_ENDPOINT.$activity->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode($params));
+		$client->request('PUT', self::API_ENDPOINT.$activity->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
@@ -70,7 +65,7 @@ class SocialActivityControllerTest extends WebTestCase
 		/** @var SocialActivity $activity */
 		$activity = $this->repository->getReference('social_activity_11');
 		$client = $this->client;
-		$client->request('DELETE', self::API_ENDPOINT.$activity->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']);
+		$client->request('DELETE', self::API_ENDPOINT.$activity->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user2"']);
 		$response = $client->getResponse();
 		$this->assertEquals(403, $response->getStatusCode(), $response->getContent());
 	}
@@ -80,7 +75,7 @@ class SocialActivityControllerTest extends WebTestCase
 		/** @var SocialActivity $activity */
 		$activity = $this->repository->getReference('social_activity_1');
 		$client = $this->client;
-		$client->request('DELETE', self::API_ENDPOINT.$activity->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']);
+		$client->request('DELETE', self::API_ENDPOINT.$activity->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
 		$response = $client->getResponse();
 		$this->assertEquals(204, $response->getStatusCode(), $response->getContent());
 	}

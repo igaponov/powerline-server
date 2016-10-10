@@ -1,15 +1,11 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2\Group;
 
-use Civix\CoreBundle\Entity\Micropetitions\Petition;
 use Civix\CoreBundle\Entity\SocialActivity;
-use Civix\CoreBundle\Service\Micropetitions\PetitionManager;
 use Civix\CoreBundle\Service\UserPetitionManager;
+use Civix\CoreBundle\Test\SocialActivityTester;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Civix\ApiBundle\Tests\WebTestCase;
@@ -75,6 +71,7 @@ class UserPetitionControllerTest extends WebTestCase
             LoadGroupData::class,
         ])->getReferenceRepository();
         $faker = Factory::create();
+        $user = $repository->getReference('user_1');
         $group = $repository->getReference('group_1');
         $client = $this->client;
         $manager = $this->getPetitionManagerMock([
@@ -117,15 +114,19 @@ class UserPetitionControllerTest extends WebTestCase
         // check root comment
         $body = $conn->fetchColumn('SELECT comment_body FROM user_petition_comments WHERE petition_id = ?', [$data['id']]);
         $this->assertSame($data['body'], $body);
-        // check social activity
-        $type = $conn->fetchColumn('SELECT type FROM social_activities WHERE group_id = ?', [$group->getId()]);
-        $this->assertSame(SocialActivity::TYPE_GROUP_USER_PETITION_CREATED, $type);
         // check activity
         $description = $conn->fetchColumn('SELECT description FROM activities WHERE petition_id = ?', [$data['id']]);
         $this->assertSame($data['body'], $description);
         // check author subscription
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM petition_subscribers WHERE userpetition_id = ?', [$data['id']]);
         $this->assertEquals(1, $count);
+        // check social activity
+        $tester = new SocialActivityTester($client->getContainer()->get('doctrine.orm.entity_manager'));
+        $tester->assertActivitiesCount(1);
+        $tester->assertActivity(SocialActivity::TYPE_FOLLOW_USER_PETITION_CREATED, null, $user->getId());
+        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+        $this->assertEquals(1, $queue->count());
+        $this->assertEquals(1, $queue->hasMessageWithMethod('sendSocialActivity'));
     }
 
     public function testGetActivitiesOfDeletedUserPetition()
