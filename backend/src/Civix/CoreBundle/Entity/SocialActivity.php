@@ -16,12 +16,13 @@ class SocialActivity
 
     const TYPE_JOIN_TO_GROUP_APPROVED = 'join-to-group-approved';
 
-    const TYPE_FOLLOW_USER_PETITION_CREATED = 'follow-user-petition-created';
-    const TYPE_FOLLOW_POST_CREATED = 'follow-post-created';
     const TYPE_GROUP_PERMISSIONS_CHANGED = 'group-permissions-changed';
 
     const TYPE_COMMENT_REPLIED = 'comment-replied';
     const TYPE_COMMENT_MENTIONED = 'comment-mentioned';
+
+    const TYPE_FOLLOW_POST_CREATED = 'follow-post-created';
+    const TYPE_FOLLOW_USER_PETITION_CREATED = 'follow-user-petition-created';
 
     const TYPE_FOLLOW_POLL_COMMENTED = 'follow-poll-commented';
     const TYPE_FOLLOW_POST_COMMENTED = 'follow-post-commented';

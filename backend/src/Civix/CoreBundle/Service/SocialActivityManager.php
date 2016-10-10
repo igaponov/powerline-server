@@ -60,7 +60,7 @@ class SocialActivityManager
 
     public function noticeUserPetitionCreated(UserPetition $petition)
     {
-        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_USER_PETITION_CREATED, null,
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_USER_PETITION_CREATED, $petition->getUser(),
             $petition->getGroup()))
             ->setTarget([
                 'id' => $petition->getId(),
@@ -79,7 +79,7 @@ class SocialActivityManager
 
     public function noticePostCreated(Post $post)
     {
-        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_POST_CREATED, null,
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_POST_CREATED, $post->getUser(),
             $post->getGroup()))
             ->setTarget([
                 'id' => $post->getId(),

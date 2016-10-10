@@ -148,7 +148,7 @@ class UserFollowingControllerTest extends WebTestCase
         $this->assertSame(UserFollow::STATUS_PENDING, $userFollow[0]->getStatus());
         $tester = new SocialActivityTester($client->getContainer()->get('doctrine.orm.entity_manager'));
         $tester->assertActivitiesCount(1);
-        $tester->assertActivity(SocialActivity::TYPE_FOLLOW_REQUEST, $user->getId(), $follower->getId());
+        $tester->assertActivity(SocialActivity::TYPE_FOLLOW_REQUEST, $user->getId());
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
         $this->assertEquals(1, $queue->count());
         $this->assertEquals(1, $queue->hasMessageWithMethod('sendSocialActivity'));

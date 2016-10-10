@@ -69,15 +69,15 @@ class SocialActivityRepository extends EntityRepository
             if (empty($activeGroups)) {
                 $expr->add('sa.group is NULL');
             } else {
-                $expr->add(
-                    $exprBuilder->orX(
-                        'sa.group is NULL',
-                        $exprBuilder->in('sa.group', $activeGroups)
-                    )
-                );
+                $expr->add($exprBuilder->in('sa.group', $activeGroups));
             }
-            if ($userFollowingIds) {
-                $expr->add($exprBuilder->in('sa.following', $userFollowingIds));
+            if (empty($userFollowingIds)) {
+                $expr->add('sa.following is NULL');
+            } else {
+                $expr->add($exprBuilder->orX(
+                    'sa.following is NULL',
+                    $exprBuilder->in('sa.following', $userFollowingIds)
+                ));
             }
             $qb->where($expr);
         } else {

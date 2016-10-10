@@ -46,7 +46,7 @@ class PollControllerTest extends WebTestCase
             LoadGroupManagerData::class,
             LoadGroupQuestionData::class,
         ])->getReferenceRepository();
-        $group = $repository->getReference('group_2');
+        $group = $repository->getReference('group_3');
 		$client = $this->client;
         $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
         $client->request('GET', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
