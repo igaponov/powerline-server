@@ -19,7 +19,7 @@ class IOSEndpoint extends AbstractEndpoint
                         'title' => $title,
                         'body' => $message,
                     ],
-                    'entity' => json_encode($entityData),
+                    'entity' => $entityData,
                     'type' => $type,
                     'category' => $type,
                     'sound' => 'default',
