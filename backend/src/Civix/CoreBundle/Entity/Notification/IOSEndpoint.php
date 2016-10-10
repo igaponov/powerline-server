@@ -11,9 +11,10 @@ class IOSEndpoint extends AbstractEndpoint
 {
     public function getPlatformMessage($title, $message, $type, $entityData, $image, $badge = null)
     {
+        $notId = uniqid('', true);
         $payload = json_encode(
-            array(
-                'aps' => array(
+            [
+                'aps' => [
                     'alert' => [
                         'title' => $title,
                         'body' => $message,
@@ -27,9 +28,11 @@ class IOSEndpoint extends AbstractEndpoint
                     'badge' => $badge,
                     'additionalData' => [
                         'badgeCount' => $badge,
+                        'notId' => $notId,
                     ],
-                )
-            )
+                ],
+                'notId' => $notId,
+            ]
         );
 
         return json_encode(array(
