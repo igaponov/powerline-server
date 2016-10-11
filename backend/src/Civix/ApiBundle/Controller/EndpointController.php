@@ -2,6 +2,8 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use Civix\CoreBundle\Service\Notification as NotificationService;
+use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -15,13 +17,28 @@ use Civix\CoreBundle\Entity\Notification;
 class EndpointController extends BaseController
 {
     /**
+     * @var NotificationService
+     * @DI\Inject("civix_core.notification")
+     */
+    private $notification;
+
+    /**
      * @Route("/", name="api_endpoints_get")
      * @Method("GET")
+     *
      * @ApiDoc(
      *     resource=true,
-     *     description="Endpoint",
+     *     section="Users",
+     *     description="List of user's endpoints",
+     *     output={
+     *          "class" = "array<Civix\CoreBundle\Entity\Notification\AbstractEndpoint>",
+     *          "groups" = {"owner-get", "Default"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\CollectionParser",
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
+     *     },
      *     statusCodes={
-     *         200="Returns user endpoints",
      *         401="Authorization required",
      *         405="Method Not Allowed"
      *     }
@@ -29,9 +46,10 @@ class EndpointController extends BaseController
      */
     public function getAction()
     {
-        $endpoints = $this->getDoctrine()->getManager()->getRepository(Notification\AbstractEndpoint::class)
-            ->findByUser($this->getUser());
-        $response = new Response($this->jmsSerialization($endpoints, array('owner-get')));
+        $endpoints = $this->getDoctrine()->getManager()
+            ->getRepository(Notification\AbstractEndpoint::class)
+            ->findBy(['user' => $this->getUser()]);
+        $response = new Response($this->jmsSerialization($endpoints, array('owner-get', 'Default')));
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
@@ -40,15 +58,34 @@ class EndpointController extends BaseController
     /**
      * @Route("/", name="api_endpoints_create")
      * @Method("POST")
+     *
      * @ApiDoc(
-     *     resource=true,
-     *     description="Endpoint",
+     *     section="Users",
+     *     description="Add an endpoint",
+     *     input={
+     *          "class" = "Civix\CoreBundle\Entity\Notification\AbstractEndpoint",
+     *          "groups" = {"owner-create", "Default"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
+     *     },
      *     statusCodes={
-     *         201="Endpoints created",
      *         401="Authorization required",
      *         405="Method Not Allowed"
+     *     },
+     *     responseMap={
+     *          201={
+     *              "class" = "Civix\CoreBundle\Entity\Notification\AbstractEndpoint",
+     *              "groups" = {"owner-get", "Default"},
+     *              "parsers" = {
+     *                  "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *              }
+     *          }
      *     }
      * )
+     *
+     * @param Request $request
+     * @return Response
      */
     public function createAction(Request $request)
     {
@@ -56,18 +93,10 @@ class EndpointController extends BaseController
         $endpoint = $this->jmsDeserialization($request->getContent(), Notification\AbstractEndpoint::class,
             array('owner-create'));
         $endpoint->setUser($this->getUser());
-        $this->getNotificationService()->handleEndpoint($endpoint);
-        $response = new Response($this->jmsSerialization($endpoint, array('owner-get')), 201);
+        $this->notification->handleEndpoint($endpoint);
+        $response = new Response($this->jmsSerialization($endpoint, array('owner-get', 'Default')), 201);
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
-    }
-
-    /**
-     * @return \Civix\CoreBundle\Service\Notification
-     */
-    private function getNotificationService()
-    {
-        return $this->get('civix_core.notification');
     }
 }
