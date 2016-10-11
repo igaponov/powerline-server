@@ -83,10 +83,10 @@ class Stripe
         $sa->save();
     }
 
-    public function removeCard(CustomerInterface $customer, $cardId)
+    public function removeCard(CustomerInterface $customer, Card $card)
     {
         $this->getStripeCustomer($customer)
-            ->sources->retrieve($cardId)->delete();
+            ->sources->retrieve($card->getId())->delete();
     }
 
     public function hasPayoutAccount(UserInterface $user)
