@@ -52,6 +52,6 @@ class LoadEndpointData extends AbstractFixture implements DependentFixtureInterf
 
     public function getDependencies()
     {
-        return [LoadGroupData::class];
+        return [LoadUserData::class];
     }
 }
