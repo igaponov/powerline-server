@@ -27,7 +27,7 @@ class AnswersController extends BaseController
      * @Method("DELETE")
      * @ParamConverter("answer", options={"mapping": {"answerId": "id"}})
      * @ApiDoc(
-     *     resource=true,
+     *     section="Polls",
      *     description="Unsign answer",
      *     filters={
      *         {"name"="entityId", "dataType"="integer"},
@@ -76,7 +76,7 @@ class AnswersController extends BaseController
      * @Method("DELETE")
      *
      * @ApiDoc(
-     *     section="Micropetitions",
+     *     section="User Petitions",
      *     description="Unsign answer",
      *     filters={
      *         {"name"="entityId", "dataType"="integer"},
@@ -129,6 +129,11 @@ class AnswersController extends BaseController
     /**
      * @Route("/answers/{id}/charges/")
      * @Method("GET")
+     *
+     * @ApiDoc(
+     *     description="Returns charges"
+     * )
+     *
      * @param Answer $answer
      * @return Response
      */

@@ -21,6 +21,7 @@ class RepresentativeController extends BaseController
      *
      * @ApiDoc(
      *     resource=true,
+     *     section="Representatives",
      *     description="Get list of representatives grouped by district types",
      *     statusCodes={
      *         200="Returns list representatives",
@@ -93,7 +94,7 @@ class RepresentativeController extends BaseController
      * @Method("GET")
      *
      * @ApiDoc(
-     *     resource=true,
+     *     section="Representatives",
      *     description="Get information on representative",
      *     statusCodes={
      *         200="Get information on representative",
@@ -135,7 +136,7 @@ class RepresentativeController extends BaseController
      * @Method("GET")
      *
      * @ApiDoc(
-     *     resource=true,
+     *     section="Representatives",
      *     description="Get committee membership of representative",
      *     statusCodes={
      *         200="Get committee membership of representative",
@@ -175,7 +176,7 @@ class RepresentativeController extends BaseController
      * @Method("GET")
      *
      * @ApiDoc(
-     *     resource=true,
+     *     section="Representatives",
      *     description="Get sponsored bills by representative",
      *     statusCodes={
      *         200="Get ponsored bills by representative",

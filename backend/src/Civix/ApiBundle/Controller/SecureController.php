@@ -59,7 +59,7 @@ class SecureController extends BaseController
      * 	   https = true,
      *     authentication = false,
      *     resource=true,
-     *     section="Common",
+     *     section="Security",
      *     description="Login",
      *     views = { "default"},
      *     output = "",
@@ -183,6 +183,7 @@ class SecureController extends BaseController
      *
      * @ApiDoc(
      *      resource=true,
+     *      section="Security",
      *      description="Registration",
      *      filters={
      *         {"name"="username", "dataType"="string"},
@@ -291,6 +292,7 @@ class SecureController extends BaseController
      * @Method("POST")
      * @ApiDoc(
      *     section="Security",
+     *     section="Security",
      *     description="Registration from facebook",
      *     filters={
      *         {"name"="facebook_token", "dataType"="string"},
@@ -343,6 +345,7 @@ class SecureController extends BaseController
      * @Method("POST")
      * @ApiDoc(
      *     resource=true,
+     *     section="Security",
      *     description="Forgot password",
      *     filters={
      *         {"name"="email", "dataType"="string"},
@@ -403,6 +406,7 @@ class SecureController extends BaseController
      * @Method("GET")
      * @ApiDoc(
      *     resource=true,
+     *     section="Security",
      *     description="Check reset token",
      *     filters={
      *         {"name"="token", "dataType"="string"},
@@ -430,6 +434,7 @@ class SecureController extends BaseController
      * @Method("POST")
      * @ApiDoc(
      *     resource=true,
+     *     section="Security",
      *     description="Check reset token",
      *     filters={
      *         {"name"="token", "dataType"="string"},

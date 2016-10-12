@@ -74,7 +74,6 @@ class BookmarkController extends BaseController
      * @Method("POST")
      * @ApiDoc(
      *     section="Bookmark",
-     *     resource=true,
      *     description="Add saved item. The saved item can be petition, user-petition, question, leader-news, payment-request, crowdfunding-payment-request, leader-event, post",
      *     statusCodes={
      *         200="Returns saved item",
@@ -111,7 +110,6 @@ class BookmarkController extends BaseController
      * @Method("DELETE")
      * @ApiDoc(
      *     section="Bookmark",
-     *     resource=true,
      *     description="Delete saved item.",
      *     statusCodes={
      *         204="Returns success",

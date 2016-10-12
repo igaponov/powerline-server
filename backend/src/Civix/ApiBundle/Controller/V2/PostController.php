@@ -115,7 +115,7 @@ class PostController extends FOSRestController
      *
      * @ApiDoc(
      *     authentication=true,
-     *     section="Micropetitions",
+     *     section="Posts",
      *     description="Edit a micropetition",
      *     input="Civix\ApiBundle\Form\Type\PostType",
      *     output={
