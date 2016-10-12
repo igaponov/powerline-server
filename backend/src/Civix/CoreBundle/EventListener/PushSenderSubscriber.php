@@ -35,13 +35,13 @@ class PushSenderSubscriber implements EventSubscriberInterface
     {
         $announcement = $event->getAnnouncement();
         if ($announcement instanceof RepresentativeAnnouncement) {
-            $method = 'sendRepresentativeAnnouncementPush';
+            $method = 'sendPublishedRepresentativeAnnouncementPush';
         } else {
-            $method = 'sendGroupAnnouncementPush';
+            $method = 'sendPublishedGroupAnnouncementPush';
         }
         $this->pushTask->addToQueue($method, [
             $announcement->getUser()->getId(), 
-            $announcement->getContent()
+            $announcement->getId(),
         ]);
     }
 
