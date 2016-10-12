@@ -294,7 +294,7 @@ class AnnouncementControllerTest extends WebTestCase
         $this->assertNotNull($data['published_at']);
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
         $this->assertEquals(1, $queue->count());
-        $this->assertEquals(1, $queue->hasMessageWithMethod('sendGroupAnnouncementPush', [$announcement->getGroup()->getId(), $announcement->getContent()]));
+        $this->assertEquals(1, $queue->hasMessageWithMethod('sendPublishedGroupAnnouncementPush', [$announcement->getGroup()->getId(), $announcement->getId()]));
     }
 
     /**

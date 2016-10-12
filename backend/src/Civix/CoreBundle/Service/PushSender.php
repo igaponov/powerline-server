@@ -3,6 +3,8 @@
 namespace Civix\CoreBundle\Service;
 
 use Civix\CoreBundle\Entity\Activity;
+use Civix\CoreBundle\Entity\Announcement\GroupAnnouncement;
+use Civix\CoreBundle\Entity\Announcement\RepresentativeAnnouncement;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\Representative;
@@ -105,7 +107,10 @@ class PushSender
                         $message,
                         $question->getType(),
                         [
-                            'id' => $question->getId(),
+                            'target' => [
+                                'id' => $question->getId(),
+                                'type' => 'poll-published',
+                            ],
                         ],
                         $avatar
                     );
@@ -144,7 +149,12 @@ class PushSender
                 ),
                 "Boosted Petition: {$petition->getBody()}",
                 self::TYPE_PUSH_BOOSTED_USER_PETITION,
-                ['id' => $petitionId],
+                [
+                    'target' => [
+                        'id' => $petitionId,
+                        'type' => 'user-petition-boosted',
+                    ],
+                ],
                 $this->getLinkByFilename($petition->getUser()->getAvatarFileName())
             );
         }
@@ -177,13 +187,18 @@ class PushSender
                 ),
                 "Boosted Post: {$this->preview($post->getBody())}",
                 self::TYPE_PUSH_BOOSTED_POST,
-                ['id' => $postId],
+                [
+                    'target' => [
+                        'id' => $postId,
+                        'type' => 'post-boosted',
+                    ],
+                ],
                 $this->getLinkByFilename($post->getUser()->getAvatarFileName())
             );
         }
     }
 
-    public function sendRepresentativeAnnouncementPush($representativeId, $message)
+    public function sendPublishedRepresentativeAnnouncementPush($representativeId, $announcementId)
     {
         /** @var Representative $representative */
         $representative = $this->entityManager
@@ -196,23 +211,32 @@ class PushSender
         $users = $this->entityManager
             ->getRepository('CivixCoreBundle:User')
             ->getUsersByDistrictForPush($representative->getDistrictId(), self::TYPE_PUSH_ANNOUNCEMENT);
+        $announcement = $this->entityManager
+            ->getRepository(RepresentativeAnnouncement::class)
+            ->find($announcementId);
         foreach ($users as $recipient) {
             $this->send(
                 $recipient,
                 $representative->getOfficialName(),
-                $message,
-                self::TYPE_PUSH_ANNOUNCEMENT
+                $this->preview($announcement->getContent()),
+                self::TYPE_PUSH_ANNOUNCEMENT,
+                [
+                    'target' => [
+                        'id' => $announcementId,
+                        'type' => 'representative-announcement-published',
+                    ],
+                ]
             );
         }
     }
 
     /**
-     * Leader sends announcement (all group members notified)
+     * Announcement is published by group leader (all group members notified)
      *
      * @param $groupId
-     * @param string $message
+     * @param $announcementId
      */
-    public function sendGroupAnnouncementPush($groupId, $message)
+    public function sendPublishedGroupAnnouncementPush($groupId, $announcementId)
     {
         $users = $this->entityManager
             ->getRepository('CivixCoreBundle:User')
@@ -220,13 +244,21 @@ class PushSender
         $group = $this->entityManager
             ->getRepository('CivixCoreBundle:Group')
             ->find($groupId);
+        $announcement = $this->entityManager
+            ->getRepository(GroupAnnouncement::class)
+            ->find($announcementId);
         foreach ($users as $recipient) {
             $this->send(
                 $recipient,
                 $group->getOfficialName(),
-                $this->preview($message),
+                $this->preview($announcement->getContent()),
                 self::TYPE_PUSH_ANNOUNCEMENT,
-                null,
+                [
+                    'target' => [
+                        'id' => $announcementId,
+                        'type' => 'announcement-published',
+                    ],
+                ],
                 $this->getLinkByFilename($group->getAvatarFileName())
             );
         }
@@ -253,7 +285,12 @@ class PushSender
                 $group->getOfficialName(),
                 self::INVITE_PUSH_MESSAGE,
                 self::TYPE_PUSH_INVITE,
-                ['id' => $group->getId()],
+                [
+                    'target' => [
+                        'id' => $group->getId(),
+                        'type' => 'invite-sent',
+                    ],
+                ],
                 $this->getLinkByFilename($group->getAvatarFileName())
             );
         }
