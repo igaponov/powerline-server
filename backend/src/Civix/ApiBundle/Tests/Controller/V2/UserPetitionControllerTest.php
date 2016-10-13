@@ -6,6 +6,7 @@ use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Service\UserPetitionManager;
 use Civix\CoreBundle\Test\SocialActivityTester;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionHashTagData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
@@ -201,6 +202,39 @@ class UserPetitionControllerTest extends WebTestCase
         // check activity
         $description = $conn->fetchColumn('SELECT description FROM activities WHERE petition_id = ?', [$data['id']]);
         $this->assertSame($data['petition_body'], $description);
+    }
+
+    public function testUpdateUserPetitionWithExistentHashTag()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserPetitionHashTagData::class,
+        ])->getReferenceRepository();
+        $faker = Factory::create();
+        /** @var UserPetition $petition */
+        $petition = $repository->getReference('user_petition_1');
+        $client = $this->client;
+        $hashTags = [
+            '#testHashTag',
+            '#powerlineHashTag',
+        ];
+        $params = [
+            'body' => $faker->text."\n".implode(' ', $hashTags),
+        ];
+        $client->request('PUT',
+            self::API_ENDPOINT.'/'.$petition->getId(), [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user1"'],
+            json_encode($params)
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        // check addHashTags event listener
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
+            ->getConnection();
+        $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM hash_tags_petitions WHERE petition_id = ?', [$data['id']]);
+        $this->assertCount($count, $hashTags);
+        $this->assertCount($count, $data['cached_hash_tags']);
     }
 
     public function testDeleteUserPetitionAccessDenied()

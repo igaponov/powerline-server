@@ -26,7 +26,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * })
  * @Serializer\ExclusionPolicy("all")
  */
-class UserPetition implements HtmlBodyInterface, SubscriptionInterface, CommentedInterface
+class UserPetition implements HtmlBodyInterface, SubscriptionInterface, CommentedInterface, HashTaggableInterface
 {
     use HashTaggableTrait, MetadataTrait;
 
@@ -394,30 +394,6 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
     public function getResponsesCount()
     {
         return $this->getSignatures()->count();
-    }
-
-    /**
-     * Set cachedHashTags.
-     *
-     * @param array $cachedHashTags
-     *
-     * @return UserPetition
-     */
-    public function setCachedHashTags($cachedHashTags)
-    {
-        $this->cachedHashTags = $cachedHashTags;
-
-        return $this;
-    }
-
-    /**
-     * Get cachedHashTags.
-     *
-     * @return array
-     */
-    public function getCachedHashTags()
-    {
-        return $this->cachedHashTags;
     }
 
     /**

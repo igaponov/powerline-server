@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * })
  * @Serializer\ExclusionPolicy("all")
  */
-class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterface
+class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterface, HashTaggableInterface
 {
     use HashTaggableTrait, MetadataTrait;
 
@@ -343,30 +343,6 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
     public function getResponsesCount()
     {
         return $this->getVotes()->count();
-    }
-
-    /**
-     * Set cachedHashTags.
-     *
-     * @param array $cachedHashTags
-     *
-     * @return Post
-     */
-    public function setCachedHashTags($cachedHashTags)
-    {
-        $this->cachedHashTags = $cachedHashTags;
-
-        return $this;
-    }
-
-    /**
-     * Get cachedHashTags.
-     *
-     * @return array
-     */
-    public function getCachedHashTags()
-    {
-        return $this->cachedHashTags;
     }
 
     /**

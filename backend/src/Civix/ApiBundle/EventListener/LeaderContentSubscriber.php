@@ -103,19 +103,19 @@ class LeaderContentSubscriber implements EventSubscriberInterface
     public function addPetitionHashTags(UserPetitionEvent $event)
     {
         $this->em->getRepository('CivixCoreBundle:HashTag')
-            ->addForPetition($event->getPetition());
+            ->addForTaggableEntity($event->getPetition());
     }
 
     public function addPostHashTags(PostEvent $event)
     {
         $this->em->getRepository('CivixCoreBundle:HashTag')
-            ->addForPost($event->getPost());
+            ->addForTaggableEntity($event->getPost());
     }
 
     public function addQuestionHashTags(QuestionEvent $event)
     {
         $this->em->getRepository('CivixCoreBundle:HashTag')
-            ->addForQuestion($event->getQuestion());
+            ->addForTaggableEntity($event->getQuestion());
     }
 
     public function addPetitionRootComment(UserPetitionEvent $event)

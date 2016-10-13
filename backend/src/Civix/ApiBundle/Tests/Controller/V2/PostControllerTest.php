@@ -5,6 +5,7 @@ use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Service\PostManager;
 use Civix\CoreBundle\Test\SocialActivityTester;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostHashTagData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostData;
@@ -202,6 +203,39 @@ class PostControllerTest extends WebTestCase
         // check activity
         $description = $conn->fetchColumn('SELECT description FROM activities WHERE post_id = ?', [$data['id']]);
         $this->assertSame($data['body'], $description);
+    }
+
+    public function testUpdatePostWithExistentHashTag()
+    {
+        $repository = $this->loadFixtures([
+            LoadPostHashTagData::class,
+        ])->getReferenceRepository();
+        $faker = Factory::create();
+        /** @var Post $post */
+        $post = $repository->getReference('post_1');
+        $client = $this->client;
+        $hashTags = [
+            '#testHashTag',
+            '#powerlineHashTag',
+        ];
+        $params = [
+            'body' => $faker->text."\n".implode(' ', $hashTags),
+        ];
+        $client->request('PUT',
+            self::API_ENDPOINT.'/'.$post->getId(), [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user1"'],
+            json_encode($params)
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        // check addHashTags event listener
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
+            ->getConnection();
+        $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM hash_tags_posts WHERE post_id = ?', [$data['id']]);
+        $this->assertCount($count, $hashTags);
+        $this->assertCount($count, $data['cached_hash_tags']);
     }
 
     public function testDeletePostAccessDenied()

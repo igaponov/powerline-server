@@ -277,8 +277,10 @@ class PollControllerTest extends WebTestCase
         $conn = $client->getContainer()->get('database_connection');
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM activities WHERE question_id = ? AND type = ? AND expire_at IS NOT NULL', [$question->getId(), 'question']);
         $this->assertEquals(1, $count);
-        $count = $conn->fetchColumn('SELECT COUNT(*) FROM hash_tags WHERE name = ?', ['#test-tag']);
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM hash_tags WHERE name = ?', ['#testhashtag']);
         $this->assertEquals(1, $count);
+        $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM hash_tags_questions WHERE question_id = ?', [$data['id']]);
+        $this->assertCount($count, $data['cached_hash_tags']);
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
         $this->assertEquals(1, $queue->count());
         $this->assertEquals(1, $queue->hasMessageWithMethod('sendPushPublishQuestion', [
