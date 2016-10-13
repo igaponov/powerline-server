@@ -11,7 +11,7 @@ trait HashTaggableTrait
     /**
      * @var Collection
      *
-     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\HashTag")
+     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\HashTag", cascade={"persist"})
      */
     protected $hashTags;
 
@@ -20,6 +20,7 @@ trait HashTaggableTrait
      *
      * @ORM\Column(name="cached_hash_tags", type="array", nullable=true)
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "api-poll", "api-poll-public"})
      */
     protected $cachedHashTags = [];
 
@@ -50,10 +51,34 @@ trait HashTaggableTrait
     /**
      * Get hashTags.
      *
-     * @return Collection
+     * @return Collection|HashTag[]
      */
     public function getHashTags()
     {
         return $this->hashTags;
+    }
+
+    /**
+     * Set cachedHashTags.
+     *
+     * @param array $cachedHashTags
+     *
+     * @return $this
+     */
+    public function setCachedHashTags($cachedHashTags)
+    {
+        $this->cachedHashTags = $cachedHashTags;
+
+        return $this;
+    }
+
+    /**
+     * Get cachedHashTags.
+     *
+     * @return array
+     */
+    public function getCachedHashTags()
+    {
+        return $this->cachedHashTags;
     }
 }

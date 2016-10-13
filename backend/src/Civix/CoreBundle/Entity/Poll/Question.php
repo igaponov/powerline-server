@@ -5,7 +5,8 @@ namespace Civix\CoreBundle\Entity\Poll;
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\CommentedInterface;
 use Civix\CoreBundle\Entity\GroupSection;
-use Civix\CoreBundle\Entity\HashTag;
+use Civix\CoreBundle\Entity\HashTaggableInterface;
+use Civix\CoreBundle\Entity\HashTaggableTrait;
 use Civix\CoreBundle\Entity\LeaderContentInterface;
 use Civix\CoreBundle\Entity\SubscriptionInterface;
 use Civix\CoreBundle\Entity\User;
@@ -58,8 +59,10 @@ use Civix\CoreBundle\Entity\Representative;
  * @PublishDate(objectName="Poll", groups={"update", "publish"})
  * @PublishedPollAmount(groups={"publish"})
  */
-abstract class Question implements LeaderContentInterface, SubscriptionInterface, CommentedInterface
+abstract class Question implements LeaderContentInterface, SubscriptionInterface, CommentedInterface, HashTaggableInterface
 {
+    use HashTaggableTrait;
+
     /**
      * @var int
      *
@@ -208,20 +211,6 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
      * )
      */
     protected $recipients;
-
-    /**
-     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\HashTag")
-     */
-    protected $hashTags;
-
-    /**
-     * @var array
-     *
-     * @ORM\Column(name="cached_hash_tags", type="array", nullable=true)
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll", "api-poll-public"})
-     */
-    protected $cachedHashTags = array();
 
     /**
      * @ORM\ManyToMany(targetEntity="\Civix\CoreBundle\Entity\GroupSection")
@@ -752,64 +741,6 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
         }
 
         return new Image($entity, 'avatar');
-    }
-
-    /**
-     * Add hashTags.
-     *
-     * @param HashTag $hashTags
-     *
-     * @return Question
-     */
-    public function addHashTag(HashTag $hashTags)
-    {
-        $this->hashTags[] = $hashTags;
-
-        return $this;
-    }
-
-    /**
-     * Remove hashTags.
-     *
-     * @param HashTag $hashTags
-     */
-    public function removeHashTag(HashTag $hashTags)
-    {
-        $this->hashTags->removeElement($hashTags);
-    }
-
-    /**
-     * Get hashTags.
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getHashTags()
-    {
-        return $this->hashTags;
-    }
-
-    /**
-     * Set cachedHashTags.
-     *
-     * @param array $cachedHashTags
-     *
-     * @return Question
-     */
-    public function setCachedHashTags($cachedHashTags)
-    {
-        $this->cachedHashTags = $cachedHashTags;
-
-        return $this;
-    }
-
-    /**
-     * Get cachedHashTags.
-     *
-     * @return array
-     */
-    public function getCachedHashTags()
-    {
-        return $this->cachedHashTags;
     }
 
     public function getGroupSectionIds()

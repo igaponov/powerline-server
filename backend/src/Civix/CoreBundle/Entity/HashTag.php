@@ -49,7 +49,7 @@ class HashTag
      */
     public function setName($name)
     {
-        $this->name = $name;
+        $this->name = mb_strtolower($name);
 
         return $this;
     }
@@ -70,6 +70,6 @@ class HashTag
      */
     public function __construct($name = null)
     {
-        $this->name = $name;
+        $this->setName($name);
     }
 }

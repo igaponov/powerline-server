@@ -87,7 +87,7 @@ class MicropetitionController extends BaseController
 
             $entityManager->persist($newPetition);
             $entityManager->flush();
-            $entityManager->getRepository('CivixCoreBundle:HashTag')->addForPetition($newPetition);
+            $entityManager->getRepository('CivixCoreBundle:HashTag')->addForTaggableEntity($newPetition);
 
             //publish to activity (for followers only)
             $this->get('civix_core.activity_update')->publishMicroPetitionToActivity($newPetition);

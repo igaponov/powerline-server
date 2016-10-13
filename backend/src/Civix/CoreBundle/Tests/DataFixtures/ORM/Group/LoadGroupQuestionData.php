@@ -26,7 +26,7 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
         $question = new GroupQuestion();
         $question->setOwner($group1);
         $question->setUser($group1->getOwner());
-        $question->setSubject('subj with #test-tag '.$faker->sentence);
+        $question->setSubject('subj with #testHashTag '.$faker->sentence);
         for ($i = 0; $i < 2; $i++) {
             $option = new Option();
             $option->setValue('val '.$faker->word);

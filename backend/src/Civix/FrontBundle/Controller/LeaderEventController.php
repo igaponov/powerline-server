@@ -208,7 +208,7 @@ abstract class LeaderEventController extends Controller
 
         if ($this->getToken() === $request->get('token')) {
             $this->getDoctrine()
-                ->getRepository('CivixCoreBundle:HashTag')->addForQuestion($leaderEvent);
+                ->getRepository('CivixCoreBundle:HashTag')->addForTaggableEntity($leaderEvent);
             $ignore = new Option();
             $ignore->setValue('Ignore')->setQuestion($leaderEvent);
             $this->getDoctrine()->getManager()->persist($ignore);

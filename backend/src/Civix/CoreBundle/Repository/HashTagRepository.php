@@ -2,8 +2,8 @@
 
 namespace Civix\CoreBundle\Repository;
 
-use Civix\CoreBundle\Entity\Post;
-use Civix\CoreBundle\Entity\UserPetition;
+use Civix\CoreBundle\Entity\HashTaggableInterface;
+use Civix\CoreBundle\Entity\HtmlBodyInterface;
 use Doctrine\ORM\EntityRepository;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Question\Petition as PollPetition;
@@ -19,77 +19,44 @@ use Civix\CoreBundle\Parser\Tags as HashTagParser;
 class HashTagRepository extends EntityRepository
 {
     /**
-     * @param UserPetition $petition
+     * @param HashTaggableInterface $entity
      * @param bool     $saveTagsInEntity
      */
-    public function addForPetition(UserPetition $petition, $saveTagsInEntity = true)
+    public function addForTaggableEntity(HashTaggableInterface $entity, $saveTagsInEntity = true)
     {
-        $em = $this->getEntityManager();
-        $tags = HashTagParser::parseHashTags($petition->getBody());
-        foreach ($tags['parsed'] as $tag) {
-            $entity = $this->findOneBy(['name' => $tag]);
-            if (!$entity) {
-                $entity = new HashTag($tag);
-                $em->persist($entity);
-            }
-            $petition->addHashTag($entity);
-            $em->persist($petition);
-        }
-
-        if ($saveTagsInEntity) {
-            $petition->setCachedHashTags($tags['original']);
-        }
-        $em->flush($petition);
-    }
-    /**
-     * @param Post $post
-     * @param bool     $saveTagsInEntity
-     */
-    public function addForPost(Post $post, $saveTagsInEntity = true)
-    {
-        $em = $this->getEntityManager();
-        $tags = HashTagParser::parseHashTags($post->getBody());
-        foreach ($tags['parsed'] as $tag) {
-            $entity = $this->findOneBy(['name' => $tag]);
-            if (!$entity) {
-                $entity = new HashTag($tag);
-                $em->persist($entity);
-            }
-            $post->addHashTag($entity);
-            $em->persist($post);
-        }
-
-        if ($saveTagsInEntity) {
-            $post->setCachedHashTags($tags['original']);
-        }
-        $em->flush($post);
-    }
-
-    /**
-     * @param Question $question
-     * @param bool     $saveTagsInEntity
-     */
-    public function addForQuestion(Question $question, $saveTagsInEntity = true)
-    {
-        $em = $this->getEntityManager();
-        if ($question instanceof PollPetition) {
-            $tags = HashTagParser::parseHashTags($question->getPetitionBody());
+        if ($entity instanceof HtmlBodyInterface) {
+            $content = $entity->getBody();
+        } elseif ($entity instanceof PollPetition) {
+            $content = $entity->getPetitionBody();
+        } elseif ($entity instanceof Question) {
+            $content = $entity->getSubject();
         } else {
-            $tags = HashTagParser::parseHashTags($question->getSubject());
+            return;
         }
-        foreach ($tags['parsed'] as $tag) {
-            $entity = $this->findOneBy(['name' => $tag]);
-            if (!$entity) {
-                $entity = new HashTag($tag);
-                $em->persist($entity);
+        $em = $this->getEntityManager();
+        $tags = HashTagParser::parseHashTags($content);
+        foreach ($entity->getHashTags() as $tag) {
+            if (!in_array($tag->getName(), $tags['parsed'])) {
+                $entity->getHashTags()->removeElement($tag);
             }
-            $question->addHashTag($entity);
-            $em->persist($entity);
+        }
+        foreach ($tags['parsed'] as $name) {
+            /** @var HashTag $tag */
+            $tag = $this->findOneBy(['name' => $name]);
+            if (!$tag) {
+                $tag = new HashTag($name);
+                $em->persist($tag);
+                $entity->addHashTag($tag);
+            } elseif (!$entity->getHashTags()->contains($tag)) {
+                $entity->addHashTag($tag);
+            }
         }
 
         if ($saveTagsInEntity) {
-            $question->setCachedHashTags($tags['original']);
+            $entity->setCachedHashTags($tags['original']);
         }
-        $em->flush($question);
+
+        $em->persist($entity);
+        $em->flush($entity);
     }
 }
