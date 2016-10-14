@@ -2,7 +2,7 @@
 namespace Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Form\Type\CommentRateType;
-use Civix\ApiBundle\Form\Type\UpdateCommentType;
+use Civix\ApiBundle\Form\Type\CommentType;
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\BaseCommentRate;
 use Civix\CoreBundle\Service\CommentManager;
@@ -19,7 +19,7 @@ abstract class AbstractCommentController extends FOSRestController
 
     protected function putComment(Request $request, BaseComment $comment, $commentClass)
     {
-        $form = $this->createForm(new UpdateCommentType($commentClass), $comment);
+        $form = $this->createForm(new CommentType($commentClass), $comment);
         $form->submit($request, false);
 
         if ($form->isValid()) {

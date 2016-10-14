@@ -62,7 +62,11 @@ abstract class CommentsControllerTest extends WebTestCase
     {
         $client = $this->client;
         $uri = str_replace('{id}', $entity->getId(), $this->getApiEndpoint());
-        $params = ['comment_body' => 'comment text @user2', 'parent_comment' => $comment->getId()];
+        $params = [
+            'comment_body' => 'comment text @user2',
+            'parent_comment' => $comment->getId(),
+            'privacy' => 'private',
+        ];
         $client->request('POST', $uri, [], [],
             ['HTTP_Authorization'=>'Bearer type="user" token="user3"'],
             json_encode($params)
@@ -72,8 +76,8 @@ abstract class CommentsControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertEquals($params['comment_body'], $data['comment_body']);
         $this->assertEquals($params['parent_comment'], $data['parent_comment']);
+        $this->assertEquals($params['privacy'], $data['privacy']);
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
         if ($entity instanceof Question) {
             $ownType = SocialActivity::TYPE_OWN_POLL_COMMENTED;
             $followType = SocialActivity::TYPE_FOLLOW_POLL_COMMENTED;
