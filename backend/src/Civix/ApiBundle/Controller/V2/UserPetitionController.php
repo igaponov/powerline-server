@@ -17,8 +17,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @Route("/user-petitions")
@@ -150,6 +148,46 @@ class UserPetitionController extends FOSRestController
         }
 
         return $form;
+    }
+
+    /**
+     * Boost a petition
+     *
+     * @Route("/{id}", requirements={"id"="\d+"})
+     * @Method("PATCH")
+     *
+     * @SecureParam("petition", permission="edit")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="User Petitions",
+     *     description="Boost a petition",
+     *     output={
+     *         "class"="Civix\CoreBundle\Entity\UserPetition",
+     *         "groups"={"Default"},
+     *         "parsers" = {
+     *             "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *         }
+     *     },
+     *     statusCodes={
+     *         400="Bad Request",
+     *         403="Access Denied",
+     *         404="Petition Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param UserPetition $petition
+     *
+     * @return UserPetition
+     */
+    public function patchAction(UserPetition $petition)
+    {
+        if (!$petition->isBoosted()) {
+            $this->manager->boostPetition($petition);
+        }
+
+        return $petition;
     }
 
     /**
