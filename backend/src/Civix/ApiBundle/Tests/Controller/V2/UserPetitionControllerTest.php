@@ -237,6 +237,50 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertCount($count, $data['cached_hash_tags']);
     }
 
+    public function testBoostUserPetition()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserPetitionData::class,
+        ])->getReferenceRepository();
+        /** @var UserPetition $petition */
+        $petition = $repository->getReference('user_petition_2');
+        $this->assertFalse($petition->isBoosted());
+        $client = $this->client;
+        $client->request('PATCH',
+            self::API_ENDPOINT.'/'.$petition->getId(), [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertTrue($data['boosted']);
+        // check activity
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $description = $conn->fetchColumn('SELECT description FROM activities WHERE petition_id = ?', [$petition->getId()]);
+        $this->assertSame($petition->getBody(), $description);
+        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+        $this->assertEquals(1, $queue->count());
+        $this->assertEquals(1, $queue->hasMessageWithMethod('sendBoostedPetitionPush', [$petition->getGroup()->getId(), $petition->getId()]));
+    }
+
+    public function testBoostUserPetitionWithWrongCredentialsThrowsException()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserPetitionData::class,
+        ])->getReferenceRepository();
+        /** @var UserPetition $petition */
+        $petition = $repository->getReference('user_petition_2');
+        $this->assertFalse($petition->isBoosted());
+        $client = $this->client;
+        $client->request('PATCH',
+            self::API_ENDPOINT.'/'.$petition->getId(), [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user2"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
     public function testDeleteUserPetitionAccessDenied()
     {
         $repository = $this->loadFixtures([

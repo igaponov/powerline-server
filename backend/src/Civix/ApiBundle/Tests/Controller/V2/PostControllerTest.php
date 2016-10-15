@@ -238,6 +238,51 @@ class PostControllerTest extends WebTestCase
         $this->assertCount($count, $data['cached_hash_tags']);
     }
 
+    public function testBoostPostWithWrongCredentialsThrowsException()
+    {
+        $repository = $this->loadFixtures([
+            LoadPostData::class,
+        ])->getReferenceRepository();
+        /** @var Post $post */
+        $post = $repository->getReference('post_2');
+        $this->assertFalse($post->isBoosted());
+        $client = $this->client;
+        $client->request('PATCH',
+            self::API_ENDPOINT.'/'.$post->getId(), [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user2"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testBoostPost()
+    {
+        $repository = $this->loadFixtures([
+            LoadPostData::class,
+        ])->getReferenceRepository();
+        /** @var Post $post */
+        $post = $repository->getReference('post_2');
+        $this->assertFalse($post->isBoosted());
+        $client = $this->client;
+        $client->request('PATCH',
+            self::API_ENDPOINT.'/'.$post->getId(), [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertTrue($data['boosted']);
+        /** @var Connection $conn */
+        $conn = $client->getContainer()
+            ->get('doctrine.dbal.default_connection');
+        // check activity
+        $description = $conn->fetchColumn('SELECT description FROM activities WHERE post_id = ?', [$post->getId()]);
+        $this->assertSame($post->getBody(), $description);
+        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+        $this->assertEquals(1, $queue->count());
+        $this->assertEquals(1, $queue->hasMessageWithMethod('sendBoostedPostPush', [$post->getGroup()->getId(), $post->getId()]));
+    }
+
     public function testDeletePostAccessDenied()
     {
         $repository = $this->loadFixtures([

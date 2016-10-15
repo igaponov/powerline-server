@@ -52,11 +52,7 @@ class PostManager
         if (!$post->isBoosted()
             && $this->checkIfNeedBoost($post)
         ) {
-            $post->boost();
-            $this->entityManager->persist($post);
-            $this->entityManager->flush();
-            $petitionEvent = new PostEvent($post);
-            $this->dispatcher->dispatch(PostEvents::POST_BOOST, $petitionEvent);
+            $this->boostPost($post);
         }
 
         return $answer;
@@ -77,6 +73,16 @@ class PostManager
         $this->dispatcher->dispatch(PostEvents::POST_UNSIGN, $event);
 
         return $answer;
+    }
+
+    public function boostPost(Post $post)
+    {
+        $post->boost();
+        $this->entityManager->persist($post);
+        $this->entityManager->flush();
+
+        $petitionEvent = new PostEvent($post);
+        $this->dispatcher->dispatch(PostEvents::POST_BOOST, $petitionEvent);
     }
 
     /**

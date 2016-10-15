@@ -53,11 +53,7 @@ class UserPetitionManager
         if (!$petition->isBoosted()
             && $this->checkIfNeedBoost($petition)
         ) {
-            $petition->boost();
-            $this->entityManager->persist($petition);
-            $this->entityManager->flush();
-            $petitionEvent = new UserPetitionEvent($petition);
-            $this->dispatcher->dispatch(UserPetitionEvents::PETITION_BOOST, $petitionEvent);
+            $this->boostPetition($petition);
         }
 
         return $signature;
@@ -78,6 +74,19 @@ class UserPetitionManager
         $this->dispatcher->dispatch(UserPetitionEvents::PETITION_UNSIGN, $event);
 
         return $signature;
+    }
+
+    /**
+     * @param UserPetition $petition
+     */
+    public function boostPetition(UserPetition $petition)
+    {
+        $petition->boost();
+        $this->entityManager->persist($petition);
+        $this->entityManager->flush();
+
+        $petitionEvent = new UserPetitionEvent($petition);
+        $this->dispatcher->dispatch(UserPetitionEvents::PETITION_BOOST, $petitionEvent);
     }
 
     /**

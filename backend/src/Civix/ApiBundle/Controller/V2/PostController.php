@@ -106,7 +106,7 @@ class PostController extends FOSRestController
     }
 
     /**
-     * Edit a petition
+     * Edit a post
      *
      * @Route("/{id}", requirements={"id"="\d+"})
      * @Method("PUT")
@@ -116,7 +116,7 @@ class PostController extends FOSRestController
      * @ApiDoc(
      *     authentication=true,
      *     section="Posts",
-     *     description="Edit a micropetition",
+     *     description="Edit a post",
      *     input="Civix\ApiBundle\Form\Type\PostType",
      *     output={
      *         "class"="Civix\CoreBundle\Entity\Post",
@@ -149,6 +149,46 @@ class PostController extends FOSRestController
         }
 
         return $form;
+    }
+
+    /**
+     * Boost a post
+     *
+     * @Route("/{id}", requirements={"id"="\d+"})
+     * @Method("PATCH")
+     *
+     * @SecureParam("post", permission="edit")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Posts",
+     *     description="Boost a post",
+     *     output={
+     *         "class"="Civix\CoreBundle\Entity\Post",
+     *         "groups"={"Default"},
+     *         "parsers" = {
+     *             "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *         }
+     *     },
+     *     statusCodes={
+     *         400="Bad Request",
+     *         403="Access Denied",
+     *         404="Post Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Post $post
+     *
+     * @return Post
+     */
+    public function patchAction(Post $post)
+    {
+        if (!$post->isBoosted()) {
+            $this->manager->boostPost($post);
+        }
+
+        return $post;
     }
 
     /**
