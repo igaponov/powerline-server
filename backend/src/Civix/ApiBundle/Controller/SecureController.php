@@ -495,48 +495,6 @@ class SecureController extends BaseController
 
         return $user;
     }
-    /**
-     * Deprecated.
-     *
-     * @Route("/registration-group", name="civix_group_registration")
-     * @Method("POST")
-     *
-     * @ApiDoc(
-     *     section="Security",
-     *     description="Register new group",
-     *     input="Civix\ApiBundle\Form\Type\GroupType",
-     *     output={
-     *          "class" = "Civix\CoreBundle\Entity\Group",
-     *          "groups" = {"api-group"}
-     *     },
-     *     deprecated=true
-     * )
-     *
-     * @View(serializerGroups={"api-group"})
-     */
-    public function registrationGroupAction()
-    {
-        $form = $this->createForm(new GroupRegistrationType(), null, [
-            'validation_groups' => ['api-registration']
-        ]);
-
-        $request = $this->getRequest();
-        $form->submit($request);
-        
-        if ($form->isValid()) {
-            /** @var $group Group */
-            $group = $form->getData();
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($group);
-            $em->flush();
-
-            $this->get('civix_core.group_manager')->register($group);
-
-            return $group;
-        }
-        
-        return $form;
-    }
 
     private function getWebDomain()
     {
