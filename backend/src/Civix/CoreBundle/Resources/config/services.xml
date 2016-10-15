@@ -256,6 +256,11 @@
             <tag name="validator.constraint_validator" alias="civix_core.validator.published_poll_amount"/>
         </service>
 
+        <service class="Civix\CoreBundle\Validator\Constraints\PackageStateValidator" id="civix_core.validator.package_state_validator">
+            <argument id="civix_core.package_handler" type="service"/>
+            <tag name="validator.constraint_validator" alias="civix_core.validator.package_state_validator"/>
+        </service>
+
         <service id="aws_s3.client" class="Aws\S3\S3Client" factory-class="Aws\S3\S3Client" factory-method="factory">
             <argument type="collection">
                 <argument key="key">%amazon_s3.key%</argument>
@@ -372,6 +377,7 @@
 
         <service class="Civix\CoreBundle\EventListener\GroupEventSubscriber" id="civix_core.event_listener.group_event_subscriber">
             <argument id="civix_core.repository.user_group_repository" type="service"/>
+            <argument id="doctrine.orm.entity_manager" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
