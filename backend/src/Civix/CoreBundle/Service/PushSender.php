@@ -25,8 +25,10 @@ class PushSender
     const TYPE_PUSH_ACTIVITY = 'activity';
     const TYPE_PUSH_ANNOUNCEMENT = 'announcement';
     const TYPE_PUSH_INVITE = 'invite';
-    const TYPE_PUSH_BOOSTED_USER_PETITION = 'boosted_user_petition';
-    const TYPE_PUSH_BOOSTED_POST = 'boosted_post';
+    const TYPE_PUSH_OWN_USER_PETITION_BOOSTED = 'own-user-petition-is-boosted';
+    const TYPE_PUSH_USER_PETITION_BOOSTED = 'user-petition-is-boosted';
+    const TYPE_PUSH_OWN_POST_BOOSTED = 'own-post-is-boosted';
+    const TYPE_PUSH_POST_BOOSTED = 'post-is-boosted';
     /*Not used in push notification but reserved and use in settings*/
     const TYPE_PUSH_PETITION = 'petition';
     const TYPE_PUSH_NEWS = 'leader_news';
@@ -148,7 +150,7 @@ class PushSender
                         ->getOfficialName()
                 ),
                 "Boosted Petition: {$petition->getBody()}",
-                self::TYPE_PUSH_BOOSTED_USER_PETITION,
+                $petition->getUser()->isEqualTo($recipient) ? self::TYPE_PUSH_OWN_USER_PETITION_BOOSTED : self::TYPE_PUSH_USER_PETITION_BOOSTED,
                 [
                     'target' => [
                         'id' => $petitionId,
@@ -186,7 +188,7 @@ class PushSender
                         ->getOfficialName()
                 ),
                 "Boosted Post: {$this->preview($post->getBody())}",
-                self::TYPE_PUSH_BOOSTED_POST,
+                $post->getUser()->isEqualTo($recipient) ? self::TYPE_PUSH_OWN_POST_BOOSTED : self::TYPE_PUSH_POST_BOOSTED,
                 [
                     'target' => [
                         'id' => $postId,

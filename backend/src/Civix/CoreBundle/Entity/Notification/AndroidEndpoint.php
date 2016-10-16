@@ -37,9 +37,14 @@ class AndroidEndpoint extends AbstractEndpoint
         $actionButton = array();
 
         switch ($type) {
-            case PushSender::TYPE_PUSH_BOOSTED_USER_PETITION:
+            case PushSender::TYPE_PUSH_USER_PETITION_BOOSTED:
                 $actionButton = array(
                     array("icon" => "Sign", "title" => "Sign", "callback" => "app.sign"),
+                );
+                break;
+            case PushSender::TYPE_PUSH_OWN_USER_PETITION_BOOSTED:
+                $actionButton = array(
+                    array("icon" => "View", "title" => "View", "callback" => "app.view"),
                 );
                 break;
             case SocialActivity::TYPE_COMMENT_MENTIONED:
@@ -62,10 +67,15 @@ class AndroidEndpoint extends AbstractEndpoint
                     array("icon" => "Sign", "title" => "Sign", "callback" => "app.sign"),
                 );
                 break;
-            case PushSender::TYPE_PUSH_BOOSTED_POST:
+            case PushSender::TYPE_PUSH_POST_BOOSTED:
                 $actionButton = array(
                     array("icon" => "Upvote", "title" => "Upvote", "callback" => "app.upvote"),
                     array("icon" => "Downvote", "title" => "Downvote", "callback" => "app.downvote"),
+                );
+                break;
+            case PushSender::TYPE_PUSH_OWN_POST_BOOSTED:
+                $actionButton = array(
+                    array("icon" => "View", "title" => "View", "callback" => "app.view"),
                 );
                 break;
             case PushSender::TYPE_PUSH_INVITE:
