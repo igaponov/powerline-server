@@ -281,4 +281,74 @@ class GroupController extends FOSRestController
 
         return $form;
     }
+
+    /**
+     * Approve invite
+     *
+     * @Route("/{id}/invites/{user}", requirements={"id"="\d+"})
+     * @Method("PATCH")
+     *
+     * @SecureParam("group", permission="manage")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Groups",
+     *     description="Approve user's invite",
+     *     output={
+     *          "class" = "Civix\CoreBundle\Entity\UserGroup",
+     *          "groups" = {"api-info"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
+     *     },
+     *     statusCodes={
+     *         400="Bad request",
+     *         403="Access Denied",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @View(serializerGroups={"api-info"})
+     *
+     * @param Group $group
+     * @param User $user
+     *
+     * @return null|UserGroup
+     */
+    public function patchGroupInvitesAction(Group $group, User $user)
+    {
+        if (!$user->getGroups()->contains($group) && $user->getInvites()->contains($group)) {
+            return $this->manager->joinToGroup($user, $group);
+        }
+
+        return null;
+    }
+
+    /**
+     * Reject invite
+     *
+     * @Route("/{id}/invites/{user}", requirements={"id"="\d+"})
+     * @Method("DELETE")
+     *
+     * @SecureParam("group", permission="manage")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Groups",
+     *     description="Reject user's invite",
+     *     statusCodes={
+     *         204="Success",
+     *         400="Bad request",
+     *         403="Access Denied",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Group $group
+     * @param User $user
+     */
+    public function deleteGroupInviteAction(Group $group, User $user)
+    {
+        $this->manager->removeInvite($group, $user);
+    }
 }

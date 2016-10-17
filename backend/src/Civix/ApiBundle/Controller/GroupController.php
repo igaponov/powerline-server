@@ -104,6 +104,8 @@ class GroupController extends BaseController
     }
     
     /**
+     * Deprecated
+     *
      * Checks if the current user is group member for a group given.
      * 
      * Note that a group owner is a group member as default definition.
@@ -151,7 +153,8 @@ class GroupController extends BaseController
      *          200="Returned when successful",
      *          400="Returned when incorrect login or password",
      *          405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      *
      * @Route("/is-member/{id}", name="civix_api_groups_is_member")
@@ -182,6 +185,8 @@ class GroupController extends BaseController
     }
 
     /**
+     * Deprecated
+     *
      * Checks if the current user is group manager for a group given.
      * 
      * By definition, a group manager MUST BE a group member too.
@@ -229,7 +234,8 @@ class GroupController extends BaseController
      *          200="Returned when successful",
      *          400="Returned when incorrect login or password",
      *          405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      *
      * @Route("/is-manager/{id}", name="civix_api_groups_is_manager")
@@ -286,8 +292,15 @@ class GroupController extends BaseController
     }
 
     /**
+     * Deprecated, use `POST /api/v2/user/groups` instead.
+     *
      * @Route("/", name="civix_api_groups_create")
      * @Method("POST")
+     *
+     * @ApiDoc(
+     *     section="Groups",
+     *     deprecated=true
+     * )
      */
     public function createGroupAction(Request $request)
     {
@@ -753,6 +766,7 @@ class GroupController extends BaseController
 
     /**
      * Returns list of invites
+     * Deprecated, use `GET /api/v2/user/invites` instead
      *
      * @Route("/invites", name="civix_api_groups_invites")
      * @Method("GET")
@@ -780,13 +794,22 @@ class GroupController extends BaseController
     }
 
     /**
+     * Deprecated, use `PATCH /api/v2/group/{id}/invites/{user}` and `DELETE /api/v2/group/{id}/invites/{user}` instead
+     *
      * @Route(
      *     "/invites/{status}/{group}",
      *     requirements={"group"="\d+", "status"="approve|reject"},
      *     name="civix_api_groups_invites_approval"
      * )
+     *
      * @Method("POST")
      * @ParamConverter("group", class="CivixCoreBundle:Group")
+     *
+     * @ApiDoc(
+     *     section="Groups",
+     *     deprecated=true
+     * )
+     *
      * @param $status
      * @param Group $group
      * @return Response

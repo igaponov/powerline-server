@@ -446,4 +446,16 @@ class GroupRepository extends EntityRepository
             ->andWhere($qb->expr()->notIn('g.transparency', $transparencies))
             ->getQuery()->getOneOrNullResult();
     }
+
+    /**
+     * @param User $user
+     * @return \Doctrine\ORM\Query
+     */
+    public function getInvitesQuery(User $user)
+    {
+        return $this->createQueryBuilder('g')
+            ->where(':user MEMBER OF g.invites')
+            ->setParameter(':user', $user)
+            ->getQuery();
+    }
 }

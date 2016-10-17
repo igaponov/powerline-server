@@ -302,4 +302,13 @@ class GroupManager
         $event = new GroupUserEvent($userGroup->getGroup(), $userGroup->getUser());
         $this->dispatcher->dispatch(GroupEvents::USER_JOINED, $event);
     }
+
+    public function removeInvite(Group $group, User $user)
+    {
+        if ($user->getInvites()->contains($group)) {
+            $user->removeInvite($group);
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+        }
+    }
 }
