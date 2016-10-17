@@ -9,6 +9,7 @@ use Civix\CoreBundle\Entity\Poll\Question\Group;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Service\Stripe;
 use Civix\CoreBundle\Test\SocialActivityTester;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupNewsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupPaymentRequestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData;
@@ -225,6 +226,31 @@ class PollControllerTest extends WebTestCase
         $this->assertSame($errors, $data['errors']['errors']);
 	}
 
+	public function testPublishPollWithOneOptionReturnsErrors()
+	{
+        $repository = $this->loadFixtures([
+            LoadGroupQuestionData::class,
+        ])->getReferenceRepository();
+        $errors = [
+            'You must specify at least two options',
+        ];
+		$client = $this->client;
+        $serviceId = 'civix_core.question_limit';
+        $service = $this->getServiceMockBuilder($serviceId)
+            ->setMethods(['checkLimits'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $service->expects($this->once())->method('checkLimits')->will($this->returnValue(true));
+        $client->getContainer()->set($serviceId, $service);
+		$question = $repository->getReference('group_question_5');
+		$client->request('PATCH', self::API_ENDPOINT.'/'.$question->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+		$response = $client->getResponse();
+		$this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+		$data = json_decode($response->getContent(), true);
+		$this->assertSame('Validation Failed', $data['message']);
+        $this->assertSame($errors, $data['errors']['errors']);
+	}
+
     /**
      * @param $user
      * @param $reference
@@ -286,6 +312,40 @@ class PollControllerTest extends WebTestCase
         $this->assertEquals(1, $queue->hasMessageWithMethod('sendPushPublishQuestion', [
             $question->getId(),
             $question->getGroup()->getOfficialName() . ' Poll',
+            $question->getSubject()
+        ]));
+    }
+
+	public function testPublishNewsWithoutOptionsIsOk()
+	{
+        $repository = $this->loadFixtures([
+            LoadGroupNewsData::class,
+        ])->getReferenceRepository();
+        /** @var Question $question */
+		$question = $repository->getReference('group_news_1');
+        $this->assertNull($question->getPublishedAt());
+		$client = $this->client;
+        $serviceId = 'civix_core.question_limit';
+        $service = $this->getServiceMockBuilder($serviceId)
+            ->setMethods(['checkLimits'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $service->expects($this->once())->method('checkLimits')->will($this->returnValue(true));
+        $client->getContainer()->set($serviceId, $service);
+		$client->request('PATCH', self::API_ENDPOINT.'/'.$question->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+		$response = $client->getResponse();
+		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+		$data = json_decode($response->getContent(), true);
+		$this->assertNotNull($data['published_at']);
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('database_connection');
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM activities WHERE question_id = ? AND type = ? AND expire_at IS NOT NULL', [$question->getId(), 'leader-news']);
+        $this->assertEquals(1, $count);
+        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+        $this->assertEquals(1, $queue->count());
+        $this->assertEquals(1, $queue->hasMessageWithMethod('sendPushPublishQuestion', [
+            $question->getId(),
+            $question->getGroup()->getOfficialName() . ' Discussion',
             $question->getSubject()
         ]));
     }
