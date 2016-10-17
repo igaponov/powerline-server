@@ -79,6 +79,19 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
         $manager->persist($question);
         $this->addReference('group_question_4', $question);
 
+        // 1 option
+        $question = new GroupQuestion();
+        $question->setOwner($group1);
+        $question->setUser($group1->getOwner());
+        $question->setSubject('subj '.$faker->sentence);
+        $question->setExpireAt(new \DateTime('+1 month'));
+        $option = new Option();
+        $option->setValue('val '.$faker->word);
+        $question->addOption($option);
+        $group1->getOwner()->addPollSubscription($question);
+        $manager->persist($question);
+        $this->addReference('group_question_5', $question);
+
         $manager->flush();
     }
 

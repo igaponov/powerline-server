@@ -8,6 +8,7 @@ use Civix\CoreBundle\Entity\GroupSection;
 use Civix\CoreBundle\Entity\HashTaggableInterface;
 use Civix\CoreBundle\Entity\HashTaggableTrait;
 use Civix\CoreBundle\Entity\LeaderContentInterface;
+use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
 use Civix\CoreBundle\Entity\SubscriptionInterface;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserInterface;
@@ -23,6 +24,7 @@ use Doctrine\ORM\Mapping\DiscriminatorMap;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Serializer\Type\Image;
 use Civix\CoreBundle\Entity\Representative;
+use Symfony\Component\Validator\ExecutionContext;
 
 /**
  * Question entity.
@@ -56,6 +58,7 @@ use Civix\CoreBundle\Entity\Representative;
  * @Serializer\ExclusionPolicy("all")
  * 
  * @method setOwner(UserInterface $group)
+ * @Assert\Callback(methods={"areOptionsValid"}, groups={"publish"})
  * @PublishDate(objectName="Poll", groups={"update", "publish"})
  * @PublishedPollAmount(groups={"publish"})
  */
@@ -90,11 +93,6 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
      *      mappedBy="question",
      *      cascade={"persist"},
      *      orphanRemoval=true
-     * )
-     * @Assert\Count(
-     *      min = "2",
-     *      minMessage = "You must specify at least two options",
-     *      groups = {"publish"}
      * )
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
@@ -819,5 +817,12 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
         $this->user = $user;
 
         return $this;
+    }
+
+    public function areOptionsValid(ExecutionContext $context)
+    {
+        if (!$this instanceof LeaderNews && $this->getOptions()->count() < 2) {
+            $context->addViolation('You must specify at least two options');
+        }
     }
 }
