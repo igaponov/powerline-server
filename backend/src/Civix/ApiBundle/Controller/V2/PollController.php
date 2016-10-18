@@ -271,6 +271,7 @@ class PollController extends FOSRestController
      *
      * @QueryParam(name="page", requirements="\d+", default=1)
      * @QueryParam(name="per_page", requirements="(10|20)", default="20")
+     * @QueryParam(name="following", requirements="1|0|", default=null)
      *
      * @ApiDoc(
      *     authentication=true,
@@ -296,7 +297,11 @@ class PollController extends FOSRestController
     {
         $entityManager = $this->getDoctrine()->getManager();
         $query = $entityManager->getRepository('CivixCoreBundle:Poll\Answer')
-            ->getAnswersByQuestion($question);
+            ->getAnswersByQuestion(
+                $question,
+                $params->get('following') !== null ? $this->getUser() : null,
+                !$params->get('following')
+            );
 
         return $this->get('knp_paginator')->paginate(
             $query,

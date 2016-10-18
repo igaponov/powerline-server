@@ -15,6 +15,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
@@ -77,6 +78,42 @@ class PollControllerTest extends WebTestCase
 		$this->assertSame(20, $data['items']);
 		$this->assertSame(3, $data['totalItems']);
 		$this->assertCount(3, $data['payload']);
+	}
+
+	public function testGetPollAnswersFollowingIsOk()
+	{
+        $repository = $this->loadFixtures([
+            LoadUserFollowerData::class,
+            LoadQuestionAnswerData::class,
+        ])->getReferenceRepository();
+		$question = $repository->getReference('group_question_1');
+		$client = $this->client;
+		$client->request('GET', self::API_ENDPOINT.'/'.$question->getId().'/answers', ['following' => true], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+		$response = $client->getResponse();
+		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+		$data = json_decode($response->getContent(), true);
+		$this->assertSame(1, $data['page']);
+		$this->assertSame(20, $data['items']);
+		$this->assertSame(2, $data['totalItems']);
+		$this->assertCount(2, $data['payload']);
+	}
+
+	public function testGetPollAnswersFollowingOutsideIsOk()
+	{
+        $repository = $this->loadFixtures([
+            LoadUserFollowerData::class,
+            LoadQuestionAnswerData::class,
+        ])->getReferenceRepository();
+		$question = $repository->getReference('group_question_1');
+		$client = $this->client;
+		$client->request('GET', self::API_ENDPOINT.'/'.$question->getId().'/answers', ['following' => false], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+		$response = $client->getResponse();
+		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+		$data = json_decode($response->getContent(), true);
+		$this->assertSame(1, $data['page']);
+		$this->assertSame(20, $data['items']);
+		$this->assertSame(1, $data['totalItems']);
+		$this->assertCount(1, $data['payload']);
 	}
 
 	public function testGetPollCommentsIsOk()
