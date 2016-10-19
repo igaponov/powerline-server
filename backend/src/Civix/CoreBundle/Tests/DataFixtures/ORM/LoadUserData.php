@@ -47,10 +47,15 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
             ->setIsNotifOwnPostChanged(true)
             ->setSalt(base_convert(sha1(uniqid(mt_rand(), true)), 16, 36))
             ->setToken('user1')
+            ->setResetPasswordToken('x-reset-token')
+            ->setResetPasswordAt(new \DateTime('-1 day'))
             ->setSlogan('User 1 Slogan')
             ->setBio('User 1 Bio')
             ->setFacebookId('xXxXxXxXxXx')
             ->setFacebookToken('yYyYyYyYyYy');
+        foreach (['district_la', 'district_sd'] as $item) {
+            $user->addDistrict($this->getReference($item));
+        }
 
         $this->encodePassword($user);
         $this->addReference('user_1', $user);
@@ -88,10 +93,11 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
             ->setIsNotifDiscussions(false)
             ->setIsNotifMessages(false)
             ->setIsRegistrationComplete(true)
-            ->setPhone(date_create()->getOffset())
+            ->setPhone('+'.mt_rand())
             ->setIsNotifOwnPostChanged($isNotifOwnPostChanged)
             ->setSalt(base_convert(sha1(uniqid(mt_rand(), true)), 16, 36))
-            ->setToken($username);
+            ->setToken($username)
+            ->setFacebookId('fb_'.$username);
         
         if (is_array($district)) {
             foreach ($district as $item) {

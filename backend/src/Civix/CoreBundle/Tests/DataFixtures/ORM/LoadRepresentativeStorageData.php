@@ -19,6 +19,7 @@ class LoadRepresentativeStorageData extends AbstractFixture implements Dependent
         $stRepresentative->setDistrict($this->getReference('district_us'));
         $stRepresentative->setAvatarSrc('http://google.com/');
         $stRepresentative->setUpdatedAt(new \DateTime('2010-01-01'));
+        $stRepresentative->setDistrict($this->getReference('district_la'));
 
         $this->addReference('vice_president', $stRepresentative);
         $manager->persist($stRepresentative);

@@ -233,9 +233,10 @@ class GroupRepository extends EntityRepository
     }
 
     /**
-     * 
-     * @param unknown $query
+     *
+     * @param string $query
      * @param User $user
+     * @return array
      */
     public function findByQuery($query, User $user)
     {
