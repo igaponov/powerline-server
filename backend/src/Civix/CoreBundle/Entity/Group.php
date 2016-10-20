@@ -522,6 +522,13 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     private $plainPassword;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="slug", type="string", unique=true)
+     */
+    private $slug;
+
+    /**
      * @return array
      */
     public static function getOfficialTypes()
@@ -1953,6 +1960,25 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     public function setPlainPassword($plainPassword)
     {
         $this->plainPassword = $plainPassword;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSlug()
+    {
+        return $this->slug;
+    }
+
+    /**
+     * @param string $slug
+     * @return Group
+     */
+    public function setSlug($slug)
+    {
+        $this->slug = $slug;
 
         return $this;
     }

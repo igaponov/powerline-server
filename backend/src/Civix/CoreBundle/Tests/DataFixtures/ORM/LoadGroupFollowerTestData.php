@@ -83,6 +83,7 @@ class LoadGroupFollowerTestData extends AbstractFixture implements ContainerAwar
         $group = new Group();
         $group->setAcronym($groupName)
             ->setGroupType(Group::GROUP_TYPE_COMMON)
+            ->setOfficialName($groupName)
             ->setManagerEmail("$groupName@example.com")
             ->setManagerFirstName($groupName)
             ->setManagerLastName($groupName)
