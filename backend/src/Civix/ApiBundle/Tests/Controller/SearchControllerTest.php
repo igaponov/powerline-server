@@ -41,7 +41,7 @@ class SearchControllerTest  extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertCount(2, $data['groups']);
-        $this->assertCount(3, $data['representatives']);
+        $this->assertCount(2, $data['representatives']);
         $this->assertCount(8, $data['users']);
     }
 

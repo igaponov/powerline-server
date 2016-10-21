@@ -19,6 +19,8 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 class UserController extends BaseController
 {
     /**
+     * Deprecated, use users resource instead
+     *
      * @Route("/find", name="civix_api_user_by_username")
      * @Method("GET")
      *
@@ -26,16 +28,17 @@ class UserController extends BaseController
      *     resource=true,
      *     description="Find user by username",
      *     filters={
-     *             {"name"="username", "dataType"="string"}
-     *      },
+     *         {"name"="username", "dataType"="string"}
+     *     },
      *     statusCodes={
      *         200="Returns user info",
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      *
-     * @deprecated Use users resource instead
+     * @deprecated
      */
     public function findByUsernameAction(Request $request)
     {
