@@ -6,6 +6,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\DeserializationContext;
 
+/**
+ * @deprecated
+ */
 trait SerializerTrait
 {
     protected function createJSONResponse($content = '', $status = 200)

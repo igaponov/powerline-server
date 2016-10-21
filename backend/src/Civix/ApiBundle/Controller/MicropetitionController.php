@@ -209,6 +209,7 @@ class MicropetitionController extends BaseController
 
     /**
      * The author's post have ability to invite the upvoter's of a post to join other group if that post has boosted
+     * Deprecated
      *
      * @author Habibillah <habibillah@gmail.com>
      * @Route(
@@ -227,7 +228,8 @@ class MicropetitionController extends BaseController
      *          400="Bad Request",
      *          401="Unauthorized Request",
      *          405="Method Not Allowed"
-     *      }
+     *      },
+     *      deprecated=true
      * )
      * @param Request $request
      * @param Petition $micropetition

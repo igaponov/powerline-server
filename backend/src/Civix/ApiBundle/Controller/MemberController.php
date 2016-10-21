@@ -5,7 +5,7 @@ namespace Civix\ApiBundle\Controller;
 use Civix\CoreBundle\Event\GroupEvents;
 use Civix\CoreBundle\Event\GroupUserEvent;
 use Civix\CoreBundle\Exception\MailgunException;
-use Cocur\Slugify\Slugify;
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -21,9 +21,15 @@ class MemberController extends Controller
 {
     /**
      * List all the members from a group
+     * Deprecated
      * 
      * @Route("", name="civix_api_group_members")
      * @Method({"GET"})
+     *
+     * @ApiDoc(
+     *     section="Groups",
+     *     deprecated=true
+     * )
      */
     public function membersAction()
     {
@@ -44,9 +50,15 @@ class MemberController extends Controller
 
     /**
      * Remove a user from a group name.
+     * Deprecated
      * 
      * @Route("/{id}/remove", name="civix_api_group_members_remove")
      * @Method({"POST"})
+     *
+     * @ApiDoc(
+     *     section="Groups",
+     *     deprecated=true
+     * )
      */
     public function memberRemoveAction(User $user)
     {
@@ -72,9 +84,15 @@ class MemberController extends Controller
 
     /**
      * List the group member approvals
+     * Deprecated
      * 
      * @Route("/approvals", name="civix_api_group_manage_approvals")
      * @Method({"GET"})
+     *
+     * @ApiDoc(
+     *     section="Groups",
+     *     deprecated=true
+     * )
      */
     public function manageApprovalsAction()
     {
@@ -82,15 +100,22 @@ class MemberController extends Controller
 
         $query = $entityManager->getRepository('CivixCoreBundle:UserGroup')
             ->getUsersByGroupQuery($this->getUser(), UserGroup::STATUS_PENDING);
+        $members = $query->getQuery()->getResult();
         
         return $this->createJSONResponse($this->jmsSerialization($members, ['api-members', 'api-info']));
     }
 
     /**
      * Approve a member in a group
+     * Deprecated
      * 
      * @Route("/{id}/approve",requirements={"id"="\d+"}, name="civix_api_group_members_approve")
      * @Method({"POST"})
+     *
+     * @ApiDoc(
+     *     section="Groups",
+     *     deprecated=true
+     * )
      */
     public function approveUser(User $user)
     {
@@ -117,9 +142,15 @@ class MemberController extends Controller
 
     /**
      * Get the user fields for a member group
+     * Deprecated
      * 
      * @Route("/{id}/fields",requirements={"id"="\d+"}, name="civix_api_group_members_fields")
      * @Method({"GET"})
+     *
+     * @ApiDoc(
+     *     section="Groups",
+     *     deprecated=true
+     * )
      */
     public function getUserFields(User $user)
     {

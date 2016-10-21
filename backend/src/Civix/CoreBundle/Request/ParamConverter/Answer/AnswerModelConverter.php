@@ -7,9 +7,10 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Doctrine\ORM\EntityManager;
-use Civix\CoreBundle\Model\Answer\AnswerModelFactory;
-use Civix\CoreBundle\Model\Answer\AnswerModelInterface;
 
+/**
+ * @deprecated
+ */
 class AnswerModelConverter implements ParamConverterInterface
 {
     private $entityManager;

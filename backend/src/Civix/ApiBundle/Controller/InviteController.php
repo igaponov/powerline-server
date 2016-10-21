@@ -16,8 +16,15 @@ use Civix\CoreBundle\Entity\Invites;
 class InviteController extends BaseController
 {
     /**
+     * Deprecated
+     *
      * @Route("/")
      * @Method("GET")
+     *
+     * @ApiDoc(
+     *     section="Invites",
+     *     deprecated=true
+     * )
      */
     public function getAction()
     {
@@ -66,8 +73,15 @@ class InviteController extends BaseController
     }
 
     /**
+     * Deprecated
+     *
      * @Route("/{id}")
      * @Method("DELETE")
+     *
+     * @ApiDoc(
+     *     section="Invites",
+     *     deprecated=true
+     * )
      */
     public function removeAction($id)
     {

@@ -9,6 +9,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Civix\CoreBundle\Model\Comment\CommentModelFactory;
 use Civix\CoreBundle\Model\Comment\CommentModelInterface;
 
+/**
+ * @deprecated
+ */
 class CommentModelConverter implements ParamConverterInterface
 {
     public function supports(ConfigurationInterface $configuration)
