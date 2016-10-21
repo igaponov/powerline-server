@@ -7,6 +7,7 @@ use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Test\SocialActivityTester;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadInviteData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
@@ -374,6 +375,94 @@ class GroupControllerTest extends WebTestCase
         $this->assertEquals(1, $queue->hasMessageWithMethod('sendGroupInvitePush', [$user3->getId(), $group->getId()]));
     }
 
+    /**
+     * @param $user
+     * @param $reference
+     * @dataProvider getInvalidGroupCredentialsForInviteRequest
+     */
+    public function testApproveInvitationWithWrongCredentialsThrowsException($user, $reference)
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadInviteData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference($reference);
+        $user1 = $this->repository->getReference('user_1');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="'.$user.'"'];
+        $client->request('PATCH', self::API_ENDPOINT.'/'.$group->getId().'/invites/'.$user1->getId(), [], [], $headers);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    /**
+     * @param $user
+     * @param $reference
+     * @dataProvider getValidGroupCredentialsForInviteRequest
+     */
+    public function testApproveInvitationIsOk($user, $reference)
+    {
+        $this->repository = $this->loadFixtures([
+            LoadGroupManagerData::class,
+            LoadInviteData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference($reference);
+        $user1 = $this->repository->getReference('user_1');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="'.$user.'"'];
+        $client->request('PATCH', self::API_ENDPOINT.'/'.$group->getId().'/invites/'.$user1->getId(), [], [], $headers);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('database_connection');
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM users_groups WHERE group_id = ? and user_id = ?', [$group->getId(), $user1->getId()]);
+        $this->assertEquals(1, $count);
+    }
+
+    /**
+     * @param $user
+     * @param $reference
+     * @dataProvider getInvalidGroupCredentialsForInviteRequest
+     */
+    public function testRejectInvitationWithWrongCredentialsThrowsException($user, $reference)
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadInviteData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference($reference);
+        $user1 = $this->repository->getReference('user_1');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="'.$user.'"'];
+        $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId().'/invites/'.$user1->getId(), [], [], $headers);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    /**
+     * @param $user
+     * @param $reference
+     * @dataProvider getValidGroupCredentialsForInviteRequest
+     */
+    public function testRejectInvitationIsOk($user, $reference)
+    {
+        $this->repository = $this->loadFixtures([
+            LoadGroupManagerData::class,
+            LoadInviteData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference($reference);
+        $user1 = $this->repository->getReference('user_1');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="'.$user.'"'];
+        $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId().'/invites/'.$user1->getId(), [], [], $headers);
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('database_connection');
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM notification_invites WHERE group_id = ? and user_id = ?', [$group->getId(), $user1->getId()]);
+        $this->assertEquals(0, $count);
+    }
+
 	protected function getGroups($username, $params)
 	{
 		$client = $this->client;
@@ -386,4 +475,20 @@ class GroupControllerTest extends WebTestCase
 		$this->assertSame(20, $data['items']);
 		return $data;
 	}
+
+    public function getValidGroupCredentialsForInviteRequest()
+    {
+        return [
+            'owner' => ['user3', 'group_3'],
+            'manager' => ['user2', 'group_3'],
+        ];
+    }
+
+    public function getInvalidGroupCredentialsForInviteRequest()
+    {
+        return [
+            'member' => ['user4', 'group_3'],
+            'outlier' => ['user4', 'group_2'],
+        ];
+    }
 }

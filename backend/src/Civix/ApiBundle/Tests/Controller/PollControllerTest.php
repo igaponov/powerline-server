@@ -1,15 +1,15 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller;
 
+use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\Poll\Question\Group as GroupQuestion;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadPollCommentRateData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
-use Civix\ApiBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
-use Civix\ApiBundle\Tests\WebTestCase;
-use Civix\CoreBundle\Entity\Poll\Question\Group as GroupQuestion;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;

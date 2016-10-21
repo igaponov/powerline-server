@@ -1,16 +1,15 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller;
 
-use Civix\CoreBundle\Entity\Group;
+use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Faker\Factory;
-use Civix\ApiBundle\Tests\WebTestCase;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
-use Civix\ApiBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class SecureControllerTest extends WebTestCase
@@ -262,5 +261,69 @@ class SecureControllerTest extends WebTestCase
 		$response = $client->getResponse();
 		$data = json_decode($response->getContent(), true);
 		$this->assertNotEmpty($data['token']);
+	}
+
+    public function testForgotPassword()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+        ])->getReferenceRepository();
+        $user = $repository->getReference('user_1');
+        $client = $this->client;
+        $service = $this->getServiceMockBuilder('civix_core.email_sender')
+            ->disableOriginalConstructor()
+            ->setMethods(['sendResetPasswordEmail'])
+            ->getMock();
+        $service->expects($this->once())
+            ->method('sendResetPasswordEmail')
+            ->with(
+                $user->getEmail(),
+                $this->callback(function ($params) use ($user) {
+                    $this->assertEquals($user->getOfficialName(), $params['name']);
+                    $this->assertRegExp('=http://localhost/#/reset-password/[\w\d]{50}=', $params['link']);
+
+                    return true;
+                })
+            );
+        $client->getContainer()->set('civix_core.email_sender', $service);
+        $client->request('POST', '/api/secure/forgot-password', ['email' => $user->getEmail()]);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals('ok', $data['status']);
+	}
+
+    public function testCheckResetToken()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+        ])->getReferenceRepository();
+        $user = $repository->getReference('user_1');
+        $client = $this->client;
+        $client->request('GET', '/api/secure/resettoken/'.$user->getResetPasswordToken());
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals('ok', $data['status']);
+	}
+
+    public function testSaveNewPassword()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+        ])->getReferenceRepository();
+        $user = $repository->getReference('user_1');
+        $client = $this->client;
+        $client->request('POST', '/api/secure/resettoken/'.$user->getResetPasswordToken(), [], [], [], json_encode(['password' => 'new-pass', 'password_confirm' => 'new-pass']));
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals('ok', $data['status']);
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $data = $conn->fetchAssoc('SELECT password, reset_password_token, reset_password_at FROM user WHERE id = ?', [$user->getId()]);
+        $this->assertNotEquals($user->getPassword(), $data['password']);
+        $this->assertNull($data['reset_password_token']);
+        $this->assertNull($data['reset_password_at']);
 	}
 }

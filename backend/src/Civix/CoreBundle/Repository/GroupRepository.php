@@ -233,9 +233,10 @@ class GroupRepository extends EntityRepository
     }
 
     /**
-     * 
-     * @param unknown $query
+     *
+     * @param string $query
      * @param User $user
+     * @return array
      */
     public function findByQuery($query, User $user)
     {
@@ -445,5 +446,17 @@ class GroupRepository extends EntityRepository
             ->setParameter(':id', $id)
             ->andWhere($qb->expr()->notIn('g.transparency', $transparencies))
             ->getQuery()->getOneOrNullResult();
+    }
+
+    /**
+     * @param User $user
+     * @return \Doctrine\ORM\Query
+     */
+    public function getInvitesQuery(User $user)
+    {
+        return $this->createQueryBuilder('g')
+            ->where(':user MEMBER OF g.invites')
+            ->setParameter(':user', $user)
+            ->getQuery();
     }
 }

@@ -1,13 +1,13 @@
 <?php
 
-namespace Civix\ApiBundle\Tests\DataFixtures\ORM;
+namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
+use Civix\CoreBundle\Entity\Superuser;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Civix\CoreBundle\Entity\Superuser;
 
 /**
  * LoadSuperuserData.

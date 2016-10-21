@@ -233,8 +233,10 @@ class ProfileController extends BaseController
     /**
      * @Route("/update", name="api_profile_update")
      * @Method("POST")
+     *
      * @ApiDoc(
      *     resource=true,
+     *     section="Users",
      *     description="Update Profile",
      *     filters={
      *         {"name"="step", "dataType"="integer"}
@@ -268,7 +270,6 @@ class ProfileController extends BaseController
         }
 
         $avatarFileName = $user->getAvatarFileName();
-        $isEmailChanged = $new->getEmail() !== $user->getEmail();
         $isAddressChanged = $new->getAddressQuery() !== $user->getAddressQuery();
 
         $this->get('civix_core.user_manager')
@@ -303,7 +304,7 @@ class ProfileController extends BaseController
      * @Route("/settings", name="api_profile_settings")
      * @Method("POST")
      * @ApiDoc(
-     *     resource=true,
+     *     section="Users",
      *     description="Update settings of notifications for user",
      *     statusCodes={
      *         200="Returns profile info",
@@ -339,7 +340,7 @@ class ProfileController extends BaseController
      * @Route("/facebook-friends", name="api_profile_facebook_friends")
      * @Method("POST")
      * @ApiDoc(
-     *     resource=true,
+     *     section="Users",
      *     description="Get friends of user from facebook",
      *     statusCodes={
      *         200="Return users by facebook ids",
@@ -368,7 +369,7 @@ class ProfileController extends BaseController
      * @Route("/link-to-facebook", name="api_profile_link_to_facebook")
      * @Method("POST")
      * @ApiDoc(
-     *     resource=true,
+     *     section="Users",
      *     description="Link to facebook account",
      *     filters={
      *         {"name"="facebook_token", "dataType"="string"},

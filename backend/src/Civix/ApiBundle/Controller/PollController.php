@@ -191,6 +191,7 @@ class PollController extends BaseController
 
     /**
      * Get question answers.
+     * Deprecated, use `GET /api/v2/polls/{id}/answers?followings=true` instead
      *
      * @Route(
      *      "/question/{question}/answers/influence",
@@ -208,7 +209,8 @@ class PollController extends BaseController
      *         401="Authorization required",
      *         404="Question not found",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      */
     public function answersByInfluenceAction(Request $request, \Civix\CoreBundle\Entity\Poll\Question $question)
@@ -235,6 +237,7 @@ class PollController extends BaseController
 
     /**
      * Get question answers.
+     * Deprecated, use `GET /api/v2/polls/{id}/answers?followings=false` instead
      *
      * @Route(
      *      "/question/{question}/answers/influence/outside",
@@ -252,7 +255,8 @@ class PollController extends BaseController
      *         401="Authorization required",
      *         404="Question not found",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      */
     public function answersByOutsideInfluenceAction(Request $request, \Civix\CoreBundle\Entity\Poll\Question $question)

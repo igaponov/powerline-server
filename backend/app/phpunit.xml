@@ -23,11 +23,13 @@
     </testsuites>
 
     <filter>
-        <blacklist>
-            <directory>../vendor</directory>
-            <directory>../app</directory>
-            <directory>../web</directory>
-        </blacklist>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">../src</directory>
+            <exclude>
+                <directory suffix=".php">../src/FrontBundle</directory>
+                <directory suffix=".php">../src/LoadBundle</directory>
+            </exclude>
+        </whitelist>
     </filter>
 
     <listeners>

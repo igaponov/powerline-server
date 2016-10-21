@@ -4,25 +4,31 @@ namespace Civix\CoreBundle\Repository\Poll;
 
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Question\Petition;
+use Civix\CoreBundle\Entity\UserFollow;
 use Doctrine\ORM\EntityRepository;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Poll\Answer;
 
 class AnswerRepository extends EntityRepository
 {
-    public function getAnswersByQuestion($question)
+    public function getAnswersByQuestion(Question $question, User $user = null, $revert = false)
     {
-        return $this->getEntityManager()
-                ->createQueryBuilder()
-                ->select('a')
-                ->from('CivixCoreBundle:Poll\Answer', 'a')
+        $qb = $this->createQueryBuilder('a')
                 ->join('a.user', 'u')
                 ->where('a.question  = :question')
-                ->setParameter('question', $question)
-                ->getQuery();
+                ->setParameter('question', $question);
+
+        if ($user) {
+            $qb->leftJoin('u.followers', 'uf', 'WITH', 'uf.follower = :follower AND uf.status = :status')
+                ->andWhere($revert ? 'uf.id IS NULL' : 'uf.id IS NOT NULL')
+                ->setParameter('status', UserFollow::STATUS_ACTIVE)
+                ->setParameter('follower', $user);
+        }
+
+        return $qb->getQuery();
     }
 
-    public function getAnswersByInfluence(\Civix\CoreBundle\Entity\User $follower, Question $question)
+    public function getAnswersByInfluence(User $follower, Question $question)
     {
         return $this->getEntityManager()
                 ->createQueryBuilder()
@@ -34,7 +40,7 @@ class AnswerRepository extends EntityRepository
                 ->andWhere('uf.status  = :status')
                 ->andWhere('uf.follower  = :follower')
                 ->setParameter('question', $question)
-                ->setParameter('status', \Civix\CoreBundle\Entity\UserFollow::STATUS_ACTIVE)
+                ->setParameter('status', UserFollow::STATUS_ACTIVE)
                 ->setParameter('follower', $follower)
                 ->getQuery()
                 ->getResult();
@@ -52,7 +58,7 @@ class AnswerRepository extends EntityRepository
                     AND a.question = :question')
                 ->setParameter('question', $question)
                 ->setParameter('follower', $follower)
-                ->setParameter('status', \Civix\CoreBundle\Entity\UserFollow::STATUS_ACTIVE)
+                ->setParameter('status', UserFollow::STATUS_ACTIVE)
                 ->setMaxResults($maxResults)
                 ->getResult();
     }
