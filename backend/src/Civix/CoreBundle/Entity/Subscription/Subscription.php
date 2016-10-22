@@ -433,7 +433,7 @@ class Subscription
             return self::$stripePlansByType[$this->getPackageType()];
         }
         
-        return null;
+        return 'free';
     }
 
     /**
