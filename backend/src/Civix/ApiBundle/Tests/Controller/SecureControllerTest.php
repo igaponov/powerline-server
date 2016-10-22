@@ -280,7 +280,7 @@ class SecureControllerTest extends WebTestCase
                 $user->getEmail(),
                 $this->callback(function ($params) use ($user) {
                     $this->assertEquals($user->getOfficialName(), $params['name']);
-                    $this->assertRegExp('=http://localhost/#/reset-password/[\w\d]{50}=', $params['link']);
+                    $this->assertRegExp('=http://localhost/#/reset-password/[\w\d]+=', $params['link']);
 
                     return true;
                 })
