@@ -129,6 +129,11 @@
             <tag name="jms_serializer.handler" type="Owner" direction="serialization" format="json" method="serialize"/>
         </service>
 
+        <service class="Civix\CoreBundle\Serializer\Handler\UserRoleHandler" id="civix_core.serializer_handler.user_role_handler">
+            <argument id="security.context" type="service"/>
+            <tag name="jms_serializer.handler" type="UserRole" direction="serialization" format="json" method="serialize"/>
+        </service>
+
         <service id="civix_core.question_limit" class="Civix\CoreBundle\Service\QuestionLimit">
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="session" />

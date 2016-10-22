@@ -40,7 +40,12 @@ class LoadGroupFollowerTestData extends AbstractFixture implements ContainerAwar
 
         $this->addReference(
             'group', 
-            $this->createGroup(self::GROUP_NAME, self::GROUP_PASSWORD)
+            $this->createGroup(
+                self::GROUP_NAME,
+                self::GROUP_PASSWORD,
+                null,
+                $this->getReference('user_1')
+            )
         );
         $this->addReference(
             'testfollowsecretgroups',
@@ -53,7 +58,12 @@ class LoadGroupFollowerTestData extends AbstractFixture implements ContainerAwar
         );
         $this->addReference(
             'testfollowprivategroups',
-            $this->createGroup('testfollowprivategroups', null, Group::GROUP_TRANSPARENCY_PRIVATE)
+            $this->createGroup(
+                'testfollowprivategroups',
+                null,
+                Group::GROUP_TRANSPARENCY_PRIVATE,
+                $this->getReference('user_2')
+            )
         );
     }
 

@@ -62,7 +62,7 @@ class GroupController extends FOSRestController
      *     }
      * )
      *
-     * @View(serializerGroups={"paginator", "api-groups"})
+     * @View(serializerGroups={"paginator", "api-groups", "group-list"})
      *
      * @param ParamFetcher $params
      *
@@ -71,7 +71,7 @@ class GroupController extends FOSRestController
     public function getcAction(ParamFetcher $params)
     {
         $query = $this->em->getRepository(Group::class)
-            ->getFindByQuery([
+            ->getFindByQuery($this->getUser(), [
                 'exclude_owned' => $params->get('exclude_owned') ? $this->getUser() : null,
                 'query' => $params->get('query'),
             ], [
@@ -81,7 +81,8 @@ class GroupController extends FOSRestController
         return $this->get('knp_paginator')->paginate(
             $query,
             $params->get('page'),
-            $params->get('per_page')
+            $params->get('per_page'),
+            ['distinct' => false]
         );
     }
 
