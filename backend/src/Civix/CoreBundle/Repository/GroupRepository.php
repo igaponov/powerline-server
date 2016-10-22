@@ -388,44 +388,57 @@ class GroupRepository extends EntityRepository
     }
 
     /**
+     * @param User $user
      * @param array $criteria Possible keys: `exclude_owned = User` - exclude groups of current user
      * @param array $orderBy Possible keys: created_at, popularity
      *
      * @return \Doctrine\ORM\Query
      */
-    public function getFindByQuery($criteria, $orderBy)
+    public function getFindByQuery(User $user, $criteria, $orderBy)
     {
+        $qbc = $this->createQueryBuilder('g')
+            ->select('COUNT(g)')
+            ->where('g.groupType = :type')
+            ->setParameter('type', Group::GROUP_TYPE_COMMON);
+
         $qb = $this->createQueryBuilder('g')
-            ->leftJoin('g.users', 'ug')
+            ->select('g', 'ug', 'gm')
+            ->leftJoin('g.users', 'ug', 'WITH', 'ug.user = :user')
+            ->leftJoin('g.managers', 'gm', 'WITH', 'gm.user = :user')
+            ->setParameter(':user', $user)
             ->where('g.groupType = :type')
             ->setParameter('type', Group::GROUP_TYPE_COMMON)
             ->groupBy('g');
 
         if (isset($criteria['exclude_owned']) && $criteria['exclude_owned'] instanceof User) {
             $ids = $criteria['exclude_owned']->getGroupsIds();
-            $qb->andWhere($qb->expr()->notIn('g.id', $ids));
+            $expr = $qb->expr()->notIn('g.id', $ids);
+            $qbc->andWhere($expr);
+            $qb->andWhere($expr);
         }
 
         if (!empty($criteria['query'])) {
             $query = "%{$criteria['query']}%";
-            $qb->andWhere(
-                $qb->expr()->orX(
-                    $qb->expr()->like('g.acronym', ':query'),
-                    $qb->expr()->like('g.officialName', ':query')
-                )
-            )
-            ->setParameter(':query', $query);
+            $expr = $qb->expr()->orX(
+                $qb->expr()->like('g.acronym', ':query'),
+                $qb->expr()->like('g.officialName', ':query')
+            );
+            $qbc->andWhere($expr)
+                ->setParameter(':query', $query);
+            $qb->andWhere($expr)
+                ->setParameter(':query', $query);
         }
 
         if (isset($orderBy['created_at'])) {
             $qb->orderBy('g.createdAt', $orderBy['created_at']);
         }
         if (isset($orderBy['popularity'])) {
-            $qb->addSelect('COUNT(ug) AS HIDDEN count_users')
+            $qb->addSelect('(SELECT COUNT(ugc) FROM CivixCoreBundle:UserGroup ugc WHERE ugc.group = g) AS HIDDEN count_users')
                 ->orderBy('count_users', $orderBy['popularity']);
         }
+        $count = $qbc->getQuery()->getSingleScalarResult();
 
-        return $qb->getQuery();
+        return $qb->getQuery()->setHint('knp_paginator.count', (int)$count);
     }
 
     /**

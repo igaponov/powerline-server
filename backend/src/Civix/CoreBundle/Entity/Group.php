@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Entity;
 
 use Civix\CoreBundle\Entity\Group\GroupField;
+use Civix\CoreBundle\Serializer\Type\UserRole;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\File\File;
@@ -1954,5 +1955,18 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
         $this->plainPassword = $plainPassword;
 
         return $this;
+    }
+
+    /**
+     * @return UserRole
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"group-list"})
+     * @Serializer\SerializedName("user_role")
+     * @Serializer\Type("UserRole")
+     */
+    public function getUserRole()
+    {
+        return new UserRole($this);
     }
 }
