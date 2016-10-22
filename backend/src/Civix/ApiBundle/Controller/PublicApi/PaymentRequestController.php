@@ -25,6 +25,7 @@ class PaymentRequestController extends BaseController
      * )
      * @ApiDoc(
      *     resource=true,
+     *     section="Public",
      *     description="PaymentRequest",
      *     statusCodes={
      *         200="Returns payment request",

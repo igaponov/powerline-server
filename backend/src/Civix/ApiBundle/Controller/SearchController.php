@@ -21,6 +21,7 @@ class SearchController extends BaseController
      *
      * @ApiDoc(
      *     resource=true,
+     *     section="Search",
      *     description="Get list of search items",
      *     filters={
      *         {"name"="query", "dataType"="string"}
@@ -103,6 +104,7 @@ class SearchController extends BaseController
      *
      * @ApiDoc(
      *     resource=true,
+     *     section="Search",
      *     description="Search friends by email's hash",
      *     filters={
      *         {"name"="emails", "dataType"="array"},

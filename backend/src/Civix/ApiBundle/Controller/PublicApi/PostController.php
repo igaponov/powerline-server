@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle\Controller\PublicApi;
 
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -15,6 +16,10 @@ class PostController extends BaseController
     /**
      * @Route("/")
      * @Method("GET")
+     *
+     * @ApiDoc(
+     *     section="Public"
+     * )
      */
     public function getPosts()
     {

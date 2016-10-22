@@ -25,7 +25,8 @@ class PetitionController extends BaseController
      * )
      * @ApiDoc(
      *     resource=true,
-     *     description="Petition",
+     *     section="Polls",
+     *     description="Public",
      *     statusCodes={
      *         200="Returns petition",
      *         405="Method Not Allowed"
@@ -53,7 +54,7 @@ class PetitionController extends BaseController
      *
      * @ApiDoc(
      *     section="Polls",
-     *     description="Petition",
+     *     description="Public",
      *     statusCodes={
      *         200="Returns petition's comments",
      *         405="Method Not Allowed"

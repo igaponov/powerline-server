@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle\Controller\PublicApi;
 
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -16,6 +17,10 @@ class UserController extends BaseController
     /**
      * @Route("/")
      * @Method("GET")
+     *
+     * @ApiDoc(
+     *     section="Public"
+     * )
      */
     public function getUsers(Request $request)
     {

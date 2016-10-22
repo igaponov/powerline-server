@@ -131,6 +131,7 @@ class AnswersController extends BaseController
      * @Method("GET")
      *
      * @ApiDoc(
+     *     section="Polls",
      *     description="Returns charges"
      * )
      *

@@ -26,6 +26,7 @@ class UserController extends BaseController
      *
      * @ApiDoc(
      *     resource=true,
+     *     section="Users",
      *     description="Find user by username",
      *     filters={
      *         {"name"="username", "dataType"="string"}
@@ -59,6 +60,7 @@ class UserController extends BaseController
      *
      * @ApiDoc(
      *     resource=true,
+     *     section="Users",
      *     description="List of users",
      *     filters={
      *             {"name"="q", "dataType"="string"}
