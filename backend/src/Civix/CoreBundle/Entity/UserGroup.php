@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\CoreBundle\Serializer\Type\UserRole;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Entity\Group\GroupField;
@@ -608,5 +609,18 @@ class UserGroup implements LeaderContentInterface
     public function isActive()
     {
         return $this->status == self::STATUS_ACTIVE;
+    }
+
+    /**
+     * @return UserRole
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"group-list"})
+     * @Serializer\SerializedName("user_role")
+     * @Serializer\Type("UserRole")
+     */
+    public function getUserRole()
+    {
+        return new UserRole($this);
     }
 }
