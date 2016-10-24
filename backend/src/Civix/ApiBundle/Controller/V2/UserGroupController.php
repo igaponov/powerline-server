@@ -47,7 +47,7 @@ class UserGroupController extends FOSRestController
      *     }
      * )
      *
-     * @View(serializerGroups={"paginator", "api-groups"})
+     * @View(serializerGroups={"paginator", "api-groups", "group-list"})
      *
      * @param ParamFetcher $params
      *

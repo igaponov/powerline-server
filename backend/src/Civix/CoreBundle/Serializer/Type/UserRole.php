@@ -1,25 +1,25 @@
 <?php
 namespace Civix\CoreBundle\Serializer\Type;
 
-use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\UserGroup;
 
 class UserRole
 {
     /**
-     * @var Group
+     * @var UserGroup
      */
-    private $group;
+    private $userGroup;
 
-    public function __construct(Group $group)
+    public function __construct(UserGroup $userGroup)
     {
-        $this->group = $group;
+        $this->userGroup = $userGroup;
     }
 
     /**
-     * @return Group
+     * @return UserGroup
      */
-    public function getGroup()
+    public function getUserGroup()
     {
-        return $this->group;
+        return $this->userGroup;
     }
 }

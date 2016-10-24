@@ -39,12 +39,12 @@ class UserRoleHandler implements SubscribingHandlerInterface
         }
 
         $user = $this->securityContext->getToken()->getUser();
-        $group = $userRole->getGroup();
-        if ($group->getOwner()->isEqualTo($user)) {
+        $userGroup = $userRole->getUserGroup();
+        if ($userGroup->getGroup()->getOwner()->isEqualTo($user)) {
             return 'owner';
-        } elseif ($group->getManagers()->contains($user)) {
+        } elseif ($userGroup->getGroup()->getManagers()->contains($user)) {
             return 'manager';
-        } elseif ($group->getUsers()->contains($user)) {
+        } elseif ($userGroup->getUser()->isEqualTo($user)) {
             return 'member';
         }
 

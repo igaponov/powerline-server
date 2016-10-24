@@ -1,11 +1,10 @@
 <?php
-namespace Civix\ApiBundle\Tests\Controller\V2;
+namespace Civix\ApiBundle\Tests\Controller\Leader;
 
 use Civix\CoreBundle\Entity\Group;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Test\SocialActivityTester;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadInviteData;
@@ -56,36 +55,6 @@ class GroupControllerTest extends WebTestCase
         $this->em = null;
         parent::tearDown();
     }
-
-	public function testGetGroups()
-	{
-        $repository = $this->loadFixtures([
-            LoadGroupData::class,
-            LoadUserGroupData::class,
-            LoadGroupManagerData::class,
-        ])->getReferenceRepository();
-        $group1 = $repository->getReference('group_1');
-        $group2 = $repository->getReference('group_2');
-        $group3 = $repository->getReference('group_3');
-        $group4 = $repository->getReference('group_4');
-		$data = $this->getGroups('user3', []);
-        $this->assertSame(4, $data['totalItems']);
-		$this->assertCount(4, $data['payload']);
-        foreach ($data['payload'] as $item) {
-            switch ($item['id']) {
-                case $group1->getId():
-                case $group2->getId():
-                    $this->assertSame('manager', $item['user_role']);
-                    break;
-                case $group3->getId():
-                    $this->assertSame('owner', $item['user_role']);
-                    break;
-                case $group4->getId():
-                    $this->assertSame('member', $item['user_role']);
-                    break;
-            }
-		}
-	}
 
 	public function testGetGroupsIsOk()
 	{

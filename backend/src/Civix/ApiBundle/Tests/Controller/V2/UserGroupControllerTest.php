@@ -7,9 +7,11 @@ use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFieldsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -45,28 +47,37 @@ class UserGroupControllerTest extends WebTestCase
     public function testGetGroups()
     {
         $repository = $this->loadFixtures([
-            LoadUserData::class,
-            LoadGroupFollowerTestData::class,
-            LoadUserGroupFollowerTestData::class,
+            LoadGroupData::class,
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+            LoadUserGroupOwnerData::class,
         ])->getReferenceRepository();
-        $group1 = $repository->getReference('userfollowtest1_testfollowsecretgroups');
-        $group2 = $repository->getReference('userfollowtest1_testfollowprivategroups');
+        $group1 = $repository->getReference('group_1');
+        $group2 = $repository->getReference('group_2');
+        $group3 = $repository->getReference('group_3');
+        $group4 = $repository->getReference('group_4');
         $client = $this->client;
-        $client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"']);
+        $client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user3"']);
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertSame(1, $data['page']);
-        $this->assertSame(50, $data['items']);
-        $this->assertSame(2, $data['totalItems']);
-        $this->assertCount(2, $data['payload']);
+        $this->assertSame(4, $data['totalItems']);
+        $this->assertCount(4, $data['payload']);
         foreach ($data['payload'] as $item) {
             $this->assertArrayHasKey('username', $item);
             $this->assertArrayHasKey('join_status', $item);
-            $this->assertThat(
-                $item['id'],
-                $this->logicalOr($group1->getGroup()->getId(), $group2->getGroup()->getId())
-            );
+            switch ($item['id']) {
+                case $group1->getId():
+                case $group2->getId():
+                    $this->assertSame('manager', $item['user_role']);
+                    break;
+                case $group3->getId():
+                    $this->assertSame('owner', $item['user_role']);
+                    break;
+                case $group4->getId():
+                    $this->assertSame('member', $item['user_role']);
+                    break;
+            }
         }
     }
 
