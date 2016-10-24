@@ -139,11 +139,7 @@ class GroupVoter implements VoterInterface
             return VoterInterface::ACCESS_DENIED;
         }
 
-        if ($attribute === self::MEMBERSHIP
-            && !$this->subscriptionManager->getSubscription($object)->isNotFree()
-        ) {
-            return VoterInterface::ACCESS_DENIED;
-        } elseif ($attribute === self::MICROPETITION_CONFIG
+        if ($attribute === self::MICROPETITION_CONFIG
             && !$this->packageHandler->getPackageStateForMicropetition($object)->isAllowed()
         ) {
             return VoterInterface::ACCESS_DENIED;

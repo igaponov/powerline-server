@@ -76,8 +76,6 @@ class MembershipControllerTest extends WebTestCase
         ])->getReferenceRepository();
         $group = $repository->getReference($reference);
         $client = $this->client;
-        $service = $this->getSubscriptionManagerMock(Subscription::PACKAGE_TYPE_SILVER);
-        $client->getContainer()->set("civix_core.subscription_manager", $service);
         $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
         $client->request('PUT', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
         $response = $client->getResponse();
@@ -96,7 +94,9 @@ class MembershipControllerTest extends WebTestCase
         $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
         $client->request('PUT', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user3"']);
         $response = $client->getResponse();
-        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals('You must have a Silver subscription or above to change membership controls. Upgrade today!', $data['message']);
     }
 
 	/**
