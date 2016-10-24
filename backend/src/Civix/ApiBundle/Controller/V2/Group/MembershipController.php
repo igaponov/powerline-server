@@ -6,6 +6,7 @@ use Civix\ApiBundle\Configuration\SecureParam;
 use Civix\ApiBundle\Form\Type\Group\MembershipType;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Service\Group\GroupManager;
+use Civix\CoreBundle\Service\Subscription\SubscriptionManager;
 use FOS\RestBundle\Controller\Annotations\View;
 use JMS\DiExtraBundle\Annotation as DI;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
@@ -13,6 +14,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * @Route("/groups/{group}/membership")
@@ -24,6 +26,12 @@ class MembershipController extends Controller
      * @DI\Inject("civix_core.group_manager")
      */
     private $manager;
+
+    /**
+     * @var SubscriptionManager
+     * @DI\Inject("civix_core.subscription_manager")
+     */
+    private $subscriptionManager;
 
     /**
      * Return group's membership control
@@ -99,6 +107,9 @@ class MembershipController extends Controller
      */
     public function putAction(Request $request, Group $group)
     {
+        if (!$this->subscriptionManager->getSubscription($group)->isNotFree()) {
+            throw new BadRequestHttpException('You must have a Silver subscription or above to change membership controls. Upgrade today!');
+        }
         $form = $this->createForm(new MembershipType(), $group);
         
         $form->submit($request);
