@@ -549,16 +549,6 @@ class UserRepository extends EntityRepository
         return $query->getQuery()->getResult(Query::HYDRATE_OBJECT);
     }
 
-    public function getFindByGroupQuery(Group $group)
-    {
-        return $this->createQueryBuilder('u')
-            ->innerJoin('u.groups', 'gr')
-            ->where('gr.group = :group')
-            ->setParameter('group', $group)
-            ->orderBy('u.id', 'ASC')
-            ->getQuery();
-    }
-
     public function findForInviteByGroupUsername(Group $group, $userNames)
     {
         $qb = $this->createQueryBuilder('u');

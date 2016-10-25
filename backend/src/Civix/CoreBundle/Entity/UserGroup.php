@@ -39,6 +39,7 @@ class UserGroup implements LeaderContentInterface
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\User", inversedBy="groups", cascade={"persist"})
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      * @Serializer\Expose()
+     * @Serializer\Until("1")
      */
     private $user;
 
@@ -227,7 +228,7 @@ class UserGroup implements LeaderContentInterface
      * @Serializer\Since("2")
      * @Serializer\SerializedName("join_status")
      * @Serializer\Type("string")
-     * @Serializer\Groups({"api-info", "api-groups"})
+     * @Serializer\Groups({"api-info", "api-groups", "user-list"})
      */
     public function getJoinStatus()
     {
@@ -259,6 +260,19 @@ class UserGroup implements LeaderContentInterface
      * @return User
      */
     public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @return User
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Since("2")
+     * @Serializer\Inline()
+     * @Serializer\Groups({"user-list"})
+     */
+    public function getUserInline()
     {
         return $this->user;
     }
@@ -615,7 +629,7 @@ class UserGroup implements LeaderContentInterface
      * @return UserRole
      *
      * @Serializer\VirtualProperty()
-     * @Serializer\Groups({"group-list"})
+     * @Serializer\Groups({"group-list", "user-list"})
      * @Serializer\SerializedName("user_role")
      * @Serializer\Type("UserRole")
      */

@@ -73,7 +73,7 @@ class User implements UserInterface, \Serializable
      * @Serializer\Expose()
      * @Serializer\Groups(
      *      {"api-profile", "api-info", "api-comments", "api-session", "api-full-info", "api-public",
-     *      "api-petitions-list", "api-petitions-info", "api-search", "api-invites", "api-leader-answers", "api-short-info"}
+     *      "api-petitions-list", "api-petitions-info", "api-search", "api-invites", "api-leader-answers", "api-short-info", "user-list"}
      * )
      * @Assert\NotBlank(groups={"registration", "profile"})
      * @Assert\Regex(pattern="/^[a-zA-Z0-9._-]+[a-zA-Z0-9]$/", match="true", groups={"registration", "profile"})
@@ -102,7 +102,7 @@ class User implements UserInterface, \Serializable
      * @Serializer\Expose()
      * @Serializer\Groups({
      *  "api-profile", "api-comments", "api-info", "api-petitions-list",
-     *  "api-petitions-info", "api-search", "api-full-info", "api-invites", "api-leader-answers", "api-short-info"
+     *  "api-petitions-info", "api-search", "api-full-info", "api-invites", "api-leader-answers", "api-short-info", "user-list"
      * })
      * @Serializer\SerializedName("first_name")
      * @Assert\NotBlank(groups={"registration", "profile"})
@@ -116,7 +116,7 @@ class User implements UserInterface, \Serializable
      * @Serializer\Expose()
      * @Serializer\Groups({
      *  "api-profile", "api-comments", "api-info", "api-petitions-list", 
-     *  "api-petitions-info", "api-search", "api-full-info", "api-invites", "api-leader-answers", "api-short-info"
+     *  "api-petitions-info", "api-search", "api-full-info", "api-invites", "api-leader-answers", "api-short-info", "user-list"
      * })
      * @Serializer\SerializedName("last_name")
      * @Assert\NotBlank(groups={"registration", "profile"})
@@ -138,7 +138,7 @@ class User implements UserInterface, \Serializable
      *
      * @ORM\Column(name="email", type="string", length=255)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-profile"})
+     * @Serializer\Groups({"api-profile", "user-list"})
      * @Assert\NotBlank(groups={"registration", "profile"})
      * @Assert\Email(groups={"registration", "profile"})
      */
