@@ -249,7 +249,7 @@ class GroupController extends FOSRestController
      * @ApiDoc(
      *     authentication=true,
      *     section="Groups",
-     *     description="Join a list of users to a group",
+     *     description="Invite users from a list to join a group",
      *     input="Civix\ApiBundle\Form\Type\InviteType",
      *     statusCodes={
      *         204="Success",
