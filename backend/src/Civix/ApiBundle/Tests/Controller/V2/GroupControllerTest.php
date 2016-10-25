@@ -252,6 +252,42 @@ class GroupControllerTest extends WebTestCase
 		}
 	}
 
+    public function testDeleteGroupUserWithWrongCredentialsThrowsException()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference('group_2');
+        $user = $this->repository->getReference('user_1');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user4"'];
+        $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId().'/users/'.$user->getId(), [], [], $headers);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testDeleteGroupUserIsOk()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference('group_2');
+        $user = $this->repository->getReference('user_1');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user3"'];
+        $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId().'/users/'.$user->getId(), [], [], $headers);
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $count = $conn->fetchColumn(
+            'SELECT * FROM users_groups WHERE user_id = ? AND group_id = ?',
+            [$user->getId(), $group->getId()]
+        );
+        $this->assertEquals(0, $count);
+    }
+
     public function testPatchGroupUserWithWrongCredentialsThrowsException()
     {
         $this->repository = $this->loadFixtures([

@@ -213,6 +213,32 @@ class GroupController extends FOSRestController
     }
 
     /**
+     * @Route("/{id}/users/{user}", requirements={"id"="\d+"})
+     * @Method("DELETE")
+     *
+     * @SecureParam("group", permission="manage")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Groups",
+     *     description="Remove a user from a group",
+     *     statusCodes={
+     *         204="Success",
+     *         403="Access Denied",
+     *         404="Group Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Group $group
+     * @param User $user
+     */
+    public function deleteUsersAction(Group $group, User $user)
+    {
+        $this->manager->unjoinGroup($user, $group);
+    }
+
+    /**
      * @Route("/{group}/users/{user}")
      * @Method("PATCH")
      *

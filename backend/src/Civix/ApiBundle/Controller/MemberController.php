@@ -50,7 +50,7 @@ class MemberController extends Controller
 
     /**
      * Remove a user from a group name.
-     * Deprecated
+     * Deprecated, use `DELETE /api/v2/groups/{id}/users/{user}` instead
      * 
      * @Route("/{id}/remove", name="civix_api_group_members_remove")
      * @Method({"POST"})
