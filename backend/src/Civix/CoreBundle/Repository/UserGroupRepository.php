@@ -117,4 +117,17 @@ class UserGroupRepository extends EntityRepository
             ->setParameter('types', [Group::GROUP_TYPE_LOCAL, Group::GROUP_TYPE_STATE, Group::GROUP_TYPE_COUNTRY])
             ->getQuery()->getResult();
     }
+
+    public function getFindByGroupQuery(Group $group)
+    {
+        return $this->createQueryBuilder('ug')
+            ->select('ug', 'u', 'g', 'gm')
+            ->innerJoin('ug.user', 'u')
+            ->leftJoin('ug.group', 'g')
+            ->leftJoin('g.managers', 'gm')
+            ->where('ug.group = :group')
+            ->setParameter('group', $group)
+            ->orderBy('u.id', 'ASC')
+            ->getQuery();
+    }
 }

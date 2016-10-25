@@ -193,7 +193,7 @@ class GroupController extends FOSRestController
      *     }
      * )
      *
-     * @View(serializerGroups={"paginator", "api-short-info"})
+     * @View(serializerGroups={"paginator", "user-list"})
      *
      * @param ParamFetcher $params
      * @param $group
@@ -202,7 +202,7 @@ class GroupController extends FOSRestController
      */
     public function getUsersAction(ParamFetcher $params, Group $group)
     {
-        $query = $this->getDoctrine()->getRepository(User::class)
+        $query = $this->getDoctrine()->getRepository(UserGroup::class)
             ->getFindByGroupQuery($group);
 
         return $this->get('knp_paginator')->paginate(
