@@ -199,6 +199,10 @@ class Stripe
         $customer = $this->em
             ->getRepository(Customer::getEntityClassByUser($user))
             ->findOneBy(['user' => $user]);
+        if (!$customer) {
+            throw new \RuntimeException('User doesn\'t have an account in stripe');
+        }
+
         $stripeCustomer = $this->getStripeCustomer($customer);
 
         if ($subscription->getStripeId()) {
