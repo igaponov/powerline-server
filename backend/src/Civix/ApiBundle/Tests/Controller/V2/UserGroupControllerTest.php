@@ -148,7 +148,7 @@ class UserGroupControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(201, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        foreach ($data as $property => $value) {
+        foreach ($params as $property => $value) {
             $this->assertSame($value, $data[$property]);
         }
         /** @var Connection $conn */

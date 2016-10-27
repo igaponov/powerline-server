@@ -85,6 +85,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      *      {"api-activities", "api-poll", "api-groups", "api-search", "api-poll-public",
      *      "api-petitions-list", "api-petitions-info", "api-info", "api-invites", "api-create-by-user"}
      * )
+     * @Serializer\Until("1")
      */
     private $groupType;
 
@@ -217,7 +218,6 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      *      {"api-activities", "api-poll","api-groups", "api-info", "api-search", "api-create-by-user",
      *      "api-petitions-list", "api-petitions-info", "api-invites", "api-poll-public", "api-group"}
      * )
-     * @Serializer\SerializedName("official_title")
      */
     private $officialName;
 
@@ -247,7 +247,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      * @ORM\Column(name="official_type", type="string", length=255, nullable=true)
      * @Assert\NotBlank(groups={"user-registration"})
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-create-by-user", "api-group"})
+     * @Serializer\Groups({"api-info", "api-create-by-user", "api-group"})
      */
     private $officialType;
 
@@ -539,6 +539,17 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
             'Business' => 'Business',
             'Cooperative/Union' => 'Cooperative/Union',
             'Other' => 'Other',
+        ];
+    }
+
+    public static function getGroupTypes()
+    {
+        return [
+            self::GROUP_TYPE_COMMON => 'common',
+            self::GROUP_TYPE_COUNTRY => 'country',
+            self::GROUP_TYPE_STATE => 'state',
+            self::GROUP_TYPE_LOCAL => 'local',
+            self::GROUP_TYPE_SPECIAL => 'special',
         ];
     }
 
@@ -1435,6 +1446,26 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     public function getGroupType()
     {
         return $this->groupType;
+    }
+
+    /**
+     * @return mixed|null
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups(
+     *      {"api-activities", "api-poll", "api-groups", "api-search", "api-poll-public",
+     *      "api-petitions-list", "api-petitions-info", "api-info", "api-invites", "api-create-by-user"}
+     * )
+     * @Serializer\Since("2")
+     */
+    public function getGroupTypeLabel()
+    {
+        $groupTypes = self::getGroupTypes();
+        if (isset($groupTypes[$this->groupType])) {
+            return $groupTypes[$this->groupType];
+        }
+
+        return null;
     }
 
     public function setGroupType($type)

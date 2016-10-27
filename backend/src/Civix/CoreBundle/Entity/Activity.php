@@ -494,7 +494,7 @@ abstract class Activity implements HtmlBodyInterface
             'id' => $group->getId(),
             'type' => $group->getType(),
             'group_type' => $group->getGroupType(),
-            'official_title' => $group->getOfficialName(),
+            'official_name' => $group->getOfficialName(),
             'avatar_file_path' => $group->getAvatarFileName(),
         ];
     }
