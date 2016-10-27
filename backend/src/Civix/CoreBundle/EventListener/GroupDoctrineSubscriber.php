@@ -27,7 +27,7 @@ class GroupDoctrineSubscriber implements EventSubscriber
         $slugify = new Slugify();
         $slug = $slugify->slugify($entity->getOfficialName());
         $conn = $event->getEntityManager()->getConnection();
-        $stmt = $conn->query('SELECT slug FROM groups WHERE slug LIKE ? OR slug = ? ORDER BY LENGTH(slug) DESC, slug DESC');
+        $stmt = $conn->prepare('SELECT slug FROM groups WHERE slug LIKE ? OR slug = ? ORDER BY LENGTH(slug) DESC, slug DESC');
         $stmt->execute([$slug.'-%', $slug]);
         while ($string = $stmt->fetchColumn()) {
             if ($string == $slug) {
