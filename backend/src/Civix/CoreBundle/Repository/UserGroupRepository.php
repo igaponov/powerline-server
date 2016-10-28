@@ -130,4 +130,17 @@ class UserGroupRepository extends EntityRepository
             ->orderBy('u.id', 'ASC')
             ->getQuery();
     }
+
+    public function getOldestMember(Group $group)
+    {
+        return $this->createQueryBuilder('ug')
+            ->where('ug.group = :group')
+            ->setParameter(':group', $group)
+            ->andWhere('ug.user != :user')
+            ->setParameter(':user', $group->getOwner())
+            ->orderBy('ug.createdAt', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

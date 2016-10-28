@@ -28,7 +28,8 @@ class LoadUserGroupOwnerData extends AbstractFixture implements DependentFixture
         $manager->persist($userGroup);
 
         $userGroup = new UserGroup($user3, $group3);
-        $userGroup->setStatus(UserGroup::STATUS_ACTIVE);
+        $userGroup->setStatus(UserGroup::STATUS_ACTIVE)
+            ->setCreatedAt(new \DateTime('-1 day'));
         $manager->persist($userGroup);
 
         $userGroup = new UserGroup($user1, $group4);

@@ -6,6 +6,7 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Invites\UserToGroup;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
+use Civix\CoreBundle\Entity\UserGroupManager;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
 use Civix\CoreBundle\Event\GroupUserEvent;
@@ -310,5 +311,19 @@ class GroupManager
             $this->entityManager->persist($user);
             $this->entityManager->flush();
         }
+    }
+
+    public function deleteGroupOwner(Group $group)
+    {
+        $userGroup = $this->entityManager->getRepository(UserGroupManager::class)
+            ->getOldestManager($group);
+        if (!$userGroup) {
+            $userGroup = $this->entityManager->getRepository(UserGroup::class)
+                ->getOldestMember($group);
+        }
+        $group->setOwner($userGroup ? $userGroup->getUser() : null);
+
+        $this->entityManager->persist($group);
+        $this->entityManager->flush();
     }
 }

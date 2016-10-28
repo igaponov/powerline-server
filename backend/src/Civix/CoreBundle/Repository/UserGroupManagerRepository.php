@@ -117,4 +117,15 @@ class UserGroupManagerRepository extends EntityRepository
             ->setParameter('types', [Group::GROUP_TYPE_LOCAL, Group::GROUP_TYPE_STATE, Group::GROUP_TYPE_COUNTRY])
             ->getQuery()->getResult();
     }
+
+    public function getOldestManager(Group $group)
+    {
+        return $this->createQueryBuilder('gm')
+            ->where('gm.group = :group')
+            ->setParameter(':group', $group)
+            ->orderBy('gm.createdAt', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

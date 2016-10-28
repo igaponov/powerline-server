@@ -105,7 +105,8 @@ class GroupController extends FOSRestController
      *          }
      *     },
      *     statusCodes={
-     *          405="Method Not Allowed"
+     *         404="Group Not Found",
+     *         405="Method Not Allowed"
      *     }
      * )
      *
@@ -144,6 +145,7 @@ class GroupController extends FOSRestController
      *     },
      *     statusCodes={
      *         400="Bad Request",
+     *         404="Group Not Found",
      *         405="Method Not Allowed"
      *     }
      * )
@@ -189,6 +191,7 @@ class GroupController extends FOSRestController
      *     statusCodes={
      *         400="Bad request",
      *         401="Authorization required",
+     *         404="Group Not Found",
      *         405="Method Not Allowed"
      *     }
      * )
@@ -225,7 +228,7 @@ class GroupController extends FOSRestController
      *     statusCodes={
      *         204="Success",
      *         403="Access Denied",
-     *         404="Group Not Found",
+     *         404="Group or User Not Found",
      *         405="Method Not Allowed"
      *     }
      * )
@@ -281,6 +284,7 @@ class GroupController extends FOSRestController
      *         204="Success",
      *         400="Bad request",
      *         403="Access Denied",
+     *         404="Group Not Found",
      *         405="Method Not Allowed"
      *     }
      * )
@@ -330,6 +334,7 @@ class GroupController extends FOSRestController
      *     statusCodes={
      *         400="Bad request",
      *         403="Access Denied",
+     *         404="Group or User Not Found",
      *         405="Method Not Allowed"
      *     }
      * )
@@ -366,6 +371,7 @@ class GroupController extends FOSRestController
      *         204="Success",
      *         400="Bad request",
      *         403="Access Denied",
+     *         404="Group or User Not Found",
      *         405="Method Not Allowed"
      *     }
      * )
@@ -376,5 +382,32 @@ class GroupController extends FOSRestController
     public function deleteGroupInviteAction(Group $group, User $user)
     {
         $this->manager->removeInvite($group, $user);
+    }
+
+    /**
+     * Delete group's owner
+     *
+     * @Route("/{id}/owner", requirements={"id"="\d+"})
+     * @Method("DELETE")
+     *
+     * @SecureParam("group", permission="edit")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Groups",
+     *     description="Delete group's owner",
+     *     statusCodes={
+     *         204="Success",
+     *         403="Access Denied",
+     *         404="Group Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Group $group
+     */
+    public function deleteGroupOwnerAction(Group $group)
+    {
+        $this->manager->deleteGroupOwner($group);
     }
 }
