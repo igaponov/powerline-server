@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="api.security.user_provider"
+                 public="false"
+                 class="Civix\ApiBundle\Security\Core\ApiUserProvider" >
+            <argument type="service" id="doctrine.orm.entity_manager" />
+            <argument type="service" id="civix_core.crop_avatar" />
+            <argument type="collection">
+                <argument type="string" key="facebook">facebookId</argument>
+                <argument type="string" key="facebook_secret">facebookToken</argument>
+            </argument>
+        </service>
+
+        <service id="api.security.authentication.provider.bearer_token"
+                 public="false"
+                 class="Civix\ApiBundle\Security\Authentication\Provider\BearerTokenProvider"
+                 abstract="true">
+            <argument type="service" id="api.security.user_provider" />
+            <argument type="service" id="security.user_checker" />
+            <argument /> <!-- Provider-shared Key -->
+        </service>
+
+        <service id="api.security.authentication.listener.bearer_token"
+                 class="Civix\ApiBundle\Security\Firewall\BearerTokenAuthenticationListener" public="false" abstract="true">
+            <argument type="service" id="security.context"/>
+            <argument type="service" id="security.authentication.manager" />
+            <argument /> <!-- Provider-shared Key -->
+            <argument type="service" id="logger" />
+            <argument type="service" id="event_dispatcher" />
+        </service>
+
+        <service class="Civix\ApiBundle\Security\Http\Authentication\AuthenticationFailureHandler" id="civix_api.security.authentication_failure_handler"/>
+        <service class="Civix\ApiBundle\Security\Http\Authentication\AuthenticationSuccessHandler" id="civix_api.security.authentication_success_handler">
+            <argument id="jms_serializer.serializer" type="service"/>
+        </service>
+    </services>
+</container>

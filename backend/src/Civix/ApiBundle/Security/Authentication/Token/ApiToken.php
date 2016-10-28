@@ -10,10 +10,6 @@ class ApiToken extends AbstractToken
      * @var string
      */
     private $token;
-    /**
-     * @var string
-     */
-    private $userType = 'user';
 
     public function __construct($roles = [])
     {
@@ -26,19 +22,13 @@ class ApiToken extends AbstractToken
         return '';
     }
 
-    public function setToken($token, $userType)
+    public function setToken($token)
     {
         $this->token = $token;
-        $this->userType = $userType;
     }
 
     public function getToken()
     {
         return $this->token;
-    }
-
-    public function getUserType()
-    {
-        return $this->userType;
     }
 }

@@ -6,12 +6,12 @@ use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Service\CropAvatar;
 use HWI\Bundle\OAuthBundle\OAuth\Response\UserResponseInterface;
 use HWI\Bundle\OAuthBundle\Security\Core\User\OAuthAwareUserProviderInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Civix\ApiBundle\Security\Authentication\Token\ApiToken;
 use Doctrine\ORM\EntityManager;
-use Civix\CoreBundle\Entity\Session;
 
 class ApiUserProvider implements UserProviderInterface, OAuthAwareUserProviderInterface
 {
@@ -62,38 +62,15 @@ class ApiUserProvider implements UserProviderInterface, OAuthAwareUserProviderIn
         return $user;
     }
 
-    public function loadUserByToken(ApiToken $token)
+    public function loadUserByToken(TokenInterface $token)
     {
-    	// Avoid load a user if no token was provided
-        if (empty($token->getToken())) 
-        {
-            return;
+        $user = $this->em->getRepository('CivixCoreBundle:User')
+                ->findOneBy(['token' => $token->getCredentials()]);
+        if (!$user) {
+            throw new UsernameNotFoundException(sprintf("User not found."));
         }
 
-        // Check first the user type
-        if ($token->getUserType() === 'user') 
-        {
-            return $this->em->getRepository('CivixCoreBundle:User')
-                ->findOneBy(['token' => $token->getToken()]);
-        }
-        
-        // If fails, check the group type
-        if ($token->getUserType() === 'group') 
-        {
-        	return $this->em->getRepository('CivixCoreBundle:Group')
-        	->findOneBy(['token' => $token->getToken()]);
-        }
-        
-        // @ŧodo implement here support for representative or superuser in case that needed
-
-        $session = $this->em->getRepository(Session::class)
-            ->findOneByToken($token->getToken());
-
-        if ($session) {
-            return $this->em
-                ->getRepository('CivixCoreBundle:'.ucfirst($session->getUserType()))
-                ->find($session->getUserId());
-        }
+        return $user;
     }
 
     /**
@@ -101,12 +78,7 @@ class ApiUserProvider implements UserProviderInterface, OAuthAwareUserProviderIn
      */
     public function supportsClass($class)
     {
-        return
-            $class === 'Civix\CoreBundle\Entity\User' ||
-            $class === 'Civix\CoreBundle\Entity\Group' ||
-            $class === 'Civix\CoreBundle\Entity\Representative' ||
-            $class === 'Civix\CoreBundle\Entity\Superuser'
-        ;
+        return $class === User::class;
     }
 
     public function loadUserByOAuthUserResponse(UserResponseInterface $response)
