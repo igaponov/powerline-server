@@ -15,9 +15,6 @@ class GroupType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('username', 'text', [
-            'description' => 'User name',
-        ]);
         $builder->add('manager_first_name', 'text', [
             'property_path' => 'managerFirstName',
             'required' => false,

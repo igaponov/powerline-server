@@ -2,7 +2,7 @@
 namespace Civix\ApiBundle\Security\Authorization\Voter;
 
 use Civix\CoreBundle\Entity\Announcement;
-use Civix\CoreBundle\Entity\UserInterface;
+use Civix\CoreBundle\Entity\LeaderInterface;
 use Civix\CoreBundle\Service\Subscription\PackageHandler;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
@@ -78,7 +78,7 @@ class AnnouncementVoter implements VoterInterface
         // set the attribute to check against
         $attribute = $attributes[0];
 
-        /** @var UserInterface $user */
+        /** @var LeaderInterface $user */
         $user = $object->getUser();
 
         // check if the given attribute is covered by this voter
@@ -86,12 +86,7 @@ class AnnouncementVoter implements VoterInterface
             return VoterInterface::ACCESS_ABSTAIN;
         }
 
-        if (!$user instanceof UserInterface) {
-            return VoterInterface::ACCESS_DENIED;
-        }
-
-        // make sure entity has owner attached to it
-        if (!$object->getUser() instanceof UserInterface) {
+        if (!$user instanceof LeaderInterface) {
             return VoterInterface::ACCESS_DENIED;
         }
         

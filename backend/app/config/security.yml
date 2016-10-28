@@ -8,10 +8,6 @@ security:
             algorithm: sha512
             encode-as-base64: false
             iterations: 473
-        Civix\CoreBundle\Entity\Group:
-            algorithm: sha512
-            encode-as-base64: false
-            iterations: 473
         Civix\CoreBundle\Entity\Superuser:
             algorithm: sha512
             encode-as-base64: false
@@ -24,19 +20,14 @@ security:
     providers:
         representative:
             entity: { class: CivixCoreBundle:Representative, property: username }
-        group:
-            entity: { class: CivixCoreBundle:Group, property: username }
         superuser:
             entity: { class: CivixCoreBundle:Superuser, property: username }
         mobileuser:
             entity: { class: CivixCoreBundle:User, property: username }
 
     firewalls:
-        representative_login:
-            pattern: ^/representative/login$
-            anonymous: ~
-        representative_registration:
-            pattern: ^/representative/registration$
+        representative_anonymous:
+            pattern: ^/representative/(login|registration)$
             anonymous: ~
         representative_security_area:
             pattern: ^/representative/
@@ -51,26 +42,7 @@ security:
                 path: /representative/logout
                 target: /representative
 
-        group_login:
-            pattern: ^/group/login$
-            anonymous: ~
-        group_registration:
-            pattern: ^/group/registration$
-            anonymous: ~
-        group_security_area:
-            pattern: ^/group/
-            provider: group
-            security: true
-            form_login:
-                check_path: /group/login_check
-                login_path: /group/login
-                csrf_provider: form.csrf_provider
-                intention: group_authentication
-            logout:
-                path: /group/logout
-                target: /group
-
-        superuser_login:
+        superuser_anonymous:
             pattern: ^/superuser/login$
             anonymous: ~
         superuser_security_area:
@@ -92,41 +64,19 @@ security:
 
         mobileuser_login:
             pattern: ^/api/secure/login$
-            anonymous: ~
+            provider: mobileuser
+            form-login:
+                login_path: /api/secure/login
+                check_path: /api/secure/login
+                username_parameter: username
+                password_parameter: password
+                require_previous_session: false
+                success_handler: civix_api.security.authentication_success_handler
+                failure_handler: civix_api.security.authentication_failure_handler
 
-        mobileuser_registration:
-            pattern: ^/api/secure/registration$
+        mobileuser_anonymous:
+            pattern: ^/api/secure/
             anonymous: ~
-
-        mobileuser_facebook_login:
-            pattern: ^/api/secure/facebook/login$
-            anonymous: ~
-
-        mobileuser_facebook_registration:
-            pattern: ^/api/secure/registration-facebook$
-            anonymous: ~
-
-        mobileuser_group_registration:
-            pattern: ^/api/secure/registration-group$
-            anonymous: ~
-
-        mobileuser_forgot_password:
-            pattern: ^/api/secure/forgot-password$
-            anonymous: ~
-
-        mobileuser_reset_token:
-            pattern: ^/api/secure/resettoken/
-            anonymous: ~
-
-        mobileuser_request_beta:
-            pattern: ^/api/secure/beta$
-            anonymous: ~
-
-        mobilegroup_security_area:
-            pattern: ^/api/group
-            security: true
-            header: true
-            provider: group
 
         mobileuser_security_area:
             pattern: ^/api/
@@ -137,12 +87,12 @@ security:
                 resource_owners:
                     facebook: "/api/v2/security/facebook"
                 oauth_user_provider:
-                    service: api.security.user.provider
+                    service: api.security.user_provider
                 require_previous_session: false
                 success_handler: civix_api.security.authentication_success_handler
                 failure_handler: civix_api.security.authentication_failure_handler
             security: true
-            header: true
+            bearer_token: true
             provider: mobileuser
 
         leader_api_login:
@@ -152,7 +102,7 @@ security:
         leader_api_secure_area:
             pattern: ^/api-leader/
             security: true
-            header: true
+            bearer_token: true
             provider: mobileuser
 
         other_area:

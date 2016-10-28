@@ -4,33 +4,13 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
-    <!--
-    <parameters>
-        <parameter key="civix_api.example.class">Civix\ApiBundle\Example</parameter>
-    </parameters>
-    -->
+    <imports>
+        <import resource="services/security.xml"/>
+    </imports>
+
     <services>
 
-        <service id="api.security.user.provider" public="false"
-                 class="Civix\ApiBundle\Security\Core\ApiUserProvider" >
-            <argument type="service" id="doctrine.orm.entity_manager" />
-            <argument type="service" id="civix_core.crop_avatar" />
-            <argument type="collection">
-                <argument type="string" key="facebook">facebookId</argument>
-                <argument type="string" key="facebook_secret">facebookToken</argument>
-            </argument>
-        </service>
 
-        <service id="api.security.authentication.provider"
-                 class="Civix\ApiBundle\Security\Authentication\Provider\ApiProvider" public="false">
-            <argument type="service" id="api.security.user.provider" />
-        </service>
-
-        <service id="api.security.authentication.listener"
-                 class="Civix\ApiBundle\Security\Firewall\HeaderAuthenticationListener" public="false">
-            <argument type="service" id="security.context"/>
-            <argument type="service" id="security.authentication.manager" />
-        </service>
 
         <service id="api.cors" class="Civix\ApiBundle\EventListener\CORSSubscriber">
             <tag name="kernel.event_subscriber"/>
@@ -135,11 +115,6 @@
                     <argument type="string">createResponse</argument>
                 </argument>
             </call>
-        </service>
-
-        <service class="Civix\ApiBundle\Security\Http\Authentication\AuthenticationFailureHandler" id="civix_api.security.authentication_failure_handler"/>
-        <service class="Civix\ApiBundle\Security\Http\Authentication\AuthenticationSuccessHandler" id="civix_api.security.authentication_success_handler">
-            <argument id="jms_serializer.serializer" type="service"/>
         </service>
     </services>
 

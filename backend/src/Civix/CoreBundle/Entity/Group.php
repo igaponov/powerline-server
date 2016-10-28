@@ -6,8 +6,6 @@ use Civix\CoreBundle\Entity\Group\GroupField;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\Security\Core\User\EquatableInterface;
-use Symfony\Component\Security\Core\User\UserInterface as SymfonyUserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -27,11 +25,11 @@ use Civix\CoreBundle\Serializer\Type\JoinStatus;
  * })
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\GroupRepository")
  * @ORM\HasLifecycleCallbacks()
- * @UniqueEntity(fields={"username","officialName"}, groups={"registration", "user-registration", "api-registration"})
+ * @UniqueEntity(fields={"officialName"}, groups={"registration", "user-registration", "api-registration"})
  * @Vich\Uploadable
  * @Serializer\ExclusionPolicy("all")
  */
-class Group implements UserInterface, EquatableInterface, \Serializable, CheckingLimits, CropAvatarInterface, PasswordEncodeInterface
+class Group implements \Serializable, CheckingLimits, CropAvatarInterface, LeaderInterface
 {
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_group.png';
 
@@ -90,31 +88,6 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     private $groupType;
 
     /**
-     * @ORM\Column(name="username", type="string", length=255, unique=true)
-     * @Assert\NotBlank(groups={"registration", "user-registration", "api-registration"})
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-create-by-user", "api-groups", "api-group"})
-     *
-     * @var string
-     */
-    private $username;
-
-    /**
-     * @ORM\Column(name="password", type="string", length=255)
-     * @Assert\NotBlank(groups={"registration"})
-     *
-     * @var string
-     */
-    private $password;
-
-    /**
-     * @ORM\Column(name="salt", type="string", length=255)
-     *
-     * @var string
-     */
-    private $salt;
-
-    /**
      * @Assert\File(
      *     maxSize="10M",
      *     mimeTypes={"image/png", "image/jpeg", "image/pjpeg"},
@@ -164,11 +137,6 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      * @var string
      */
     private $avatarSourceFileName;
-
-    /**
-     * @var string
-     */
-    private $avatarSrc;
 
     /**
      * @var string
@@ -277,20 +245,6 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      * @Serializer\Groups({"api-info", "api-create-by-user", "api-group"})
      */
     private $officialState;
-
-    /**
-     */
-    private $recaptcha;
-
-    /**
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-groups", "api-info"})
-     * @Serializer\Type("JoinStatus")
-     * @Serializer\Accessor(getter="getJoinStatus")
-     *
-     * @var int
-     */
-    private $joined;
 
     /**
      * Group members
@@ -498,14 +452,6 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      * @ORM\Column(name="location_name", type="string", nullable=true)
      */
     private $locationName;
-    
-    /**
-     * @var string
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-session"})
-     * @ORM\Column(name="token", type="string", length=255, nullable=true)
-     */
-    private $token;
 
     /**
      * @var string
@@ -513,12 +459,6 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      * @ORM\Column(name="transparency", type="string", nullable=false)
      */
     private $transparency;
-
-    /**
-     * @var string
-     * @Assert\NotBlank(groups={"api-registration"})
-     */
-    private $plainPassword;
 
     /**
      * @var string
@@ -579,7 +519,6 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
 
     public function __construct()
     {
-        $this->salt = base_convert(sha1(uniqid(mt_rand(), true)), 16, 36);
         $this->users = new ArrayCollection();
         $this->managers = new ArrayCollection();
         $this->invites = new ArrayCollection();
@@ -668,88 +607,13 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     }
 
     /**
-     * Get name.
-     *
-     * @return string
-     */
-    public function getUsername()
-    {
-        return $this->username;
-    }
-
-    /**
-     * Set username.
-     *
-     * @param string $username
-     *
-     * @return Group
-     */
-    public function setUsername($username)
-    {
-        $this->username = $username;
-
-        return $this;
-    }
-
-    /**
-     * Set password.
-     *
-     * @param string $password
-     *
-     * @return Group
-     */
-    public function setPassword($password)
-    {
-        $this->password = $password;
-
-        return $this;
-    }
-
-    /**
-     * Get password.
-     *
-     * @return string
-     */
-    public function getPassword()
-    {
-        return $this->password;
-    }
-
-    /**
-     * Get salt.
-     *
-     * @return string
-     */
-    public function getSalt()
-    {
-        return $this->salt;
-    }
-
-    /**
-     * Returns group role.
-     *
-     * @return array
-     */
-    public function getRoles()
-    {
-        return array('ROLE_GROUP');
-    }
-
-    /**
-     * Removes sensitive data from the user.
-     */
-    public function eraseCredentials()
-    {
-    }
-
-    /**
-     * @param SymfonyUserInterface $user
+     * @param Group $group
      *
      * @return bool
      */
-    public function isEqualTo(SymfonyUserInterface $user)
+    public function isEqualTo(Group $group)
     {
-        return $this->getUsername() === $user->getUsername();
+        return $this->getId() == $group->getId();
     }
 
     /**
@@ -780,7 +644,7 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
      */
     public function __toString()
     {
-        return (string) $this->getUsername();
+        return (string) $this->getOfficialName();
     }
 
     /**
@@ -1034,20 +898,6 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     }
 
     /**
-     * Set salt.
-     *
-     * @param string $salt
-     *
-     * @return Group
-     */
-    public function setSalt($salt)
-    {
-        $this->salt = $salt;
-
-        return $this;
-    }
-
-    /**
      * Set avatar.
      *
      * @param UploadedFile $avatar
@@ -1177,6 +1027,13 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
         return $this->avatarFilePath;
     }
 
+    /**
+     * @return JoinStatus
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"api-groups", "api-info"})
+     * @Serializer\Type("JoinStatus")
+     * @Serializer\SerializedName("joined")
+     */
     public function getJoinStatus()
     {
         return new JoinStatus($this);
@@ -1300,8 +1157,8 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     public function getManagers()
     {
     	return new ArrayCollection(array_map(
-    			function ($usergroupmanager) {
-    				return $usergroupmanager->getUser();
+    			function (UserGroupManager $userGroupManager) {
+    				return $userGroupManager->getUser();
     			},
     			$this->managers->toArray()
     			));
@@ -1911,48 +1768,6 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     }
 
     /**
-     * Set token.
-     *
-     * @param string $token
-     *
-     * @return Group
-     */
-    public function setToken($token)
-    {
-    	$this->token = $token;
-    
-    	return $this;
-    }
-    
-    /**
-     * Get token.
-     *
-     * @return string
-     */
-    public function getToken()
-    {
-    	return $this->token;
-    }
-    
-    public function generateToken()
-    {
-    	$bytes = false;
-    	if (function_exists('openssl_random_pseudo_bytes') && 0 !== stripos(PHP_OS, 'win')) {
-    		$bytes = openssl_random_pseudo_bytes(32, $strong);
-    
-    		if (true !== $strong) {
-    			$bytes = false;
-    		}
-    	}
-    
-    	if (false === $bytes) {
-    		$bytes = hash('sha256', uniqid(mt_rand(), true), true);
-    	}
-    
-    	$this->setToken(base_convert(bin2hex($bytes), 16, 36).$this->getId());
-    }
-
-    /**
      * Set transparency
      *
      * @param string $transparency
@@ -1973,25 +1788,6 @@ class Group implements UserInterface, EquatableInterface, \Serializable, Checkin
     public function getTransparency()
     {
         return $this->transparency;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPlainPassword()
-    {
-        return $this->plainPassword;
-    }
-
-    /**
-     * @param string $plainPassword
-     * @return Group
-     */
-    public function setPlainPassword($plainPassword)
-    {
-        $this->plainPassword = $plainPassword;
-
-        return $this;
     }
 
     /**

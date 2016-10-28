@@ -63,10 +63,6 @@ class PollControllerTest extends WebTestCase
         $em->persist($group);
         $em->flush();
 
-        $group_token = $this->getUserToken($group->getUsername(), LoadGroupFollowerTestData::GROUP_PASSWORD);
-
-		$this->assertNotEmpty($group_token, 'Login token should not empty');
-		
 		// Create a request scope context that allows serialize the question object
 
 		$request = Request::create( '/' );
@@ -84,7 +80,7 @@ class PollControllerTest extends WebTestCase
 		 */
 		$content = $this->jmsSerialization($question, ['api-poll']);
 
-		$this->client->request('PUT', self::API_POLL_QUESTION_NEW_ENDPOINT, [], [], ['HTTP_Token' => $group_token], $content);
+		$this->client->request('PUT', self::API_POLL_QUESTION_NEW_ENDPOINT, [], [], ['HTTP_Token' => 'user1'], $content);
 		
 		$response = $this->client->getResponse();
 		

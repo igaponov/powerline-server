@@ -6,9 +6,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
-use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
 use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManager;
 use Faker\Factory;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -26,14 +24,12 @@ class SecureControllerTest extends WebTestCase
 		// Creates a initial client
 		$this->client = static::createClient();
 		
-		/** @var AbstractExecutor $fixtures */
-		$fixtures = $this->loadFixtures([
-				LoadUserData::class,
-				LoadGroupFollowerTestData::class,
-				LoadUserGroupFollowerTestData::class,
-				LoadSuperuserData::class
+		$this->loadFixtures([
+            LoadUserData::class,
+            LoadGroupFollowerTestData::class,
+            LoadUserGroupFollowerTestData::class,
+            LoadSuperuserData::class
 		]);
-		$reference = $fixtures->getReferenceRepository();
 	}
 
 	public function tearDown()
@@ -42,99 +38,37 @@ class SecureControllerTest extends WebTestCase
         parent::tearDown();
     }
 	
-	/**
-	 * @return \PHPUnit_Framework_MockObject_MockObject|EntityManager
-	 */
-	private function getManagerMock()
-	{
-		$manager = $this->getMockBuilder(EntityManager::class)
-		->disableOriginalConstructor()
-		->getMock();
-	
-		return $manager;
-	}
-	
-	/**
-	 * @group api
-	 */
 	public function testUserLoginWithoutCredentials()
 	{
 		$this->client->request('POST', self::API_LOGIN_ENDPOINT);
-
-		$this->assertEquals(
-				401,
-				$this->client->getResponse()->getStatusCode(),
-				'Should be not authorized'
-				);
+        $response = $this->client->getResponse();
+        $this->assertEquals(401, $response->getStatusCode(), $response->getContent());
 	}
-	
-	/**
-	 * @group api
-	 */
-	public function testSuperUserLoginWithCredentials()
-	{
-		$parameters = ['username' => 'admin', 'password' => 'admin'];
-		$content = ['application/x-www-form-urlencoded'];
-		
-		$this->client->request('POST', self::API_LOGIN_ENDPOINT, $parameters, [], [], $content);
-		
-		$request_content = $this->client->getResponse()->getContent();
-		
-		$this->assertEquals(
-				200,
-				$this->client->getResponse()->getStatusCode(),
-				'Should be superuser successfully authorized'
-				);
 
-		$data = json_decode($request_content);
-		
-		$this->assertEquals(TRUE, isset($data->token) && !empty($data->token), 'Request result should contain a token and must be not empty');
-	}
+    public function testUserLoginWithWrongCredentials()
+    {
+        $parameters = ['username' => 'user2', 'password' => 'user1'];
+        $content = ['application/x-www-form-urlencoded'];
+
+        $this->client->request('POST', self::API_LOGIN_ENDPOINT, $parameters, [], [], $content);
+        $response = $this->client->getResponse();
+        $this->assertEquals(401, $response->getStatusCode(), $response->getContent());
+    }
 	
-	/**
-	 * @group api
-	 */
 	public function testUserLoginWithCredentials()
 	{
 		$parameters = ['username' => 'user1', 'password' => 'user1'];
 		$content = ['application/x-www-form-urlencoded'];
 	
 		$this->client->request('POST', self::API_LOGIN_ENDPOINT, $parameters, [], [], $content);
-	
-		$request_content = $this->client->getResponse()->getContent();
-	
-		$this->assertEquals(
-				200,
-				$this->client->getResponse()->getStatusCode(),
-				'Should be superuser successfully authorized'
-				);
-	
-		$data = json_decode($request_content);
-	
-		$this->assertEquals(TRUE, isset($data->token) && !empty($data->token), 'Request result should contain a token and must be not empty');
-	}
-	
-	/**
-	 * @group api
-	 */
-	public function testGroupLoginWithCredentials()
-	{
-		$parameters = ['username' => LoadGroupFollowerTestData::GROUP_NAME, 'password' => LoadGroupFollowerTestData::GROUP_PASSWORD];
-		$content = ['application/x-www-form-urlencoded'];
-	
-		$this->client->request('POST', self::API_LOGIN_ENDPOINT, $parameters, [], [], $content);
-	
-		$request_content = $this->client->getResponse()->getContent();
-	
-		$this->assertEquals(
-				200,
-				$this->client->getResponse()->getStatusCode(),
-				'Should be superuser successfully authorized'
-				);
-
-		$data = json_decode($request_content);
-	
-		$this->assertEquals(TRUE, isset($data->token) && !empty($data->token), 'Request result should contain a token and must be not empty');
+		$response = $this->client->getResponse();
+		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+		$data = json_decode($response->getContent(), true);
+	    $this->assertArrayHasKey('token', $data, 'Request result should contain a token');
+		$this->assertNotEmpty($data['token'], 'Token must be not empty');
+		$this->client->request('GET', '/api/v2/user', [], [], ['HTTP_TOKEN' => $data['token']]);
+        $response = $this->client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 	}
 
 	public function testRegistrationWithWrongDataReturnsErrors()

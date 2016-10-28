@@ -28,7 +28,7 @@ use Civix\CoreBundle\Model\CropAvatarInterface;
  * @Vich\Uploadable
  * @Serializer\ExclusionPolicy("all")
  */
-class Representative implements UserInterface, \Serializable, CheckingLimits, CropAvatarInterface
+class Representative implements UserInterface, \Serializable, CheckingLimits, CropAvatarInterface, LeaderInterface
 {
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_representative.png';
 

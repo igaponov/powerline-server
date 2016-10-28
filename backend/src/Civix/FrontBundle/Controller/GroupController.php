@@ -40,38 +40,7 @@ class GroupController extends Controller
      */
     public function registrationAction()
     {
-        $form = $this->createForm(new Registration(), new Group());
-
-        $request = $this->getRequest();
-
-        if ($request->getMethod() == 'POST') {
-            $form->bind($request);
-            if ($form->isValid()) {
-                /** @var $group Group */
-                $group = $form->getData();
-                $password = $group->getPassword();
-
-                $encoder = $this->get('security.encoder_factory')->getEncoder($group);
-                $encodedPassword = $encoder->encodePassword($password, $group->getSalt());
-                $group->setPassword($encodedPassword);
-
-                /** @var $entityManager \Doctrine\ORM\EntityManager */
-                $entityManager = $this->getDoctrine()->getManager();
-                $entityManager->persist($group);
-                $entityManager->flush();
-
-                $event = new GroupEvent($group);
-                $this->get('event_dispatcher')->dispatch(GroupEvents::REGISTERED, $event);
-
-                //send notification
-                $this->get('civix_core.email_sender')
-                    ->sendRegistrationSuccessGroup($group, $password);
-
-                return $this->render('CivixFrontBundle:Group:thanks.html.twig');
-            }
-        }
-
-        return $this->render('CivixFrontBundle:Group:registration.html.twig', array('form' => $form->createView()));
+        throw $this->createNotFoundException();
     }
 
     /**
