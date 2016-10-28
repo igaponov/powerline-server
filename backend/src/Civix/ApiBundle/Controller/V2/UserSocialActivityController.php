@@ -24,7 +24,7 @@ class UserSocialActivityController extends FOSRestController
      * 
      * @QueryParam(name="page", requirements="\d+", default="1")
      * @QueryParam(name="per_page", requirements="(10|20)", default="20")
-     * @QueryParam(name="tab", requirements="(you|following)", default="you", description="Name of the tab of Social Activity Feed")
+     * @QueryParam(name="tab", requirements="(you|following|)", default=null, description="Name of the tab of Social Activity Feed")
      *
      * @ApiDoc(
      *     authentication=true,
@@ -49,7 +49,7 @@ class UserSocialActivityController extends FOSRestController
     {
         $query = $this->getDoctrine()
             ->getRepository(SocialActivity::class)
-            ->getFilteredByFollowingAndRecipientQuery($this->getUser(), $params->get('tab') === 'following');
+            ->getFilteredByFollowingAndRecipientQuery($this->getUser(), $params->get('tab'));
         
         return $this->get('knp_paginator')->paginate(
             $query,

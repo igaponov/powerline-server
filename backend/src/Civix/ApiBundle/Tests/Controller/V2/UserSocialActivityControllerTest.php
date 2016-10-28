@@ -64,13 +64,18 @@ class UserSocialActivityControllerTest extends WebTestCase
         $this->assertCount($count, $data['payload']);
         foreach ($data['payload'] as $item) {
             $this->assertContains($item['id'], $ids);
+            if (isset($params['tab'])) {
+                $this->assertSame($params['tab'], $item['tab']);
+            } else {
+                $this->assertNotEmpty($item['tab']);
+            }
         }
     }
 
     public function getTabs()
     {
         return [
-            'default' => [[], [1, 2, 3, 6, 8, 9, 10, 11, 12, 13, 14], 11],
+            'default' => [[], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], 16],
             'you' => [['tab' => 'you'], [1, 2, 3, 6, 8, 9, 10, 11, 12, 13, 14], 11],
             'following' => [['tab' => 'following'], [4, 5, 7, 15, 16], 5],
         ];
