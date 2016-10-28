@@ -60,8 +60,17 @@ class UserGroupManager
      * @ORM\Column(name="status", type="smallint")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-info", "api-groups"})
+     * @Serializer\Until("1")
      */
     private $status;
+
+    public static function getStatuses()
+    {
+        return [
+            self::STATUS_PENDING => 'pending',
+            self::STATUS_ACTIVE => 'active',
+        ];
+    }
 
     public function __construct(User $user, Group $group)
     {
@@ -181,5 +190,23 @@ class UserGroupManager
     public function getCreatedAt()
     {
         return $this->createdAt;
+    }
+
+    /**
+     * @return mixed|null
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"api-info"})
+     * @Serializer\SerializedName("status")
+     * @Serializer\Since("1")
+     */
+    public function getStatusLabel()
+    {
+        $statuses = self::getStatuses();
+        if (isset($statuses[$this->status])) {
+            return $statuses[$this->status];
+        }
+
+        return null;
     }
 }

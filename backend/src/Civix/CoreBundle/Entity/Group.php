@@ -256,7 +256,7 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
     /**
      * Group managers (that are group members too)
      *
-     * @ORM\OneToMany(targetEntity="UserGroupManager", mappedBy="group")
+     * @ORM\OneToMany(targetEntity="UserGroupManager", mappedBy="group", cascade={"persist"})
      */
     private $managers;
 

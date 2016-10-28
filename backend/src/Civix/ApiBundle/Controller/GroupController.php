@@ -499,6 +499,8 @@ class GroupController extends BaseController
     }
 
     /**
+     * Deprecated.
+     *
      * Join a group member as group manager for a group
      *
      *     curl -i -X POST -G 'http://domain.com/api/groups/join-group-manager/{id}' -d ''
@@ -544,7 +546,8 @@ class GroupController extends BaseController
      *          200="Returned when successful",
      *          400="Returned when incorrect login or password",
      *          405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      * 
      * @Route("/join-group-manager/{id}", name="civix_api_groups_join_group_manager")

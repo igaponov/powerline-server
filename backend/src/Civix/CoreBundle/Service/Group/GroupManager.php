@@ -326,4 +326,25 @@ class GroupManager
         $this->entityManager->persist($group);
         $this->entityManager->flush();
     }
+
+    public function addGroupManager(Group $group, User $user)
+    {
+        if(!$group->isMember($user))
+        {
+            throw new \RuntimeException('The user is not member of the group');
+        }
+        if($group->isManager($user))
+        {
+            throw new \RuntimeException('The user is already group manager of this group');
+        }
+
+        $userGroupManager = new UserGroupManager($user, $group);
+        $userGroupManager->setStatus(UserGroupManager::STATUS_ACTIVE);
+        $group->addManager($userGroupManager);
+
+        $this->entityManager->persist($group);
+        $this->entityManager->flush();
+
+        return $userGroupManager;
+    }
 }
