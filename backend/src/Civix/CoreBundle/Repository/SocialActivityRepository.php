@@ -52,7 +52,7 @@ class SocialActivityRepository extends EntityRepository
         ;
     }
 
-    public function getFilteredByFollowingAndRecipientQuery(User $user, $following = false)
+    public function getFilteredByFollowingAndRecipientQuery(User $user, $tab = null)
     {
         $qb = $this->createQueryBuilder('sa')
             ->select('sa', 'f', 'g')
@@ -60,7 +60,7 @@ class SocialActivityRepository extends EntityRepository
             ->leftJoin('sa.group', 'g')
             ->orderBy('sa.id', 'DESC');
         $exprBuilder = $qb->expr();
-        if ($following) {
+        if ($tab === 'following') {
             $userFollowingIds = $user->getFollowingIds();
             $activeGroups = $this->getEntityManager()
                 ->getRepository('CivixCoreBundle:UserGroup')
@@ -80,7 +80,7 @@ class SocialActivityRepository extends EntityRepository
                 ));
             }
             $qb->where($expr);
-        } else {
+        } elseif ($tab === 'you') {
             $qb->where('sa.recipient = :user')
                 ->setParameter(':user', $user);
         }

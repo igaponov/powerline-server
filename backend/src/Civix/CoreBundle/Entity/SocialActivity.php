@@ -113,9 +113,15 @@ class SocialActivity
     private static $youTabTypes = [
         self::TYPE_FOLLOW_REQUEST,
         self::TYPE_JOIN_TO_GROUP_APPROVED,
-        self::TYPE_COMMENT_REPLIED,
         self::TYPE_GROUP_PERMISSIONS_CHANGED,
+        self::TYPE_COMMENT_REPLIED,
         self::TYPE_COMMENT_MENTIONED,
+        self::TYPE_OWN_POLL_ANSWERED,
+        self::TYPE_OWN_POST_VOTED,
+        self::TYPE_OWN_USER_PETITION_SIGNED,
+        self::TYPE_OWN_POLL_COMMENTED,
+        self::TYPE_OWN_POST_COMMENTED,
+        self::TYPE_OWN_USER_PETITION_COMMENTED,
     ];
 
     public function __construct($type = null, User $following = null, Group $group = null)
