@@ -576,6 +576,37 @@ class GroupControllerTest extends WebTestCase
         $this->assertEquals(null, $userId);
     }
 
+    /**
+     * @param $user
+     * @param $reference
+     * @dataProvider getInvalidGroupCredentialsForDeleteOwnerRequest
+     */
+    public function testAddGroupManagerWithWrongCredentialsThrowsException($user, $reference)
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+        $user1 = $this->repository->getReference('userfollowtest1');
+        $group = $this->repository->getReference($reference);
+        $client = $this->client;
+        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/managers/'.$user1->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testAddGroupManagerIsOk()
+    {
+        $user = $this->repository->getReference('userfollowtest2');
+        $group = $this->repository->getReference('testfollowsecretgroups');
+        $client = $this->client;
+        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/managers/'.$user->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"']);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame('active', $data['status']);
+    }
+
 	protected function getGroups($username, $params)
 	{
 		$client = $this->client;

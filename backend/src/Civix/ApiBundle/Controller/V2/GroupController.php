@@ -410,4 +410,42 @@ class GroupController extends FOSRestController
     {
         $this->manager->deleteGroupOwner($group);
     }
+
+    /**
+     * Add group's manager
+     *
+     * @Route("/{id}/managers/{user}", requirements={"id"="\d+"})
+     * @Method("PUT")
+     *
+     * @SecureParam("group", permission="assign")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Groups",
+     *     description="Add group's manager",
+     *     output={
+     *          "class" = "Civix\CoreBundle\Entity\UserGroupManager",
+     *          "groups" = {"api-info"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
+     *     },
+     *     statusCodes={
+     *         403="Access Denied",
+     *         404="Group or User Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @View(serializerGroups={"api-info"})
+     *
+     * @param Group $group
+     * @param User $user
+     *
+     * @return \Civix\CoreBundle\Entity\UserGroupManager
+     */
+    public function putGroupManagerAction(Group $group, User $user)
+    {
+        return $this->manager->addGroupManager($group, $user);
+    }
 }
