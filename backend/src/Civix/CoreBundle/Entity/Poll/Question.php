@@ -8,6 +8,7 @@ use Civix\CoreBundle\Entity\GroupSection;
 use Civix\CoreBundle\Entity\HashTaggableInterface;
 use Civix\CoreBundle\Entity\HashTaggableTrait;
 use Civix\CoreBundle\Entity\LeaderContentInterface;
+use Civix\CoreBundle\Entity\LeaderInterface;
 use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
 use Civix\CoreBundle\Entity\SubscriptionInterface;
 use Civix\CoreBundle\Entity\User;
@@ -278,7 +279,7 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
     abstract public function getType();
 
     /**
-     * @return UserInterface
+     * @return LeaderInterface
      */
     abstract public function getOwner();
 

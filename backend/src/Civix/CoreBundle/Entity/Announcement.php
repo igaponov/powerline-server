@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\CoreBundle\Parser\UrlConverter;
 use Civix\CoreBundle\Serializer\Type\Image;
 use Civix\CoreBundle\Validator\Constraints\PublishDate;
 use Doctrine\ORM\Mapping as ORM;
@@ -110,7 +111,7 @@ abstract class Announcement implements LeaderContentInterface
     public function setContent($content)
     {
         $this->content = $content;
-        $this->setContentParsed(\Civix\CoreBundle\Parser\UrlConverter::convert($content));
+        $this->setContentParsed(UrlConverter::convert($content));
 
         return $this;
     }
@@ -236,7 +237,7 @@ abstract class Announcement implements LeaderContentInterface
     }
 
     /**
-     * @return UserInterface
+     * @return LeaderInterface
      * 
      * @Serializer\VirtualProperty()
      * @Serializer\SerializedName("user")

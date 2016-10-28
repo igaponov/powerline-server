@@ -76,7 +76,7 @@ class GroupControllerTest extends WebTestCase
 		$data = $this->getGroups('userfollowtest1', ['exclude_owned' => true]);
 		$this->assertSame(1, $data['totalItems']);
 		$this->assertCount(1, $data['payload']);
-		$this->assertSame(LoadGroupFollowerTestData::GROUP_NAME, $data['payload'][0]['username']);
+		$this->assertSame(LoadGroupFollowerTestData::GROUP_NAME, $data['payload'][0]['official_name']);
 	}
 
 	public function testGetGroupsSortedByCreatedAtIsOk()
@@ -99,7 +99,7 @@ class GroupControllerTest extends WebTestCase
 		$data = $this->getGroups('userfollowtest1', ['sort' => 'popularity', 'sort_dir' => 'DESC']);
 		$this->assertSame(3, $data['totalItems']);
 		$this->assertCount(3, $data['payload']);
-		$this->assertSame('testfollowprivategroups', $data['payload'][0]['username']);
+		$this->assertSame('testfollowprivategroups', $data['payload'][0]['official_name']);
 	}
 
 	public function testGetGroupsExcludeOwnedAndSortedByCreatedAtIsOk()
@@ -157,13 +157,11 @@ class GroupControllerTest extends WebTestCase
 	{
 		$group = $this->repository->getReference('testfollowsecretgroups');
 		$errors = [
-			'username' => ['This value should not be blank.'],
 			'official_name' => ['This value should not be blank.'],
 			'official_type' => ['This value should not be blank.'],
 		];
 		$client = $this->client;
 		$client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"'], json_encode([
-			'username' => '',
 			'official_name' => '',
 			'official_type' => '',
 		]));
@@ -194,7 +192,6 @@ class GroupControllerTest extends WebTestCase
 		$group = $this->repository->getReference('testfollowsecretgroups');
 		$faker = Factory::create();
 		$params = [
-			'username' => $faker->userName,
 			'manager_first_name' => $faker->firstName,
 			'manager_last_name' => $faker->lastName,
 			'manager_email' => $faker->email,

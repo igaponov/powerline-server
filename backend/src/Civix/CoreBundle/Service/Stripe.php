@@ -313,10 +313,10 @@ class Stripe
     }
 
     /**
-     * @param UserInterface $user
+     * @param Group $user
      * @return \Stripe\Account|\stdClass
      */
-    public function createAccount(UserInterface $user)
+    public function createAccount(Group $user)
     {
         return \Stripe\Account::create([
             'managed' => true,

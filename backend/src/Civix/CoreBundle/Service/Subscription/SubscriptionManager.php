@@ -2,7 +2,7 @@
 
 namespace Civix\CoreBundle\Service\Subscription;
 
-use Symfony\Component\Security\Core\User\UserInterface;
+use Civix\CoreBundle\Entity\LeaderInterface;
 use Doctrine\ORM\EntityManager;
 use Civix\CoreBundle\Service\Stripe;
 use Civix\CoreBundle\Entity\Subscription\Subscription;
@@ -43,21 +43,21 @@ class SubscriptionManager
     }
 
     /**
-     * @param UserInterface $user
+     * @param LeaderInterface $leader
      *
      * @return Subscription
      */
-    public function getSubscription(UserInterface $user)
+    public function getSubscription(LeaderInterface $leader)
     {
         $subscription = $this->em->getRepository(Subscription::class)->findOneBy([
-            $user->getType() => $user,
+            $leader->getType() => $leader,
         ]);
 
         if (!$subscription) {
             $subscription = new Subscription();
             $subscription
                 ->setPackageType(Subscription::PACKAGE_TYPE_FREE)
-                ->setUserEntity($user)
+                ->setUserEntity($leader)
             ;
         } elseif ($subscription->isSyncNeeded()) {
             return $this->stripe->syncSubscription($subscription);
@@ -67,11 +67,11 @@ class SubscriptionManager
     }
 
     /**
-     * @param UserInterface $user
+     * @param LeaderInterface $user
      *
      * @return Package\Package
      */
-    public function getPackage(UserInterface $user)
+    public function getPackage(LeaderInterface $user)
     {
         $subscription = $this->getSubscription($user);
 

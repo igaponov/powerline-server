@@ -324,11 +324,6 @@ class GroupController extends BaseController
             return $this->createJSONResponse(json_encode(['errors' => $this->transformErrors($errors)]), 400);
         }
 
-        $password = substr(base_convert(sha1(uniqid(mt_rand(), true)), 16, 36), 0, 9);
-        $encoder = $this->get('security.encoder_factory')->getEncoder($group);
-        $encodedPassword = $encoder->encodePassword($password, $group->getSalt());
-        $group->setPassword($encodedPassword)->setOwner($this->getUser());
-
         $em->persist($group);
         $em->flush();
 

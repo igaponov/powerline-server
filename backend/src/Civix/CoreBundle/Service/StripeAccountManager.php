@@ -1,6 +1,7 @@
 <?php
 namespace Civix\CoreBundle\Service;
 
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Stripe\AccountGroup;
 use Civix\CoreBundle\Entity\Stripe\BankAccount;
 use Civix\CoreBundle\Entity\Stripe\Customer;
@@ -35,7 +36,7 @@ class StripeAccountManager
         $this->dispatcher = $dispatcher;
     }
 
-    public function addBankAccount(UserInterface $user, BankAccount $bankAccount)
+    public function addBankAccount(Group $user, BankAccount $bankAccount)
     {
         $account = $this->em
             ->getRepository(AccountGroup::class)
@@ -85,7 +86,7 @@ class StripeAccountManager
         $this->em->flush();
     }
 
-    private function createAccount(UserInterface $group)
+    private function createAccount(Group $group)
     {
         $account = new AccountGroup();
         $account->setUser($group);

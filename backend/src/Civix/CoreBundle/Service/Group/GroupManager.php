@@ -67,7 +67,6 @@ class GroupManager
 
     public function create(Group $group)
     {
-        $group->setPlainPassword(uniqid('', true));
         $this->entityManager->persist($group);
         $this->entityManager->flush();
 
@@ -135,9 +134,10 @@ class GroupManager
 
     /**
      * Check if $group private (need passcode) and not invited user.
-     * 
+     *
      * @param \Civix\CoreBundle\Entity\Group $group
-     * 
+     * @param User $user
+     *
      * @return bool
      */
     public function isNeedCheckPasscode(Group $group, User $user)

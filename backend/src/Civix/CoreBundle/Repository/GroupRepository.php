@@ -7,7 +7,6 @@ use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Model\Geocode\AddressComponent;
-use Symfony\Component\Security\Core\Util\SecureRandom;
 
 class GroupRepository extends EntityRepository
 {
@@ -264,8 +263,9 @@ class GroupRepository extends EntityRepository
     }
 
     /**
-     * 
-     * @param unknown $country
+     *
+     * @param string $country
+     * @return object
      */
     public function findCountryGroup($country)
     {
@@ -276,9 +276,10 @@ class GroupRepository extends EntityRepository
     }
 
     /**
-     * 
-     * @param unknown $state
+     *
+     * @param string $state
      * @param Group $countryGroup
+     * @return object
      */
     public function findStateGroup($state, Group $countryGroup = null)
     {
@@ -290,9 +291,10 @@ class GroupRepository extends EntityRepository
     }
 
     /**
-     * 
-     * @param unknown $location
+     *
+     * @param string $location
      * @param Group $stateGroup
+     * @return object
      */
     public function findLocalGroup($location, Group $stateGroup = null)
     {
@@ -315,14 +317,10 @@ class GroupRepository extends EntityRepository
             $group = new Group();
             $group
                 ->setGroupType(Group::GROUP_TYPE_COUNTRY)
-                ->setUsername($addressComponent->getShortName().uniqid())
                 ->setOfficialName($addressComponent->getLongName())
                 ->setLocationName($addressComponent->getShortName())
                 ->setAcronym($addressComponent->getShortName())
             ;
-
-            $generator = new SecureRandom();
-            $group->setPassword(sha1($generator->nextBytes(10)));
 
             $this->getEntityManager()->persist($group);
             $this->getEntityManager()->flush($group);
@@ -344,14 +342,10 @@ class GroupRepository extends EntityRepository
             $group = new Group();
             $group
                 ->setGroupType(Group::GROUP_TYPE_STATE)
-                ->setUsername($addressComponent->getShortName().uniqid())
                 ->setOfficialName($addressComponent->getLongName())
                 ->setLocationName($addressComponent->getShortName())
                 ->setParent($countryGroup)
             ;
-
-            $generator = new SecureRandom();
-            $group->setPassword(sha1($generator->nextBytes(10)));
 
             $this->getEntityManager()->persist($group);
             $this->getEntityManager()->flush($group);
@@ -372,14 +366,10 @@ class GroupRepository extends EntityRepository
             $group = new Group();
             $group
                 ->setGroupType(Group::GROUP_TYPE_LOCAL)
-                ->setUsername($addressComponent->getShortName().uniqid())
                 ->setOfficialName($addressComponent->getLongName())
                 ->setLocationName($addressComponent->getShortName())
                 ->setParent($stateGroup)
             ;
-
-            $generator = new SecureRandom();
-            $group->setPassword(sha1($generator->nextBytes(10)));
 
             $this->getEntityManager()->persist($group);
             $this->getEntityManager()->flush($group);

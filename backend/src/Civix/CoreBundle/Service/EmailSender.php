@@ -2,11 +2,11 @@
 
 namespace Civix\CoreBundle\Service;
 
+use Civix\CoreBundle\Entity\Representative;
 use Symfony\Component\Templating\EngineInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
 
 class EmailSender
@@ -64,23 +64,6 @@ class EmailSender
             'CivixFrontBundle:Group:email/group_registered.html.twig',
             array(
                 'name' => $group->getOfficialName(),
-                'username' => $group->getUsername(),
-                'password' => $group->getPlainPassword(),
-            )
-        );
-        $this->mailer->send($message);
-    }
-
-    public function sendUserRegistrationSuccessGroup(Group $group, $plainPassword)
-    {
-        $message = $this->createMessage(
-            'Group successful registered',
-            $group->getManagerEmail(),
-            'CivixFrontBundle:Group:email/user_group_registered.html.twig',
-            array(
-                'name' => $group->getOfficialName(),
-                'username' => $group->getUsername(),
-                'password' => $plainPassword,
             )
         );
         $this->mailer->send($message);

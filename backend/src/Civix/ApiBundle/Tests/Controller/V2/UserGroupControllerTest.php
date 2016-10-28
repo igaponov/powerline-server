@@ -6,11 +6,9 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFieldsData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
@@ -64,7 +62,7 @@ class UserGroupControllerTest extends WebTestCase
         $this->assertSame(4, $data['totalItems']);
         $this->assertCount(4, $data['payload']);
         foreach ($data['payload'] as $item) {
-            $this->assertArrayHasKey('username', $item);
+            $this->assertArrayHasKey('official_name', $item);
             $this->assertArrayHasKey('join_status', $item);
             switch ($item['id']) {
                 case $group1->getId():
@@ -103,7 +101,6 @@ class UserGroupControllerTest extends WebTestCase
             LoadUserData::class,
         ]);
         $errors = [
-            'username' => ['This value should not be blank.'],
             'official_name' => ['This value should not be blank.'],
             'official_type' => ['This value should not be blank.'],
         ];
@@ -130,7 +127,6 @@ class UserGroupControllerTest extends WebTestCase
         $user = $repository->getReference('followertest');
         $faker = Factory::create();
         $params = [
-            'username' => $faker->userName,
             'manager_first_name' => $faker->firstName,
             'manager_last_name' => $faker->lastName,
             'manager_email' => $faker->email,

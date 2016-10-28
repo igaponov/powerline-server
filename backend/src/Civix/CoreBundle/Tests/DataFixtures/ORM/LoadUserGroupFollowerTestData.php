@@ -57,7 +57,7 @@ class LoadUserGroupFollowerTestData extends AbstractFixture implements Dependent
         foreach ($members as $member) {
             $userGroup = new UserGroup($member, $group);
             $this->manager->persist($userGroup);
-            $this->setReference($member->getUsername().'_'.$group->getUsername(), $userGroup);
+            $this->setReference($member->getUsername().'_'.$group->getAcronym(), $userGroup);
         }
 
         $this->manager->flush();

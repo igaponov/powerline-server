@@ -1,7 +1,7 @@
 <?php
 namespace Civix\ApiBundle\EventListener;
 
-use Civix\CoreBundle\Entity\UserInterface;
+use Civix\CoreBundle\Entity\LeaderInterface;
 use Civix\CoreBundle\Service\PollClassNameFactory;
 use Doctrine\Common\Inflector\Inflector;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -13,11 +13,11 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class QuestionTypeSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var UserInterface
+     * @var LeaderInterface
      */
     private $user;
 
-    public function __construct(UserInterface $user = null)
+    public function __construct(LeaderInterface $user = null)
     {
         $this->user = $user;
     }

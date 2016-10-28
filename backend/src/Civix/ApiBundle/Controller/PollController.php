@@ -64,7 +64,7 @@ class PollController extends BaseController
 		
 		// Create a empty object until the $question_data could be parsed
 		$question = new GroupQuestion();
-		$question->setUser($this->getUser()->getOwner());
+		$question->setUser($this->getUser());
 		/* @todo
 		$question->setTitle($question_data->getTitle());
 		$question->setSubject($question_data->getSubject());

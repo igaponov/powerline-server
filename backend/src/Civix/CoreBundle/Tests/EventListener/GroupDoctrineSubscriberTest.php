@@ -13,9 +13,7 @@ class GroupDoctrineSubscriberTest extends WebTestCase
         /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
         $group = new Group();
-        $group->setOfficialName('Test Group Name')
-            ->setUsername('group1')
-            ->setPassword(sha1(123));
+        $group->setOfficialName('Test Group Name');
         $em->persist($group);
         $em->flush();
         $em->refresh($group);
@@ -30,9 +28,7 @@ class GroupDoctrineSubscriberTest extends WebTestCase
         $this->createGroup('test-name');
         $em->flush();
         $group = new Group();
-        $group->setOfficialName('Test Name')
-            ->setUsername('group1')
-            ->setPassword(sha1(123));
+        $group->setOfficialName('Test Name');
         $em->persist($group);
         $em->flush();
         $em->refresh($group);
@@ -48,9 +44,7 @@ class GroupDoctrineSubscriberTest extends WebTestCase
         $this->createGroup('test-name-x');
         $em->flush();
         $group = new Group();
-        $group->setOfficialName('Test Name')
-            ->setUsername('group1')
-            ->setPassword(sha1(123));
+        $group->setOfficialName('Test Name');
         $em->persist($group);
         $em->flush();
         $em->refresh($group);
@@ -65,9 +59,7 @@ class GroupDoctrineSubscriberTest extends WebTestCase
         $this->createGroup('test-name-q');
         $em->flush();
         $group = new Group();
-        $group->setOfficialName('Test Name')
-            ->setUsername('group1')
-            ->setPassword(sha1(123));
+        $group->setOfficialName('Test Name');
         $em->persist($group);
         $em->flush();
         $em->refresh($group);
@@ -84,9 +76,7 @@ class GroupDoctrineSubscriberTest extends WebTestCase
         $this->createGroup('test-name-5');
         $em->flush();
         $group = new Group();
-        $group->setOfficialName('Test Name')
-            ->setUsername('group1')
-            ->setPassword(sha1(123));
+        $group->setOfficialName('Test Name');
         $em->persist($group);
         $em->flush();
         $em->refresh($group);
@@ -104,9 +94,7 @@ class GroupDoctrineSubscriberTest extends WebTestCase
         $this->createGroup('test-name-a');
         $em->flush();
         $group = new Group();
-        $group->setOfficialName('Test Name')
-            ->setUsername('group1')
-            ->setPassword(sha1(123));
+        $group->setOfficialName('Test Name');
         $em->persist($group);
         $em->flush();
         $em->refresh($group);
@@ -117,8 +105,6 @@ class GroupDoctrineSubscriberTest extends WebTestCase
     {
         $group = new Group();
         $group->setOfficialName(uniqid('name-', true))
-            ->setUsername(uniqid('username-',true))
-            ->setPassword(sha1(123))
             ->setSlug($slug);
         $this->getContainer()->get('doctrine.orm.entity_manager')->persist($group);
     }

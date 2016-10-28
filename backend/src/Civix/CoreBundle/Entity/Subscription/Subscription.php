@@ -2,10 +2,10 @@
 
 namespace Civix\CoreBundle\Entity\Subscription;
 
+use Civix\CoreBundle\Entity\LeaderInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinColumn;
 use JMS\Serializer\Annotation as Serializer;
-use Civix\CoreBundle\Entity\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -346,14 +346,15 @@ class Subscription
         if ($this->representative) {
             return $this->representative;
         }
+        throw new \RuntimeException('Subscription should have a group or a representative.');
     }
 
     /**
-     * @param UserInterface $entity
+     * @param LeaderInterface $entity
      *
      * @return $this
      */
-    public function setUserEntity(UserInterface $entity)
+    public function setUserEntity(LeaderInterface $entity)
     {
         $method = 'set'.ucfirst($entity->getType());
         $this->$method($entity);

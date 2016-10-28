@@ -10,7 +10,6 @@ use Faker\Factory;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Civix\CoreBundle\Entity\Group;
-use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 
 /**
  * LoadGroupData.
@@ -42,7 +41,6 @@ class LoadGroupFollowerTestData extends AbstractFixture implements ContainerAwar
             'group', 
             $this->createGroup(
                 self::GROUP_NAME,
-                self::GROUP_PASSWORD,
                 null,
                 $this->getReference('user_1')
             )
@@ -50,8 +48,7 @@ class LoadGroupFollowerTestData extends AbstractFixture implements ContainerAwar
         $this->addReference(
             'testfollowsecretgroups',
             $this->createGroup(
-                'testfollowsecretgroups', 
-                null, 
+                'testfollowsecretgroups',
                 Group::GROUP_TRANSPARENCY_SECRET,
                 $this->getReference('userfollowtest1')
             )
@@ -60,7 +57,6 @@ class LoadGroupFollowerTestData extends AbstractFixture implements ContainerAwar
             'testfollowprivategroups',
             $this->createGroup(
                 'testfollowprivategroups',
-                null,
                 Group::GROUP_TRANSPARENCY_PRIVATE,
                 $this->getReference('user_2')
             )
@@ -69,15 +65,14 @@ class LoadGroupFollowerTestData extends AbstractFixture implements ContainerAwar
 
     /**
      * @param $groupName
-     * @param null $password
      * @param null $transparency
      * @param User $owner
      * @return Group Group
+     * @internal param null $password
      */
-    private function createGroup($groupName, $password = null, $transparency = null, User $owner = null)
+    private function createGroup($groupName, $transparency = null, User $owner = null)
     {
         $faker = Factory::create();
-        $password = $password ?: $groupName;
         $transparency = $transparency ?: Group::GROUP_TRANSPARENCY_PUBLIC;
 
         $group = new Group();
@@ -87,10 +82,7 @@ class LoadGroupFollowerTestData extends AbstractFixture implements ContainerAwar
             ->setManagerEmail("$groupName@example.com")
             ->setManagerFirstName($groupName)
             ->setManagerLastName($groupName)
-            ->setPassword($password)
             ->setTransparency($transparency)
-            ->setUsername($groupName)
-            ->setToken($groupName == self::GROUP_NAME ? 'secret_token' : $groupName)
             ->setPetitionPerMonth($groupName == self::GROUP_NAME ? 4 : 5)
             ->setPetitionPercent(45)
             ->setPetitionDuration(25)
@@ -105,11 +97,6 @@ class LoadGroupFollowerTestData extends AbstractFixture implements ContainerAwar
         if ($owner) {
             $group->setOwner($owner);
         }
-
-        /** @var PasswordEncoderInterface $encoder */
-        $encoder = $this->container->get('security.encoder_factory')->getEncoder($group);
-        $encodedPassword = $encoder->encodePassword($password, $group->getSalt());
-        $group->setPassword($encodedPassword);
 
         $this->manager->persist($group);
         $this->manager->flush();

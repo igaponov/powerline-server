@@ -2,7 +2,7 @@
 
 namespace Civix\CoreBundle\Service\Subscription;
 
-use Symfony\Component\Security\Core\User\UserInterface;
+use Civix\CoreBundle\Entity\LeaderInterface;
 use Doctrine\ORM\EntityManager;
 use Civix\CoreBundle\Model\Subscription\PackageLimitState;
 use Civix\CoreBundle\Entity\Group;
@@ -25,7 +25,7 @@ class PackageHandler
         $this->sm = $sm;
     }
 
-    public function getPackageStateForInvites(UserInterface $user)
+    public function getPackageStateForInvites(Group $user)
     {
         $package = $this->sm->getPackage($user);
 
@@ -39,7 +39,7 @@ class PackageHandler
         return $limitObj;
     }
 
-    public function getPackageStateForGroupDivisions(UserInterface $user)
+    public function getPackageStateForGroupDivisions(Group $user)
     {
         $package = $this->sm->getPackage($user);
 
@@ -53,7 +53,7 @@ class PackageHandler
         return $limitObj;
     }
 
-    public function getPackageStateForAnnouncement(UserInterface $user)
+    public function getPackageStateForAnnouncement(LeaderInterface $user)
     {
         $package = $this->sm->getPackage($user);
 
@@ -67,7 +67,7 @@ class PackageHandler
         return $limitObj;
     }
 
-    public function getPackageStateForMicropetition(UserInterface $user)
+    public function getPackageStateForMicropetition(Group $user)
     {
         $package = $this->sm->getPackage($user);
 

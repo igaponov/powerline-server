@@ -225,9 +225,9 @@ class QuestionRepository extends EntityRepository
         ;
     }
 
-    public function getFilteredQuestionQuery($filter, UserInterface $user, $questionClass)
+    public function getFilteredQuestionQuery($filter, Group $group, $questionClass)
     {
-        $query = $this->getQuestionQuery($user, $questionClass);
+        $query = $this->getQuestionQuery($group, $questionClass);
         switch ($filter) {
             case 'published':
                 $query->andWhere('p.publishedAt IS NOT NULL');
@@ -249,18 +249,18 @@ class QuestionRepository extends EntityRepository
     }
 
     /**
-     * @param UserInterface $user
+     * @param Group $group
      * @param $questionClass
      * @return \Doctrine\ORM\QueryBuilder
      */
-    public function getQuestionQuery(UserInterface $user, $questionClass)
+    public function getQuestionQuery(Group $group, $questionClass)
     {
         return $this->getEntityManager()
             ->createQueryBuilder()
             ->select('p')
             ->from($questionClass, 'p')
             ->where('p.user = :user')
-            ->setParameter('user', $user)
+            ->setParameter('user', $group)
             ->orderBy('p.createdAt', 'DESC')
         ;
     }

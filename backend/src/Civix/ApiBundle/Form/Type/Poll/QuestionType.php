@@ -3,6 +3,7 @@
 namespace Civix\ApiBundle\Form\Type\Poll;
 
 use Civix\ApiBundle\EventListener\QuestionTypeSubscriber;
+use Civix\CoreBundle\Entity\LeaderInterface;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\UserInterface;
 use Civix\CoreBundle\Service\PollClassNameFactory;
@@ -21,7 +22,7 @@ class QuestionType extends AbstractType
      */
     private $user;
 
-    public function __construct(UserInterface $user)
+    public function __construct(LeaderInterface $user)
     {
         $this->user = $user;
     }

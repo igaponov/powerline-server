@@ -2,11 +2,11 @@
 
 namespace Civix\CoreBundle\Repository;
 
+use Civix\CoreBundle\Entity\LeaderInterface;
 use Doctrine\ORM\EntityRepository;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Group;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * AnnouncementRepository.
@@ -16,7 +16,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class AnnouncementRepository extends EntityRepository
 {
-    public function getNewQuery(UserInterface $owner)
+    public function getNewQuery(LeaderInterface $owner)
     {
         return $this->getEntityManager()
             ->createQueryBuilder()
@@ -30,7 +30,7 @@ class AnnouncementRepository extends EntityRepository
         ;
     }
 
-    public function getPublishedQuery(UserInterface $owner)
+    public function getPublishedQuery(LeaderInterface $owner)
     {
         return $this->getEntityManager()
             ->createQueryBuilder()
@@ -104,7 +104,7 @@ class AnnouncementRepository extends EntityRepository
         ;
     }
 
-    public function getAnnouncementCountPerMonth(UserInterface $owner)
+    public function getAnnouncementCountPerMonth(LeaderInterface $owner)
     {
         $startDate = new \DateTime();
         $calcPeriod = new \DateInterval('P30D');
@@ -125,16 +125,18 @@ class AnnouncementRepository extends EntityRepository
     }
 
     /**
-     * @param UserInterface $user
+     * @param LeaderInterface $user
      *
      * @return string
      */
-    private function getAnnouncementRepositoryName(UserInterface $user)
+    private function getAnnouncementRepositoryName(LeaderInterface $user)
     {
         if ($user instanceof Representative) {
             return 'CivixCoreBundle:Announcement\RepresentativeAnnouncement';
         } elseif ($user instanceof Group) {
             return 'CivixCoreBundle:Announcement\GroupAnnouncement';
+        } else {
+            throw new \RuntimeException('User object must be an instance of RepresentativeAnnouncement or GroupAnnouncement');
         }
     }
 }
