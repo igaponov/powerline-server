@@ -11,6 +11,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadInviteData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
 use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
@@ -504,6 +505,80 @@ class GroupControllerTest extends WebTestCase
         $this->assertEquals(0, $count);
     }
 
+    /**
+     * @param $user
+     * @param $reference
+     * @dataProvider getInvalidGroupCredentialsForDeleteOwnerRequest
+     */
+    public function testDeleteOwnerWithWrongCredentialsThrowsException($user, $reference)
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference($reference);
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="'.$user.'"'];
+        $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId().'/owner', [], [], $headers);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testDeleteOwnerSetsManager()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference('group_3');
+        $user = $this->repository->getReference('user_2');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user3"'];
+        $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId().'/owner', [], [], $headers);
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('database_connection');
+        $userId = $conn->fetchColumn('SELECT user_id FROM groups WHERE id = ?', [$group->getId()]);
+        $this->assertEquals($user->getId(), $userId);
+    }
+
+    public function testDeleteOwnerSetsMember()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupOwnerData::class,
+            LoadUserGroupData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference('group_3');
+        $user = $this->repository->getReference('user_4');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user3"'];
+        $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId().'/owner', [], [], $headers);
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('database_connection');
+        $userId = $conn->fetchColumn('SELECT user_id FROM groups WHERE id = ?', [$group->getId()]);
+        $this->assertEquals($user->getId(), $userId);
+    }
+
+    public function testDeleteOwnerSetsNull()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupOwnerData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference('group_3');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user3"'];
+        $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId().'/owner', [], [], $headers);
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('database_connection');
+        $userId = $conn->fetchColumn('SELECT user_id FROM groups WHERE id = ?', [$group->getId()]);
+        $this->assertEquals(null, $userId);
+    }
+
 	protected function getGroups($username, $params)
 	{
 		$client = $this->client;
@@ -528,6 +603,15 @@ class GroupControllerTest extends WebTestCase
     public function getInvalidGroupCredentialsForInviteRequest()
     {
         return [
+            'member' => ['user4', 'group_3'],
+            'outlier' => ['user4', 'group_2'],
+        ];
+    }
+
+    public function getInvalidGroupCredentialsForDeleteOwnerRequest()
+    {
+        return [
+            'manager' => ['user2', 'group_3'],
             'member' => ['user4', 'group_3'],
             'outlier' => ['user4', 'group_2'],
         ];
