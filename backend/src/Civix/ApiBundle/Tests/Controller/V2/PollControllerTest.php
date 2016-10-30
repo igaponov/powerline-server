@@ -14,6 +14,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupPaymentRequestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityRelationsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
@@ -534,6 +535,7 @@ class PollControllerTest extends WebTestCase
             LoadUserGroupData::class,
             LoadGroupManagerData::class,
             LoadGroupQuestionData::class,
+            LoadActivityRelationsData::class,
         ])->getReferenceRepository();
         /** @var Question $question */
         $question = $repository->getReference($reference);
@@ -571,6 +573,8 @@ class PollControllerTest extends WebTestCase
         $tester = new SocialActivityTester($em);
         $tester->assertActivitiesCount(1);
         $tester->assertActivity(SocialActivity::TYPE_OWN_POLL_ANSWERED, $question->getUser()->getId());
+        $count = $conn->fetchColumn('SELECT * FROM activities_read');
+        $this->assertEquals(1, $count);
     }
 
     public function testAddPaymentAnswerToCrowdfundingRequestIsOk()
@@ -670,9 +674,9 @@ class PollControllerTest extends WebTestCase
     public function getValidPollCredentialsForGetRequest()
     {
         return [
-            'owner' => ['user1', 'group_question_1'],
-            'manager' => ['user2', 'group_question_1'],
-            'member' => ['user4', 'group_question_1'],
+            'owner' => ['user3', 'group_question_3'],
+            'manager' => ['user2', 'group_question_3'],
+            'member' => ['user4', 'group_question_3'],
         ];
     }
 

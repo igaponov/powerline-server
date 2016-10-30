@@ -645,4 +645,22 @@ class ActivityRepository extends EntityRepository
 
         return (int)$query->getSingleScalarResult();
     }
+
+    /**
+     * @param Question $question
+     * @param User $user
+     * @return Activity[]
+     */
+    public function findUnreadByQuestionAndUser(Question $question, User $user)
+    {
+        return $this->createQueryBuilder('a')
+            ->select('a', 'ar')
+            ->leftJoin('a.activityRead', 'ar', 'WITH', 'ar.user = :user')
+            ->setParameter(':user', $user)
+            ->where('ar IS NULL')
+            ->andWhere('a.question = :question')
+            ->setParameter(':question', $question)
+            ->getQuery()
+            ->getResult();
+    }
 }
