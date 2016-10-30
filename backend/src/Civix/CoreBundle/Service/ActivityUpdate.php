@@ -11,6 +11,7 @@ use Civix\CoreBundle\Entity\Activities\Post as ActivityPost;
 use Civix\CoreBundle\Entity\Activities\UserPetition as ActivityUserPetition;
 use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\ActivityCondition;
+use Civix\CoreBundle\Entity\ActivityRead;
 use Civix\CoreBundle\Entity\GroupSection;
 use Civix\CoreBundle\Entity\Poll\Comment;
 use Civix\CoreBundle\Entity\Poll\EducationalContext;
@@ -326,6 +327,20 @@ class ActivityUpdate
             $activity->setRateUp($comment->getRateUp())->setRateDown($comment->getRateDown());
             $this->entityManager->flush($activity);
         }
+    }
+
+    public function markQuestionActivityAsRead(Question $question, User $user)
+    {
+        $activities = $this->entityManager->getRepository(Activity::class)
+            ->findUnreadByQuestionAndUser($question, $user);
+
+        foreach ($activities as $activity) {
+            $activityRead = new ActivityRead();
+            $activityRead->setUser($user);
+            $activityRead->setActivity($activity);
+            $this->entityManager->persist($activityRead);
+        }
+        $this->entityManager->flush();
     }
 
     private function setImage(Activity $activity, Question $question)

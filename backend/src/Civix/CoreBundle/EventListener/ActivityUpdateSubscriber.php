@@ -42,6 +42,7 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
             Event\PostEvents::POST_BOOST => ['publishPostToActivity', -100],
 
             Event\PollEvents::QUESTION_PUBLISHED => ['publishQuestionToActivity', -100],
+            Event\PollEvents::QUESTION_ANSWER => ['markQuestionActivityAsRead', -100],
         ];
     }
 
@@ -89,5 +90,14 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
         } else {
             $this->activityUpdate->publishQuestionToActivity($question);
         }
+    }
+
+    public function markQuestionActivityAsRead(Event\Poll\AnswerEvent $event)
+    {
+        $answer = $event->getAnswer();
+        $this->activityUpdate->markQuestionActivityAsRead(
+            $answer->getQuestion(),
+            $answer->getUser()
+        );
     }
 }
