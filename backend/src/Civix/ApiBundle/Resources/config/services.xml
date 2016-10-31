@@ -109,9 +109,9 @@
             </call>
         </service>
 
-        <service class="Civix\ApiBundle\Parser\PaginatorParser" id="civix_api.parser.paginator_parser">
-            <argument id="nelmio_api_doc.parser.jms_metadata_parser" type="service"/>
-            <argument id="nelmio_api_doc.parser.collection_parser" type="service"/>
+        <service class="Civix\ApiBundle\Parser\PaginatorParser" id="civix_api.parser.paginator_parser" public="false">
+            <argument id="nelmio_api_doc.parser.jms_metadata_parser" type="service" on-invalid="ignore"/>
+            <argument id="nelmio_api_doc.parser.collection_parser" type="service" on-invalid="ignore"/>
             <tag name="nelmio_api_doc.extractor.parser"/>
         </service>
     </services>
