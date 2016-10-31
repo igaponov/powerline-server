@@ -54,7 +54,7 @@ class User implements UserInterface, \Serializable
      * @Serializer\Expose()
      * @Serializer\Groups({"api-profile", "api-info", "api-device", "api-comments", "api-settings", "api-full-info",
      *      "api-session", "api-petitions-list", "api-petitions-info", "api-activities", "api-search", "api-invites",
-     *      "api-invites-create", "api-follow-create", "api-leader-answers", "api-short-info"}
+     *      "api-invites-create", "api-follow-create", "api-leader-answers", "api-short-info", "user-list"}
      * )
      */
     private $id;
