@@ -4,7 +4,6 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Announcement;
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\EventListener\PushSenderSubscriber;
 use Civix\CoreBundle\Model\Subscription\PackageLimitState;
 use Civix\CoreBundle\Service\Subscription\PackageHandler;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupAnnouncementData;
@@ -12,6 +11,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeAnnouncementData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
 use Faker\Factory;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -51,6 +51,27 @@ class AnnouncementControllerTest extends WebTestCase
         $this->assertSame(1, $data['totalItems']);
         $this->assertCount(1, $data['payload']);
         $announcement = $repository->getReference('announcement_jb_3');
+        $this->assertEquals($announcement->getContent(), $data['payload'][0]['content_parsed']);
+    }
+
+    public function testGetGroupAnnouncementsIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserGroupOwnerData::class,
+            LoadGroupAnnouncementData::class,
+        ])->getReferenceRepository();
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame(1, $data['page']);
+        $this->assertSame(20, $data['items']);
+        $this->assertSame(1, $data['totalItems']);
+        $this->assertCount(1, $data['payload']);
+        $this->assertArrayHasKey('official_name', $data['payload'][0]['group']);
+        $this->assertArrayHasKey('avatar_file_path', $data['payload'][0]['group']);
+        $announcement = $repository->getReference('announcement_group_3');
         $this->assertEquals($announcement->getContent(), $data['payload'][0]['content_parsed']);
     }
 
