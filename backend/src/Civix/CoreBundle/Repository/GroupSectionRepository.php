@@ -5,6 +5,7 @@ namespace Civix\CoreBundle\Repository;
 use Doctrine\ORM\EntityRepository;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\GroupSection;
+use Doctrine\ORM\Query;
 
 /**
  * GroupSectionRepository.
@@ -30,6 +31,18 @@ class GroupSectionRepository extends EntityRepository
             ->setParameter('group', $group)
             ->getQuery()
             ->getResult();
+    }
+    /**
+     * @param Group $group
+     *
+     * @return Query
+     */
+    public function getFindByGroupQuery(Group $group)
+    {
+        return $this->createQueryBuilder('s')
+            ->where('s.group = :group')
+            ->setParameter('group', $group)
+            ->getQuery();
     }
 
     /**

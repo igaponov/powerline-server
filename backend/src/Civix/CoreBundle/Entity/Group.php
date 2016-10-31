@@ -382,8 +382,11 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
 
     /**
      * @ORM\OneToMany(
-     *      targetEntity="Civix\CoreBundle\Entity\GroupSection",
-     *      mappedBy="group"
+     *     targetEntity="Civix\CoreBundle\Entity\GroupSection",
+     *     mappedBy="group",
+     *     cascade={"persist"},
+     *     fetch="EXTRA_LAZY",
+     *     orphanRemoval=true
      * )
      */
     private $groupSections;
@@ -1683,6 +1686,21 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
     public function getGroupSections()
     {
         return $this->groupSections;
+    }
+
+    public function addGroupSection(GroupSection $groupSection)
+    {
+        $this->groupSections[] = $groupSection;
+        $groupSection->setGroup($this);
+
+        return $this;
+    }
+
+    public function removeGroupSection(GroupSection $groupSection)
+    {
+        $this->groupSections->removeElement($groupSection);
+
+        return $this;
     }
 
     public function setGroupSections($groupSection)
