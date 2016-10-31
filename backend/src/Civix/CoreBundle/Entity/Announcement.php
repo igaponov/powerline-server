@@ -88,6 +88,9 @@ abstract class Announcement implements LeaderContentInterface
     /**
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Group")
      * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="CASCADE")
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api"})
+     * @Serializer\Type("Civix\CoreBundle\Entity\Group")
      */
     protected $group;
 

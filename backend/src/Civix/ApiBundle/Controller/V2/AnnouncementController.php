@@ -47,8 +47,11 @@ class AnnouncementController extends FOSRestController
      *     section="Announcements",
      *     description="Return a user's list of announcements",
      *     output = {
-     *          "class" = "Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination",
-     *          "groups" = {"paginator", "api"}
+     *          "class" = "array<Civix\CoreBundle\Entity\Announcement> as paginator",
+     *          "groups" = {"api", "api-activities"},
+     *          "parsers" = {
+     *              "Civix\ApiBundle\Parser\PaginatorParser"
+     *          }
      *     },
      *     filters={
      *         {
@@ -64,7 +67,7 @@ class AnnouncementController extends FOSRestController
      *     }
      * )
      *
-     * @View(serializerGroups={"paginator", "api"})
+     * @View(serializerGroups={"paginator", "api", "api-activities"})
      *
      * @param ParamFetcher $params
      * @return \Knp\Component\Pager\Pagination\PaginationInterface
