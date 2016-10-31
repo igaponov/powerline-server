@@ -5,6 +5,7 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -68,11 +69,6 @@ class UserGroupFollowerControllerTest extends WebTestCase
         $this->assertSame(404, $response->getStatusCode());
     }
 
-    /**
-     * Test to follow private group
-     *
-     * @author Habibillah <habibillah@gmail.com>
-     */
     public function testFollowPrivateGroup()
     {
         $repository = $this->loadFixtures([
@@ -84,6 +80,25 @@ class UserGroupFollowerControllerTest extends WebTestCase
         $user = $repository->getReference('followertest');
         $client = $this->client;
         $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']);
+        $response = $client->getResponse();
+        $this->assertSame(204, $response->getStatusCode(), $response->getContent());
+        $userFollows = $this->em->getRepository(UserFollow::class)
+            ->findBy(array('follower' => $user));
+        $this->assertCount(4, $userFollows);
+    }
+
+    public function testFollowGroupWithFollowedByAnotherUserMembers()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+            LoadGroupFollowerTestData::class,
+            LoadUserGroupFollowerTestData::class,
+            LoadUserFollowData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('testfollowprivategroups');
+        $user = $repository->getReference('userfollowtest1');
+        $client = $this->client;
+        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"']);
         $response = $client->getResponse();
         $this->assertSame(204, $response->getStatusCode(), $response->getContent());
         $userFollows = $this->em->getRepository(UserFollow::class)

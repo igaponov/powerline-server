@@ -127,7 +127,7 @@ class UserFollowRepository extends EntityRepository
             ->executeQuery('
                 INSERT INTO users_follow(user_id, follower_id, date_create, status) 
                 SELECT ug.user_id, :user, current_timestamp, :status FROM users_groups ug 
-                LEFT JOIN users_follow uf ON uf.user_id = ug.user_id
+                LEFT JOIN users_follow uf ON uf.user_id = ug.user_id AND uf.follower_id = :user
                 WHERE ug.group_id = :group AND uf.id IS NULL', [
                     ':user' => $user->getId(),
                     ':status' => UserFollow::STATUS_PENDING,
