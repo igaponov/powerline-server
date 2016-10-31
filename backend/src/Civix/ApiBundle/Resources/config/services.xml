@@ -9,9 +9,6 @@
     </imports>
 
     <services>
-
-
-
         <service id="api.cors" class="Civix\ApiBundle\EventListener\CORSSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -68,11 +65,6 @@
             <tag name="security.voter"/>
         </service>
 
-        <service class="Civix\ApiBundle\Security\Authorization\Voter\GroupFieldVoter" id="tough_domains_security.group_field_voter">
-            <argument id="civix_api.security_authorization_voter.group_voter" type="service"/>
-            <tag name="security.voter"/>
-        </service>
-
         <service class="Civix\ApiBundle\Security\Authorization\Voter\CommentVoter" id="civix_api.security_authorization_voter.comment_voter">
             <argument id="civix_api.security_authorization_voter.leader_content_voter" type="service"/>
             <argument id="civix_api.security_authorization_voter.post_voter" type="service"/>
@@ -115,6 +107,12 @@
                     <argument type="string">createResponse</argument>
                 </argument>
             </call>
+        </service>
+
+        <service class="Civix\ApiBundle\Parser\PaginatorParser" id="civix_api.parser.paginator_parser">
+            <argument id="nelmio_api_doc.parser.jms_metadata_parser" type="service"/>
+            <argument id="nelmio_api_doc.parser.collection_parser" type="service"/>
+            <tag name="nelmio_api_doc.extractor.parser"/>
         </service>
     </services>
 

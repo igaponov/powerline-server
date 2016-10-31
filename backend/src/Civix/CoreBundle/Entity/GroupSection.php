@@ -5,6 +5,7 @@ namespace Civix\CoreBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * GroupSection.
@@ -13,7 +14,7 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\GroupSectionRepository")
  * @Serializer\ExclusionPolicy("all")
  */
-class GroupSection
+class GroupSection implements LeaderContentInterface
 {
     /**
      * @var int
@@ -21,7 +22,7 @@ class GroupSection
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-groups"})
+     * @Serializer\Groups({"api-groups", "group-section"})
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
@@ -30,15 +31,16 @@ class GroupSection
      * @var string
      *
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-groups"})
+     * @Serializer\Groups({"api-groups", "group-section"})
      * @ORM\Column(name="title", type="string", length=255)
+     * @Assert\NotBlank()
      */
     private $title;
 
     /**
      * @Serializer\Expose()
      * @Serializer\Groups({"api-groups"})
-     * @ORM\ManyToMany(targetEntity="User",  inversedBy="groupSections")
+     * @ORM\ManyToMany(targetEntity="User",  inversedBy="groupSections", fetch="EXTRA_LAZY")
      */
     private $users;
 

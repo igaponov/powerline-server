@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Repository;
 
 use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\GroupSection;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\SubscriptionInterface;
@@ -600,5 +601,14 @@ class UserRepository extends EntityRepository
             ->setParameter(':subscription', $subscription)
             ->getQuery()
             ->iterate();
+    }
+
+    public function getFindByGroupSectionQuery(GroupSection $section)
+    {
+        return $this->createQueryBuilder('u')
+            ->leftJoin('u.groupSections', 's')
+            ->where('s = :section')
+            ->setParameter(':section', $section)
+            ->getQuery();
     }
 }
