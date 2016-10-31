@@ -247,6 +247,7 @@ class GroupControllerTest extends WebTestCase
 				$item['username'],
 				$this->logicalOr('userfollowtest1', 'userfollowtest2', 'userfollowtest3')
 			);
+			$this->assertArrayHasKey('id', $item);
 			$this->assertArrayHasKey('first_name', $item);
 			$this->assertArrayHasKey('last_name', $item);
 			$this->assertArrayHasKey('email', $item);
