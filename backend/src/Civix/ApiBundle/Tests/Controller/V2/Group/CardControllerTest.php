@@ -1,18 +1,18 @@
 <?php
-namespace Civix\ApiBundle\Tests\Controller\V2;
+namespace Civix\ApiBundle\Tests\Controller\V2\Group;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Stripe\Card;
-use Civix\CoreBundle\Entity\Stripe\CustomerUser;
-use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\Stripe\CustomerGroup;
 use Civix\CoreBundle\Service\Stripe;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe\LoadCustomerUserData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe\LoadCustomerGroupData;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class CardControllerTest extends WebTestCase
 {
-	const API_ENDPOINT = '/api/v2/cards';
+	const API_ENDPOINT = '/api/v2/groups/{group}/cards';
 
 	/**
 	 * @var null|Client
@@ -33,12 +33,13 @@ class CardControllerTest extends WebTestCase
     public function testGetCardsIsOk()
     {
         $repository = $this->loadFixtures([
-            LoadCustomerUserData::class,
+            LoadCustomerGroupData::class,
         ])->getReferenceRepository();
-        /** @var CustomerUser $customer */
-        $customer = $repository->getReference('stripe_customer_user_1');
+        /** @var CustomerGroup $customer */
+        $customer = $repository->getReference('stripe_customer_group_1');
         $client = $this->client;
-        $client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $uri = str_replace('{group}', $customer->getUser()->getId(), self::API_ENDPOINT);
+        $client->request('GET', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
@@ -47,11 +48,13 @@ class CardControllerTest extends WebTestCase
 
     public function testCreateCardWithWrongDataReturnsError()
     {
-        $this->loadFixtures([
-            LoadUserData::class,
-        ]);
+        $repository = $this->loadFixtures([
+            LoadGroupData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_1');
         $client = $this->client;
-        $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
+        $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
         $this->assertResponseHasErrors($response, ['source' => 'This value should not be blank.']);
     }
@@ -62,38 +65,40 @@ class CardControllerTest extends WebTestCase
             ->disableOriginalConstructor()
             ->getMock();
 	    $response = (object)[
-	        'id' => 'id0',
+	        'id' => 'id1',
         ];
 	    $service->expects($this->once())
             ->method('createCustomer')
-            ->with($this->isInstanceOf(User::class))
+            ->with($this->isInstanceOf(Group::class))
             ->willReturn($response);
 	    $service->expects($this->once())
             ->method('addCard')
             ->with(
-                $this->isInstanceOf(CustomerUser::class),
+                $this->isInstanceOf(CustomerGroup::class),
                 $this->isInstanceOf(Card::class)
             );
 	    $card = [
-            'id' => 'acc0',
+            'id' => 'acc1',
             'last4' => 'last4',
             'brand' => 'US Bank Name',
             'funding' => 'yyy',
         ];
 	    $service->expects($this->once())
             ->method('getCards')
-            ->with($this->isInstanceOf(CustomerUser::class))
+            ->with($this->isInstanceOf(CustomerGroup::class))
             ->willReturn(
                 (object)[
                     'data' => [(object)$card],
                 ]
             );
-        $this->loadFixtures([
-            LoadUserData::class,
-        ]);
+        $repository = $this->loadFixtures([
+            LoadGroupData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_1');
         $client = $this->client;
         $client->getContainer()->set('civix_core.stripe', $service);
-        $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode(['source' => '#123']));
+        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
+        $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode(['source' => '#123']));
 		$response = $client->getResponse();
 		$this->assertEquals(201, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
@@ -110,29 +115,31 @@ class CardControllerTest extends WebTestCase
 	    $service->expects($this->once())
             ->method('addCard')
             ->with(
-                $this->isInstanceOf(CustomerUser::class),
+                $this->isInstanceOf(CustomerGroup::class),
                 $this->isInstanceOf(Card::class)
             );
 	    $card = [
-            'id' => 'acc1',
-            'last4' => '7890',
+            'id' => 'acc2',
+            'last4' => '7891',
             'brand' => 'US Bank Name',
-            'funding' => 'yyy',
+            'funding' => 'yyyy',
         ];
 	    $service->expects($this->once())
             ->method('getCards')
-            ->with($this->isInstanceOf(CustomerUser::class))
+            ->with($this->isInstanceOf(CustomerGroup::class))
             ->willReturn(
                 (object)[
                     'data' => [(object)$card],
                 ]
             );
-        $this->loadFixtures([
-            LoadCustomerUserData::class,
-        ]);
+        $repository = $this->loadFixtures([
+            LoadCustomerGroupData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_1');
         $client = $this->client;
         $client->getContainer()->set('civix_core.stripe', $service);
-        $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode(['source' => '#123']));
+        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
+        $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode(['source' => '#123']));
 		$response = $client->getResponse();
 		$this->assertEquals(201, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
@@ -147,33 +154,35 @@ class CardControllerTest extends WebTestCase
         $service->expects($this->once())
             ->method('removeCard')
             ->with(
-                $this->isInstanceOf(CustomerUser::class),
+                $this->isInstanceOf(CustomerGroup::class),
                 $this->callback(function (Card $card) {
-                    $this->assertEquals('11233', $card->getId());
+                    $this->assertEquals('22455', $card->getId());
 
                     return true;
                 })
             );
         $card = [
-            'id' => 'acc1',
-            'last4' => '7890',
+            'id' => 'acc2',
+            'last4' => '7891',
             'brand' => 'US Bank Name',
-            'funding' => 'yyy',
+            'funding' => 'yyyy',
         ];
         $service->expects($this->once())
             ->method('getCards')
-            ->with($this->isInstanceOf(CustomerUser::class))
+            ->with($this->isInstanceOf(CustomerGroup::class))
             ->willReturn(
                 (object)[
                     'data' => [(object)$card],
                 ]
             );
-        $this->loadFixtures([
-            LoadCustomerUserData::class,
-        ]);
+        $repository = $this->loadFixtures([
+            LoadCustomerGroupData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_1');
         $client = $this->client;
         $client->getContainer()->set('civix_core.stripe', $service);
-        $client->request('DELETE', self::API_ENDPOINT.'/11233', [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
+        $client->request('DELETE', $uri.'/22455', [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
     }

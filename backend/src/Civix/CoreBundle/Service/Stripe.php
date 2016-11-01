@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Service;
 
+use Civix\CoreBundle\Entity\OfficialInterface;
 use Civix\CoreBundle\Entity\Stripe\BankAccount;
 use Civix\CoreBundle\Entity\Stripe\Card;
 use Doctrine\ORM\EntityManager;
@@ -301,14 +302,14 @@ class Stripe
     }
 
     /**
-     * @param UserInterface $user
+     * @param OfficialInterface $official
      * @return \Stripe\Customer|\stdClass
      */
-    public function createCustomer(UserInterface $user)
+    public function createCustomer(OfficialInterface $official)
     {
         return \Stripe\Customer::create([
-            'description' => $user->getOfficialName(),
-            'email' => $user->getEmail(),
+            'description' => $official->getOfficialName(),
+            'email' => $official->getEmail(),
         ]);
     }
 

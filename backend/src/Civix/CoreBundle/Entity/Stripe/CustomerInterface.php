@@ -2,15 +2,18 @@
 
 namespace Civix\CoreBundle\Entity\Stripe;
 
-use Civix\CoreBundle\Entity\UserInterface;
+use Civix\CoreBundle\Entity\OfficialInterface;
 
 interface CustomerInterface
 {
     /**
-     * @return UserInterface
+     * @return OfficialInterface
      */
     public function getUser();
 
+    /**
+     * @param OfficialInterface
+     */
     public function setUser();
 
     public function setStripeId($stripeId);

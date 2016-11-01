@@ -40,7 +40,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  * @Serializer\ExclusionPolicy("all")
  * @Vich\Uploadable
  */
-class User implements UserInterface, \Serializable
+class User implements UserInterface, \Serializable, OfficialInterface
 {
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_user.png';
     const SOMEONE_AVATAR = '/bundles/civixfront/img/default_someone.png';
