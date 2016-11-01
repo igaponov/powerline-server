@@ -8,6 +8,7 @@ use Civix\ApiBundle\Form\Type\BankAccountType;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Stripe\Account;
 use Civix\CoreBundle\Entity\Stripe\AccountGroup;
+use Civix\CoreBundle\Entity\Stripe\BankAccount;
 use Civix\CoreBundle\Service\StripeAccountManager;
 use FOS\RestBundle\Controller\Annotations\View;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -116,5 +117,39 @@ class BankAccountController extends BaseController
         }
 
         return [];
+    }
+
+    /**
+     * @Route("/{id}", requirements={"id" = ".+"})
+     * @Method("DELETE")
+     *
+     * @SecureParam("group", permission="edit")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Groups",
+     *     description="Delete group's stripe account",
+     *     statusCodes={
+     *         204="Success",
+     *         403="Access Denied",
+     *         404="Group Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Group $group
+     * @param string $id
+     */
+    public function deleteBankAccountAction(Group $group, $id)
+    {
+        /* @var AccountGroup $account */
+        $account = $this->getDoctrine()
+            ->getRepository(AccountGroup::class)
+            ->findOneBy(['user' => $group]);
+        if ($account) {
+            $bankAccount = new BankAccount();
+            $bankAccount->setId($id);
+            $this->manager->deleteBankAccount($account, $bankAccount);
+        }
     }
 }

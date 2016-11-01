@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle\Controller\V2\Group;
 
+use Civix\ApiBundle\Configuration\SecureParam;
 use Civix\ApiBundle\Controller\BaseController;
 use Civix\ApiBundle\Form\Type\CardType;
 use Civix\CoreBundle\Entity\Group;
@@ -30,6 +31,8 @@ class CardController extends BaseController
     /**
      * @Route("")
      * @Method("POST")
+     *
+     * @SecureParam("group", permission="edit")
      *
      * @ApiDoc(
      *     authentication=true,
@@ -76,6 +79,8 @@ class CardController extends BaseController
      * @Route("")
      * @Method("GET")
      *
+     * @SecureParam("group", permission="edit")
+     *
      * @ApiDoc(
      *     authentication=true,
      *     section="Groups",
@@ -115,6 +120,8 @@ class CardController extends BaseController
     /**
      * @Route("/{id}", requirements={"id" = ".+"})
      * @Method("DELETE")
+     *
+     * @SecureParam("group", permission="edit")
      *
      * @ApiDoc(
      *     authentication=true,

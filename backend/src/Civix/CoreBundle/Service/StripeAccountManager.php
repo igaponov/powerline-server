@@ -59,6 +59,15 @@ class StripeAccountManager
         return $account;
     }
 
+    public function deleteBankAccount(AccountGroup $account, BankAccount $bankAccount)
+    {
+        $event = new BankAccountEvent($account, $bankAccount);
+        $this->dispatcher->dispatch(AccountEvents::BANK_ACCOUNT_PRE_DELETE, $event);
+
+        $this->em->persist($account);
+        $this->em->flush();
+    }
+
     public function addUserCard(UserInterface $user, Card $card)
     {
         $customer = $this->em

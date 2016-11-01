@@ -26,6 +26,7 @@ class StripeSubscriber implements EventSubscriberInterface
             PollEvents::QUESTION_ANSWER => 'chargeToPaymentRequest',
             AccountEvents::PRE_CREATE => 'createStripeAccount',
             AccountEvents::BANK_ACCOUNT_PRE_CREATE => 'createStripeBankAccount',
+            AccountEvents::BANK_ACCOUNT_PRE_DELETE => 'deleteStripeBankAccount',
             CustomerEvents::PRE_CREATE => 'createStripeCustomer',
             CustomerEvents::CARD_PRE_CREATE => 'createStripeCard',
             CustomerEvents::CARD_PRE_DELETE => 'deleteStripeCard',
@@ -66,6 +67,15 @@ class StripeSubscriber implements EventSubscriberInterface
         $bankAccount = $event->getBankAccount();
 
         $this->stripe->addBankAccount($account, $bankAccount);
+        $account->updateBankAccounts($this->stripe->getBankAccounts($account)->data);
+    }
+
+    public function deleteStripeBankAccount(BankAccountEvent $event)
+    {
+        $account = $event->getAccount();
+        $bankAccount = $event->getBankAccount();
+
+        $this->stripe->removeBankAccount($account, $bankAccount);
         $account->updateBankAccounts($this->stripe->getBankAccounts($account)->data);
     }
 
