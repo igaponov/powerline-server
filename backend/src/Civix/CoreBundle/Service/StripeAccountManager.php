@@ -5,6 +5,7 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Stripe\AccountGroup;
 use Civix\CoreBundle\Entity\Stripe\BankAccount;
 use Civix\CoreBundle\Entity\Stripe\Customer;
+use Civix\CoreBundle\Entity\Stripe\CustomerGroup;
 use Civix\CoreBundle\Entity\Stripe\CustomerUser;
 use Civix\CoreBundle\Entity\UserInterface;
 use Civix\CoreBundle\Event\AccountEvent;
@@ -58,23 +59,30 @@ class StripeAccountManager
         return $account;
     }
 
-    public function addCard(UserInterface $user, Card $card)
+    public function addUserCard(UserInterface $user, Card $card)
     {
         $customer = $this->em
             ->getRepository(CustomerUser::class)
             ->findOneBy(['user' => $user])
         ;
         if (!$customer) {
-            $customer = $this->createCustomer($user);
+            $customer = $this->createCustomerUser($user);
         }
 
-        $event = new CardEvent($customer, $card);
-        $this->dispatcher->dispatch(CustomerEvents::CARD_PRE_CREATE, $event);
+        return $this->addCard($customer, $card);
+    }
 
-        $this->em->persist($customer);
-        $this->em->flush();
+    public function addGroupCard(Group $group, Card $card)
+    {
+        $customer = $this->em
+            ->getRepository(CustomerGroup::class)
+            ->findOneBy(['user' => $group])
+        ;
+        if (!$customer) {
+            $customer = $this->createCustomerGroup($group);
+        }
 
-        return $customer;
+        return $this->addCard($customer, $card);
     }
 
     public function deleteCard(Customer $customer, Card $card)
@@ -84,6 +92,17 @@ class StripeAccountManager
 
         $this->em->persist($customer);
         $this->em->flush();
+    }
+
+    private function addCard(Customer $customer, Card $card)
+    {
+        $event = new CardEvent($customer, $card);
+        $this->dispatcher->dispatch(CustomerEvents::CARD_PRE_CREATE, $event);
+
+        $this->em->persist($customer);
+        $this->em->flush();
+
+        return $customer;
     }
 
     private function createAccount(Group $group)
@@ -100,11 +119,8 @@ class StripeAccountManager
         return $account;
     }
 
-    private function createCustomer(UserInterface $user)
+    private function createCustomer(Customer $customer)
     {
-        $customer = new CustomerUser();
-        $customer->setUser($user);
-
         $event = new CustomerEvent($customer);
         $this->dispatcher->dispatch(CustomerEvents::PRE_CREATE, $event);
 
@@ -112,5 +128,21 @@ class StripeAccountManager
         $this->em->flush();
 
         return $customer;
+    }
+
+    private function createCustomerUser(UserInterface $user)
+    {
+        $customer = new CustomerUser();
+        $customer->setUser($user);
+
+        return $this->createCustomer($customer);
+    }
+
+    private function createCustomerGroup(Group $group)
+    {
+        $customer = new CustomerGroup();
+        $customer->setUser($group);
+
+        return $this->createCustomer($customer);
     }
 }

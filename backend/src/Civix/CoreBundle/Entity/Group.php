@@ -29,7 +29,7 @@ use Civix\CoreBundle\Serializer\Type\JoinStatus;
  * @Vich\Uploadable
  * @Serializer\ExclusionPolicy("all")
  */
-class Group implements \Serializable, CheckingLimits, CropAvatarInterface, LeaderInterface
+class Group implements \Serializable, CheckingLimits, CropAvatarInterface, LeaderInterface, OfficialInterface
 {
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_group.png';
 
