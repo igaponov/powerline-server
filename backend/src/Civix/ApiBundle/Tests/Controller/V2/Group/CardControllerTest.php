@@ -7,6 +7,8 @@ use Civix\CoreBundle\Entity\Stripe\Card;
 use Civix\CoreBundle\Entity\Stripe\CustomerGroup;
 use Civix\CoreBundle\Service\Stripe;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe\LoadCustomerGroupData;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -30,6 +32,26 @@ class CardControllerTest extends WebTestCase
         parent::tearDown();
     }
 
+    /**
+     * @param $user
+     * @param $reference
+     * @dataProvider getInvalidGroupCredentialsForRequest
+     */
+    public function testGetCardsWithWrongCredentialsThrowsException($user, $reference)
+    {
+        $repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+        /** @var Group $group */
+        $group = $repository->getReference($reference);
+        $client = $this->client;
+        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
+        $client->request('GET', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
     public function testGetCardsIsOk()
     {
         $repository = $this->loadFixtures([
@@ -44,6 +66,25 @@ class CardControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertEquals($customer->getCards(), $data);
+    }
+
+    /**
+     * @param $user
+     * @param $reference
+     * @dataProvider getInvalidGroupCredentialsForRequest
+     */
+    public function testCreateCardWithWrongCredentialsThrowsException($user, $reference)
+    {
+        $repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference($reference);
+        $client = $this->client;
+        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
+        $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
 
     public function testCreateCardWithWrongDataReturnsError()
@@ -146,6 +187,25 @@ class CardControllerTest extends WebTestCase
 		$this->assertEquals($card, $data['cards'][0]);
 	}
 
+    /**
+     * @param $user
+     * @param $reference
+     * @dataProvider getInvalidGroupCredentialsForRequest
+     */
+    public function testDeleteCardWithWrongCredentialsThrowsException($user, $reference)
+    {
+        $repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference($reference);
+        $client = $this->client;
+        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
+        $client->request('DELETE', $uri.'/22455', [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
     public function testDeleteCardIsOk()
     {
         $service = $this->getMockBuilder(Stripe::class)
@@ -185,5 +245,14 @@ class CardControllerTest extends WebTestCase
         $client->request('DELETE', $uri.'/22455', [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function getInvalidGroupCredentialsForRequest()
+    {
+        return [
+            'manager' => ['user2', 'group_1'],
+            'member' => ['user4', 'group_1'],
+            'outlier' => ['user4', 'group_2'],
+        ];
     }
 }

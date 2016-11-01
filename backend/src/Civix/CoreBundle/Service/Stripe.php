@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Service;
 
+use Civix\CoreBundle\Entity\LeaderInterface;
 use Civix\CoreBundle\Entity\OfficialInterface;
 use Civix\CoreBundle\Entity\Stripe\BankAccount;
 use Civix\CoreBundle\Entity\Stripe\Card;
@@ -45,6 +46,15 @@ class Stripe
         return \Stripe\Customer::retrieve($customer->getStripeId());
     }
 
+    /**
+     * @param AccountInterface $account
+     * @return \Stripe\Account
+     */
+    public function getStripeAccount(AccountInterface $account)
+    {
+        return \Stripe\Account::retrieve($account->getStripeId());
+    }
+
     public function getCards(CustomerInterface $customer)
     {
         return $this->getStripeCustomer($customer)
@@ -53,14 +63,14 @@ class Stripe
 
     public function getBankAccounts(AccountInterface $account)
     {
-        return \Stripe\Account::retrieve($account->getStripeId())
+        return $this->getStripeAccount($account)
             ->bank_accounts;
     }
 
     public function addBankAccount(AccountInterface $account, BankAccount $bankAccount)
     {
         /** @var \Stripe\Account|\stdClass $sa */
-        $sa = \Stripe\Account::retrieve($account->getStripeId());
+        $sa = $this->getStripeAccount($account);
 
         $sa->bank_account = $bankAccount->getSource();
         $sa->email = $bankAccount->getEmail();
@@ -88,6 +98,12 @@ class Stripe
     {
         $this->getStripeCustomer($customer)
             ->sources->retrieve($card->getId())->delete();
+    }
+
+    public function removeBankAccount(AccountInterface $account, BankAccount $bankAccount)
+    {
+        $this->getStripeAccount($account)
+            ->external_accounts->retrieve($bankAccount->getId())->delete();
     }
 
     public function hasPayoutAccount(UserInterface $user)
@@ -314,15 +330,15 @@ class Stripe
     }
 
     /**
-     * @param Group $user
+     * @param LeaderInterface $leader
      * @return \Stripe\Account|\stdClass
      */
-    public function createAccount(Group $user)
+    public function createAccount(LeaderInterface $leader)
     {
         return \Stripe\Account::create([
             'managed' => true,
-            'metadata' => ['id' => $user->getId(), 'type' => $user->getType()],
-            'email' => $user->getEmail(),
+            'metadata' => ['id' => $leader->getId(), 'type' => $leader->getType()],
+            'email' => $leader->getEmail(),
         ]);
     }
 

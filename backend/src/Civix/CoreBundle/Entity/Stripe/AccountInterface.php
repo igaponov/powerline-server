@@ -2,12 +2,12 @@
 
 namespace Civix\CoreBundle\Entity\Stripe;
 
-use Civix\CoreBundle\Entity\UserInterface;
+use Civix\CoreBundle\Entity\LeaderInterface;
 
 interface AccountInterface
 {
     /**
-     * @return UserInterface
+     * @return LeaderInterface
      */
     public function getUser();
 
