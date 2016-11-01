@@ -323,20 +323,48 @@ class SocialActivityManager
         $target['image'] = $user->getAvatarFileName();
 
         foreach ($recipients as $recipient) {
-            if ($group instanceof Group &&
+            if (($group instanceof Group &&
                 $this->em->getRepository(UserGroup::class)
-                    ->isJoinedUser($group, $recipient)) {
+                    ->isJoinedUser($group, $recipient))
+            || $this->em->getRepository(UserFollow::class)->findActiveFollower($user, $recipient)) {
                 $socialActivity = (new SocialActivity(SocialActivity::TYPE_COMMENT_MENTIONED, null, $group))
                     ->setTarget($target)
                     ->setRecipient($recipient)
                 ;
                 $this->em->persist($socialActivity);
                 $this->em->flush($socialActivity);
-            } elseif ($this->em->getRepository(UserFollow::class)->findActiveFollower($user, $recipient)) {
-                $socialActivity = (new SocialActivity(SocialActivity::TYPE_COMMENT_MENTIONED, $user, null))
-                    ->setTarget($target)
-                    ->setRecipient($recipient)
-                ;
+            }
+        }
+    }
+
+    public function noticePostMentioned(Post $post)
+    {
+        $recipients = $post->getMentionedUsers();
+        if (empty($recipients)) {
+            return;
+        }
+
+        $group = $post->getGroup();
+        $user = $post->getUser();
+        $target = [
+            'id' => $post->getId(),
+            'preview' => $this->preparePreview($post->getBody()),
+            'type' => 'post',
+            'label' => 'post',
+            'user_id' => $user->getId(),
+            'full_name' => $user->getFullName(),
+            'image' => $user->getAvatarFileName(),
+        ];
+
+        foreach ($recipients as $recipient) {
+            if (($group instanceof Group &&
+                    $this->em->getRepository(UserGroup::class)
+                        ->isJoinedUser($group, $recipient))
+                || $this->em->getRepository(UserFollow::class)->findActiveFollower($user, $recipient)) {
+                $socialActivity = (new SocialActivity(SocialActivity::TYPE_POST_MENTIONED, null, $group))->setTarget(
+                        $target
+                    )
+                    ->setRecipient($recipient);
                 $this->em->persist($socialActivity);
                 $this->em->flush($socialActivity);
             }

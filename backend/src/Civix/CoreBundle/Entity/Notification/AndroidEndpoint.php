@@ -48,6 +48,7 @@ class AndroidEndpoint extends AbstractEndpoint
                 );
                 break;
             case SocialActivity::TYPE_COMMENT_MENTIONED:
+            case SocialActivity::TYPE_POST_MENTIONED:
                 $actionButton = array(
                     array("icon" => "Open", "title" => "Open", "callback" => "app.open"),
                 );

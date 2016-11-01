@@ -50,6 +50,10 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> mentioned you in a comment</p>',
             ],
             [
+                SocialActivity::TYPE_POST_MENTIONED,
+                '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> mentioned you in a post</p>',
+            ],
+            [
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
                 '<p><strong>&lt;Jane&gt; &lt;Roe&gt;</strong> commented on the poll you subscribed to</p>',
             ],
@@ -128,6 +132,10 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             [
                 SocialActivity::TYPE_COMMENT_MENTIONED,
                 'mentioned you in a comment',
+            ],
+            [
+                SocialActivity::TYPE_POST_MENTIONED,
+                'mentioned you in a post',
             ],
             [
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
@@ -210,6 +218,10 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
                 '<Jane> <Roe>',
             ],
             [
+                SocialActivity::TYPE_POST_MENTIONED,
+                '<Jane> <Roe>',
+            ],
+            [
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
                 '<Jane> <Roe>',
             ],
@@ -287,6 +299,10 @@ class SocialActivityConverterTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 SocialActivity::TYPE_COMMENT_MENTIONED,
+                '/image',
+            ],
+            [
+                SocialActivity::TYPE_POST_MENTIONED,
                 '/image',
             ],
             [

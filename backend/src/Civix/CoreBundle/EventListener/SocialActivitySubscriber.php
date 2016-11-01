@@ -26,7 +26,10 @@ class SocialActivitySubscriber implements EventSubscriberInterface
             Event\UserEvents::FOLLOWED => ['sendUserFollowRequest', -100],
             Event\GroupEvents::PERMISSIONS_CHANGED => ['noticeGroupsPermissionsChanged', -100],
             Event\UserPetitionEvents::PETITION_CREATE => ['noticeUserPetitionCreated', -100],
-            Event\PostEvents::POST_CREATE => ['noticePostCreated', -100],
+            Event\PostEvents::POST_CREATE => [
+                ['noticePostCreated', -100],
+                ['noticePostMentioned', -100],
+            ],
             Event\CommentEvents::CREATE => [
                 ['noticeEntityCommented', -100],
                 ['noticeCommentMentioned', -100],
@@ -72,6 +75,12 @@ class SocialActivitySubscriber implements EventSubscriberInterface
     {
         $comment = $event->getComment();
         $this->manager->noticeCommentMentioned($comment);
+    }
+
+    public function noticePostMentioned(Event\PostEvent $event)
+    {
+        $post = $event->getPost();
+        $this->manager->noticePostMentioned($post);
     }
 
     public function noticeAnsweredToQuestion(Event\Poll\AnswerEvent $event)

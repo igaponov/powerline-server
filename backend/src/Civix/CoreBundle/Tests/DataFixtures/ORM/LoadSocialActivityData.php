@@ -160,6 +160,14 @@ class LoadSocialActivityData extends AbstractFixture implements ContainerAwareIn
         );
         $manager->persist($activity);
         $this->addReference('social_activity_16', $activity);
+        $activity = $this->generateSocialActivity(
+            SocialActivity::TYPE_POST_MENTIONED,
+            null,
+            $group2,
+            $user1
+        );
+        $manager->persist($activity);
+        $this->addReference('social_activity_17', $activity);
 
         $manager->flush();
     }

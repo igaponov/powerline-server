@@ -17,6 +17,7 @@ class SocialActivityConverter
 
         SocialActivity::TYPE_COMMENT_REPLIED => 'getCommentReplied',
         SocialActivity::TYPE_COMMENT_MENTIONED => 'getCommentMentioned',
+        SocialActivity::TYPE_POST_MENTIONED => 'getPostMentioned',
 
         SocialActivity::TYPE_FOLLOW_POLL_COMMENTED => 'getFollowPollCommented',
         SocialActivity::TYPE_FOLLOW_POST_COMMENTED => 'getFollowPostCommented',
@@ -211,6 +212,27 @@ class SocialActivityConverter
     {
         return '<p><strong>'.htmlspecialchars($entity->getTarget()['full_name'])
         .'</strong> mentioned you in a comment</p>';
+    }
+
+    private static function getPostMentionedText(SocialActivity $entity)
+    {
+        return 'mentioned you in a post';
+    }
+
+    private static function getPostMentionedTitle(SocialActivity $entity)
+    {
+        return $entity->getTarget()['full_name'];
+    }
+
+    private static function getPostMentionedImage(SocialActivity $entity)
+    {
+        return $entity->getTarget()['image'];
+    }
+
+    private static function getPostMentionedHTML(SocialActivity $entity)
+    {
+        return '<p><strong>'.htmlspecialchars($entity->getTarget()['full_name'])
+        .'</strong> mentioned you in a post</p>';
     }
 
     private static function getFollowPollCommentedHTML(SocialActivity $entity)

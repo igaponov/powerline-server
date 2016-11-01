@@ -20,6 +20,7 @@ class SocialActivity
 
     const TYPE_COMMENT_REPLIED = 'comment-replied';
     const TYPE_COMMENT_MENTIONED = 'comment-mentioned';
+    const TYPE_POST_MENTIONED = 'post-mentioned';
 
     const TYPE_FOLLOW_POST_CREATED = 'follow-post-created';
     const TYPE_FOLLOW_USER_PETITION_CREATED = 'follow-user-petition-created';
@@ -116,6 +117,7 @@ class SocialActivity
         self::TYPE_GROUP_PERMISSIONS_CHANGED,
         self::TYPE_COMMENT_REPLIED,
         self::TYPE_COMMENT_MENTIONED,
+        self::TYPE_POST_MENTIONED,
         self::TYPE_OWN_POLL_ANSWERED,
         self::TYPE_OWN_POST_VOTED,
         self::TYPE_OWN_USER_PETITION_SIGNED,
