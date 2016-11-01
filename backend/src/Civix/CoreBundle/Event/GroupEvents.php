@@ -10,4 +10,5 @@ class GroupEvents
     const BEFORE_DELETE = 'group.before_delete';
     const MEMBERSHIP_CONTROL_CHANGED = 'group.membership_control_changed';
     const PERMISSIONS_CHANGED = 'group.permissions_changed';
+    const USER_INQUIRED = 'group.user_inquired';
 }

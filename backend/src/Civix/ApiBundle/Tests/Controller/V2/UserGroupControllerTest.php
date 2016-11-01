@@ -4,6 +4,8 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\UserGroup;
+use Civix\CoreBundle\Model\Subscription\PackageLimitState;
+use Civix\CoreBundle\Service\Subscription\PackageHandler;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFieldsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
@@ -168,7 +170,9 @@ class UserGroupControllerTest extends WebTestCase
         $client = $this->client;
         $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user4"']);
         $response = $client->getResponse();
-        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals($status == UserGroup::STATUS_ACTIVE ? 'active' : 'pending', $data['join_status']);
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
         $currentStatus = $conn->fetchColumn('SELECT status FROM users_groups WHERE group_id = ?', [$group->getId()]);
@@ -188,46 +192,67 @@ class UserGroupControllerTest extends WebTestCase
         $repository = $this->loadFixtures([
             LoadGroupFieldsData::class,
         ])->getReferenceRepository();
+        $user = $repository->getReference('user_4');
         $group = $repository->getReference('group_3');
         /** @var Group\GroupField $field */
         $field = $repository->getReference('another-group-field');
         $fieldValue = 'Answer A';
         $params = [
             'passcode' => 'secret_passcode',
-            'fields' => [
+            'answered_fields' => [
                 [
-                    'field' => [
-                        'id' => $field->getId(),
-                    ],
-                    'field_value' => $fieldValue
+                    'id' => $field->getId(),
+                    'value' => $fieldValue,
                 ],
             ],
         ];
         $client = $this->client;
+        $service = $this->getMockBuilder(PackageHandler::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $service->expects($this->once())
+            ->method('getPackageStateForGroupSize')
+            ->with($this->isInstanceOf(Group::class))
+            ->willReturn(new PackageLimitState());
+        $client->getContainer()->set('civix_core.package_handler', $service);
         $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user4"'], json_encode($params));
         $response = $client->getResponse();
-        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame('active', $data['join_status']);
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
         $currentStatus = $conn->fetchColumn('SELECT status FROM users_groups WHERE group_id = ?', [$group->getId()]);
         $this->assertEquals(UserGroup::STATUS_ACTIVE, $currentStatus);
-        $count = $conn->fetchColumn('SELECT COUNT(*) FROM groups_fields_values WHERE field_value = ?', [$fieldValue]);
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM groups_fields_values WHERE field_value = ? AND user_id = ?', [$fieldValue, $user->getId()]);
         $this->assertEquals(1, $count);
     }
 
-    public function testJoinGroupWithPasscodeThrowsException()
+    public function testJoinGroupWithErrors()
     {
         $repository = $this->loadFixtures([
-            LoadUserData::class,
-            LoadGroupData::class,
+            LoadGroupFieldsData::class,
         ])->getReferenceRepository();
         $group = $repository->getReference('group_3');
         $client = $this->client;
+        $service = $this->getMockBuilder(PackageHandler::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $state = new PackageLimitState();
+        $state->setLimitValue(1)
+            ->setCurrentValue(2);
+        $service->expects($this->once())
+            ->method('getPackageStateForGroupSize')
+            ->with($this->isInstanceOf(Group::class))
+            ->willReturn($state);
+        $client->getContainer()->set('civix_core.package_handler', $service);
         $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user4"']);
         $response = $client->getResponse();
-        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals('Incorrect passcode', $data['message']);
+        $this->assertResponseHasErrors($response, [
+            'The group is full.',
+            'Please fill group\'s required fields.',
+            'passcode' => 'Incorrect passcode.',
+        ]);
     }
 
     public function testUnjoinGroupIsOk()

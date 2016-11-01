@@ -10,8 +10,10 @@ use Civix\CoreBundle\Entity\UserGroupManager;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
 use Civix\CoreBundle\Event\GroupUserEvent;
+use Civix\CoreBundle\Event\InquiryEvent;
 use Civix\CoreBundle\Event\InviteEvent;
 use Civix\CoreBundle\Event\InviteEvents;
+use Civix\CoreBundle\Model\Group\Worksheet;
 use Civix\CoreBundle\Service\Google\Geocode;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -74,6 +76,20 @@ class GroupManager
         $this->dispatcher->dispatch(GroupEvents::CREATED, $event);
     }
 
+    /**
+     * @param Worksheet $worksheet
+     * @return UserGroup
+     */
+    public function inquire(Worksheet $worksheet)
+    {
+        $userGroup = $this->joinToGroup($worksheet->getUser(), $worksheet->getGroup());
+
+        $event = new InquiryEvent($worksheet);
+        $this->dispatcher->dispatch(GroupEvents::USER_INQUIRED, $event);
+
+        return $userGroup;
+    }
+
     public function joinToGroup(User $user, Group $group)
     {
         //current status Group
@@ -104,7 +120,7 @@ class GroupManager
         $event = new GroupUserEvent($group, $user);
         $this->dispatcher->dispatch(GroupEvents::USER_JOINED, $event);
 
-        return $user;
+        return $userGroup;
     }
 
     public function unjoinGroup(User $user, Group $group)
@@ -139,6 +155,8 @@ class GroupManager
      * @param User $user
      *
      * @return bool
+     *
+     * @deprecated to be removed in 2.0
      */
     public function isNeedCheckPasscode(Group $group, User $user)
     {
