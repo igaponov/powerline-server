@@ -2,6 +2,10 @@
 
 namespace Civix\CoreBundle\Entity\Stripe;
 
+use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\OfficialInterface;
+use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
@@ -98,10 +102,23 @@ abstract class Customer implements CustomerInterface
         }, $cards);
     }
 
-    public static function getEntityClassByUser(UserInterface $user)
+    public static function getEntityClassByUser(OfficialInterface $official)
     {
-        $type = ucfirst($user->getType());
+        $class = get_class($official);
+        switch ($class) {
+            case User::class:
+                $type = CustomerUser::class;
+                break;
+            case Group::class:
+                $type = CustomerGroup::class;
+                break;
+            case Representative::class:
+                $type = CustomerRepresentative::class;
+                break;
+            default:
+                throw new \RuntimeException('Invalid object with class '.$class);
+        }
 
-        return "Civix\\CoreBundle\\Entity\\Stripe\\Customer{$type}";
+        return $type;
     }
 }
