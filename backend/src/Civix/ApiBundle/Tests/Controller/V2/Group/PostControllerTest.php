@@ -69,10 +69,10 @@ class PostControllerTest extends WebTestCase
     public function testCreatePost()
     {
         $repository = $this->loadFixtures([
-            LoadGroupData::class,
+            LoadUserGroupData::class,
         ])->getReferenceRepository();
-        $faker = Factory::create();
         $user = $repository->getReference('user_1');
+        $mentioned = $repository->getReference('user_4');
         $group = $repository->getReference('group_1');
         $client = $this->client;
         $manager = $this->getPetitionManagerMock([
@@ -90,7 +90,10 @@ class PostControllerTest extends WebTestCase
             '#powerlineHashTag',
         ];
         $params = [
-            'body' => $faker->text."\n".implode(' ', $hashTags),
+            'body' => sprintf("post text @%s %s",
+                $mentioned->getUsername(),
+                implode(' ', $hashTags)
+            ),
         ];
         $client->request('POST',
             $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'],
@@ -100,6 +103,7 @@ class PostControllerTest extends WebTestCase
         $this->assertEquals(201, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertSame($params['body'], $data['body']);
+        $this->assertRegExp('{post text <a data-user-id="\d+">@user4</a> #testHashTag #powerlineHashTag}', $data['html_body']);
         $this->assertFalse($data['boosted']);
         // check addHashTags event listener
         /** @var Connection $conn */
@@ -119,11 +123,12 @@ class PostControllerTest extends WebTestCase
         $this->assertEquals(1, $count);
         // check social activity
         $tester = new SocialActivityTester($client->getContainer()->get('doctrine.orm.entity_manager'));
-        $tester->assertActivitiesCount(1);
+        $tester->assertActivitiesCount(2);
         $tester->assertActivity(SocialActivity::TYPE_FOLLOW_POST_CREATED, null, $user->getId());
+        $tester->assertActivity(SocialActivity::TYPE_POST_MENTIONED, $mentioned->getId());
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
-        $this->assertEquals(1, $queue->count());
-        $this->assertEquals(1, $queue->hasMessageWithMethod('sendSocialActivity'));
+        $this->assertEquals(2, $queue->count());
+        $this->assertEquals(2, $queue->hasMessageWithMethod('sendSocialActivity'));
     }
 
     public function testGetActivitiesOfDeletedUserPetition()

@@ -1,9 +1,9 @@
 <?php
 namespace Civix\CoreBundle\EventListener;
 
-use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\HtmlBodyInterface;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserMentionableInterface;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Event\LifecycleEventArgs;
@@ -49,7 +49,7 @@ class MentionSubscriber implements EventSubscriber
                 if (!$user) {
                     return '@'.$username;
                 }
-                if ($notify && $entity instanceof BaseComment) {
+                if ($notify && $entity instanceof UserMentionableInterface) {
                     $entity->addMentionedUser($user);
                 }
 

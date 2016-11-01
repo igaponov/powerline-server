@@ -23,9 +23,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  * })
  * @Serializer\ExclusionPolicy("all")
  */
-class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterface, HashTaggableInterface
+class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterface, HashTaggableInterface, UserMentionableInterface
 {
-    use HashTaggableTrait, MetadataTrait;
+    use HashTaggableTrait, MetadataTrait, UserMentionableTrait;
 
     /**
      * @ORM\Id
