@@ -13,7 +13,7 @@ use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\ActivityCondition;
 use Civix\CoreBundle\Entity\ActivityRead;
 use Civix\CoreBundle\Entity\GroupSection;
-use Civix\CoreBundle\Entity\Poll\Comment;
+use Civix\CoreBundle\Entity\Poll\CommentRate;
 use Civix\CoreBundle\Entity\Poll\EducationalContext;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Question\LeaderEvent;
@@ -317,28 +317,25 @@ class ActivityUpdate
         $this->entityManager->getRepository('CivixCoreBundle:Activity')->{'updateOwner'.$owner->getType()}($owner);
     }
 
-    public function updateEntityRateCount(Comment $comment)
+    public function updateEntityRateCount(CommentRate $rate)
     {
-        $activities = $this->entityManager->getRepository(Activity::getActivityClassByEntity($comment->getQuestion()))
-            ->findBy(['question' => $comment->getQuestion()]);
+        $comment = $rate->getComment();
+        $user = $rate->getUser();
+        $activities = $this->entityManager->getRepository(Activity::class)
+            ->findByQuestionWithUserReadMark($comment->getQuestion(), $user);
 
         /* @var Activity $activity */
         foreach ($activities as $activity) {
-            $activity->setRateUp($comment->getRateUp())->setRateDown($comment->getRateDown());
-            $this->entityManager->flush($activity);
-        }
-    }
-
-    public function markQuestionActivityAsRead(Question $question, User $user)
-    {
-        $activities = $this->entityManager->getRepository(Activity::class)
-            ->findUnreadByQuestionAndUser($question, $user);
-
-        foreach ($activities as $activity) {
-            $activityRead = new ActivityRead();
-            $activityRead->setUser($user);
-            $activityRead->setActivity($activity);
-            $this->entityManager->persist($activityRead);
+            $activity
+                ->setRateUp($comment->getRateUp())
+                ->setRateDown($comment->getRateDown());
+            if (!$activity->isReadByUser($user)) {
+                $activityRead = new ActivityRead();
+                $activityRead->setUser($user);
+                $activityRead->setActivity($activity);
+                $this->entityManager->persist($activityRead);
+            }
+            $this->entityManager->persist($activity);
         }
         $this->entityManager->flush();
     }

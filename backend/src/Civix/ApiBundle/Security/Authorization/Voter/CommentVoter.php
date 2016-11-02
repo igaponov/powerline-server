@@ -112,11 +112,6 @@ class CommentVoter implements VoterInterface
             return VoterInterface::ACCESS_DENIED;
         }
 
-        // make sure entity has owner attached to it
-        if (!$object->getUser() instanceof UserInterface) {
-            return VoterInterface::ACCESS_DENIED;
-        }
-
         if ($attribute === self::VIEW) {
             if ($object instanceof Poll\Comment) {
                 $voter = $this->leaderContentVoter;
@@ -129,6 +124,11 @@ class CommentVoter implements VoterInterface
             }
 
             return $voter->vote($token, $object->getCommentedEntity(), $attributes);
+        }
+
+        // make sure entity has owner attached to it
+        if (!$object->getUser() instanceof UserInterface) {
+            return VoterInterface::ACCESS_DENIED;
         }
 
         if ($object->getUser()->isEqualTo($user)) {

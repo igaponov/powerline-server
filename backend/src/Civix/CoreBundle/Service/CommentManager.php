@@ -13,6 +13,7 @@ use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Entity\UserPetition\Comment as MicropetitionComment;
 use Civix\CoreBundle\Event\CommentEvent;
 use Civix\CoreBundle\Event\CommentEvents;
+use Civix\CoreBundle\Event\RateEvent;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -57,7 +58,7 @@ class CommentManager
         $comment = $this->updateRateSumForComment($comment);
         $comment->setRateStatus($rateValue);
 
-        return $comment;
+        return $rateCommentObj;
     }
 
     public function updateRateSumForComment(BaseComment $comment)
@@ -162,7 +163,7 @@ class CommentManager
         $this->em->persist($rate);
         $this->em->flush($rate);
 
-        $event = new CommentEvent($comment);
+        $event = new RateEvent($rate);
         $this->dispatcher->dispatch(CommentEvents::RATE, $event);
 
         return $comment;

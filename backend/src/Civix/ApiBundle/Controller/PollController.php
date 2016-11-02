@@ -386,13 +386,13 @@ class PollController extends BaseController
             throw new BadRequestHttpException('You can\'t rate your comment');
         }
 
-        $comment = $this->get('civix_core.comment_manager')
+        $rate = $this->get('civix_core.comment_manager')
                 ->updateRateToComment($comment, $user, constant($rateActionConstant));
 
         if ($comment instanceof \Civix\CoreBundle\Entity\Poll\Comment &&
             !$comment->getParentComment() &&
             $comment->getQuestion() instanceof \Civix\CoreBundle\Entity\Poll\Question\LeaderNews) {
-            $this->get('civix_core.activity_update')->updateEntityRateCount($comment);
+            $this->get('civix_core.activity_update')->updateEntityRateCount($rate);
         }
 
         $response = new Response($this->jmsSerialization($comment, array('api-comments', 'api-comments-parent')));
