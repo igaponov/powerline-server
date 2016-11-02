@@ -835,6 +835,15 @@ abstract class Activity implements HtmlBodyInterface
         $this->activityRead->removeElement($activityRead);
     }
 
+    public function isReadByUser(User $user)
+    {
+        $filter = function (ActivityRead $activityRead) use ($user) {
+            return $activityRead->getUser()->getId() == $user->getId();
+        };
+
+        return !!$this->getActivityRead()->filter($filter)->count();
+    }
+
     /**
      * @return Question
      */

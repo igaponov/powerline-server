@@ -1,8 +1,8 @@
 <?php
 namespace Civix\CoreBundle\EventListener;
 
-use Civix\CoreBundle\Event\CommentEvent;
 use Civix\CoreBundle\Event\CommentEvents;
+use Civix\CoreBundle\Event\RateEvent;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -25,9 +25,10 @@ class CommentSubscriber implements EventSubscriberInterface
         $this->em = $em;
     }
 
-    public function updateCommentRate(CommentEvent $event)
+    public function updateCommentRate(RateEvent $event)
     {
-        $comment = $event->getComment();
+        $rate = $event->getRate();
+        $comment = $rate->getComment();
         $meta = $this->em->getClassMetadata(get_class($comment));
         $associationClass = $meta->getAssociationTargetClass('rates');
         /** @var \Civix\CoreBundle\Repository\CommentRateRepository $repository */

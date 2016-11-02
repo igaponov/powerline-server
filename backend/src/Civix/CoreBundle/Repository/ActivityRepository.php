@@ -645,4 +645,21 @@ class ActivityRepository extends EntityRepository
 
         return (int)$query->getSingleScalarResult();
     }
+
+    /**
+     * @param Question $question
+     * @param User $user
+     * @return Activity[]
+     */
+    public function findByQuestionWithUserReadMark(Question $question, User $user)
+    {
+        return $this->createQueryBuilder('a')
+            ->select('a', 'ar')
+            ->leftJoin('a.activityRead', 'ar', 'WITH', 'ar.user = :user')
+            ->setParameter(':user', $user)
+            ->andWhere('a.question = :question')
+            ->setParameter(':question', $question)
+            ->getQuery()
+            ->getResult();
+    }
 }

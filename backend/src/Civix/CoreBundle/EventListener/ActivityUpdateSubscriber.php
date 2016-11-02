@@ -1,6 +1,8 @@
 <?php
 namespace Civix\CoreBundle\EventListener;
 
+use Civix\CoreBundle\Entity\Poll\Comment;
+use Civix\CoreBundle\Entity\Poll\CommentRate;
 use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
 use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
 use Civix\CoreBundle\Entity\Poll\Question\Petition;
@@ -42,6 +44,8 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
             Event\PostEvents::POST_BOOST => ['publishPostToActivity', -100],
 
             Event\PollEvents::QUESTION_PUBLISHED => ['publishQuestionToActivity', -100],
+
+            Event\CommentEvents::RATE => ['updateEntityRateCount', -100],
         ];
     }
 
@@ -88,6 +92,19 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
             $this->activityUpdate->publishLeaderNewsToActivity($question);
         } else {
             $this->activityUpdate->publishQuestionToActivity($question);
+        }
+    }
+
+    public function updateEntityRateCount(Event\RateEvent $event)
+    {
+        $rate = $event->getRate();
+        $comment = $rate->getComment();
+        if ($rate instanceof CommentRate &&
+            $comment instanceof Comment &&
+            !$comment->getParentComment() &&
+            $comment->getQuestion() instanceof LeaderNews
+        ) {
+            $this->activityUpdate->updateEntityRateCount($rate);
         }
     }
 }
