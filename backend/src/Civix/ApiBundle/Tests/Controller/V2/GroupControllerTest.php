@@ -151,31 +151,49 @@ class GroupControllerTest extends WebTestCase
 		$data = json_decode($response->getContent(), true);
 		$this->assertSame($group->getId(), $data['id']);
         $this->assertSame(4, $data['total_members']);
+        $this->assertSame(Group::GROUP_TRANSPARENCY_PRIVATE, $data['transparency']);
 	}
 
-	public function testUpdateGroupWithErrors()
+    /**
+     * @param $params
+     * @param $errors
+     * @dataProvider getInvalidValues
+     */
+	public function testUpdateGroupWithErrors($params, $errors)
 	{
 		$group = $this->repository->getReference('testfollowsecretgroups');
-		$errors = [
-			'official_name' => ['This value should not be blank.'],
-			'official_type' => ['This value should not be blank.'],
-		];
 		$client = $this->client;
-		$client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"'], json_encode([
-			'official_name' => '',
-			'official_type' => '',
-		]));
+		$client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"'], json_encode($params));
 		$response = $client->getResponse();
-		$this->assertEquals(400, $response->getStatusCode(), $response->getContent());
-		$data = json_decode($response->getContent(), true);
-		$count = 0;
-		foreach ($data['errors']['children'] as $property => $arr) {
-			if (!empty($arr['errors'])) {
-				$count++;
-				$this->assertSame($errors[$property], $arr['errors']);
-			}
-		}
-		$this->assertCount($count, $errors);
+		$this->assertResponseHasErrors($response, $errors);
+	}
+
+    public function getInvalidValues()
+    {
+        return [
+            [
+                [
+                    'official_name' => '',
+                    'official_type' => '',
+                    'transparency' => '',
+                ],
+                [
+                    'official_name' => 'This value should not be blank.',
+                    'official_type' => 'This value should not be blank.',
+                    'transparency' => 'This value should not be blank.',
+                ],
+            ],
+            [
+                [
+                    'official_type' => 'yyy',
+                    'transparency' => 'xxx',
+                ],
+                [
+                    'official_type' => 'The value you selected is not a valid choice.',
+                    'transparency' => 'The value you selected is not a valid choice.',
+                ],
+            ]
+        ];
 	}
 
 	public function testUpdateGroupWithWrongPermissions()
@@ -203,6 +221,7 @@ class GroupControllerTest extends WebTestCase
 			'official_address' => $faker->address,
 			'official_city' => $faker->city,
 			'official_state' => strtoupper($faker->randomLetter.$faker->randomLetter),
+            'transparency' => Group::GROUP_TRANSPARENCY_PRIVATE,
 		];
 		$client = $this->client;
 		$client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"'], json_encode($params));

@@ -214,6 +214,7 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
      *
      * @ORM\Column(name="official_type", type="string", length=255, nullable=true)
      * @Assert\NotBlank(groups={"user-registration"})
+     * @Assert\Choice(callback="getOfficialTypes", groups={"user-registration"})
      * @Serializer\Expose()
      * @Serializer\Groups({"api-info", "api-create-by-user", "api-group"})
      */
@@ -460,6 +461,10 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
      * @var string
      *
      * @ORM\Column(name="transparency", type="string", nullable=false)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-full-info"})
+     * @Assert\NotBlank(groups={"Default", "user-registration"})
+     * @Assert\Choice(callback="getTransparencyStates", groups={"Default", "user-registration"})
      */
     private $transparency;
 
@@ -517,6 +522,16 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
             self::GROUP_MEMBERSHIP_PUBLIC => 'public',
             self::GROUP_MEMBERSHIP_APPROVAL => 'approval',
             self::GROUP_MEMBERSHIP_PASSCODE => 'passcode',
+        ];
+    }
+
+    public static function getTransparencyStates()
+    {
+        return [
+            self::GROUP_TRANSPARENCY_PUBLIC,
+            self::GROUP_TRANSPARENCY_PRIVATE,
+            self::GROUP_TRANSPARENCY_SECRET,
+            self::GROUP_TRANSPARENCY_TOP_SECRET,
         ];
     }
 

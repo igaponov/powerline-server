@@ -103,22 +103,18 @@ class UserGroupControllerTest extends WebTestCase
             LoadUserData::class,
         ]);
         $errors = [
-            'official_name' => ['This value should not be blank.'],
-            'official_type' => ['This value should not be blank.'],
+            'official_name' => 'This value should not be blank.',
+            'official_type' => 'This value should not be blank.',
+            'transparency' => 'This value should not be blank.',
         ];
         $client = $this->client;
-        $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']);
+        $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode([
+            'official_name' => '',
+            'official_type' => '',
+            'transparency' => '',
+        ]));
         $response = $client->getResponse();
-        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $count = 0;
-        foreach ($data['errors']['children'] as $property => $arr) {
-            if (!empty($arr['errors'])) {
-                $count++;
-                $this->assertSame($errors[$property], $arr['errors']);
-            }
-        }
-        $this->assertCount($count, $errors);
+        $this->assertResponseHasErrors($response, $errors);
     }
 
     public function testCreateGroupIsOk()
@@ -149,6 +145,7 @@ class UserGroupControllerTest extends WebTestCase
         foreach ($params as $property => $value) {
             $this->assertSame($value, $data[$property]);
         }
+        $this->assertSame(Group::GROUP_TRANSPARENCY_PUBLIC, $data['transparency']);
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('database_connection');
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM users_groups WHERE group_id = ? and user_id = ?', [$data['id'], $user->getId()]);
