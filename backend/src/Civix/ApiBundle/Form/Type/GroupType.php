@@ -58,6 +58,10 @@ class GroupType extends AbstractType
             'property_path' => 'officialState',
             'required' => false,
         ]);
+        $builder->add('transparency', 'text', [
+            'required' => false,
+            'description' => 'Transparency, can be one of '.join(', ', Group::getTransparencyStates()),
+        ]);
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)

@@ -127,8 +127,6 @@ class GroupController extends FOSRestController
      * @Route("/{id}")
      * @Method("PUT")
      *
-     * @ParamConverter("group")
-     * 
      * @SecureParam("group", permission="edit")
      * 
      * @ApiDoc(

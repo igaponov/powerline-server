@@ -103,7 +103,7 @@ class UserGroupController extends FOSRestController
         $form = $this->createForm(new GroupType(), null, [
             'validation_groups' => 'user-registration',
         ]);
-        $form->submit($request);
+        $form->submit($request, false);
 
         if ($form->isValid()) {
             /** @var Group $group */
