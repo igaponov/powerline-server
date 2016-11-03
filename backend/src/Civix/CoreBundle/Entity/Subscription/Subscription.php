@@ -398,7 +398,7 @@ class Subscription
         }
 
         if ($this->stripeData['current_period_end']) {
-            $this->expiredAt = (new \DateTime())->setTimestamp($this->stripeData['current_period_end']);
+            $this->nextPaymentAt = $this->expiredAt = (new \DateTime())->setTimestamp($this->stripeData['current_period_end']);
         }
 
         $this->enabled = 'active' === $this->stripeData['status'] &&
