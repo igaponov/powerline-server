@@ -269,6 +269,8 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
     /**
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-full-info"})
      */
     private $owner;
 
