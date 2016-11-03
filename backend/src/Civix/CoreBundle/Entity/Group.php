@@ -53,6 +53,16 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
     const GROUP_TRANSPARENCY_SECRET = "secret";
     const GROUP_TRANSPARENCY_TOP_SECRET = "top-secret";
 
+    const PERMISSIONS_NAME = 'permissions_name';
+    const PERMISSIONS_ADDRESS = 'permissions_address';
+    const PERMISSIONS_CITY = 'permissions_city';
+    const PERMISSIONS_STATE = 'permissions_state';
+    const PERMISSIONS_COUNTRY = 'permissions_country';
+    const PERMISSIONS_ZIP_CODE = 'permissions_zip_code';
+    const PERMISSIONS_EMAIL = 'permissions_email';
+    const PERMISSIONS_PHONE = 'permissions_phone';
+    const PERMISSIONS_RESPONSES = 'permissions_responses';
+
     /**
      * @var int
      *
@@ -537,6 +547,21 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
         ];
     }
 
+    public static function getPermissions()
+    {
+        return [
+            self::PERMISSIONS_NAME => 'Name',
+            self::PERMISSIONS_ADDRESS => 'Street Address',
+            self::PERMISSIONS_CITY => 'City',
+            self::PERMISSIONS_STATE => 'State',
+            self::PERMISSIONS_COUNTRY => 'Country',
+            self::PERMISSIONS_ZIP_CODE => 'Zip Code',
+            self::PERMISSIONS_EMAIL => 'Email',
+            self::PERMISSIONS_PHONE => 'Phone Number',
+            self::PERMISSIONS_RESPONSES => 'Responses',
+        ];
+    }
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -550,6 +575,11 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
         $this->membershipControl = self::GROUP_MEMBERSHIP_PUBLIC;
         $this->petitionPerMonth = self::COUNT_PETITION_PER_MONTH;
         $this->transparency = self::GROUP_TRANSPARENCY_PUBLIC;
+        $this->requiredPermissions = [
+            self::PERMISSIONS_NAME,
+            self::PERMISSIONS_COUNTRY,
+            self::PERMISSIONS_RESPONSES,
+        ];
     }
 
     /**

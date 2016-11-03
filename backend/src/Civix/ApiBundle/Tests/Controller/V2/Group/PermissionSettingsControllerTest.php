@@ -80,14 +80,14 @@ class PermissionSettingsControllerTest extends WebTestCase
 		$params = [
 			'required_permissions' => [
 				'permissions_name',
-				'permissions_address',
-				'permissions_city',
-				'permissions_state',
-				'permissions_country',
-				'permissions_zip_code',
-				'permissions_email',
-				'permissions_phone',
-				'permissions_responses',
+                'permissions_country',
+                'permissions_responses',
+                'permissions_address',
+                'permissions_city',
+                'permissions_state',
+                'permissions_zip_code',
+                'permissions_email',
+                'permissions_phone',
 			],
 		];
         // owner

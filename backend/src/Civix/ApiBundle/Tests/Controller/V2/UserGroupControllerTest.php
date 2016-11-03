@@ -146,6 +146,11 @@ class UserGroupControllerTest extends WebTestCase
             $this->assertSame($value, $data[$property]);
         }
         $this->assertSame(Group::GROUP_TRANSPARENCY_PUBLIC, $data['transparency']);
+        $this->assertSame([
+            Group::PERMISSIONS_NAME,
+            Group::PERMISSIONS_COUNTRY,
+            Group::PERMISSIONS_RESPONSES,
+        ], $data['required_permissions']);
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('database_connection');
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM users_groups WHERE group_id = ? and user_id = ?', [$data['id'], $user->getId()]);
