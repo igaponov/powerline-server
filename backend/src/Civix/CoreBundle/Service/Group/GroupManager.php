@@ -365,4 +365,18 @@ class GroupManager
 
         return $userGroupManager;
     }
+
+    public function deleteGroupManager(Group $group, User $user)
+    {
+        if(!$group->isManager($user))
+        {
+            throw new \RuntimeException('The user is not a group manager of this group');
+        }
+
+        $userGroupManager = $this->entityManager->getRepository(UserGroupManager::class)
+            ->findOneBy(['group' => $group, 'user' => $user]);
+
+        $this->entityManager->remove($userGroupManager);
+        $this->entityManager->flush();
+    }
 }
