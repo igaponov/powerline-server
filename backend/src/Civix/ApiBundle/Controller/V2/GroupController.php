@@ -383,33 +383,6 @@ class GroupController extends FOSRestController
     }
 
     /**
-     * Delete group's owner
-     *
-     * @Route("/{id}/owner", requirements={"id"="\d+"})
-     * @Method("DELETE")
-     *
-     * @SecureParam("group", permission="edit")
-     *
-     * @ApiDoc(
-     *     authentication=true,
-     *     section="Groups",
-     *     description="Delete group's owner",
-     *     statusCodes={
-     *         204="Success",
-     *         403="Access Denied",
-     *         404="Group Not Found",
-     *         405="Method Not Allowed"
-     *     }
-     * )
-     *
-     * @param Group $group
-     */
-    public function deleteGroupOwnerAction(Group $group)
-    {
-        $this->manager->deleteGroupOwner($group);
-    }
-
-    /**
      * Add group's manager
      *
      * @Route("/{id}/managers/{user}", requirements={"id"="\d+"})

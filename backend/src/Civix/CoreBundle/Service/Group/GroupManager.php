@@ -134,6 +134,8 @@ class GroupManager
             ->setParameter('group', $group)
             ->setParameter('user', $user)
             ->getQuery()->execute();
+
+        $this->dispatcher->dispatch(GroupEvents::USER_UNJOIN, $event);
     }
 
     /**
@@ -329,20 +331,6 @@ class GroupManager
             $this->entityManager->persist($user);
             $this->entityManager->flush();
         }
-    }
-
-    public function deleteGroupOwner(Group $group)
-    {
-        $userGroup = $this->entityManager->getRepository(UserGroupManager::class)
-            ->getOldestManager($group);
-        if (!$userGroup) {
-            $userGroup = $this->entityManager->getRepository(UserGroup::class)
-                ->getOldestMember($group);
-        }
-        $group->setOwner($userGroup ? $userGroup->getUser() : null);
-
-        $this->entityManager->persist($group);
-        $this->entityManager->flush();
     }
 
     public function addGroupManager(Group $group, User $user)
