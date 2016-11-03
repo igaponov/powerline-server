@@ -627,6 +627,42 @@ class GroupControllerTest extends WebTestCase
         $this->assertSame('active', $data['status']);
     }
 
+    /**
+     * @param $user
+     * @param $reference
+     * @dataProvider getInvalidGroupCredentialsForDeleteOwnerRequest
+     */
+    public function testDeleteGroupManagerWithWrongCredentialsThrowsException($user, $reference)
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+        $user1 = $this->repository->getReference('userfollowtest1');
+        $group = $this->repository->getReference($reference);
+        $client = $this->client;
+        $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId().'/managers/'.$user1->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testDeleteGroupManagerIsOk()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+        $user = $this->repository->getReference('user_2');
+        $group = $this->repository->getReference('group_1');
+        $client = $this->client;
+        $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId().'/managers/'.$user->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $count = $conn->fetchColumn('SELECT * FROM users_groups_managers WHERE user_id = ? AND group_id = ?', [$user->getId(), $group->getID()]);
+        $this->assertEquals(0, $count);
+    }
+
 	protected function getGroups($username, $params)
 	{
 		$client = $this->client;
