@@ -270,4 +270,59 @@ class UserGroupControllerTest extends WebTestCase
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM users_groups WHERE group_id = ? AND user_id = ?', [$group->getId(), $user->getId()]);
         $this->assertEquals(0, $count);
     }
+
+    public function testOwnerUnjoinGroupSetsManagerAsOwner()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_3');
+        $user = $repository->getReference('user_2');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user3"'];
+        $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId(), [], [], $headers);
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('database_connection');
+        $userId = $conn->fetchColumn('SELECT user_id FROM groups WHERE id = ?', [$group->getId()]);
+        $this->assertEquals($user->getId(), $userId);
+    }
+
+    public function testOwnerUnjoinGroupSetsMemberAsOwner()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserGroupOwnerData::class,
+            LoadUserGroupData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_3');
+        $user = $repository->getReference('user_4');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user3"'];
+        $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId(), [], [], $headers);
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('database_connection');
+        $userId = $conn->fetchColumn('SELECT user_id FROM groups WHERE id = ?', [$group->getId()]);
+        $this->assertEquals($user->getId(), $userId);
+    }
+
+    public function testOwnerUnjoinGroupSetsNullAsOwner()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserGroupOwnerData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_3');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user3"'];
+        $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId(), [], [], $headers);
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('database_connection');
+        $userId = $conn->fetchColumn('SELECT user_id FROM groups WHERE id = ?', [$group->getId()]);
+        $this->assertEquals(null, $userId);
+    }
 }

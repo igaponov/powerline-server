@@ -2,8 +2,11 @@
 namespace Civix\CoreBundle\EventListener;
 
 use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\UserGroup;
+use Civix\CoreBundle\Entity\UserGroupManager;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
+use Civix\CoreBundle\Event\GroupUserEvent;
 use Civix\CoreBundle\Event\InquiryEvent;
 use Civix\CoreBundle\Repository\UserGroupRepository;
 use Doctrine\ORM\EntityManager;
@@ -34,6 +37,7 @@ class GroupEventSubscriber implements EventSubscriberInterface
         return [
             GroupEvents::MEMBERSHIP_CONTROL_CHANGED => 'setApprovedAllUsersInGroup',
             GroupEvents::USER_INQUIRED => 'setAnsweredFields',
+            GroupEvents::USER_UNJOIN => 'deleteGroupOwner',
         ];
     }
 
@@ -63,6 +67,26 @@ class GroupEventSubscriber implements EventSubscriberInterface
             }
         }
 
+        $this->em->flush();
+    }
+
+    public function deleteGroupOwner(GroupUserEvent $event)
+    {
+        $group = $event->getGroup();
+
+        if (!$group->getOwner()->isEqualTo($event->getUser())) {
+            return;
+        }
+
+        $userGroup = $this->em->getRepository(UserGroupManager::class)
+            ->getOldestManager($group);
+        if (!$userGroup) {
+            $userGroup = $this->em->getRepository(UserGroup::class)
+                ->getOldestMember($group);
+        }
+        $group->setOwner($userGroup ? $userGroup->getUser() : null);
+
+        $this->em->persist($group);
         $this->em->flush();
     }
 }
