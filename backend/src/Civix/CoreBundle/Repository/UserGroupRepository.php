@@ -143,4 +143,13 @@ class UserGroupRepository extends EntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function getTotalMembers(Group $group)
+    {
+        return (int)$this->createQueryBuilder('ug')
+            ->select('COUNT(ug)')
+            ->where('ug.group = :group')
+            ->setParameter(':group', $group)
+            ->getQuery()->getSingleScalarResult();
+    }
 }

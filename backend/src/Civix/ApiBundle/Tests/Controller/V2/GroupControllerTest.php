@@ -145,12 +145,13 @@ class GroupControllerTest extends WebTestCase
 	{
 		$group = $this->repository->getReference('testfollowprivategroups');
 		$client = $this->client;
-		$client->request('GET', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']);
+		$client->request('GET', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"']);
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
 		$this->assertSame($group->getId(), $data['id']);
         $this->assertSame(4, $data['total_members']);
+        $this->assertSame('member', $data['user_role']);
         $this->assertSame(Group::GROUP_TRANSPARENCY_PRIVATE, $data['transparency']);
 	}
 

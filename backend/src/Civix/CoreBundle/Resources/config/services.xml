@@ -133,6 +133,11 @@
             <tag name="jms_serializer.handler" type="UserRole" direction="serialization" format="json" method="serialize"/>
         </service>
 
+        <service class="Civix\CoreBundle\Serializer\Handler\TotalMembersHandler" id="civix_core.serializer_handler.total_members_handler">
+            <argument type="service" id="civix_core.repository.user_group_repository"/>
+            <tag name="jms_serializer.handler" type="TotalMembers" direction="serialization" format="json" method="serialize"/>
+        </service>
+
         <service id="civix_core.question_limit" class="Civix\CoreBundle\Service\QuestionLimit">
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="session" />
