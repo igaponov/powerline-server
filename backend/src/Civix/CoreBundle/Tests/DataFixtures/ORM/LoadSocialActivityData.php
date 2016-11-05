@@ -61,14 +61,14 @@ class LoadSocialActivityData extends AbstractFixture implements ContainerAwareIn
         $this->addReference('social_activity_3', $activity);
         $activity = $this->generateSocialActivity(
             SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED,
-            null,
+            $user4,
             $group2
         );
         $manager->persist($activity);
         $this->addReference('social_activity_4', $activity);
         $activity = $this->generateSocialActivity(
             SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
-            null,
+            $user2,
             $group1
         );
         $manager->persist($activity);
@@ -148,7 +148,7 @@ class LoadSocialActivityData extends AbstractFixture implements ContainerAwareIn
         $this->addReference('social_activity_14', $activity);
         $activity = $this->generateSocialActivity(
             SocialActivity::TYPE_FOLLOW_POST_COMMENTED,
-            null,
+            $user4,
             $group1
         );
         $manager->persist($activity);
