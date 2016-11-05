@@ -91,7 +91,7 @@ class GroupController extends FOSRestController
      * @Route("/{id}", requirements={"id"="\d+"})
      * @Method("GET")
      *
-     * @ParamConverter("group")
+     * @ParamConverter("group", options={"repository_method"="findWithUser", "mapping" = {"id" = "id", "loggedInUser" = "owner"}}, converter="doctrine.param_converter")
      *
      * @ApiDoc(
      *     authentication = true,
@@ -110,7 +110,7 @@ class GroupController extends FOSRestController
      *     }
      * )
      *
-     * @View(serializerGroups={"api-info", "api-full-info", "api-short-info"})
+     * @View(serializerGroups={"api-info", "api-full-info", "api-short-info", "user-role"})
      *
      * @param Group $group
      *

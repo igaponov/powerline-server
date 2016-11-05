@@ -450,4 +450,18 @@ class GroupRepository extends EntityRepository
             ->setParameter(':user', $user)
             ->getQuery();
     }
+
+    public function findWithUser($criteria)
+    {
+        $qb = $this->createQueryBuilder('g')
+            ->select('g', 'ug')
+            ->where('g.id = :id')
+            ->setParameter(':id', $criteria['id']);
+        if (!empty($criteria['owner'])) {
+            $qb->leftJoin('g.users', 'ug', 'WITH', 'ug.user = :user')
+                ->setParameter(':user', $criteria['owner']);
+        }
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
 }

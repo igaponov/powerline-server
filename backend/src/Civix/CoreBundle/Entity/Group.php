@@ -3,6 +3,8 @@
 namespace Civix\CoreBundle\Entity;
 
 use Civix\CoreBundle\Entity\Group\GroupField;
+use Civix\CoreBundle\Serializer\Type\TotalMembers;
+use Civix\CoreBundle\Serializer\Type\UserRole;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\File\File;
@@ -648,12 +650,12 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
 
     /**
      * @Serializer\VirtualProperty()
-     * @Serializer\Type("integer")
+     * @Serializer\Type("TotalMembers")
      * @Serializer\Groups({"api-full-info"})
      */
     public function getTotalMembers()
     {
-        return $this->users->count();
+        return new TotalMembers($this);
     }
 
     /**
@@ -1872,5 +1874,22 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
         $this->slug = $slug;
 
         return $this;
+    }
+
+    /**
+     * @return UserRole
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"user-role"})
+     * @Serializer\SerializedName("user_role")
+     * @Serializer\Type("UserRole")
+     */
+    public function getUserRole()
+    {
+        if ($this->users->count()) {
+            return new UserRole($this->users->first());
+        }
+
+        return null;
     }
 }
