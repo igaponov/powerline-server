@@ -94,7 +94,7 @@ abstract class CommentsControllerTest extends WebTestCase
         $tester->assertActivity(SocialActivity::TYPE_COMMENT_MENTIONED, $comment->getUser()->getId());
         $tester->assertActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser()->getId());
         $tester->assertActivity($ownType, $entity->getUser()->getId());
-        $tester->assertActivity($followType);
+        $tester->assertActivity($followType, null, $comment->getChildrenComments()->first()->getUser()->getId());
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
         $this->assertEquals(4, $queue->count());
         $this->assertEquals(4, $queue->hasMessageWithMethod('sendSocialActivity'));

@@ -2,6 +2,7 @@
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSocialActivityData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
@@ -25,12 +26,6 @@ class UserSocialActivityControllerTest extends WebTestCase
 
     public function setUp()
     {
-        $this->repository = $this->loadFixtures([
-            LoadUserGroupData::class,
-            LoadUserFollowerData::class,
-            LoadUserGroupOwnerData::class,
-            LoadSocialActivityData::class,
-        ])->getReferenceRepository();
         $this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
     }
 
@@ -49,6 +44,12 @@ class UserSocialActivityControllerTest extends WebTestCase
      */
     public function testGetSocialActivitiesIsOk($params, $keys, $count)
     {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadUserFollowerData::class,
+            LoadUserGroupOwnerData::class,
+            LoadSocialActivityData::class,
+        ])->getReferenceRepository();
         $ids = [];
         foreach ($keys as $key) {
             $ids[] = $this->repository->getReference('social_activity_'.$key)->getId();
@@ -79,5 +80,21 @@ class UserSocialActivityControllerTest extends WebTestCase
             'you' => [['tab' => 'you'], [1, 2, 3, 6, 8, 9, 10, 11, 12, 13, 14, 17], 12],
             'following' => [['tab' => 'following'], [4, 5, 7, 15, 16], 5],
         ];
+    }
+
+    public function testGetEmptyFollowingSocialActivitiesIsOk()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserData::class,
+        ])->getReferenceRepository();
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT, ['tab' => 'following'], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame(1, $data['page']);
+        $this->assertSame(20, $data['items']);
+        $this->assertSame(0, $data['totalItems']);
+        $this->assertCount(0, $data['payload']);
     }
 }

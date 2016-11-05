@@ -67,17 +67,14 @@ class SocialActivityRepository extends EntityRepository
                 ->getActiveGroupIds($user);
             $expr = $exprBuilder->andX('sa.recipient is NULL');
             if (empty($activeGroups)) {
-                $expr->add('sa.group is NULL');
+                return [];
             } else {
                 $expr->add($exprBuilder->in('sa.group', $activeGroups));
             }
             if (empty($userFollowingIds)) {
-                $expr->add('sa.following is NULL');
+                return [];
             } else {
-                $expr->add($exprBuilder->orX(
-                    'sa.following is NULL',
-                    $exprBuilder->in('sa.following', $userFollowingIds)
-                ));
+                $expr->add($exprBuilder->in('sa.following', $userFollowingIds));
             }
             $qb->where($expr);
         } elseif ($tab === 'you') {

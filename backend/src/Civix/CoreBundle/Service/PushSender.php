@@ -323,7 +323,14 @@ class PushSender
                 );
             }
         // send to followers
-        } elseif ($socialActivity->getFollowing()) {
+        } elseif (
+            $socialActivity->getFollowing()
+            && !in_array($socialActivity->getType(), [
+                SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
+                SocialActivity::TYPE_FOLLOW_POST_COMMENTED,
+                SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED,
+            ])
+        ) {
             /** @var User[] $recipients */
             $recipients = $this->entityManager
                 ->getRepository('CivixCoreBundle:User')

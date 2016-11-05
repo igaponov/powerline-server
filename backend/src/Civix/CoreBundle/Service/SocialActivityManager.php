@@ -139,7 +139,7 @@ class SocialActivityManager
         if ($question->getSubscribers()->contains($question->getUser())) {
             $socialActivity1 = (new SocialActivity(
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
-                null,
+                $comment->getUser(),
                 $comment->getQuestion()
                     ->getOwner()
             ))->setTarget($target);
@@ -187,7 +187,7 @@ class SocialActivityManager
         if ($comment->getParentComment()) {
             $target['comment_id'] = $comment->getId();
         }
-        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED, null,
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED, $comment->getUser(),
             $petition->getGroup()))
             ->setTarget($target)
         ;
@@ -231,7 +231,7 @@ class SocialActivityManager
         if ($comment->getParentComment()) {
             $target['comment_id'] = $comment->getId();
         }
-        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_POST_COMMENTED, null,
+        $socialActivity = (new SocialActivity(SocialActivity::TYPE_FOLLOW_POST_COMMENTED, $comment->getUser(),
             $post->getGroup()))
             ->setTarget($target)
         ;
