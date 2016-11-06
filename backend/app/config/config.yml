@@ -218,7 +218,7 @@ fos_rest:
         rules:
             -
                 path: ^/api
-                priorities: [ json ]
+                priorities: [ json, csv ]
                 fallback_format: json
             - { path: '^/', priorities: [ 'html', '*/*'], fallback_format: html, prefer_extension: True }
     exception:
@@ -229,8 +229,11 @@ fos_rest:
         view_response_listener: 'force'
         formats:
             json: true
+            csv: true
         failed_validation: HTTP_BAD_REQUEST
         empty_content: 204
+        mime_types:
+            csv: text/csv
 
 jms_serializer:
     metadata:
