@@ -5,13 +5,14 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Test\SocialActivityTester;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadFieldValueData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadInviteData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
 use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
@@ -588,6 +589,62 @@ class GroupControllerTest extends WebTestCase
         $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
         $count = $conn->fetchColumn('SELECT * FROM users_groups_managers WHERE user_id = ? AND group_id = ?', [$user->getId(), $group->getID()]);
         $this->assertEquals(0, $count);
+    }
+
+    public function testGetGroupMembersIsOk()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserFollowerData::class,
+            LoadGroupManagerData::class,
+            LoadFieldValueData::class,
+        ])->getReferenceRepository();
+        $user2 = $this->repository->getReference('user_2');
+        $user3 = $this->repository->getReference('user_3');
+        $group = $this->repository->getReference('group_1');
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/members', [], [], [
+            'HTTP_AUTHORIZATION' => 'Bearer type="user" token="user1"',
+        ]);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertArrayHasKey('first_name', $data[0]);
+        $this->assertArrayHasKey('last_name', $data[0]);
+        $this->assertArrayHasKey('facebook', $data[0]);
+        $this->assertSame($user2->getEmail(), $data[0]['email']);
+        $this->assertSame($user2->getPhone(), $data[0]['phone']);
+        $this->assertSame("1", $data[0]['followers']);
+        $this->assertSame("test-field-value-2", $data[0]['test-group-field']);
+        $this->assertSame($user3->getEmail(), $data[1]['email']);
+        $this->assertSame($user3->getPhone(), $data[1]['phone']);
+        $this->assertSame("1", $data[1]['followers']);
+        $this->assertSame("test-field-value-3", $data[1]['test-group-field']);
+    }
+
+    public function testGetGroupMembersCsvIsOk()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserFollowerData::class,
+            LoadGroupManagerData::class,
+            LoadFieldValueData::class,
+        ])->getReferenceRepository();
+        $user2 = $this->repository->getReference('user_2');
+        $user3 = $this->repository->getReference('user_3');
+        $group = $this->repository->getReference('group_1');
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/members', [], [], [
+            'HTTP_ACCEPT' => 'text/csv',
+            'HTTP_AUTHORIZATION' => 'Bearer type="user" token="user1"',
+        ]);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $this->assertSame(
+            ",,,,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,test-field-value-2,,,,\n" .
+            ",,,,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,test-field-value-3,,,,\n",
+            $response->getContent()
+        );
+        $this->assertContains('text/csv', $response->headers->get('content-type'));
+        $this->assertSame('attachment; filename="membership_roster.csv"', $response->headers->get('content-disposition'));
     }
 
 	protected function getGroups($username, $params)

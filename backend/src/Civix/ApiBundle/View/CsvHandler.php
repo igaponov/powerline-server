@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\View;
 
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\View\ViewHandler;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -21,11 +22,12 @@ class CsvHandler
      *
      * @return Response
      */
-    public function createResponse(ViewHandler $handler, View $view)
+    public function createResponse(ViewHandler $handler, View $view, Request $request)
     {
         $tempName = 'php://temp';
         $output = fopen($tempName, 'r+');
-        $data = reset($handler->prepareTemplateParameters($view));
+        $data = $handler->prepareTemplateParameters($view);
+        $data = reset($data);
         if (!is_array($data)) {
             throw new \InvalidArgumentException('Data must be an array');
         }
@@ -43,7 +45,8 @@ class CsvHandler
 
         $response = new Response($content);
 
-        $response->headers->set('Content-Disposition', 'attachment; filename="file.csv"');
+        $fileName = $request->attributes->get('_filename', 'file.csv');
+        $response->headers->set('Content-Disposition', sprintf('attachment; filename="%s"', $fileName));
         $response->headers->set('Content-Type', 'text/csv');
 
         return $response;
