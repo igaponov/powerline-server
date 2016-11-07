@@ -9,6 +9,7 @@ use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Service\Group\GroupManager;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Query;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -446,5 +447,34 @@ class GroupController extends FOSRestController
     public function deleteGroupManagerAction(Group $group, User $user)
     {
         $this->manager->deleteGroupManager($group, $user);
+    }
+
+    /**
+     * Returns group's members.
+     *
+     * @Route("/{id}/members", defaults={"_filename" = "membership_roster.csv"})
+     * @Method("GET")
+     *
+     * @ApiDoc(
+     *     authentication = true,
+     *     resource=true,
+     *     section="Groups",
+     *     description="Return group's members",
+     *     statusCodes={
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Group $group
+     *
+     * @return array
+     */
+    public function getMembersAction(Group $group)
+    {
+        $query = $this->em->getRepository(UserGroup::class)
+            ->getFindMembersWithRequiredFieldsQuery($group);
+        $result = $query->fetchAll();
+
+        return $result;
     }
 }

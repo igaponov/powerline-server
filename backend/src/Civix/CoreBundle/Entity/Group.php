@@ -1568,7 +1568,7 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
     /**
      * Get fields.
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return \Doctrine\Common\Collections\Collection|GroupField[]
      */
     public function getFields()
     {
@@ -1612,7 +1612,7 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
     {
         return $this->fields->count() > 0 ? $this->fields->map(function (GroupField $groupField) {
                 return $groupField->getId();
-        })->toArray() : false;
+        })->toArray() : [];
     }
 
     /**
