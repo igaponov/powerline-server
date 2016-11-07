@@ -455,6 +455,8 @@ class GroupController extends FOSRestController
      * @Route("/{id}/members", defaults={"_filename" = "membership_roster.csv"})
      * @Method("GET")
      *
+     * @SecureParam("group", permission="edit")
+     *
      * @ApiDoc(
      *     authentication = true,
      *     resource=true,

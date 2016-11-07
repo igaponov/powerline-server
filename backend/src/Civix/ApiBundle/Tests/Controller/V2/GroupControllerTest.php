@@ -591,6 +591,26 @@ class GroupControllerTest extends WebTestCase
         $this->assertEquals(0, $count);
     }
 
+    /**
+     * @param $user
+     * @param $reference
+     * @dataProvider getInvalidGroupCredentialsForDeleteOwnerRequest
+     */
+    public function testGetGroupMembersWithWrongCredentialsThrowsException($user, $reference)
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference($reference);
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/members', [], [], [
+            'HTTP_AUTHORIZATION' => 'Bearer type="user" token="'.$user.'"',
+        ]);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
     public function testGetGroupMembersIsOk()
     {
         $this->repository = $this->loadFixtures([
@@ -639,6 +659,8 @@ class GroupControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $this->assertSame(
+            "first_name,last_name,address1,address2,city,state,country,zip,email,phone,bio,slogan,facebook,followers," .
+            "test-group-field,\"\"\"field1`\",\"\"\"field2`\",\"\"\"field3`\",\"\"\"field4`\"\n" .
             ",,,,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,test-field-value-2,,,,\n" .
             ",,,,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,test-field-value-3,,,,\n",
             $response->getContent()
