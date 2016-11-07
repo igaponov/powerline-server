@@ -50,7 +50,7 @@
     },
     "require-dev": {
         "phing/phing": "2.5.*",
-        "phpunit/phpunit": "~4.0",
+        "phpunit/phpunit": "~4.8",
         "phpunit/phpunit-mock-objects": "~2.0",
         "phpunit/php-code-coverage": "~2.0",
         "phpunit/php-token-stream": "~1.0",
