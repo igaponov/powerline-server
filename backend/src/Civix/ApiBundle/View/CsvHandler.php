@@ -18,7 +18,8 @@ class CsvHandler
      * Handles wrapping a JSON response into a JSONP response
      *
      * @param ViewHandler $handler
-     * @param View        $view
+     * @param View $view
+     * @param Request $request
      *
      * @return Response
      */
@@ -27,9 +28,16 @@ class CsvHandler
         $tempName = 'php://temp';
         $output = fopen($tempName, 'r+');
         $data = $handler->prepareTemplateParameters($view);
-        $data = reset($data);
+        if (isset($data[$view->getTemplateVar()])) {
+            $data = $data[$view->getTemplateVar()];
+        } else {
+            throw new \InvalidArgumentException('Data is not supported for csv serialization');
+        }
         if (!is_array($data)) {
             throw new \InvalidArgumentException('Data must be an array');
+        }
+        if (count($data)) {
+            fputcsv($output, array_keys(reset($data)));
         }
         foreach ($data as $row) {
             fputcsv($output, $row);

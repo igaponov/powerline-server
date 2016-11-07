@@ -19,9 +19,9 @@ class LoadGroupFieldsData extends AbstractFixture implements DependentFixtureInt
         $group->addField($field);
         $group->updateFillFieldsRequired();
         $this->addReference('test-group-field', $field);
-        for ($i = 0; $i < 4; $i++) {
+        foreach (['field1', 'field2', 'field3', 'field4'] as $fieldName) {
             $field = new Group\GroupField();
-            $field->setFieldName('"'.$faker->word.'`');
+            $field->setFieldName('"'.$fieldName.'`');
             $group->addField($field);
         }
         $manager->persist($group);
