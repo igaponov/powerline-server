@@ -9,6 +9,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class LeaderContentVoter implements VoterInterface
 {
+    const EDIT = 'edit';
     const MANAGE = 'manage';
     const MEMBER = 'member';
     const VIEW = 'view';
@@ -32,6 +33,7 @@ class LeaderContentVoter implements VoterInterface
     public function supportsAttribute($attribute)
     {
         return in_array($attribute, [
+            self::EDIT,
             self::MANAGE,
             self::MEMBER,
             self::VIEW,

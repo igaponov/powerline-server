@@ -2,13 +2,14 @@
 
 namespace Civix\CoreBundle\Entity\Stripe;
 
+use Civix\CoreBundle\Entity\LeaderContentInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Civix\CoreBundle\Entity\Group;
 
 /**
  * @ORM\Entity
  */
-class AccountGroup extends Account
+class AccountGroup extends Account implements LeaderContentInterface
 {
     /**
      * @ORM\OneToOne(targetEntity="\Civix\CoreBundle\Entity\Group")
@@ -29,5 +30,10 @@ class AccountGroup extends Account
         $this->user = $user;
 
         return $this;
+    }
+
+    public function getGroup()
+    {
+        return $this->getUser();
     }
 }
