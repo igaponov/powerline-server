@@ -25,6 +25,7 @@ class StripeSubscriber implements EventSubscriberInterface
         return [
             PollEvents::QUESTION_ANSWER => 'chargeToPaymentRequest',
             AccountEvents::PRE_CREATE => 'createStripeAccount',
+            AccountEvents::PRE_DELETE => 'deleteStripeAccount',
             AccountEvents::BANK_ACCOUNT_PRE_CREATE => 'createStripeBankAccount',
             AccountEvents::BANK_ACCOUNT_PRE_DELETE => 'deleteStripeBankAccount',
             CustomerEvents::PRE_CREATE => 'createStripeCustomer',
@@ -59,6 +60,13 @@ class StripeSubscriber implements EventSubscriberInterface
             ->setSecretKey($response->keys->secret)
             ->setPublishableKey($response->keys->publishable)
         ;
+    }
+
+    public function deleteStripeAccount(AccountEvent $event)
+    {
+        $account = $event->getAccount();
+
+        $this->stripe->deleteAccount($account);
     }
 
     public function createStripeBankAccount(BankAccountEvent $event)

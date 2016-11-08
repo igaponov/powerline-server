@@ -342,6 +342,14 @@ class Stripe
         ]);
     }
 
+    /**
+     * @param AccountInterface $account
+     */
+    public function deleteAccount(AccountInterface $account)
+    {
+        \Stripe\Account::retrieve($account->getStripeId())->delete();
+    }
+
     private function getAppearsOnStatement(UserInterface $user)
     {
         if ($user instanceof Group) {

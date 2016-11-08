@@ -114,6 +114,15 @@ class StripeAccountManager
         return $customer;
     }
 
+    public function deleteAccount(AccountGroup $account)
+    {
+        $event = new AccountEvent($account);
+        $this->dispatcher->dispatch(AccountEvents::PRE_DELETE, $event);
+
+        $this->em->remove($account);
+        $this->em->flush();
+    }
+
     private function createAccount(Group $group)
     {
         $account = new AccountGroup();
