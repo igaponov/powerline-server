@@ -661,8 +661,8 @@ class GroupControllerTest extends WebTestCase
         $this->assertSame(
             "first_name,last_name,address1,address2,city,state,country,zip,email,phone,bio,slogan,facebook,followers," .
             "test-group-field,\"\"\"field1`\",\"\"\"field2`\",\"\"\"field3`\",\"\"\"field4`\"\n" .
-            ",,,,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,test-field-value-2,,,,\n" .
-            ",,,,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,test-field-value-3,,,,\n",
+            "user,2,,,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,test-field-value-2,,,,\n" .
+            "user,3,,,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,test-field-value-3,,,,\n",
             $response->getContent()
         );
         $this->assertContains('text/csv', $response->headers->get('content-type'));

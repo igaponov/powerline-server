@@ -84,8 +84,11 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
     {
         $birthDate = $birthDate ?: new \DateTime();
 
+        $names = preg_split('/(\d+)/', $username, 2, PREG_SPLIT_DELIM_CAPTURE|PREG_SPLIT_NO_EMPTY);
         $user = new User();
         $user->setUsername($username)
+            ->setFirstName($names[0])
+            ->setLastName(isset($names[1]) ? $names[1] : '')
             ->setEmail("$username@example.com")
             ->setPlainPassword($username)
             ->setBirth($birthDate)

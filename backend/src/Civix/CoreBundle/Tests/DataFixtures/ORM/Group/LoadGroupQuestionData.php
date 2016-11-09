@@ -29,7 +29,7 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
         $question->setSubject('subj with #testHashTag '.$faker->sentence);
         for ($i = 0; $i < 2; $i++) {
             $option = new Option();
-            $option->setValue('val '.$faker->word);
+            $option->setValue('val '.$i);
             $question->addOption($option);
         }
         $group1->getOwner()->addPollSubscription($question);
@@ -43,7 +43,7 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
         $question->setSubject('subj '.$faker->sentence);
         for ($i = 0; $i < 2; $i++) {
             $option = new Option();
-            $option->setValue('val '.$faker->word);
+            $option->setValue('val '.$i);
             $question->addOption($option);
         }
         $manager->persist($question);
@@ -56,7 +56,7 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
         $question->setSubject('subj '.$faker->sentence);
         for ($i = 0; $i < 3; $i++) {
             $option = new Option();
-            $option->setValue('val '.$faker->word);
+            $option->setValue('val '.$i);
             $question->addOption($option);
         }
         $group3->getOwner()->addPollSubscription($question);
@@ -72,7 +72,7 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
         $question->setPublishedAt(new \DateTime('-1 day'));
         for ($i = 0; $i < 2; $i++) {
             $option = new Option();
-            $option->setValue('val '.$faker->word);
+            $option->setValue('val '.$i);
             $question->addOption($option);
         }
         $group3->getOwner()->addPollSubscription($question);
@@ -86,7 +86,7 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
         $question->setSubject('subj '.$faker->sentence);
         $question->setExpireAt(new \DateTime('+1 month'));
         $option = new Option();
-        $option->setValue('val '.$faker->word);
+        $option->setValue('val x');
         $question->addOption($option);
         $group1->getOwner()->addPollSubscription($question);
         $manager->persist($question);

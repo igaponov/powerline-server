@@ -14,6 +14,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupPaymentRequestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadFieldValueData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
@@ -667,12 +668,105 @@ class PollControllerTest extends WebTestCase
         $tester->assertActivity(SocialActivity::TYPE_OWN_POLL_ANSWERED, $question->getUser()->getId());
     }
 
+    /**
+     * @param $user
+     * @param $reference
+     * @dataProvider getInvalidPollCredentialsForGetResponsesRequest
+     */
+    public function testGetPollResponsesWithWrongCredentialsThrowsException($user, $reference)
+    {
+        $repository = $this->loadFixtures([
+            LoadQuestionAnswerData::class,
+        ])->getReferenceRepository();
+        $question = $repository->getReference($reference);
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/'.$question->getId().'/responses', [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testGetPollResponsesIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadQuestionAnswerData::class,
+            LoadUserFollowerData::class,
+            LoadGroupManagerData::class,
+            LoadFieldValueData::class,
+        ])->getReferenceRepository();
+        $question = $repository->getReference('group_question_1');
+        $user2 = $repository->getReference('user_2');
+        $user3 = $repository->getReference('user_3');
+        $user4 = $repository->getReference('user_4');
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/'.$question->getId().'/responses', [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame("test-field-value-2", $data[0]['test-group-field']);
+        $this->assertSame("test-field-value-3", $data[1]['test-group-field']);
+        $this->assertNull($data[2]['test-group-field']);
+        foreach ([$user2, $user3, $user4] as $k => $user) {
+            $this->assertSame($user->getFirstName(), $data[$k]['first_name']);
+            $this->assertSame($user->getLastName(), $data[$k]['last_name']);
+            $this->assertSame($user->getEmail(), $data[$k]['email']);
+            $this->assertSame($user->getPhone(), $data[$k]['phone']);
+            $this->assertSame("1", $data[$k]['followers']);
+        }
+        foreach ($data as $item) {
+            $this->assertEquals('1', $item['facebook']);
+            $this->assertThat($item['choice'], $this->logicalOr('val 0', 'val 1'));
+            $this->assertNotEmpty($item['comment']);
+        }
+    }
+
+    public function testGetPollResponsesCsvIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadQuestionAnswerData::class,
+            LoadUserFollowerData::class,
+            LoadGroupManagerData::class,
+            LoadFieldValueData::class,
+        ])->getReferenceRepository();
+        $question = $repository->getReference('group_question_1');
+        $answer1 = $repository->getReference('question_answer_1');
+        $answer2 = $repository->getReference('question_answer_2');
+        $answer3 = $repository->getReference('question_answer_3');
+        $user2 = $repository->getReference('user_2');
+        $user3 = $repository->getReference('user_3');
+        $user4 = $repository->getReference('user_4');
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/'.$question->getId().'/responses', [], [], [
+            'HTTP_ACCEPT' => 'text/csv',
+            'HTTP_Authorization'=>'Bearer type="user" token="user1"',
+        ]);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        print($response->getContent());
+        $this->assertSame(
+            "first_name,last_name,address1,address2,city,state,country,zip,email,phone,bio,slogan,facebook,followers," .
+            "test-group-field,\"\"\"field1`\",\"\"\"field2`\",\"\"\"field3`\",\"\"\"field4`\",choice,comment\n" .
+            "user,2,,,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,test-field-value-2,,,,,\"{$answer1->getOption()->getValue()}\",\"{$answer1->getComment()}\"\n" .
+            "user,3,,,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,test-field-value-3,,,,,\"{$answer2->getOption()->getValue()}\",\"{$answer2->getComment()}\"\n" .
+            "user,4,,,,,US,,{$user4->getEmail()},{$user4->getPhone()},,,1,1,,,,,,\"{$answer3->getOption()->getValue()}\",\"{$answer3->getComment()}\"\n",
+            $response->getContent()
+        );
+    }
+
     public function getValidPollCredentialsForGetRequest()
     {
         return [
             'owner' => ['user1', 'group_question_1'],
             'manager' => ['user2', 'group_question_1'],
             'member' => ['user4', 'group_question_1'],
+        ];
+    }
+
+    public function getInvalidPollCredentialsForGetResponsesRequest()
+    {
+        return [
+            'manager' => ['user2', 'group_question_1'],
+            'member' => ['user4', 'group_question_1'],
+            'outlier' => ['user1', 'group_question_2'],
         ];
     }
 
