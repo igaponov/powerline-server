@@ -76,6 +76,7 @@ class PollEducationalContextController extends FOSRestController
      *     authentication=true,
      *     section="Polls",
      *     description="Add educational context",
+     *     input="Civix\ApiBundle\Form\Type\EducationalContextType",
      *     output={
      *          "class" = "Civix\CoreBundle\Entity\Poll\EducationalContext",
      *          "groups" = {"api-poll"},
