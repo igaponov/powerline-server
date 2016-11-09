@@ -71,6 +71,15 @@ class EducationalContext implements ContentInterface
      */
     private $image;
 
+    public static function getTypes()
+    {
+        return [
+            self::VIDEO_TYPE,
+            self::IMAGE_TYPE,
+            self::TEXT_TYPE,
+        ];
+    }
+
     /**
      * Get id.
      *
