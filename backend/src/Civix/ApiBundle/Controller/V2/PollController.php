@@ -368,4 +368,38 @@ class PollController extends FOSRestController
 
         return $form;
     }
+
+    /**
+     * List all the responses for a given question.
+     *
+     * @Route("/{id}/responses")
+     * @Method("GET")
+     *
+     * @SecureParam("question", permission="edit")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Polls",
+     *     description="List the responses for a given question.",
+     *     output="array",
+     *     statusCodes={
+     *         200="Returns list",
+     *         403="Access Denied",
+     *         404="Question Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Question $question
+     *
+     * @return array
+     */
+    public function getResponsesActivity(Question $question)
+    {
+        $entityManager = $this->getDoctrine()->getManager();
+        $query = $entityManager->getRepository('CivixCoreBundle:Poll\Answer')
+            ->getResponsesByQuestion($question);
+
+        return $query->fetchAll();
+    }
 }

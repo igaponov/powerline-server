@@ -5,6 +5,7 @@ namespace Civix\CoreBundle\Repository\Poll;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Question\Petition;
 use Civix\CoreBundle\Entity\UserFollow;
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\ORM\EntityRepository;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Poll\Answer;
@@ -98,5 +99,41 @@ class AnswerRepository extends EntityRepository
         }
 
         return $qb->getQuery();
+    }
+
+    /**
+     * @param Question $question
+     * @return Statement
+     */
+    public function getResponsesByQuestion(Question $question)
+    {
+        $fields = $question->getGroup()->getFields();
+        $qb = $this->getEntityManager()
+            ->getConnection()
+            ->createQueryBuilder()
+            ->select(
+                'CASE WHEN a.privacy = :public THEN u.firstName ELSE "" END AS first_name',
+                'CASE WHEN a.privacy = :public THEN u.lastName  ELSE "" END AS last_name',
+                'u.address1, u.address2, u.city, u.state, u.country, u.zip, u.email, u.phone, u.bio, u.slogan, CASE WHEN u.facebook_id IS NOT NULL THEN 1 ELSE 0 END AS facebook, COUNT(f.id) AS followers'
+                )
+            ->from('poll_answers', 'a')
+            ->leftJoin('a', 'user', 'u', 'a.user_id = u.id')
+            ->leftJoin('u', 'users_follow', 'f', 'f.user_id = u.id')
+            ->leftJoin('a', 'poll_options', 'o', 'a.option_id = o.id')
+            ->where('a.question_id = :poll')
+            ->setParameter(':poll', $question->getId())
+            ->setParameter(':public', Answer::PRIVACY_PUBLIC)
+            ->groupBy('a.id');
+        $platform = $this->getEntityManager()
+            ->getConnection()
+            ->getDatabasePlatform();
+        foreach ($fields as $k => $field) {
+            $qb->addSelect("v$k.field_value AS {$platform->quoteSingleIdentifier($field->getFieldName())}")
+                ->leftJoin('u', 'groups_fields_values', 'v'.$k, "v$k.user_id = u.id AND v$k.field_id = :field$k")
+                ->setParameter(":field$k", $field->getId());
+        }
+        $qb->addSelect('o.value AS choice, a.comment');
+
+        return $qb->execute();
     }
 }
