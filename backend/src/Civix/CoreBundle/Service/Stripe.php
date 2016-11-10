@@ -330,16 +330,21 @@ class Stripe
     }
 
     /**
-     * @param LeaderInterface $leader
+     * @param Group $group
      * @return \Stripe\Account|\stdClass
      */
-    public function createAccount(LeaderInterface $leader)
+    public function createAccount(Group $group)
     {
-        return \Stripe\Account::create([
+        $params = [
             'managed' => true,
-            'metadata' => ['id' => $leader->getId(), 'type' => $leader->getType()],
-            'email' => $leader->getEmail(),
-        ]);
+            'metadata' => ['id' => $group->getId(), 'type' => $group->getType()],
+            'email' => $group->getEmail(),
+        ];
+        if ($group->getOwner() && $group->getOwner()->getCountry()) {
+            $params['country'] = $group->getOwner()->getCountry();
+        }
+
+        return \Stripe\Account::create($params);
     }
 
     /**
