@@ -8,12 +8,13 @@ use FOS\RestBundle\Controller\FOSRestController;
 use JMS\DiExtraBundle\Annotation as DI;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
 /**
- * @Route("/stripe-accounts")
+ * @Route("/groups/{group}/stripe-account")
  */
-class StripeAccountController extends FOSRestController
+class AccountController extends FOSRestController
 {
     /**
      * @var StripeAccountManager
@@ -24,9 +25,10 @@ class StripeAccountController extends FOSRestController
     /**
      * Delete group's account
      *
-     * @Route("/{id}")
+     * @Route("")
      * @Method("DELETE")
      *
+     * @ParamConverter("account", options={"mapping" = {"group" = "user"}})
      * @SecureParam("account", permission="edit")
      *
      * @ApiDoc(

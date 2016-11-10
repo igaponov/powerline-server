@@ -9,9 +9,9 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe\LoadAccountGroupData;
 use Symfony\Bundle\FrameworkBundle\Client;
 
-class StripeAccountControllerTest extends WebTestCase
+class AccountControllerTest extends WebTestCase
 {
-    const API_ENDPOINT = '/api/v2/stripe-accounts';
+    const API_ENDPOINT = '/api/v2/groups/{group}/stripe-account';
 
     /**
      * @var null|Client
@@ -41,9 +41,10 @@ class StripeAccountControllerTest extends WebTestCase
             LoadUserGroupData::class,
             LoadGroupManagerData::class,
         ])->getReferenceRepository();
-        $account = $repository->getReference($reference);
+        $group = $repository->getReference($reference);
         $client = $this->client;
-        $client->request('DELETE', self::API_ENDPOINT.'/'.$account->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
+        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
+        $client->request('DELETE', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
         $response = $client->getResponse();
         $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
@@ -59,10 +60,11 @@ class StripeAccountControllerTest extends WebTestCase
         $repository = $this->loadFixtures([
             LoadAccountGroupData::class,
         ])->getReferenceRepository();
-        $account = $repository->getReference('stripe_account_1');
+        $group = $repository->getReference('group_1');
         $client = $this->client;
         $client->getContainer()->set('civix_core.stripe', $service);
-        $client->request('DELETE', self::API_ENDPOINT.'/'.$account->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
+        $client->request('DELETE', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
     }
@@ -70,9 +72,9 @@ class StripeAccountControllerTest extends WebTestCase
     public function getInvalidGroupCredentialsForRequest()
     {
         return [
-            'manager' => ['user2', 'stripe_account_1'],
-            'member' => ['user4', 'stripe_account_1'],
-            'outlier' => ['followertest', 'stripe_account_1'],
+            'manager' => ['user2', 'group_1'],
+            'member' => ['user4', 'group_1'],
+            'outlier' => ['followertest', 'group_1'],
         ];
     }
 }
