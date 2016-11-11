@@ -4,7 +4,6 @@ namespace Civix\CoreBundle\Entity\Poll;
 
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\CommentedInterface;
-use Civix\CoreBundle\Entity\GroupSection;
 use Civix\CoreBundle\Entity\HashTaggableInterface;
 use Civix\CoreBundle\Entity\HashTaggableTrait;
 use Civix\CoreBundle\Entity\LeaderContentInterface;
@@ -13,6 +12,8 @@ use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
 use Civix\CoreBundle\Entity\SubscriptionInterface;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserInterface;
+use Civix\CoreBundle\Model\Group\GroupSectionInterface;
+use Civix\CoreBundle\Model\Group\GroupSectionTrait;
 use Civix\CoreBundle\Validator\Constraints\PublishDate;
 use Civix\CoreBundle\Validator\Constraints\PublishedPollAmount;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -36,6 +37,11 @@ use Symfony\Component\Validator\ExecutionContext;
  * @ORM\AssociationOverrides({
  *      @ORM\AssociationOverride(name="hashTags",
  *          joinTable=@ORM\JoinTable(name="hash_tags_questions")
+ *      ),
+ *      @ORM\AssociationOverride(name="groupSections",
+ *          joinTable=@ORM\JoinTable(name="poll_sections",
+ *              inverseJoinColumns={@ORM\JoinColumn(name="group_section_id")}
+ *          )
  *      )
  * })
  * @InheritanceType("SINGLE_TABLE")
@@ -63,9 +69,9 @@ use Symfony\Component\Validator\ExecutionContext;
  * @PublishDate(objectName="Poll", groups={"update", "publish"})
  * @PublishedPollAmount(groups={"publish"})
  */
-abstract class Question implements LeaderContentInterface, SubscriptionInterface, CommentedInterface, HashTaggableInterface
+abstract class Question implements LeaderContentInterface, SubscriptionInterface, CommentedInterface, HashTaggableInterface, GroupSectionInterface
 {
-    use HashTaggableTrait;
+    use HashTaggableTrait, GroupSectionTrait;
 
     /**
      * @var int
@@ -210,15 +216,6 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
      * )
      */
     protected $recipients;
-
-    /**
-     * @ORM\ManyToMany(targetEntity="\Civix\CoreBundle\Entity\GroupSection")
-     * @ORM\JoinTable(name="poll_sections",
-     *      joinColumns={@ORM\JoinColumn(name="question_id", referencedColumnName="id", onDelete="CASCADE")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="group_section_id", referencedColumnName="id", onDelete="CASCADE")}
-     * )
-     */
-    protected $groupSections;
 
     /**
      * @ORM\ManyToOne(targetEntity="\Civix\CoreBundle\Entity\Group")
@@ -740,15 +737,6 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
         }
 
         return new Image($entity, 'avatar');
-    }
-
-    public function getGroupSectionIds()
-    {
-        $sectionsIds = $this->groupSections->map(function (GroupSection $section) {
-                return $section->getId();
-        })->toArray();
-
-        return empty($sectionsIds) ? false : $sectionsIds;
     }
 
     public function getGroup()

@@ -3,9 +3,11 @@
 namespace Civix\ApiBundle\Form\Type\Poll;
 
 use Civix\ApiBundle\EventListener\QuestionTypeSubscriber;
+use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\GroupSection;
 use Civix\CoreBundle\Entity\LeaderInterface;
 use Civix\CoreBundle\Entity\Poll\Question;
-use Civix\CoreBundle\Entity\UserInterface;
+use Civix\CoreBundle\Repository\GroupSectionRepository;
 use Civix\CoreBundle\Service\PollClassNameFactory;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Form;
@@ -18,7 +20,7 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 class QuestionType extends AbstractType
 {
     /**
-     * @var UserInterface
+     * @var LeaderInterface
      */
     private $user;
 
@@ -105,6 +107,18 @@ class QuestionType extends AbstractType
             ->add('petition_body', 'text', [
                 'property_path' => 'petitionBody',
                 'description' => 'Petition body (petition)',
+            ])
+            ->add('group_sections', 'entity', [
+                'class' => GroupSection::class,
+                'multiple' => true,
+                'query_builder' => function (GroupSectionRepository $repository) {
+                if ($this->user instanceof Group) {
+                    return $repository->getFindByGroupQueryBuilder($this->user);
+                } else {
+                    return $repository->createQueryBuilder('s');
+                }
+                },
+                'description' => 'Array of group section\'s ids',
             ])
             ->addEventSubscriber(new QuestionTypeSubscriber($this->user));
     }

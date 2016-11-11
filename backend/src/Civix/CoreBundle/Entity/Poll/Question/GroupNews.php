@@ -2,10 +2,8 @@
 
 namespace Civix\CoreBundle\Entity\Poll\Question;
 
-use Civix\CoreBundle\Model\Group\GroupSectionTrait;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 
 /**
  * Representative news entity.
@@ -13,10 +11,8 @@ use Civix\CoreBundle\Model\Group\GroupSectionInterface;
  * @ORM\Entity()
  * @Serializer\ExclusionPolicy("all")
  */
-class GroupNews extends LeaderNews  implements GroupSectionInterface
+class GroupNews extends LeaderNews
 {
-    use GroupSectionTrait;
-
     public function getType()
     {
         return 'group_news';

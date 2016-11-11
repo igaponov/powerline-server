@@ -2,10 +2,8 @@
 
 namespace Civix\CoreBundle\Entity\Poll\Question;
 
-use Civix\CoreBundle\Model\Group\GroupSectionTrait;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 
 /**
  * Group petition entity.
@@ -13,10 +11,8 @@ use Civix\CoreBundle\Model\Group\GroupSectionInterface;
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Poll\PaymentRequestRepository")
  * @Serializer\ExclusionPolicy("all")
  */
-class GroupPaymentRequest extends PaymentRequest implements GroupSectionInterface
+class GroupPaymentRequest extends PaymentRequest
 {
-    use GroupSectionTrait;
-
     public function getType()
     {
         return 'group_'.parent::getType();

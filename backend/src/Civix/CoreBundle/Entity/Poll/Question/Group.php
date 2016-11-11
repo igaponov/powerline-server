@@ -2,11 +2,9 @@
 
 namespace Civix\CoreBundle\Entity\Poll\Question;
 
-use Civix\CoreBundle\Model\Group\GroupSectionTrait;
 use Doctrine\ORM\Mapping as ORM;
 use Civix\CoreBundle\Entity\Poll\Question;
 use JMS\Serializer\Annotation as Serializer;
-use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 
 /**
  * Group question entity.
@@ -14,10 +12,8 @@ use Civix\CoreBundle\Model\Group\GroupSectionInterface;
  * @ORM\Entity()
  * @Serializer\ExclusionPolicy("all")
  */
-class Group extends Question implements GroupSectionInterface
+class Group extends Question
 {
-    use GroupSectionTrait;
-
     public function getType()
     {
         return 'group_question';

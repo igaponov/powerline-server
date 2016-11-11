@@ -39,10 +39,7 @@ class GroupSectionRepository extends EntityRepository
      */
     public function getFindByGroupQuery(Group $group)
     {
-        return $this->createQueryBuilder('s')
-            ->where('s.group = :group')
-            ->setParameter('group', $group)
-            ->getQuery();
+        return $this->getFindByGroupQueryBuilder($group)->getQuery();
     }
 
     /**
@@ -77,5 +74,12 @@ class GroupSectionRepository extends EntityRepository
             ->setParameter('group', $group)
             ->getSingleScalarResult()
         ;
+    }
+
+    public function getFindByGroupQueryBuilder(Group $group)
+    {
+        return $this->createQueryBuilder('s')
+            ->where('s.group = :group')
+            ->setParameter('group', $group);
     }
 }
