@@ -79,7 +79,10 @@ class Stripe
         $sa->legal_entity->type = $bankAccount->getType();
         $sa->legal_entity->first_name = $bankAccount->getFirstName();
         $sa->legal_entity->last_name = $bankAccount->getLastName();
-        $sa->legal_entity->ssn_last_4 = $bankAccount->getSsnLast4();
+        // Stripe: SSN last 4 is only available for US accounts.
+        if ($bankAccount->getCountry() === 'US') {
+            $sa->legal_entity->ssn_last_4 = $bankAccount->getSsnLast4();
+        }
         $sa->legal_entity->business_name = $bankAccount->getBusinessName();
 
         $sa->legal_entity->address = [
