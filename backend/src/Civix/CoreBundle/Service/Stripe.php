@@ -2,7 +2,6 @@
 
 namespace Civix\CoreBundle\Service;
 
-use Civix\CoreBundle\Entity\LeaderInterface;
 use Civix\CoreBundle\Entity\OfficialInterface;
 use Civix\CoreBundle\Entity\Stripe\BankAccount;
 use Civix\CoreBundle\Entity\Stripe\Card;
