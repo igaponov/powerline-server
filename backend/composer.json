@@ -38,7 +38,7 @@
         "vich/uploader-bundle": "0.8.*",
         "knplabs/knp-gaufrette-bundle": "0.2.*",
         "php-amqplib/rabbitmq-bundle": "~1.9",
-        "stripe/stripe-php": "2.*",
+        "stripe/stripe-php": "~3.1",
         "mailgun/mailgun-php": "~1.7.2",
         "cocur/slugify": "dev-master",
         "stof/doctrine-extensions-bundle": "~1.2",
