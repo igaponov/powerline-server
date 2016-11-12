@@ -4,10 +4,12 @@ namespace Civix\CoreBundle\Repository;
 
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\GroupSection;
+use Civix\CoreBundle\Entity\LeaderContentInterface;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\SubscriptionInterface;
 use Civix\CoreBundle\Entity\UserPetition;
+use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
@@ -250,7 +252,7 @@ class UserRepository extends EntityRepository
             ->getResult();
     }
 
-    public function getUsersByGroupForPush($groupId, $type, $startId = 0, $limit = null)
+    public function getUsersByGroupForPush($groupId, $type)
     {
         /** @var $query \Doctrine\ORM\QueryBuilder */
         $query = $this->createQueryBuilder('u');
@@ -273,19 +275,13 @@ class UserRepository extends EntityRepository
 
         $query
                 ->andWhere('gr.group = :groupId')
-                ->andWhere('u.id > :startId')
                 ->orderBy('u.id', 'ASC')
-                ->setParameter('groupId', $groupId)
-                ->setParameter('startId', $startId);
+                ->setParameter('groupId', $groupId);
 
-        if ($limit) {
-            $query->setMaxResults($limit);
-        }
-
-        return $query->getQuery()->getResult();
+        return $query->getQuery()->iterate();
     }
 
-    public function getUsersBySectionsForPush($sectionsIds, $type, $startId = 0, $limit = null)
+    public function getUsersBySectionsForPush($sectionsIds, $type)
     {
         /** @var $query \Doctrine\ORM\QueryBuilder */
         $query = $this->createQueryBuilder('u');
@@ -307,16 +303,10 @@ class UserRepository extends EntityRepository
 
         $query
                 ->andWhere('gs.id in (:sections)')
-                ->andWhere('u.id > :startId')
                 ->orderBy('u.id', 'ASC')
-                ->setParameter('sections', $sectionsIds)
-                ->setParameter('startId', $startId);
+                ->setParameter('sections', $sectionsIds);
 
-        if ($limit) {
-            $query->setMaxResults($limit);
-        }
-
-        return $query->getQuery()->getResult();
+        return $query->getQuery()->iterate();
     }
 
     public function getUserForPush($userId)
@@ -610,5 +600,19 @@ class UserRepository extends EntityRepository
             ->where('s = :section')
             ->setParameter(':section', $section)
             ->getQuery();
+    }
+
+    /**
+     * @param LeaderContentInterface $content
+     * @param $type
+     * @return \Doctrine\ORM\Internal\Hydration\IterableResult
+     */
+    public function getUsersByGroupForLeaderContentPush(LeaderContentInterface $content, $type)
+    {
+        if (($content instanceof GroupSectionInterface) && $content->getGroupSections()->count() > 0) {
+            return $this->getUsersBySectionsForPush($content->getGroupSectionIds(), $type);
+        } else {
+            return $this->getUsersByGroupForPush($content->getGroup()->getId(), $type);
+        }
     }
 }

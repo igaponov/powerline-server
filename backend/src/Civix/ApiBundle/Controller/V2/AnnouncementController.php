@@ -167,7 +167,7 @@ class AnnouncementController extends FOSRestController
      */
     public function putAction(Request $request, Announcement $announcement)
     {
-        $form = $this->createForm(new AnnouncementType(), $announcement, [
+        $form = $this->createForm(new AnnouncementType($announcement->getGroup()), $announcement, [
             'validation_groups' => ['Default', 'update']
         ]);
         $form->submit($request, false);

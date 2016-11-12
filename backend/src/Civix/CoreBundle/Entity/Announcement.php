@@ -2,9 +2,11 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\CoreBundle\Model\Group\GroupSectionTrait;
 use Civix\CoreBundle\Parser\UrlConverter;
 use Civix\CoreBundle\Serializer\Type\Image;
 use Civix\CoreBundle\Validator\Constraints\PublishDate;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
@@ -19,6 +21,13 @@ use Symfony\Component\Validator\ExecutionContextInterface;
  * @ORM\Table(name="announcements")
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\AnnouncementRepository")
  * @ORM\HasLifecycleCallbacks()
+ * @ORM\AssociationOverrides({
+ *     @ORM\AssociationOverride(name="groupSections",
+ *         joinTable=@ORM\JoinTable(name="announcement_sections",
+ *             inverseJoinColumns={@ORM\JoinColumn(name="group_section_id")}
+ *         )
+ *     )
+ * })
  * @InheritanceType("SINGLE_TABLE")
  * @DiscriminatorColumn(name="type", type="string")
  * @DiscriminatorMap({
@@ -31,6 +40,8 @@ use Symfony\Component\Validator\ExecutionContextInterface;
  */
 abstract class Announcement implements LeaderContentInterface
 {
+    use GroupSectionTrait;
+
     /**
      * @var int
      *
@@ -93,6 +104,11 @@ abstract class Announcement implements LeaderContentInterface
      * @Serializer\Type("Civix\CoreBundle\Entity\Group")
      */
     protected $group;
+
+    public function __construct()
+    {
+        $this->groupSections = new ArrayCollection();
+    }
 
     /**
      * Get id.

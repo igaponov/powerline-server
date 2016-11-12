@@ -95,33 +95,26 @@ class PushSender
         $avatar = $this->getLinkByFilename($question->getGroup()->getAvatarFileName());
 
         $this->questionUsersPush->setQuestion($question);
-        $lastId = 0;
+        $iterator = $this->questionUsersPush->getUsersForPush(0, self::MAX_USERS_PER_QUERY);
 
-        do {
-            /** @var User[] $users */
-            $users = $this->questionUsersPush->getUsersForPush($lastId, self::MAX_USERS_PER_QUERY);
-
-            if ($users) {
-                foreach ($users as $recipient) {
-                    $this->send(
-                        $recipient,
-                        $title,
-                        $message,
-                        $question->getType(),
-                        [
-                            'target' => [
-                                'id' => $question->getId(),
-                                'type' => 'poll-published',
-                            ],
-                        ],
-                        $avatar
-                    );
-                    $lastId = $recipient->getId();
-                }
-            }
-
-            $this->entityManager->clear();
-        } while ($users);
+        foreach ($iterator as $row) {
+            /** @var User $recipient */
+            $recipient = $row[0];
+            $this->send(
+                $recipient,
+                $title,
+                $message,
+                $question->getType(),
+                [
+                    'target' => [
+                        'id' => $question->getId(),
+                        'type' => 'poll-published',
+                    ],
+                ],
+                $avatar
+            );
+            $this->entityManager->detach($recipient);
+        }
     }
 
     /**
@@ -240,16 +233,17 @@ class PushSender
      */
     public function sendPublishedGroupAnnouncementPush($groupId, $announcementId)
     {
-        $users = $this->entityManager
-            ->getRepository('CivixCoreBundle:User')
-            ->getUsersByGroupForPush($groupId, self::TYPE_PUSH_ANNOUNCEMENT);
         $group = $this->entityManager
             ->getRepository('CivixCoreBundle:Group')
             ->find($groupId);
         $announcement = $this->entityManager
             ->getRepository(GroupAnnouncement::class)
             ->find($announcementId);
-        foreach ($users as $recipient) {
+        $iterator = $this->entityManager
+            ->getRepository('CivixCoreBundle:User')
+            ->getUsersByGroupForLeaderContentPush($announcement, self::TYPE_PUSH_ANNOUNCEMENT);
+        foreach ($iterator as $row) {
+            $recipient = $row[0];
             $this->send(
                 $recipient,
                 $group->getOfficialName(),
@@ -263,6 +257,7 @@ class PushSender
                 ],
                 $this->getLinkByFilename($group->getAvatarFileName())
             );
+            $this->entityManager->detach($recipient);
         }
     }
 

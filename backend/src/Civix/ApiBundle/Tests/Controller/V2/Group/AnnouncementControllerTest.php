@@ -3,7 +3,8 @@ namespace Civix\ApiBundle\Tests\Controller\V2\Group;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
-use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupSectionData;
+use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class AnnouncementControllerTest extends WebTestCase
@@ -11,43 +12,28 @@ class AnnouncementControllerTest extends WebTestCase
 	const API_ENDPOINT = '/api/v2/groups/{group}/announcements';
 	
 	/**
-	 * @var \Doctrine\ORM\EntityManager
-	 */
-	private $em;
-
-	/**
 	 * @var Client
 	 */
 	private $client = null;
 
-	/**
-	 * @var ProxyReferenceRepository
-	 */
-	private $repository;
-
 	public function setUp()
 	{
-		// Creates a initial client
 		$this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
-
-		$this->repository = $this->loadFixtures([
-			LoadGroupFollowerTestData::class,
-		])->getReferenceRepository();
-
-		$this->em = $this->getContainer()->get('doctrine')->getManager();
 	}
 
 	public function tearDown()
 	{
 		$this->client = NULL;
-        $this->repository = null;
         parent::tearDown();
 	}
 
 	public function testCreateAnnouncementWithWrongCredentials()
 	{
+        $repository = $this->loadFixtures([
+            LoadGroupFollowerTestData::class,
+        ])->getReferenceRepository();
 		$client = $this->client;
-        $group = $this->repository->getReference('group');
+        $group = $repository->getReference('group');
         $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
         $client->request('POST', $uri, [], [], ['HTTP_Token'=>'userfollowtest1']);
 		$response = $client->getResponse();
@@ -61,8 +47,11 @@ class AnnouncementControllerTest extends WebTestCase
 	 */
 	public function testCreateAnnouncementReturnsErrors($params, $errors)
 	{
+        $repository = $this->loadFixtures([
+            LoadGroupFollowerTestData::class,
+        ])->getReferenceRepository();
 		$client = $this->client;
-        $group = $this->repository->getReference('testfollowsecretgroups');
+        $group = $repository->getReference('testfollowsecretgroups');
         $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
         $client->request('POST', $uri, [], [], ['HTTP_Token'=>'userfollowtest1'], json_encode($params));
 		$response = $client->getResponse();
@@ -91,17 +80,45 @@ class AnnouncementControllerTest extends WebTestCase
 
 	public function testCreateAnnouncementIsOk()
 	{
+        $repository = $this->loadFixtures([
+            LoadGroupSectionData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_1');
+        $section1 = $repository->getReference('group_1_section_1');
+        $section2 = $repository->getReference('group_1_section_2');
         $params = [
 			'content' => 'some text',
+            'group_sections' => [$section1->getId(), $section2->getId()],
 		];
         $client = $this->client;
-        $group = $this->repository->getReference('testfollowsecretgroups');
         $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
-        $client->request('POST', $uri, [], [], ['HTTP_Token'=>'userfollowtest1'], json_encode($params));
+        $client->request('POST', $uri, [], [], ['HTTP_Token'=>'user1'], json_encode($params));
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
 		$this->assertNotNull($data['id']);
 		$this->assertSame($params['content'], $data['content_parsed']);
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM announcement_sections ps WHERE group_section_id IN (?, ?) AND announcement_id = ?', [$section1->getId(), $section2->getId(), $data['id']]);
+        $this->assertEquals(2, $count);
 	}
+
+	public function testCreateAnnouncementWithInvalidGroupSection()
+	{
+        $errors = ['group_sections' => 'This value is not valid.'];
+        $repository = $this->loadFixtures([
+            LoadGroupSectionData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_1');
+        $section = $repository->getReference('group_3_section_1');
+        $params = [
+			'content' => 'some text',
+            'group_sections' => [$section->getId()],
+		];
+        $client = $this->client;
+        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
+        $client->request('POST', $uri, [], [], ['HTTP_Token'=>'user1'], json_encode($params));
+        $this->assertResponseHasErrors($client->getResponse(), $errors);
+    }
 }
