@@ -5,17 +5,135 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Service\Notification;
 use Civix\CoreBundle\Service\PushSender;
 use Civix\CoreBundle\Service\SocialActivityManager;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadAnnouncementGroupSectionData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionGroupSectionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadEndpointData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupAnnouncementData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupSectionUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPollSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSubscriberData;
 use Doctrine\DBAL\Connection;
 
 class PushSenderTest extends WebTestCase
 {
+    public function testSendPushPublishQuestionToGroupUsers()
+    {
+        $repository = $this->loadFixtures([
+            LoadGroupQuestionData::class,
+            LoadUserGroupOwnerData::class,
+        ])->getReferenceRepository();
+        $poll = $repository->getReference('group_question_1');
+        $user = $repository->getReference('user_1');
+        $sender = $this->getPushSenderMock();
+        $sender->expects($this->once())
+            ->method('send')
+            ->with(
+                $user,
+                'Test title',
+                'test msg',
+                $poll->getType(),
+                [
+                    'target' => [
+                        'id' => $poll->getId(),
+                        'type' => 'poll-published',
+                    ],
+                ],
+                $this->anything()
+            );
+        $sender->sendPushPublishQuestion($poll->getId(), 'Test title', 'test msg');
+    }
+    public function testSendPushPublishQuestionToGroupSectionUsers()
+    {
+        $repository = $this->loadFixtures([
+            LoadGroupQuestionData::class,
+            LoadGroupSectionUserData::class,
+            LoadQuestionGroupSectionData::class,
+        ])->getReferenceRepository();
+        $poll = $repository->getReference('group_question_3');
+        $user = $repository->getReference('user_1');
+        $sender = $this->getPushSenderMock();
+        $sender->expects($this->once())
+            ->method('send')
+            ->with(
+                $user,
+                'Test title',
+                'test msg',
+                $poll->getType(),
+                [
+                    'target' => [
+                        'id' => $poll->getId(),
+                        'type' => 'poll-published',
+                    ],
+                ],
+                $this->anything()
+            )
+        ;
+        $sender->sendPushPublishQuestion($poll->getId(), 'Test title', 'test msg');
+    }
+
+    public function testSendPublishedGroupAnnouncementPushToGroupUsers()
+    {
+        $repository = $this->loadFixtures([
+            LoadGroupAnnouncementData::class,
+            LoadUserGroupOwnerData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_1');
+        $announcement = $repository->getReference('announcement_group_1');
+        $user = $repository->getReference('user_1');
+        $sender = $this->getPushSenderMock();
+        $sender->expects($this->once())
+            ->method('send')
+            ->with(
+                $user,
+                $group->getOfficialName(),
+                $announcement->getContent(),
+                PushSender::TYPE_PUSH_ANNOUNCEMENT,
+                [
+                    'target' => [
+                        'id' => $announcement->getId(),
+                        'type' => 'announcement-published',
+                    ],
+                ],
+                $this->anything()
+            );
+        $sender->sendPublishedGroupAnnouncementPush($group->getId(), $announcement->getId());
+    }
+    public function testSendPublishedGroupAnnouncementPushToGroupSectionUsers()
+    {
+        $repository = $this->loadFixtures([
+            LoadGroupAnnouncementData::class,
+            LoadGroupSectionUserData::class,
+            LoadAnnouncementGroupSectionData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_1');
+        $announcement = $repository->getReference('announcement_group_3');
+        $user = $repository->getReference('user_1');
+        $sender = $this->getPushSenderMock();
+        $sender->expects($this->once())
+            ->method('send')
+            ->with(
+                $user,
+                $group->getOfficialName(),
+                $announcement->getContent(),
+                PushSender::TYPE_PUSH_ANNOUNCEMENT,
+                [
+                    'target' => [
+                        'id' => $announcement->getId(),
+                        'type' => 'announcement-published',
+                    ],
+                ],
+                $this->anything()
+            )
+        ;
+        $sender->sendPublishedGroupAnnouncementPush($group->getId(), $announcement->getId());
+    }
+
     public function testSendSocialActivityOnPetitionComment()
     {
         $repository = $this->loadFixtures([

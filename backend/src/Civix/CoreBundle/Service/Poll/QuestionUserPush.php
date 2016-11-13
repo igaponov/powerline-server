@@ -62,14 +62,18 @@ class QuestionUserPush
                 ->getRepository('CivixCoreBundle:User')
                 ->getUsersBySectionsForPush(
                     $this->question->getGroupSectionIds(),
-                    PushSender::TYPE_PUSH_ACTIVITY
+                    PushSender::TYPE_PUSH_ACTIVITY,
+                    $startId,
+                    $limitUser
                 );
         } else {
             return $this->entityManager
                 ->getRepository('CivixCoreBundle:User')
                 ->getUsersByGroupForPush(
                     $this->question->getOwner()->getId(),
-                    PushSender::TYPE_PUSH_ACTIVITY
+                    PushSender::TYPE_PUSH_ACTIVITY,
+                    $startId,
+                    $limitUser
                 );
         }
     }

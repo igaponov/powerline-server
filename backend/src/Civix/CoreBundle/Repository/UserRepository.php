@@ -252,7 +252,7 @@ class UserRepository extends EntityRepository
             ->getResult();
     }
 
-    public function getUsersByGroupForPush($groupId, $type)
+    public function getUsersByGroupForPush($groupId, $type, $startId = 0, $limit = null)
     {
         /** @var $query \Doctrine\ORM\QueryBuilder */
         $query = $this->createQueryBuilder('u');
@@ -275,13 +275,19 @@ class UserRepository extends EntityRepository
 
         $query
                 ->andWhere('gr.group = :groupId')
+                ->andWhere('u.id > :startId')
                 ->orderBy('u.id', 'ASC')
-                ->setParameter('groupId', $groupId);
+                ->setParameter('groupId', $groupId)
+                ->setParameter('startId', $startId);
 
-        return $query->getQuery()->iterate();
+        if ($limit) {
+            $query->setMaxResults($limit);
+        }
+
+        return $query->getQuery()->getResult();
     }
 
-    public function getUsersBySectionsForPush($sectionsIds, $type)
+    public function getUsersBySectionsForPush($sectionsIds, $type, $startId = 0, $limit = null)
     {
         /** @var $query \Doctrine\ORM\QueryBuilder */
         $query = $this->createQueryBuilder('u');
@@ -303,10 +309,16 @@ class UserRepository extends EntityRepository
 
         $query
                 ->andWhere('gs.id in (:sections)')
+                ->andWhere('u.id > :startId')
                 ->orderBy('u.id', 'ASC')
-                ->setParameter('sections', $sectionsIds);
+                ->setParameter('sections', $sectionsIds)
+                ->setParameter('startId', $startId);
 
-        return $query->getQuery()->iterate();
+        if ($limit) {
+            $query->setMaxResults($limit);
+        }
+
+        return $query->getQuery()->getResult();
     }
 
     public function getUserForPush($userId)
@@ -605,14 +617,16 @@ class UserRepository extends EntityRepository
     /**
      * @param LeaderContentInterface $content
      * @param $type
-     * @return \Doctrine\ORM\Internal\Hydration\IterableResult
+     * @param int $startId
+     * @param null $limit
+     * @return User[]
      */
-    public function getUsersByGroupForLeaderContentPush(LeaderContentInterface $content, $type)
+    public function getUsersByGroupForLeaderContentPush(LeaderContentInterface $content, $type, $startId = 0, $limit = null)
     {
         if (($content instanceof GroupSectionInterface) && $content->getGroupSections()->count() > 0) {
-            return $this->getUsersBySectionsForPush($content->getGroupSectionIds(), $type);
+            return $this->getUsersBySectionsForPush($content->getGroupSectionIds(), $type, $startId, $limit);
         } else {
-            return $this->getUsersByGroupForPush($content->getGroup()->getId(), $type);
+            return $this->getUsersByGroupForPush($content->getGroup()->getId(), $type, $startId, $limit);
         }
     }
 }
