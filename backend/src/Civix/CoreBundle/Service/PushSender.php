@@ -95,26 +95,33 @@ class PushSender
         $avatar = $this->getLinkByFilename($question->getGroup()->getAvatarFileName());
 
         $this->questionUsersPush->setQuestion($question);
-        $iterator = $this->questionUsersPush->getUsersForPush(0, self::MAX_USERS_PER_QUERY);
+        $lastId = 0;
 
-        foreach ($iterator as $row) {
-            /** @var User $recipient */
-            $recipient = $row[0];
-            $this->send(
-                $recipient,
-                $title,
-                $message,
-                $question->getType(),
-                [
-                    'target' => [
-                        'id' => $question->getId(),
-                        'type' => 'poll-published',
-                    ],
-                ],
-                $avatar
-            );
-            $this->entityManager->detach($recipient);
-        }
+        do {
+            /** @var User[] $users */
+            $users = $this->questionUsersPush->getUsersForPush($lastId, self::MAX_USERS_PER_QUERY);
+
+            if ($users) {
+                foreach ($users as $recipient) {
+                    $this->send(
+                        $recipient,
+                        $title,
+                        $message,
+                        $question->getType(),
+                        [
+                            'target' => [
+                                'id' => $question->getId(),
+                                'type' => 'poll-published',
+                            ],
+                        ],
+                        $avatar
+                    );
+                    $lastId = $recipient->getId();
+                }
+            }
+
+            $this->entityManager->clear();
+        } while ($users);
     }
 
     /**
@@ -239,26 +246,40 @@ class PushSender
         $announcement = $this->entityManager
             ->getRepository(GroupAnnouncement::class)
             ->find($announcementId);
-        $iterator = $this->entityManager
-            ->getRepository('CivixCoreBundle:User')
-            ->getUsersByGroupForLeaderContentPush($announcement, self::TYPE_PUSH_ANNOUNCEMENT);
-        foreach ($iterator as $row) {
-            $recipient = $row[0];
-            $this->send(
-                $recipient,
-                $group->getOfficialName(),
-                $this->preview($announcement->getContent()),
-                self::TYPE_PUSH_ANNOUNCEMENT,
-                [
-                    'target' => [
-                        'id' => $announcementId,
-                        'type' => 'announcement-published',
-                    ],
-                ],
-                $this->getLinkByFilename($group->getAvatarFileName())
-            );
-            $this->entityManager->detach($recipient);
-        }
+        $lastId = 0;
+
+        do {
+            /** @var User[] $users */
+            $users = $this->entityManager
+                ->getRepository('CivixCoreBundle:User')
+                ->getUsersByGroupForLeaderContentPush(
+                    $announcement,
+                    self::TYPE_PUSH_ANNOUNCEMENT,
+                    $lastId,
+                    self::MAX_USERS_PER_QUERY
+                );
+
+            if ($users) {
+                foreach ($users as $recipient) {
+                    $this->send(
+                        $recipient,
+                        $group->getOfficialName(),
+                        $this->preview($announcement->getContent()),
+                        self::TYPE_PUSH_ANNOUNCEMENT,
+                        [
+                            'target' => [
+                                'id' => $announcementId,
+                                'type' => 'announcement-published',
+                            ],
+                        ],
+                        $this->getLinkByFilename($group->getAvatarFileName())
+                    );
+                    $lastId = $recipient->getId();
+                }
+            }
+
+            $this->entityManager->clear();
+        } while ($users);
     }
 
     /**

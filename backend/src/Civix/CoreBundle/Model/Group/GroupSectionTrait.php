@@ -4,12 +4,13 @@ namespace Civix\CoreBundle\Model\Group;
 
 use Civix\CoreBundle\Entity\GroupSection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
 
 trait GroupSectionTrait
 {
     /**
      * @var ArrayCollection|GroupSection[]
-     * @ORM\ManyToMany(targetEntity="\Civix\CoreBundle\Entity\GroupSection")
+     * @ORM\ManyToMany(targetEntity="\Civix\CoreBundle\Entity\GroupSection", cascade={"persist"})
      */
     protected $groupSections;
 
