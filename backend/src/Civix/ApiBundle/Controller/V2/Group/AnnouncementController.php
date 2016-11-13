@@ -61,7 +61,7 @@ class AnnouncementController extends FOSRestController
     {
         /** @var Announcement $announcement */
         $announcement = new Announcement\GroupAnnouncement();
-        $form = $this->createForm(new AnnouncementType(), $announcement);
+        $form = $this->createForm(new AnnouncementType($group), $announcement);
         $form->submit($request);
 
         if ($form->isValid()) {

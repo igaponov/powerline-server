@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2\Group;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupSectionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe\LoadAccountGroupData;
 use Doctrine\DBAL\Connection;
@@ -229,14 +230,18 @@ class PollControllerTest extends WebTestCase
             LoadUserGroupData::class,
             LoadGroupManagerData::class,
             LoadGroupQuestionData::class,
+            LoadGroupSectionData::class,
         ])->getReferenceRepository();
         $group = $repository->getReference($reference);
+        $section1 = $repository->getReference('group_1_section_1');
+        $section2 = $repository->getReference('group_1_section_2');
         $client = $this->client;
         $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
         $params = [
             'type' => 'group',
             'subject' => 'subj',
             'report_recipient_group' => 'group',
+            'group_sections' => [$section2->getId(), $section1->getId()],
         ];
         $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"'], json_encode($params));
 		$response = $client->getResponse();
@@ -248,7 +253,32 @@ class PollControllerTest extends WebTestCase
 				$this->assertSame($value, $data[$param]);
 			}
 		}
+		/** @var Connection $conn */
+		$conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+		$count = $conn->fetchColumn('SELECT COUNT(*) FROM poll_sections ps WHERE group_section_id IN (?, ?) AND question_id = ?', [$section1->getId(), $section2->getId(), $data['id']]);
+		$this->assertEquals(2, $count);
 	}
+
+    public function testCreatePollWithInvalidGroupSection()
+    {
+        $errors = ['group_sections' => 'This value is not valid.'];
+        $repository = $this->loadFixtures([
+            LoadGroupQuestionData::class,
+            LoadGroupSectionData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_1');
+        $section = $repository->getReference('group_3_section_1');
+        $client = $this->client;
+        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
+        $params = [
+            'type' => 'group',
+            'subject' => 'subj',
+            'report_recipient_group' => 'group',
+            'group_sections' => [$section->getId()],
+        ];
+        $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
+        $this->assertResponseHasErrors($client->getResponse(), $errors);
+    }
 
 	public function getInvalidParams()
 	{
@@ -351,8 +381,8 @@ class PollControllerTest extends WebTestCase
     public function getValidPollCredentialsForUpdateRequest()
     {
         return [
-            'owner' => ['user3', 'group_3'],
-            'manager' => ['user2', 'group_3'],
+            'owner' => ['user1', 'group_1'],
+            'manager' => ['user2', 'group_1'],
         ];
     }
 

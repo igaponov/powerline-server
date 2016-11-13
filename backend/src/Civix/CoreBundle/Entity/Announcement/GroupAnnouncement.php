@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity\Announcement;
 
+use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Entity\Announcement;
@@ -10,7 +11,7 @@ use Civix\CoreBundle\Entity\Announcement;
  * @ORM\Entity()
  * @Serializer\ExclusionPolicy("all")
  */
-class GroupAnnouncement extends Announcement
+class GroupAnnouncement extends Announcement implements GroupSectionInterface
 {
     /**
      * Set group.

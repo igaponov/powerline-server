@@ -2,10 +2,8 @@
 
 namespace Civix\CoreBundle\Entity\Poll\Question;
 
-use Civix\CoreBundle\Model\Group\GroupSectionTrait;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 
 /**
  * Group event entity.
@@ -13,10 +11,8 @@ use Civix\CoreBundle\Model\Group\GroupSectionInterface;
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Poll\LeaderEventRepository")
  * @Serializer\ExclusionPolicy("all")
  */
-class GroupEvent extends LeaderEvent implements GroupSectionInterface
+class GroupEvent extends LeaderEvent
 {
-    use GroupSectionTrait;
-
     public function getType()
     {
         return 'group_event';

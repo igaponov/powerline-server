@@ -2,16 +2,25 @@
 
 namespace Civix\CoreBundle\Model\Group;
 
+use Civix\CoreBundle\Entity\GroupSection;
+use Doctrine\Common\Collections\ArrayCollection;
+
 trait GroupSectionTrait
 {
     /**
+     * @var ArrayCollection|GroupSection[]
+     * @ORM\ManyToMany(targetEntity="\Civix\CoreBundle\Entity\GroupSection")
+     */
+    protected $groupSections;
+
+    /**
      * Add group section.
      *
-     * @param \Civix\CoreBundle\Entity\GroupSection $section
+     * @param GroupSection $section
      *
-     * @return Group
+     * @return $this
      */
-    public function addGroupSection(\Civix\CoreBundle\Entity\GroupSection $section)
+    public function addGroupSection(GroupSection $section)
     {
         if (!$this->groupSections->contains($section)) {
             $this->groupSections[] = $section;
@@ -23,9 +32,9 @@ trait GroupSectionTrait
     /**
      * Remove section.
      *
-     * @param \Civix\CoreBundle\Entity\GroupSection $section
+     * @param GroupSection $section
      */
-    public function removeGroupSection(\Civix\CoreBundle\Entity\GroupSection $section)
+    public function removeGroupSection(GroupSection $section)
     {
         $this->groupSections->removeElement($section);
     }
@@ -33,5 +42,19 @@ trait GroupSectionTrait
     public function getGroupSections()
     {
         return $this->groupSections;
+    }
+
+    public function setGroupSections($groupSections)
+    {
+        $this->groupSections = new ArrayCollection($groupSections);
+    }
+
+    public function getGroupSectionIds()
+    {
+        return $this->groupSections
+            ->map(function (GroupSection $section) {
+                return $section->getId();
+            })
+            ->toArray();
     }
 }
