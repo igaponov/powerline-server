@@ -40,7 +40,7 @@ use Symfony\Component\Validator\ExecutionContext;
  *      ),
  *      @ORM\AssociationOverride(name="groupSections",
  *          joinTable=@ORM\JoinTable(name="poll_sections",
- *              inverseJoinColumns={@ORM\JoinColumn(name="group_section_id")}
+ *              inverseJoinColumns={@ORM\JoinColumn(name="group_section_id", onDelete="CASCADE")}
  *          )
  *      )
  * })
