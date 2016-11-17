@@ -10,6 +10,7 @@ class CiceroCalls extends ServiceApi
     const API_URL = 'https://cicero.azavea.com/v3.1/';
     const GET_TOKEN_SUFFIX = 'token/new.json';
     const OFFICIAL = 'official';
+    const LEGISLATIVE_DISTRICT = 'legislative_district';
     const NONLEGISLATIVE_DISTRICT = 'nonlegislative_district';
     const CENSUS_SUBTYPE = 'SUBDIVISION';
 
@@ -31,6 +32,13 @@ class CiceroCalls extends ServiceApi
         $this->getApiToken();
     }
 
+    /**
+     * @param $address
+     * @param $city
+     * @param $state
+     * @param string $country
+     * @return array
+     */
     public function findRepresentativeByLocation($address, $city, $state, $country = 'US')
     {
         $response = $this->getResponse(self::API_URL.self::OFFICIAL,
@@ -49,7 +57,7 @@ class CiceroCalls extends ServiceApi
                 count($response->response->results->candidates) < 1 ||
                 $response->response->results->candidates[0]->count->total == 0
         ) {
-            return false;
+            return [];
         }
 
         //set coordinates of match address
@@ -59,6 +67,12 @@ class CiceroCalls extends ServiceApi
         return $response->response->results->candidates[0]->officials;
     }
 
+    /**
+     * @param $firstName
+     * @param $lastName
+     * @param $officialTitle
+     * @return array
+     */
     public function findRepresentativeByOfficialData($firstName, $lastName, $officialTitle)
     {
         $response = $this->getResponse(self::API_URL.self::OFFICIAL,
@@ -72,7 +86,7 @@ class CiceroCalls extends ServiceApi
         );
 
         if (!isset($response->response->results->count) || $response->response->results->count->total == 0) {
-            return false;
+            return [];
         }
 
         return $response->response->results->officials;

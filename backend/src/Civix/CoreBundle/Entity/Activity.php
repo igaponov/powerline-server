@@ -481,8 +481,8 @@ abstract class Activity implements HtmlBodyInterface
             'last_name' => $representative->getLastName(),
             'avatar_file_path' => $representative->getAvatarFileName(),
         ];
-        if ($representative->getStorageId()) {
-            $data['storage_id'] = $representative->getStorageId();
+        if ($representative->getCiceroId()) {
+            $data['cicero_id'] = $representative->getCiceroId();
         }
 
         return $data;

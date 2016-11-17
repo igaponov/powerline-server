@@ -2,8 +2,8 @@
 
 namespace Civix\CoreBundle\Service;
 
+use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Service\API\ServiceApi;
-use Civix\CoreBundle\Entity\RepresentativeStorage;
 
 class CongressApi extends ServiceApi
 {
@@ -54,7 +54,7 @@ class CongressApi extends ServiceApi
         return array();
     }
 
-    public function updateReprStorageProfile(RepresentativeStorage $representative)
+    public function updateRepresentativeProfile(Representative $representative)
     {
         $response = $this->getRepresentativeByName(
             $representative->getFirstName(),

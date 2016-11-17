@@ -2,33 +2,59 @@
 
 namespace Civix\CoreBundle\Service;
 
-use Civix\CoreBundle\Entity\RepresentativeStorage;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\District;
 use Civix\CoreBundle\Service\API\ServiceApi;
+use Doctrine\ORM\EntityManager;
+use Symfony\Bridge\Monolog\Logger;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpKernel\KernelInterface;
+use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
 
 class CiceroApi extends ServiceApi
 {
+    /**
+     * @var CiceroCalls
+     */
     private $ciceroService;
+    /**
+     * @var Logger
+     */
     private $logger;
+    /**
+     * @var EntityManager
+     */
     private $entityManager;
+    /**
+     * @var CropImage
+     */
     private $cropImageService;
+    /**
+     * @var CongressApi
+     */
     private $congressService;
+    /**
+     * @var OpenstatesApi
+     */
     private $openstatesService;
-
+    /**
+     * @var UploaderHelper
+     */
     protected $vichService;
+    /**
+     * @var string
+     */
     protected $rootPath;
 
     public function __construct(
-        \Civix\CoreBundle\Service\CiceroCalls $ciceroService,
-        \Symfony\Bridge\Monolog\Logger $logger,
-        $entityManager,
-        $vichUploader,
-        $cropImage,
-        $kernel,
-        \Civix\CoreBundle\Service\CongressApi $congress,
-        \Civix\CoreBundle\Service\OpenstatesApi $openstates
+        CiceroCalls $ciceroService,
+        Logger $logger,
+        EntityManager $entityManager,
+        UploaderHelper $vichUploader,
+        CropImage $cropImage,
+        KernelInterface $kernel,
+        CongressApi $congress,
+        OpenstatesApi $openstates
     ) {
         $this->ciceroService = $ciceroService;
         $this->logger = $logger;
@@ -41,34 +67,11 @@ class CiceroApi extends ServiceApi
     }
 
     /**
-     * Get all representatives by address from api, save them, get districs ids.
-     *
-     * @param string $address   Address
-     * @param string $city      City
-     * @param string $state     State
-     * @param string $country   Country
-     * @param bool   $onlyLocal Get only local districts
-     *
-     * @return array
-     */
-    public function getRepresentativeByLocation($address, $city, $state, $country = 'US', $onlyLocal = false)
-    {
-        $representatives = $this->ciceroService
-            ->findRepresentativeByLocation($address, $city, $state, $country);
-
-        if ($representatives) {
-            return $this->getUserDistrictsFromApi($representatives, $onlyLocal);
-        }
-
-        return false;
-    }
-
-    /**
      * Get representative from api, save his, get district id.
      *
      * @param Representative $representative Representative object
      *
-     * @return District|bool
+     * @return bool
      */
     public function updateByRepresentativeInfo(Representative $representative)
     {
@@ -79,7 +82,7 @@ class CiceroApi extends ServiceApi
                 $representative->getOfficialTitle()
             );
         if ($representativesFromApi) {
-            return $this->updateRepresentativeStorage($representativesFromApi, $representative);
+            return $this->updateRepresentative($representativesFromApi, $representative);
         }
 
         return false;
@@ -89,30 +92,23 @@ class CiceroApi extends ServiceApi
      * Save representative from api in representative storage. 
      * Set link between representative and representative storage.
      * 
-     * @param object         $resultApiCollection Object from Cicero API
+     * @param array          $resultApiCollection Object from Cicero API
      * @param Representative $representative      Representative object
      *
-     * @return District
+     * @return bool
      */
-    protected function updateRepresentativeStorage($resultApiCollection, Representative $representative)
+    protected function updateRepresentative($resultApiCollection, Representative $representative)
     {
-        $lastReprDistrict = false;
         foreach ($resultApiCollection as $repr) {
-            $storRepr = $this->entityManager->getRepository('CivixCoreBundle:RepresentativeStorage')
-                    ->findOneByStorageId($repr->id);
-            if (!$storRepr) {
-                $storRepr = $this->createStorRepresentativeByApiObj($repr);
-                $this->entityManager->persist($storRepr);
+            if ($representative->getCiceroId() == $repr->id) {
+                $representative = $this->fillRepresentativeByApiObj($representative, $repr);
+                $this->entityManager->persist($representative);
+                $this->entityManager->flush();
+                return true;
             }
-
-            //Update link between representative and representative storage
-            $representative->setStorageId($storRepr->getStorageId());
-
-            $lastReprDistrict = $storRepr->getDistrict();
         }
-        $this->entityManager->flush();
 
-        return $lastReprDistrict;
+        return false;
     }
 
     public function setEntityManager($entityManager)
@@ -153,105 +149,107 @@ class CiceroApi extends ServiceApi
     /**
      * Change Representative Storage object according to object which was getten from Cicero Api.
      * 
-     * @param \Civix\CoreBundle\Entity\RepresentativeStorage $storeObj
-     * @param object                                         $repr     Cicero Api object
+     * @param \Civix\CoreBundle\Entity\Representative $representative
+     * @param object $response Cicero Api object
      * 
-     * @return \Civix\CoreBundle\Entity\RepresentativeStorage
+     * @return \Civix\CoreBundle\Entity\Representative
      */
-    public function fillStorRepresentativeByApiObj(RepresentativeStorage $storeObj, $repr)
+    public function fillRepresentativeByApiObj(Representative $representative, $response)
     {
-        $storeObj->setStorageId($repr->id);
-        $storeObj->setFirstName(trim($repr->first_name));
-        $storeObj->setLastName(trim($repr->last_name));
-        $storeObj->setOfficialTitle(trim($repr->office->title));
-        $storeObj->setAvatarSrc($repr->photo_origin_url);
+        $representative->setCiceroId($response->id);
+        $representative->setFirstName(trim($response->first_name));
+        $representative->setLastName(trim($response->last_name));
+        $representative->setOfficialTitle(trim($response->office->title));
+        $representative->setAvatarSourceFileName($response->photo_origin_url);
 
         //create district
-        $representativeDistrict = $this->createDistrict($repr->office->district);
-        $storeObj->setDistrict($representativeDistrict);
+        $representativeDistrict = $this->createDistrict($response->office->district);
+        $representative->setDistrict($representativeDistrict);
 
-        $storeObj->setContactEmail($repr->office->chamber->contact_email);
-        $storeObj->setWebsite($repr->office->chamber->url);
-        $storeObj->setCountry($repr->office->district->country);
-        if (isset($repr->addresses[0])) {
-            $storeObj->setPhone($repr->addresses[0]->phone_1);
-            $storeObj->setFax($repr->addresses[0]->fax_1);
+        $representative->setEmail($response->office->chamber->contact_email);
+        $representative->setWebsite($response->office->chamber->url);
+        $representative->setCountry($response->office->district->country);
+        if (isset($response->addresses[0])) {
+            $representative->setOfficialPhone($response->addresses[0]->phone_1);
+            $representative->setFax($response->addresses[0]->fax_1);
             $state = $this->entityManager->getRepository('CivixCoreBundle:State')
-                ->findOneByCode($repr->addresses[0]->state);
-            $storeObj->setState($state);
-            $storeObj->setCity($repr->addresses[0]->city);
-            $storeObj->setAddressLine1($repr->addresses[0]->address_1);
-            $storeObj->setAddressLine2($repr->addresses[0]->address_2);
-            $storeObj->setAddressLine3($repr->addresses[0]->address_3);
+                ->findOneBy(['code' => $response->addresses[0]->state]);
+            $representative->setState($state);
+            $representative->setCity($response->addresses[0]->city);
+            $representative->setAddressLine1($response->addresses[0]->address_1);
+            $representative->setAddressLine2($response->addresses[0]->address_2);
+            $representative->setAddressLine3($response->addresses[0]->address_3);
         }
 
         //extended profile
-        $storeObj->setParty($repr->party);
-        if (isset($repr->notes[1]) && \DateTime::createFromFormat('Y-m-d', $repr->notes[1]) !== false) {
-            $storeObj->setBirthday(new \DateTime($repr->notes[1]));
+        $representative->setParty($response->party);
+        if (isset($response->notes[1]) && \DateTime::createFromFormat('Y-m-d', $response->notes[1]) !== false) {
+            $representative->setBirthday(new \DateTime($response->notes[1]));
         }
-        if (isset($repr->current_term_start_date)) {
-            $storeObj->setStartTerm(new \DateTime($repr->current_term_start_date));
+        if (isset($response->current_term_start_date)) {
+            $representative->setStartTerm(new \DateTime($response->current_term_start_date));
         }
-        if (isset($repr->term_end_date)) {
-            $storeObj->setEndTerm(new \DateTime($repr->term_end_date));
+        if (isset($response->term_end_date)) {
+            $representative->setEndTerm(new \DateTime($response->term_end_date));
         }
 
         //social networks
-        foreach ($repr->identifiers as $identificator) {
+        foreach ($response->identifiers as $identificator) {
             $socialType = strtolower(isset($identificator->identifier_type) ? $identificator->identifier_type : '');
             $socialMethod = 'set'.ucfirst($socialType);
-            if (method_exists($storeObj, $socialMethod)) {
-                $storeObj->$socialMethod($identificator->identifier_value);
+            if (method_exists($representative, $socialMethod)) {
+                $representative->$socialMethod($identificator->identifier_value);
             }
         }
 
         //save photo
-        if (!empty($repr->photo_origin_url)) {
-            $fileInfo = explode('.', basename($repr->photo_origin_url));
+        if (!empty($response->photo_origin_url)) {
+            $fileInfo = explode('.', basename($response->photo_origin_url));
             $fileExt = array_pop($fileInfo);
-            $storeObj->setAvatarFileName(uniqid().'.'.$fileExt);
+            $representative->setAvatarFileName(uniqid().'.'.$fileExt);
 
-            if (false !== ($header = $this->checkLink($repr->photo_origin_url))) {
+            if (false !== ($header = $this->checkLink($response->photo_origin_url))) {
                 if (strpos($header, 'image') !== false) {
                     //square avatars
                     try {
                         $temp_file = tempnam(sys_get_temp_dir(), 'avatar').'.'.$fileExt;
-                        $this->saveImageFromUrl($storeObj->getAvatarSrc(), $temp_file);
+                        $this->saveImageFromUrl($representative->getAvatarSrc(), $temp_file);
                         $this->cropImageService->rebuildImage(
                             $temp_file,
                             $temp_file
                         );
-                        $fileUpload = new UploadedFile($temp_file, $storeObj->getAvatarFileName());
-                        $storeObj->setAvatar($fileUpload);
+                        $fileUpload = new UploadedFile($temp_file, $representative->getAvatarFileName());
+                        $representative->setAvatar($fileUpload);
                     } catch (\Exception $exc) {
-                        $this->logger->addError('Image '.$storeObj->getAvatarSrc().'. '.$exc->getMessage());
-                        $storeObj->setAvatarFileName(null);
+                        $this->logger->addError('Image '.$representative->getAvatarSourceFileName().'. '.$exc->getMessage());
+                        $representative->setAvatarSourceFileName(null);
                     }
                 }
             }
         }
 
         //update profile from congress api
-        $this->congressService->updateReprStorageProfile($storeObj);
+        $this->congressService->updateRepresentativeProfile($representative);
 
         //update profile from openstate api
-        $this->openstatesService->updateReprStorageProfile($storeObj);
+        $this->openstatesService->updateRepresentativeProfile($representative);
 
-        return $storeObj;
+        return $representative;
     }
 
     /**
      * Create Representative Storage object by object which was getten from Cicero Api.
      *
-     * @param object $repr Cicero Api object
+     * @param object $response Cicero Api object
      *
-     * @return \Civix\CoreBundle\Entity\RepresentativeStorage
+     * @return \Civix\CoreBundle\Entity\Representative
+     *
+     * @deprecated
      */
-    protected function createStorRepresentativeByApiObj($repr)
+    protected function createRepresentativeByApiObj($response)
     {
-        $storeObj = new RepresentativeStorage();
-        $this->fillStorRepresentativeByApiObj($storeObj, $repr);
+        $storeObj = new Representative();
+        $this->fillRepresentativeByApiObj($storeObj, $response);
 
         return $storeObj;
     }
@@ -259,34 +257,20 @@ class CiceroApi extends ServiceApi
     /**
      * Get districts of user. Save representative in storage if need.
      *
-     * @param object $resultApiCollection Object from Cicero API
-     * @param bool   $onlyLocal           Get only local districts
+     * @param string $address   Address
+     * @param string $city      City
+     * @param string $state     State
+     * @param string $country   Country
      *
      * @return array of districts
      */
-    protected function getUserDistrictsFromApi($resultApiCollection, $onlyLocal = false)
+    public function getUserDistrictsFromApi($address, $city, $state, $country = 'US')
     {
+        $resultApiCollection = $this->ciceroService
+            ->findRepresentativeByLocation($address, $city, $state, $country);
         $districts = array();
-        foreach ($resultApiCollection as $repr) {
-            $storeRepr = $this->entityManager->getRepository('CivixCoreBundle:RepresentativeStorage')
-                    ->findOneByStorageId($repr->id);
-            if (!$storeRepr) {
-                $storeRepr = $this->createStorRepresentativeByApiObj($repr);
-                $this->entityManager->persist($storeRepr);
-            }
-
-            //check district types
-            if ($onlyLocal) {
-                if ($storeRepr->isLocalLeader()) {
-                    if ($storeRepr->getDistrict()->getDistrictType() == District::LOCAL) {
-                        array_unshift($districts, $storeRepr->getDistrict());
-                    } else {
-                        $districts[] = $storeRepr->getDistrict();
-                    }
-                }
-            } else {
-                $districts[] = $storeRepr->getDistrict();
-            }
+        foreach ($resultApiCollection as $response) {
+            $districts[] = $this->createDistrict($response->office->district);
         }
 
         //add nonlegislative districts to current district
@@ -310,7 +294,7 @@ class CiceroApi extends ServiceApi
         $districts = $this->ciceroService->findNonLegislativeDistricts();
 
         foreach ($districts as $district) {
-            if ($district->subtype == \Civix\CoreBundle\Service\CiceroCalls::CENSUS_SUBTYPE) {
+            if ($district->subtype == CiceroCalls::CENSUS_SUBTYPE) {
                 //create local district
                 $localDistrict = $this->createDistrict($district);
                 $subdivDistricts[] = $localDistrict;

@@ -2,8 +2,8 @@
 
 namespace Civix\CoreBundle\Service;
 
+use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Service\API\ServiceApi;
-use Civix\CoreBundle\Entity\RepresentativeStorage;
 use Civix\CoreBundle\Serializer\Adapter\CommitteeAdapter;
 use Civix\CoreBundle\Serializer\Adapter\BillAdapter;
 
@@ -67,7 +67,7 @@ class OpenstatesApi extends ServiceApi
         );
     }
 
-    public function updateReprStorageProfile(RepresentativeStorage $representative)
+    public function updateRepresentativeProfile(Representative $representative)
     {
         $openStateId = $this->getRepresentativeByName(
             $representative->getFirstName(),

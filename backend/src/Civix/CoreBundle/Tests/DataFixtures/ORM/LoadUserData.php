@@ -53,7 +53,7 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
             ->setBio('User 1 Bio')
             ->setFacebookId('xXxXxXxXxXx')
             ->setFacebookToken('yYyYyYyYyYy');
-        foreach (['district_la', 'district_sd'] as $item) {
+        foreach (['district_la', 'district_sd', 'district_us'] as $item) {
             $user->addDistrict($this->getReference($item));
         }
 
@@ -66,7 +66,7 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
         $this->addReference('user_3', $this->generateUser('user3'));
         $this->addReference('user_4', $this->generateUser('user4'));
 
-        $this->addReference('followertest', $this->generateUser('followertest', null, ['district_la', 'district_sf']));
+        $this->addReference('followertest', $this->generateUser('followertest', null, ['district_la', 'district_sf', 'district_us']));
         $this->addReference('userfollowtest1', $this->generateUser('userfollowtest1', null, 'district_sd', true));
         $this->addReference('userfollowtest2', $this->generateUser('userfollowtest2'));
         $this->addReference('userfollowtest3', $this->generateUser('userfollowtest3'));

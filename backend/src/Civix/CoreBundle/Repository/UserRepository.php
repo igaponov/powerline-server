@@ -28,7 +28,7 @@ class UserRepository extends EntityRepository
     /**
      * Get all users with filling address profile.
      *
-     * @return array
+     * @return User[]
      */
     public function getAllUsersWithAddressProfile()
     {

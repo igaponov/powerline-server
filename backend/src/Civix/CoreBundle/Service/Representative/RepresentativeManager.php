@@ -3,65 +3,45 @@
 namespace Civix\CoreBundle\Service\Representative;
 
 use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Service\CiceroApi;
+use Civix\CoreBundle\Service\CiceroCalls;
+use Doctrine\ORM\EntityManager;
+use Symfony\Component\Security\Core\Encoder\EncoderFactory;
 
 class RepresentativeManager
 {
+    /**
+     * @var EntityManager
+     */
     private $entityManager;
+    /**
+     * @var EncoderFactory
+     */
     private $encoderFactory;
+    /**
+     * @var CiceroApi
+     */
+    private $ciceroStorageService;
+    /**
+     * @var CiceroCalls
+     */
     private $ciceroService;
 
     public function __construct(
-        \Doctrine\ORM\EntityManager $entityManager,
-        \Symfony\Component\Security\Core\Encoder\EncoderFactory $encoder,
-        \Civix\CoreBundle\Service\CiceroApi $cicero
+        EntityManager $entityManager,
+        EncoderFactory $encoder,
+        CiceroApi $ciceroStorageService,
+        CiceroCalls $ciceroService
     ) {
         $this->entityManager = $entityManager;
         $this->encoderFactory = $encoder;
-        $this->ciceroService = $cicero;
+        $this->ciceroStorageService = $ciceroStorageService;
+        $this->ciceroService = $ciceroService;
     }
 
     public function approveRepresentative(Representative $representative)
     {
         $representative->setStatus(Representative::STATUS_ACTIVE);
-
-        //find in current representative storage
-        $reprStorageObj = $this->entityManager
-            ->getRepository('CivixCoreBundle:RepresentativeStorage')
-            ->getSTRepresentativeByOfficialInfo(
-                $representative->getFirstName(),
-                $representative->getLastName(),
-                $representative->getOfficialTitle()
-            );
-
-        if (!$reprStorageObj) {
-            //update database from api
-            $district = $this->ciceroService->updateByRepresentativeInfo($representative);
-
-            //if no representative in cicero api
-            if (!$district) {
-                //try to get info by address
-                $districts = $this->ciceroService
-                    ->getRepresentativeByLocation(
-                        $representative->getOfficialAddress(),
-                        $representative->getCity(),
-                        $representative->getState()->getCode(),
-                        $representative->getCountry(),
-                        true
-                    );
-
-                if (!empty($districts)) {
-                    $district = array_shift($districts);
-                    $representative->setIsNonLegislative(1);
-                } else {
-                    return false;
-                }
-            }
-
-            $representative->setDistrict($district);
-        } else {
-            $representative->setDistrict($reprStorageObj->getDistrict());
-            $representative->setStorageId($reprStorageObj->getStorageId());
-        }
 
         return $representative;
     }
@@ -111,5 +91,56 @@ class RepresentativeManager
         $representative->setPassword($password);
 
         return $newPassword;
+    }
+
+    /**
+     * Synchronize $storageRepresentative with Cicero representative.
+     *
+     * @param \Civix\CoreBundle\Entity\Representative $representative
+     *
+     * @return bool
+     */
+    public function synchronizeRepresentative(Representative $representative)
+    {
+        $ciceroRepresentative = $this->ciceroService->findRepresentativeByNameAndId(
+            $representative->getFirstName(),
+            $representative->getLastName(),
+            $representative->getCiceroId()
+        );
+
+        if ($ciceroRepresentative) {
+            //update current data of representative from cicero
+            $this->ciceroStorageService->fillRepresentativeByApiObj($representative, $ciceroRepresentative);
+            $this->entityManager->persist($representative);
+
+            //update representative in civix
+            if ($representative instanceof Representative) {
+                $representative->setOfficialTitle($representative->getOfficialTitle());
+                $representative->setDistrict($representative->getDistrict());
+                $this->entityManager->persist($representative);
+                $this->entityManager->flush($representative);
+            }
+        } else {
+            //unlink district and storage
+            if ($representative instanceof Representative) {
+                $representative->setDistrict(null);
+                $representative->setCiceroId(null);
+                $this->entityManager->persist($representative);
+                $this->entityManager->flush($representative);
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public function synchronizeByStateCode($stateCode)
+    {
+        $representatives = $this->entityManager->getRepository(Representative::class)
+            ->findByState($stateCode);
+        foreach ($representatives as $storageRepresentative) {
+            $this->synchronizeRepresentative($storageRepresentative);
+        }
     }
 }

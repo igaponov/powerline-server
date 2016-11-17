@@ -243,9 +243,6 @@ abstract class Announcement implements LeaderContentInterface
     public function getSharePicture()
     {
         $entity = $this->getUser();
-        if ($entity instanceof Representative && !$entity->getAvatar()) {
-            $entity = $entity->getRepresentativeStorage();
-        }
 
         return new Image($entity, 'avatar');
     }

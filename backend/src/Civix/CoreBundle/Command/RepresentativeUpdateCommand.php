@@ -2,14 +2,12 @@
 
 namespace Civix\CoreBundle\Command;
 
+use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Civix\CoreBundle\Entity\Representative;
-use Civix\CoreBundle\Entity\District;
-use Civix\CoreBundle\Entity\RepresentativeStorage;
-use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 
 class RepresentativeUpdateCommand extends ContainerAwareCommand
@@ -38,28 +36,8 @@ class RepresentativeUpdateCommand extends ContainerAwareCommand
         $ciceroService = $this->getContainer()->get('civix_core.cicero_api');
         $userManager = $this->getContainer()->get('civix_core.user_manager');
         $groupManager = $this->getContainer()->get('civix_core.group_manager');
+        /** @var EntityManager $entityManager */
         $entityManager = $this->getContainer()->get('doctrine.orm.entity_manager');
-        $avatarsStorage = $this->getContainer()->get('knp_gaufrette.filesystem_map')->get('avatar_representative_fs');
-
-        // delete all representative storage
-        if ($input->getOption('purge')) {
-            $output->writeln('Purge all storage representative');
-            $entityManager->getRepository(Representative::class)
-                     ->cleanStorageIds();
-            $entityManager->getRepository(RepresentativeStorage::class)
-                    ->purgeRepresentativeStorage();
-
-            //clean incorrect local group
-            $output->writeln('Purge all incorrect local groups');
-            $entityManager->getRepository(Group::class)
-                    ->cleanIncorrectLocalGroup();
-
-            //clean old photos
-            $contentsFolder = $avatarsStorage->listKeys();
-            foreach ($contentsFolder['keys'] as $file) {
-                $avatarsStorage->delete($file);
-            }
-        }
 
         // update representative by user profile
         if ($input->getOption('by-users')) {
@@ -82,18 +60,13 @@ class RepresentativeUpdateCommand extends ContainerAwareCommand
 
         $output->writeln('Update link between active representative and storage');
         //update link between active representative and storage
+        /** @var Representative[] $representatives */
         $representatives = $entityManager->getRepository(Representative::class)
                 ->getQueryRepresentativeByStatus(Representative::STATUS_ACTIVE)->getResult();
 
         foreach ($representatives as $representative) {
-            $district = $ciceroService->updateByRepresentativeInfo($representative);
-            if ($district instanceof District) {
-                $representative->setDistrict($district);
-            }
-            $entityManager->persist($representative);
+            $ciceroService->updateByRepresentativeInfo($representative);
         }
-
-        $entityManager->flush();
 
         $output->writeln('Update complete.');
     }

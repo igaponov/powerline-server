@@ -117,31 +117,19 @@ class RepresentativeRepository extends EntityRepository
         $representativeId = (int) $representativeId;
 
         if (0 < $representativeId) {
-            $info = $this->getEntityManager()
-                ->createQuery('
-                    SELECT r, s
-                    FROM CivixCoreBundle:Representative r
-                    LEFT JOIN r.representativeStorage s WITH r.storageId = s.storageId
-                    WHERE r.id = :id
-                ')
-            ->setParameter('id', $representativeId)
-            ->getOneOrNullResult();
+            $info = $this->createQueryBuilder('r')
+                ->where('r.id = :id')
+                ->setParameter('id', $representativeId)
+                ->getQuery()
+                ->getOneOrNullResult();
         } elseif (0 < $storageId) {
-            $info = $this->getEntityManager()
-                ->createQuery('
-                    SELECT r, s
-                    FROM CivixCoreBundle:RepresentativeStorage s
-                    LEFT JOIN s.representative r WITH s.storageId = r.storageId
-                    WHERE s.storageId = :id
-                ')
-            ->setParameter('id', $storageId)
-            ->getOneOrNullResult();
-
-            if ($info->getRepresentative()) {
-                $info = $info->getRepresentative();
-            }
+            $info = $this->createQueryBuilder('r')
+                ->where('r.storageId = :id')
+                ->setParameter('id', $storageId)
+                ->getQuery()
+                ->getOneOrNullResult();
         } else {
-            $info = false;
+            $info = null;
         }
 
         return $info;
@@ -166,25 +154,8 @@ class RepresentativeRepository extends EntityRepository
     {
         $userDistrictIds = $user->getDistrictsIds();
 
-        $qb = $this->getEntityManager()->createQueryBuilder();
-        $representativesFromStorage = $qb->select('rs, r')
-            ->from('CivixCoreBundle:RepresentativeStorage', 'rs')
-            ->leftJoin('rs.representative', 'r')
-            ->leftJoin('rs.district', 'd')
-            ->where($qb->expr()->in('rs.district', $userDistrictIds ? $userDistrictIds : array(0)))
-            ->andWhere($qb->expr()->orX(
-                $qb->expr()->like('rs.officialTitle', $qb->expr()->literal('%'.$query.'%')),
-                $qb->expr()->like('rs.firstName', $qb->expr()->literal('%'.$query.'%')),
-                $qb->expr()->like('rs.lastName', $qb->expr()->literal('%'.$query.'%'))
-            ))
-            ->orderBy('d.districtType')
-            ->getQuery()->getResult()
-        ;
-
-        $qb = $this->getEntityManager()->createQueryBuilder();
-        $representatives = $qb->select('r')
-            ->from('CivixCoreBundle:Representative', 'r')
-            ->leftJoin('r.district', 'd')
+        $qb = $this->createQueryBuilder('r');
+        $representatives = $qb->leftJoin('r.district', 'd')
             ->where($qb->expr()->in('r.district', $userDistrictIds ? $userDistrictIds : array(0)))
             ->andWhere('r.isNonLegislative = 1')
             ->andWhere($qb->expr()->orX(
@@ -196,6 +167,32 @@ class RepresentativeRepository extends EntityRepository
             ->getQuery()->getResult()
         ;
 
-        return array_merge($representativesFromStorage, $representatives);
+        return $representatives;
+    }
+
+    public function findByState($state)
+    {
+        return $this->findBy(['state' => $state]);
+    }
+
+    public function findByUpdatedAt($maxDateAt, $limit = null)
+    {
+        return $this->createQueryBuilder('r')
+            ->where('r.updatedAt <= :date')
+            ->setParameter('date', $maxDateAt)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return Representative[]
+     */
+    public function getByEmptyOpenStatesId()
+    {
+        return $this->createQueryBuilder('r')
+            ->where('r.openstateId IS NULL')
+            ->getQuery()
+            ->getResult();
     }
 }

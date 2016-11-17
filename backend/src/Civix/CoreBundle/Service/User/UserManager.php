@@ -35,7 +35,7 @@ class UserManager
 
     public function updateDistrictsIds(User $user)
     {
-        $districts = $this->ciceroApi->getRepresentativeByLocation(
+        $districts = $this->ciceroApi->getUserDistrictsFromApi(
             $user->getLineAddress(),
             $user->getCity(),
             $user->getState(),
