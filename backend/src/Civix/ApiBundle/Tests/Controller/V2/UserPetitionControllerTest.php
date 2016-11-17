@@ -98,6 +98,8 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertSame($petition->getBody(), $data['body']);
+        $this->assertArrayHasKey('group_id', $data);
+        $this->assertNotEmpty($data['group_id']);
     }
 
     public function testGetDeletedUserPetition()
