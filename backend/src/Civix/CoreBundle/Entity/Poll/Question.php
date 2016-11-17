@@ -127,7 +127,7 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
      *      orphanRemoval=true
      * )
      *
-     * @Assert\Count(max="1", groups={"context"}, maxMessage="This poll should contain 3 educational contexts or less.")
+     * @Assert\Count(max="3", groups={"context"}, maxMessage="This poll should contain {{ limit }} educational contexts or less.")
      */
     protected $educationalContext;
 

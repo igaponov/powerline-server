@@ -47,6 +47,13 @@ class LoadEducationalContextData extends AbstractFixture implements DependentFix
         $manager->persist($context);
         $this->addReference('educational_context_4', $context);
 
+        $context = new EducationalContext();
+        $context->setQuestion($poll3)
+            ->setType(EducationalContext::VIDEO_TYPE)
+            ->setText('<iframe title="YouTube video player" class="youtube-player" width="640" height="390" src="http://www.youtube.com/embed/Ps5fe3-Qw3"></iframe>');
+        $manager->persist($context);
+        $this->addReference('educational_context_5', $context);
+
         $manager->flush();
     }
 
