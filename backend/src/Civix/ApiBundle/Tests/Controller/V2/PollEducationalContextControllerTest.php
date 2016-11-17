@@ -139,6 +139,7 @@ class PollEducationalContextControllerTest extends WebTestCase
             LoadUserGroupData::class,
             LoadGroupManagerData::class,
             LoadGroupQuestionData::class,
+            LoadEducationalContextData::class,
         ])->getReferenceRepository();
         $question = $repository->getReference('group_question_3');
         $client = $this->client;
