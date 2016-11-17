@@ -604,4 +604,15 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
     {
         return (bool)$this->subscribers->count();
     }
+
+    /**
+     * @return int
+     * @Serializer\VirtualProperty()
+     * @Serializer\SerializedName("group_id")
+     * @Serializer\Type("integer")
+     */
+    public function getGroupId()
+    {
+        return $this->getGroup()->getId();
+    }
 }
