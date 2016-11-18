@@ -39,81 +39,108 @@ class MailgunApi
         $this->logger = $logger;
     }
 
-    public function listCreateAction($listname, $description)
+    public function listGetAction()
     {
-        $validation = $this->publicClient->get('address/validate', array(
-            'address' => $listname.self::GROUP_EMAIL
-        ));
-        $validationresponse = json_decode(json_encode($validation), true);
-
-        if ($validationresponse['http_response_code'] == 200
-            && (isset($validationresponse['http_response_body']['is_valid'])
-            && $validationresponse['http_response_body']['is_valid'] === false)
-        ) {
-            return $validationresponse;
-        }
-
-        $result = $this->client->post('lists', array(
-            'address' => $listname.self::GROUP_EMAIL,
-            'description' => $description,
-            'access_level' => 'members',
-        ));
+        $result = $this->client->get('lists');
 
         return $this->JsonResponse($result);
+    }
+
+    public function listCreateAction($listname, $description)
+    {
+        try {
+            $params = array(
+                'address' => $listname.self::GROUP_EMAIL
+            );
+            $validation = $this->publicClient->get('address/validate', $params);
+            $validationresponse = json_decode(json_encode($validation), true);
+            if ($validationresponse['http_response_code'] == 200 && (isset($validationresponse['http_response_body']['is_valid']) && $validationresponse['http_response_body']['is_valid'] === false)) {
+                return false;
+            }
+            $params = array(
+                'address' => $listname.self::GROUP_EMAIL,
+                'description' => $description,
+                'access_level' => 'members',
+            );
+            $this->client->post('lists', $params);
+        } catch (\Exception $e) {
+            $this->logError($e, __METHOD__, $params);
+            return false;
+        }
+
+        return true;
     }
 
     public function listAddMemberAction($listname, $address, $name)
     {
         $listAddress = $listname.self::GROUP_EMAIL;
 
-        $this->logger->info('Testing adding member '.$address);
-        $result = $this->client->post("lists/$listAddress/members", array(
-                'address' => $address,
-                'name' => $name,
-                'subscribed' => true,
-                'upsert' => true,
-            ));
+        $this->logger->debug('Testing adding member '.$address);
+        $params = array(
+            'address' => $address,
+            'name' => $name,
+            'subscribed' => true,
+            'upsert' => true,
+        );
+        try {
+            $this->client->post(
+                "lists/$listAddress/members",
+                $params
+            );
+        } catch (\Exception $e) {
+            $this->logError($e, __METHOD__, $params);
+            return false;
+        }
 
-        $this->logger->info('adding member '.$address.' '.serialize($result));
-
-        return $this->JsonResponse($result);
+        return true;
     }
 
     public function listRemoveMemberAction($listname, $address)
     {
         $listAddress = $listname.self::GROUP_EMAIL;
         $listMember = $address;
+        try {
+            $this->client->delete("lists/$listAddress/members/$listMember");
+        } catch (\Exception $e) {
+            $this->logError($e, __METHOD__, ['address' => $listAddress, 'member' => $listMember]);
+            return false;
+        }
 
-        $result = $this->client->delete("lists/$listAddress/members/$listMember");
-
-        return $this->JsonResponse($result);
+        return true;
     }
 
     public function listRemoveAction($listname)
     {
         $listAddress = $listname.self::GROUP_EMAIL;
+        try {
+            $this->client->delete("lists/$listAddress");
+        } catch (\Exception $e) {
+            $this->logError($e, __METHOD__, ['address' => $listAddress]);
+            return false;
+        }
 
-        $result = $this->client->delete("lists/$listAddress");
-
-        return $this->JsonResponse($result);
+        return true;
     }
 
     public function listAddMembersAction($listname, array $users)
     {
         $listAddress = $listname.self::GROUP_EMAIL;
-
-        $this->logger->info('Testing adding members', $users);
-        $result = $this->client->post("lists/$listAddress/members.json", array(
+        $params = array(
             'members' => json_encode($users),
             'upsert' => true,
-        ));
+        );
+        try {
+            $this->logger->info('Testing adding members', $users);
+            $this->client->post(
+                "lists/$listAddress/members.json",
+                $params
+            );
+        } catch (\Exception $e) {
+            $this->logError($e, __METHOD__, $params);
+            return false;
+        }
 
-        $this->logger->info('adding members', [
-            'users' => $users, 
-            'results' => $result,
-        ]);
-
-        return $this->JsonResponse($result);
+        return true;
     }
 
     public function listExistsAction($listname)
@@ -137,5 +164,13 @@ class MailgunApi
     public function JsonResponse($result)
     {
         return json_decode(json_encode($result), true);
+    }
+
+    private function logError(\Exception $e, $method, $params)
+    {
+        $this->logger->critical(
+            sprintf('Mailgun error in method %s: %s', $method, $e->getMessage()),
+            $params
+        );
     }
 }
