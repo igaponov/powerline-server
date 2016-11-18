@@ -108,19 +108,16 @@ class MailgunSubscriber implements EventSubscriberInterface
     {
         $group = $event->getGroup();
         $user = $event->getUser();
-
+        $result = true;
         $groupName = $this->slugify($group->getOfficialName());
-
-        try {
-            if ($this->mailgunApi->listExistsAction($groupName)) {
-                $this->mailgunApi->listRemoveMemberAction(
-                    $groupName,
-                    $user->getEmail()
-                );
-            }
-        } catch (GenericHTTPError $e) {
-            $this->logError($e);
-            throw new MailgunException("An error has occurred in ".__FUNCTION__, $e->getCode(), $e);
+        if ($this->mailgunApi->listExistsAction($groupName)) {
+            $result = $this->mailgunApi->listRemoveMemberAction(
+                $groupName,
+                $user->getEmail()
+            );
+        }
+        if (!$result) {
+            throw new MailgunException("An error has occurred in ".__FUNCTION__);
         }
     }
 
@@ -130,11 +127,9 @@ class MailgunSubscriber implements EventSubscriberInterface
 
         $groupName = $this->slugify($group->getOfficialName());
 
-        try {
-            $this->mailgunApi->listRemoveAction($groupName);
-        } catch (GenericHTTPError $e) {
-            $this->logError($e);
-            throw new MailgunException("An error has occurred in ".__FUNCTION__, $e->getCode(), $e);
+        $result = $this->mailgunApi->listRemoveAction($groupName);
+        if (!$result) {
+            throw new MailgunException("An error has occurred in ".__FUNCTION__);
         }
     }
 
