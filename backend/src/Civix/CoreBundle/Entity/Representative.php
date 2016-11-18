@@ -102,12 +102,12 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     /**
      * @Assert\File(
      *     maxSize="10M",
-     *     mimeTypes={"image/png", "image/jpeg", "image/pjpeg"},
+     *     mimeTypes={"image/png", "image/jpeg", "image/jpg"},
      *     groups={"profile"}
      * )
      * @Vich\UploadableField(mapping="avatar_image", fileNameProperty="avatarFileName")
      *
-     * @var File
+     * @var UploadedFile
      */
     private $avatar;
 
@@ -137,7 +137,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
      * )
      * @Vich\UploadableField(mapping="avatar_source_image", fileNameProperty="avatarSourceFileName")
      *
-     * @var File
+     * @var UploadedFile
      */
     private $avatarSource;
 
@@ -150,6 +150,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
 
     /**
      * @var string
+     * @ORM\Column(name="avatar_src", type="string", length=255, nullable=true)
      */
     private $avatarSrc;
 
@@ -199,14 +200,21 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="officialAddress", type="text")
-     * @Assert\NotBlank(groups={"registration"})
-     * @Serializer\Expose()
-     * @Serializer\Accessor(getter="getOfficialAddress")
-     * @Serializer\Groups({"api-info"})
+     * @ORM\Column(name="address1", type="string", length=255, nullable=true)
      */
-    private $officialAddress;
+    private $addressLine1;
+
+    /**
+     * @var string
+     * @ORM\Column(name="address2", type="string", length=255, nullable=true)
+     */
+    private $addressLine2;
+
+    /**
+     * @var string
+     * @ORM\Column(name="address3", type="string", length=255, nullable=true)
+     */
+    private $addressLine3;
 
     /**
      * @var string
@@ -265,28 +273,86 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     private $district;
 
     /**
-     * @ORM\Column(name="storage_id", type="integer", nullable=true, unique=true)
+     * @var string
+     *
+     * @ORM\Column(name="party", type="string", length=255, nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     */
+    private $party;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="birthday", type="date", nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     * @Serializer\Type("DateTime<'m/d/Y'>")
+     */
+    private $birthday;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="start_term", type="date", nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     * @Serializer\Type("DateTime<'m/d/Y'>")
+     */
+    private $startTerm;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="end_term", type="date", nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     * @Serializer\Type("DateTime<'m/d/Y'>")
+     */
+    private $endTerm;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="facebook", type="string", length=255, nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     */
+    private $facebook;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="youtube", type="string", length=255, nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     */
+    private $youtube;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="twitter", type="string", length=255, nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     */
+    private $twitter;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="openstate_id", type="string", length=255, nullable=true)
+     */
+    private $openstateId;
+
+    /**
+     * @ORM\Column(name="cicero_id", type="integer", nullable=true, unique=true)
      *
      * @var int
      * @Serializer\Expose()
      * @Serializer\Groups({"api-activities", "api-poll", "api-search", "api-info", "api-poll-public"})
      */
-    private $storageId;
-
-    /**
-     * @ORM\OneToOne(
-     *  targetEntity="Civix\CoreBundle\Entity\RepresentativeStorage",
-     *  inversedBy="representative", cascade="persist")
-     * @ORM\JoinColumn(name="storage_id", referencedColumnName="storage_id",  nullable=true, onDelete="SET NULL")
-     */
-    private $representativeStorage;
-
-    /**
-     * @ORM\Column(name="upd_storage_at", type="date", nullable=true)
-     *
-     * @var \DateTime
-     */
-    private $storageUpdateAt;
+    private $ciceroId;
 
     /**
      * @Assert\Regex(
@@ -319,12 +385,19 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
      * @ORM\Column(name="token", type="string", length=255, nullable=true)
      */
     private $token;
+
+    /**
+     * @var \DateTime
+     * @ORM\Column(type="datetime")
+     */
+    private $updatedAt;
     
     public function __construct()
     {
         $this->setCountry('US');
         $this->setStatus(self::STATUS_PENDING);
         $this->salt = base_convert(sha1(uniqid(mt_rand(), true)), 16, 36);
+        $this->setUpdatedAt(new \DateTime());
     }
 
     /**
@@ -339,16 +412,21 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
 
     /**
      * Get avatarSrc.
-     *
-     * @return \Civix\CoreBundle\Model\Avatar
      */
     public function getAvatarSrc()
     {
-        if ($this->getRepresentativeStorage() && !$this->getAvatarFileName()) {
-            return new Avatar($this->getRepresentativeStorage());
-        }
-
         return new Avatar($this);
+    }
+
+    /**
+     * @param string $avatarSrc
+     * @return Representative
+     */
+    public function setAvatarSrc($avatarSrc)
+    {
+        $this->avatarSrc = $avatarSrc;
+
+        return $this;
     }
 
     /**
@@ -392,10 +470,6 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
      */
     public function getFirstName()
     {
-        if ($this->getRepresentativeStorage() && !$this->firstName) {
-            return $this->getRepresentativeStorage()->getFirstName();
-        }
-
         return $this->firstName;
     }
 
@@ -406,10 +480,6 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
      */
     public function getFax()
     {
-        if ($this->getRepresentativeStorage() && !$this->fax) {
-            return $this->getRepresentativeStorage()->getFax();
-        }
-
         return $this->fax;
     }
 
@@ -417,6 +487,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
      * Set fax.
      *
      * @param string $fax
+     * @return $this
      */
     public function setFax($fax)
     {
@@ -432,10 +503,6 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
      */
     public function getWebsite()
     {
-        if ($this->getRepresentativeStorage() && !$this->website) {
-            return $this->getRepresentativeStorage()->getWebsite();
-        }
-
         return $this->website;
     }
 
@@ -443,6 +510,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
      * Set website.
      *
      * @param string $website
+     * @return $this
      */
     public function setWebsite($website)
     {
@@ -472,10 +540,6 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
      */
     public function getLastName()
     {
-        if ($this->getRepresentativeStorage() && !$this->lastName) {
-            return $this->getRepresentativeStorage()->getLastName();
-        }
-
         return $this->lastName;
     }
 
@@ -568,10 +632,6 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
      */
     public function getOfficialTitle()
     {
-        if ($this->getRepresentativeStorage() && !$this->officialTitle) {
-            return $this->getRepresentativeStorage()->getOfficialTitle();
-        }
-
         return $this->officialTitle;
     }
 
@@ -654,11 +714,11 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
 
     public function getStateCode()
     {
-        if ($this->state instanceof \Civix\CoreBundle\Entity\State) {
+        if ($this->state instanceof State) {
             return $this->state->getCode();
         }
 
-        return;
+        return null;
     }
 
     /**
@@ -691,31 +751,93 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set officialAddress.
-     *
-     * @param string $officialAddress
-     *
-     * @return Representative
-     */
-    public function setOfficialAddress($officialAddress)
-    {
-        $this->officialAddress = $officialAddress;
-
-        return $this;
-    }
-
-    /**
      * Get officialAddress.
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"api-info"})
      *
      * @return string
      */
     public function getOfficialAddress()
     {
-        if ($this->getRepresentativeStorage() && !$this->officialAddress) {
-            return $this->getRepresentativeStorage()->getAddress();
-        }
+        $address = '';
+        $address .= $this->addressLine1 ? $this->addressLine1 : '';
+        $address .= $this->addressLine2 ? ' '.$this->addressLine2 : '';
+        $address .= $this->addressLine3 ? ' '.$this->addressLine3 : '';
 
-        return $this->officialAddress;
+        return $address;
+    }
+
+    /**
+     * Get address1.
+     *
+     * @return string
+     */
+    public function getAddressLine1()
+    {
+        return $this->addressLine1;
+    }
+
+    /**
+     * Set address1.
+     *
+     * @param string $address1
+     *
+     * @return \Civix\CoreBundle\Entity\Representative
+     */
+    public function setAddressLine1($address1)
+    {
+        $this->addressLine1 = $address1;
+
+        return $this;
+    }
+
+    /**
+     * Get address2.
+     *
+     * @return string
+     */
+    public function getAddressLine2()
+    {
+        return $this->addressLine2;
+    }
+
+    /**
+     * Set address1.
+     *
+     * @param string $address2
+     *
+     * @return \Civix\CoreBundle\Entity\Representative
+     */
+    public function setAddressLine2($address2)
+    {
+        $this->addressLine2 = $address2;
+
+        return $this;
+    }
+
+    /**
+     * Get address3.
+     *
+     * @return string
+     */
+    public function getAddressLine3()
+    {
+        return $this->addressLine3;
+    }
+
+    /**
+     * Set address1.
+     *
+     * @param string $address3
+     *
+     * @return \Civix\CoreBundle\Entity\Representative
+     */
+    public function setAddressLine3($address3)
+    {
+        $this->addressLine3 = $address3;
+
+        return $this;
     }
 
     /**
@@ -739,10 +861,6 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
      */
     public function getOfficialPhone()
     {
-        if ($this->getRepresentativeStorage() && !$this->officialPhone) {
-            return $this->getRepresentativeStorage()->getPhone();
-        }
-
         return $this->officialPhone;
     }
 
@@ -777,10 +895,6 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
      */
     public function getEmail()
     {
-        if ($this->getRepresentativeStorage() && !$this->email) {
-            return $this->getRepresentativeStorage()->getContactEmail();
-        }
-
         return $this->email;
     }
 
@@ -834,7 +948,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     /**
      * Set avatar.
      *
-     * @param string $avatar
+     * @param UploadedFile $avatar
      *
      * @return Representative
      */
@@ -950,26 +1064,217 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Get StorageId.
+     * Set party.
      *
-     * @return int
+     * @param string $party
+     *
+     * @return Representative
      */
-    public function getStorageId()
+    public function setParty($party)
     {
-        return $this->storageId;
+        $this->party = $party;
+
+        return $this;
     }
 
     /**
-     * Set StorageId.
+     * Get party.
      *
-     * @param int $storageId
+     * @return string
+     */
+    public function getParty()
+    {
+        return $this->party;
+    }
+
+    /**
+     * Set birthday.
+     *
+     * @param \DateTime $birthday
+     *
+     * @return Representative
+     */
+    public function setBirthday($birthday)
+    {
+        $this->birthday = $birthday;
+
+        return $this;
+    }
+
+    /**
+     * Get birthday.
+     *
+     * @return \DateTime
+     */
+    public function getBirthday()
+    {
+        return $this->birthday;
+    }
+
+    /**
+     * Set startTerm.
+     *
+     * @param \DateTime $startTerm
+     *
+     * @return Representative
+     */
+    public function setStartTerm($startTerm)
+    {
+        $this->startTerm = $startTerm;
+
+        return $this;
+    }
+
+    /**
+     * Get startTerm.
+     *
+     * @return \DateTime
+     */
+    public function getStartTerm()
+    {
+        return $this->startTerm;
+    }
+
+    /**
+     * Set endTerm.
+     *
+     * @param \DateTime $endTerm
+     *
+     * @return Representative
+     */
+    public function setEndTerm($endTerm)
+    {
+        $this->endTerm = $endTerm;
+
+        return $this;
+    }
+
+    /**
+     * Get endTerm.
+     *
+     * @return \DateTime
+     */
+    public function getEndTerm()
+    {
+        return $this->endTerm;
+    }
+
+    /**
+     * Set facebook.
+     *
+     * @param string $facebook
+     *
+     * @return Representative
+     */
+    public function setFacebook($facebook)
+    {
+        $this->facebook = $facebook;
+
+        return $this;
+    }
+
+    /**
+     * Get facebook.
+     *
+     * @return string
+     */
+    public function getFacebook()
+    {
+        return $this->facebook;
+    }
+
+    /**
+     * Set youtube.
+     *
+     * @param string $youtube
+     *
+     * @return Representative
+     */
+    public function setYoutube($youtube)
+    {
+        $this->youtube = $youtube;
+
+        return $this;
+    }
+
+    /**
+     * Get youtube.
+     *
+     * @return string
+     */
+    public function getYoutube()
+    {
+        return $this->youtube;
+    }
+
+    /**
+     * Set twitter.
+     *
+     * @param string $twitter
+     *
+     * @return Representative
+     */
+    public function setTwitter($twitter)
+    {
+        $this->twitter = $twitter;
+
+        return $this;
+    }
+
+    /**
+     * Get twitter.
+     *
+     * @return string
+     */
+    public function getTwitter()
+    {
+        return $this->twitter;
+    }
+
+    /**
+     * Set openstateId.
+     *
+     * @param string $openstateId
+     *
+     * @return Representative
+     */
+    public function setOpenstateId($openstateId)
+    {
+        $this->openstateId = $openstateId;
+
+        return $this;
+    }
+
+    /**
+     * Get openstateId.
+     *
+     * @return string
+     */
+    public function getOpenstateId()
+    {
+        return $this->openstateId;
+    }
+
+    /**
+     * Get CiceroId.
+     *
+     * @return int
+     */
+    public function getCiceroId()
+    {
+        return $this->ciceroId;
+    }
+
+    /**
+     * Set CiceroId.
+     *
+     * @param int $ciceroId
      *
      * @return \Civix\CoreBundle\Entity\Representative
      */
-    public function setStorageId($storageId)
+    public function setCiceroId($ciceroId)
     {
-        $this->storageId = $storageId;
-        $this->setStorageUpdateAt(new \DateTime());
+        $this->ciceroId = $ciceroId;
 
         return $this;
     }
@@ -999,30 +1304,6 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     }
 
     /**
-     * Set storage update date.
-     *
-     * @param \DateTime $updateDate
-     *
-     * @return \Civix\CoreBundle\Entity\Representative
-     */
-    public function setStorageUpdateAt($updateDate)
-    {
-        $this->storageUpdateAt = $updateDate;
-
-        return $this;
-    }
-
-    /**
-     * Get storage update date.
-     *
-     * @return \DateTime
-     */
-    public function getStorageUpdateAt()
-    {
-        return $this->storageUpdateAt;
-    }
-
-    /**
      * Get limit of question.
      *
      * @return int
@@ -1035,7 +1316,8 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     /**
      * Set limit of question.
      *
-     * @return \Civix\CoreBundle\Entity\Representative
+     * @param integer $limit
+     * @return Representative
      */
     public function setQuestionLimit($limit)
     {
@@ -1057,23 +1339,14 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     /**
      * Set Non-Legislative District relation.
      *
-     * @return \Civix\CoreBundle\Entity\Representative
+     * @param bool $isNonLegislative
+     * @return Representative
      */
     public function setIsNonLegislative($isNonLegislative)
     {
         $this->isNonLegislative = $isNonLegislative;
 
         return $this;
-    }
-
-    /**
-     * Get representative storage.
-     *
-     * @return \Civix\CoreBundle\Entity\RepresentativeStorage
-     */
-    public function getRepresentativeStorage()
-    {
-        return $this->representativeStorage;
     }
 
     public function __toString()
@@ -1088,27 +1361,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
      */
     public function isLocalLeader()
     {
-        if ($this->getRepresentativeStorage()) {
-            return $this->getRepresentativeStorage()->isLocalLeader();
-        } elseif ($this->getDistrictId()) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Set representativeStorage.
-     *
-     * @param \Civix\CoreBundle\Entity\RepresentativeStorage $representativeStorage
-     *
-     * @return Representative
-     */
-    public function setRepresentativeStorage(RepresentativeStorage $representativeStorage = null)
-    {
-        $this->representativeStorage = $representativeStorage;
-
-        return $this;
+        return in_array($this->getDistrict()->getDistrictType(), array(District::LOCAL, District::LOCAL_EXEC));
     }
 
     /**
@@ -1148,11 +1401,11 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     /**
      * Set district.
      *
-     * @param \Civix\CoreBundle\Entity\District $district
+     * @param District $district
      *
      * @return Representative
      */
-    public function setDistrict(\Civix\CoreBundle\Entity\District $district = null)
+    public function setDistrict(District $district = null)
     {
         $this->district = $district;
 
@@ -1162,98 +1415,11 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     /**
      * Get district.
      *
-     * @return \Civix\CoreBundle\Entity\District
+     * @return District
      */
     public function getDistrict()
     {
         return $this->district;
-    }
-
-    /**
-     * @Serializer\VirtualProperty
-     * @Serializer\Groups({"api-info"})
-     * @Serializer\SerializedName("birthday")
-     * @Serializer\Type("DateTime<'m/d/Y'>")
-     */
-    public function getBirthday()
-    {
-        if ($this->getRepresentativeStorage()) {
-            return $this->getRepresentativeStorage()->getBirthday();
-        }
-
-        return;
-    }
-
-    /**
-     * @Serializer\VirtualProperty
-     * @Serializer\Groups({"api-info"})
-     * @Serializer\SerializedName("start_term")
-     * @Serializer\Type("DateTime<'m/d/Y'>")
-     */
-    public function getStartTerm()
-    {
-        if ($this->getRepresentativeStorage()) {
-            return $this->getRepresentativeStorage()->getStartTerm();
-        }
-
-        return;
-    }
-
-    /**
-     * @Serializer\VirtualProperty
-     * @Serializer\Groups({"api-info"})
-     * @Serializer\SerializedName("end_term")
-     * @Serializer\Type("DateTime<'m/d/Y'>")
-     */
-    public function getEndTerm()
-    {
-        if ($this->getRepresentativeStorage()) {
-            return $this->getRepresentativeStorage()->getEndTerm();
-        }
-
-        return;
-    }
-
-    /**
-     * @Serializer\VirtualProperty
-     * @Serializer\Groups({"api-info"})
-     * @Serializer\SerializedName("facebook")
-     */
-    public function getFacebook()
-    {
-        if ($this->getRepresentativeStorage()) {
-            return $this->getRepresentativeStorage()->getFacebook();
-        }
-
-        return;
-    }
-
-    /**
-     * @Serializer\VirtualProperty
-     * @Serializer\Groups({"api-info"})
-     * @Serializer\SerializedName("twitter")
-     */
-    public function getTwitter()
-    {
-        if ($this->getRepresentativeStorage()) {
-            return $this->getRepresentativeStorage()->getTwitter();
-        }
-
-        return;
-    }
-
-    /**
-     * @Serializer\VirtualProperty
-     * @Serializer\Groups({"api-info"})
-     * @Serializer\SerializedName("youtube")
-     */
-    public function getYoutube()
-    {
-        if ($this->getRepresentativeStorage()) {
-            return $this->getRepresentativeStorage()->getYoutube();
-        }
-
-        return;
     }
 
     public function getAddressArray()
@@ -1274,7 +1440,7 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
      *
      * @param string $token
      *
-     * @return User
+     * @return Representative
      */
     public function setToken($token)
     {
@@ -1309,5 +1475,24 @@ class Representative implements UserInterface, \Serializable, CheckingLimits, Cr
     	}
     
     	$this->setToken(base_convert(bin2hex($bytes), 16, 36).$this->getId());
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getUpdatedAt()
+    {
+        return $this->updatedAt;
+    }
+
+    /**
+     * @param \DateTime $updatedAt
+     * @return Representative
+     */
+    public function setUpdatedAt($updatedAt)
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
     }
 }

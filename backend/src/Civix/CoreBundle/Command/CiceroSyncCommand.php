@@ -8,14 +8,13 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Civix\CoreBundle\Entity\Representative;
 use Doctrine\ORM\EntityManager;
-use Civix\CoreBundle\Entity\RepresentativeStorage;
 
-class CiceroSynchCommand extends ContainerAwareCommand
+class CiceroSyncCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
         $this
-            ->setName('cicero:synch')
+            ->setName('cicero:sync')
             ->setDescription('Synchronize data of representative storage from Cicero API (Check exists)')
             ->addOption(
                 'records',
@@ -38,26 +37,26 @@ class CiceroSynchCommand extends ContainerAwareCommand
         $entityManager = $this->getContainer()->get('doctrine.orm.entity_manager');
 
         if ($input->getOption('state')) {
-            $representatives = $entityManager->getRepository(RepresentativeStorage::class)
-                ->findSTRepresentativeByState($input->getOption('state'));
+            $representatives = $entityManager->getRepository(Representative::class)
+                ->findByState($input->getOption('state'));
         } else {
-            $representatives = $entityManager->getRepository(RepresentativeStorage::class)
-                ->findSTRepresentativeByUpdatedAt(new \DateTime(), $input->getOption('records'));
+            $representatives = $entityManager->getRepository(Representative::class)
+                ->findByUpdatedAt(new \DateTime(), $input->getOption('records'));
         }
 
-        /** @var $storageRepresentative \Civix\CoreBundle\Entity\RepresentativeStorage */
-        foreach ($representatives as $storageRepresentative) {
+        /** @var $representative \Civix\CoreBundle\Entity\Representative */
+        foreach ($representatives as $representative) {
             $output->writeln(
-                'Checking '.$storageRepresentative->getFirstName().' '.$storageRepresentative->getLastName()
+                'Checking '.$representative->getFirstName().' '.$representative->getLastName()
             );
 
-            $isUpdated = $this->getContainer()->get('civix_core.representative_storage_manager')
-                ->synchronizeRepresentative($storageRepresentative);
+            $isUpdated = $this->getContainer()->get('civix_core.representative_manager')
+                ->synchronizeRepresentative($representative);
 
             if (!$isUpdated) {
                 $output->writeln(
-                    '<error>'.$storageRepresentative->getFirstName().' '.
-                    $storageRepresentative->getLastName().' is not found and will be removed</error>'
+                    '<error>'.$representative->getFirstName().' '.
+                    $representative->getLastName().' is not found and will be removed</error>'
                 );
             }
         }

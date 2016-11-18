@@ -2,10 +2,11 @@
 
 namespace Civix\CoreBundle\Command;
 
+use Civix\CoreBundle\Entity\Representative;
+use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Civix\CoreBundle\Entity\RepresentativeStorage;
 
 class OpenstatesUpdateCommand extends ContainerAwareCommand
 {
@@ -19,14 +20,15 @@ class OpenstatesUpdateCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $openstatesService = $this->getContainer()->get('civix_core.openstates_api');
+        /** @var EntityManager $entityManager */
         $entityManager = $this->getContainer()->get('doctrine.orm.entity_manager');
 
         $output->writeln('Get all storage representative without link openstates api');
-        $representatives = $entityManager->getRepository(RepresentativeStorage::class)
-            ->getSTRepresenativeWithoutLink();
+        $representatives = $entityManager->getRepository(Representative::class)
+            ->getByEmptyOpenStatesId();
 
         foreach ($representatives as $representative) {
-            $openstatesService->updateReprStorageProfile($representative);
+            $openstatesService->updateRepresentativeProfile($representative);
             $entityManager->persist($representative);
 
             $output->writeln('Update representative '.$representative->getFirstName().

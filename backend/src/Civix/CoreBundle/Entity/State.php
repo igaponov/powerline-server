@@ -29,15 +29,9 @@ class State
      */
     protected $localGroups;
 
-    /**
-     * @ORM\OneToMany(targetEntity="RepresentativeStorage", mappedBy="state")
-     */
-    protected $stRepresentatives;
-
     public function __construct()
     {
         $this->localGroups = new ArrayCollection();
-        $this->stRepresentatives = new ArrayCollection();
     }
 
     /**
@@ -106,11 +100,11 @@ class State
     /**
      * Add localGroups.
      *
-     * @param \Civix\CoreBundle\Entity\Group $localGroups
+     * @param Group $localGroups
      *
      * @return State
      */
-    public function addLocalGroup(\Civix\CoreBundle\Entity\Group $localGroups)
+    public function addLocalGroup(Group $localGroups)
     {
         $this->localGroups[] = $localGroups;
 
@@ -120,9 +114,9 @@ class State
     /**
      * Remove localGroups.
      *
-     * @param \Civix\CoreBundle\Entity\Group $localGroups
+     * @param Group $localGroups
      */
-    public function removeLocalGroup(\Civix\CoreBundle\Entity\Group $localGroups)
+    public function removeLocalGroup(Group $localGroups)
     {
         $this->localGroups->removeElement($localGroups);
     }
@@ -135,39 +129,5 @@ class State
     public function getLocalGroups()
     {
         return $this->localGroups;
-    }
-
-    /**
-     * Add stRepresentatives.
-     *
-     * @param \Civix\CoreBundle\Entity\RepresentativeStorage $stRepresentatives
-     *
-     * @return State
-     */
-    public function addStRepresentative(\Civix\CoreBundle\Entity\RepresentativeStorage $stRepresentatives)
-    {
-        $this->stRepresentatives[] = $stRepresentatives;
-
-        return $this;
-    }
-
-    /**
-     * Remove stRepresentatives.
-     *
-     * @param \Civix\CoreBundle\Entity\RepresentativeStorage $stRepresentatives
-     */
-    public function removeStRepresentative(\Civix\CoreBundle\Entity\RepresentativeStorage $stRepresentatives)
-    {
-        $this->stRepresentatives->removeElement($stRepresentatives);
-    }
-
-    /**
-     * Get stRepresentatives.
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getStRepresentatives()
-    {
-        return $this->stRepresentatives;
     }
 }

@@ -732,9 +732,6 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
     public function getSharePicture()
     {
         $entity = $this->getOwner();
-        if ($entity instanceof Representative && !$entity->getAvatar()) {
-            $entity = $entity->getRepresentativeStorage();
-        }
 
         return new Image($entity, 'avatar');
     }

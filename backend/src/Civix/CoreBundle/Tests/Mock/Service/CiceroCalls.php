@@ -20,20 +20,22 @@ class CiceroCalls extends BaseCiceroCalls
 
     public function findRepresentativeByLocation($address, $city, $state, $country = 'US')
     {
+        return [];
     }
 
     public function findRepresentativeByOfficialData($firstName, $lastName, $officialTitle)
     {
+        return [];
     }
 
     public function findRepresentativeByNameAndId($firstName, $lastName, $storageId)
     {
-        return false;
+        return [];
     }
 
     public function findNonLegislativeDistricts()
     {
-        return array();
+        return [];
     }
 
     public function getCreditBalance()

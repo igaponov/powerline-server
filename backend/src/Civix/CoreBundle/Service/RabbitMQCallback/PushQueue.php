@@ -2,16 +2,16 @@
 
 namespace Civix\CoreBundle\Service\RabbitMQCallback;
 
+use Civix\CoreBundle\Service\Representative\RepresentativeManager;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
 use Civix\CoreBundle\Service\PushSender;
-use Civix\CoreBundle\Service\Representative\RepresentativeSTManager;
 
 class PushQueue implements ConsumerInterface
 {
     private $executorsArray;
 
-    public function __construct(PushSender $pushSender, RepresentativeSTManager $repManager)
+    public function __construct(PushSender $pushSender, RepresentativeManager $repManager)
     {
         $this->executorsArray = array();
         $this->executorsArray[] = $pushSender;

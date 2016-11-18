@@ -2,13 +2,13 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use Civix\CoreBundle\Entity\Representative;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Civix\CoreBundle\Entity\RepresentativeStorage;
 
 /**
  * @Route("/representatives")
@@ -37,8 +37,6 @@ class RepresentativeController extends BaseController
         $districts = $this->getUser()->getDistrictsIds();
         $nonLegislativeRepr = $entityManager->getRepository('CivixCoreBundle:Representative')
                 ->getNonLegislativeRepresentative($districts);
-        $representatives = $entityManager->getRepository('CivixCoreBundle:RepresentativeStorage')
-                ->getSTRepresentativeListByUser($districts);
 
         $reprByDistrict = array();
 
@@ -52,34 +50,12 @@ class RepresentativeController extends BaseController
             );
         }
 
-        foreach ($representatives as $singleRepresentative) {
-            if (empty($reprByDistrict[$singleRepresentative->getDistrictTypeName()])) {
-                $reprByDistrict[$singleRepresentative->getDistrictTypeName()] = array(
-                    'title' => $singleRepresentative->getDistrictTypeName(),
-                    'representatives' => array(),
-                );
-            }
-            if ($singleRepresentative->getRepresentative() && $singleRepresentative->getRepresentative()->getAvatar()) {
-                $singleRepresentative->getRepresentative()->setAvatarFilePath(
-                    $this->getDomain().$this->get('vich_uploader.templating.helper.uploader_helper')
-                        ->asset($singleRepresentative->getRepresentative(), 'avatar'));
-            }
-            $reprByDistrict[$singleRepresentative->getDistrictTypeName()]['representatives'][] = $singleRepresentative;
-        }
-
         $response = new Response($this->jmsSerialization(array_values($reprByDistrict),
             array('api-representatives-list'))
         );
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
-    }
-
-    private function getDomain()
-    {
-        $request = $this->getRequest();
-
-        return $request->getScheme().'://'.$request->getHttpHost();
     }
 
     /**
@@ -130,8 +106,8 @@ class RepresentativeController extends BaseController
      * )
      * @ParamConverter(
      *      "representative",
-     *      class="CivixCoreBundle:RepresentativeStorage",
-     *      options={"id" = "storage_id"}
+     *      class="CivixCoreBundle:Representative",
+     *      options={"storage_id" = "storage_id"}
      * )
      * @Method("GET")
      *
@@ -145,7 +121,7 @@ class RepresentativeController extends BaseController
      *     }
      * )
      */
-    public function getCommitteeInfo(RepresentativeStorage $representative)
+    public function getCommitteeInfo(Representative $representative)
     {
         $responseBody = array();
         $openStateId = $representative->getOpenstateId();
@@ -170,8 +146,8 @@ class RepresentativeController extends BaseController
      * )
      * @ParamConverter(
      *      "representative", 
-     *      class="CivixCoreBundle:RepresentativeStorage",
-     *      options={"id" = "storage_id"}
+     *      class="CivixCoreBundle:Representative",
+     *      options={"storage_id" = "storage_id"}
      * )
      * @Method("GET")
      *
@@ -185,7 +161,7 @@ class RepresentativeController extends BaseController
      *     }
      * )
      */
-    public function getSponsoredBills(RepresentativeStorage $representative)
+    public function getSponsoredBills(Representative $representative)
     {
         $responseBody = array();
         $openStateId = $representative->getOpenstateId();

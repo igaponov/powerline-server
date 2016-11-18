@@ -30,6 +30,7 @@ class CiceroApiTest extends WebTestCase
         $this->responseRepresentative = json_decode(file_get_contents(__DIR__.'/TestData/representative.json'));
 
         $this->representativeObj = new Representative();
+        $this->representativeObj->setCiceroId(44926);
         $this->districtObj = new District();
     }
 
@@ -44,11 +45,11 @@ class CiceroApiTest extends WebTestCase
     }
 
     /**
-     * Test method GetRepresentativeByLocation.
+     * Test method getUserDistrictsFromApi.
      *
      * @group cicero
      */
-    public function testGetRepresentativeByLocation()
+    public function testUserDistrictsFromApi()
     {
         $this->loadFixtures(array(
             ORM\LoadDistrictData::class,
@@ -56,7 +57,7 @@ class CiceroApiTest extends WebTestCase
         ));
         /** @var \PHPUnit_Framework_MockObject_MockObject|CiceroApi $mock */
         $mock = $this->getMock('Civix\CoreBundle\Service\CiceroApi',
-            array('getNonlegislaveDistricts', 'checkLink'),
+            array('getNonlegislaveDistricts'),
             array(),
             '',
             false
@@ -107,7 +108,7 @@ class CiceroApiTest extends WebTestCase
 
         $mock->setCropImage($this->getMock('Civix\CoreBundle\Service\CropImage'));
         $mock->setVichService($vichUploader);
-        $mock->setEntityManager(static::$kernel->getContainer()->get('doctrine.orm.entity_manager'));
+        $mock->setEntityManager(static::$kernel->getContainer()->get('doctrine')->getManager());
         $mock->setCongressApi($congressMock);
         $mock->setOpenstatesApi($openstatesApi);
         $mock->setLogger($logger);
@@ -116,14 +117,11 @@ class CiceroApiTest extends WebTestCase
            ->method('getResponse')
            ->will($this->returnValue($this->responseCandidates));
         $mock->setCiceroCalls($ciceroCallsMock);
-        $mock->expects($this->exactly(9))
-            ->method('checkLink')
-            ->will($this->returnValue(false));
         $mock->expects($this->once())
             ->method('getNonlegislaveDistricts')
             ->will($this->returnValue([]));
 
-        $districts = $mock->getRepresentativeByLocation('108 4th St', 'Hoboken', 'NJ');
+        $districts = $mock->getUserDistrictsFromApi('108 4th St', 'Hoboken', 'NJ');
 
         $districtsIds = array_map(function (District $district) {
             return $district->getId();
@@ -200,7 +198,7 @@ class CiceroApiTest extends WebTestCase
 
         $mock->setCropImage($this->getMock('Civix\CoreBundle\Service\CropImage'));
         $mock->setVichService($vichUploader);
-        $mock->setEntityManager(static::$kernel->getContainer()->get('doctrine.orm.entity_manager'));
+        $mock->setEntityManager(static::$kernel->getContainer()->get('doctrine')->getManager());
         $mock->setCongressApi($congressMock);
         $mock->setOpenstatesApi($openstatesApi);
         $mock->setLogger($logger);
@@ -209,18 +207,12 @@ class CiceroApiTest extends WebTestCase
                    ->method('getResponse')
                    ->will($this->returnValue($this->responseRepresentative));
         $mock->setCiceroCalls($ciceroCallsMock);
-        $mock->expects($this->never())
+        $mock->expects($this->once())
             ->method('checkLink')
             ->will($this->returnValue(false));
 
-        $district = $mock->updateByRepresentativeInfo($this->representativeObj);
+        $result = $mock->updateByRepresentativeInfo($this->representativeObj);
 
-        $this->assertInstanceOf('Civix\CoreBundle\Entity\District', $district, 'Should return correct type District');
-        $this->assertEquals($district->getId(), 19, 'Should return correct district id (19)');
-        $this->assertEquals(
-            $this->representativeObj->getStorageId(),
-            44926,
-            'Should return correct storage id (44926)'
-        );
+        $this->assertTrue($result, 'Should return true');
     }
 }

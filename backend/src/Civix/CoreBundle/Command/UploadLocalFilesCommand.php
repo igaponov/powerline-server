@@ -13,7 +13,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Gaufrette\Stream\Local as LocalStream;
 use Gaufrette\StreamMode;
 use Gaufrette\Adapter\MetadataSupporter;
-use Civix\CoreBundle\Entity\RepresentativeStorage;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
@@ -56,7 +55,7 @@ class UploadLocalFilesCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /*
+        /**
          * @var EntityManager $em
          */
         $this->em = $em = $this->getContainer()->get('doctrine.orm.entity_manager');
@@ -64,14 +63,11 @@ class UploadLocalFilesCommand extends ContainerAwareCommand
         $this->vichLocalStorage = $this->getContainer()->get('vich_uploader.storage.file_system');
         $this->vichGaufretteStorage = $this->getContainer()->get('vich_uploader.storage.gaufrette');
 
-        $representativeStorage = $em->getRepository(RepresentativeStorage::class)->findAll();
         $representatives = $em->getRepository(Representative::class)->findAll();
         $groups = $em->getRepository(Group::class)->findAll();
         $users = $em->getRepository(User::class)->findAll();
         $educational = $em->getRepository(EducationalContext::class)->findAll();
 
-        $representativeStorage = $this->checkAvatars($representativeStorage,
-            $this->getContainer()->get('gaufrette.avatar_representative_fs_filesystem'), '/avatars/representatives/');
         $representatives = $this->checkAvatars($representatives,
             $this->getContainer()->get('gaufrette.avatar_representative_fs_filesystem'), '/avatars/representatives/');
         $groups = $this->checkAvatars($groups,
@@ -82,13 +78,6 @@ class UploadLocalFilesCommand extends ContainerAwareCommand
 
         if ($input->getOption('dump')) {
             $output->writeln('<info>Next files ready to upload:</info>');
-
-            /* @var \Civix\CoreBundle\Entity\RepresentativeStorage $item */
-            foreach ($representativeStorage as $item) {
-                $output->writeln("<comment>RepresentativeStorage:</comment> {$item->getId()} ".
-                    "{$item->getFirstName()} {$item->getLastName()} {$item->getAvatar()->getPathname()}"
-                );
-            }
 
             /* @var \Civix\CoreBundle\Entity\Representative $item */
             foreach ($representatives as $item) {
@@ -118,13 +107,6 @@ class UploadLocalFilesCommand extends ContainerAwareCommand
                 );
             }
         } else {
-            $output->writeln('<info>RepresentativeStorage uploading:</info>');
-            /* @var \Civix\CoreBundle\Entity\RepresentativeStorage $item */
-            foreach ($representativeStorage as $item) {
-                $this->uploadAvatar($item->getAvatar(), '/avatars/representatives/',
-                    $this->getContainer()->get('gaufrette.avatar_representative_fs_filesystem'), $output);
-            }
-
             $output->writeln('<info>Representative uploading:</info>');
             /* @var \Civix\CoreBundle\Entity\Representative $item */
             foreach ($representatives as $item) {

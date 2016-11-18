@@ -64,7 +64,7 @@ class SettingsController extends Controller
         )) {
             $this->get('civix_core.queue_task')
                 ->addToQueue(
-                    'Civix\CoreBundle\Service\Representative\RepresentativeSTManager',
+                    'Civix\CoreBundle\Service\Representative\RepresentativeManager',
                     'synchronizeByStateCode',
                     array($state->getCode())
                 );

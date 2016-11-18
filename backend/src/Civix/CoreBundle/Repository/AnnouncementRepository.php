@@ -86,11 +86,10 @@ class AnnouncementRepository extends EntityRepository
 
         $qb = $this->getEntityManager()->createQueryBuilder();
 
-        return $qb->select('a, r, gr, rs')
+        return $qb->select('a, r, gr')
             ->from('CivixCoreBundle:Announcement', 'a')
             ->leftJoin('a.group', 'gr')
             ->leftJoin('a.representative', 'r')
-            ->leftJoin('r.representativeStorage', 'rs')
             ->where(
                 $qb->expr()->orX(
                     $qb->expr()->in('a.representative', $representativeIds),

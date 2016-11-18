@@ -145,7 +145,7 @@
 
         <service id="civix_core.rabbit.push_queue" class="Civix\CoreBundle\Service\RabbitMQCallback\PushQueue">
             <argument type="service" id="civix_core.push_sender" />
-            <argument type="service" id="civix_core.representative_storage_manager" />
+            <argument type="service" id="civix_core.representative_manager" />
         </service>
 
         <service id="civix_core.push_sender" class="Civix\CoreBundle\Service\PushSender">
@@ -202,11 +202,6 @@
         <service id="civix_core.representative_manager" class="Civix\CoreBundle\Service\Representative\RepresentativeManager">
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="security.encoder_factory" />
-            <argument type="service" id="civix_core.cicero_api" />
-        </service>
-
-        <service id="civix_core.representative_storage_manager" class="Civix\CoreBundle\Service\Representative\RepresentativeSTManager">
-            <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="civix_core.cicero_api" />
             <argument type="service" id="civix_core.cicero_calls" />
         </service>

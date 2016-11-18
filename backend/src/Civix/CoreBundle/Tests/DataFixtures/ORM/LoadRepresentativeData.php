@@ -17,11 +17,10 @@ class LoadRepresentativeData extends AbstractFixture implements DependentFixture
         $representative->setUsername('JosephBiden');
         $representative->setOfficialTitle('Vice President');
         $representative->setCity('Los Angeles');
-        $representative->setOfficialAddress('6153 Smokey Ln');
+        $representative->setAddressLine1('6153 Smokey Ln');
         $representative->setOfficialPhone('(672)-586-7816');
         $representative->setEmail('josephb26@example.com');
-        $representative->setDistrict($this->getReference('district_la'));
-        $representative->setRepresentativeStorage($this->getReference('vice_president'));
+        $representative->setDistrict($this->getReference('district_us'));
         $representative->setIsNonLegislative(true);
         $this->addReference('representative_jb', $representative);
         $manager->persist($representative);
@@ -32,10 +31,11 @@ class LoadRepresentativeData extends AbstractFixture implements DependentFixture
         $representative->setUsername('JeanneTorres');
         $representative->setOfficialTitle('CEO');
         $representative->setCity('San Francisco');
-        $representative->setOfficialAddress('4143 Depaul Dr');
+        $representative->setAddressLine1('4143 Depaul Dr');
         $representative->setOfficialPhone('(385)-369-5636');
         $representative->setEmail('jeanne.torres49@example.com');
         $representative->setDistrict($this->getReference('district_sf'));
+        $representative->setUpdatedAt(new \DateTime('+1 week'));
         $this->addReference('representative_jt', $representative);
         $manager->persist($representative);
 
@@ -45,11 +45,12 @@ class LoadRepresentativeData extends AbstractFixture implements DependentFixture
         $representative->setUsername('WillieCarroll');
         $representative->setOfficialTitle('Software Engineer');
         $representative->setCity('San Diego');
-        $representative->setOfficialAddress('1730 Auerbach Ave');
+        $representative->setAddressLine1('1730 Auerbach Ave');
         $representative->setOfficialPhone('(731)-567-8228');
         $representative->setEmail('willie.carroll20@example.com');
         $representative->setDistrict($this->getReference('district_sd'));
         $representative->setIsNonLegislative(true);
+        $representative->setUpdatedAt(new \DateTime('+1 week'));
         $this->addReference('representative_wc', $representative);
         $manager->persist($representative);
 
@@ -58,6 +59,6 @@ class LoadRepresentativeData extends AbstractFixture implements DependentFixture
 
     public function getDependencies()
     {
-        return [LoadDistrictData::class, LoadRepresentativeStorageData::class];
+        return [LoadDistrictData::class];
     }
 }

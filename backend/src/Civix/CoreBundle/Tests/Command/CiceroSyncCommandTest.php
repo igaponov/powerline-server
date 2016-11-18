@@ -2,14 +2,15 @@
 
 namespace Civix\CoreBundle\Tests\Command;
 
+use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Service\CiceroApi;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
-use Civix\CoreBundle\Command\CiceroSynchCommand;
+use Civix\CoreBundle\Command\CiceroSyncCommand;
 use Civix\CoreBundle\Tests\DataFixtures\ORM as ORM;
 
-class CiceroSynchCommandTest extends WebTestCase
+class CiceroSyncCommandTest extends WebTestCase
 {
     private $responseRepresentative;
     private $responseRepresentativeTitle;
@@ -48,11 +49,10 @@ class CiceroSynchCommandTest extends WebTestCase
     public function testSynch()
     {
         $executor = $this->loadFixtures(array(
-            ORM\LoadDistrictData::class,
-            ORM\LoadRepresentativeStorageData::class,
+            ORM\LoadRepresentativeData::class,
         ));
-
-        $representative = $executor->getReferenceRepository()->getReference('vice_president');
+        /** @var Representative $representative */
+        $representative = $executor->getReferenceRepository()->getReference('representative_jb');
         $officialName = $representative->getOfficialTitle();
         $avatarSrc = $representative->getAvatarSrc();
         $districtId = $representative->getDistrictId();
@@ -62,9 +62,9 @@ class CiceroSynchCommandTest extends WebTestCase
 
         $this->assertRegExp('/Checking Joseph Biden/', $commandTester->getDisplay());
         $this->assertRegExp('/Synchronization is completed/', $commandTester->getDisplay());
-
+        /** @var Representative $representativeUpdated */
         $representativeUpdated = $container->get('doctrine')->getManager()
-            ->getRepository('CivixCoreBundle:RepresentativeStorage')->findOneByLastName('Biden');
+            ->getRepository('CivixCoreBundle:Representative')->findOneByLastName('Biden');
 
         $this->assertTrue(
             $officialName == $representativeUpdated->getOfficialTitle(),
@@ -87,15 +87,11 @@ class CiceroSynchCommandTest extends WebTestCase
     public function testSynchLink()
     {
         $executor = $this->loadFixtures(array(
-            ORM\LoadDistrictData::class,
-            ORM\LoadRepresentativeStorageData::class,
             ORM\LoadRepresentativeData::class,
         ));
 
-        $representativeSt = $executor->getReferenceRepository()->getReference('vice_president');
-        $lastUpdatedAt = $representativeSt->getUpdatedAt();
+        $representativeSt = $executor->getReferenceRepository()->getReference('representative_jb');
         $officialName = $representativeSt->getOfficialTitle();
-        $avatarSrc = $representativeSt->getAvatarSrc();
         $districtId = $representativeSt->getDistrictId();
 
         $container = $this->getContainerForCheck($this->responseRepresentative);
@@ -103,35 +99,17 @@ class CiceroSynchCommandTest extends WebTestCase
 
         $this->assertRegExp('/Checking Joseph Biden/', $commandTester->getDisplay());
         $this->assertRegExp('/Synchronization is completed/', $commandTester->getDisplay());
-
+        /** @var Representative $representativeUpdated */
         $representativeUpdated = $container->get('doctrine')->getManager()
             ->getRepository('CivixCoreBundle:Representative')->findOneByLastName('Biden');
         $this->assertInstanceOf('Civix\CoreBundle\Entity\Representative', $representativeUpdated);
-        $representativeStUpdated = $representativeUpdated->getRepresentativeStorage();
-        $this->assertInstanceOf('Civix\CoreBundle\Entity\RepresentativeStorage', $representativeStUpdated);
 
         //check links
-        $this->assertNotNull($representativeUpdated->getStorageId(), 'Storage id in representative must be not null');
-        $this->assertTrue(
-            $representativeStUpdated->getStorageId() == $representativeUpdated->getStorageId(),
-            'Storage ids should be equals'
-        );
+        $this->assertNotNull($representativeUpdated->getCiceroId(), 'Cicero id in representative must be not null');
 
-        $this->assertTrue(
-            $officialName == $representativeStUpdated->getOfficialTitle(),
-            'Official title of storage representative should not be changed'
-        );
         $this->assertTrue(
             $officialName == $representativeUpdated->getOfficialTitle(),
             'Official title of representative should not be changed'
-        );
-        $this->assertTrue(
-            $districtId == $representativeStUpdated->getDistrictId(),
-            'District should not be changed'
-        );
-        $this->assertTrue(
-            $districtId == $representativeStUpdated->getDistrictId(),
-            'District of storage representative should not be changed'
         );
         $this->assertTrue(
             $districtId == $representativeUpdated->getDistrictId(),
@@ -146,12 +124,10 @@ class CiceroSynchCommandTest extends WebTestCase
     public function testSynchWithChangedOfficialTitle()
     {
         $executor = $this->loadFixtures(array(
-            ORM\LoadDistrictData::class,
-            ORM\LoadRepresentativeStorageData::class,
+            ORM\LoadRepresentativeData::class,
         ));
 
-        $representative = $executor->getReferenceRepository()->getReference('vice_president');
-        $lastUpdatedAt = $representative->getUpdatedAt();
+        $representative = $executor->getReferenceRepository()->getReference('representative_jb');
         $officialName = $representative->getOfficialTitle();
         $avatarSrc = $representative->getAvatarSrc();
         $districtId = $representative->getDistrictId();
@@ -161,9 +137,9 @@ class CiceroSynchCommandTest extends WebTestCase
 
         $this->assertRegExp('/Checking Joseph Biden/', $commandTester->getDisplay());
         $this->assertRegExp('/Synchronization is completed/', $commandTester->getDisplay());
-
+        /** @var Representative $representativeUpdated */
         $representativeUpdated = $container->get('doctrine')->getManager()
-            ->getRepository('CivixCoreBundle:RepresentativeStorage')->findOneByLastName('Biden');
+            ->getRepository('CivixCoreBundle:Representative')->findOneByLastName('Biden');
 
         $this->assertFalse(
             $officialName == $representativeUpdated->getOfficialTitle(),
@@ -186,14 +162,10 @@ class CiceroSynchCommandTest extends WebTestCase
     public function testSynchWithChangedOfficialTitleLink()
     {
         $executor = $this->loadFixtures(array(
-            ORM\LoadDistrictData::class,
-            ORM\LoadRepresentativeStorageData::class,
             ORM\LoadRepresentativeData::class,
         ));
 
-        $representativeSt = $executor->getReferenceRepository()->getReference('vice_president');
-        $lastUpdatedAt = $representativeSt->getUpdatedAt();
-        $officialName = $representativeSt->getOfficialTitle();
+        $representativeSt = $executor->getReferenceRepository()->getReference('representative_jb');
         $districtId = $representativeSt->getDistrictId();
 
         $container = $this->getContainerForCheck($this->responseRepresentativeTitle);
@@ -201,28 +173,14 @@ class CiceroSynchCommandTest extends WebTestCase
 
         $this->assertRegExp('/Checking Joseph Biden/', $commandTester->getDisplay());
         $this->assertRegExp('/Synchronization is completed/', $commandTester->getDisplay());
-
+        /** @var Representative $representativeUpdated */
         $representativeUpdated = $container->get('doctrine')->getManager()
             ->getRepository('CivixCoreBundle:Representative')->findOneByLastName('Biden');
         $this->assertInstanceOf('Civix\CoreBundle\Entity\Representative', $representativeUpdated);
-        $representativeStUpdated = $representativeUpdated->getRepresentativeStorage();
-        $this->assertInstanceOf('Civix\CoreBundle\Entity\RepresentativeStorage', $representativeStUpdated);
 
-        $this->assertFalse(
-            $officialName == $representativeStUpdated->getOfficialTitle(),
-            'Official of storage representative title should be changed'
-        );
-        $this->assertTrue(
-            $representativeUpdated->getOfficialTitle() == $representativeStUpdated->getOfficialTitle(),
-            'Official of representative title should be changed'
-        );
         $this->assertTrue(
             $districtId == $representativeUpdated->getDistrictId(),
             'District of storage representative should not be changed'
-        );
-        $this->assertTrue(
-            $districtId == $representativeStUpdated->getDistrictId(),
-            'District of representative should not be changed'
         );
     }
 
@@ -233,12 +191,10 @@ class CiceroSynchCommandTest extends WebTestCase
     public function testSynchWithChangedDistrict()
     {
         $executor = $this->loadFixtures(array(
-            ORM\LoadDistrictData::class,
-            ORM\LoadRepresentativeStorageData::class,
+            ORM\LoadRepresentativeData::class,
         ));
 
-        $representative = $executor->getReferenceRepository()->getReference('vice_president');
-        $lastUpdatedAt = $representative->getUpdatedAt();
+        $representative = $executor->getReferenceRepository()->getReference('representative_jb');
         $officialName = $representative->getOfficialTitle();
         $avatarSrc = $representative->getAvatarSrc();
         $districtId = $representative->getDistrictId();
@@ -248,9 +204,9 @@ class CiceroSynchCommandTest extends WebTestCase
 
         $this->assertRegExp('/Checking Joseph Biden/', $commandTester->getDisplay());
         $this->assertRegExp('/Synchronization is completed/', $commandTester->getDisplay());
-
+        /** @var Representative $representativeUpdated */
         $representativeUpdated = $container->get('doctrine')->getManager()
-            ->getRepository('CivixCoreBundle:RepresentativeStorage')->findOneByLastName('Biden');
+            ->getRepository('CivixCoreBundle:Representative')->findOneByLastName('Biden');
 
         $this->assertTrue(
             $officialName == $representativeUpdated->getOfficialTitle(),
@@ -272,68 +228,19 @@ class CiceroSynchCommandTest extends WebTestCase
      */
     public function testSynchWithChangedDistrictLink()
     {
-        $executor = $this->loadFixtures(array(
-            ORM\LoadDistrictData::class,
-            ORM\LoadRepresentativeStorageData::class,
+        $this->loadFixtures(array(
             ORM\LoadRepresentativeData::class,
         ));
-
-        $representative = $executor->getReferenceRepository()->getReference('vice_president');
-        $lastUpdatedAt = $representative->getUpdatedAt();
-        $officialName = $representative->getOfficialTitle();
-        $districtId = $representative->getDistrictId();
 
         $container = $this->getContainerForCheck($this->responseRepresentativeDistrict);
         $commandTester = $this->getCommandTester($container);
 
         $this->assertRegExp('/Checking Joseph Biden/', $commandTester->getDisplay());
         $this->assertRegExp('/Synchronization is completed/', $commandTester->getDisplay());
-
+        /** @var Representative $representativeUpdated */
         $representativeUpdated = $container->get('doctrine')->getManager()
             ->getRepository('CivixCoreBundle:Representative')->findOneByLastName('Biden');
         $this->assertInstanceOf('Civix\CoreBundle\Entity\Representative', $representativeUpdated);
-        $representativeStUpdated = $representativeUpdated->getRepresentativeStorage();
-        $this->assertInstanceOf('Civix\CoreBundle\Entity\RepresentativeStorage', $representativeStUpdated);
-
-        $this->assertTrue(
-            $officialName == $representativeStUpdated->getOfficialTitle(),
-            'Official title should not be changed'
-        );
-        $this->assertFalse(
-            $districtId == $representativeStUpdated->getDistrictId(),
-            'District should be changed for storage representative'
-        );
-        $this->assertTrue(
-            $representativeUpdated->getDistrictId() == $representativeStUpdated->getDistrictId(),
-            'District should be changed for representative'
-        );
-    }
-
-    /**
-     * @group cicero
-     * @group cicero-cmd
-     */
-    public function testSynchRepresentativeNotFound()
-    {
-        $this->loadFixtures(array(
-            ORM\LoadDistrictData::class,
-            ORM\LoadRepresentativeStorageData::class,
-        ));
-
-        $container = $this->getContainerForCheck($this->responseRepresentativeNotFound);
-        $commandTester = $this->getCommandTester($container);
-
-        $this->assertRegExp('/Checking Joseph Biden/', $commandTester->getDisplay());
-        $this->assertRegExp('/Joseph Biden is not found and will be removed/', $commandTester->getDisplay());
-        $this->assertRegExp('/Synchronization is completed/', $commandTester->getDisplay());
-
-        $representativeUpdated = $container->get('doctrine')->getManager()
-            ->getRepository('CivixCoreBundle:RepresentativeStorage')->findOneByLastName('Biden');
-
-        $this->assertNull(
-            $representativeUpdated,
-            'Representative should be removed from representative storage'
-        );
     }
 
     /**
@@ -343,8 +250,6 @@ class CiceroSynchCommandTest extends WebTestCase
     public function testSynchRepresentativeNotFoundLink()
     {
         $this->loadFixtures(array(
-            ORM\LoadDistrictData::class,
-            ORM\LoadRepresentativeStorageData::class,
             ORM\LoadRepresentativeData::class,
         ));
 
@@ -354,18 +259,12 @@ class CiceroSynchCommandTest extends WebTestCase
         $this->assertRegExp('/Checking Joseph Biden/', $commandTester->getDisplay());
         $this->assertRegExp('/Joseph Biden is not found and will be removed/', $commandTester->getDisplay());
         $this->assertRegExp('/Synchronization is completed/', $commandTester->getDisplay());
-
-        $representativeStUpdated = $container->get('doctrine')->getManager()
-            ->getRepository('CivixCoreBundle:RepresentativeStorage')->findOneByLastName('Biden');
-        $this->assertNull(
-            $representativeStUpdated,
-            'Representative should be removed from representative storage'
-        );
+        /** @var Representative $representativeUpdated */
         $representativeUpdated = $container->get('doctrine')->getManager()
             ->getRepository('CivixCoreBundle:Representative')->findOneByLastName('Biden');
         $this->assertInstanceOf('Civix\CoreBundle\Entity\Representative', $representativeUpdated);
         $this->assertNull(
-            $representativeUpdated->getStorageId(),
+            $representativeUpdated->getCiceroId(),
             'Representative should be removed from representative storage '.
             '(no link between representative and representative storage)'
         );
@@ -378,9 +277,9 @@ class CiceroSynchCommandTest extends WebTestCase
     private function getCommandTester($container)
     {
         $application = new Application();
-        $application->add(new CiceroSynchCommand());
-
-        $command = $application->find('cicero:synch');
+        $application->add(new CiceroSyncCommand());
+        /** @var CiceroSyncCommand $command */
+        $command = $application->find('cicero:sync');
         $command->setContainer($container);
         $commandTester = new CommandTester($command);
         $commandTester->execute(array('command' => $command->getName()));
@@ -425,7 +324,7 @@ class CiceroSynchCommandTest extends WebTestCase
             '',
             false
         );
-        $mock->setEntityManager($container->get('doctrine.orm.entity_manager'));
+        $mock->setEntityManager($container->get('doctrine')->getManager());
         $mock->setCongressApi($congressMock);
         $mock->setOpenstatesApi($openstateServiceMock);
 
