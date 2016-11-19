@@ -47,7 +47,7 @@ class CiceroSyncCommand extends ContainerAwareCommand
         /** @var $representative \Civix\CoreBundle\Entity\Representative */
         foreach ($representatives as $representative) {
             $output->writeln(
-                'Checking '.$representative->getFirstName().' '.$representative->getLastName()
+                'Checking '.$representative->getUser()->getFirstName().' '.$representative->getUser()->getLastName()
             );
 
             $isUpdated = $this->getContainer()->get('civix_core.representative_manager')
@@ -55,8 +55,8 @@ class CiceroSyncCommand extends ContainerAwareCommand
 
             if (!$isUpdated) {
                 $output->writeln(
-                    '<error>'.$representative->getFirstName().' '.
-                    $representative->getLastName().' is not found and will be removed</error>'
+                    '<error>'.$representative->getUser()->getFirstName().' '.
+                    $representative->getUser()->getLastName().' is not found and will be removed</error>'
                 );
             }
         }

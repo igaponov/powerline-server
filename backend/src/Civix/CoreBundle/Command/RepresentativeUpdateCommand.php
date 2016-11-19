@@ -22,12 +22,6 @@ class RepresentativeUpdateCommand extends ContainerAwareCommand
                 null,
                 InputOption::VALUE_NONE,
                 'If set, all saved storage representative will be rejected, incorrect districts'
-            )
-            ->addOption(
-                'by-users',
-                null,
-                InputOption::VALUE_NONE,
-                'If set, will be to get all representative by all user\'s profile'
             );
     }
 
@@ -37,7 +31,7 @@ class RepresentativeUpdateCommand extends ContainerAwareCommand
         $userManager = $this->getContainer()->get('civix_core.user_manager');
         $groupManager = $this->getContainer()->get('civix_core.group_manager');
         /** @var EntityManager $entityManager */
-        $entityManager = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $entityManager = $this->getContainer()->get('doctrine')->getManager();
 
         // update representative by user profile
         if ($input->getOption('by-users')) {

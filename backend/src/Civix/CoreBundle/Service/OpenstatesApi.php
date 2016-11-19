@@ -70,8 +70,8 @@ class OpenstatesApi extends ServiceApi
     public function updateRepresentativeProfile(Representative $representative)
     {
         $openStateId = $this->getRepresentativeByName(
-            $representative->getFirstName(),
-            $representative->getLastName()
+            $representative->getUser()->getFirstName(),
+            $representative->getUser()->getLastName()
         );
 
         if ($openStateId) {

@@ -4,13 +4,11 @@ namespace Civix\CoreBundle\Entity\Stripe;
 
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\OfficialInterface;
-use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
-use Civix\CoreBundle\Entity\UserInterface;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
@@ -19,7 +17,6 @@ use JMS\Serializer\Annotation as Serializer;
  * @InheritanceType("SINGLE_TABLE")
  * @DiscriminatorColumn(name="type", type="string")
  * @DiscriminatorMap({
- *      "representative"  = "Civix\CoreBundle\Entity\Stripe\CustomerRepresentative",
  *      "group"  = "Civix\CoreBundle\Entity\Stripe\CustomerGroup",
  *      "user"  = "Civix\CoreBundle\Entity\Stripe\CustomerUser"
  * })
@@ -111,9 +108,6 @@ abstract class Customer implements CustomerInterface
                 break;
             case Group::class:
                 $type = CustomerGroup::class;
-                break;
-            case Representative::class:
-                $type = CustomerRepresentative::class;
                 break;
             default:
                 throw new \RuntimeException('Invalid object with class '.$class);

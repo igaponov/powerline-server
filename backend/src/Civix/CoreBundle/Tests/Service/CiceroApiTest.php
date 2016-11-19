@@ -7,13 +7,13 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\District;
 use Civix\CoreBundle\Tests\DataFixtures\ORM as ORM;
+use Faker\Factory;
 
 class CiceroApiTest extends WebTestCase
 {
     /**
      * @var Representative
      */
-    private $representativeObj;
     private $districtObj;
     private $responseCandidates;
     private $resultCandidatesDistricts;
@@ -29,14 +29,11 @@ class CiceroApiTest extends WebTestCase
 
         $this->responseRepresentative = json_decode(file_get_contents(__DIR__.'/TestData/representative.json'));
 
-        $this->representativeObj = new Representative();
-        $this->representativeObj->setCiceroId(44926);
         $this->districtObj = new District();
     }
 
     protected function tearDown()
     {
-        $this->representativeObj = null;
         $this->districtObj = null;
         $this->responseCandidates = null;
         $this->resultCandidatesDistricts = null;
@@ -70,14 +67,14 @@ class CiceroApiTest extends WebTestCase
         );
 
         $congressMock = $this->getMock('Civix\CoreBundle\Service\CongressApi',
-            array('updateReprStorageProfile'),
+            array('updateRepresentativeProfile'),
             array(),
             '',
             false
         );
 
         $openstatesApi = $this->getMock('Civix\CoreBundle\Service\OpenstatesApi',
-            array('updateReprStorageProfile'),
+            array('updateRepresentativeProfile'),
             array(),
             '',
             false
@@ -140,10 +137,19 @@ class CiceroApiTest extends WebTestCase
      */
     public function testUpdateByRepresentativeInfo()
     {
-        $this->loadFixtures(array(
-            ORM\LoadDistrictData::class,
+        $repository = $this->loadFixtures(array(
             ORM\LoadRepresentativeData::class,
-        ));
+        ))->getReferenceRepository();
+        $user = $repository->getReference('user_1');
+        $group = $repository->getReference('group_4');
+        $faker = Factory::create();
+        $em = $this->getContainer()
+            ->get('doctrine')
+            ->getManager();
+        $representativeObj = new Representative($em->merge($user), $em->merge($group));
+        $representativeObj->setCiceroId(44926);
+        $representativeObj->setPrivatePhone($faker->phoneNumber);
+        $representativeObj->setPrivateEmail($faker->companyEmail);
         /** @var \PHPUnit_Framework_MockObject_MockObject|CiceroApi $mock */
         $mock = $this->getMock('Civix\CoreBundle\Service\CiceroApi',
             ['checkLink'],
@@ -160,14 +166,14 @@ class CiceroApiTest extends WebTestCase
         );
 
         $congressMock = $this->getMock('Civix\CoreBundle\Service\CongressApi',
-            array('updateReprStorageProfile'),
+            array('updateRepresentativeProfile'),
             array(),
             '',
             false
         );
 
         $openstatesApi = $this->getMock('Civix\CoreBundle\Service\OpenstatesApi',
-            array('updateReprStorageProfile'),
+            array('updateRepresentativeProfile'),
             array(),
             '',
             false
@@ -198,7 +204,7 @@ class CiceroApiTest extends WebTestCase
 
         $mock->setCropImage($this->getMock('Civix\CoreBundle\Service\CropImage'));
         $mock->setVichService($vichUploader);
-        $mock->setEntityManager(static::$kernel->getContainer()->get('doctrine')->getManager());
+        $mock->setEntityManager($em);
         $mock->setCongressApi($congressMock);
         $mock->setOpenstatesApi($openstatesApi);
         $mock->setLogger($logger);
@@ -211,7 +217,7 @@ class CiceroApiTest extends WebTestCase
             ->method('checkLink')
             ->will($this->returnValue(false));
 
-        $result = $mock->updateByRepresentativeInfo($this->representativeObj);
+        $result = $mock->updateByRepresentativeInfo($representativeObj);
 
         $this->assertTrue($result, 'Should return true');
     }

@@ -103,8 +103,8 @@ class RepresentativeManager
     public function synchronizeRepresentative(Representative $representative)
     {
         $ciceroRepresentative = $this->ciceroService->findRepresentativeByNameAndId(
-            $representative->getFirstName(),
-            $representative->getLastName(),
+            $representative->getUser()->getFirstName(),
+            $representative->getUser()->getLastName(),
             $representative->getCiceroId()
         );
 

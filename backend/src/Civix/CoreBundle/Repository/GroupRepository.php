@@ -225,10 +225,12 @@ class GroupRepository extends EntityRepository
      */
     public function cleanIncorrectLocalGroup()
     {
-        return $this->getEntityManager()
-            ->createQuery('DELETE FROM CivixCoreBundle:Group gr
-                            WHERE gr.localDistrict IS NULL AND gr.groupType=:type')
+        return $this->createQueryBuilder('gr')
+            ->delete()
+            ->where('gr.localDistrict IS NULL')
+            ->andWhere('gr.groupType = :type')
             ->setParameter('type', Group::GROUP_TYPE_LOCAL)
+            ->getQuery()
             ->execute();
     }
 

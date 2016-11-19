@@ -2,7 +2,6 @@
 
 namespace Civix\CoreBundle\Repository;
 
-use Civix\CoreBundle\Entity\District;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
 use Civix\CoreBundle\Entity\Representative;
@@ -14,7 +13,8 @@ use Civix\CoreBundle\Entity\User;
 class RepresentativeRepository extends EntityRepository
 {
     /**
-     * @return \Doctrine\ORM\Query
+     * @param $status
+     * @return Query
      */
     public function getQueryRepresentativeByStatus($status)
     {
@@ -29,28 +29,27 @@ class RepresentativeRepository extends EntityRepository
 
         //exclude representative from query
         if ($excludeRepr) {
-            $qBuilder->andWhere('repr.id <> :currentRepr');
-            $qBuilder->setParameter('currentRepr', $excludeRepr->getId());
+            $qBuilder->andWhere('repr <> :currentRepr');
+            $qBuilder->setParameter('currentRepr', $excludeRepr);
         }
 
         return $qBuilder
                 ->setParameter('status', $status);
     }
 
-    public function getOfficialTitles($excludeRepr = false)
+    public function getOfficialTitles(Representative $excludeRepr = null)
     {
-        $qBuilder = $this->getEntityManager()->createQueryBuilder()
-                ->select('repr.officialTitle')
-                ->from('CivixCoreBundle:Representative', 'repr')
-                ->where('repr.status = :status');
+        $qBuilder = $this->createQueryBuilder('r')
+                ->select('r.officialTitle')
+                ->where('r.status = :status');
 
         //exclude representative from query
         if ($excludeRepr) {
-            $qBuilder->andWhere('repr.id <> :currentRepr');
-            $qBuilder->setParameter('currentRepr', $excludeRepr->getId());
+            $qBuilder->andWhere('r <> :currentRepr');
+            $qBuilder->setParameter('currentRepr', $excludeRepr);
         }
 
-        return $qBuilder->addGroupBy('repr.officialTitle')
+        return $qBuilder->addGroupBy('r.officialTitle')
                 ->setParameter('status', Representative::STATUS_ACTIVE)
                 ->getQuery()
                 ->getResult();
@@ -60,60 +59,16 @@ class RepresentativeRepository extends EntityRepository
     {
         return $this->createQueryBuilder('repr')
                 ->where('repr.officialTitle = :officialTitle')
-                ->andWhere('repr.districtId in (:districts)')
+                ->andWhere('repr.district in (:districts)')
                 ->setParameter('officialTitle', $officialTitle)
                 ->setParameter('districts', $districts)
                 ->getQuery()
                 ->getResult();
     }
 
-    public function cleanStorageIds()
+    public function getRepresentativeInformation($representativeId = 0, $ciceroId = 0)
     {
-        return $this->getEntityManager()
-                ->createQuery('UPDATE CivixCoreBundle:Representative repr
-                                  SET repr.storageId = NULL
-                                WHERE repr.storageId IS NOT NULL')
-                ->execute();
-    }
-
-    public function getQueryRepresentativeOrderedById()
-    {
-        return $this->getEntityManager()
-                ->createQuery('SELECT r FROM CivixCoreBundle:Representative r ORDER BY r.id DESC');
-    }
-
-    public function removeRepresentative(\Civix\CoreBundle\Entity\Representative $representative)
-    {
-        $this->getEntityManager()
-            ->createQueryBuilder()
-            ->update('CivixCoreBundle:Poll\Question\Representative r')
-            ->set('r.user', 'NULL')
-            ->where('r.user = :representativeId')
-            ->setParameter('representativeId', $representative->getId())
-            ->getQuery()
-            ->execute();
-
-        $this->getEntityManager()
-            ->createQueryBuilder()
-            ->update('CivixCoreBundle:Activity a')
-            ->set('a.representative', 'NULL')
-            ->where('a.representative = :representativeId')
-            ->setParameter('representativeId', $representative->getId())
-            ->getQuery()
-            ->execute();
-
-        $this->getEntityManager()
-            ->createQueryBuilder()
-            ->delete('CivixCoreBundle:Representative r')
-            ->where('r.id = :representativeId')
-            ->setParameter('representativeId', $representative->getId())
-            ->getQuery()
-            ->execute();
-    }
-
-    public function getRepresentativeInformation($representativeId = 0, $storageId = 0)
-    {
-        $storageId = (int) $storageId;
+        $ciceroId = (int) $ciceroId;
         $representativeId = (int) $representativeId;
 
         if (0 < $representativeId) {
@@ -122,10 +77,10 @@ class RepresentativeRepository extends EntityRepository
                 ->setParameter('id', $representativeId)
                 ->getQuery()
                 ->getOneOrNullResult();
-        } elseif (0 < $storageId) {
+        } elseif (0 < $ciceroId) {
             $info = $this->createQueryBuilder('r')
                 ->where('r.storageId = :id')
-                ->setParameter('id', $storageId)
+                ->setParameter('id', $ciceroId)
                 ->getQuery()
                 ->getOneOrNullResult();
         } else {
@@ -158,11 +113,7 @@ class RepresentativeRepository extends EntityRepository
         $representatives = $qb->leftJoin('r.district', 'd')
             ->where($qb->expr()->in('r.district', $userDistrictIds ? $userDistrictIds : array(0)))
             ->andWhere('r.isNonLegislative = 1')
-            ->andWhere($qb->expr()->orX(
-                $qb->expr()->like('r.officialTitle', $qb->expr()->literal('%'.$query.'%')),
-                $qb->expr()->like('r.firstName', $qb->expr()->literal('%'.$query.'%')),
-                $qb->expr()->like('r.lastName', $qb->expr()->literal('%'.$query.'%'))
-            ))
+            ->andWhere($qb->expr()->like('r.officialTitle', $qb->expr()->literal('%'.$query.'%')))
             ->orderBy('d.districtType')
             ->getQuery()->getResult()
         ;

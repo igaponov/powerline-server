@@ -226,7 +226,6 @@ class PollControllerTest extends WebTestCase
 		$faker = Factory::create();
 		$params = [
 			'subject' => $faker->sentence,
-			'report_recipient_group' => $faker->word,
 		];
 		$question = $repository->getReference($reference);
 		$client = $this->client;

@@ -3,7 +3,6 @@
 namespace Civix\CoreBundle\Serializer\Type;
 
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
-use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Superuser;
 use Civix\CoreBundle\Entity\User;
@@ -111,11 +110,6 @@ class OwnerData
     private function getDefaultAvatarForGroup()
     {
         return Group::DEFAULT_AVATAR;
-    }
-
-    private function getDefaultAvatarForRepresentative()
-    {
-        return Representative::DEFAULT_AVATAR;
     }
 
     private function getDefaultAvatarForUser()

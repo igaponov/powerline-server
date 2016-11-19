@@ -25,7 +25,6 @@ use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Serializer\Type\Image;
-use Civix\CoreBundle\Entity\Representative;
 use Symfony\Component\Validator\ExecutionContext;
 
 /**
@@ -181,17 +180,6 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
      * @ORM\OneToMany(targetEntity="Comment", mappedBy="question", cascade={"remove","persist"})
      */
     protected $comments;
-    /**
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Representative")
-     * @ORM\JoinColumn(name="report_recipient_id", referencedColumnName="id", onDelete="SET NULL")
-     */
-    protected $reportRecipient;
-
-    /**
-     * @var string
-     * @ORM\Column(name="report_recipient_group", type="string", nullable=true)
-     */
-    protected $reportRecipientGroup;
 
     /**
      * @ORM\Column(name="answers_count", type="integer", nullable=true)
@@ -201,21 +189,6 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
      * @var int
      */
     protected $answersCount;
-
-    /**
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll"})
-     * @Serializer\Accessor(getter="getRecipientQuestion")
-     * @Serializer\Type("string")
-     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\Representative", cascade={"remove"})
-     * @ORM\JoinTable(name="questions_recipients",
-     *      joinColumns={@ORM\JoinColumn(name="question_id", referencedColumnName="id", onDelete="CASCADE")},
-     *      inverseJoinColumns={
-     *          @ORM\JoinColumn(name="representative_id", referencedColumnName="id", onDelete="CASCADE")
-     *      }
-     * )
-     */
-    protected $recipients;
 
     /**
      * @ORM\ManyToOne(targetEntity="\Civix\CoreBundle\Entity\Group")
@@ -265,7 +238,6 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
     {
         $this->options = new ArrayCollection();
         $this->answers = new ArrayCollection();
-        $this->recipients = new ArrayCollection();
         $this->educationalContext = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->hashTags = new ArrayCollection();
@@ -632,12 +604,6 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
         return $statistics;
     }
 
-    public function getRecipients()
-    {
-        return $this->recipients;
-    }
-
-
     /**
      * Add comment
      *
@@ -670,57 +636,6 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
     public function getComments()
     {
         return $this->comments;
-    }
-
-    public function addRecipient($recipient)
-    {
-        if (!$this->recipients->contains($recipient)) {
-            $this->recipients->add($recipient);
-        }
-
-        return $this;
-    }
-
-    public function removeRecipient($recipient)
-    {
-        $this->recipients->removeElement($recipient);
-    }
-
-    public function getReportRecipientGroup()
-    {
-        return $this->reportRecipientGroup;
-    }
-
-    public function setReportRecipientGroup($recipient)
-    {
-        $this->reportRecipientGroup = $recipient;
-
-        return $this;
-    }
-
-    public function getReportRecipient()
-    {
-        return $this->reportRecipient;
-    }
-
-    public function setReportRecipient($recipient)
-    {
-        $this->reportRecipient = $recipient;
-
-        return $this;
-    }
-
-    public function getRecipientQuestion()
-    {
-        if ($this->reportRecipient) {
-            return $this->reportRecipient;
-        }
-
-        if ($this->reportRecipientGroup) {
-            return $this->reportRecipientGroup;
-        }
-
-        return null;
     }
 
     /**
