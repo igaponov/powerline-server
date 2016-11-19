@@ -57,8 +57,8 @@ class CongressApi extends ServiceApi
     public function updateRepresentativeProfile(Representative $representative)
     {
         $response = $this->getRepresentativeByName(
-            $representative->getFirstName(),
-            $representative->getLastName()
+            $representative->getUser()->getFirstName(),
+            $representative->getUser()->getLastName()
         );
 
         foreach ($response as $objField => $objValue) {

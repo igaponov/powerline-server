@@ -192,7 +192,6 @@ class PollControllerTest extends WebTestCase
         $params = [
             'type' => 'payment_request',
             'subject' => $faker->sentence,
-            'report_recipient_group' => $faker->word,
             'title' => $faker->sentence,
             'is_allow_outsiders' => $faker->boolean(),
             'is_crowdfunding' => false,
@@ -240,7 +239,6 @@ class PollControllerTest extends WebTestCase
         $params = [
             'type' => 'group',
             'subject' => 'subj',
-            'report_recipient_group' => 'group',
             'group_sections' => [$section2->getId(), $section1->getId()],
         ];
         $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"'], json_encode($params));
@@ -273,7 +271,6 @@ class PollControllerTest extends WebTestCase
         $params = [
             'type' => 'group',
             'subject' => 'subj',
-            'report_recipient_group' => 'group',
             'group_sections' => [$section->getId()],
         ];
         $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
@@ -308,21 +305,18 @@ class PollControllerTest extends WebTestCase
 				[
 					'type' => 'group',
 					'subject' => $faker->sentence,
-					'report_recipient_group' => $faker->word,
 				]
 			],
 			'news' => [
 				[
 					'type' => 'news',
 					'subject' => $faker->sentence,
-					'report_recipient_group' => $faker->word,
 				]
 			],
 			'event' => [
 				[
 					'type' => 'event',
 					'subject' => $faker->sentence,
-					'report_recipient_group' => $faker->word,
 					'title' => $faker->sentence,
 					'is_allow_outsiders' => $faker->boolean(),
 					'started_at' => date('D, d M Y H:i:s', time() + 100000),
@@ -333,7 +327,6 @@ class PollControllerTest extends WebTestCase
 				[
 					'type' => 'payment_request',
 					'subject' => $faker->sentence,
-					'report_recipient_group' => $faker->word,
 					'title' => $faker->sentence,
 					'is_allow_outsiders' => $faker->boolean(),
 					'is_crowdfunding' => false,
@@ -347,7 +340,6 @@ class PollControllerTest extends WebTestCase
 				[
 					'type' => 'payment_request',
 					'subject' => $faker->sentence,
-					'report_recipient_group' => $faker->word,
 					'title' => $faker->sentence,
 					'is_allow_outsiders' => $faker->boolean(),
 					'is_crowdfunding' => true,
@@ -361,7 +353,6 @@ class PollControllerTest extends WebTestCase
 				[
 					'type' => 'petition',
 					'subject' => $faker->sentence,
-					'report_recipient_group' => $faker->word,
 					'is_outsiders_sign' => $faker->boolean(),
 					'petition_title' => $faker->sentence,
 					'petition_body' => $faker->text,

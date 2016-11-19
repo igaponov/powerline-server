@@ -77,8 +77,8 @@ class CiceroApi extends ServiceApi
     {
         $representativesFromApi = $this->ciceroService
             ->findRepresentativeByOfficialData(
-                $representative->getFirstName(),
-                $representative->getLastName(),
+                $representative->getUser()->getFirstName(),
+                $representative->getUser()->getLastName(),
                 $representative->getOfficialTitle()
             );
         if ($representativesFromApi) {
@@ -157,8 +157,6 @@ class CiceroApi extends ServiceApi
     public function fillRepresentativeByApiObj(Representative $representative, $response)
     {
         $representative->setCiceroId($response->id);
-        $representative->setFirstName(trim($response->first_name));
-        $representative->setLastName(trim($response->last_name));
         $representative->setOfficialTitle(trim($response->office->title));
         $representative->setAvatarSourceFileName($response->photo_origin_url);
 
@@ -170,7 +168,7 @@ class CiceroApi extends ServiceApi
         $representative->setWebsite($response->office->chamber->url);
         $representative->setCountry($response->office->district->country);
         if (isset($response->addresses[0])) {
-            $representative->setOfficialPhone($response->addresses[0]->phone_1);
+            $representative->setPhone($response->addresses[0]->phone_1);
             $representative->setFax($response->addresses[0]->fax_1);
             $state = $this->entityManager->getRepository('CivixCoreBundle:State')
                 ->findOneBy(['code' => $response->addresses[0]->state]);
@@ -213,7 +211,7 @@ class CiceroApi extends ServiceApi
                     //square avatars
                     try {
                         $temp_file = tempnam(sys_get_temp_dir(), 'avatar').'.'.$fileExt;
-                        $this->saveImageFromUrl($representative->getAvatarSrc(), $temp_file);
+                        $this->saveImageFromUrl($representative->getAvatarSourceFileName(), $temp_file);
                         $this->cropImageService->rebuildImage(
                             $temp_file,
                             $temp_file
@@ -235,23 +233,6 @@ class CiceroApi extends ServiceApi
         $this->openstatesService->updateRepresentativeProfile($representative);
 
         return $representative;
-    }
-
-    /**
-     * Create Representative Storage object by object which was getten from Cicero Api.
-     *
-     * @param object $response Cicero Api object
-     *
-     * @return \Civix\CoreBundle\Entity\Representative
-     *
-     * @deprecated
-     */
-    protected function createRepresentativeByApiObj($response)
-    {
-        $storeObj = new Representative();
-        $this->fillRepresentativeByApiObj($storeObj, $response);
-
-        return $storeObj;
     }
 
     /**
@@ -307,7 +288,7 @@ class CiceroApi extends ServiceApi
     protected function createDistrict($district)
     {
         $currentDistrict = $this->entityManager->getRepository('CivixCoreBundle:District')
-            ->findOneById($district->id);
+            ->find($district->id);
         if (!$currentDistrict) {
             $currentDistrict = new District();
             $currentDistrict->setId($district->id);

@@ -8,9 +8,6 @@ use Civix\CoreBundle\Serializer\Type\Image;
 use Civix\CoreBundle\Validator\Constraints\PublishDate;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\DiscriminatorColumn;
-use Doctrine\ORM\Mapping\DiscriminatorMap;
-use Doctrine\ORM\Mapping\InheritanceType;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\ExecutionContextInterface;
@@ -28,9 +25,9 @@ use Symfony\Component\Validator\ExecutionContextInterface;
  *         )
  *     )
  * })
- * @InheritanceType("SINGLE_TABLE")
- * @DiscriminatorColumn(name="type", type="string")
- * @DiscriminatorMap({
+ * @ORM\InheritanceType("SINGLE_TABLE")
+ * @ORM\DiscriminatorColumn(name="type", type="string")
+ * @ORM\DiscriminatorMap({
  *      "group" = "Civix\CoreBundle\Entity\Announcement\GroupAnnouncement",
  *      "representative" = "Civix\CoreBundle\Entity\Announcement\RepresentativeAnnouncement",
  * })

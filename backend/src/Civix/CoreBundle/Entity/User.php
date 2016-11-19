@@ -2,11 +2,11 @@
 
 namespace Civix\CoreBundle\Entity;
 
-use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Serializer\Type\Avatar;
 use Civix\CoreBundle\Validator\Constraints\ConstrainsFacebookToken;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -122,16 +122,6 @@ class User implements UserInterface, \Serializable, OfficialInterface
      * @Assert\NotBlank(groups={"registration", "profile"})
      */
     private $lastName;
-
-    /**
-     * @var string
-     *
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-activities"})
-     * @Serializer\SerializedName("official_title")
-     * @Serializer\Accessor(getter="getOfficialName")
-     */
-    private $officialName;
 
     /**
      * @var string
@@ -644,16 +634,22 @@ class User implements UserInterface, \Serializable, OfficialInterface
      */
     private $ownedGroups;
 
+    /**
+     * @var Collection|Representative[]
+     * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\Representative", mappedBy="user", orphanRemoval=true)
+     */
+    private $representatives;
+
     public function __construct()
     {
         $this->salt = base_convert(sha1(uniqid(mt_rand(), true)), 16, 36);
         $this->groups = new ArrayCollection();
         $this->country = 'US';
-        $this->following = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->followers = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->invites = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->districts = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->groupSections = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->following = new ArrayCollection();
+        $this->followers = new ArrayCollection();
+        $this->invites = new ArrayCollection();
+        $this->districts = new ArrayCollection();
+        $this->groupSections = new ArrayCollection();
         $this->petitionSubscriptions = new ArrayCollection();
         $this->postSubscriptions = new ArrayCollection();
         $this->interests = [];
@@ -684,11 +680,11 @@ class User implements UserInterface, \Serializable, OfficialInterface
     /**
      * Add invite.
      *
-     * @param \Civix\CoreBundle\Entity\Group $group
+     * @param Group $group
      *
      * @return User
      */
-    public function addInvite(\Civix\CoreBundle\Entity\Group $group)
+    public function addInvite(Group $group)
     {
         $this->invites[] = $group;
 
@@ -698,9 +694,9 @@ class User implements UserInterface, \Serializable, OfficialInterface
     /**
      * Remove invite.
      *
-     * @param \Civix\CoreBundle\Entity\Group $group
+     * @param Group $group
      */
-    public function removeInvite(\Civix\CoreBundle\Entity\Group $group)
+    public function removeInvite(Group $group)
     {
         $this->invites->removeElement($group);
     }
@@ -718,7 +714,7 @@ class User implements UserInterface, \Serializable, OfficialInterface
     /**
      * Add following.
      *
-     * @param \Civix\CoreBundle\Entity\User $following
+     * @param UserFollow $following
      *
      * @return User
      */
@@ -732,7 +728,7 @@ class User implements UserInterface, \Serializable, OfficialInterface
     /**
      * Remove following.
      *
-     * @param \Civix\CoreBundle\Entity\UserFollow $following
+     * @param UserFollow $following
      */
     public function removeFollowing(UserFollow $following)
     {
@@ -752,7 +748,7 @@ class User implements UserInterface, \Serializable, OfficialInterface
     /**
      * Add follower.
      *
-     * @param \Civix\CoreBundle\Entity\User $follower
+     * @param UserFollow $follower
      *
      * @return User
      */
@@ -766,7 +762,7 @@ class User implements UserInterface, \Serializable, OfficialInterface
     /**
      * Remove follower.
      *
-     * @param \Civix\CoreBundle\Entity\UserFollow $follower
+     * @param UserFollow $follower
      */
     public function removeFollower(UserFollow $follower)
     {
@@ -1494,11 +1490,11 @@ class User implements UserInterface, \Serializable, OfficialInterface
      */
     public function getDistrictsIds()
     {
-        $districtsIds = $this->districts->map(function ($district) {
+        $districtsIds = $this->districts->map(function (District $district) {
                 return $district->getId();
         })->toArray();
 
-        return empty($districtsIds) ? false : $districtsIds;
+        return empty($districtsIds) ? [] : $districtsIds;
     }
 
     /**
@@ -1581,7 +1577,7 @@ class User implements UserInterface, \Serializable, OfficialInterface
     /**
      * Return joined to user groups.
      *
-     * @return \Doctrine\Common\Collections\ArrayCollection
+     * @return ArrayCollection
      */
     public function getGroups()
     {
@@ -1613,14 +1609,14 @@ class User implements UserInterface, \Serializable, OfficialInterface
 
     public function getGroupsIds()
     {
-        return $this->groups->map(function ($userGroup) {
+        return $this->groups->map(function (UserGroup $userGroup) {
                 return $userGroup->getGroup()->getId();
         })->toArray();
     }
 
     public function getFollowingIds()
     {
-        return $this->following->map(function ($userFollow) {
+        return $this->following->map(function (UserFollow $userFollow) {
                     return $userFollow->getUser()->getId();
         })->toArray();
     }
@@ -1652,6 +1648,9 @@ class User implements UserInterface, \Serializable, OfficialInterface
      * Get officialName.
      *
      * @return string
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"api-activities"})
+     * @Serializer\SerializedName("official_title")
      */
     public function getOfficialName()
     {
@@ -1661,11 +1660,11 @@ class User implements UserInterface, \Serializable, OfficialInterface
     /**
      * Add districts.
      *
-     * @param \Civix\CoreBundle\Entity\District $districts
+     * @param District $district
      *
      * @return User
      */
-    public function addDistrict(\Civix\CoreBundle\Entity\District $district)
+    public function addDistrict(District $district)
     {
         if (!$this->districts->contains($district)) {
             $this->districts[] = $district;
@@ -1677,9 +1676,9 @@ class User implements UserInterface, \Serializable, OfficialInterface
     /**
      * Remove districts.
      *
-     * @param \Civix\CoreBundle\Entity\District $districts
+     * @param District $districts
      */
-    public function removeDistrict(\Civix\CoreBundle\Entity\District $districts)
+    public function removeDistrict(District $districts)
     {
         $this->districts->removeElement($districts);
     }
@@ -1697,11 +1696,11 @@ class User implements UserInterface, \Serializable, OfficialInterface
     /**
      * Add section.
      *
-     * @param \Civix\CoreBundle\Entity\GroupSection $section
+     * @param GroupSection $section
      *
      * @return User
      */
-    public function addGroupSection(\Civix\CoreBundle\Entity\GroupSection $section)
+    public function addGroupSection(GroupSection $section)
     {
         if (!$this->groupSections->contains($section)) {
             $this->groupSections[] = $section;
@@ -1713,9 +1712,9 @@ class User implements UserInterface, \Serializable, OfficialInterface
     /**
      * Remove section.
      *
-     * @param \Civix\CoreBundle\Entity\GroupSection $section
+     * @param GroupSection $section
      */
-    public function removeGroupSection(\Civix\CoreBundle\Entity\GroupSection $section)
+    public function removeGroupSection(GroupSection $section)
     {
         $this->groupSections->removeElement($section);
     }
@@ -1737,11 +1736,11 @@ class User implements UserInterface, \Serializable, OfficialInterface
      */
     public function getGroupSectionsIds()
     {
-        $sectionsIds = $this->groupSections->map(function ($section) {
+        $sectionsIds = $this->groupSections->map(function (GroupSection $section) {
                 return $section->getId();
         })->toArray();
 
-        return empty($sectionsIds) ? false : $sectionsIds;
+        return empty($sectionsIds) ? [] : $sectionsIds;
     }
 
     /**
@@ -2488,5 +2487,39 @@ class User implements UserInterface, \Serializable, OfficialInterface
     public function getOwnedGroups()
     {
         return $this->ownedGroups;
+    }
+
+    /**
+     * Add representative.
+     *
+     * @param Representative $representative
+     *
+     * @return User
+     */
+    public function addRepresentative(Representative $representative)
+    {
+        $this->representatives[] = $representative;
+
+        return $this;
+    }
+
+    /**
+     * Remove representative.
+     *
+     * @param Representative $representative
+     */
+    public function removeRepresentative(Representative $representative)
+    {
+        $this->representatives->removeElement($representative);
+    }
+
+    /**
+     * Get representatives.
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getRepresentatives()
+    {
+        return $this->representatives;
     }
 }

@@ -206,7 +206,8 @@ class SuperuserController extends Controller
     {
         $query = $this->getDoctrine()
             ->getRepository('CivixCoreBundle:Representative')
-            ->getQueryRepresentativeOrderedById();
+            ->createQueryBuilder('r')
+            ->getQuery();
 
         $paginator = $this->get('knp_paginator');
         $pagination = $paginator->paginate(
@@ -338,9 +339,8 @@ class SuperuserController extends Controller
         if ($csrfProvider->isCsrfTokenValid('remove_representative_'.$representative->getId(),
             $this->getRequest()->get('_token'))
         ) {
-            $entityManager
-                    ->getRepository('CivixCoreBundle:Representative')
-                    ->removeRepresentative($representative);
+            $entityManager->remove($representative);
+            $entityManager->flush();
 
             $this->get('session')->getFlashBag()->add('notice', 'Representative was removed');
         } else {

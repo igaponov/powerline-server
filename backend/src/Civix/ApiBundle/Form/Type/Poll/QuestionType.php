@@ -42,11 +42,6 @@ class QuestionType extends AbstractType
             ->add('subject', 'text', [
                 'description' => 'Subject',
             ])
-            ->add('report_recipient_group', 'text', [
-                'property_path' => 'reportRecipientGroup',
-                'description' => 'Representative',
-                'required' => false,
-            ])
             // event, payment request
             ->add('title', 'text', [
                 'description' => 'Poll title (event, payment request)',
