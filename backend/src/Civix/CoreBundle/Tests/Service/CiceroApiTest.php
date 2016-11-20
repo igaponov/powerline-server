@@ -141,12 +141,11 @@ class CiceroApiTest extends WebTestCase
             ORM\LoadRepresentativeData::class,
         ))->getReferenceRepository();
         $user = $repository->getReference('user_1');
-        $group = $repository->getReference('group_4');
         $faker = Factory::create();
         $em = $this->getContainer()
             ->get('doctrine')
             ->getManager();
-        $representativeObj = new Representative($em->merge($user), $em->merge($group));
+        $representativeObj = new Representative($em->merge($user));
         $representativeObj->setCiceroId(44926);
         $representativeObj->setPrivatePhone($faker->phoneNumber);
         $representativeObj->setPrivateEmail($faker->companyEmail);

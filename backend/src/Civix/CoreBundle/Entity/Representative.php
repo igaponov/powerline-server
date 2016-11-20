@@ -325,10 +325,9 @@ class Representative implements CheckingLimits
      */
     private $updatedAt;
 
-    public function __construct(User $user, Group $localGroup)
+    public function __construct(User $user)
     {
         $this->user = $user;
-        $this->localGroup = $localGroup;
         $this->setCountry('US');
         $this->setStatus(self::STATUS_PENDING);
         $this->setUpdatedAt(new \DateTime());

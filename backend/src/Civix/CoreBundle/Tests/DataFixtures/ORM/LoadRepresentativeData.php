@@ -15,8 +15,7 @@ class LoadRepresentativeData extends AbstractFixture implements DependentFixture
         $faker = Factory::create();
 
         $user = $this->getReference('user_1');
-        $group = $this->getReference('group_1');
-        $representative = new Representative($user, $group);
+        $representative = new Representative($user);
         $representative->setOfficialTitle('Vice President');
         $representative->setCity('Los Angeles');
         $representative->setAddressLine1('6153 Smokey Ln');
@@ -30,8 +29,7 @@ class LoadRepresentativeData extends AbstractFixture implements DependentFixture
         $manager->persist($representative);
 
         $user = $this->getReference('user_2');
-        $group = $this->getReference('group_2');
-        $representative = new Representative($user, $group);
+        $representative = new Representative($user);
         $representative->setOfficialTitle('CEO');
         $representative->setCity('San Francisco');
         $representative->setAddressLine1('4143 Depaul Dr');
@@ -45,8 +43,7 @@ class LoadRepresentativeData extends AbstractFixture implements DependentFixture
         $manager->persist($representative);
 
         $user = $this->getReference('user_3');
-        $group = $this->getReference('group_3');
-        $representative = new Representative($user, $group);
+        $representative = new Representative($user);
         $representative->setOfficialTitle('Software Engineer');
         $representative->setCity('San Diego');
         $representative->setAddressLine1('1730 Auerbach Ave');
