@@ -147,8 +147,6 @@ class SuperuserController extends Controller
             'representative_approve_'.$representative->getId(), $this->getRequest()->get('_token')
         )) {
             $representativeManager = $this->get('civix_core.representative_manager');
-            $newUsername = $representativeManager->generateRepresentativeUsername($representative);
-            $newPassword = $representativeManager->generateRepresentativePassword($representative);
 
             //approve representative
             if (!$representativeManager->approveRepresentative($representative)) {
@@ -165,7 +163,7 @@ class SuperuserController extends Controller
 
             //send notification
             $this->get('civix_core.email_sender')
-                ->sendToApprovedRepresentative($representative, $newUsername, $newPassword);
+                ->sendToApprovedRepresentative($representative);
 
             $this->get('session')->getFlashBag()->add('notice', 'Representative was approved');
         } else {

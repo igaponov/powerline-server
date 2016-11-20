@@ -80,16 +80,14 @@ class EmailSender
         $this->mailer->send($message);
     }
 
-    public function sendToApprovedRepresentative(Representative $representative, $username, $password)
+    public function sendToApprovedRepresentative(Representative $representative)
     {
         $message = $this->createMessage(
             'Representative Registration approved',
             $representative->getEmail(),
             'CivixFrontBundle:Superuser:email/representative_approved.html.twig',
             array(
-                    'name' => $representative->getFirstName().' '.$representative->getLastName(),
-                    'username' => $username,
-                    'password' => $password,
+                    'name' => $representative->getUser()->getFirstName().' '.$representative->getUser()->getLastName(),
             )
         );
         $this->mailer->send($message);

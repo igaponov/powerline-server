@@ -20,7 +20,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 class SecureController extends BaseController
 {
     /**
-     * Login a entity (User, Group, Representative or SuperUser)
+     * Login a entity (User or SuperUser)
      * 
      * Example:
      *
