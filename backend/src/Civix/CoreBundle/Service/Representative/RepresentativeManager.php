@@ -47,53 +47,6 @@ class RepresentativeManager
     }
 
     /**
-     * Generate representative username by name and set new username.
-     *
-     * @param Representative $representative
-     * @param int            $iteration
-     *
-     * @return string New username
-     */
-    public function generateRepresentativeUsername(Representative $representative, $iteration = 0)
-    {
-        // Generate canonical name
-        $name = $representative->getFirstName().$representative->getLastName();
-        $name = preg_replace('/[^\w]/i', '', $name);
-        $name = strtolower($name);
-        $name = $iteration ? ($name.$iteration) : $name;
-
-        $representByUsername = $this->entityManager
-            ->getRepository('CivixCoreBundle:Representative')
-            ->findOneBy(array('username' => $name));
-
-        if (is_null($representByUsername)) {
-            $representative->setUsername($name);
-        } else {
-            $name = $this->generateRepresentativeUsername($representative, ++$iteration);
-        }
-
-        return $name;
-    }
-
-    /**
-     * Generate representative password and set to representative.
-     *
-     * @param Representative $representative
-     *
-     * @return string New password
-     */
-    public function generateRepresentativePassword(Representative $representative)
-    {
-        $newPassword = substr(base_convert(sha1(uniqid(mt_rand(), true)), 16, 36), 0, 9);
-
-        $encoder = $this->encoderFactory->getEncoder($representative);
-        $password = $encoder->encodePassword($newPassword, $representative->getSalt());
-        $representative->setPassword($password);
-
-        return $newPassword;
-    }
-
-    /**
      * Synchronize $storageRepresentative with Cicero representative.
      *
      * @param \Civix\CoreBundle\Entity\Representative $representative
@@ -109,30 +62,17 @@ class RepresentativeManager
         );
 
         if ($ciceroRepresentative) {
-            //update current data of representative from cicero
-            $this->ciceroStorageService->fillRepresentativeByApiObj($representative, $ciceroRepresentative);
-            $this->entityManager->persist($representative);
-
-            //update representative in civix
-            if ($representative instanceof Representative) {
-                $representative->setOfficialTitle($representative->getOfficialTitle());
-                $representative->setDistrict($representative->getDistrict());
-                $this->entityManager->persist($representative);
-                $this->entityManager->flush($representative);
-            }
+            $this->ciceroStorageService
+                ->fillRepresentativeByApiObj($representative, $ciceroRepresentative);
         } else {
-            //unlink district and storage
-            if ($representative instanceof Representative) {
-                $representative->setDistrict(null);
-                $representative->setCiceroId(null);
-                $this->entityManager->persist($representative);
-                $this->entityManager->flush($representative);
-            }
-
-            return false;
+            $representative->setDistrict(null);
+            $representative->setCiceroId(null);
         }
 
-        return true;
+        $this->entityManager->persist($representative);
+        $this->entityManager->flush($representative);
+
+        return !!$ciceroRepresentative;
     }
 
     public function synchronizeByStateCode($stateCode)

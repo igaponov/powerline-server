@@ -4,10 +4,6 @@ jms_security_extra:
 
 security:
     encoders:
-        Civix\CoreBundle\Entity\Representative:
-            algorithm: sha512
-            encode-as-base64: false
-            iterations: 473
         Civix\CoreBundle\Entity\Superuser:
             algorithm: sha512
             encode-as-base64: false
@@ -18,30 +14,12 @@ security:
             iterations: 473
 
     providers:
-        representative:
-            entity: { class: CivixCoreBundle:Representative, property: username }
         superuser:
             entity: { class: CivixCoreBundle:Superuser, property: username }
         mobileuser:
             entity: { class: CivixCoreBundle:User, property: username }
 
     firewalls:
-        representative_anonymous:
-            pattern: ^/representative/(login|registration)$
-            anonymous: ~
-        representative_security_area:
-            pattern: ^/representative/
-            provider: representative
-            security: true
-            form_login:
-                check_path: /representative/login_check
-                login_path: /representative/login
-                csrf_provider: form.csrf_provider
-                intention: representative_authentication
-            logout:
-                path: /representative/logout
-                target: /representative
-
         superuser_anonymous:
             pattern: ^/superuser/login$
             anonymous: ~
