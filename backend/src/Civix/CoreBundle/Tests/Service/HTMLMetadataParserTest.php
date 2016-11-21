@@ -1,7 +1,7 @@
 <?php
 namespace Civix\CoreBundle\Tests\Service;
 
-use Civix\CoreBundle\Entity\Micropetitions\Metadata;
+use Civix\CoreBundle\Entity\Metadata;
 use Civix\CoreBundle\Service\HTMLMetadataParser;
 
 class HTMLMetadataParserTest extends \PHPUnit_Framework_TestCase

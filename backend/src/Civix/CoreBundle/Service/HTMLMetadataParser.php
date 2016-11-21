@@ -1,7 +1,7 @@
 <?php
 namespace Civix\CoreBundle\Service;
 
-use Civix\CoreBundle\Entity\Micropetitions\Metadata;
+use Civix\CoreBundle\Entity\Metadata;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 
 class HTMLMetadataParser

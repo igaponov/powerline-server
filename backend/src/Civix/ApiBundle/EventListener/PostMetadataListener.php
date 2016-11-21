@@ -1,12 +1,12 @@
 <?php
 namespace Civix\ApiBundle\EventListener;
 
-use Civix\CoreBundle\Entity\Micropetitions\Petition;
+use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Service\HTMLMetadataParser;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use GuzzleHttp\Client;
 
-class PetitionMetadataListener
+class PostMetadataListener
 {
     const PATTERN = '@((https?://)?([-\w]+\.[-\w\.]+)+\w(:\d+)?(/([-\w/_\.\,]*(\?\S+)?)?)*)@';
 
@@ -24,11 +24,11 @@ class PetitionMetadataListener
     {
         $entity = $args->getEntity();
 
-        if (!$entity instanceof Petition || $entity->getType() !== Petition::TYPE_QUORUM) {
+        if (!$entity instanceof Post) {
             return;
         }
 
-        if (preg_match(self::PATTERN, $entity->getPetitionBody(), $matches)) {
+        if (preg_match(self::PATTERN, $entity->getBody(), $matches)) {
             $url = $matches[1];
             $response = $this->getResponse($url);
             $metadata = $this->parser->parse($response->getBody());
