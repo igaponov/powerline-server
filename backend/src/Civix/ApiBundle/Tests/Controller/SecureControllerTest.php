@@ -53,6 +53,8 @@ class SecureControllerTest extends WebTestCase
         $this->client->request('POST', self::API_LOGIN_ENDPOINT, $parameters, [], [], $content);
         $response = $this->client->getResponse();
         $this->assertEquals(401, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame('Authentication failed.', $data['message']);
     }
 	
 	public function testUserLoginWithCredentials()

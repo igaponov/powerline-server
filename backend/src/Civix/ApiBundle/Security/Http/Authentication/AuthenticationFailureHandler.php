@@ -1,8 +1,8 @@
 <?php
 namespace Civix\ApiBundle\Security\Http\Authentication;
 
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
 
@@ -10,6 +10,6 @@ class AuthenticationFailureHandler implements AuthenticationFailureHandlerInterf
 {
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
-        return new Response('Authentication failed.', 401);
+        return new JsonResponse(['message' => 'Authentication failed.'], 401);
     }
 }
