@@ -1,20 +1,20 @@
 <?php
 namespace Civix\ApiBundle\Tests\EventListener;
 
-use Civix\ApiBundle\EventListener\PetitionMetadataListener;
-use Civix\CoreBundle\Entity\Micropetitions\Metadata;
-use Civix\CoreBundle\Entity\Micropetitions\Petition;
+use Civix\ApiBundle\EventListener\PostMetadataListener;
+use Civix\CoreBundle\Entity\Metadata;
+use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Service\HTMLMetadataParser;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use GuzzleHttp\Psr7\Response;
 
-class PetitionMetadataListenerTest extends \PHPUnit_Framework_TestCase
+class PostMetadataListenerTest extends \PHPUnit_Framework_TestCase
 {
-    public function testPostPersistParsePetitionBodyAndSetsMetadataUrl()
+    public function testPostPersistParsePostBodyAndSetsMetadataUrl()
     {
-        $petition = new Petition();
-        $petition->setPetitionBody('Some text with http://url.tld for parsing.');
+        $petition = new Post();
+        $petition->setBody('Some text with http://url.tld for parsing.');
         $parser = $this->getMockBuilder(HTMLMetadataParser::class)
             ->setMethods(['parse'])
             ->getMock();
@@ -24,8 +24,8 @@ class PetitionMetadataListenerTest extends \PHPUnit_Framework_TestCase
             ->method('parse')
             ->with('body')
             ->will($this->returnValue($metadata));
-        /** @var \PHPUnit_Framework_MockObject_MockObject|PetitionMetadataListener $listener */
-        $listener = $this->getMockBuilder(PetitionMetadataListener::class)
+        /** @var \PHPUnit_Framework_MockObject_MockObject|PostMetadataListener $listener */
+        $listener = $this->getMockBuilder(PostMetadataListener::class)
             ->setConstructorArgs([$parser])
             ->setMethods(['getResponse'])
             ->getMock();
