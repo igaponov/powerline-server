@@ -92,6 +92,10 @@ class RepresentativeRepository extends EntityRepository
 
     public function getNonLegislativeRepresentative($districtsIds)
     {
+        if (!$districtsIds) {
+            return [];
+        }
+
         return $this->createQueryBuilder('repr')
             ->where('repr.isNonLegislative = 1')
             ->andWhere('repr.district in (:districts)')
