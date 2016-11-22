@@ -2,7 +2,7 @@
 
 namespace Civix\CoreBundle\Service\Subscription;
 
-use Civix\CoreBundle\Entity\LeaderInterface;
+use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Doctrine\ORM\EntityManager;
 use Civix\CoreBundle\Service\Stripe;
 use Civix\CoreBundle\Entity\Subscription\Subscription;
@@ -43,11 +43,11 @@ class SubscriptionManager
     }
 
     /**
-     * @param LeaderInterface $leader
+     * @param LeaderContentRootInterface $leader
      *
      * @return Subscription
      */
-    public function getSubscription(LeaderInterface $leader)
+    public function getSubscription(LeaderContentRootInterface $leader)
     {
         $subscription = $this->em->getRepository(Subscription::class)->findOneBy([
             $leader->getType() => $leader,
@@ -67,11 +67,11 @@ class SubscriptionManager
     }
 
     /**
-     * @param LeaderInterface $user
+     * @param LeaderContentRootInterface $user
      *
      * @return Package\Package
      */
-    public function getPackage(LeaderInterface $user)
+    public function getPackage(LeaderContentRootInterface $user)
     {
         $subscription = $this->getSubscription($user);
 

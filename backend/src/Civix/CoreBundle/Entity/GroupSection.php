@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\GroupSectionRepository")
  * @Serializer\ExclusionPolicy("all")
  */
-class GroupSection implements LeaderContentInterface
+class GroupSection implements GroupContentInterface
 {
     /**
      * @var int

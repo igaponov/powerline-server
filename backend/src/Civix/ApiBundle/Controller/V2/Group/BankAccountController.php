@@ -110,7 +110,7 @@ class BankAccountController extends BaseController
         /* @var Account $account */
         $account = $this->getDoctrine()
             ->getRepository(AccountGroup::class)
-            ->findOneBy(['user' => $group]);
+            ->findOneBy(['group' => $group]);
 
         if ($account) {
             return $account->getBankAccounts();
@@ -145,7 +145,7 @@ class BankAccountController extends BaseController
         /* @var AccountGroup $account */
         $account = $this->getDoctrine()
             ->getRepository(AccountGroup::class)
-            ->findOneBy(['user' => $group]);
+            ->findOneBy(['group' => $group]);
         if ($account) {
             $bankAccount = new BankAccount();
             $bankAccount->setId($id);

@@ -5,7 +5,7 @@ namespace Civix\ApiBundle\Form\Type\Poll;
 use Civix\ApiBundle\EventListener\QuestionTypeSubscriber;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\GroupSection;
-use Civix\CoreBundle\Entity\LeaderInterface;
+use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Repository\GroupSectionRepository;
 use Civix\CoreBundle\Service\PollClassNameFactory;
@@ -20,11 +20,11 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 class QuestionType extends AbstractType
 {
     /**
-     * @var LeaderInterface
+     * @var LeaderContentRootInterface
      */
     private $user;
 
-    public function __construct(LeaderInterface $user)
+    public function __construct(LeaderContentRootInterface $user)
     {
         $this->user = $user;
     }

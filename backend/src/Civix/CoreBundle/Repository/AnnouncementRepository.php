@@ -2,7 +2,7 @@
 
 namespace Civix\CoreBundle\Repository;
 
-use Civix\CoreBundle\Entity\LeaderInterface;
+use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Doctrine\ORM\EntityRepository;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Representative;
@@ -16,7 +16,7 @@ use Civix\CoreBundle\Entity\Group;
  */
 class AnnouncementRepository extends EntityRepository
 {
-    public function getNewQuery(LeaderInterface $owner)
+    public function getNewQuery(LeaderContentRootInterface $owner)
     {
         return $this->getEntityManager()
             ->createQueryBuilder()
@@ -30,7 +30,7 @@ class AnnouncementRepository extends EntityRepository
         ;
     }
 
-    public function getPublishedQuery(LeaderInterface $owner)
+    public function getPublishedQuery(LeaderContentRootInterface $owner)
     {
         return $this->getEntityManager()
             ->createQueryBuilder()
@@ -103,7 +103,7 @@ class AnnouncementRepository extends EntityRepository
         ;
     }
 
-    public function getAnnouncementCountPerMonth(LeaderInterface $owner)
+    public function getAnnouncementCountPerMonth(LeaderContentRootInterface $owner)
     {
         $startDate = new \DateTime();
         $calcPeriod = new \DateInterval('P30D');
@@ -124,11 +124,11 @@ class AnnouncementRepository extends EntityRepository
     }
 
     /**
-     * @param LeaderInterface $user
+     * @param LeaderContentRootInterface $user
      *
      * @return string
      */
-    private function getAnnouncementRepositoryName(LeaderInterface $user)
+    private function getAnnouncementRepositoryName(LeaderContentRootInterface $user)
     {
         if ($user instanceof Representative) {
             return 'CivixCoreBundle:Announcement\RepresentativeAnnouncement';

@@ -3,30 +3,25 @@
 namespace Civix\ApiBundle\Security\Authorization\Voter;
 
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\LeaderContentInterface;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\GroupContentInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class LeaderContentVoter implements VoterInterface
+class GroupContentVoter implements VoterInterface
 {
     const EDIT = 'edit';
     const MANAGE = 'manage';
     const MEMBER = 'member';
     const VIEW = 'view';
+
     /**
      * @var GroupVoter
      */
     private $groupVoter;
-    /**
-     * @var RepresentativeVoter
-     */
-    private $representativeVoter;
 
-    public function __construct(GroupVoter $groupVoter, RepresentativeVoter $representativeVoter)
+    public function __construct(GroupVoter $groupVoter)
     {
         $this->groupVoter = $groupVoter;
-        $this->representativeVoter = $representativeVoter;
     }
 
     /**
@@ -55,7 +50,7 @@ class LeaderContentVoter implements VoterInterface
      */
     public function supportsClass($class)
     {
-        $supportedClass = LeaderContentInterface::class;
+        $supportedClass = GroupContentInterface::class;
         return $supportedClass === $class || is_subclass_of($class, $supportedClass);
     }
 
@@ -66,7 +61,7 @@ class LeaderContentVoter implements VoterInterface
      * ACCESS_GRANTED, ACCESS_DENIED, or ACCESS_ABSTAIN.
      *
      * @param TokenInterface $token A TokenInterface instance
-     * @param LeaderContentInterface $object
+     * @param GroupContentInterface $object
      * @param array $attributes An array of attributes associated with the method being invoked
      *
      * @return int Either ACCESS_GRANTED, ACCESS_ABSTAIN, or ACCESS_DENIED
@@ -81,12 +76,9 @@ class LeaderContentVoter implements VoterInterface
             return VoterInterface::ACCESS_ABSTAIN;
         }
 
-        $root = $object->getRoot();
-        if ($root instanceof Group) {
-            return $this->groupVoter->vote($token, $root, $attributes);
-        } elseif ($root instanceof Representative) {
-            $attributes = $attributes[0] == self::VIEW ? $attributes : [self::EDIT];
-            return $this->representativeVoter->vote($token, $root, $attributes);
+        $group = $object->getGroup();
+        if ($group instanceof Group) {
+            return $this->groupVoter->vote($token, $group, $attributes);
         }
 
         return VoterInterface::ACCESS_DENIED;

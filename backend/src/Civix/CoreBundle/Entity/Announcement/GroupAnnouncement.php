@@ -20,7 +20,7 @@ class GroupAnnouncement extends Announcement implements GroupSectionInterface
      *
      * @return GroupAnnouncement
      */
-    public function setUser(\Civix\CoreBundle\Entity\Group $group = null)
+    public function setRoot(\Civix\CoreBundle\Entity\Group $group = null)
     {
         $this->group = $group;
 
@@ -32,7 +32,7 @@ class GroupAnnouncement extends Announcement implements GroupSectionInterface
      *
      * @return \Civix\CoreBundle\Entity\Group
      */
-    public function getUser()
+    public function getRoot()
     {
         return $this->group;
     }

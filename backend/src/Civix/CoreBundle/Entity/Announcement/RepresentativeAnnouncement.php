@@ -19,7 +19,7 @@ class RepresentativeAnnouncement extends Announcement
      *
      * @return Announcement
      */
-    public function setUser(\Civix\CoreBundle\Entity\Representative $representative = null)
+    public function setRoot(\Civix\CoreBundle\Entity\Representative $representative = null)
     {
         $this->representative = $representative;
 
@@ -31,7 +31,7 @@ class RepresentativeAnnouncement extends Announcement
      *
      * @return \Civix\CoreBundle\Entity\Representative
      */
-    public function getUser()
+    public function getRoot()
     {
         return $this->representative;
     }

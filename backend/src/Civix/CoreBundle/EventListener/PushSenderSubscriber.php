@@ -40,7 +40,7 @@ class PushSenderSubscriber implements EventSubscriberInterface
             $method = 'sendPublishedGroupAnnouncementPush';
         }
         $this->pushTask->addToQueue($method, [
-            $announcement->getUser()->getId(), 
+            $announcement->getRoot()->getId(),
             $announcement->getId(),
         ]);
     }

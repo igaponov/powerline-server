@@ -239,23 +239,23 @@ abstract class Announcement implements LeaderContentInterface
      */
     public function getSharePicture()
     {
-        $entity = $this->getUser();
+        $entity = $this->getRoot();
 
         return new Image($entity, 'avatar');
     }
 
     public function getGroup()
     {
-        return $this->getUser();
+        return $this->getRoot();
     }
 
     /**
-     * @return LeaderInterface
+     * @return LeaderContentRootInterface
      * 
      * @Serializer\VirtualProperty()
      * @Serializer\SerializedName("user")
      * @Serializer\Groups({"api"})
      */
-    abstract public function getUser();
-    abstract public function setUser();
+    abstract public function getRoot();
+    abstract public function setRoot();
 }

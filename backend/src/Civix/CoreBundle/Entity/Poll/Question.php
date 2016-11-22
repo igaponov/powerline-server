@@ -7,7 +7,7 @@ use Civix\CoreBundle\Entity\CommentedInterface;
 use Civix\CoreBundle\Entity\HashTaggableInterface;
 use Civix\CoreBundle\Entity\HashTaggableTrait;
 use Civix\CoreBundle\Entity\LeaderContentInterface;
-use Civix\CoreBundle\Entity\LeaderInterface;
+use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
 use Civix\CoreBundle\Entity\SubscriptionInterface;
 use Civix\CoreBundle\Entity\User;
@@ -248,7 +248,7 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
     abstract public function getType();
 
     /**
-     * @return LeaderInterface
+     * @return LeaderContentRootInterface
      */
     abstract public function getOwner();
 
@@ -725,5 +725,10 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
         if (!$this instanceof LeaderNews && $this->getOptions()->count() < 2) {
             $context->addViolation('You must specify at least two options');
         }
+    }
+
+    public function getRoot()
+    {
+        return $this->getGroup();
     }
 }

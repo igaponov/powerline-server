@@ -2,19 +2,20 @@
 
 namespace Civix\CoreBundle\Entity\Stripe;
 
-use Civix\CoreBundle\Entity\LeaderInterface;
+use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 
 interface AccountInterface
 {
     /**
-     * @return LeaderInterface
+     * @return LeaderContentRootInterface
      */
-    public function getUser();
+    public function getRoot();
 
     /**
+     * @param LeaderContentRootInterface $root
      * @return AccountInterface
      */
-    public function setUser();
+    public function setRoot(LeaderContentRootInterface $root);
 
     /**
      * @return AccountInterface

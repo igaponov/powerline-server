@@ -2,7 +2,7 @@
 
 namespace Civix\CoreBundle\Service\Subscription;
 
-use Civix\CoreBundle\Entity\LeaderInterface;
+use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Doctrine\ORM\EntityManager;
 use Civix\CoreBundle\Model\Subscription\PackageLimitState;
 use Civix\CoreBundle\Entity\Group;
@@ -53,7 +53,7 @@ class PackageHandler
         return $limitObj;
     }
 
-    public function getPackageStateForAnnouncement(LeaderInterface $user)
+    public function getPackageStateForAnnouncement(LeaderContentRootInterface $user)
     {
         $package = $this->sm->getPackage($user);
 

@@ -15,7 +15,7 @@ class LoadAccountGroupData extends AbstractFixture implements DependentFixtureIn
         $group = $this->getReference('group_1');
 
         $account = new AccountGroup();
-        $account->setUser($group)
+        $account->setGroup($group)
             ->setStripeId('65DAC0B12')
             ->setSecretKey('SECRET123')
             ->setPublishableKey('PUB0KEY598')
