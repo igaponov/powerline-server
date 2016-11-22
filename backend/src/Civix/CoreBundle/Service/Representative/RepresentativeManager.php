@@ -39,9 +39,19 @@ class RepresentativeManager
         $this->ciceroService = $ciceroService;
     }
 
+    public function save(Representative $representative)
+    {
+        $this->entityManager->persist($representative);
+        $this->entityManager->flush();
+
+        return $representative;
+    }
+
     public function approveRepresentative(Representative $representative)
     {
         $representative->setStatus(Representative::STATUS_ACTIVE);
+
+        $this->synchronizeRepresentative($representative);
 
         return $representative;
     }
