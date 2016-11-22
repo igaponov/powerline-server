@@ -17,8 +17,10 @@
                     <th>{{ knp_pagination_sortable(pagination, 'Id', 'repr.id') }}</th>
                     <th>Name</th>
                     <th{% if pagination.isSorted('repr.officialTitle') %} class="sorted"{% endif %}>{{ knp_pagination_sortable(pagination, 'Official Title', 'repr.officialTitle') }}</th>
-                    <th>Official Phone</th>
+                    <th>Phone</th>
+                    <th>Private Phone</th>
                     <th>Email</th>
+                    <th>Private Email</th>
                     <th></th>
                 </tr>
 
@@ -26,10 +28,12 @@
                 {% for repr in pagination %}
                     <tr>
                         <td>{{ repr.id }}</td>
-                        <td>{{ repr.firstname }} {{ repr.lastname }}</td>
+                        <td>{{ repr.user.firstname }} {{ repr.user.lastname }}</td>
                         <td>{{ repr.officialTitle }}</td>
-                        <td>{{ repr.officialPhone }}</td>
+                        <td>{{ repr.phone }}</td>
+                        <td>{{ repr.privatePhone }}</td>
                         <td>{{ repr.email }}</td>
+                        <td>{{ repr.privateEmail }}</td>
                         <td>
                             <div class="form-link">
                                 <a href="{{ path('civix_front_superuser_representative_edit',{'id': repr.id}) }}"
