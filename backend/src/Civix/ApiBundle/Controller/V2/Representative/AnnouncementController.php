@@ -1,11 +1,11 @@
 <?php
 
-namespace Civix\ApiBundle\Controller\V2\Group;
+namespace Civix\ApiBundle\Controller\V2\Representative;
 
 use Civix\ApiBundle\Configuration\SecureParam;
-use Civix\ApiBundle\Form\Type\GroupAnnouncementType;
+use Civix\ApiBundle\Form\Type\AnnouncementType;
 use Civix\CoreBundle\Entity\Announcement;
-use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\Representative;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
@@ -15,10 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class AnnouncementController
- * @package Civix\ApiBundle\Controller\V2
- *
- * @Route("/groups/{group}/announcements")
+ * @Route("/representatives/{representative}/announcements")
  */
 class AnnouncementController extends FOSRestController
 {
@@ -28,14 +25,14 @@ class AnnouncementController extends FOSRestController
      * @Route("")
      * @Method("POST")
      *
-     * @SecureParam("group", permission="manage")
+     * @SecureParam("representative", permission="edit")
      *
      * @ApiDoc(
      *     authentication=true,
      *     resource=true,
      *     section="Announcements",
      *     description="Adds an user's announcement",
-     *     input="Civix\ApiBundle\Form\Type\GroupAnnouncementType",
+     *     input="Civix\ApiBundle\Form\Type\AnnouncementType",
      *     output = {
      *          "class" = "Civix\CoreBundle\Entity\Announcement",
      *          "groups" = {"api"},
@@ -53,19 +50,19 @@ class AnnouncementController extends FOSRestController
      * @View(serializerGroups={"api"})
      *
      * @param Request $request
-     * @param Group $group
+     * @param Representative $representative
      *
      * @return Announcement|\Symfony\Component\Form\Form
      */
-    public function postAction(Request $request, Group $group)
+    public function postAction(Request $request, Representative $representative)
     {
         /** @var Announcement $announcement */
-        $announcement = new Announcement\GroupAnnouncement();
-        $form = $this->createForm(new GroupAnnouncementType($group), $announcement);
+        $announcement = new Announcement\RepresentativeAnnouncement();
+        $form = $this->createForm(new AnnouncementType(), $announcement);
         $form->submit($request);
 
         if ($form->isValid()) {
-            $announcement->setRoot($group);
+            $announcement->setRoot($representative);
             $manager = $this->getDoctrine()->getManager();
             $manager->persist($announcement);
             $manager->flush();

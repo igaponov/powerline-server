@@ -731,4 +731,9 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
     {
         return $this->getGroup();
     }
+
+    public function setRoot(LeaderContentRootInterface $root)
+    {
+        return $this->group = $root;
+    }
 }

@@ -88,12 +88,14 @@ abstract class Announcement implements LeaderContentInterface
     private $publishedAt;
 
     /**
+     * @var Representative
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Representative")
      * @ORM\JoinColumn(name="representative_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $representative;
 
     /**
+     * @var Group
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Group")
      * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="CASCADE")
      * @Serializer\Expose()
@@ -244,11 +246,6 @@ abstract class Announcement implements LeaderContentInterface
         return new Image($entity, 'avatar');
     }
 
-    public function getGroup()
-    {
-        return $this->getRoot();
-    }
-
     /**
      * @return LeaderContentRootInterface
      * 
@@ -257,5 +254,10 @@ abstract class Announcement implements LeaderContentInterface
      * @Serializer\Groups({"api"})
      */
     abstract public function getRoot();
-    abstract public function setRoot();
+
+    /**
+     * @param LeaderContentRootInterface $root
+     * @return mixed
+     */
+    abstract public function setRoot(LeaderContentRootInterface $root);
 }

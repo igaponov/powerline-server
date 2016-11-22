@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Service;
 
+use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Civix\CoreBundle\Entity\OfficialInterface;
 use Civix\CoreBundle\Entity\Stripe\BankAccount;
 use Civix\CoreBundle\Entity\Stripe\Card;
@@ -332,18 +333,18 @@ class Stripe
     }
 
     /**
-     * @param Group $group
+     * @param LeaderContentRootInterface $root
      * @return \Stripe\Account|\stdClass
      */
-    public function createAccount(Group $group)
+    public function createAccount(LeaderContentRootInterface $root)
     {
         $params = [
             'managed' => true,
-            'metadata' => ['id' => $group->getId(), 'type' => $group->getType()],
-            'email' => $group->getEmail(),
+            'metadata' => ['id' => $root->getId(), 'type' => $root->getType()],
+            'email' => $root->getEmail(),
         ];
-        if ($group->getOwner() && $group->getOwner()->getCountry()) {
-            $params['country'] = $group->getOwner()->getCountry();
+        if ($root->getUser() && $root->getUser()->getCountry()) {
+            $params['country'] = $root->getUser()->getCountry();
         }
 
         return \Stripe\Account::create($params);

@@ -1250,6 +1250,14 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
     }
 
     /**
+     * @return User
+     */
+    public function getUser()
+    {
+        return $this->owner;
+    }
+
+    /**
      * @ORM\PrePersist()
      */
     public function setCreatedDate()
