@@ -3,21 +3,19 @@ imports:
 
 framework:
     router:   { resource: "%kernel.root_dir%/config/routing_dev.yml" }
-    profiler: { only_exceptions: false }
+    profiler:
+        enabled: false
     session:
         save_path: /dev/shm/powerline/%kernel.environment%
-
-web_profiler:
-    toolbar: true
-    intercept_redirects: false
 
 monolog:
     handlers:
         main:
-            type:  stream
-            path:  %kernel.logs_dir%/%kernel.environment%.log
+            type:  rotating_file
+            path:  '%kernel.logs_dir%/%kernel.environment%.log'
             level: debug
             channels: [!event]
+            max_files: 10
         push:
             type:  stream
             path:  %kernel.logs_dir%/push_%kernel.environment%.log
