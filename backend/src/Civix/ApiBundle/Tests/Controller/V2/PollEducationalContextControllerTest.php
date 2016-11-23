@@ -91,18 +91,7 @@ class PollEducationalContextControllerTest extends WebTestCase
         $client = $this->client;
         $uri = str_replace('{poll}', $question->getId(), self::API_ENDPOINT);
         $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"'], json_encode($params));
-        $response = $client->getResponse();
-        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertSame('Validation Failed', $data['message']);
-        $children = $data['errors']['children'];
-        $this->assertEquals(
-            ['This poll should contain 3 educational contexts or less.'],
-            $data['errors']['errors']
-        );
-        foreach ($errors as $child => $error) {
-            $this->assertEquals([$error], $children[$child]['errors']);
-        }
+        $this->assertResponseHasErrors($client->getResponse(), $errors);
     }
 
     public function getInvalidParams()
@@ -112,18 +101,31 @@ class PollEducationalContextControllerTest extends WebTestCase
                 'user1',
                 ['type' => '', 'content' => ''],
                 [
+                    'This poll should contain 3 educational contexts or less.',
                     'type' => 'This value should not be blank.',
                     'content' => 'This value should not be blank.',
                 ]
             ],
-            'manager' => [
+            'manager1' => [
                 'user2',
                 [
                     'type' => EducationalContext::IMAGE_TYPE,
                     'content' => base64_encode(file_get_contents(__FILE__)),
                 ],
                 [
+                    'This poll should contain 3 educational contexts or less.',
                     'content' => 'This file is not a valid image.',
+                ]
+            ],
+            'manager2' => [
+                'user3',
+                [
+                    'type' => 'photo',
+                    'content' => base64_encode(file_get_contents(__DIR__.'/../../data/image.png')),
+                ],
+                [
+                    'This poll should contain 3 educational contexts or less.',
+                    'type' => 'The value you selected is not a valid choice.',
                 ]
             ],
         ];
