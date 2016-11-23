@@ -1,20 +1,24 @@
 <?php
 namespace Civix\ApiBundle\Tests\EventListener;
 
-use Civix\ApiBundle\EventListener\PostMetadataListener;
+use Civix\ApiBundle\EventListener\MetadataListener;
 use Civix\CoreBundle\Entity\Metadata;
 use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Service\HTMLMetadataParser;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use GuzzleHttp\Psr7\Response;
 
-class PostMetadataListenerTest extends \PHPUnit_Framework_TestCase
+class MetadataListenerTest extends \PHPUnit_Framework_TestCase
 {
-    public function testPostPersistParsePostBodyAndSetsMetadataUrl()
+    /**
+     * @param Post|UserPetition $entity
+     * @dataProvider getEntities
+     */
+    public function testPostPersistParsePostBodyAndSetsMetadataUrl($entity)
     {
-        $petition = new Post();
-        $petition->setBody('Some text with http://url.tld for parsing.');
+        $entity->setBody('Some text with http://url.tld for parsing.');
         $parser = $this->getMockBuilder(HTMLMetadataParser::class)
             ->setMethods(['parse'])
             ->getMock();
@@ -24,8 +28,8 @@ class PostMetadataListenerTest extends \PHPUnit_Framework_TestCase
             ->method('parse')
             ->with('body')
             ->will($this->returnValue($metadata));
-        /** @var \PHPUnit_Framework_MockObject_MockObject|PostMetadataListener $listener */
-        $listener = $this->getMockBuilder(PostMetadataListener::class)
+        /** @var \PHPUnit_Framework_MockObject_MockObject|MetadataListener $listener */
+        $listener = $this->getMockBuilder(MetadataListener::class)
             ->setConstructorArgs([$parser])
             ->setMethods(['getResponse'])
             ->getMock();
@@ -37,8 +41,16 @@ class PostMetadataListenerTest extends \PHPUnit_Framework_TestCase
         $em = $this->getMockBuilder(EntityManager::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $event = new LifecycleEventArgs($petition, $em);
+        $event = new LifecycleEventArgs($entity, $em);
         $listener->postPersist($event);
         $this->assertEquals('http://url.tld', $metadata->getUrl());
+    }
+
+    public function getEntities()
+    {
+        return [
+            'post' => [new Post],
+            'petition' => [new UserPetition],
+        ];
     }
 }
