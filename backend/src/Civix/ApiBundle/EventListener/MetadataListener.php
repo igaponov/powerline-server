@@ -2,11 +2,12 @@
 namespace Civix\ApiBundle\EventListener;
 
 use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Service\HTMLMetadataParser;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use GuzzleHttp\Client;
 
-class PostMetadataListener
+class MetadataListener
 {
     const PATTERN = '@((https?://)?([-\w]+\.[-\w\.]+)+\w(:\d+)?(/([-\w/_\.\,]*(\?\S+)?)?)*)@';
 
@@ -24,7 +25,7 @@ class PostMetadataListener
     {
         $entity = $args->getEntity();
 
-        if (!$entity instanceof Post) {
+        if (!$entity instanceof Post && !$entity instanceof UserPetition) {
             return;
         }
 

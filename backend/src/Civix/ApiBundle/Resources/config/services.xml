@@ -20,7 +20,7 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service class="Civix\ApiBundle\EventListener\PostMetadataListener" id="civix_api.event_listener.petition_metadata_listener">
+        <service class="Civix\ApiBundle\EventListener\MetadataListener" id="civix_api.event_listener.petition_metadata_listener">
             <argument id="civix_core.service.htmlmetadata_parser" type="service"/>
             <tag name="doctrine.event_listener" event="postPersist" />
         </service>
