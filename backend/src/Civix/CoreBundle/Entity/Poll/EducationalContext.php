@@ -50,6 +50,7 @@ class EducationalContext implements ContentInterface
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll"})
      * @Assert\NotBlank()
+     * @Assert\Choice(callback="getTypes")
      */
     private $type;
 
