@@ -4,14 +4,15 @@ namespace Civix\CoreBundle\Entity\Poll;
 
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\CommentedInterface;
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\HashTaggableInterface;
 use Civix\CoreBundle\Entity\HashTaggableTrait;
 use Civix\CoreBundle\Entity\LeaderContentInterface;
-use Civix\CoreBundle\Entity\LeaderInterface;
+use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
+use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\SubscriptionInterface;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\UserInterface;
 use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 use Civix\CoreBundle\Model\Group\GroupSectionTrait;
 use Civix\CoreBundle\Validator\Constraints\PublishDate;
@@ -63,7 +64,7 @@ use Symfony\Component\Validator\ExecutionContext;
  * })
  * @Serializer\ExclusionPolicy("all")
  * 
- * @method setOwner(UserInterface $group)
+ * @method setOwner(LeaderContentRootInterface $group)
  * @Assert\Callback(methods={"areOptionsValid"}, groups={"publish"})
  * @PublishDate(objectName="Poll", groups={"update", "publish"})
  * @PublishedPollAmount(groups={"publish"})
@@ -248,7 +249,7 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
     abstract public function getType();
 
     /**
-     * @return LeaderInterface
+     * @return LeaderContentRootInterface
      */
     abstract public function getOwner();
 
@@ -651,11 +652,21 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
         return new Image($entity, 'avatar');
     }
 
+    /**
+     * @return Group|LeaderContentRootInterface
+     */
     public function getGroup()
     {
         return $this->getOwner();
     }
 
+    /**
+     * @return Representative|LeaderContentRootInterface
+     */
+    public function getRepresentative()
+    {
+        return $this->getOwner();
+    }
     /**
      * Add subscriber
      *
@@ -725,5 +736,15 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
         if (!$this instanceof LeaderNews && $this->getOptions()->count() < 2) {
             $context->addViolation('You must specify at least two options');
         }
+    }
+
+    public function getRoot()
+    {
+        return $this->getGroup();
+    }
+
+    public function setRoot(LeaderContentRootInterface $root)
+    {
+        return $this->group = $root;
     }
 }

@@ -22,7 +22,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\RepresentativeRepository")
  * @Serializer\ExclusionPolicy("all")
  */
-class Representative implements CheckingLimits
+class Representative implements CheckingLimits, LeaderContentRootInterface
 {
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_representative.png';
 
@@ -331,6 +331,11 @@ class Representative implements CheckingLimits
         $this->setCountry('US');
         $this->setStatus(self::STATUS_PENDING);
         $this->setUpdatedAt(new \DateTime());
+    }
+
+    public function getType()
+    {
+        return 'representative';
     }
 
     /**

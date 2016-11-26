@@ -20,7 +20,7 @@ use Civix\CoreBundle\Entity\Group\GroupField;
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\UserGroupRepository")
  * @Serializer\ExclusionPolicy("all")
  */
-class UserGroup implements LeaderContentInterface
+class UserGroup implements GroupContentInterface
 {
     const STATUS_PENDING = 0;
     const STATUS_ACTIVE = 1;

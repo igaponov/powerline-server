@@ -3,13 +3,12 @@
 namespace Civix\ApiBundle\Controller\V2\Group;
 
 use Civix\ApiBundle\Configuration\SecureParam;
-use Civix\ApiBundle\Form\Type\Poll\QuestionType;
+use Civix\ApiBundle\Controller\V2\AbstractPollController;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Service\PollManager;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
-use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\DiExtraBundle\Annotation as DI;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
@@ -22,13 +21,18 @@ use Symfony\Component\HttpFoundation\Request;
  * 
  * @Route("/groups/{group}/polls")
  */
-class PollController extends FOSRestController
+class PollController extends AbstractPollController
 {
     /**
      * @var PollManager
      * @DI\Inject("civix_core.poll_manager")
      */
     private $manager;
+
+    protected function getManager()
+    {
+        return $this->manager;
+    }
 
     /**
      * List all the polls and questions based in the current user type.
@@ -63,22 +67,9 @@ class PollController extends FOSRestController
      *
      * @return \Knp\Component\Pager\Pagination\PaginationInterface
      */
-    public function getcAction(ParamFetcher $params, Group $group)
+    public function getPollsAction(ParamFetcher $params, Group $group)
     {
-        /** @var $query \Doctrine\ORM\Query */
-        $query = $this->getDoctrine()->getRepository('CivixCoreBundle:Poll\Question')
-            ->getFilteredQuestionQuery(
-                $params->get('filter'),
-                $group,
-                Question\Group::class
-            );
-
-        $paginator = $this->get('knp_paginator');
-        return $paginator->paginate(
-            $query,
-            $params->get('page'),
-            $params->get('per_page')
-        );
+        return $this->getPolls($params, $group);
     }
 
     /**
@@ -114,20 +105,8 @@ class PollController extends FOSRestController
      *
      * @return Question|\Symfony\Component\Form\Form
      */
-    public function postAction(Request $request, Group $group)
+    public function postPollAction(Request $request, Group $group)
     {
-        $form = $this->createForm(new QuestionType($group));
-
-        $form->submit($request);
-        if ($form->isValid()) {
-            /** @var Question $question */
-            $question = $form->getData();
-            $question->setUser($this->getUser());
-            $question->setOwner($group);
-
-            return $this->manager->savePoll($question);
-        }
-
-        return $form;
+        return $this->postPoll($request, $group);
     }
 }

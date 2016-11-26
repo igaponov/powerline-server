@@ -19,16 +19,14 @@ class RepresentativeEdit extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('firstname', null, array('label' => 'First name'));
-        $builder->add('lastname', null, array('label' => 'Last name'));
         $builder->add('officialTitle', null, array('label' => 'Official Title'));
-        $builder->add('officialAddress', 'textarea', array('label' => 'Official Address'));
-        $builder->add('officialPhone', null, array('label' => 'Official Phone'));
+        $builder->add('phone', null, array('label' => 'Phone'));
+        $builder->add('privatePhone', null, array('label' => 'Private Phone'));
         $builder->add('city', null, array('label' => 'City'));
         $builder->add('state', 'entity', array('class' => 'Civix\CoreBundle\Entity\State', 'property' => 'code'));
         $builder->add('country', 'choice', array('choices' => array('US' => 'USA')));
-        $builder->add('officialPhone', null, array('label' => 'Official Phone'));
         $builder->add('email', null, array('label' => 'Email'));
+        $builder->add('privateEmail', null, array('label' => 'Private Email'));
         $builder->add('fax', null, array('label' => 'Fax', 'required' => false));
         $builder->add('website', null, array('label' => 'Website', 'required' => false));
     }

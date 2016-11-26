@@ -51,6 +51,10 @@
             <tag name="security.voter"/>
         </service>
 
+        <service class="Civix\ApiBundle\Security\Authorization\Voter\RepresentativeVoter" id="civix_api.security_authorization_voter.representative_voter">
+            <tag name="security.voter"/>
+        </service>
+
         <service class="Civix\ApiBundle\Security\Authorization\Voter\PetitionVoter" id="civix_api.security_authorization_voter.petition_voter">
             <argument id="civix_api.security_authorization_voter.group_voter" type="service"/>
             <tag name="security.voter"/>
@@ -73,6 +77,12 @@
         </service>
 
         <service class="Civix\ApiBundle\Security\Authorization\Voter\LeaderContentVoter" id="civix_api.security_authorization_voter.leader_content_voter">
+            <argument id="civix_api.security_authorization_voter.group_voter" type="service"/>
+            <argument id="civix_api.security_authorization_voter.representative_voter" type="service"/>
+            <tag name="security.voter" priority="-255"/>
+        </service>
+
+        <service class="Civix\ApiBundle\Security\Authorization\Voter\GroupContentVoter" id="civix_api.security_authorization_voter.group_content_voter">
             <argument id="civix_api.security_authorization_voter.group_voter" type="service"/>
             <tag name="security.voter" priority="-255"/>
         </service>

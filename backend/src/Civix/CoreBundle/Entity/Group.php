@@ -31,7 +31,7 @@ use Civix\CoreBundle\Serializer\Type\JoinStatus;
  * @Vich\Uploadable
  * @Serializer\ExclusionPolicy("all")
  */
-class Group implements \Serializable, CheckingLimits, CropAvatarInterface, LeaderInterface, OfficialInterface
+class Group implements \Serializable, CheckingLimits, CropAvatarInterface, LeaderContentRootInterface, OfficialInterface
 {
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_group.png';
 
@@ -1250,6 +1250,14 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
     }
 
     /**
+     * @return User
+     */
+    public function getUser()
+    {
+        return $this->owner;
+    }
+
+    /**
      * @ORM\PrePersist()
      */
     public function setCreatedDate()
@@ -1891,5 +1899,10 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
         }
 
         return null;
+    }
+
+    public function getOfficialTitle()
+    {
+        return $this->getOfficialName();
     }
 }

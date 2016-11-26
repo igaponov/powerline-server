@@ -54,7 +54,7 @@ class StripeSubscriber implements EventSubscriberInterface
     {
         $account = $event->getAccount();
 
-        $response = $this->stripe->createAccount($account->getUser());
+        $response = $this->stripe->createAccount($account->getRoot());
         $account
             ->setStripeId($response->id)
             ->setSecretKey($response->keys->secret)

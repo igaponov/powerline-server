@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Entity\Stripe;
 
 use Civix\CoreBundle\Entity\LeaderContentInterface;
+use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Civix\CoreBundle\Entity\Group;
 
@@ -12,28 +13,38 @@ use Civix\CoreBundle\Entity\Group;
 class AccountGroup extends Account implements LeaderContentInterface
 {
     /**
+     * @var Group
      * @ORM\OneToOne(targetEntity="\Civix\CoreBundle\Entity\Group")
      * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="CASCADE")
      */
-    private $user;
+    private $group;
+
+    public function getRoot()
+    {
+        return $this->getGroup();
+    }
+
+    public function setRoot(LeaderContentRootInterface $root)
+    {
+        return $this->setGroup($root);
+    }
 
     /**
-     * @return \Civix\CoreBundle\Entity\Group
+     * @return Group
      */
-    public function getUser()
-    {
-        return $this->user;
-    }
-
-    public function setUser(Group $user = null)
-    {
-        $this->user = $user;
-
-        return $this;
-    }
-
     public function getGroup()
     {
-        return $this->getUser();
+        return $this->group;
+    }
+
+    /**
+     * @param mixed $group
+     * @return AccountGroup
+     */
+    public function setGroup(Group $group)
+    {
+        $this->group = $group;
+
+        return $this;
     }
 }

@@ -28,7 +28,7 @@ class AccountController extends FOSRestController
      * @Route("")
      * @Method("DELETE")
      *
-     * @ParamConverter("account", options={"mapping" = {"group" = "user"}})
+     * @ParamConverter("account", options={"mapping" = {"group" = "group"}})
      * @SecureParam("account", permission="edit")
      *
      * @ApiDoc(

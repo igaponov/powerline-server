@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Announcement;
 use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Model\Subscription\PackageLimitState;
 use Civix\CoreBundle\Service\Subscription\PackageHandler;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupAnnouncementData;
@@ -117,7 +118,7 @@ class AnnouncementControllerTest extends WebTestCase
         $this->assertCount(0, $data['payload']);
     }
 
-    public function testGetAnnouncementWithWrongCredentialsReturnsException()
+    public function testGetGroupAnnouncementWithWrongCredentialsReturnsException()
     {
         $repository = $this->loadFixtures([
             LoadGroupAnnouncementData::class,
@@ -130,12 +131,25 @@ class AnnouncementControllerTest extends WebTestCase
         $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
 
+    public function testGetRepresentativeAnnouncementWithWrongCredentialsReturnsException()
+    {
+        $repository = $this->loadFixtures([
+            LoadRepresentativeAnnouncementData::class,
+        ])->getReferenceRepository();
+        /** @var Announcement $announcement */
+        $announcement = $repository->getReference('announcement_jb_1');
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user2"']);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
     /**
      * @param $user
      * @param $reference
      * @dataProvider getValidAnnouncementCredentialsForGetRequest
      */
-    public function testGetAnnouncementIsOk($user, $reference)
+    public function testGetGroupAnnouncementIsOk($user, $reference)
     {
         $repository = $this->loadFixtures([
             LoadGroupManagerData::class,
@@ -160,12 +174,26 @@ class AnnouncementControllerTest extends WebTestCase
         ];
     }
 
+    public function testGetRepresentativeAnnouncementIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadRepresentativeAnnouncementData::class,
+        ])->getReferenceRepository();
+        $announcement = $repository->getReference('announcement_jb_1');
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame($announcement->getId(), $data['id']);
+    }
+
     /**
      * @param array $params
      * @param array $errors
      * @dataProvider getInvalidParams
      */
-    public function testUpdateAnnouncementReturnsErrors($params, $errors)
+    public function testUpdateGroupAnnouncementReturnsErrors($params, $errors)
     {
         $repository = $this->loadFixtures([
             LoadUserGroupData::class,
@@ -173,6 +201,29 @@ class AnnouncementControllerTest extends WebTestCase
         ])->getReferenceRepository();
         $client = $this->client;
         $announcement = $repository->getReference('announcement_group_1');
+        $client->request('PUT', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Token'=>'user1'], json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame('Validation Failed', $data['message']);
+        $children = $data['errors']['children'];
+        foreach ($errors as $child => $error) {
+            $this->assertEquals([$error], $children[$child]['errors']);
+        }
+    }
+
+    /**
+     * @param array $params
+     * @param array $errors
+     * @dataProvider getInvalidParams
+     */
+    public function testUpdateRepresentativeAnnouncementReturnsErrors($params, $errors)
+    {
+        $repository = $this->loadFixtures([
+            LoadRepresentativeAnnouncementData::class,
+        ])->getReferenceRepository();
+        $client = $this->client;
+        $announcement = $repository->getReference('announcement_jb_1');
         $client->request('PUT', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Token'=>'user1'], json_encode($params));
         $response = $client->getResponse();
         $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
@@ -203,7 +254,7 @@ class AnnouncementControllerTest extends WebTestCase
      * @param $reference
      * @dataProvider getInvalidAnnouncementCredentialsForUpdateRequest
      */
-    public function testUpdateAnnouncementWithWrongCredentialsReturnsException($user, $reference)
+    public function testUpdateGroupAnnouncementWithWrongCredentialsReturnsException($user, $reference)
     {
         $repository = $this->loadFixtures([
             LoadGroupAnnouncementData::class,
@@ -223,7 +274,19 @@ class AnnouncementControllerTest extends WebTestCase
         ];
     }
 
-    public function testUpdatePublishedAnnouncementReturnsError()
+    public function testUpdateRepresentativeAnnouncementWithWrongCredentialsReturnsException()
+    {
+        $repository = $this->loadFixtures([
+            LoadRepresentativeAnnouncementData::class,
+        ])->getReferenceRepository();
+        $client = $this->client;
+        $announcement = $repository->getReference('announcement_jb_1');
+        $client->request('PUT', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user2"'], '{}');
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testUpdatePublishedGroupAnnouncementReturnsError()
     {
         $repository = $this->loadFixtures([
             LoadGroupAnnouncementData::class,
@@ -237,12 +300,26 @@ class AnnouncementControllerTest extends WebTestCase
         $this->assertSame(["Announcement is already published"], $data['errors']['errors']);
     }
 
+    public function testUpdatePublishedRepresentativeAnnouncementReturnsError()
+    {
+        $repository = $this->loadFixtures([
+            LoadRepresentativeAnnouncementData::class,
+        ])->getReferenceRepository();
+        $client = $this->client;
+        $announcement = $repository->getReference('announcement_jb_2');
+        $client->request('PUT', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], '{}');
+        $response = $client->getResponse();
+        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame(["Announcement is already published"], $data['errors']['errors']);
+    }
+
     /**
      * @param $user
      * @param $reference
      * @dataProvider getValidAnnouncementCredentialsForUpdateRequest
      */
-    public function testUpdateAnnouncementIsOk($user, $reference)
+    public function testUpdateGroupAnnouncementIsOk($user, $reference)
     {
         $faker = Factory::create();
         $repository = $this->loadFixtures([
@@ -270,26 +347,58 @@ class AnnouncementControllerTest extends WebTestCase
         ];
     }
 
-    public function testUpdateAnnouncementWithExceededLimitReturnsException()
+    public function testUpdateRepresentativeAnnouncementIsOk()
+    {
+        $faker = Factory::create();
+        $repository = $this->loadFixtures([
+            LoadRepresentativeAnnouncementData::class,
+        ])->getReferenceRepository();
+        $params = [
+            'content' => $faker->sentence,
+        ];
+        $announcement = $repository->getReference('announcement_jb_1');
+        $client = $this->client;
+        $client->request('PUT', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame($announcement->getId(), $data['id']);
+        $this->assertSame($params['content'], $data['content_parsed']);
+    }
+
+    public function testPublishGroupAnnouncementWithExceededLimitReturnsException()
     {
         $repository = $this->loadFixtures([
             LoadGroupAnnouncementData::class,
         ])->getReferenceRepository();
         $client = $this->client;
-        $client->getContainer()->set('civix_core.package_handler', $this->getPackageHandlerMock(2));
+        $client->getContainer()->set('civix_core.package_handler', $this->getPackageHandlerMock(Group::class, 2));
         $announcement = $repository->getReference('announcement_group_1');
         $client->request('PATCH', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], '{}');
         $response = $client->getResponse();
         $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
 
-    public function testPublishPublishedAnnouncementReturnsError()
+    public function testPublishRepresentativeAnnouncementWithExceededLimitReturnsException()
+    {
+        $repository = $this->loadFixtures([
+            LoadRepresentativeAnnouncementData::class,
+        ])->getReferenceRepository();
+        $client = $this->client;
+        $client->getContainer()->set('civix_core.package_handler', $this->getPackageHandlerMock(Representative::class, 2));
+        $announcement = $repository->getReference('announcement_jb_1');
+        $client->request('PATCH', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], '{}');
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testPublishPublishedGroupAnnouncementReturnsError()
     {
         $repository = $this->loadFixtures([
             LoadGroupAnnouncementData::class,
         ])->getReferenceRepository();
         $client = $this->client;
-        $client->getContainer()->set('civix_core.package_handler', $this->getPackageHandlerMock());
+        $client->getContainer()->set('civix_core.package_handler', $this->getPackageHandlerMock(Group::class));
         $announcement = $repository->getReference('announcement_group_2');
         $client->request('PATCH', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], '{}');
         $response = $client->getResponse();
@@ -298,15 +407,30 @@ class AnnouncementControllerTest extends WebTestCase
         $this->assertSame(["Announcement is already published"], $data['errors']['errors']);
     }
 
-    public function testPublishAnnouncementIsOk()
+    public function testPublishPublishedRepresentativeAnnouncementReturnsError()
+    {
+        $repository = $this->loadFixtures([
+            LoadRepresentativeAnnouncementData::class,
+        ])->getReferenceRepository();
+        $client = $this->client;
+        $client->getContainer()->set('civix_core.package_handler', $this->getPackageHandlerMock(Representative::class));
+        $announcement = $repository->getReference('announcement_jb_2');
+        $client->request('PATCH', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], '{}');
+        $response = $client->getResponse();
+        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame(["Announcement is already published"], $data['errors']['errors']);
+    }
+
+    public function testPublishGroupAnnouncementIsOk()
     {
         $repository = $this->loadFixtures([
             LoadGroupAnnouncementData::class,
         ])->getReferenceRepository();
-        /** @var Announcement $announcement */
+        /** @var Announcement\GroupAnnouncement $announcement */
         $announcement = $repository->getReference('announcement_group_1');
         $client = $this->client;
-        $client->getContainer()->set('civix_core.package_handler', $this->getPackageHandlerMock());
+        $client->getContainer()->set('civix_core.package_handler', $this->getPackageHandlerMock(Group::class));
         $client->request('PATCH', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -318,12 +442,32 @@ class AnnouncementControllerTest extends WebTestCase
         $this->assertEquals(1, $queue->hasMessageWithMethod('sendPublishedGroupAnnouncementPush', [$announcement->getGroup()->getId(), $announcement->getId()]));
     }
 
+    public function testPublishRepresentativeAnnouncementIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadRepresentativeAnnouncementData::class,
+        ])->getReferenceRepository();
+        /** @var Announcement\RepresentativeAnnouncement $announcement */
+        $announcement = $repository->getReference('announcement_jb_1');
+        $client = $this->client;
+        $client->getContainer()->set('civix_core.package_handler', $this->getPackageHandlerMock(Representative::class));
+        $client->request('PATCH', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame($announcement->getId(), $data['id']);
+        $this->assertNotNull($data['published_at']);
+        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+        $this->assertEquals(1, $queue->count());
+        $this->assertEquals(1, $queue->hasMessageWithMethod('sendPublishedRepresentativeAnnouncementPush', [$announcement->getRepresentative()->getId(), $announcement->getId()]));
+    }
+
     /**
      * @param $user
      * @param $reference
      * @dataProvider getInvalidAnnouncementCredentialsForUpdateRequest
      */
-    public function testDeleteAnnouncementWithWrongCredentialsReturnsException($user, $reference)
+    public function testDeleteGroupAnnouncementWithWrongCredentialsReturnsException($user, $reference)
     {
         $repository = $this->loadFixtures([
             LoadGroupAnnouncementData::class,
@@ -335,7 +479,19 @@ class AnnouncementControllerTest extends WebTestCase
         $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
 
-    public function testDeletePublishedAnnouncementReturnsError()
+    public function testDeleteRepresentativeAnnouncementWithWrongCredentialsReturnsException()
+    {
+        $repository = $this->loadFixtures([
+            LoadRepresentativeAnnouncementData::class,
+        ])->getReferenceRepository();
+        $client = $this->client;
+        $announcement = $repository->getReference('announcement_jb_1');
+        $client->request('DELETE', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user2"']);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testDeletePublishedGroupAnnouncementReturnsError()
     {
         $repository = $this->loadFixtures([
             LoadGroupAnnouncementData::class,
@@ -349,12 +505,26 @@ class AnnouncementControllerTest extends WebTestCase
         $this->assertSame(["Announcement is already published"], $data['errors']['errors']);
     }
 
+    public function testDeletePublishedRepresentativeAnnouncementReturnsError()
+    {
+        $repository = $this->loadFixtures([
+            LoadRepresentativeAnnouncementData::class,
+        ])->getReferenceRepository();
+        $client = $this->client;
+        $announcement = $repository->getReference('announcement_jb_2');
+        $client->request('DELETE', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $response = $client->getResponse();
+        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame(["Announcement is already published"], $data['errors']['errors']);
+    }
+
     /**
      * @param $user
      * @param $reference
      * @dataProvider getValidAnnouncementCredentialsForUpdateRequest
      */
-    public function testDeleteAnnouncementIsOk($user, $reference)
+    public function testDeleteGroupAnnouncementIsOk($user, $reference)
     {
         $repository = $this->loadFixtures([
             LoadGroupManagerData::class,
@@ -367,7 +537,19 @@ class AnnouncementControllerTest extends WebTestCase
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
     }
 
-    private function getPackageHandlerMock($currentValue = 1, $limitValue = 2)
+    public function testDeleteRepresentativeAnnouncementIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadRepresentativeAnnouncementData::class,
+        ])->getReferenceRepository();
+        $announcement = $repository->getReference('announcement_jb_1');
+        $client = $this->client;
+        $client->request('DELETE', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+    }
+
+    private function getPackageHandlerMock($class, $currentValue = 1, $limitValue = 2)
     {
         $service = $this->getMockBuilder(PackageHandler::class)
             ->setMethods(['getPackageStateForAnnouncement'])
@@ -378,7 +560,7 @@ class AnnouncementControllerTest extends WebTestCase
         $packageLimitState->setLimitValue($limitValue);
         $service->expects($this->any())
             ->method('getPackageStateForAnnouncement')
-            ->with($this->isInstanceOf(Group::class))
+            ->with($this->isInstanceOf($class))
             ->will($this->returnValue($packageLimitState));
 
         return $service;

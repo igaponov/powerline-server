@@ -2,10 +2,12 @@
 
 namespace Civix\CoreBundle\Entity\Announcement;
 
+use Civix\CoreBundle\Entity\Announcement;
+use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Civix\CoreBundle\Entity\Announcement;
 
 /**
  * @ORM\Entity()
@@ -14,13 +16,18 @@ use Civix\CoreBundle\Entity\Announcement;
 class GroupAnnouncement extends Announcement implements GroupSectionInterface
 {
     /**
-     * Set group.
-     *
-     * @param \Civix\CoreBundle\Entity\Group $group
-     *
+     * @return Group
+     */
+    public function getGroup()
+    {
+        return $this->group;
+    }
+
+    /**
+     * @param Group|LeaderContentRootInterface $group
      * @return GroupAnnouncement
      */
-    public function setUser(\Civix\CoreBundle\Entity\Group $group = null)
+    public function setGroup(Group $group)
     {
         $this->group = $group;
 
@@ -28,12 +35,25 @@ class GroupAnnouncement extends Announcement implements GroupSectionInterface
     }
 
     /**
+     * Set group.
+     *
+     * @param LeaderContentRootInterface $root
+     * @return GroupAnnouncement
+     * @internal param Group $group
+     *
+     */
+    public function setRoot(LeaderContentRootInterface $root)
+    {
+        return $this->setGroup($root);
+    }
+
+    /**
      * Get group.
      *
      * @return \Civix\CoreBundle\Entity\Group
      */
-    public function getUser()
+    public function getRoot()
     {
-        return $this->group;
+        return $this->getGroup();
     }
 }

@@ -10,6 +10,7 @@ use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Option;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Service\PollManager;
+use Doctrine\ORM\EntityManager;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -42,6 +43,12 @@ class PollController extends FOSRestController
      * @DI\Inject("civix_core.poll_manager")
      */
     private $manager;
+
+    /**
+     * @var EntityManager
+     * @DI\Inject("doctrine.orm.entity_manager")
+     */
+    private $em;
 
     /**
      * Return poll
@@ -116,9 +123,8 @@ class PollController extends FOSRestController
 
         $form->submit($request, false);
         if ($form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($question);
-            $entityManager->flush();
+            $this->em->persist($question);
+            $this->em->flush();
 
             return $question;
         }
@@ -196,9 +202,8 @@ class PollController extends FOSRestController
     {
         $violations = $this->get('validator')->validate($question, ['update']);
         if (!$violations->count()) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($question);
-            $entityManager->flush();
+            $this->em->remove($question);
+            $this->em->flush();
 
             return null;
         } else {
@@ -249,9 +254,8 @@ class PollController extends FOSRestController
             $option = $form->getData();
             $option->setQuestion($question);
 
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($option);
-            $em->flush();
+            $this->em->persist($option);
+            $this->em->flush();
 
             return $option;
         }
@@ -295,8 +299,7 @@ class PollController extends FOSRestController
      */
     public function getAnswersAction(ParamFetcher $params, Question $question)
     {
-        $entityManager = $this->getDoctrine()->getManager();
-        $query = $entityManager->getRepository('CivixCoreBundle:Poll\Answer')
+        $query = $this->em->getRepository('CivixCoreBundle:Poll\Answer')
             ->getAnswersByQuestion(
                 $question,
                 $params->get('following') !== null ? $this->getUser() : null,
@@ -375,6 +378,7 @@ class PollController extends FOSRestController
      * @Route("/{id}/responses")
      * @Method("GET")
      *
+     * @ParamConverter("question", options={"repository_method" = "getGroupQuestion"})
      * @SecureParam("question", permission="edit")
      *
      * @ApiDoc(
@@ -394,10 +398,9 @@ class PollController extends FOSRestController
      *
      * @return array
      */
-    public function getResponsesActivity(Question $question)
+    public function getResponsesAction(Question $question)
     {
-        $entityManager = $this->getDoctrine()->getManager();
-        $query = $entityManager->getRepository('CivixCoreBundle:Poll\Answer')
+        $query = $this->em->getRepository('CivixCoreBundle:Poll\Answer')
             ->getResponsesByQuestion($question);
 
         return $query->fetchAll();

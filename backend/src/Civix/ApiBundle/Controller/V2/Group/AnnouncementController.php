@@ -3,7 +3,7 @@
 namespace Civix\ApiBundle\Controller\V2\Group;
 
 use Civix\ApiBundle\Configuration\SecureParam;
-use Civix\ApiBundle\Form\Type\AnnouncementType;
+use Civix\ApiBundle\Form\Type\GroupAnnouncementType;
 use Civix\CoreBundle\Entity\Announcement;
 use Civix\CoreBundle\Entity\Group;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -35,7 +35,7 @@ class AnnouncementController extends FOSRestController
      *     resource=true,
      *     section="Announcements",
      *     description="Adds an user's announcement",
-     *     input="Civix\ApiBundle\Form\Type\AnnouncementType",
+     *     input="Civix\ApiBundle\Form\Type\GroupAnnouncementType",
      *     output = {
      *          "class" = "Civix\CoreBundle\Entity\Announcement",
      *          "groups" = {"api"},
@@ -61,11 +61,11 @@ class AnnouncementController extends FOSRestController
     {
         /** @var Announcement $announcement */
         $announcement = new Announcement\GroupAnnouncement();
-        $form = $this->createForm(new AnnouncementType($group), $announcement);
+        $form = $this->createForm(new GroupAnnouncementType($group), $announcement);
         $form->submit($request);
 
         if ($form->isValid()) {
-            $announcement->setUser($group);
+            $announcement->setRoot($group);
             $manager = $this->getDoctrine()->getManager();
             $manager->persist($announcement);
             $manager->flush();

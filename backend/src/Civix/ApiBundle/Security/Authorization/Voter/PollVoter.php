@@ -2,7 +2,7 @@
 namespace Civix\ApiBundle\Security\Authorization\Voter;
 
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\LeaderInterface;
+use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Superuser;
@@ -89,12 +89,13 @@ class PollVoter implements VoterInterface
         }
 
         // make sure entity has owner attached to it
-        if (!$object->getOwner() instanceof LeaderInterface) {
+        if (!$object->getOwner() instanceof LeaderContentRootInterface) {
             return VoterInterface::ACCESS_DENIED;
         }
 
         if ($attribute === self::SUBSCRIBE) {
-            if ($object->getGroup()->isMember($user)) {
+            $root = $object->getRoot();
+            if ($root instanceof Group && $root->isMember($user)) {
                 return VoterInterface::ACCESS_GRANTED;
             }
         }

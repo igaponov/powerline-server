@@ -38,12 +38,14 @@ class RepresentativeType extends AbstractType
             'description' => 'Public Phone',
         ]);
         $builder->add('private_phone', null, [
+            'property_path' => 'privatePhone',
             'description' => 'Private Phone',
         ]);
         $builder->add('email', null, [
             'description' => 'Email',
         ]);
         $builder->add('private_email', null, [
+            'property_path' => 'privateEmail',
             'description' => 'Private Email',
         ]);
     }

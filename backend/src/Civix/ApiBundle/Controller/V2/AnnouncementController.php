@@ -4,7 +4,9 @@ namespace Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Configuration\SecureParam;
 use Civix\ApiBundle\Form\Type\AnnouncementType;
+use Civix\ApiBundle\Form\Type\GroupAnnouncementType;
 use Civix\CoreBundle\Entity\Announcement;
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Service\AnnouncementManager;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -167,7 +169,13 @@ class AnnouncementController extends FOSRestController
      */
     public function putAction(Request $request, Announcement $announcement)
     {
-        $form = $this->createForm(new AnnouncementType($announcement->getGroup()), $announcement, [
+        $leader = $announcement->getRoot();
+        if ($leader instanceof Group) {
+            $type = new GroupAnnouncementType($leader);
+        } else {
+            $type = new AnnouncementType();
+        }
+        $form = $this->createForm($type, $announcement, [
             'validation_groups' => ['Default', 'update']
         ]);
         $form->submit($request, false);

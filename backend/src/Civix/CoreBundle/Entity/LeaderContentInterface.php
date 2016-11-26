@@ -5,7 +5,13 @@ namespace Civix\CoreBundle\Entity;
 interface LeaderContentInterface
 {
     /**
-     * @return UserInterface|Group
+     * @return LeaderContentRootInterface
      */
-    public function getGroup();
+    public function getRoot();
+
+    /**
+     * @param LeaderContentRootInterface $root
+     * @return mixed
+     */
+    public function setRoot(LeaderContentRootInterface $root);
 }

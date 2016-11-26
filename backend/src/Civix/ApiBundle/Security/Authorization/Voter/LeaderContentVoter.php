@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Security\Authorization\Voter;
 
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\LeaderContentInterface;
+use Civix\CoreBundle\Entity\Representative;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
@@ -17,10 +18,15 @@ class LeaderContentVoter implements VoterInterface
      * @var GroupVoter
      */
     private $groupVoter;
+    /**
+     * @var RepresentativeVoter
+     */
+    private $representativeVoter;
 
-    public function __construct(GroupVoter $groupVoter)
+    public function __construct(GroupVoter $groupVoter, RepresentativeVoter $representativeVoter)
     {
         $this->groupVoter = $groupVoter;
+        $this->representativeVoter = $representativeVoter;
     }
 
     /**
@@ -75,9 +81,12 @@ class LeaderContentVoter implements VoterInterface
             return VoterInterface::ACCESS_ABSTAIN;
         }
 
-        $group = $object->getGroup();
-        if ($group instanceof Group) {
-            return $this->groupVoter->vote($token, $group, $attributes);
+        $root = $object->getRoot();
+        if ($root instanceof Group) {
+            return $this->groupVoter->vote($token, $root, $attributes);
+        } elseif ($root instanceof Representative) {
+            $attributes = $attributes[0] == self::VIEW ? $attributes : [self::EDIT];
+            return $this->representativeVoter->vote($token, $root, $attributes);
         }
 
         return VoterInterface::ACCESS_DENIED;

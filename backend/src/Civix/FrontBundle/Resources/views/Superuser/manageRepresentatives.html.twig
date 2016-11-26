@@ -14,6 +14,9 @@
                         <th class="span1">{{ knp_pagination_sortable(pagination, 'Id', 'r.id') }}</th>
                         <th class="span5">Name</th>
                         <th class="span4">Email</th>
+                        <th class="span4">Private Email</th>
+                        <th class="span4">Phone</th>
+                        <th class="span4">Private Phone</th>
                         <th class="span2">Options</th>
                     </tr>
                 </thead>
@@ -21,8 +24,11 @@
                     {% for rep in pagination %}
                     <tr>
                         <td>{{ rep.id }}</td>
-                        <td>{{ rep.firstName }} {{ rep.lastName }}</td>
+                        <td>{{ rep.user.firstName }} {{ rep.user.lastName }}</td>
                         <td>{{ rep.email }}</td>
+                        <td>{{ rep.privateEmail }}</td>
+                        <td>{{ rep.phone }}</td>
+                        <td>{{ rep.privatePhone }}</td>
                         <td class="table-options"><form action="{{ path('civix_front_superuser_representative_remove', {'id': rep.id}) }}" method="POST"><input type="hidden" name="_token" value="{{ csrf_token('remove_representative_' ~ rep.id) }}"><input type="submit" class="btn btn-link" value="Remove" /></form>
                             <a href="{{ path('civix_front_superuser_representative_limits',{'id': rep.id}) }}" title="Limits"><i class="icon-wrench"></i>Limits</a>
                         </td>

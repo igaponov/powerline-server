@@ -15,14 +15,14 @@ class LoadAnnouncementData extends AbstractFixture implements FixtureInterface, 
         $representative = $this->getReference('representative1');
 
         $announcement = new RepresentativeAnnouncement();
-        $announcement->setUser($representative);
+        $announcement->setRoot($representative);
         $announcement->setContent('test');
         $this->addReference('announcement1', $announcement);
         $manager->persist($announcement);
 
         //published
         $announcementPublished = new RepresentativeAnnouncement();
-        $announcementPublished->setUser($representative);
+        $announcementPublished->setRoot($representative);
         $announcementPublished->setContent('testPublish');
         $announcementPublished->setPublishedAt(new \DateTime());
 

@@ -76,7 +76,7 @@ abstract class AnnouncementController extends Controller
             if ($form->bind($request)->isValid()) {
                 /* @var $announcement \Civix\CoreBundle\Entity\Announcement */
                 $announcement = $form->getData();
-                $announcement->setUser($this->getUser());
+                $announcement->setRoot($this->getUser());
                 $manager = $this->getDoctrine()->getManager();
                 $manager->persist($announcement);
                 $manager->flush();
@@ -99,7 +99,7 @@ abstract class AnnouncementController extends Controller
      */
     public function editAction(Request $request, Announcement $announcement)
     {
-        if ($announcement->getUser() !== $this->getUser() || $announcement->getPublishedAt()) {
+        if ($announcement->getRoot() !== $this->getUser() || $announcement->getPublishedAt()) {
             throw $this->createNotFoundException();
         }
 
@@ -107,7 +107,7 @@ abstract class AnnouncementController extends Controller
 
         if ('POST' === $request->getMethod()) {
             if ($form->bind($request)->isValid()) {
-                $announcement->setUser($this->getUser());
+                $announcement->setRoot($this->getUser());
                 $manager = $this->getDoctrine()->getManager();
                 $manager->persist($announcement);
                 $manager->flush();
@@ -129,7 +129,7 @@ abstract class AnnouncementController extends Controller
      */
     public function deleteAction(Request $request, Announcement $announcement)
     {
-        if ($announcement->getUser() !== $this->getUser() || $announcement->getPublishedAt() ||
+        if ($announcement->getRoot() !== $this->getUser() || $announcement->getPublishedAt() ||
             $request->get('token') !== $this->getToken()) {
             throw new AccessDeniedHttpException();
         }
@@ -146,7 +146,7 @@ abstract class AnnouncementController extends Controller
      */
     public function publishAction(Request $request, Announcement $announcement)
     {
-        if ($announcement->getUser() !== $this->getUser() || $announcement->getPublishedAt() ||
+        if ($announcement->getRoot() !== $this->getUser() || $announcement->getPublishedAt() ||
             $request->get('token') !== $this->getToken()) {
             throw new AccessDeniedHttpException();
         }

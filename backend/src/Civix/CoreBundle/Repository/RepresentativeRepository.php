@@ -104,7 +104,7 @@ class RepresentativeRepository extends EntityRepository
             ->getResult();
     }
 
-    public function getQueryBuilderLocalRepr($group)
+    public function getQueryBuilderLocalRepr()
     {
         return $this->createQueryBuilder('repr');
     }
@@ -149,5 +149,13 @@ class RepresentativeRepository extends EntityRepository
             ->where('r.openstateId IS NULL')
             ->getQuery()
             ->getResult();
+    }
+
+    public function getByUserQuery(User $user)
+    {
+        return $this->createQueryBuilder('r')
+            ->where('r.user = :user')
+            ->setParameter(':user', $user)
+            ->getQuery();
     }
 }

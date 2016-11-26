@@ -41,7 +41,7 @@ class StripeAccountManager
     {
         $account = $this->em
             ->getRepository(AccountGroup::class)
-            ->findOneBy(['user' => $user])
+            ->findOneBy(['group' => $user])
         ;
         if (!$account) {
             $account = $this->createAccount($user);
@@ -126,7 +126,7 @@ class StripeAccountManager
     private function createAccount(Group $group)
     {
         $account = new AccountGroup();
-        $account->setUser($group);
+        $account->setGroup($group);
 
         $event = new AccountEvent($account);
         $this->dispatcher->dispatch(AccountEvents::PRE_CREATE, $event);

@@ -3,10 +3,7 @@ namespace Civix\CoreBundle\Tests\DataFixtures\ORM\Group;
 
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Question;
-use Civix\CoreBundle\Entity\Stripe\CustomerGroup;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -69,7 +66,7 @@ class LoadQuestionAnswerData extends AbstractFixture implements ContainerAwareIn
 
     public function getDependencies()
     {
-        return [LoadGroupManagerData::class, LoadUserGroupData::class, LoadGroupQuestionData::class];
+        return [LoadGroupQuestionData::class];
     }
 
     /**
