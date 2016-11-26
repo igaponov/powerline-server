@@ -2,11 +2,11 @@
 
 namespace Civix\CoreBundle\Entity\Stripe;
 
+use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
-use Civix\CoreBundle\Entity\UserInterface;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
@@ -149,7 +149,7 @@ abstract class Account implements AccountInterface
         }, $bankAccounts);
     }
 
-    public static function getEntityClassByUser(UserInterface $user)
+    public static function getEntityClassByUser(LeaderContentRootInterface $user)
     {
         $type = ucfirst($user->getType());
 
