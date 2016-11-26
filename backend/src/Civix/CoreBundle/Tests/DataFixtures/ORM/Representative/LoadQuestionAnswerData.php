@@ -1,5 +1,5 @@
 <?php
-namespace Civix\CoreBundle\Tests\DataFixtures\ORM\Group;
+namespace Civix\CoreBundle\Tests\DataFixtures\ORM\Representative;
 
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Question;
@@ -8,65 +8,53 @@ use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Faker\Factory;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class LoadQuestionAnswerData extends AbstractFixture implements ContainerAwareInterface, DependentFixtureInterface
+class LoadQuestionAnswerData extends AbstractFixture implements DependentFixtureInterface
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
     /** @var ObjectManager */
     private $manager;
-
-    public function setContainer(ContainerInterface $container = null)
-    {
-        $this->container = $container;
-    }
 
     public function load(ObjectManager $manager)
     {
         $this->manager = $manager;
 
         $this->addReference(
-            'question_answer_1',
+            'representative_question_answer_1',
             $this->createAnswer(
                 $this->getReference('user_2'),
-                $this->getReference('group_question_1')
+                $this->getReference('representative_question_1')
             )
         );
         $this->addReference(
-            'question_answer_2',
+            'representative_question_answer_2',
             $this->createAnswer(
                 $this->getReference('user_3'),
-                $this->getReference('group_question_1')
+                $this->getReference('representative_question_1')
             )
         );
         $this->addReference(
-            'question_answer_3',
+            'representative_question_answer_3',
             $this->createAnswer(
                 $this->getReference('user_4'),
-                $this->getReference('group_question_1')
+                $this->getReference('representative_question_1')
             )
         );
         $this->addReference(
-            'question_answer_4',
+            'representative_question_answer_4',
             $this->createAnswer(
                 $this->getReference('user_4'),
-                $this->getReference('group_question_3')
+                $this->getReference('representative_question_3')
             )
         );
         $this->createAnswer(
             $this->getReference('user_2'),
-            $this->getReference('group_question_3')
+            $this->getReference('representative_question_3')
         );
     }
 
     public function getDependencies()
     {
-        return [LoadGroupQuestionData::class];
+        return [LoadRepresentativeQuestionData::class];
     }
 
     /**

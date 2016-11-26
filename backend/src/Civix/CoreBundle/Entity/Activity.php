@@ -477,8 +477,8 @@ abstract class Activity implements HtmlBodyInterface
             'id' => $representative->getId(),
             'type' => $representative->getType(),
             'official_title' => $representative->getOfficialTitle(),
-            'first_name' => $representative->getFirstName(),
-            'last_name' => $representative->getLastName(),
+            'first_name' => $representative->getUser()->getFirstName(),
+            'last_name' => $representative->getUser()->getLastName(),
             'avatar_file_path' => $representative->getAvatarFileName(),
         ];
         if ($representative->getCiceroId()) {

@@ -22,4 +22,9 @@ interface LeaderContentRootInterface
      * @return string
      */
     public function getEmail();
+
+    /**
+     * @return string
+     */
+    public function getOfficialTitle();
 }

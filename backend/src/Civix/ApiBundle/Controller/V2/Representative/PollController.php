@@ -1,11 +1,11 @@
 <?php
 
-namespace Civix\ApiBundle\Controller\V2\Group;
+namespace Civix\ApiBundle\Controller\V2\Representative;
 
 use Civix\ApiBundle\Configuration\SecureParam;
 use Civix\ApiBundle\Controller\V2\AbstractPollController;
-use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Poll\Question;
+use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Service\PollManager;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Class for Leader Polls controller
  * 
- * @Route("/groups/{group}/polls")
+ * @Route("/representatives/{representative}/polls")
  */
 class PollController extends AbstractPollController
 {
@@ -40,7 +40,7 @@ class PollController extends AbstractPollController
      * @Route("")
      * @Method("GET")
      *
-     * @SecureParam("group", permission="view")
+     * @SecureParam("representative", permission="view")
      *
      * @QueryParam(name="filter", requirements="published|unpublished|publishing|archived", description="Filter by question state")
      * @QueryParam(name="page", requirements="\d+", default=1)
@@ -53,9 +53,8 @@ class PollController extends AbstractPollController
      *     description="List all the polls and questions based in the current user type.",
      *     output="Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination",
      *     statusCodes={
-     *         200="Returns list",
      *         403="Access Denied",
-     *         404="Group Not Found",
+     *         404="Representative Not Found",
      *         405="Method Not Allowed"
      *     }
      * )
@@ -63,13 +62,13 @@ class PollController extends AbstractPollController
      * @View(serializerGroups={"paginator", "api-poll"})
      *
      * @param ParamFetcher $params
-     * @param Group $group
+     * @param Representative $representative
      *
      * @return \Knp\Component\Pager\Pagination\PaginationInterface
      */
-    public function getPollsAction(ParamFetcher $params, Group $group)
+    public function getPollsAction(ParamFetcher $params, Representative $representative)
     {
-        return $this->getPolls($params, $group);
+        return $this->getPolls($params, $representative);
     }
 
     /**
@@ -78,7 +77,7 @@ class PollController extends AbstractPollController
      * @Route("")
      * @Method("POST")
      *
-     * @SecureParam("group", permission="manage")
+     * @SecureParam("representative", permission="edit")
      *
      * @ApiDoc(
      *     authentication=true,
@@ -101,12 +100,12 @@ class PollController extends AbstractPollController
      * @View(serializerGroups={"api-poll"})
      *
      * @param Request $request
-     * @param Group $group
+     * @param Representative $representative
      *
      * @return Question|\Symfony\Component\Form\Form
      */
-    public function postPollAction(Request $request, Group $group)
+    public function postPollAction(Request $request, Representative $representative)
     {
-        return $this->postPoll($request, $group);
+        return $this->postPoll($request, $representative);
     }
 }

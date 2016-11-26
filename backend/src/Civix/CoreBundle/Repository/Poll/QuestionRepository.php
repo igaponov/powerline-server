@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Repository\Poll;
 
+use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\Expr\Join;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -225,9 +226,9 @@ class QuestionRepository extends EntityRepository
         ;
     }
 
-    public function getFilteredQuestionQuery($filter, Group $group, $questionClass)
+    public function getFilteredQuestionQuery($filter, LeaderContentRootInterface $root)
     {
-        $query = $this->getQuestionQuery($group, $questionClass);
+        $query = $this->getQuestionQuery($root);
         switch ($filter) {
             case 'published':
                 $query->andWhere('p.publishedAt IS NOT NULL');
@@ -249,20 +250,22 @@ class QuestionRepository extends EntityRepository
     }
 
     /**
-     * @param Group $group
-     * @param $questionClass
+     * @param LeaderContentRootInterface $root
      * @return \Doctrine\ORM\QueryBuilder
      */
-    public function getQuestionQuery(Group $group, $questionClass)
+    public function getQuestionQuery(LeaderContentRootInterface $root)
     {
-        return $this->getEntityManager()
-            ->createQueryBuilder()
-            ->select('p')
-            ->from($questionClass, 'p')
-            ->where('p.user = :user')
-            ->setParameter('user', $group)
+        $qb = $this->createQueryBuilder('p')
+            ->setParameter(':root', $root)
             ->orderBy('p.createdAt', 'DESC')
         ;
+        if ($root instanceof Group) {
+            $qb->where('p.group = :root');
+        } elseif ($root instanceof Representative) {
+            $qb->where('p.representative = :root');
+        }
+
+        return $qb;
     }
 
     public function getPublishedQuestionWithAnswers($id, $questionClass)
@@ -280,17 +283,37 @@ class QuestionRepository extends EntityRepository
         ;
     }
 
+    public function getGroupQuestion($id)
+    {
+        $query = $this->createQueryBuilder('q')
+            ->where('q.id = :id')
+            ->setParameter(':id', $id)
+            ->andWhere('
+                q INSTANCE OF (
+                    Civix\CoreBundle\Entity\Poll\Question\Group,
+                    Civix\CoreBundle\Entity\Poll\Question\GroupEvent,
+                    Civix\CoreBundle\Entity\Poll\Question\GroupNews,
+                    Civix\CoreBundle\Entity\Poll\Question\GroupPaymentRequest,
+                    Civix\CoreBundle\Entity\Poll\Question\GroupPetition
+                )')
+            ->getQuery();
+
+        return $query->getOneOrNullResult();
+    }
+
     /**
-     * @param UserInterface $user
+     * @param LeaderContentRootInterface $root
      *
      * @return string
      */
-    private function getPetitionRepositoryName(UserInterface $user)
+    private function getPetitionRepositoryName(LeaderContentRootInterface $root)
     {
-        if ($user instanceof Representative) {
+        if ($root instanceof Representative) {
             return 'CivixCoreBundle:Poll\Question\RepresentativePetition';
-        } elseif ($user instanceof Group) {
+        } elseif ($root instanceof Group) {
             return 'CivixCoreBundle:Poll\Question\GroupPetition';
+        } else {
+            throw new \RuntimeException(get_class($root).' doesn\'t have a poll repository');
         }
     }
 }

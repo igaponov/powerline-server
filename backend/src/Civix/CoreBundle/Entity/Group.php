@@ -1900,4 +1900,9 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
 
         return null;
     }
+
+    public function getOfficialTitle()
+    {
+        return $this->getOfficialName();
+    }
 }

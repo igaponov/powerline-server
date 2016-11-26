@@ -1,7 +1,7 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2\Group;
 
-use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\ApiBundle\Tests\Controller\V2\PollControllerTestCase;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupSectionData;
@@ -9,38 +9,17 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe\LoadAccountGroupData;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
-use Symfony\Bundle\FrameworkBundle\Client;
 
-class PollControllerTest extends WebTestCase
+class PollControllerTest extends PollControllerTestCase
 {
-	const API_ENDPOINT = '/api/v2/groups/{group}/polls';
-	
-	/**
-	 * @var \Doctrine\ORM\EntityManager
-	 */
-	private $em;
+	const API_ENDPOINT = '/api/v2/groups/{root}/polls';
 
-	/**
-	 * @var Client
-	 */
-	private $client = null;
-
-	public function setUp()
-	{
-		// Creates a initial client
-		$this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
-
-		$this->em = $this->getContainer()->get('doctrine')->getManager();
-	}
-
-	public function tearDown()
-	{
-		$this->client = NULL;
-        $this->em = null;
-        parent::tearDown();
+    protected function getApiEndpoint()
+    {
+        return self::API_ENDPOINT;
     }
 
-	public function testGetPollsWithWrongCredentialsThrowsException()
+    public function testGetPollsWithWrongCredentialsThrowsException()
 	{
         $repository = $this->loadFixtures([
             LoadUserGroupData::class,
@@ -48,11 +27,7 @@ class PollControllerTest extends WebTestCase
             LoadGroupQuestionData::class,
         ])->getReferenceRepository();
         $group = $repository->getReference('group_3');
-		$client = $this->client;
-        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
-        $client->request('GET', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
-		$response = $client->getResponse();
-		$this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+        $this->getPollsWithWrongCredentialsThrowsException($group);
 	}
 
     /**
@@ -68,16 +43,7 @@ class PollControllerTest extends WebTestCase
             LoadGroupQuestionData::class,
         ])->getReferenceRepository();
         $group = $repository->getReference($reference);
-		$client = $this->client;
-        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
-        $client->request('GET', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
-		$response = $client->getResponse();
-		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-		$data = json_decode($response->getContent(), true);
-		$this->assertSame(1, $data['page']);
-		$this->assertSame(20, $data['items']);
-		$this->assertSame(2, $data['totalItems']);
-		$this->assertCount(2, $data['payload']);
+        $this->getPollsIsOk($group, $user);
 	}
 
     /**
@@ -90,24 +56,7 @@ class PollControllerTest extends WebTestCase
             LoadGroupQuestionData::class,
         ])->getReferenceRepository();
         $group = $repository->getReference('group_3');
-		$client = $this->client;
-        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
-        $client->request('GET', $uri, $params, [], ['HTTP_Authorization'=>'Bearer type="user" token="user3"']);
-		$response = $client->getResponse();
-		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-		$data = json_decode($response->getContent(), true);
-		$this->assertSame(1, $data['page']);
-		$this->assertSame(20, $data['items']);
-		$this->assertSame(1, $data['totalItems']);
-		$this->assertCount(1, $data['payload']);
-	}
-
-    public function getFilters()
-    {
-        return [
-            'published' => [['filter' => 'published']],
-            'unpublished' => [['filter' => 'unpublished']],
-        ];
+        $this->getFilteredPollsIsOk($group, $params);
 	}
 
     /**
@@ -122,11 +71,7 @@ class PollControllerTest extends WebTestCase
             LoadGroupQuestionData::class,
         ])->getReferenceRepository();
         $group = $repository->getReference($reference);
-		$client = $this->client;
-        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
-        $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
-		$response = $client->getResponse();
-		$this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+        $this->createPollWithWrongCredentialsThrowsException($group, $user);
 	}
 
 	/**
@@ -142,17 +87,7 @@ class PollControllerTest extends WebTestCase
             LoadGroupQuestionData::class,
         ])->getReferenceRepository();
         $group = $repository->getReference('group_1');
-		$client = $this->client;
-        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
-        $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
-		$response = $client->getResponse();
-		$this->assertEquals(400, $response->getStatusCode(), $response->getContent());
-		$data = json_decode($response->getContent(), true);
-		$this->assertSame('Validation Failed', $data['message']);
-		$children = $data['errors']['children'];
-		foreach ($errors as $child => $error) {
-			$this->assertEquals([$error], $children[$child]['errors']);
-		}
+        $this->createPollReturnsErrors($group, $params, $errors);
 	}
 
 	/**
@@ -168,54 +103,16 @@ class PollControllerTest extends WebTestCase
             LoadAccountGroupData::class,
         ])->getReferenceRepository();
         $group = $repository->getReference('group_1');
-        $client = $this->client;
-        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
-        $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
-		$response = $client->getResponse();
-		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-		$data = json_decode($response->getContent(), true);
-		foreach ($params as $param => $value) {
-			if (isset($data[$param])) {
-				$this->assertSame($value, $data[$param]);
-			}
-		}
-        /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
-        // check author subscription
-        $count = $conn->fetchColumn('SELECT COUNT(*) FROM poll_subscribers WHERE question_id = ?', [$data['id']]);
-        $this->assertEquals(1, $count);
+        $this->createPollIsOk($group, $params);
 	}
 
 	public function testCreatePaymentRequestWithoutStripeAccountThrowsException()
 	{
-        $faker = Factory::create();
-        $params = [
-            'type' => 'payment_request',
-            'subject' => $faker->sentence,
-            'title' => $faker->sentence,
-            'is_allow_outsiders' => $faker->boolean(),
-            'is_crowdfunding' => false,
-            'crowdfunding_goal_amount' => $faker->randomDigit,
-            'crowdfunding_deadline' => date('D, d M Y H:i:s', time() + 500000),
-            'is_crowdfunding_completed' => $faker->boolean(),
-            'crowdfunding_pledged_amount' => $faker->randomDigit,
-        ];
         $repository = $this->loadFixtures([
             LoadGroupQuestionData::class,
         ])->getReferenceRepository();
         $group = $repository->getReference('group_1');
-        $client = $this->client;
-        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
-        $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
-		$response = $client->getResponse();
-		$this->assertEquals(500, $response->getStatusCode(), $response->getContent());
-		$data = json_decode($response->getContent(), true);
-		$this->assertEquals('You must have a Stripe account to create a payment request.', $data['message']);
-        /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
-        // check author subscription
-        $count = $conn->fetchColumn('SELECT COUNT(*) FROM poll_questions WHERE title = ?', [$params['title']]);
-        $this->assertEquals(0, $count);
+        $this->createPaymentRequestWithoutStripeAccountThrowsException($group);
 	}
 
     /**
@@ -234,25 +131,10 @@ class PollControllerTest extends WebTestCase
         $group = $repository->getReference($reference);
         $section1 = $repository->getReference('group_1_section_1');
         $section2 = $repository->getReference('group_1_section_2');
-        $client = $this->client;
-        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
-        $params = [
-            'type' => 'group',
-            'subject' => 'subj',
-            'group_sections' => [$section2->getId(), $section1->getId()],
-        ];
-        $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"'], json_encode($params));
-		$response = $client->getResponse();
-		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-		$data = json_decode($response->getContent(), true);
-        $this->assertNotEmpty($data['user']);
-		foreach ($params as $param => $value) {
-			if (isset($data[$param])) {
-				$this->assertSame($value, $data[$param]);
-			}
-		}
+        $params = ['group_sections' => [$section2->getId(), $section1->getId()]];
+        $data = $this->createPollWithCorrectCredentials($group, $user, $params);
 		/** @var Connection $conn */
-		$conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+		$conn = $this->client->getContainer()->get('doctrine')->getConnection();
 		$count = $conn->fetchColumn('SELECT COUNT(*) FROM poll_sections ps WHERE group_section_id IN (?, ?) AND question_id = ?', [$section1->getId(), $section2->getId(), $data['id']]);
 		$this->assertEquals(2, $count);
 	}
@@ -267,7 +149,7 @@ class PollControllerTest extends WebTestCase
         $group = $repository->getReference('group_1');
         $section = $repository->getReference('group_3_section_1');
         $client = $this->client;
-        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
+        $uri = str_replace('{root}', $group->getId(), self::API_ENDPOINT);
         $params = [
             'type' => 'group',
             'subject' => 'subj',
@@ -277,88 +159,19 @@ class PollControllerTest extends WebTestCase
         $this->assertResponseHasErrors($client->getResponse(), $errors);
     }
 
-	public function getInvalidParams()
-	{
-		return [
-			'empty type' => [
-				[],
-				[
-					'type' => 'This value should not be blank.',
-				]
-			],
-			'empty subject' => [
-				[
-					'type' => 'group',
-				],
-				[
-					'subject' => 'This value should not be blank.',
-				]
-			],
-		];
-	}
-
 	public function getValidParams()
 	{
 		$faker = Factory::create();
-		return [
-			'group' => [
-				[
-					'type' => 'group',
-					'subject' => $faker->sentence,
-				]
-			],
-			'news' => [
-				[
-					'type' => 'news',
-					'subject' => $faker->sentence,
-				]
-			],
-			'event' => [
-				[
-					'type' => 'event',
-					'subject' => $faker->sentence,
-					'title' => $faker->sentence,
-					'is_allow_outsiders' => $faker->boolean(),
-					'started_at' => date('D, d M Y H:i:s', time() + 100000),
-					'finished_at' => date('D, d M Y H:i:s', time() + 300000),
-				]
-			],
-			'payment_request' => [
-				[
-					'type' => 'payment_request',
-					'subject' => $faker->sentence,
-					'title' => $faker->sentence,
-					'is_allow_outsiders' => $faker->boolean(),
-					'is_crowdfunding' => false,
-					'crowdfunding_goal_amount' => $faker->randomDigit,
-					'crowdfunding_deadline' => date('D, d M Y H:i:s', time() + 500000),
-					'is_crowdfunding_completed' => $faker->boolean(),
-					'crowdfunding_pledged_amount' => $faker->randomDigit,
-				]
-			],
-			'crowdfunding_request' => [
-				[
-					'type' => 'payment_request',
-					'subject' => $faker->sentence,
-					'title' => $faker->sentence,
-					'is_allow_outsiders' => $faker->boolean(),
-					'is_crowdfunding' => true,
-					'crowdfunding_goal_amount' => $faker->randomDigit,
-					'crowdfunding_deadline' => date('D, d M Y H:i:s', time() + 500000),
-					'is_crowdfunding_completed' => $faker->boolean(),
-					'crowdfunding_pledged_amount' => $faker->randomDigit,
-				]
-			],
-			'petition' => [
-				[
-					'type' => 'petition',
-					'subject' => $faker->sentence,
-					'is_outsiders_sign' => $faker->boolean(),
-					'petition_title' => $faker->sentence,
-					'petition_body' => $faker->text,
-				]
-			],
-		];
+		return array_merge(
+		    [
+                'group' => [
+                    [
+                        'type' => 'group',
+                        'subject' => $faker->sentence,
+                    ]
+                ],
+            ], parent::getValidParams()
+        );
 	}
 
     public function getInvalidPollCredentialsForUpdateRequest()
