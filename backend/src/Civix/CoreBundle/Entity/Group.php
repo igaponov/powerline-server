@@ -48,7 +48,7 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
     const GROUP_MEMBERSHIP_APPROVAL = 1;
     const GROUP_MEMBERSHIP_PASSCODE = 2;
 
-    const COUNT_PETITION_PER_MONTH = 5;
+    const COUNT_PETITION_PER_MONTH = 30;
 
     const GROUP_TRANSPARENCY_PUBLIC = "public";
     const GROUP_TRANSPARENCY_PRIVATE = "private";
@@ -326,7 +326,7 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
      * @Serializer\Expose()
      * @Serializer\Groups({"micropetition-config"})
      */
-    private $petitionPercent;
+    private $petitionPercent = PetitionManager::PERCENT_IN_GROUP;
 
     /**
      * @Assert\Type(type="integer", groups={"micropetition-config"})
@@ -339,7 +339,7 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
      * @Serializer\Expose()
      * @Serializer\Groups({"micropetition-config"})
      */
-    private $petitionDuration;
+    private $petitionDuration = PetitionManager::EXPIRE_INTERVAL;
 
     /**
      * @Serializer\Expose()
@@ -419,7 +419,7 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
      *      name="petition_per_month",
      *      type="integer",
      *      nullable=false,
-     *      options={"default" = 5}
+     *      options={"default" = 30}
      * )
      * @Serializer\Expose()
      * @Serializer\Groups({"api-groups", "micropetition-config"})
@@ -427,7 +427,7 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
      *
      * @var int
      */
-    private $petitionPerMonth;
+    private $petitionPerMonth = self::COUNT_PETITION_PER_MONTH;
 
     /**
      * @Serializer\Expose()
