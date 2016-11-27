@@ -3,10 +3,9 @@ namespace Civix\ApiBundle\Tests\Controller\Leader;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityRelationsData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadEducationalContextData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPollSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
@@ -61,6 +60,7 @@ class ActivityControllerTest extends WebTestCase
             LoadUserPetitionSubscriberData::class,
             LoadPostSubscriberData::class,
             LoadPollSubscriberData::class,
+            LoadEducationalContextData::class,
         ]);
 		$client = $this->client;
 		$client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
@@ -79,6 +79,8 @@ class ActivityControllerTest extends WebTestCase
                 $this->assertTrue($item['post']['is_subscribed']);
             } elseif ($item['entity']['type'] == 'question') {
                 $this->assertTrue($item['poll']['is_subscribed']);
+                $this->assertArrayHasKey('educational_context', $item['poll']);
+                $this->assertCount(2, $item['poll']['educational_context']);
             } elseif ($item['entity']['type'] == 'petition') {
                 $this->assertFalse($item['poll']['is_subscribed']);
             }
