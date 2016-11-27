@@ -35,17 +35,17 @@ class UserManager
 
     public function updateDistrictsIds(User $user)
     {
-        $districts = $this->ciceroApi->getUserDistrictsFromApi(
+        $representatives = $this->ciceroApi->getRepresentativesByLocation(
             $user->getLineAddress(),
             $user->getCity(),
             $user->getState(),
             $user->getCountry()
         );
-        if (!empty($districts)) {
+        if (!empty($representatives)) {
             $user->getDistricts()->clear();
 
-            foreach ($districts as $userDistrict) {
-                $user->addDistrict($userDistrict);
+            foreach ($representatives as $representative) {
+                $user->addDistrict($representative->getDistrict());
             }
 
             $user->setUpdateProfileAt(new \DateTime());

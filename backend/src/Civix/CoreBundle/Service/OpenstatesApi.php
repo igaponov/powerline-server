@@ -2,7 +2,7 @@
 
 namespace Civix\CoreBundle\Service;
 
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\CiceroRepresentative;
 use Civix\CoreBundle\Service\API\ServiceApi;
 use Civix\CoreBundle\Serializer\Adapter\CommitteeAdapter;
 use Civix\CoreBundle\Serializer\Adapter\BillAdapter;
@@ -67,11 +67,11 @@ class OpenstatesApi extends ServiceApi
         );
     }
 
-    public function updateRepresentativeProfile(Representative $representative)
+    public function updateRepresentativeProfile(CiceroRepresentative $representative)
     {
         $openStateId = $this->getRepresentativeByName(
-            $representative->getUser()->getFirstName(),
-            $representative->getUser()->getLastName()
+            $representative->getFirstName(),
+            $representative->getLastName()
         );
 
         if ($openStateId) {

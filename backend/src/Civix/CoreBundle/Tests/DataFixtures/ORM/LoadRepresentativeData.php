@@ -18,7 +18,7 @@ class LoadRepresentativeData extends AbstractFixture implements DependentFixture
         $representative = new Representative($user);
         $representative->setOfficialTitle('Vice President');
         $representative->setCity('Los Angeles');
-        $representative->setAddressLine1('6153 Smokey Ln');
+        $representative->setAddress('6153 Smokey Ln');
         $representative->setPhone('(672)-586-7816');
         $representative->setPrivatePhone($faker->phoneNumber);
         $representative->setEmail('josephb26@example.com');
@@ -32,7 +32,7 @@ class LoadRepresentativeData extends AbstractFixture implements DependentFixture
         $representative = new Representative($user);
         $representative->setOfficialTitle('CEO');
         $representative->setCity('San Francisco');
-        $representative->setAddressLine1('4143 Depaul Dr');
+        $representative->setAddress('4143 Depaul Dr');
         $representative->setPhone('(385)-369-5636');
         $representative->setPrivatePhone($faker->phoneNumber);
         $representative->setEmail('jeanne.torres49@example.com');
@@ -46,7 +46,7 @@ class LoadRepresentativeData extends AbstractFixture implements DependentFixture
         $representative = new Representative($user);
         $representative->setOfficialTitle('Software Engineer');
         $representative->setCity('San Diego');
-        $representative->setAddressLine1('1730 Auerbach Ave');
+        $representative->setAddress('1730 Auerbach Ave');
         $representative->setPhone('(731)-567-8228');
         $representative->setPrivatePhone($faker->phoneNumber);
         $representative->setEmail('willie.carroll20@example.com');

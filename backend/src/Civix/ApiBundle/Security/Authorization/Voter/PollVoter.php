@@ -110,7 +110,7 @@ class PollVoter implements VoterInterface
             } elseif ($questionOwner instanceof Group && ($questionOwner->isMember($user) || $questionOwner->isManager($user) || $questionOwner->getOwner()->isEqualTo($user))) {
                 return VoterInterface::ACCESS_GRANTED;
             } elseif ($questionOwner instanceof Representative
-            && array_search($questionOwner->getDistrictId(), $user->getDistrictsIds()) !== false) {
+            && array_search($questionOwner->getDistrict() ? $questionOwner->getDistrict()->getId() : null, $user->getDistrictsIds()) !== false) {
                 return VoterInterface::ACCESS_GRANTED;
             }
         }

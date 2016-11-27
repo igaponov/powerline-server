@@ -139,6 +139,7 @@ class CiceroApiTest extends WebTestCase
     {
         $repository = $this->loadFixtures(array(
             ORM\LoadRepresentativeData::class,
+            ORM\LoadCiceroRepresentativeData::class,
         ))->getReferenceRepository();
         $user = $repository->getReference('user_1');
         $faker = Factory::create();
@@ -146,7 +147,7 @@ class CiceroApiTest extends WebTestCase
             ->get('doctrine')
             ->getManager();
         $representativeObj = new Representative($em->merge($user));
-        $representativeObj->setCiceroId(44926);
+        $representativeObj->setCiceroRepresentative($repository->getReference('cicero_representative_jb'));
         $representativeObj->setPrivatePhone($faker->phoneNumber);
         $representativeObj->setPrivateEmail($faker->companyEmail);
         /** @var \PHPUnit_Framework_MockObject_MockObject|CiceroApi $mock */

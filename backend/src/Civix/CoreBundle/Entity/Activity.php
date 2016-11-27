@@ -479,10 +479,10 @@ abstract class Activity implements HtmlBodyInterface
             'official_title' => $representative->getOfficialTitle(),
             'first_name' => $representative->getUser()->getFirstName(),
             'last_name' => $representative->getUser()->getLastName(),
-            'avatar_file_path' => $representative->getAvatarFileName(),
+            'avatar_file_path' => $representative->getCiceroRepresentative() ? $representative->getCiceroRepresentative()->getAvatarFileName() : '',
         ];
-        if ($representative->getCiceroId()) {
-            $data['cicero_id'] = $representative->getCiceroId();
+        if ($representative->getCiceroRepresentative()) {
+            $data['cicero_id'] = $representative->getCiceroRepresentative();
         }
 
         return $data;
