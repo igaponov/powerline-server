@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Service;
 
+use Civix\CoreBundle\Entity\CiceroRepresentative;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\District;
 use Civix\CoreBundle\Service\API\ServiceApi;
@@ -67,6 +68,56 @@ class CiceroApi extends ServiceApi
     }
 
     /**
+     * Get all representatives by address from api, save them, get districs ids.
+     *
+     * @param string $address   Address
+     * @param string $city      City
+     * @param string $state     State
+     * @param string $country   Country
+     *
+     * @return CiceroRepresentative[]
+     */
+    public function getRepresentativesByLocation($address, $city, $state, $country = 'US')
+    {
+        $representatives = $this->ciceroService
+            ->findRepresentativeByLocation($address, $city, $state, $country);
+
+        return $this->handleOfficialResponse($representatives);
+    }
+
+    /**
+     * @param string $firstName
+     * @param string $lastName
+     * @param string $officialTitle
+     *
+     * @return CiceroRepresentative[]
+     */
+    public function getRepresentativesByOfficialInfo($firstName, $lastName, $officialTitle)
+    {
+        $representatives = $this->ciceroService
+            ->findRepresentativeByOfficialData($firstName, $lastName, $officialTitle);
+
+        return $this->handleOfficialResponse($representatives);
+    }
+
+    protected function handleOfficialResponse($officials)
+    {
+        foreach ($officials as &$representative) {
+            $object = $this->entityManager->getRepository(CiceroRepresentative::class)
+                ->find($representative->id);
+            if ($object) {
+                $representative = $this->fillRepresentativeByApiObj($object, $representative);
+            } else {
+                $representative = $this->createCiceroRepresentative($representative);
+            }
+            $this->entityManager->persist($representative);
+        }
+        $this->entityManager->flush();
+
+        return $officials;
+    }
+
+    /**
      * Get representative from api, save his, get district id.
      *
      * @param Representative $representative Representative object
@@ -82,25 +133,33 @@ class CiceroApi extends ServiceApi
                 $representative->getOfficialTitle()
             );
         if ($representativesFromApi) {
-            return $this->updateRepresentative($representativesFromApi, $representative);
+            return $this->updateRepresentative(
+                $representativesFromApi,
+                $representative->getCiceroRepresentative()
+            );
         }
 
         return false;
+    }
+
+    protected function createCiceroRepresentative($response)
+    {
+        return $this->fillRepresentativeByApiObj(new CiceroRepresentative(), $response);
     }
 
     /**
      * Save representative from api in representative storage. 
      * Set link between representative and representative storage.
      * 
-     * @param array          $resultApiCollection Object from Cicero API
-     * @param Representative $representative      Representative object
+     * @param array $resultApiCollection Object from Cicero API
+     * @param CiceroRepresentative $representative CiceroRepresentative object
      *
      * @return bool
      */
-    protected function updateRepresentative($resultApiCollection, Representative $representative)
+    protected function updateRepresentative($resultApiCollection, CiceroRepresentative $representative)
     {
         foreach ($resultApiCollection as $repr) {
-            if ($representative->getCiceroId() == $repr->id) {
+            if ($representative->getId() == $repr->id) {
                 $representative = $this->fillRepresentativeByApiObj($representative, $repr);
                 $this->entityManager->persist($representative);
                 $this->entityManager->flush();
@@ -149,14 +208,16 @@ class CiceroApi extends ServiceApi
     /**
      * Change Representative Storage object according to object which was getten from Cicero Api.
      * 
-     * @param \Civix\CoreBundle\Entity\Representative $representative
+     * @param \Civix\CoreBundle\Entity\CiceroRepresentative $representative
      * @param object $response Cicero Api object
      * 
-     * @return \Civix\CoreBundle\Entity\Representative
+     * @return \Civix\CoreBundle\Entity\CiceroRepresentative
      */
-    public function fillRepresentativeByApiObj(Representative $representative, $response)
+    public function fillRepresentativeByApiObj(CiceroRepresentative $representative, $response)
     {
-        $representative->setCiceroId($response->id);
+        $representative->setId($response->id);
+        $representative->setFirstName(trim($response->first_name));
+        $representative->setLastName(trim($response->last_name));
         $representative->setOfficialTitle(trim($response->office->title));
         $representative->setAvatarSourceFileName($response->photo_origin_url);
 

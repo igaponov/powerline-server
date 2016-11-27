@@ -42,20 +42,15 @@ class CiceroSyncCommandTest extends WebTestCase
         parent::tearDown();
     }
 
-    /**
-     * @group cicero
-     * @group cicero-cmd
-     */
     public function testSync()
     {
         $executor = $this->loadFixtures(array(
-            ORM\LoadRepresentativeData::class,
+            ORM\LoadRepresentativeRelationData::class,
         ));
         /** @var Representative $representative */
         $representative = $executor->getReferenceRepository()->getReference('representative_jb');
-        $officialName = $representative->getOfficialTitle();
-        $avatarSrc = $representative->getAvatarSourceFileName();
-        $districtId = $representative->getDistrictId();
+        $cicero = $representative->getCiceroRepresentative();
+        $districtId = $representative->getDistrict()->getId();
 
         $container = $this->getContainerForCheck($this->responseRepresentative);
         $commandTester = $this->getCommandTester($container);
@@ -66,33 +61,23 @@ class CiceroSyncCommandTest extends WebTestCase
         $representativeUpdated = $container->get('doctrine')->getManager()
             ->getRepository('CivixCoreBundle:Representative')->find($representative->getId());
 
-        $this->assertTrue(
-            $officialName == $representativeUpdated->getOfficialTitle(),
-            'Official title should n\'t be changed'
-        );
-        $this->assertFalse(
-            $avatarSrc == $representativeUpdated->getAvatarSourceFileName(),
-            'Avatar src should be changed'
-        );
-        $this->assertTrue(
-            $districtId == $representativeUpdated->getDistrictId(),
-            'District should n\'t be changed'
-        );
+        $this->assertEquals($cicero->getId(), $representativeUpdated->getCiceroRepresentative()->getId());
+        $this->assertEquals($districtId, $representativeUpdated->getDistrict()->getId());
     }
 
     /**
      * @group cicero
      * @group cicero-cmd
      */
-    public function testSynchLink()
+    public function testSyncLink()
     {
         $executor = $this->loadFixtures(array(
             ORM\LoadRepresentativeData::class,
         ));
-
+        /** @var Representative $representative */
         $representative = $executor->getReferenceRepository()->getReference('representative_jb');
         $officialName = $representative->getOfficialTitle();
-        $districtId = $representative->getDistrictId();
+        $districtId = $representative->getDistrict()->getId();
 
         $container = $this->getContainerForCheck($this->responseRepresentative);
         $commandTester = $this->getCommandTester($container);
@@ -105,14 +90,17 @@ class CiceroSyncCommandTest extends WebTestCase
         $this->assertInstanceOf('Civix\CoreBundle\Entity\Representative', $representativeUpdated);
 
         //check links
-        $this->assertNotNull($representativeUpdated->getCiceroId(), 'Cicero id in representative must be not null');
-
-        $this->assertTrue(
-            $officialName == $representativeUpdated->getOfficialTitle(),
-            'Official title of representative should not be changed'
+        $this->assertNotNull(
+            $representativeUpdated->getCiceroRepresentative(),
+            'Cicero id in representative must be not null'
         );
-        $this->assertTrue(
-            $districtId == $representativeUpdated->getDistrictId(),
+
+        $this->assertEquals(
+            $officialName, $representativeUpdated->getOfficialTitle(),
+            'Official title should be changed'
+        );
+        $this->assertEquals(
+            $districtId, $representativeUpdated->getDistrict()->getId(),
             'District of representative should not be changed'
         );
     }
@@ -121,7 +109,7 @@ class CiceroSyncCommandTest extends WebTestCase
      * @group cicero
      * @group cicero-cmd
      */
-    public function testSynchWithChangedOfficialTitle()
+    public function testSyncWithChangedOfficialTitle()
     {
         $executor = $this->loadFixtures(array(
             ORM\LoadRepresentativeData::class,
@@ -129,8 +117,7 @@ class CiceroSyncCommandTest extends WebTestCase
         /** @var Representative $representative */
         $representative = $executor->getReferenceRepository()->getReference('representative_jb');
         $officialName = $representative->getOfficialTitle();
-        $avatarSrc = $representative->getAvatarSourceFileName();
-        $districtId = $representative->getDistrictId();
+        $districtId = $representative->getDistrict()->getId();
 
         $container = $this->getContainerForCheck($this->responseRepresentativeTitle);
         $commandTester = $this->getCommandTester($container);
@@ -141,16 +128,12 @@ class CiceroSyncCommandTest extends WebTestCase
         $representativeUpdated = $container->get('doctrine')->getManager()
             ->getRepository('CivixCoreBundle:Representative')->find($representative->getId());
 
-        $this->assertFalse(
-            $officialName == $representativeUpdated->getOfficialTitle(),
+        $this->assertNotEquals(
+            $officialName, $representativeUpdated->getOfficialTitle(),
             'Official title should be changed'
         );
-        $this->assertFalse(
-            $avatarSrc == $representativeUpdated->getAvatarSourceFileName(),
-            'Avatar src should be changed'
-        );
-        $this->assertTrue(
-            $districtId == $representativeUpdated->getDistrictId(),
+        $this->assertEquals(
+            $districtId, $representativeUpdated->getDistrict()->getId(),
             'District should n\'t be changed'
         );
     }
@@ -159,14 +142,14 @@ class CiceroSyncCommandTest extends WebTestCase
      * @group cicero
      * @group cicero-cmd
      */
-    public function testSynchWithChangedOfficialTitleLink()
+    public function testSyncWithChangedOfficialTitleLink()
     {
         $executor = $this->loadFixtures(array(
             ORM\LoadRepresentativeData::class,
         ));
-
+        /** @var Representative $representative */
         $representative = $executor->getReferenceRepository()->getReference('representative_jb');
-        $districtId = $representative->getDistrictId();
+        $districtId = $representative->getDistrict()->getId();
 
         $container = $this->getContainerForCheck($this->responseRepresentativeTitle);
         $commandTester = $this->getCommandTester($container);
@@ -178,8 +161,8 @@ class CiceroSyncCommandTest extends WebTestCase
             ->getRepository('CivixCoreBundle:Representative')->find($representative->getId());
         $this->assertInstanceOf('Civix\CoreBundle\Entity\Representative', $representativeUpdated);
 
-        $this->assertTrue(
-            $districtId == $representativeUpdated->getDistrictId(),
+        $this->assertEquals(
+            $districtId, $representativeUpdated->getDistrict()->getId(),
             'District of storage representative should not be changed'
         );
     }
@@ -188,7 +171,7 @@ class CiceroSyncCommandTest extends WebTestCase
      * @group cicero
      * @group cicero-cmd
      */
-    public function testSynchWithChangedDistrict()
+    public function testSyncWithChangedDistrict()
     {
         $executor = $this->loadFixtures(array(
             ORM\LoadRepresentativeData::class,
@@ -196,8 +179,7 @@ class CiceroSyncCommandTest extends WebTestCase
         /** @var Representative $representative */
         $representative = $executor->getReferenceRepository()->getReference('representative_jb');
         $officialName = $representative->getOfficialTitle();
-        $avatarSrc = $representative->getAvatarSourceFileName();
-        $districtId = $representative->getDistrictId();
+        $districtId = $representative->getDistrict()->getId();
 
         $container = $this->getContainerForCheck($this->responseRepresentativeDistrict);
         $commandTester = $this->getCommandTester($container);
@@ -208,16 +190,12 @@ class CiceroSyncCommandTest extends WebTestCase
         $representativeUpdated = $container->get('doctrine')->getManager()
             ->getRepository('CivixCoreBundle:Representative')->find($representative->getId());
 
-        $this->assertTrue(
-            $officialName == $representativeUpdated->getOfficialTitle(),
+        $this->assertEquals(
+            $officialName, $representativeUpdated->getOfficialTitle(),
             'Official title should n\'t be changed'
         );
-        $this->assertFalse(
-            $avatarSrc == $representativeUpdated->getAvatarSourceFileName(),
-            'Avatar src should be changed'
-        );
-        $this->assertFalse(
-            $districtId == $representativeUpdated->getDistrictId(),
+        $this->assertNotEquals(
+            $districtId, $representativeUpdated->getDistrict()->getId(),
             'District should be changed'
         );
     }
@@ -226,7 +204,7 @@ class CiceroSyncCommandTest extends WebTestCase
      * @group cicero
      * @group cicero-cmd
      */
-    public function testSynchWithChangedDistrictLink()
+    public function testSyncWithChangedDistrictLink()
     {
         $executor = $this->loadFixtures(array(
             ORM\LoadRepresentativeData::class,
@@ -248,7 +226,7 @@ class CiceroSyncCommandTest extends WebTestCase
      * @group cicero
      * @group cicero-cmd
      */
-    public function testSynchRepresentativeNotFoundLink()
+    public function testSyncRepresentativeNotFoundLink()
     {
         $executor = $this->loadFixtures(array(
             ORM\LoadRepresentativeData::class,
@@ -266,12 +244,12 @@ class CiceroSyncCommandTest extends WebTestCase
             ->getRepository('CivixCoreBundle:Representative')->find($representative->getId());
         $this->assertInstanceOf('Civix\CoreBundle\Entity\Representative', $representativeUpdated);
         $this->assertNull(
-            $representativeUpdated->getCiceroId(),
+            $representativeUpdated->getCiceroRepresentative(),
             'Representative should be removed from representative storage '.
             '(no link between representative and representative storage)'
         );
         $this->assertNull(
-            $representativeUpdated->getDistrictId(),
+            $representativeUpdated->getDistrict(),
             'District should be null'
         );
     }
@@ -330,6 +308,7 @@ class CiceroSyncCommandTest extends WebTestCase
         $mock->setEntityManager($container->get('doctrine')->getManager());
         $mock->setCongressApi($congressMock);
         $mock->setOpenstatesApi($openstateServiceMock);
+        $mock->setCiceroCalls($ciceroMock);
 
         $fileSystem = $this->getMockBuilder('Knp\Bundle\GaufretteBundle\FilesystemMap')
             ->disableOriginalConstructor()

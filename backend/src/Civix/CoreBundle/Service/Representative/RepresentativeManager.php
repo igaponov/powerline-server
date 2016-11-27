@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Service\Representative;
 
+use Civix\CoreBundle\Entity\CiceroRepresentative;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Service\CiceroApi;
 use Civix\CoreBundle\Service\CiceroCalls;
@@ -65,24 +66,52 @@ class RepresentativeManager
      */
     public function synchronizeRepresentative(Representative $representative)
     {
-        $ciceroRepresentative = $this->ciceroService->findRepresentativeByNameAndId(
-            $representative->getUser()->getFirstName(),
-            $representative->getUser()->getLastName(),
-            $representative->getCiceroId()
-        );
+        //find in current representative storage
+        $ciceroRepresentative = $this->entityManager
+            ->getRepository(CiceroRepresentative::class)
+            ->getByOfficialInfo(
+                $representative->getUser()->getFirstName(),
+                $representative->getUser()->getLastName(),
+                $representative->getOfficialTitle()
+            );
+
+        if (!$ciceroRepresentative) {
+            $representatives = $this->ciceroStorageService->getRepresentativesByOfficialInfo(
+                $representative->getUser()->getFirstName(),
+                $representative->getUser()->getLastName(),
+                $representative->getOfficialTitle()
+            );
+            if (!$representatives) {
+                //if no representative in cicero api
+                //try to get info by address
+                $representatives = $this->ciceroStorageService
+                    ->getRepresentativesByLocation(
+                        $representative->getAddress(),
+                        $representative->getCity(),
+                        $representative->getStateCode(),
+                        $representative->getCountry()
+                    );
+                if ($representatives) {
+                    $representative->setIsNonLegislative(1);
+                    $representative->setDistrict($representatives[0]->getDistrict());
+                }
+            } else {
+                $ciceroRepresentative = $representatives[0];
+            }
+        }
 
         if ($ciceroRepresentative) {
-            $this->ciceroStorageService
-                ->fillRepresentativeByApiObj($representative, $ciceroRepresentative);
+            $representative->setDistrict($ciceroRepresentative->getDistrict());
+            $representative->setCiceroRepresentative($ciceroRepresentative);
         } else {
             $representative->setDistrict(null);
-            $representative->setCiceroId(null);
+            $representative->setCiceroRepresentative(null);
         }
 
         $this->entityManager->persist($representative);
         $this->entityManager->flush($representative);
 
-        return !!$ciceroRepresentative;
+        return (bool)$ciceroRepresentative;
     }
 
     public function synchronizeByStateCode($stateCode)

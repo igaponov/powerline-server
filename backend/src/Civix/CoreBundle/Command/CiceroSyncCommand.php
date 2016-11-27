@@ -34,7 +34,7 @@ class CiceroSyncCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /* @var $entityManager EntityManager */
-        $entityManager = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $entityManager = $this->getContainer()->get('doctrine')->getManager();
 
         if ($input->getOption('state')) {
             $representatives = $entityManager->getRepository(Representative::class)
