@@ -19,16 +19,10 @@ class CiceroRepresentativeRepository extends EntityRepository
                 ->getOneOrNullResult();
     }
 
-    public function getSTRepresentativeListByUser($districts)
+    public function getByDistricts($districts)
     {
-        return $this->getEntityManager()->createQueryBuilder()
-               ->select('reprSt, repr')
-               ->from('CivixCoreBundle:RepresentativeStorage', 'reprSt')
-               ->leftJoin('reprSt.representative', 'repr')
-               ->innerJoin('reprSt.district', 'distr')
-               ->where('reprSt.district in (:ids)')
-               ->setParameter('ids', $districts)
-               ->orderBy('distr.districtType')
+        return $this->createQueryBuilder('r')
+               ->where($this->_em->getExpressionBuilder()->in('r.district', $districts))
                ->getQuery()
                ->getResult();
     }

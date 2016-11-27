@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use Civix\CoreBundle\Entity\CiceroRepresentative;
 use Civix\CoreBundle\Entity\Representative;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +23,7 @@ class RepresentativeController extends BaseController
      * @ApiDoc(
      *     resource=true,
      *     section="Representatives",
-     *     description="Get list of representatives grouped by district types",
+     *     description="Get list of representatives by district",
      *     statusCodes={
      *         200="Returns list representatives",
      *         401="Authorization required",
@@ -35,18 +36,18 @@ class RepresentativeController extends BaseController
         $entityManager = $this->getDoctrine()->getManager();
 
         $districts = $this->getUser()->getDistrictsIds();
-        $nonLegislativeRepr = $entityManager->getRepository('CivixCoreBundle:Representative')
-                ->getNonLegislativeRepresentative($districts);
+        $representatives = $entityManager->getRepository(CiceroRepresentative::class)
+                ->getByDistricts($districts);
 
         $reprByDistrict = array();
 
-        if ($nonLegislativeRepr) {
-            $nonLegislativeRepr = array_map(function ($representativeInfo) {
+        if ($representatives) {
+            $representatives = array_map(function ($representativeInfo) {
                     return array('representative' => $representativeInfo);
-            }, $nonLegislativeRepr);
+            }, $representatives);
             $reprByDistrict['Local'] = array(
                 'title' => 'Local',
-                'representatives' => $nonLegislativeRepr,
+                'representatives' => $representatives,
             );
         }
 
