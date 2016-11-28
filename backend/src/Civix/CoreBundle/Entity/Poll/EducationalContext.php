@@ -30,7 +30,7 @@ class EducationalContext implements ContentInterface
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll"})
+     * @Serializer\Groups({"api-poll", "activity-list"})
      */
     private $id;
 
@@ -39,7 +39,7 @@ class EducationalContext implements ContentInterface
      *
      * @ORM\Column(name="text", type="text")
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll"})
+     * @Serializer\Groups({"api-poll", "activity-list"})
      */
     private $text = '';
 
@@ -48,7 +48,7 @@ class EducationalContext implements ContentInterface
      *
      * @ORM\Column(name="type", type="string", length=255)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll"})
+     * @Serializer\Groups({"api-poll", "activity-list"})
      * @Assert\NotBlank()
      * @Assert\Choice(callback="getTypes")
      */
@@ -65,7 +65,7 @@ class EducationalContext implements ContentInterface
      * @Vich\UploadableField(mapping="educational_image", fileNameProperty="text")
      *
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll"})
+     * @Serializer\Groups({"api-poll", "activity-list"})
      * @Serializer\Type("Image")
      * @Serializer\SerializedName("imageSrc")
      * @Serializer\Accessor(getter="getImageSrc")

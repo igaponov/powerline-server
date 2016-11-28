@@ -118,7 +118,7 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
 
     /**
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll", "api-poll-public"})
+     * @Serializer\Groups({"api-poll", "api-poll-public", "activity-list"})
      *
      * @ORM\OneToMany(
      *      targetEntity="EducationalContext", 
