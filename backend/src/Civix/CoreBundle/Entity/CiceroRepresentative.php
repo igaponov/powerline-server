@@ -33,6 +33,7 @@ class CiceroRepresentative
      * @ORM\Id()
      * @Serializer\Expose()
      * @Serializer\Groups({"api-representatives-list", "api-info", "api-search"})
+     * @Serializer\Since("2")
      */
     private $id;
 
@@ -69,7 +70,6 @@ class CiceroRepresentative
      * @ORM\Column(name="phone", type="string", length=15, nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-info"})
-     * @Serializer\SerializedName("official_phone")
      */
     private $phone;
 
@@ -975,5 +975,18 @@ class CiceroRepresentative
         }
 
         return null;
+    }
+
+    /**
+     * @return int
+     * @deprecated For compatibility with v.1
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"api-representatives-list", "api-info", "api-search"})
+     * @Serializer\Until("1")
+     * @Serializer\SerializedName("storage_id")
+     */
+    public function getStorageId()
+    {
+        return $this->id;
     }
 }

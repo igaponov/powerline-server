@@ -640,4 +640,26 @@ class Representative implements CheckingLimits, LeaderContentRootInterface
 
         return $this;
     }
+
+    /**
+     * @return string
+     * @internal
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"api-representatives-list", "api-info"})
+     */
+    public function getFirstName()
+    {
+        return $this->user->getFirstName();
+    }
+
+    /**
+     * @return string
+     * @internal
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"api-representatives-list", "api-info"})
+     */
+    public function getLastName()
+    {
+        return $this->user->getLastName();
+    }
 }
