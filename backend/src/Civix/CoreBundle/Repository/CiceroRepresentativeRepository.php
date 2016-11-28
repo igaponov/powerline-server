@@ -21,6 +21,10 @@ class CiceroRepresentativeRepository extends EntityRepository
 
     public function getByDistricts($districts)
     {
+        if (!$districts) {
+            return [];
+        }
+
         return $this->createQueryBuilder('r')
                ->where($this->_em->getExpressionBuilder()->in('r.district', $districts))
                ->getQuery()
