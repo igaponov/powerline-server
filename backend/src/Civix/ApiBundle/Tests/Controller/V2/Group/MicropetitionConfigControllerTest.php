@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2\Group;
 use Civix\CoreBundle\Model\Subscription\PackageLimitState;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSubscriptionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -166,6 +167,7 @@ class MicropetitionConfigControllerTest extends WebTestCase
         $repository = $this->loadFixtures([
             LoadUserGroupData::class,
             LoadGroupManagerData::class,
+            LoadSubscriptionData::class,
         ])->getReferenceRepository();
         $group = $repository->getReference($reference);
 		$client = $this->client;
@@ -174,8 +176,6 @@ class MicropetitionConfigControllerTest extends WebTestCase
 			'petition_duration' => 25,
 			'petition_per_month' => 35,
 		];
-        $service = $this->getPackageHandlerMock();
-        $client->getContainer()->set('civix_core.package_handler', $service);
         $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
         $client->request('PUT', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"'], json_encode($params));
 		$response = $client->getResponse();
@@ -185,6 +185,26 @@ class MicropetitionConfigControllerTest extends WebTestCase
 			$this->assertSame($value, $data[$param]);
 		}
 	}
+
+
+    public function testUpdateMicropetitionConfigWithFreePackageThrowsException()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_3');
+        $client = $this->client;
+        $params = [
+            'petition_percent' => 15,
+            'petition_duration' => 25,
+            'petition_per_month' => 35,
+        ];
+        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
+        $client->request('PUT', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user3"'], json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
 
     public function getInvalidGroupCredentialsForUpdateRequest()
     {

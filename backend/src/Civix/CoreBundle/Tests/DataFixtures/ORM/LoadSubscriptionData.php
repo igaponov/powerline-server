@@ -19,21 +19,17 @@ class LoadSubscriptionData extends AbstractFixture implements DependentFixtureIn
         $manager->persist($subscription);
         $this->addReference('subscription_1', $subscription);
 
-        $this->createSubscription($group2, Subscription::PACKAGE_TYPE_FREE);
+        $subscription = $this->createSubscription($group2, Subscription::PACKAGE_TYPE_FREE);
         $manager->persist($subscription);
         $this->addReference('subscription_2', $subscription);
 
-        $this->createSubscription($group3, Subscription::PACKAGE_TYPE_COMMERCIAL);
+        $subscription = $this->createSubscription($group3, Subscription::PACKAGE_TYPE_COMMERCIAL);
         $manager->persist($subscription);
         $this->addReference('subscription_3', $subscription);
 
-        $this->createSubscription($group4, Subscription::PACKAGE_TYPE_PLATINUM);
+        $subscription = $this->createSubscription($group4, Subscription::PACKAGE_TYPE_PLATINUM);
         $manager->persist($subscription);
         $this->addReference('subscription_4', $subscription);
-
-        $this->createSubscription($group4, Subscription::PACKAGE_TYPE_FREE, false);
-        $manager->persist($subscription);
-        $this->addReference('subscription_5', $subscription);
 
         $manager->flush();
     }
