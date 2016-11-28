@@ -72,8 +72,8 @@ class PackageHandler
         $package = $this->sm->getPackage($user);
 
         $limitObj = new PackageLimitState();
-        $limitObj->setLimitValue($package->getAnnouncementLimitation());
-        $limitObj->setCurrentValue($user->getPetitionPerMonth());
+        $limitObj->setLimitValue($package->getMicropetitionLimitation());
+        $limitObj->setCurrentValue(1);
 
         return $limitObj;
     }
