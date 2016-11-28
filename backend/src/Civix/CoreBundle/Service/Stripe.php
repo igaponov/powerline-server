@@ -4,6 +4,7 @@ namespace Civix\CoreBundle\Service;
 
 use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Civix\CoreBundle\Entity\OfficialInterface;
+use Civix\CoreBundle\Entity\Stripe\AccountGroup;
 use Civix\CoreBundle\Entity\Stripe\BankAccount;
 use Civix\CoreBundle\Entity\Stripe\Card;
 use Doctrine\ORM\EntityManager;
@@ -151,7 +152,7 @@ class Stripe
 
         $account = $this->em
             ->getRepository(Account::getEntityClassByUser($paymentRequest->getOwner()))
-            ->findOneBy(['user' => $paymentRequest->getOwner()])
+            ->findOneBy([$paymentRequest->getOwner() instanceof AccountGroup ? 'group' : 'representative' => $paymentRequest->getOwner()])
         ;
 
         if (!$account) {
