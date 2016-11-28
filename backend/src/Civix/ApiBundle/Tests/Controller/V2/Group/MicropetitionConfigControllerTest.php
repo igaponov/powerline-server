@@ -149,10 +149,15 @@ class MicropetitionConfigControllerTest extends WebTestCase
 				'petition_duration' => 'This value is not valid.',
 				'petition_per_month' => 'This value is not valid.',
 			]],
-			'range' => [100, [
+			'max' => [100, [
 				'petition_percent' => 'This value should be 50 or less.',
 				'petition_duration' => 'This value should be 30 or less.',
 				'petition_per_month' => null,
+			]],
+			'min' => [0, [
+				'petition_percent' => 'This value should be 1 or more.',
+				'petition_duration' => 'This value should be 1 or more.',
+				'petition_per_month' => 'This value should be 1 or more.',
 			]],
 		];
 	}

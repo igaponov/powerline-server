@@ -415,6 +415,10 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
 
     /**
      * @Assert\Type(type="integer", groups={"micropetition-config"})
+     * @Assert\Range(
+     *     min = 1,
+     *     groups={"micropetition-config"}
+     * )
      * @ORM\Column(
      *      name="petition_per_month",
      *      type="integer",
