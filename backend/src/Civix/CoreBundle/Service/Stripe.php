@@ -4,11 +4,9 @@ namespace Civix\CoreBundle\Service;
 
 use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Civix\CoreBundle\Entity\OfficialInterface;
-use Civix\CoreBundle\Entity\Stripe\AccountGroup;
 use Civix\CoreBundle\Entity\Stripe\BankAccount;
 use Civix\CoreBundle\Entity\Stripe\Card;
 use Doctrine\ORM\EntityManager;
-use Civix\CoreBundle\Entity\UserInterface;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Stripe\Customer;
 use Civix\CoreBundle\Entity\Stripe\CustomerInterface;
@@ -16,12 +14,15 @@ use Civix\CoreBundle\Entity\Stripe\AccountInterface;
 use Civix\CoreBundle\Entity\Stripe\Account;
 use Civix\CoreBundle\Entity\Stripe\Charge;
 use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
-use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Subscription\Subscription;
+use Stripe\Coupon;
 use Stripe\Error;
 
 class Stripe
 {
+    const VOLUME_TRANSACTION_FEE = 0.05; // 5%
+    const PER_TRANSACTION_FEE = 50; // 50 cents
+
     private $em;
 
     public function __construct($apiKey, EntityManager $em)
@@ -100,8 +101,9 @@ class Stripe
 
     public function removeCard(CustomerInterface $customer, Card $card)
     {
-        $this->getStripeCustomer($customer)
-            ->sources->retrieve($card->getId())->delete();
+        /** @var \Stripe\Card $card */
+        $card = $this->getStripeCustomer($customer)->sources->retrieve($card->getId());
+        $card->delete();
     }
 
     public function removeBankAccount(AccountInterface $account, BankAccount $bankAccount)
@@ -110,11 +112,11 @@ class Stripe
             ->external_accounts->retrieve($bankAccount->getId())->delete();
     }
 
-    public function hasPayoutAccount(UserInterface $user)
+    public function hasPayoutAccount(LeaderContentRootInterface $root)
     {
         $account = $this->em
-            ->getRepository(Account::getEntityClassByUser($user))
-            ->findOneBy(['user' => $user])
+            ->getRepository(Account::getEntityClassByUser($root))
+            ->findOneBy(['user' => $root])
         ;
         if ($account) {
             return count($account->getBankAccounts());
@@ -123,62 +125,48 @@ class Stripe
         return false;
     }
 
-    public function hasCard(UserInterface $user)
+    public function hasCard(OfficialInterface $official)
     {
         $customer = $this->em
-            ->getRepository(Customer::getEntityClassByUser($user))
-            ->findOneBy(['user' => $user])
+            ->getRepository(Customer::getEntityClassByUser($official))
+            ->findOneBy(['user' => $official])
         ;
 
         return $customer && count($customer->getCards());
     }
 
-    public function chargeToPaymentRequest(Answer $answer)
+    /**
+     * @param Charge $charge
+     * @return \Stripe\Charge
+     */
+    public function chargeToPaymentRequest(Charge $charge)
     {
-        $user = $answer->getUser();
-        $paymentRequest = $answer->getQuestion();
+        $paymentRequest = $charge->getQuestion();
+        $customer = $charge->getFromCustomer();
+        $account = $charge->getToAccount();
 
         if (!$paymentRequest instanceof PaymentRequest) {
             throw new \RuntimeException('Only an answer to payment request can be charged.');
         }
-        /** @var Customer $customer */
-        $customer = $this->em
-            ->getRepository(Customer::getEntityClassByUser($user))
-            ->findOneBy(['user' => $user]);
 
-        if (!$customer) {
-            throw new \RuntimeException('User doesn\'t have an account in stripe');
-        }
-
-        $account = $this->em
-            ->getRepository(Account::getEntityClassByUser($paymentRequest->getOwner()))
-            ->findOneBy([$paymentRequest->getOwner() instanceof AccountGroup ? 'group' : 'representative' => $paymentRequest->getOwner()])
-        ;
-
-        if (!$account) {
-            throw new \RuntimeException('Group doesn\'t have an account in stripe');
-        }
-
-        $charge = new Charge($customer, $account, $paymentRequest);
-        $amount = $answer->getCurrentPaymentAmount() * 100;
+        $amount = $charge->getAmount();
 
         $sc = \Stripe\Charge::create([
             'amount' => $amount,
-            'application_fee' => ceil($amount * 0.021 + 50),
+            'application_fee' => ceil($amount * self::VOLUME_TRANSACTION_FEE + self::PER_TRANSACTION_FEE),
             'currency' => 'usd',
             'customer' => $customer->getStripeId(),
             'statement_descriptor' => 'PowerlinePay-'.
                                         $this->getAppearsOnStatement($paymentRequest->getOwner()),
             'destination' => $account->getStripeId(),
-            'description' => 'Powerline Payment: ('.$paymentRequest->getOwner()->getOfficialName()
-                                        .') - ('.$paymentRequest->getTitle().')',
+            'description' => sprintf(
+                'Powerline Payment: (%s) - (%s)',
+                $paymentRequest->getOwner()->getOfficialTitle(),
+                $paymentRequest->getTitle()
+            )
         ]);
 
-        $charge->updateStripeData($sc);
-        $this->em->persist($charge);
-        $this->em->flush($charge);
-
-        return $charge;
+        return $sc;
     }
 
     public function chargeCustomer(Customer $customer, $amount, $statement = null, $description = null)
@@ -200,11 +188,12 @@ class Stripe
         return $charge;
     }
 
-    public function chargeUser(UserInterface $user, $amount, $statement = null, $description = null)
+    public function chargeUser(OfficialInterface $official, $amount, $statement = null, $description = null)
     {
+        /** @var Customer $customer */
         $customer = $this->em
-            ->getRepository(Customer::getEntityClassByUser($user))
-            ->findOneBy(['user' => $user]);
+            ->getRepository(Customer::getEntityClassByUser($official))
+            ->findOneBy(['user' => $official]);
 
         return $this->chargeCustomer($customer, $amount, $statement, $description);
     }
@@ -228,7 +217,7 @@ class Stripe
 
         if ($subscription->getStripeId()) {
             try {
-                /** @var \Stripe\Subscription $stripeSubscription */
+                /** @var \Stripe\Subscription|\stdClass $stripeSubscription */
                 $stripeSubscription = $stripeCustomer->subscriptions
                     ->retrieve($subscription->getStripeId());
                 $stripeSubscription->plan = $subscription->getPlanId();
@@ -268,12 +257,14 @@ class Stripe
             return $subscription;
         }
         $user = $subscription->getUserEntity();
+        /** @var CustomerInterface $customer */
         $customer = $this->em
             ->getRepository(Customer::getEntityClassByUser($user))
             ->findOneBy(['user' => $user]);
         $stripeCustomer = $this->getStripeCustomer($customer);
 
         try {
+            /** @var \Stripe\Subscription $ss */
             $ss = $stripeCustomer->subscriptions
                 ->retrieve($subscription->getStripeId());
             $ss->cancel(['at_period_end' => true]);
@@ -292,6 +283,7 @@ class Stripe
     public function syncSubscription(Subscription $subscription)
     {
         $user = $subscription->getUserEntity();
+        /** @var CustomerInterface $customer */
         $customer = $this->em
             ->getRepository(Customer::getEntityClassByUser($user))
             ->findOneBy(['user' => $user]);
@@ -314,7 +306,7 @@ class Stripe
 
     public function getCoupons($limit, $after = null, $before = null)
     {
-        return \Stripe\Coupon::all([
+        return Coupon::all([
             'limit' => $limit,
             'starting_after' => $after,
             'ending_before' => $before,
@@ -359,10 +351,10 @@ class Stripe
         \Stripe\Account::retrieve($account->getStripeId())->delete();
     }
 
-    private function getAppearsOnStatement(UserInterface $user)
+    private function getAppearsOnStatement(LeaderContentRootInterface $root)
     {
-        if ($user instanceof Group) {
-            return $user->getAcronym() ?: mb_substr($user->getOfficialName(), 0, 5);
+        if ($root instanceof Group) {
+            return $root->getAcronym() ?: mb_substr($root->getOfficialName(), 0, 5);
         }
 
         return 'PowerlineAppPay';

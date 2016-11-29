@@ -3,6 +3,10 @@ namespace Civix\CoreBundle\Service;
 
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Question;
+use Civix\CoreBundle\Entity\Stripe\Account;
+use Civix\CoreBundle\Entity\Stripe\Charge;
+use Civix\CoreBundle\Entity\Stripe\Customer;
+use Civix\CoreBundle\Event\ChargeEvent;
 use Civix\CoreBundle\Event\Poll\AnswerEvent;
 use Civix\CoreBundle\Event\Poll\QuestionEvent;
 use Civix\CoreBundle\Event\PollEvents;
@@ -68,11 +72,46 @@ class PollManager
     {
         $question->addAnswer($answer);
         $this->em->persist($answer);
-        $this->em->flush();
 
         $event = new AnswerEvent($answer);
         $this->dispatcher->dispatch(PollEvents::QUESTION_ANSWER, $event);
 
+        if ($question instanceof Question\PaymentRequest
+            && !$question->getIsCrowdfunding()
+            && $answer->getCurrentPaymentAmount()
+        ) {
+            $this->chargeToPaymentRequest($question, $answer);
+        }
+        $this->em->flush();
+
         return $answer;
+    }
+
+    public function chargeToPaymentRequest(Question $question, Answer $answer)
+    {
+        $user = $answer->getUser();
+        /** @var Customer $customer */
+        $customer = $this->em
+            ->getRepository(Customer::getEntityClassByUser($user))
+            ->findOneBy([$user->getType() => $user]);
+
+        if (!$customer) {
+            throw new \RuntimeException(ucfirst($user->getType())." doesn't have an account in stripe");
+        }
+
+        $account = $this->em
+            ->getRepository(Account::getEntityClassByUser($question->getOwner()))
+            ->findOneBy([$question->getOwner()->getType()  => $question->getOwner()]);
+
+        if (!$account) {
+            throw new \RuntimeException(ucfirst($question->getOwner()->getType())." doesn't have an account in stripe");
+        }
+
+        $charge = new Charge($customer, $account, $question);
+        $charge->setAmount($answer->getCurrentPaymentAmount() * 100);
+        $this->em->persist($charge);
+
+        $event = new ChargeEvent($charge);
+        $this->dispatcher->dispatch(PollEvents::QUESTION_CHARGE, $event);
     }
 }
