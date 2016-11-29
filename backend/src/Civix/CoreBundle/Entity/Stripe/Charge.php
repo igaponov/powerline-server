@@ -82,6 +82,10 @@ class Charge
         $this->question = $question;
     }
 
+    /**
+     * @param \Stripe\Charge $sc
+     * @deprecated
+     */
     public function updateStripeData(\Stripe\Charge $sc)
     {
         $this->stripeId = $sc->id;
@@ -101,6 +105,163 @@ class Charge
     public function isSucceeded()
     {
         return $this->status === 'succeeded';
+    }
+
+    /**
+     * @return Question
+     */
+    public function getQuestion()
+    {
+        return $this->question;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFromCustomer()
+    {
+        return $this->fromCustomer;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getToAccount()
+    {
+        return $this->toAccount;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAmount()
+    {
+        return $this->amount;
+    }
+
+    /**
+     * @param mixed $amount
+     * @return Charge
+     */
+    public function setAmount($amount)
+    {
+        $this->amount = $amount;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStripeId()
+    {
+        return $this->stripeId;
+    }
+
+    /**
+     * @param mixed $stripeId
+     * @return Charge
+     */
+    public function setStripeId($stripeId)
+    {
+        $this->stripeId = $stripeId;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param mixed $status
+     * @return Charge
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getApplicationFee()
+    {
+        return $this->applicationFee;
+    }
+
+    /**
+     * @param mixed $applicationFee
+     * @return Charge
+     */
+    public function setApplicationFee($applicationFee)
+    {
+        $this->applicationFee = $applicationFee;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCurrency()
+    {
+        return $this->currency;
+    }
+
+    /**
+     * @param mixed $currency
+     * @return Charge
+     */
+    public function setCurrency($currency)
+    {
+        $this->currency = $currency;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getReceiptNumber()
+    {
+        return $this->receiptNumber;
+    }
+
+    /**
+     * @param mixed $receiptNumber
+     * @return Charge
+     */
+    public function setReceiptNumber($receiptNumber)
+    {
+        $this->receiptNumber = $receiptNumber;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * @param mixed $created
+     * @return Charge
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+
+        return $this;
     }
 
     public function toArray()

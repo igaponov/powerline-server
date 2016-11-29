@@ -1,14 +1,14 @@
 <?php
 namespace Civix\CoreBundle\EventListener;
 
-use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
+use Civix\CoreBundle\Entity\Stripe\Charge;
 use Civix\CoreBundle\Event\AccountEvent;
 use Civix\CoreBundle\Event\AccountEvents;
 use Civix\CoreBundle\Event\BankAccountEvent;
 use Civix\CoreBundle\Event\CardEvent;
+use Civix\CoreBundle\Event\ChargeEvent;
 use Civix\CoreBundle\Event\CustomerEvent;
 use Civix\CoreBundle\Event\CustomerEvents;
-use Civix\CoreBundle\Event\Poll\AnswerEvent;
 use Civix\CoreBundle\Event\PollEvents;
 use Civix\CoreBundle\Service\Stripe;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -23,7 +23,7 @@ class StripeSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            PollEvents::QUESTION_ANSWER => 'chargeToPaymentRequest',
+            PollEvents::QUESTION_CHARGE => 'chargeToPaymentRequest',
             AccountEvents::PRE_CREATE => 'createStripeAccount',
             AccountEvents::PRE_DELETE => 'deleteStripeAccount',
             AccountEvents::BANK_ACCOUNT_PRE_CREATE => 'createStripeBankAccount',
@@ -39,15 +39,11 @@ class StripeSubscriber implements EventSubscriberInterface
         $this->stripe = $stripe;
     }
 
-    public function chargeToPaymentRequest(AnswerEvent $event)
+    public function chargeToPaymentRequest(ChargeEvent $event)
     {
-        $answer = $event->getAnswer();
-        $question = $answer->getQuestion();
-
-        if ($question instanceof PaymentRequest && !$question->getIsCrowdfunding() &&
-            $answer->getCurrentPaymentAmount()) {
-            $this->stripe->chargeToPaymentRequest($answer);
-        }
+        $charge = $event->getCharge();
+        $stripeCharge = $this->stripe->chargeToPaymentRequest($charge);
+        $this->updateStripeData($charge, $stripeCharge);
     }
 
     public function createStripeAccount(AccountEvent $event)
@@ -111,5 +107,16 @@ class StripeSubscriber implements EventSubscriberInterface
 
         $this->stripe->removeCard($customer, $card);
         $customer->updateCards($this->stripe->getCards($customer)->data);
+    }
+
+    private function updateStripeData(Charge $charge, \Stripe\Charge $sc)
+    {
+        $charge->setStripeId($sc->id);
+        $charge->setStatus($sc->status);
+        $charge->setAmount($sc->amount);
+        $charge->setCurrency($sc->currency);
+        $charge->setApplicationFee($sc->application_fee);
+        $charge->setReceiptNumber($sc->receipt_number);
+        $charge->setCreated($sc->created);
     }
 }

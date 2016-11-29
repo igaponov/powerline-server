@@ -8,7 +8,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
 use Civix\CoreBundle\Entity\Poll\Answer;
-use Civix\CoreBundle\Service\Stripe;
 use Civix\CoreBundle\Entity\Stripe\Charge;
 use Civix\CoreBundle\Entity\Stripe\Customer;
 
@@ -34,21 +33,20 @@ class ChargePaymentRequestCommand extends ContainerAwareCommand
             ->find($input->getArgument('id'));
 
         if (!$paymentRequest || !$paymentRequest->getIsCrowdfunding()) {
-            return $output->writeln('<error>Cannot find payment request.</error>');
+            $output->writeln('<error>Cannot find payment request.</error>');
+            return;
         }
 
         if (!$paymentRequest->isCrowdfundingDeadline()) {
-            return $output->writeln('<error>Deadline is not reached.</error>');
+            $output->writeln('<error>Deadline is not reached.</error>');
+            return;
         }
-
-        /** @var Stripe $stripe */
-        $stripe = $this->getContainer()->get('civix_core.stripe');
 
         /** @var \Doctrine\ORM\EntityRepository $chargeRepository */
         $chargeRepository = $this->getContainer()->get('doctrine')->getRepository(Charge::class);
 
         /** @var \Doctrine\ORM\EntityManager $em */
-        $em = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $em = $this->getContainer()->get('doctrine')->getManager();
 
         if ($paymentRequest->getCrowdfundingGoalAmount() > $paymentRequest->getCrowdfundingPledgedAmount()) {
             $paymentRequest->setIsCrowdfundingCompleted(true);
@@ -75,7 +73,9 @@ class ChargePaymentRequestCommand extends ContainerAwareCommand
 
             if ($answer->getOption()->getPaymentAmount() && !$charge) {
                 try {
-                    $stripe->chargeToPaymentRequest($paymentRequest, $answer, $answer->getUser());
+                    $pollManager = $this->getContainer()->get('civix_core.poll_manager');
+                    $pollManager->chargeToPaymentRequest($paymentRequest, $answer);
+                    $em->flush();
                     $output->writeln("<comment>User {$answer->getUser()->getId()} has charged</comment>");
                 } catch (\Exception $e) {
                     $output->writeln("<error>{$e->getMessage()}</error>");
@@ -86,7 +86,8 @@ class ChargePaymentRequestCommand extends ContainerAwareCommand
         }
 
         $paymentRequest->setIsCrowdfundingCompleted(true);
-        $em->flush($paymentRequest);
+        $em->persist($paymentRequest);
+        $em->flush();
 
         $output->writeln('Charged.');
     }

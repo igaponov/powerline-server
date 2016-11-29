@@ -2,11 +2,11 @@
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
-use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Option;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Question\Group;
 use Civix\CoreBundle\Entity\SocialActivity;
+use Civix\CoreBundle\Entity\Stripe\Charge;
 use Civix\CoreBundle\Service\Stripe;
 use Civix\CoreBundle\Test\SocialActivityTester;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupNewsData;
@@ -16,6 +16,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData as Load
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData as LoadGroupQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadFieldValueData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadStripeCustomerUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Representative\LoadRepresentativeNewsData;
@@ -23,6 +24,8 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Representative\LoadRepresentativePay
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Representative\LoadRepresentativeQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Representative\LoadQuestionAnswerData as LoadRepresentativeQuestionAnswerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Representative\LoadQuestionCommentData as LoadRepresentativeQuestionCommentData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe\LoadAccountGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe\LoadAccountRepresentativeData;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Faker\Factory;
@@ -1107,6 +1110,8 @@ class PollControllerTest extends WebTestCase
             LoadUserGroupData::class,
             LoadGroupManagerData::class,
             LoadGroupPaymentRequestData::class,
+            LoadStripeCustomerUserData::class,
+            LoadAccountGroupData::class,
         ])->getReferenceRepository();
         /** @var Question $question */
         $question = $repository->getReference('group_payment_request_2');
@@ -1119,11 +1124,12 @@ class PollControllerTest extends WebTestCase
             ->getMock();
         $stripe->expects($this->once())
             ->method('chargeToPaymentRequest')
-            ->with($this->callback(function(Answer $answer) {
-                $this->assertEquals(500, $answer->getCurrentPaymentAmount());
+            ->with($this->callback(function(Charge $charge) {
+                $this->assertEquals(50000, $charge->getAmount());
 
                 return true;
-            }));
+            }))
+            ->willReturn($this->getCharge());
         $client->getContainer()->set('civix_core.stripe', $stripe);
         $faker = Factory::create();
         $params = [
@@ -1154,6 +1160,8 @@ class PollControllerTest extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadRepresentativePaymentRequestData::class,
+            LoadStripeCustomerUserData::class,
+            LoadAccountRepresentativeData::class,
         ])->getReferenceRepository();
         /** @var Question $question */
         $question = $repository->getReference('representative_payment_request_2');
@@ -1166,11 +1174,12 @@ class PollControllerTest extends WebTestCase
             ->getMock();
         $stripe->expects($this->once())
             ->method('chargeToPaymentRequest')
-            ->with($this->callback(function(Answer $answer) {
-                $this->assertEquals(500, $answer->getCurrentPaymentAmount());
+            ->with($this->callback(function(Charge $charge) {
+                $this->assertEquals(50000, $charge->getAmount());
 
                 return true;
-            }));
+            }))
+            ->willReturn($this->getCharge());
         $client->getContainer()->set('civix_core.stripe', $stripe);
         $faker = Factory::create();
         $params = [
@@ -1321,5 +1330,21 @@ class PollControllerTest extends WebTestCase
             'owner' => ['user1', 'group_question_1'],
             'manager' => ['user2', 'group_question_1'],
         ];
+    }
+
+    /**
+     * @return \Stripe\Charge
+     */
+    public function getCharge()
+    {
+        $charge = new \Stripe\Charge('ch_0000');
+        $charge->status = 'success';
+        $charge->amount = 50000;
+        $charge->currency = 'usd';
+        $charge->application_fee = 2550;
+        $charge->receipt_number = 'rec_000';
+        $charge->created = time();
+
+        return $charge;
     }
 }
