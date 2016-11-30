@@ -23,7 +23,8 @@ class LoadCiceroRepresentativeData extends AbstractFixture implements DependentF
             ->setPhone('')
             ->setEmail('josephb26@example.com')
             ->setAvatarSourceFileName('http://www.whitehouse.gov/sites/default/files/imagecache/admin_official_thumb/administration-official/ao_image/vp_portrait_hi-res.jpg')
-            ->setDistrict($this->getReference('district_us'));
+            ->setDistrict($this->getReference('district_us'))
+            ->setOpenstateId('os_id_01');
         $this->addReference('cicero_representative_jb', $representative);
         $manager->persist($representative);
 
