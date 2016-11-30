@@ -9,7 +9,6 @@ use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Service\Group\GroupManager;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Query;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -269,6 +268,8 @@ class GroupController extends FOSRestController
     }
 
     /**
+     * Deprecated, use `PUT /api/v2/groups/{id}/invites` instead
+     *
      * @Route("/{id}/users", requirements={"id"="\d+"})
      * @Method("PUT")
      *
@@ -285,7 +286,8 @@ class GroupController extends FOSRestController
      *         403="Access Denied",
      *         404="Group Not Found",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      *
      * @param Request $request
@@ -295,16 +297,60 @@ class GroupController extends FOSRestController
      */
     public function putUsersAction(Request $request, Group $group)
     {
-        $form = $this->createForm(new InviteType());
+        return $this->putInvitesAction($request, $group);
+    }
+
+    /**
+     * @Route("/{id}/invites", requirements={"id"="\d+"})
+     * @Method("PUT")
+     *
+     * @SecureParam("group", permission="member")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Groups",
+     *     description="Invite users to join a group",
+     *     input="Civix\ApiBundle\Form\Type\InviteType",
+     *     statusCodes={
+     *         204="Success",
+     *         400="Bad request",
+     *         403="Access Denied",
+     *         404="Group Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Request $request
+     * @param Group $group
+     *
+     * @return null|\Symfony\Component\Form\Form
+     */
+    public function putInvitesAction(Request $request, Group $group)
+    {
+        $user = $this->getUser();
+        $form = $this->createForm(new InviteType($user));
         $form->submit($request);
 
         if ($form->isValid()) {
-            $this->manager->joinUsersByUsername(
-                $group,
-                $this->getUser(),
-                $form->get('users')->getData()
-            );
-
+            if ($form->get('users')->getData()) {
+                $this->manager->joinUsersByUsername(
+                    $group,
+                    $user,
+                    $form->get('users')->getData()
+                );
+            } elseif ($form->get('post')->getData()) {
+                $this->manager->joinUsersByPostUpvotes(
+                    $group,
+                    $user,
+                    $form->get('post')->getData()
+                );
+            } elseif ($form->get('user_petition')->getData()) {
+                $this->manager->joinUsersByUserPetitionSignatures(
+                    $group,
+                    $user,
+                    $form->get('user_petition')->getData()
+                );
+            }
             return null;
         }
 

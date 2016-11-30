@@ -6,6 +6,7 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\UserInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\Expr\Join;
 
@@ -173,5 +174,13 @@ class PostRepository extends EntityRepository
             ->andWhere('ug.status = :status')
             ->setParameter(':status', UserGroup::STATUS_ACTIVE)
             ->getQuery();
+    }
+
+    public function getForInviteQueryBuilder(UserInterface $user)
+    {
+        return $this->createQueryBuilder('p')
+            ->where('p.boosted = true')
+            ->andWhere('p.user = :user')
+            ->setParameter(':user', $user);
     }
 }

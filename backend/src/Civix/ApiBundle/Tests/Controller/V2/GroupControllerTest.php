@@ -9,10 +9,13 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadFieldValueData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadInviteData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
 use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
@@ -305,7 +308,7 @@ class GroupControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $count = $conn->fetchColumn(
             'SELECT * FROM users_groups WHERE user_id = ? AND group_id = ?',
             [$user->getId(), $group->getId()]
@@ -340,7 +343,7 @@ class GroupControllerTest extends WebTestCase
         $client->request('PATCH', self::API_ENDPOINT.'/'.$group->getId().'/users/'.$user->getId(), [], [], $headers);
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
-        $tester = new SocialActivityTester($client->getContainer()->get('doctrine.orm.entity_manager'));
+        $tester = new SocialActivityTester($client->getContainer()->get('doctrine')->getManager());
         $tester->assertActivitiesCount(1);
         $tester->assertActivity(SocialActivity::TYPE_JOIN_TO_GROUP_APPROVED, $user->getId());
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
@@ -367,16 +370,15 @@ class GroupControllerTest extends WebTestCase
             LoadUserGroupData::class,
         ])->getReferenceRepository();
         $group = $this->repository->getReference('group_1');
+        $errors = [
+            'users' => 'This collection should contain 1 element or more.',
+            'post' => 'This value is not valid.',
+            'user_petition' => 'This value is not valid.',
+        ];
         $client = $this->client;
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user4"'];
-        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/users', [], [], $headers, json_encode(['users' => []]));
-        $response = $client->getResponse();
-        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals([
-            'This value should not be blank.',
-            'This collection should contain 1 element or more.',
-        ], $data['errors']['children']['users']['errors']);
+        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/users', [], [], $headers, json_encode(['users' => [], 'post' => 0, 'user_petition' => 0]));
+        $this->assertResponseHasErrors($client->getResponse(), $errors);
     }
 
     public function testInviteJoinedUsersToGroupIsOk()
@@ -407,12 +409,12 @@ class GroupControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('database_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM invites WHERE group_id = ?', [$group->getId()]);
         $this->assertEquals(0, $count);
     }
 
-    public function testInviteUsersToGroupIsOk()
+    public function testInviteUsersToGroupByUsernameIsOk()
     {
         $this->repository = $this->loadFixtures([
             LoadUserGroupData::class,
@@ -423,17 +425,69 @@ class GroupControllerTest extends WebTestCase
         $client = $this->client;
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user4"'];
         $params = ['users' => json_encode([$user2->getUsername(), $user3->getUsername()])];
-        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/users', [], [], $headers, json_encode($params));
+        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/invites', [], [], $headers, json_encode($params));
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('database_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM invites WHERE group_id = ?', [$group->getId()]);
         $this->assertEquals(2, $count);
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
         $this->assertEquals(2, $queue->count());
         $this->assertEquals(1, $queue->hasMessageWithMethod('sendGroupInvitePush', [$user2->getId(), $group->getId()]));
         $this->assertEquals(1, $queue->hasMessageWithMethod('sendGroupInvitePush', [$user3->getId(), $group->getId()]));
+    }
+
+    public function testInviteUsersToGroupByPostIsOk()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupOwnerData::class,
+            LoadPostVoteData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference('group_2');
+        $post = $this->repository->getReference('post_3');
+        $user3 = $this->repository->getReference('user_3');
+        $user4 = $this->repository->getReference('user_4');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user2"'];
+        $params = ['post' => $post->getId()];
+        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/invites', [], [], $headers, json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM invites WHERE group_id = ?', [$group->getId()]);
+        $this->assertEquals(2, $count);
+        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+        $this->assertEquals(2, $queue->count());
+        $this->assertEquals(1, $queue->hasMessageWithMethod('sendGroupInvitePush', [$user3->getId(), $group->getId()]));
+        $this->assertEquals(1, $queue->hasMessageWithMethod('sendGroupInvitePush', [$user4->getId(), $group->getId()]));
+    }
+
+    public function testInviteUsersToGroupByUserPetitionIsOk()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupOwnerData::class,
+            LoadUserPetitionSignatureData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference('group_2');
+        $post = $this->repository->getReference('user_petition_3');
+        $user3 = $this->repository->getReference('user_3');
+        $user4 = $this->repository->getReference('user_4');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user2"'];
+        $params = ['user_petition' => $post->getId()];
+        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/invites', [], [], $headers, json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM invites WHERE group_id = ?', [$group->getId()]);
+        $this->assertEquals(2, $count);
+        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+        $this->assertEquals(2, $queue->count());
+        $this->assertEquals(1, $queue->hasMessageWithMethod('sendGroupInvitePush', [$user3->getId(), $group->getId()]));
+        $this->assertEquals(1, $queue->hasMessageWithMethod('sendGroupInvitePush', [$user4->getId(), $group->getId()]));
     }
 
     /**
@@ -475,7 +529,7 @@ class GroupControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('database_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM users_groups WHERE group_id = ? and user_id = ?', [$group->getId(), $user1->getId()]);
         $this->assertEquals(1, $count);
     }
@@ -519,7 +573,7 @@ class GroupControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('database_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM notification_invites WHERE group_id = ? and user_id = ?', [$group->getId(), $user1->getId()]);
         $this->assertEquals(0, $count);
     }
@@ -586,7 +640,7 @@ class GroupControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $count = $conn->fetchColumn('SELECT * FROM users_groups_managers WHERE user_id = ? AND group_id = ?', [$user->getId(), $group->getID()]);
         $this->assertEquals(0, $count);
     }
