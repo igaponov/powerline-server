@@ -4,9 +4,11 @@ namespace Civix\CoreBundle\Service\Group;
 
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Invites\UserToGroup;
+use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Entity\UserGroupManager;
+use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
 use Civix\CoreBundle\Event\GroupUserEvent;
@@ -300,18 +302,23 @@ class GroupManager
      */
     public function joinUsersByUsername(Group $group, User $inviter, $userNames)
     {
-        $users = $this->entityManager->getRepository(User::class)
+        $iterator = $this->entityManager->getRepository(User::class)
             ->findForInviteByGroupUsername($group, $userNames);
-        foreach ($users as $user) {
-            $invite = new UserToGroup();
-            $invite->setInviter($inviter);
-            $invite->setUser($user);
-            $invite->setGroup($group);
-            $this->entityManager->persist($invite);
-            $event = new InviteEvent($invite);
-            $this->dispatcher->dispatch(InviteEvents::CREATE, $event);
-        }
-        $this->entityManager->flush();
+        $this->inviteUsersToGroup($group, $inviter, $iterator);
+    }
+
+    public function joinUsersByPostUpvotes(Group $group, User $inviter, Post $post)
+    {
+        $iterator = $this->entityManager->getRepository(User::class)
+            ->findForInviteByPostUpvotes($group, $post);
+        $this->inviteUsersToGroup($group, $inviter, $iterator);
+    }
+
+    public function joinUsersByUserPetitionSignatures(Group $group, User $inviter, UserPetition $petition)
+    {
+        $iterator = $this->entityManager->getRepository(User::class)
+            ->findForInviteByUserPetitionSignatures($group, $petition);
+        $this->inviteUsersToGroup($group, $inviter, $iterator);
     }
 
     public function approveUser(UserGroup $userGroup)
@@ -365,6 +372,45 @@ class GroupManager
             ->findOneBy(['group' => $group, 'user' => $user]);
 
         $this->entityManager->remove($userGroupManager);
+        $this->entityManager->flush();
+    }
+
+    private function inviteUserToGroup(User $user, Group $group, User $inviter)
+    {
+        $invite = new UserToGroup();
+        $invite->setInviter($inviter);
+        $invite->setUser($user);
+        $invite->setGroup($group);
+        $this->entityManager->persist($invite);
+        $event = new InviteEvent($invite);
+        $this->dispatcher->dispatch(InviteEvents::CREATE, $event);
+
+        return $invite;
+    }
+
+    /**
+     * @param Group $group
+     * @param User $inviter
+     * @param $iterator
+     */
+    private function inviteUsersToGroup(Group $group, User $inviter, $iterator)
+    {
+        $count = 0;
+        $max = 50;
+        /** @var UserToGroup[] $invites */
+        $invites = [];
+        foreach ($iterator as $item) {
+            $user = $item[0];
+            $invites[] = $this->inviteUserToGroup($user, $group, $inviter);
+            $count++;
+            if ($count === $max) {
+                foreach ($invites as $invite) {
+                    $this->entityManager->flush();
+                    $this->entityManager->detach($invite->getUser());
+                    $this->entityManager->detach($invite);
+                }
+            }
+        }
         $this->entityManager->flush();
     }
 }

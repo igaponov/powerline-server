@@ -17,41 +17,53 @@ class LoadUserPetitionSignatureData extends AbstractFixture implements Dependent
         $user1 = $this->getReference('user_1');
         $user2 = $this->getReference('user_2');
         $user3 = $this->getReference('user_3');
+        $user4 = $this->getReference('user_4');
         $petition1 = $this->getReference('user_petition_1');
+        $petition3 = $this->getReference('user_petition_3');
         $petition5 = $this->getReference('user_petition_5');
 
-        $answer1 = new Signature();
-        $answer1->setUser($user1);
-        $answer1->setPetition($petition1);
-        $manager->persist($answer1);
+        $signature = new Signature();
+        $signature->setUser($user1);
+        $signature->setPetition($petition1);
+        $manager->persist($signature);
+        $this->addReference('petition_answer_1', $signature);
 
-        $answer2 = new Signature();
-        $answer2->setUser($user2);
-        $answer2->setPetition($petition1);
-        $manager->persist($answer2);
+        $signature = new Signature();
+        $signature->setUser($user2);
+        $signature->setPetition($petition1);
+        $manager->persist($signature);
+        $this->addReference('petition_answer_2', $signature);
 
-        $answer3 = new Signature();
-        $answer3->setUser($user3);
-        $answer3->setPetition($petition1);
-        $manager->persist($answer3);
+        $signature = new Signature();
+        $signature->setUser($user3);
+        $signature->setPetition($petition1);
+        $manager->persist($signature);
+        $this->addReference('petition_answer_3', $signature);
 
-        $answer4 = new Signature();
-        $answer4->setUser($user1);
-        $answer4->setPetition($petition5);
-        $manager->persist($answer4);
+        $signature = new Signature();
+        $signature->setUser($user1);
+        $signature->setPetition($petition5);
+        $manager->persist($signature);
+        $this->addReference('petition_answer_4', $signature);
 
-        $answer5 = new Signature();
-        $answer5->setUser($user2);
-        $answer5->setPetition($petition5);
-        $manager->persist($answer5);
+        $signature = new Signature();
+        $signature->setUser($user2);
+        $signature->setPetition($petition5);
+        $manager->persist($signature);
+        $this->addReference('petition_answer_5', $signature);
+
+        $signature = new Signature();
+        $signature->setUser($user3);
+        $signature->setPetition($petition3);
+        $manager->persist($signature);
+
+        $signature = new Signature();
+        $signature->setUser($user4);
+        $signature->setPetition($petition3);
+        $manager->persist($signature);
 
         $manager->flush();
 
-        $this->addReference('petition_answer_1', $answer1);
-        $this->addReference('petition_answer_2', $answer2);
-        $this->addReference('petition_answer_3', $answer3);
-        $this->addReference('petition_answer_4', $answer4);
-        $this->addReference('petition_answer_5', $answer5);
     }
 
     public function getDependencies()

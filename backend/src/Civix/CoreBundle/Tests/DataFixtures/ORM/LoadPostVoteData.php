@@ -17,46 +17,60 @@ class LoadPostVoteData extends AbstractFixture implements DependentFixtureInterf
         $user1 = $this->getReference('user_1');
         $user2 = $this->getReference('user_2');
         $user3 = $this->getReference('user_3');
+        $user4 = $this->getReference('user_4');
         $post1 = $this->getReference('post_1');
+        $post3 = $this->getReference('post_3');
         $post5 = $this->getReference('post_5');
 
-        $answer1 = new Vote();
-        $answer1->setUser($user1);
-        $answer1->setPost($post1);
-        $answer1->setOption(Vote::OPTION_UPVOTE);
-        $manager->persist($answer1);
+        $answer = new Vote();
+        $answer->setUser($user1);
+        $answer->setPost($post1);
+        $answer->setOption(Vote::OPTION_UPVOTE);
+        $manager->persist($answer);
 
-        $answer2 = new Vote();
-        $answer2->setUser($user2);
-        $answer2->setPost($post1);
-        $answer2->setOption(Vote::OPTION_DOWNVOTE);
-        $manager->persist($answer2);
+        $answer = new Vote();
+        $answer->setUser($user2);
+        $answer->setPost($post1);
+        $answer->setOption(Vote::OPTION_DOWNVOTE);
+        $manager->persist($answer);
 
-        $answer3 = new Vote();
-        $answer3->setUser($user3);
-        $answer3->setPost($post1);
-        $answer3->setOption(Vote::OPTION_IGNORE);
-        $manager->persist($answer3);
+        $answer = new Vote();
+        $answer->setUser($user3);
+        $answer->setPost($post1);
+        $answer->setOption(Vote::OPTION_IGNORE);
+        $manager->persist($answer);
 
-        $answer4 = new Vote();
-        $answer4->setUser($user1);
-        $answer4->setPost($post5);
-        $answer4->setOption(Vote::OPTION_UPVOTE);
-        $manager->persist($answer4);
+        $answer = new Vote();
+        $answer->setUser($user1);
+        $answer->setPost($post5);
+        $answer->setOption(Vote::OPTION_UPVOTE);
+        $manager->persist($answer);
 
-        $answer5 = new Vote();
-        $answer5->setUser($user2);
-        $answer5->setPost($post5);
-        $answer5->setOption(Vote::OPTION_UPVOTE);
-        $manager->persist($answer5);
+        $answer = new Vote();
+        $answer->setUser($user2);
+        $answer->setPost($post5);
+        $answer->setOption(Vote::OPTION_UPVOTE);
+        $manager->persist($answer);
+
+        $answer = new Vote();
+        $answer->setUser($user3);
+        $answer->setPost($post3);
+        $answer->setOption(Vote::OPTION_UPVOTE);
+        $manager->persist($answer);
+
+        $answer = new Vote();
+        $answer->setUser($user4);
+        $answer->setPost($post3);
+        $answer->setOption(Vote::OPTION_UPVOTE);
+        $manager->persist($answer);
 
         $manager->flush();
 
-        $this->addReference('post_answer_1', $answer1);
-        $this->addReference('post_answer_2', $answer2);
-        $this->addReference('post_answer_3', $answer3);
-        $this->addReference('post_answer_4', $answer4);
-        $this->addReference('post_answer_5', $answer5);
+        $this->addReference('post_answer_1', $answer);
+        $this->addReference('post_answer_2', $answer);
+        $this->addReference('post_answer_3', $answer);
+        $this->addReference('post_answer_4', $answer);
+        $this->addReference('post_answer_5', $answer);
     }
 
     public function getDependencies()
