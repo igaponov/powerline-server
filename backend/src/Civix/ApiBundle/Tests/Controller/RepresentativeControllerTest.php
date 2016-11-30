@@ -4,6 +4,8 @@ namespace Civix\ApiBundle\Tests\Controller;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\CiceroRepresentative;
 use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Serializer\Adapter\BillAdapter;
+use Civix\CoreBundle\Serializer\Adapter\CommitteeAdapter;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadCiceroRepresentativeData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
@@ -91,7 +93,7 @@ class RepresentativeControllerTest  extends WebTestCase
         $this->assertCount(0, $data);
     }
 
-    public function testGetRepresentativeAction()
+    public function testGetRepresentative()
     {
         $repository = $this->loadFixtures([
             LoadRepresentativeData::class,
@@ -125,7 +127,7 @@ class RepresentativeControllerTest  extends WebTestCase
         $this->assertEquals(404, $response->getStatusCode(), $response->getContent());
     }
 
-    public function testGetCiceroRepresentativeAction()
+    public function testGetCiceroRepresentative()
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
@@ -144,5 +146,69 @@ class RepresentativeControllerTest  extends WebTestCase
         $this->assertEquals($representative->getCity(), $data['city']);
         $this->assertEquals($representative->getPhone(), $data['phone']);
         $this->assertEquals($representative->getEmail(), $data['email']);
+    }
+
+    public function testGetCommitteeInfo()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+            LoadCiceroRepresentativeData::class,
+        ])->getReferenceRepository();
+        /** @var CiceroRepresentative $representative */
+        $representative = $repository->getReference('cicero_representative_jb');
+        $mock = $this->getServiceMockBuilder('civix_core.openstates_api')
+            ->setMethods(['getCommiteeMembership'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $committee = [
+            'committee_id' => 'co_id',
+            'committee' => 'committee1',
+            'subcommittee' => 'subcommittee1',
+            'position' => 'pos1',
+        ];
+        $mock->expects($this->once())
+            ->method('getCommiteeMembership')
+            ->with('os_id_01')
+            ->willReturn(new CommitteeAdapter((object)$committee));
+        $this->client->getContainer()->set('civix_core.openstates_api', $mock);
+        $this->client->request('GET', self::API_ENDPOINT.'info/committee/'.$representative->getId(), [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"']);
+        $response = $this->client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame($committee['committee_id'], $data['id']);
+        $this->assertSame($committee['committee'], $data['committee']);
+        $this->assertSame($committee['subcommittee'], $data['subcommittee']);
+        $this->assertSame($committee['position'], $data['position']);
+    }
+
+    public function testGetSponsoredBills()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+            LoadCiceroRepresentativeData::class,
+        ])->getReferenceRepository();
+        /** @var CiceroRepresentative $representative */
+        $representative = $repository->getReference('cicero_representative_jb');
+        $mock = $this->getServiceMockBuilder('civix_core.openstates_api')
+            ->setMethods(['getBillsBySponsorId'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $bill = [
+            'id' => 'b_id',
+            'title' => 'bill1',
+            'sources' => [(object)['url' => 'http://bill.com']],
+        ];
+        $mock->expects($this->once())
+            ->method('getBillsBySponsorId')
+            ->with('os_id_01')
+            ->willReturn(new BillAdapter((object)$bill));
+        $this->client->getContainer()->set('civix_core.openstates_api', $mock);
+        $this->client->request('GET', self::API_ENDPOINT.'info/sponsored-bills/'.$representative->getId(), [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"']);
+        $response = $this->client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame($bill['id'], $data['id']);
+        $this->assertSame($bill['title'], $data['title']);
+        $this->assertSame($bill['sources'][0]->url, $data['url']);
     }
 }

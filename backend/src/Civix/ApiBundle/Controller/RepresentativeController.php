@@ -98,6 +98,8 @@ class RepresentativeController extends BaseController
      *         405="Method Not Allowed"
      *     }
      * )
+     * @param Request $request
+     * @return Response
      */
     public function getInformationAction(Request $request)
     {
@@ -125,7 +127,7 @@ class RepresentativeController extends BaseController
      * @ParamConverter(
      *      "representative",
      *      class="CivixCoreBundle:CiceroRepresentative",
-     *      options={"storage_id" = "storage_id"}
+     *      options={"mapping" = {"storage_id" = "id"}}
      * )
      * @Method("GET")
      *
@@ -167,7 +169,7 @@ class RepresentativeController extends BaseController
      * @ParamConverter(
      *      "representative",
      *      class="CivixCoreBundle:CiceroRepresentative",
-     *      options={"storage_id" = "storage_id"}
+     *      options={"mapping" = {"storage_id" = "id"}}
      * )
      * @Method("GET")
      *
@@ -175,7 +177,7 @@ class RepresentativeController extends BaseController
      *     section="Representatives",
      *     description="Get sponsored bills by representative",
      *     statusCodes={
-     *         200="Get ponsored bills by representative",
+     *         200="Get sponsored bills by representative",
      *         401="Authorization required",
      *         405="Method Not Allowed"
      *     }
