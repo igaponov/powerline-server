@@ -534,6 +534,7 @@ class ActivityRepository extends EntityRepository
                 (
                     p.boosted = true AND
                     pv.id IS NULL AND 
+                    (p.user != :user OR act_r.id IS NULL) AND 
                     act INSTANCE OF (
                         Civix\CoreBundle\Entity\Activities\Post
                     )
@@ -543,6 +544,7 @@ class ActivityRepository extends EntityRepository
                     up.boosted = true AND
                     act_r.id IS NULL AND 
                     ups.id IS NULL AND 
+                    (up.user != :user OR act_r.id IS NULL) AND 
                     act INSTANCE OF (
                         Civix\CoreBundle\Entity\Activities\UserPetition
                     )
@@ -626,6 +628,7 @@ class ActivityRepository extends EntityRepository
                 (
                     p.boosted = true AND
                     pv.id IS NULL AND 
+                    (p.user != :user OR act_r.id IS NULL) AND 
                     act INSTANCE OF (
                         Civix\CoreBundle\Entity\Activities\Post
                     )
@@ -635,6 +638,7 @@ class ActivityRepository extends EntityRepository
                     up.boosted = true AND
                     act_r.id IS NULL AND 
                     ups.id IS NULL AND 
+                    (up.user != :user OR act_r.id IS NULL) AND 
                     act INSTANCE OF (
                         Civix\CoreBundle\Entity\Activities\UserPetition
                     )

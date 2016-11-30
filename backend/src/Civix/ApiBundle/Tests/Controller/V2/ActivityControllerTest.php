@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Tests\Controller\Leader;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityReadAuthorData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityRelationsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadEducationalContextData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPollSubscriberData;
@@ -61,6 +62,7 @@ class ActivityControllerTest extends WebTestCase
             LoadPostSubscriberData::class,
             LoadPollSubscriberData::class,
             LoadEducationalContextData::class,
+            LoadActivityReadAuthorData::class,
         ]);
 		$client = $this->client;
 		$client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
@@ -89,11 +91,15 @@ class ActivityControllerTest extends WebTestCase
                 $this->assertArrayHasKey('answers', $item);
                 $this->assertInternalType('array', $item['answers']);
             }
+
             if ($item['expire_at'] && strtotime($item['expire_at']) < time()) {
                 $this->assertSame('expired', $item['zone']);
+            } elseif (in_array($item['entity']['type'], ['user-petition', 'post'])) {
+                $this->assertSame('non_prioritized', $item['zone']);
             } else {
                 $this->assertSame('prioritized', $item['zone']);
             }
+
             $this->assertArrayHasKey('description_html', $item);
         }
 	}
@@ -220,7 +226,7 @@ class ActivityControllerTest extends WebTestCase
 			$this->assertTrue($activity['read']);
 		}
 		/** @var Connection $conn */
-		$conn = $client->getContainer()->get('database_connection');
+		$conn = $client->getContainer()->get('doctrine')->getConnection();
 		$ids = $conn->fetchAll('
 			SELECT activity_id FROM activities_read 
 			WHERE activity_id IN (?,?,?)
