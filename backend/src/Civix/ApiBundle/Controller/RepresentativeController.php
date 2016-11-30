@@ -4,6 +4,8 @@ namespace Civix\ApiBundle\Controller;
 
 use Civix\CoreBundle\Entity\CiceroRepresentative;
 use Civix\CoreBundle\Entity\Representative;
+use Doctrine\ORM\EntityManager;
+use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -16,6 +18,12 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
  */
 class RepresentativeController extends BaseController
 {
+    /**
+     * @var EntityManager
+     * @DI\Inject("doctrine.orm.entity_manager")
+     */
+    private $em;
+
     /**
      * @Route("/", name="api_my_representatives")
      * @Method("GET")
@@ -33,25 +41,36 @@ class RepresentativeController extends BaseController
      */
     public function getMyRepresentativesAction()
     {
-        $entityManager = $this->getDoctrine()->getManager();
-
         $districts = $this->getUser()->getDistrictsIds();
-        $representatives = $entityManager->getRepository(CiceroRepresentative::class)
-                ->getByDistricts($districts);
 
-        $reprByDistrict = array();
+        $nonLegislativeRepresentatives = $this->em->getRepository(Representative::class)
+            ->getNonLegislativeRepresentative($districts);
+        $representatives = $this->em->getRepository(CiceroRepresentative::class)
+            ->getByDistricts($districts);
 
-        if ($representatives) {
-            $representatives = array_map(function ($representativeInfo) {
-                    return array('representative' => $representativeInfo);
-            }, $representatives);
-            $reprByDistrict['Local'] = array(
+        $representativesByDistrict = array();
+
+        if ($nonLegislativeRepresentatives) {
+            $nonLegislativeRepresentatives = array_map(function ($representativeInfo) {
+                return array('representative' => $representativeInfo);
+            }, $nonLegislativeRepresentatives);
+            $representativesByDistrict['Local'] = array(
                 'title' => 'Local',
-                'representatives' => $representatives,
+                'representatives' => $nonLegislativeRepresentatives,
             );
         }
 
-        $response = new Response($this->jmsSerialization(array_values($reprByDistrict),
+        foreach ($representatives as $singleRepresentative) {
+            if (empty($representativesByDistrict[$singleRepresentative->getDistrictTypeName()])) {
+                $representativesByDistrict[$singleRepresentative->getDistrictTypeName()] = array(
+                    'title' => $singleRepresentative->getDistrictTypeName(),
+                    'representatives' => array(),
+                );
+            }
+            $representativesByDistrict[$singleRepresentative->getDistrictTypeName()]['representatives'][] = $singleRepresentative;
+        }
+
+        $response = new Response($this->jmsSerialization(array_values($representativesByDistrict),
             array('api-representatives-list'))
         );
         $response->headers->set('Content-Type', 'application/json');
@@ -82,9 +101,7 @@ class RepresentativeController extends BaseController
      */
     public function getInformationAction(Request $request)
     {
-        $entityManager = $this->getDoctrine()->getManager();
-
-        $info = $entityManager->getRepository('CivixCoreBundle:Representative')
+        $info = $this->em->getRepository('CivixCoreBundle:Representative')
                 ->getRepresentativeInformation($request->get('representative_id'), $request->get('storage_id'));
 
         if (!($info)) {
@@ -107,7 +124,7 @@ class RepresentativeController extends BaseController
      * )
      * @ParamConverter(
      *      "representative",
-     *      class="CivixCoreBundle:Representative",
+     *      class="CivixCoreBundle:CiceroRepresentative",
      *      options={"storage_id" = "storage_id"}
      * )
      * @Method("GET")
@@ -121,8 +138,10 @@ class RepresentativeController extends BaseController
      *         405="Method Not Allowed"
      *     }
      * )
+     * @param CiceroRepresentative $representative
+     * @return Response
      */
-    public function getCommitteeInfo(Representative $representative)
+    public function getCommitteeInfo(CiceroRepresentative $representative)
     {
         $responseBody = array();
         $openStateId = $representative->getOpenstateId();
@@ -146,8 +165,8 @@ class RepresentativeController extends BaseController
      *      }
      * )
      * @ParamConverter(
-     *      "representative", 
-     *      class="CivixCoreBundle:Representative",
+     *      "representative",
+     *      class="CivixCoreBundle:CiceroRepresentative",
      *      options={"storage_id" = "storage_id"}
      * )
      * @Method("GET")
@@ -161,8 +180,10 @@ class RepresentativeController extends BaseController
      *         405="Method Not Allowed"
      *     }
      * )
+     * @param CiceroRepresentative $representative
+     * @return Response
      */
-    public function getSponsoredBills(Representative $representative)
+    public function getSponsoredBills(CiceroRepresentative $representative)
     {
         $responseBody = array();
         $openStateId = $representative->getOpenstateId();

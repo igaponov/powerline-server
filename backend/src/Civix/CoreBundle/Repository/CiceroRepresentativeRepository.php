@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Repository;
 
+use Civix\CoreBundle\Entity\CiceroRepresentative;
 use Doctrine\ORM\EntityRepository;
 
 class CiceroRepresentativeRepository extends EntityRepository
@@ -19,6 +20,10 @@ class CiceroRepresentativeRepository extends EntityRepository
                 ->getOneOrNullResult();
     }
 
+    /**
+     * @param $districts
+     * @return CiceroRepresentative[]
+     */
     public function getByDistricts($districts)
     {
         if (!$districts) {
@@ -26,7 +31,9 @@ class CiceroRepresentativeRepository extends EntityRepository
         }
 
         return $this->createQueryBuilder('r')
+                ->innerJoin('r.district', 'd')
                ->where($this->_em->getExpressionBuilder()->in('r.district', $districts))
+                ->orderBy('d.districtType')
                ->getQuery()
                ->getResult();
     }

@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Repository;
 
+use Civix\CoreBundle\Entity\CiceroRepresentative;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
 use Civix\CoreBundle\Entity\Representative;
@@ -73,13 +74,17 @@ class RepresentativeRepository extends EntityRepository
 
         if (0 < $representativeId) {
             $info = $this->createQueryBuilder('r')
+                ->addSelect('u')
+                ->innerJoin('r.user', 'u')
                 ->where('r.id = :id')
                 ->setParameter('id', $representativeId)
                 ->getQuery()
                 ->getOneOrNullResult();
         } elseif (0 < $ciceroId) {
-            $info = $this->createQueryBuilder('r')
-                ->where('r.storageId = :id')
+            $info = $this->getEntityManager()->createQueryBuilder()
+                ->select('r')
+                ->from(CiceroRepresentative::class, 'r')
+                ->where('r.id = :id')
                 ->setParameter('id', $ciceroId)
                 ->getQuery()
                 ->getOneOrNullResult();
@@ -96,9 +101,11 @@ class RepresentativeRepository extends EntityRepository
             return [];
         }
 
-        return $this->createQueryBuilder('repr')
-            ->where('repr.isNonLegislative = 1')
-            ->andWhere('repr.district in (:districts)')
+        return $this->createQueryBuilder('r')
+            ->addSelect('u')
+            ->innerJoin('r.user', 'u')
+            ->where('r.isNonLegislative = 1')
+            ->andWhere('r.district in (:districts)')
             ->setParameter('districts', $districtsIds)
             ->getQuery()
             ->getResult();
