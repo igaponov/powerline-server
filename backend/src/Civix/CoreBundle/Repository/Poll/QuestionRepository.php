@@ -24,18 +24,21 @@ class QuestionRepository extends EntityRepository
      */
     public function findAsUser($id, $user)
     {
-        $questions = $this->getEntityManager()
-            ->createQuery('
-                SELECT q, a, g1, g2, g3
-                FROM CivixCoreBundle:Poll\Question q
-                LEFT JOIN q.answers a WITH a.user = :user
-                LEFT JOIN q.group AS g1
-                LEFT JOIN g1.parent AS g2
-                LEFT JOIN g2.parent AS g3
-                WHERE q.id = :id
-            ')
-            ->setParameter('id', $id)
-            ->setParameter('user', $user)
+        return $this->findOneWithUserAnswerAndGroups(compact('id', 'user'));
+    }
+
+    public function findOneWithUserAnswerAndGroups($criteria)
+    {
+        $questions = $this->createQueryBuilder('p')
+            ->select('p, a, g1, g2, g3')
+            ->leftJoin('p.answers', 'a', 'WITH', 'a.user = :user')
+            ->leftJoin('p.group', 'g1')
+            ->leftJoin('g1.parent', 'g2')
+            ->leftJoin('g2.parent', 'g3')
+            ->where('p.id = :id')
+            ->setParameter('id', $criteria['id'])
+            ->setParameter('user', $criteria['user'])
+            ->getQuery()
             ->getOneOrNullResult();
 
         return $questions;

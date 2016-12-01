@@ -23,6 +23,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator;
 
 /**
@@ -56,6 +57,7 @@ class PollController extends FOSRestController
      * @Route("/{id}")
      * @Method("GET")
      *
+     * @ParamConverter("question", options={"repository_method" = "findOneWithUserAnswerAndGroups", "mapping" = {"id" = "id", "loggedInUser" = "user"}}, converter="doctrine.param_converter")
      * @SecureParam("question", permission="view")
      *
      * @ApiDoc(
@@ -65,10 +67,12 @@ class PollController extends FOSRestController
      *     description="Return poll",
      *     output={
      *          "class" = "Civix\CoreBundle\Entity\Poll\Question",
-     *          "groups" = {"api-poll"}
+     *          "groups" = {"api-poll"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
      *     },
      *     statusCodes={
-     *         200="Returns poll",
      *         405="Method Not Allowed"
      *     }
      * )
@@ -99,7 +103,10 @@ class PollController extends FOSRestController
      *     input="Civix\ApiBundle\Form\Type\Poll\QuestionType",
      *     output={
      *          "class" = "Civix\CoreBundle\Entity\Poll\Question",
-     *          "groups" = {"api-poll"}
+     *          "groups" = {"api-poll"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
      *     },
      *     statusCodes={
      *         204="Success",
@@ -146,7 +153,10 @@ class PollController extends FOSRestController
      *     description="Publish poll",
      *     output={
      *          "class" = "Civix\CoreBundle\Entity\Poll\Question",
-     *          "groups" = {"api-poll"}
+     *          "groups" = {"api-poll"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
      *     },
      *     statusCodes={
      *         400="Bad Request",
@@ -160,7 +170,7 @@ class PollController extends FOSRestController
      *
      * @param Question $question
      *
-     * @return Question|\Symfony\Component\Form\Form
+     * @return Question|ConstraintViolationList
      */
     public function patchAction(Question $question)
     {
@@ -226,7 +236,10 @@ class PollController extends FOSRestController
      *     input="Civix\ApiBundle\Form\Type\Poll\OptionType",
      *     output={
      *          "class" = "Civix\CoreBundle\Entity\Poll\Option",
-     *          "groups" = {"api-poll"}
+     *          "groups" = {"api-poll"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
      *     },
      *     statusCodes={
      *         200="Success",
@@ -281,7 +294,13 @@ class PollController extends FOSRestController
      *     authentication=true,
      *     section="Polls",
      *     description="List the answers for a given question.",
-     *     output="Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination",
+     *     output={
+     *          "class" = "array<Civix\CoreBundle\Entity\Poll\Answer> as paginator",
+     *          "groups" = {"api-poll"},
+     *          "parsers" = {
+     *              "Civix\ApiBundle\Parser\PaginatorParser"
+     *          }
+     *     },
      *     statusCodes={
      *         200="Returns list",
      *         403="Access Denied",
