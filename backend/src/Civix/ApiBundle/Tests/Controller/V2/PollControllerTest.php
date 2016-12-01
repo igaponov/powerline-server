@@ -13,6 +13,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupNewsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupPaymentRequestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData as LoadGroupQuestionAnswerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData as LoadGroupQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadFieldValueData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
@@ -244,6 +245,26 @@ class PollControllerTest extends WebTestCase
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
 		$this->assertSame($question->getId(), $data['id']);
+		$this->assertNull($data['answer']);
+	}
+
+	public function testGetAnsweredGroupPollIsOk()
+	{
+        $repository = $this->loadFixtures([
+            LoadGroupManagerData::class,
+            LoadQuestionAnswerData::class,
+        ])->getReferenceRepository();
+        $question = $repository->getReference('group_question_1');
+        $answer = $repository->getReference('question_answer_2');
+        $client = $this->client;
+		$client->request('GET', self::API_ENDPOINT.'/'.$question->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user3"']);
+		$response = $client->getResponse();
+		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+		$data = json_decode($response->getContent(), true);
+		$this->assertSame($question->getId(), $data['id']);
+		$this->assertEquals($answer->getId(), $data['answer']['id']);
+		$this->assertEquals($answer->getOption()->getId(), $data['answer']['option']['id']);
+		$this->assertEquals($answer->getComment(), $data['answer']['comment']);
 	}
 
 	public function testGetRepresentativePollIsOk()

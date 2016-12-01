@@ -270,8 +270,22 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
      * @Serializer\Groups({"api-poll"})
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("answer_entity")
+     * @Serializer\Until("1")
      */
     public function answerEntity()
+    {
+        return $this->isAnswered() ? $this->getAnswers()->first() : null;
+    }
+
+    /**
+     * Return logged in user's answer
+     *
+     * @Serializer\Groups({"api-poll"})
+     * @Serializer\VirtualProperty()
+     * @Serializer\SerializedName("answer")
+     * @Serializer\Since("2")
+     */
+    public function getAnswer()
     {
         return $this->isAnswered() ? $this->getAnswers()->first() : null;
     }
