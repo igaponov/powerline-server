@@ -2,11 +2,6 @@
 
 namespace Civix\CoreBundle\Service;
 
-use Civix\CoreBundle\Entity\Activities\CrowdfundingPaymentRequest as ActivityCrowdfundingPaymentRequest;
-use Civix\CoreBundle\Entity\Activities\LeaderEvent as ActivityLeaderEvent;
-use Civix\CoreBundle\Entity\Activities\LeaderNews as ActivityLeaderNews;
-use Civix\CoreBundle\Entity\Activities\PaymentRequest as ActivityPaymentRequest;
-use Civix\CoreBundle\Entity\Activities\Petition as ActivityPetition;
 use Civix\CoreBundle\Entity\Activities\Post as ActivityPost;
 use Civix\CoreBundle\Entity\Activities\UserPetition as ActivityUserPetition;
 use Civix\CoreBundle\Entity\Activity;
@@ -26,7 +21,6 @@ use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserInterface;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Model\Group\GroupSectionInterface;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Validator\ValidatorInterface;
 
@@ -64,189 +58,117 @@ class ActivityUpdate
 
     public function publishQuestionToActivity(Question $question)
     {
-        $class = Activity::getActivityClassByEntity($question);
-        /** @var \Civix\CoreBundle\Entity\Activities\Question $activity */
-        $activity = new $class;
-        $activity->setQuestion($question);
-        if ($question instanceof LeaderEvent) {
+        $activity = $this->entityManager->getRepository(Activity::class)
+            ->findOneBy(['question' => $question]);
+        if (!$activity) {
+            $class = Activity::getActivityClassByEntity($question);
+            /** @var \Civix\CoreBundle\Entity\Activities\Question $activity */
+            $activity = new $class;
+            $activity->setQuestion($question);
+            $activity->setUser($question->getUser());
+            $userMethod = 'set'.ucfirst($question->getOwner()->getType());
+            $activity->$userMethod($question->getOwner());
+        }
+        if ($question instanceof LeaderEvent || $question instanceof PaymentRequest) {
             $activity->setTitle($question->getTitle());
+        } elseif ($question instanceof Petition) {
+            $activity->setTitle($question->getPetitionTitle());
         } else {
             $activity->setTitle('');
         }
-        $activity->setDescription($question->getSubject());
+        if ($question instanceof LeaderNews) {
+            $activity->setDescription(strip_tags($question->getSubjectParsed()));
+        } elseif ($question instanceof Petition) {
+            $activity->setDescription($question->getPetitionBody());
+        } else {
+            $activity->setDescription($question->getSubject());
+        }
+        if ($question instanceof PaymentRequest && $question->getIsCrowdfunding()) {
+            $activity->setExpireAt($question->getCrowdfundingDeadline());
+        } elseif ($question instanceof LeaderEvent) {
+            $activity->setExpireAt($question->getStartedAt());
+        } else {
+            $activity->setExpireAt($question->getExpireAt());
+        }
         $activity->setSentAt($question->getPublishedAt());
-        $activity->setExpireAt($question->getExpireAt());
-        $activity->setUser($question->getUser());
-        $userMethod = 'set'.ucfirst($question->getOwner()->getType());
-        $activity->$userMethod($question->getOwner());
         $this->setImage($activity, $question);
 
-        $this->cm->addPollRootComment($question, $question->getSubject());
-
+        $isNew = !$this->entityManager->contains($activity);
         $this->entityManager->persist($activity);
         $this->entityManager->flush();
-        $this->createActivityConditionsForQuestion($activity, $question);
+
+        if ($isNew) {
+            if ($question instanceof PaymentRequest) {
+                $this->cm->addPollRootComment($question, $question->getTitle());
+            } elseif ($question instanceof LeaderEvent) {
+                $this->cm->addPollRootComment($question, $question->getSubject());
+            } else {
+                $this->cm->addPollRootComment($question, $activity->getDescription());
+            }
+            $this->createActivityConditionsForQuestion($activity, $question);
+        }
 
         return $activity;
     }
 
     public function publishUserPetitionToActivity(UserPetition $petition, $isPublic = false)
     {
-        //create activity
-        $activity = new ActivityUserPetition();
-        $activity->setPetition($petition);
+        $activity = $this->entityManager->getRepository(Activity::class)
+            ->findOneBy(['petition' => $petition]);
+        if (!$activity) {
+            $activity = new ActivityUserPetition();
+            $activity->setPetition($petition);
+            $activity->setSentAt(new \DateTime());
+            $activity->setGroup($petition->getGroup());
+            if (!$isPublic) {
+                $activity->setUser($petition->getUser()); // set user as owner
+            }
+        }
         $activity->setTitle($petition->getTitle());
         $activity->setDescription($petition->getBody());
-        $activity->setSentAt(new \DateTime());
         $activity->setResponsesCount($petition->getSignatures()->count());
         $activity->setIsOutsiders($petition->isOutsidersSign());
-        $activity->setUser($petition->getUser()); // set user attribute explicitly
-        $activity->setGroup($petition->getGroup());
         $activity->setQuorum($petition->getQuorumCount());
-        if (!$isPublic) {
-            $activity->setUser($petition->getUser()); // set user as owner
-        }
 
+        $isNew = !$this->entityManager->contains($activity);
         $this->entityManager->persist($activity);
         $this->entityManager->flush();
 
-        $this->createActivityConditionsForUserPetition($activity, $petition);
+        if ($isNew) {
+            $this->createActivityConditionsForUserPetition($activity, $petition);
+        }
 
         return true;
     }
 
     public function publishPostToActivity(Post $post, $isPublic = false)
     {
-        //create activity
-        $activity = new ActivityPost();
-        $activity->setPost($post);
+        $activity = $this->entityManager->getRepository(Activity::class)
+            ->findOneBy(['post' => $post]);
+        if (!$activity) {
+            $activity = new ActivityPost();
+            $activity->setPost($post);
+            $activity->setSentAt(new \DateTime());
+            $activity->setGroup($post->getGroup());
+            if (!$isPublic) {
+                $activity->setUser($post->getUser()); // set user as owner
+            }
+        }
         $activity->setTitle('');
         $activity->setDescription($post->getBody());
-        $activity->setSentAt(new \DateTime());
         $activity->setResponsesCount($post->getVotes()->count());
-        $activity->setUser($post->getUser()); // set user attribute explicitly
-        $activity->setGroup($post->getGroup());
         $activity->setQuorum($post->getQuorumCount());
         $activity->setExpireAt($post->getExpiredAt());
-        if (!$isPublic) {
-            $activity->setUser($post->getUser()); // set user as owner
-        }
 
+        $isNew = !$this->entityManager->contains($activity);
         $this->entityManager->persist($activity);
         $this->entityManager->flush();
 
-        $this->createActivityConditionsForPost($activity, $post);
+        if ($isNew) {
+            $this->createActivityConditionsForPost($activity, $post);
+        }
 
         return true;
-    }
-
-    public function publishLeaderNewsToActivity(LeaderNews $news)
-    {
-        $activity = new ActivityLeaderNews();
-        $activity->setQuestion($news);
-        $activity->setTitle('');
-        $activity->setDescription(strip_tags($news->getSubjectParsed()));
-        $activity->setSentAt($news->getPublishedAt());
-        $activity->setExpireAt($news->getExpireAt());
-        $activity->setUser($news->getUser());
-        $method = 'set'.ucfirst($news->getOwner()->getType());
-        $activity->$method($news->getOwner());
-        $this->setImage($activity, $news);
-
-        $this->cm->addPollRootComment($news, $news->getSubject());
-
-        $this->entityManager->persist($activity);
-        $this->entityManager->flush();
-        $this->createActivityConditionsForQuestion($activity, $news);
-
-        return $activity;
-    }
-
-    public function publishPetitionToActivity(Petition $petition)
-    {
-        $activity = new ActivityPetition();
-        $activity->setQuestion($petition)
-            ->setTitle($petition->getPetitionTitle())
-            ->setDescription($petition->getPetitionBody())
-            ->setExpireAt($petition->getExpireAt())
-            ->setSentAt($petition->getPublishedAt())
-            ->setUser($petition->getUser());
-
-        $userMethod = 'set'.ucfirst($petition->getOwner()->getType());
-        $activity->$userMethod($petition->getOwner());
-        $this->setImage($activity, $petition);
-
-        $this->cm->addPollRootComment($petition, $petition->getPetitionBody());
-
-        $this->entityManager->persist($activity);
-        $this->entityManager->flush();
-        $this->createActivityConditionsForQuestion($activity, $petition);
-    }
-
-    public function publishPaymentRequestToActivity(PaymentRequest $paymentRequest, $users = null)
-    {
-        if ($paymentRequest->getIsCrowdfunding()) {
-            $activity = new ActivityCrowdfundingPaymentRequest();
-            $activity->setExpireAt($paymentRequest->getCrowdfundingDeadline());
-        } else {
-            $activity = new ActivityPaymentRequest();
-            $expireDate = new \DateTime('now');
-            $expireDate->add(
-                new \DateInterval('P'.$this->settings->get(Settings::DEFAULT_EXPIRE_INTERVAL)->getValue().'D')
-            );
-            $activity->setExpireAt($paymentRequest->getExpireAt());
-        }
-
-        $activity
-            ->setQuestion($paymentRequest)
-            ->setTitle($paymentRequest->getTitle())
-            ->setDescription($paymentRequest->getSubject())
-            ->setSentAt($paymentRequest->getPublishedAt())
-            ->setUser($paymentRequest->getUser())
-        ;
-        $method = 'set'.ucfirst($paymentRequest->getOwner()->getType());
-        $activity->$method($paymentRequest->getOwner());
-        $this->setImage($activity, $paymentRequest);
-
-        $this->cm->addPollRootComment($paymentRequest, $paymentRequest->getTitle());
-
-        $this->entityManager->persist($activity);
-        $this->entityManager->flush($activity);
-        if ($users) {
-            $this->createActivityConditionsForUsers($activity, $users);
-        } else {
-            $this->createActivityConditionsForQuestion($activity, $paymentRequest);
-        }
-
-        return $activity;
-    }
-
-    public function publishLeaderEventToActivity(LeaderEvent $event)
-    {
-        $publishedAt = new \DateTime();
-        //update event       
-        $event->setPublishedAt($publishedAt);
-        $this->entityManager->persist($event);
-
-         //create activity
-        $activity = new ActivityLeaderEvent();
-        $activity->setQuestion($event);
-        $activity->setTitle($event->getTitle());
-        $activity->setDescription($event->getSubject());
-        $activity->setSentAt($publishedAt);
-        $activity->setExpireAt($event->getStartedAt());
-        $activity->setUser($event->getUser());
-        $userMethod = 'set'.ucfirst($event->getOwner()->getType());
-        $activity->$userMethod($event->getOwner());
-        $this->setImage($activity, $event);
-
-        $this->cm->addPollRootComment($event, $event->getSubject());
-
-        $this->entityManager->persist($activity);
-        $this->entityManager->flush();
-        $this->createActivityConditionsForQuestion($activity, $event);
-
-        return $activity;
     }
 
     public function updateResponsesQuestion(Question $question)
@@ -367,18 +289,6 @@ class ActivityUpdate
         } elseif ($activity->getSuperuser()) {
             $this->createSuperuserActivityConditions($activity);
         }
-    }
-
-    /**
-     * @param Activity $activity
-     * @param array|ArrayCollection $users
-     */
-    private function createActivityConditionsForUsers(Activity $activity, array $users)
-    {
-        $condition = new ActivityCondition($activity);
-        $condition->setUsers($users);
-        $this->entityManager->persist($condition);
-        $this->entityManager->flush($condition);
     }
 
     private function createActivityConditionsForUserPetition(Activity $activity, UserPetition $petition)

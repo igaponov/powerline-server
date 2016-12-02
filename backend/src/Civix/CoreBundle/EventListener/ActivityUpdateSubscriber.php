@@ -4,8 +4,6 @@ namespace Civix\CoreBundle\EventListener;
 use Civix\CoreBundle\Entity\Poll\Comment;
 use Civix\CoreBundle\Entity\Poll\CommentRate;
 use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
-use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
-use Civix\CoreBundle\Entity\Poll\Question\Petition;
 use Civix\CoreBundle\Event;
 use Civix\CoreBundle\Service\ActivityUpdate;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -84,15 +82,7 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
     public function publishQuestionToActivity(Event\Poll\QuestionEvent $event)
     {
         $question = $event->getQuestion();
-        if ($question instanceof Petition) {
-            $this->activityUpdate->publishPetitionToActivity($question);
-        } elseif ($question instanceof PaymentRequest) {
-            $this->activityUpdate->publishPaymentRequestToActivity($question);
-        } elseif ($question instanceof LeaderNews) {
-            $this->activityUpdate->publishLeaderNewsToActivity($question);
-        } else {
-            $this->activityUpdate->publishQuestionToActivity($question);
-        }
+        $this->activityUpdate->publishQuestionToActivity($question);
     }
 
     public function updateEntityRateCount(Event\RateEvent $event)

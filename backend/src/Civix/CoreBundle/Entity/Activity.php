@@ -248,7 +248,7 @@ abstract class Activity implements HtmlBodyInterface
     /**
      * @var Question
      * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\Poll\Question")
-     * @ORM\JoinColumn(name="question_id", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="question_id", referencedColumnName="id", onDelete="CASCADE", unique=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"activity-list"})
      * @Serializer\SerializedName("poll")
@@ -257,8 +257,8 @@ abstract class Activity implements HtmlBodyInterface
 
     /**
      * @var UserPetition
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\UserPetition")
-     * @ORM\JoinColumn(onDelete="CASCADE")
+     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\UserPetition")
+     * @ORM\JoinColumn(onDelete="CASCADE", unique=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"activity-list"})
      * @Serializer\SerializedName("user_petition")
@@ -267,8 +267,8 @@ abstract class Activity implements HtmlBodyInterface
 
     /**
      * @var Post
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Post")
-     * @ORM\JoinColumn(onDelete="CASCADE")
+     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\Post")
+     * @ORM\JoinColumn(onDelete="CASCADE", unique=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"activity-list"})
      */
