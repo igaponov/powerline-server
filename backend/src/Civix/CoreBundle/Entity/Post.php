@@ -120,6 +120,15 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      */
     private $subscribers;
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(type="boolean", options={"default" = false})
+     * @Serializer\Expose()
+     * @Serializer\Type("boolean")
+     */
+    private $supportersWereInvited = false;
+
     public function __construct()
     {
         $this->votes = new ArrayCollection();
@@ -447,5 +456,24 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
     public function isSubscribed()
     {
         return (bool)$this->subscribers->count();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSupportersWereInvited()
+    {
+        return $this->supportersWereInvited;
+    }
+
+    /**
+     * @param bool $supportersWereInvited
+     * @return Post
+     */
+    public function setSupportersWereInvited($supportersWereInvited)
+    {
+        $this->supportersWereInvited = $supportersWereInvited;
+
+        return $this;
     }
 }

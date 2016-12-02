@@ -309,15 +309,25 @@ class GroupManager
 
     public function joinUsersByPostUpvotes(Group $group, User $inviter, Post $post)
     {
+        if ($post->isSupportersWereInvited()) {
+            throw new \RuntimeException('Supporters were already invited for this post.');
+        }
         $iterator = $this->entityManager->getRepository(User::class)
             ->findForInviteByPostUpvotes($group, $post);
+        $post->setSupportersWereInvited(true);
+        $this->entityManager->persist($post);
         $this->inviteUsersToGroup($group, $inviter, $iterator);
     }
 
     public function joinUsersByUserPetitionSignatures(Group $group, User $inviter, UserPetition $petition)
     {
+        if ($petition->isSupportersWereInvited()) {
+            throw new \RuntimeException('Supporters were already invited for this petition.');
+        }
         $iterator = $this->entityManager->getRepository(User::class)
             ->findForInviteByUserPetitionSignatures($group, $petition);
+        $petition->setSupportersWereInvited(true);
+        $this->entityManager->persist($petition);
         $this->inviteUsersToGroup($group, $inviter, $iterator);
     }
 

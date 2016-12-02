@@ -3,18 +3,22 @@ namespace Civix\ApiBundle\Tests\Controller\Leader;
 
 use Civix\CoreBundle\Entity\Group;
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\SocialActivity;
+use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Test\SocialActivityTester;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadFieldValueData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadInviteData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
 use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
 use Doctrine\DBAL\Connection;
@@ -445,6 +449,7 @@ class GroupControllerTest extends WebTestCase
             LoadPostVoteData::class,
         ])->getReferenceRepository();
         $group = $this->repository->getReference('group_2');
+        /** @var Post $post */
         $post = $this->repository->getReference('post_3');
         $user3 = $this->repository->getReference('user_3');
         $user4 = $this->repository->getReference('user_4');
@@ -462,6 +467,25 @@ class GroupControllerTest extends WebTestCase
         $this->assertEquals(2, $queue->count());
         $this->assertEquals(1, $queue->hasMessageWithMethod('sendGroupInvitePush', [$user3->getId(), $group->getId()]));
         $this->assertEquals(1, $queue->hasMessageWithMethod('sendGroupInvitePush', [$user4->getId(), $group->getId()]));
+        $this->assertTrue($post->isSupportersWereInvited());
+    }
+
+    public function testInviteUsersToGroupByUsedPostFails()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupOwnerData::class,
+            LoadPostData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference('group_3');
+        $post = $this->repository->getReference('post_6');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user3"'];
+        $params = ['post' => $post->getId()];
+        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/invites', [], [], $headers, json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(500, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals('Supporters were already invited for this post.', $data['message']);
     }
 
     public function testInviteUsersToGroupByUserPetitionIsOk()
@@ -471,12 +495,13 @@ class GroupControllerTest extends WebTestCase
             LoadUserPetitionSignatureData::class,
         ])->getReferenceRepository();
         $group = $this->repository->getReference('group_2');
-        $post = $this->repository->getReference('user_petition_3');
+        /** @var UserPetition $petition */
+        $petition = $this->repository->getReference('user_petition_3');
         $user3 = $this->repository->getReference('user_3');
         $user4 = $this->repository->getReference('user_4');
         $client = $this->client;
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user2"'];
-        $params = ['user_petition' => $post->getId()];
+        $params = ['user_petition' => $petition->getId()];
         $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/invites', [], [], $headers, json_encode($params));
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
@@ -488,6 +513,25 @@ class GroupControllerTest extends WebTestCase
         $this->assertEquals(2, $queue->count());
         $this->assertEquals(1, $queue->hasMessageWithMethod('sendGroupInvitePush', [$user3->getId(), $group->getId()]));
         $this->assertEquals(1, $queue->hasMessageWithMethod('sendGroupInvitePush', [$user4->getId(), $group->getId()]));
+        $this->assertTrue($petition->isSupportersWereInvited());
+    }
+
+    public function testInviteUsersToGroupByUsedUserPetitionFails()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupOwnerData::class,
+            LoadUserPetitionData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference('group_3');
+        $post = $this->repository->getReference('user_petition_6');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user3"'];
+        $params = ['user_petition' => $post->getId()];
+        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/invites', [], [], $headers, json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(500, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals('Supporters were already invited for this petition.', $data['message']);
     }
 
     /**

@@ -98,6 +98,7 @@ class PostControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertSame($post->getBody(), $data['body']);
+        $this->assertSame($post->isSupportersWereInvited(), $data['supporters_were_invited']);
     }
 
     public function testGetDeletedPost()
@@ -195,7 +196,7 @@ class PostControllerTest extends WebTestCase
         $this->assertSame($params['body'], $data['body']);
         // check addHashTags event listener
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
+        $conn = $client->getContainer()->get('doctrine')
             ->getConnection();
         $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM hash_tags');
         $this->assertCount($count, $hashTags);
@@ -231,7 +232,7 @@ class PostControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         // check addHashTags event listener
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
+        $conn = $client->getContainer()->get('doctrine')
             ->getConnection();
         $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM hash_tags_posts WHERE post_id = ?', [$data['id']]);
         $this->assertCount($count, $hashTags);
@@ -273,8 +274,7 @@ class PostControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertTrue($data['boosted']);
         /** @var Connection $conn */
-        $conn = $client->getContainer()
-            ->get('doctrine.dbal.default_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         // check activity
         $description = $conn->fetchColumn('SELECT description FROM activities WHERE post_id = ?', [$post->getId()]);
         $this->assertSame($post->getBody(), $description);
@@ -314,7 +314,7 @@ class PostControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
+        $conn = $client->getContainer()->get('doctrine')
             ->getConnection();
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM posts WHERE id = ?', [$post->getId()]);
         $this->assertEquals(0, $count);
@@ -363,7 +363,6 @@ class PostControllerTest extends WebTestCase
             ->method('checkIfNeedBoost')
             ->willReturn(true);
         $client->getContainer()->set('civix_core.post_manager', $manager);
-        $user = $repository->getReference('user_2');
         /** @var Post $post */
         $post = $repository->getReference('post_2');
         $client->request('POST',
@@ -377,7 +376,7 @@ class PostControllerTest extends WebTestCase
         $this->assertSame(Post\Vote::OPTION_UPVOTE, $data['option']);
         /** @var EntityManager $em */
         $em = $client->getContainer()
-            ->get('doctrine.orm.entity_manager');
+            ->get('doctrine')->getManager();
         $conn = $em->getConnection();
         // check activity
         $description = $conn->fetchColumn('SELECT description FROM activities WHERE post_id = ?', [$post->getId()]);
@@ -399,7 +398,7 @@ class PostControllerTest extends WebTestCase
         ])->getReferenceRepository();
         $client = $this->client;
         /** @var EntityManager $em */
-        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
+        $em = $client->getContainer()->get('doctrine')->getManager();
         $conn = $em->getConnection();
         /** @var Post $post */
         $post = $repository->getReference('post_1');
@@ -463,7 +462,7 @@ class PostControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
+        $conn = $client->getContainer()->get('doctrine')
             ->getConnection();
         // check social activity
         $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM post_votes WHERE post_id = ? AND user_id = ?', [$post->getId(), $user->getId()]);
@@ -480,7 +479,7 @@ class PostControllerTest extends WebTestCase
         return $this->getMockBuilder(PostManager::class)
             ->setMethods($methods)
             ->setConstructorArgs([
-                $container->get('doctrine.orm.entity_manager'),
+                $container->get('doctrine')->getManager(),
                 $container->get('event_dispatcher')
             ])
             ->getMock();
