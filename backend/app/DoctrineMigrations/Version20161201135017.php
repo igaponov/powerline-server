@@ -19,7 +19,7 @@ class Version20161201135017 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $rows = $this->connection->fetchAll('
-            SELECT post_id, COUNT(id) count FROM activities 
+            SELECT post_id, COUNT(id) - 1 count FROM activities 
             WHERE post_id IS NOT NULL 
             GROUP BY post_id 
             HAVING COUNT(id) > 1
@@ -28,7 +28,7 @@ class Version20161201135017 extends AbstractMigration
             $this->addSql("DELETE FROM activities WHERE post_id = ? LIMIT {$row['count']}", [$row['post_id']]);
         }
         $rows = $this->connection->fetchAll('
-            SELECT petition_id, COUNT(id) count FROM activities 
+            SELECT petition_id, COUNT(id) - 1 count FROM activities 
             WHERE petition_id IS NOT NULL 
             GROUP BY petition_id 
             HAVING COUNT(id) > 1
@@ -37,7 +37,7 @@ class Version20161201135017 extends AbstractMigration
             $this->addSql("DELETE FROM activities WHERE petition_id = ? LIMIT {$row['count']}", [$row['petition_id']]);
         }
         $rows = $this->connection->fetchAll('
-            SELECT question_id, COUNT(id) count FROM activities 
+            SELECT question_id, COUNT(id) - 1 count FROM activities 
             WHERE question_id IS NOT NULL 
             GROUP BY question_id 
             HAVING COUNT(id) > 1
