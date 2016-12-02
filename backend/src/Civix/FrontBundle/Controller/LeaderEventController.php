@@ -215,7 +215,7 @@ abstract class LeaderEventController extends Controller
             $this->getDoctrine()->getManager()->flush($ignore);
 
             $result = $this->get('civix_core.activity_update')
-                ->publishLeaderEventToActivity($leaderEvent);
+                ->publishQuestionToActivity($leaderEvent);
 
             if ($result instanceof Activity) {
                 $this->get('session')->getFlashBag()
