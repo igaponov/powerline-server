@@ -125,6 +125,15 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      */
     private $subscribers;
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(type="boolean", options={"default" = false})
+     * @Serializer\Expose()
+     * @Serializer\Type("boolean")
+     */
+    private $supportersWereInvited = false;
+
     public function __construct()
     {
         $this->signatures = new ArrayCollection();
@@ -614,5 +623,24 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
     public function getGroupId()
     {
         return $this->getGroup()->getId();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSupportersWereInvited()
+    {
+        return $this->supportersWereInvited;
+    }
+
+    /**
+     * @param bool $supportersWereInvited
+     * @return UserPetition
+     */
+    public function setSupportersWereInvited($supportersWereInvited)
+    {
+        $this->supportersWereInvited = $supportersWereInvited;
+
+        return $this;
     }
 }

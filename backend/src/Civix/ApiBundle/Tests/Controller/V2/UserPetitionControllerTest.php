@@ -100,6 +100,7 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertSame($petition->getBody(), $data['body']);
         $this->assertArrayHasKey('group_id', $data);
         $this->assertNotEmpty($data['group_id']);
+        $this->assertSame($petition->isSupportersWereInvited(), $data['supporters_were_invited']);
     }
 
     public function testGetDeletedUserPetition()
@@ -196,7 +197,7 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertSame($params['body'], $data['body']);
         // check addHashTags event listener
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
+        $conn = $client->getContainer()->get('doctrine')
             ->getConnection();
         $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM hash_tags_petitions WHERE petition_id = ?', [$data['id']]);
         $this->assertCount($count, $hashTags);
@@ -232,7 +233,7 @@ class UserPetitionControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         // check addHashTags event listener
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
+        $conn = $client->getContainer()->get('doctrine')
             ->getConnection();
         $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM hash_tags_petitions WHERE petition_id = ?', [$data['id']]);
         $this->assertCount($count, $hashTags);
@@ -258,7 +259,7 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertTrue($data['boosted']);
         // check activity
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $description = $conn->fetchColumn('SELECT description FROM activities WHERE petition_id = ?', [$petition->getId()]);
         $this->assertSame($petition->getBody(), $description);
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
@@ -314,7 +315,7 @@ class UserPetitionControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
+        $conn = $client->getContainer()->get('doctrine')
             ->getConnection();
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM user_petitions WHERE id = ?', [$petition->getId()]);
         $this->assertEquals(0, $count);
@@ -357,7 +358,7 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         /** @var EntityManager $em */
         $em = $client->getContainer()
-            ->get('doctrine.orm.entity_manager');
+            ->get('doctrine')->getManager();
         $conn = $em->getConnection();
         // check activity
         $description = $conn->fetchColumn('SELECT description FROM activities WHERE petition_id = ?', [$petition->getId()]);
@@ -404,7 +405,7 @@ class UserPetitionControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
+        $conn = $client->getContainer()->get('doctrine')
             ->getConnection();
         // check social activity
         $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM user_petition_signatures WHERE petition_id = ? AND user_id = ?', [$petition->getId(), $user->getId()]);
@@ -421,7 +422,7 @@ class UserPetitionControllerTest extends WebTestCase
         return $this->getMockBuilder(UserPetitionManager::class)
             ->setMethods($methods)
             ->setConstructorArgs([
-                $container->get('doctrine.orm.entity_manager'),
+                $container->get('doctrine')->getManager(),
                 $container->get('event_dispatcher')
             ])
             ->getMock();

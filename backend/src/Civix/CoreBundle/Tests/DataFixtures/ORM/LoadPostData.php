@@ -82,7 +82,8 @@ class LoadPostData extends AbstractFixture implements DependentFixtureInterface
             ->boost()
             ->setExpiredAt(new \DateTime('-1 week'))
             ->setUserExpireInterval(3000)
-            ->setGroup($group1);
+            ->setGroup($group1)
+            ->setSupportersWereInvited(true);
         $user3->addPostSubscription($post);
         $manager->persist($post);
         $this->addReference('post_6', $post);

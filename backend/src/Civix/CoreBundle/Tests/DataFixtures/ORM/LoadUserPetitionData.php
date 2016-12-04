@@ -17,9 +17,9 @@ class LoadUserPetitionData extends AbstractFixture implements DependentFixtureIn
     {
         /** @var User $user1 */
         $user1 = $this->getReference('user_1');
-        /** @var User $user1 */
+        /** @var User $user2 */
         $user2 = $this->getReference('user_2');
-        /** @var User $user1 */
+        /** @var User $user3 */
         $user3 = $this->getReference('user_3');
         $group1 = $this->getReference('group_1');
         $group2 = $this->getReference('group_2');
@@ -80,7 +80,8 @@ Women WWII pilots get burial rights at Arlington National Cemetery')
             ->setBody('Under ordinary circumstances, two mothers as different as we are would never have met. One of us is from Oklahoma and is a registered Republican. The other is an unmarried liberal who lives in Brooklyn.')
             ->boost()
             ->setOrganizationNeeded(true)
-            ->setGroup($group1);
+            ->setGroup($group1)
+            ->setSupportersWereInvited(true);
         $user3->addPetitionSubscription($petition);
         $manager->persist($petition);
         $this->addReference('user_petition_6', $petition);
