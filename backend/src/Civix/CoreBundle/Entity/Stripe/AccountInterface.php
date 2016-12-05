@@ -2,21 +2,10 @@
 
 namespace Civix\CoreBundle\Entity\Stripe;
 
-use Civix\CoreBundle\Entity\LeaderContentRootInterface;
+use Civix\CoreBundle\Entity\LeaderContentInterface;
 
-interface AccountInterface
+interface AccountInterface extends LeaderContentInterface
 {
-    /**
-     * @return LeaderContentRootInterface
-     */
-    public function getRoot();
-
-    /**
-     * @param LeaderContentRootInterface $root
-     * @return AccountInterface
-     */
-    public function setRoot(LeaderContentRootInterface $root);
-
     /**
      * @return AccountInterface
      */

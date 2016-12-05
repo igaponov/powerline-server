@@ -2,7 +2,6 @@
 
 namespace Civix\CoreBundle\Entity\Stripe;
 
-use Civix\CoreBundle\Entity\LeaderContentInterface;
 use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Civix\CoreBundle\Entity\Group;
@@ -10,7 +9,7 @@ use Civix\CoreBundle\Entity\Group;
 /**
  * @ORM\Entity
  */
-class AccountGroup extends Account implements LeaderContentInterface
+class AccountGroup extends Account
 {
     /**
      * @var Group

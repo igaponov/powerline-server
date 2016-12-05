@@ -11,7 +11,7 @@ interface LeaderContentInterface
 
     /**
      * @param LeaderContentRootInterface $root
-     * @return mixed
+     * @return $this
      */
     public function setRoot(LeaderContentRootInterface $root);
 }

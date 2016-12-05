@@ -3,6 +3,7 @@ namespace Civix\CoreBundle\Service;
 
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Stripe\AccountGroup;
+use Civix\CoreBundle\Entity\Stripe\AccountInterface;
 use Civix\CoreBundle\Entity\Stripe\BankAccount;
 use Civix\CoreBundle\Entity\Stripe\Customer;
 use Civix\CoreBundle\Entity\Stripe\CustomerGroup;
@@ -114,7 +115,7 @@ class StripeAccountManager
         return $customer;
     }
 
-    public function deleteAccount(AccountGroup $account)
+    public function deleteAccount(AccountInterface $account)
     {
         $event = new AccountEvent($account);
         $this->dispatcher->dispatch(AccountEvents::PRE_DELETE, $event);
