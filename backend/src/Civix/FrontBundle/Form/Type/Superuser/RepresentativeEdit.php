@@ -2,6 +2,8 @@
 
 namespace Civix\FrontBundle\Form\Type\Superuser;
 
+use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Repository\GroupRepository;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
@@ -27,8 +29,19 @@ class RepresentativeEdit extends AbstractType
         $builder->add('country', 'choice', array('choices' => array('US' => 'USA')));
         $builder->add('email', null, array('label' => 'Email'));
         $builder->add('privateEmail', null, array('label' => 'Private Email'));
-        $builder->add('fax', null, array('label' => 'Fax', 'required' => false));
-        $builder->add('website', null, array('label' => 'Website', 'required' => false));
+        $builder->add('localGroup', 'entity', array(
+            'label' => 'Local Group',
+            'class' => Group::class,
+            'query_builder' => function(GroupRepository $repository) {
+                $qb = $repository->createQueryBuilder('g');
+                return $qb->where($qb->expr()->in('g.groupType', [
+                    Group::GROUP_TYPE_COUNTRY,
+                    Group::GROUP_TYPE_STATE,
+                    Group::GROUP_TYPE_LOCAL,
+                ]));
+            },
+            'property' => 'officialTitle',
+        ));
     }
 
     /**
@@ -49,7 +62,7 @@ class RepresentativeEdit extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'validation_groups' => array('registration'),
+            'validation_groups' => array('registration', 'approve'),
             'csrf_protection' => true,
             'csrf_field_name' => '_token',
         ));

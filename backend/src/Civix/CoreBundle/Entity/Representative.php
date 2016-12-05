@@ -53,6 +53,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface
      *
      * @ORM\ManyToOne(targetEntity="Group", inversedBy="localRepresentatives", cascade="persist")
      * @ORM\JoinColumn(name="local_group", referencedColumnName="id", nullable=true, onDelete="CASCADE")
+     * @Assert\NotBlank(groups={"approve"})
      */
     private $localGroup;
 
