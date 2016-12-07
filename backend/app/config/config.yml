@@ -150,25 +150,25 @@ vich_uploader:
     storage: vich_uploader.storage.gaufrette
     mappings:
         avatar_image:
-            uri_prefix: %amazon_s3.url%/avatars
+            uri_prefix: /avatars
             upload_destination: avatar_image_fs
             namer: vich_uploader.namer_uniqid
         avatar_source_image:
-            uri_prefix: %amazon_s3.url%/avatars/src
+            uri_prefix: /avatars/src
             upload_destination: avatar_source_image_fs
             namer: vich_uploader.namer_uniqid
         avatar_representative:
-            uri_prefix: %amazon_s3.url%/avatars/representatives
+            uri_prefix: /avatars/representatives
             upload_destination: avatar_representative_fs
             namer: vich_uploader.namer_uniqid
         educational_image:
-            uri_prefix: %amazon_s3.url%/educational
+            uri_prefix: /educational
             delete_on_update: true
             delete_on_remove: true
             upload_destination: educational_image_fs
             namer: vich_uploader.namer_uniqid
         post_image:
-            uri_prefix: %amazon_s3.url%/posts
+            uri_prefix: /posts
             delete_on_update: true
             delete_on_remove: true
             upload_destination: blog_post_fs
