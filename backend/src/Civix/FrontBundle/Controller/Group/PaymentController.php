@@ -8,6 +8,6 @@ class PaymentController extends Controller
 {
     public function getCustomerClass()
     {
-        return '\Civix\CoreBundle\Entity\Customer\CustomerGroup';
+        return '\Civix\CoreBundle\Entity\Customer\Customer';
     }
 }

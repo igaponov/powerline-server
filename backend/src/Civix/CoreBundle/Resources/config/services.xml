@@ -222,9 +222,13 @@
             <argument type="service" id="request" />
         </service>
 
-        <service class="Civix\CoreBundle\Service\StripeAccountManager" id="civix_core.stripe_account_manager">
+        <service class="Civix\CoreBundle\Service\PaymentManager" id="civix_core.payment_manager">
             <argument id="doctrine.orm.entity_manager" type="service"/>
-            <argument id="event_dispatcher" type="service"/>
+            <argument id="civix_core.stripe_payment_manager" type="service"/>
+        </service>
+
+        <service class="Civix\CoreBundle\Service\StripePaymentManager" id="civix_core.stripe_payment_manager" public="false">
+            <argument id="civix_core.stripe" type="service"/>
         </service>
 
         <service class="Civix\CoreBundle\Service\PollManager" id="civix_core.poll_manager">

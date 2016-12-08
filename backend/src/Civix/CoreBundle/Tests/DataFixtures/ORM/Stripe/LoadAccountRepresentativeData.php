@@ -1,7 +1,8 @@
 <?php
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe;
 
-use Civix\CoreBundle\Entity\Stripe\AccountRepresentative;
+use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\Stripe\Account;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -11,11 +12,11 @@ class LoadAccountRepresentativeData extends AbstractFixture implements Dependent
 {
     public function load(ObjectManager $manager)
     {
+        /** @var Representative $representative */
         $representative = $this->getReference('representative_jb');
 
-        $account = new AccountRepresentative();
-        $account->setRepresentative($representative)
-            ->setStripeId('65DAC0B12')
+        $account = new Account();
+        $account->setId('65DAC0B12')
             ->setSecretKey('SECRET123')
             ->setPublishableKey('PUB0KEY598')
             ->updateBankAccounts([
@@ -27,7 +28,8 @@ class LoadAccountRepresentativeData extends AbstractFixture implements Dependent
                     'currency' => 'eur',
                 ]
             ]);
-        $manager->persist($account);
+        $representative->setStripeAccount($account);
+        $manager->persist($representative);
         $this->addReference('representative_account_1', $account);
 
         $manager->flush();

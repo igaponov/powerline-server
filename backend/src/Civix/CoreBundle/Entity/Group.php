@@ -7,10 +7,10 @@ use Civix\CoreBundle\Serializer\Type\TotalMembers;
 use Civix\CoreBundle\Serializer\Type\UserRole;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use EWZ\Bundle\RecaptchaBundle\Validator\Constraints as RecaptchaAssert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use JMS\Serializer\Annotation as Serializer;
@@ -33,6 +33,8 @@ use Civix\CoreBundle\Serializer\Type\JoinStatus;
  */
 class Group implements \Serializable, CheckingLimits, CropAvatarInterface, LeaderContentRootInterface, OfficialInterface
 {
+    use HasStripeAccountTrait, HasStripeCustomerTrait;
+
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_group.png';
 
     const GROUP_TYPE_COMMON = 0;

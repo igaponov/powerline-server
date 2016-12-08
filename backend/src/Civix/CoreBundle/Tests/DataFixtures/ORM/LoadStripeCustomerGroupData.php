@@ -2,7 +2,7 @@
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\Stripe\CustomerGroup;
+use Civix\CoreBundle\Entity\Stripe\Customer;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -39,16 +39,16 @@ class LoadStripeCustomerGroupData extends AbstractFixture implements ContainerAw
     }
     
     /**
-     * @param $group
-     * @return CustomerGroup 
+     * @param object|Group $group
+     * @return Customer
      */
-    private function createCustomer($group)
+    private function createCustomer(Group $group)
     {
-        $customer = new CustomerGroup();
-        $customer->setStripeId(uniqid());
-        $customer->setUser($group);
+        $customer = new Customer();
+        $customer->setId(uniqid());
+        $group->setStripeCustomer($customer);
 
-        $this->manager->persist($customer);
+        $this->manager->persist($group);
         $this->manager->flush();
 
         return $customer;

@@ -2,37 +2,21 @@
 
 namespace Civix\CoreBundle\Entity\Stripe;
 
-use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\InheritanceType;
-use Doctrine\ORM\Mapping\DiscriminatorColumn;
-use Doctrine\ORM\Mapping\DiscriminatorMap;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Stripe\AccountRepository")
  * @ORM\Table(name="stripe_accounts")
- * @InheritanceType("SINGLE_TABLE")
- * @DiscriminatorColumn(name="type", type="string")
- * @DiscriminatorMap({
- *      "representative"  = "Civix\CoreBundle\Entity\Stripe\AccountRepresentative",
- *      "group"  = "Civix\CoreBundle\Entity\Stripe\AccountGroup"
- * })
  * @Serializer\ExclusionPolicy("ALL")
  */
-abstract class Account implements AccountInterface
+class Account implements AccountInterface
 {
     /**
      * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\Column(name="id", type="string")
      */
     private $id;
-
-    /**
-     * @ORM\Column(name="stripe_id", type="string")
-     */
-    private $stripeId;
 
     /**
      * @ORM\Column(name="secret_key", type="string")
@@ -67,26 +51,6 @@ abstract class Account implements AccountInterface
     public function setId($id)
     {
         $this->id = $id;
-
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getStripeId()
-    {
-        return $this->stripeId;
-    }
-
-    /**
-     * @param mixed $stripeId
-     *
-     * @return $this
-     */
-    public function setStripeId($stripeId)
-    {
-        $this->stripeId = $stripeId;
 
         return $this;
     }
@@ -147,12 +111,5 @@ abstract class Account implements AccountInterface
                 'currency' => $bankAccount->currency,
             ];
         }, $bankAccounts);
-    }
-
-    public static function getEntityClassByUser(LeaderContentRootInterface $user)
-    {
-        $type = ucfirst($user->getType());
-
-        return "Civix\\CoreBundle\\Entity\\Stripe\\Account{$type}";
     }
 }

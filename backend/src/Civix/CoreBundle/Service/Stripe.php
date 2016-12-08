@@ -11,10 +11,10 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Stripe\Customer;
 use Civix\CoreBundle\Entity\Stripe\CustomerInterface;
 use Civix\CoreBundle\Entity\Stripe\AccountInterface;
-use Civix\CoreBundle\Entity\Stripe\Account;
 use Civix\CoreBundle\Entity\Stripe\Charge;
 use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
 use Civix\CoreBundle\Entity\Subscription\Subscription;
+use Stripe\Account;
 use Stripe\Coupon;
 use Stripe\Error;
 
@@ -45,16 +45,16 @@ class Stripe
      */
     public function getStripeCustomer(CustomerInterface $customer)
     {
-        return \Stripe\Customer::retrieve($customer->getStripeId());
+        return \Stripe\Customer::retrieve($customer->getId());
     }
 
     /**
      * @param AccountInterface $account
-     * @return \Stripe\Account
+     * @return Account
      */
     public function getStripeAccount(AccountInterface $account)
     {
-        return \Stripe\Account::retrieve($account->getStripeId());
+        return Account::retrieve($account->getId());
     }
 
     public function getCards(CustomerInterface $customer)
@@ -71,7 +71,7 @@ class Stripe
 
     public function addBankAccount(AccountInterface $account, BankAccount $bankAccount)
     {
-        /** @var \Stripe\Account|\stdClass $sa */
+        /** @var Account|\stdClass $sa */
         $sa = $this->getStripeAccount($account);
 
         $sa->bank_account = $bankAccount->getSource();
@@ -114,10 +114,8 @@ class Stripe
 
     public function hasPayoutAccount(LeaderContentRootInterface $root)
     {
-        $account = $this->em
-            ->getRepository(Account::getEntityClassByUser($root))
-            ->findOneBy(['user' => $root])
-        ;
+        $account = $root->getStripeAccount();
+
         if ($account) {
             return count($account->getBankAccounts());
         }
@@ -127,10 +125,7 @@ class Stripe
 
     public function hasCard(OfficialInterface $official)
     {
-        $customer = $this->em
-            ->getRepository(Customer::getEntityClassByUser($official))
-            ->findOneBy(['user' => $official])
-        ;
+        $customer = $official->getStripeCustomer();
 
         return $customer && count($customer->getCards());
     }
@@ -176,7 +171,7 @@ class Stripe
         $sc = \Stripe\Charge::create([
             'amount' => $amount,
             'currency' => 'usd',
-            'customer' => $customer->getStripeId(),
+            'customer' => $customer->getId(),
             'statement_descriptor' => $statement,
             'description' => $description,
         ]);
@@ -190,10 +185,7 @@ class Stripe
 
     public function chargeUser(OfficialInterface $official, $amount, $statement = null, $description = null)
     {
-        /** @var Customer $customer */
-        $customer = $this->em
-            ->getRepository(Customer::getEntityClassByUser($official))
-            ->findOneBy(['user' => $official]);
+        $customer = $official->getStripeCustomer();
 
         return $this->chargeCustomer($customer, $amount, $statement, $description);
     }
@@ -205,11 +197,8 @@ class Stripe
     public function handleSubscription(Subscription $subscription)
     {
         $user = $subscription->getUserEntity();
-        /** @var Customer $customer */
-        $customer = $this->em
-            ->getRepository(Customer::getEntityClassByUser($user))
-            ->findOneBy(['user' => $user]);
-        if (!$customer) {
+        $customer = $user->getStripeCustomer();
+        if (!$customer->getId()) {
             throw new \RuntimeException('User doesn\'t have an account in stripe');
         }
 
@@ -257,10 +246,7 @@ class Stripe
             return $subscription;
         }
         $user = $subscription->getUserEntity();
-        /** @var CustomerInterface $customer */
-        $customer = $this->em
-            ->getRepository(Customer::getEntityClassByUser($user))
-            ->findOneBy(['user' => $user]);
+        $customer = $user->getStripeCustomer();
         $stripeCustomer = $this->getStripeCustomer($customer);
 
         try {
@@ -283,10 +269,7 @@ class Stripe
     public function syncSubscription(Subscription $subscription)
     {
         $user = $subscription->getUserEntity();
-        /** @var CustomerInterface $customer */
-        $customer = $this->em
-            ->getRepository(Customer::getEntityClassByUser($user))
-            ->findOneBy(['user' => $user]);
+        $customer = $user->getStripeCustomer();
         $stripeCustomer = $this->getStripeCustomer($customer);
 
         try {
@@ -327,7 +310,7 @@ class Stripe
 
     /**
      * @param LeaderContentRootInterface $root
-     * @return \Stripe\Account|\stdClass
+     * @return Account|\stdClass
      */
     public function createAccount(LeaderContentRootInterface $root)
     {
@@ -340,7 +323,7 @@ class Stripe
             $params['country'] = $root->getUser()->getCountry();
         }
 
-        return \Stripe\Account::create($params);
+        return Account::create($params);
     }
 
     /**
@@ -348,7 +331,7 @@ class Stripe
      */
     public function deleteAccount(AccountInterface $account)
     {
-        \Stripe\Account::retrieve($account->getStripeId())->delete();
+        Account::retrieve($account->getId())->delete();
     }
 
     private function getAppearsOnStatement(LeaderContentRootInterface $root)

@@ -1,17 +1,18 @@
 <?php
-namespace Civix\ApiBundle\Controller\V2\Group;
+namespace Civix\ApiBundle\Controller\V2\Representative;
 
 use Civix\ApiBundle\Configuration\SecureParam;
-use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Service\PaymentManager;
 use FOS\RestBundle\Controller\FOSRestController;
 use JMS\DiExtraBundle\Annotation as DI;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
 /**
- * @Route("/groups/{group}/stripe-account")
+ * @Route("/representatives/{representative}/stripe-account")
  */
 class AccountController extends FOSRestController
 {
@@ -22,29 +23,29 @@ class AccountController extends FOSRestController
     private $manager;
 
     /**
-     * Delete group's account
+     * Delete representative's account
      *
      * @Route("")
      * @Method("DELETE")
      *
-     * @SecureParam("group", permission="edit")
+     * @SecureParam("representative", permission="edit")
      *
      * @ApiDoc(
      *     authentication=true,
      *     resource=true,
-     *     section="Groups",
-     *     description="Delete group's account",
+     *     section="Representatives",
+     *     description="Delete representative's account",
      *     statusCodes={
      *         204="Success",
-     *         404="Group Account Not Found",
+     *         404="Representative Account Not Found",
      *         405="Method Not Allowed"
      *     }
      * )
-     * @param Group $group
+     * @param Representative $representative
      */
-    public function deleteAction(Group $group)
+    public function deleteAction(Representative $representative)
     {
-        if ($account = $group->getStripeAccount()) {
+        if ($account = $representative->getStripeAccount()) {
             $this->manager->deleteAccount($account);
             return;
         }

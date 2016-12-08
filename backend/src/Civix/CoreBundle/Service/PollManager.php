@@ -3,9 +3,7 @@ namespace Civix\CoreBundle\Service;
 
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Question;
-use Civix\CoreBundle\Entity\Stripe\Account;
 use Civix\CoreBundle\Entity\Stripe\Charge;
-use Civix\CoreBundle\Entity\Stripe\Customer;
 use Civix\CoreBundle\Event\ChargeEvent;
 use Civix\CoreBundle\Event\Poll\AnswerEvent;
 use Civix\CoreBundle\Event\Poll\QuestionEvent;
@@ -90,20 +88,15 @@ class PollManager
     public function chargeToPaymentRequest(Question $question, Answer $answer)
     {
         $user = $answer->getUser();
-        /** @var Customer $customer */
-        $customer = $this->em
-            ->getRepository(Customer::getEntityClassByUser($user))
-            ->findOneBy([$user->getType() => $user]);
+        $customer = $user->getStripeCustomer();
 
-        if (!$customer) {
+        if (!$customer->getId()) {
             throw new \RuntimeException(ucfirst($user->getType())." doesn't have an account in stripe");
         }
 
-        $account = $this->em
-            ->getRepository(Account::getEntityClassByUser($question->getOwner()))
-            ->findOneBy([$question->getOwner()->getType()  => $question->getOwner()]);
+        $account = $question->getOwner()->getStripeAccount();
 
-        if (!$account) {
+        if (!$account->getId()) {
             throw new \RuntimeException(ucfirst($question->getOwner()->getType())." doesn't have an account in stripe");
         }
 

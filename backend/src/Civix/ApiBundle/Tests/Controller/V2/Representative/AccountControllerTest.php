@@ -1,17 +1,15 @@
 <?php
-namespace Civix\ApiBundle\Tests\Controller\V2\Group;
+namespace Civix\ApiBundle\Tests\Controller\V2\Representative;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Stripe\Account;
 use Civix\CoreBundle\Service\Stripe;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe\LoadAccountGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe\LoadAccountRepresentativeData;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class AccountControllerTest extends WebTestCase
 {
-    const API_ENDPOINT = '/api/v2/groups/{group}/stripe-account';
+    const API_ENDPOINT = '/api/v2/representatives/{representative}/stripe-account';
 
     /**
      * @var null|Client
@@ -29,22 +27,15 @@ class AccountControllerTest extends WebTestCase
         parent::tearDown();
     }
 
-    /**
-     * @param $user
-     * @param $reference
-     * @dataProvider getInvalidGroupCredentialsForRequest
-     */
-    public function testDeleteAccountWithWrongCredentialsThrowsException($user, $reference)
+    public function testDeleteAccountWithWrongCredentialsThrowsException()
     {
         $repository = $this->loadFixtures([
-            LoadAccountGroupData::class,
-            LoadUserGroupData::class,
-            LoadGroupManagerData::class,
+            LoadAccountRepresentativeData::class,
         ])->getReferenceRepository();
-        $group = $repository->getReference($reference);
+        $representative = $repository->getReference('representative_jb');
         $client = $this->client;
-        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
-        $client->request('DELETE', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
+        $uri = str_replace('{representative}', $representative->getId(), self::API_ENDPOINT);
+        $client->request('DELETE', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user2"']);
         $response = $client->getResponse();
         $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
@@ -58,23 +49,14 @@ class AccountControllerTest extends WebTestCase
             ->method('deleteAccount')
             ->with($this->isInstanceOf(Account::class));
         $repository = $this->loadFixtures([
-            LoadAccountGroupData::class,
+            LoadAccountRepresentativeData::class,
         ])->getReferenceRepository();
-        $group = $repository->getReference('group_1');
+        $representative = $repository->getReference('representative_jb');
         $client = $this->client;
         $client->getContainer()->set('civix_core.stripe', $service);
-        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
+        $uri = str_replace('{representative}', $representative->getId(), self::API_ENDPOINT);
         $client->request('DELETE', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
-    }
-
-    public function getInvalidGroupCredentialsForRequest()
-    {
-        return [
-            'manager' => ['user2', 'group_1'],
-            'member' => ['user4', 'group_1'],
-            'outlier' => ['followertest', 'group_1'],
-        ];
     }
 }

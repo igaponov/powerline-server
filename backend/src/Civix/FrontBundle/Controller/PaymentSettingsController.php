@@ -26,17 +26,13 @@ abstract class PaymentSettingsController extends Controller
         $bankAccounts = null;
 
         /* @var Customer $customer */
-        $customer = $this->getDoctrine()
-            ->getRepository(Customer::getEntityClassByUser($this->getUser()))
-            ->findOneBy(['user' => $this->getUser()]);
+        $customer = $this->getUser()->getStripeCustomer();
         if ($customer) {
             $cards = $customer->getCards();
         }
 
         /* @var Account $account */
-        $account = $this->getDoctrine()
-            ->getRepository(Account::getEntityClassByUser($this->getUser()))
-            ->findOneBy(['user' => $this->getUser()]);
+        $account = $this->getUser()->getStripeAccount();
         if ($account) {
             $bankAccounts = $account->getBankAccounts();
         }
