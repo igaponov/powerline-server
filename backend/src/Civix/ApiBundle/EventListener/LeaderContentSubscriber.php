@@ -1,12 +1,8 @@
 <?php
 namespace Civix\ApiBundle\EventListener;
 
-use Civix\CoreBundle\Entity\Poll\Question\GroupPaymentRequest;
 use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
 use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
-use Civix\CoreBundle\Entity\Poll\Question\RepresentativePaymentRequest;
-use Civix\CoreBundle\Entity\Stripe\AccountGroup;
-use Civix\CoreBundle\Entity\Stripe\AccountRepresentative;
 use Civix\CoreBundle\Event\Poll\AnswerEvent;
 use Civix\CoreBundle\Event\Poll\QuestionEvent;
 use Civix\CoreBundle\Event\PollEvents;
@@ -193,14 +189,8 @@ class LeaderContentSubscriber implements EventSubscriberInterface
         if (!$poll instanceof PaymentRequest || $poll->getIsCrowdfunding()) {
             return;
         }
-        if ($poll instanceof GroupPaymentRequest) {
-            $account = $this->em->getRepository(AccountGroup::class)
-                ->findOneBy(['group' => $poll->getOwner()]);
-        } elseif ($poll instanceof RepresentativePaymentRequest) {
-            $account = $this->em->getRepository(AccountRepresentative::class)
-                ->findOneBy(['representative' => $poll->getOwner()]);
-        }
-        if (empty($account) || !count($account->getBankAccounts())) {
+        $account = $poll->getOwner()->getStripeAccount();
+        if (!$account || !count($account->getBankAccounts())) {
             throw new \RuntimeException('You must have a Stripe account to create a payment request.');
         }
     }

@@ -144,9 +144,7 @@ class AnswersController extends BaseController
             throw $this->createNotFoundException();
         }
 
-        $customer = $this->getDoctrine()
-            ->getRepository(Customer::getEntityClassByUser($this->getUser()))
-            ->findOneBy(['user' => $this->getUser()]);
+        $customer = $this->getUser()->getStripeCustomer();
 
         if (!$customer) {
             throw $this->createNotFoundException();

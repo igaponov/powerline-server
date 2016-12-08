@@ -2,16 +2,14 @@
 
 namespace Civix\CoreBundle\Entity\Stripe;
 
-use Civix\CoreBundle\Entity\LeaderContentInterface;
-
-interface AccountInterface extends LeaderContentInterface
+interface AccountInterface
 {
     /**
      * @return AccountInterface
      */
-    public function setStripeId($stripeId);
+    public function setId($stripeId);
 
-    public function getStripeId();
+    public function getId();
 
     public function getSecretKey();
 

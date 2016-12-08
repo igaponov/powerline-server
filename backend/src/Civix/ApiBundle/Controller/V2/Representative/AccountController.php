@@ -2,8 +2,8 @@
 namespace Civix\ApiBundle\Controller\V2\Representative;
 
 use Civix\ApiBundle\Configuration\SecureParam;
-use Civix\CoreBundle\Entity\Stripe\AccountRepresentative;
-use Civix\CoreBundle\Service\StripeAccountManager;
+use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Service\PaymentManager;
 use FOS\RestBundle\Controller\FOSRestController;
 use JMS\DiExtraBundle\Annotation as DI;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
@@ -17,8 +17,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 class AccountController extends FOSRestController
 {
     /**
-     * @var StripeAccountManager
-     * @DI\Inject("civix_core.stripe_account_manager")
+     * @var PaymentManager
+     * @DI\Inject("civix_core.payment_manager")
      */
     private $manager;
 
@@ -28,8 +28,7 @@ class AccountController extends FOSRestController
      * @Route("")
      * @Method("DELETE")
      *
-     * @ParamConverter("account", options={"mapping" = {"representative" = "representative"}})
-     * @SecureParam("account", permission="edit")
+     * @SecureParam("representative", permission="edit")
      *
      * @ApiDoc(
      *     authentication=true,
@@ -42,10 +41,14 @@ class AccountController extends FOSRestController
      *         405="Method Not Allowed"
      *     }
      * )
-     * @param AccountRepresentative $account
+     * @param Representative $representative
      */
-    public function deleteAction(AccountRepresentative $account)
+    public function deleteAction(Representative $representative)
     {
-        $this->manager->deleteAccount($account);
+        if ($account = $representative->getStripeAccount()) {
+            $this->manager->deleteAccount($account);
+            return;
+        }
+        throw $this->createNotFoundException();
     }
 }

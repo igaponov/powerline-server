@@ -31,9 +31,7 @@ abstract class PaymentController extends Controller
         }
 
         /* @var Customer $customer */
-        $customer = $this->getDoctrine()
-            ->getRepository(Customer::getEntityClassByUser($this->getUser()))
-            ->findOneBy(['user' => $this->getUser()]);
+        $customer = $this->getUser()->getStripeCustomer();
 
         //get count of public emails
         $emailCount = $this->getDoctrine()

@@ -4,7 +4,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2\Group;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Stripe\Card;
-use Civix\CoreBundle\Entity\Stripe\CustomerGroup;
+use Civix\CoreBundle\Entity\Stripe\Customer;
 use Civix\CoreBundle\Service\Stripe;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
@@ -57,10 +57,11 @@ class CardControllerTest extends WebTestCase
         $repository = $this->loadFixtures([
             LoadCustomerGroupData::class,
         ])->getReferenceRepository();
-        /** @var CustomerGroup $customer */
+        /** @var Customer $customer */
         $customer = $repository->getReference('stripe_customer_group_1');
+        $group = $repository->getReference('group_1');
         $client = $this->client;
-        $uri = str_replace('{group}', $customer->getUser()->getId(), self::API_ENDPOINT);
+        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
         $client->request('GET', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -115,7 +116,7 @@ class CardControllerTest extends WebTestCase
 	    $service->expects($this->once())
             ->method('addCard')
             ->with(
-                $this->isInstanceOf(CustomerGroup::class),
+                $this->isInstanceOf(Customer::class),
                 $this->isInstanceOf(Card::class)
             );
 	    $card = [
@@ -126,7 +127,7 @@ class CardControllerTest extends WebTestCase
         ];
 	    $service->expects($this->once())
             ->method('getCards')
-            ->with($this->isInstanceOf(CustomerGroup::class))
+            ->with($this->isInstanceOf(Customer::class))
             ->willReturn(
                 (object)[
                     'data' => [(object)$card],
@@ -156,7 +157,7 @@ class CardControllerTest extends WebTestCase
 	    $service->expects($this->once())
             ->method('addCard')
             ->with(
-                $this->isInstanceOf(CustomerGroup::class),
+                $this->isInstanceOf(Customer::class),
                 $this->isInstanceOf(Card::class)
             );
 	    $card = [
@@ -167,7 +168,7 @@ class CardControllerTest extends WebTestCase
         ];
 	    $service->expects($this->once())
             ->method('getCards')
-            ->with($this->isInstanceOf(CustomerGroup::class))
+            ->with($this->isInstanceOf(Customer::class))
             ->willReturn(
                 (object)[
                     'data' => [(object)$card],
@@ -214,7 +215,7 @@ class CardControllerTest extends WebTestCase
         $service->expects($this->once())
             ->method('removeCard')
             ->with(
-                $this->isInstanceOf(CustomerGroup::class),
+                $this->isInstanceOf(Customer::class),
                 $this->callback(function (Card $card) {
                     $this->assertEquals('22455', $card->getId());
 
@@ -229,7 +230,7 @@ class CardControllerTest extends WebTestCase
         ];
         $service->expects($this->once())
             ->method('getCards')
-            ->with($this->isInstanceOf(CustomerGroup::class))
+            ->with($this->isInstanceOf(Customer::class))
             ->willReturn(
                 (object)[
                     'data' => [(object)$card],

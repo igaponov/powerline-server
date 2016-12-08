@@ -42,6 +42,8 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  */
 class User implements UserInterface, \Serializable, OfficialInterface
 {
+    use HasStripeCustomerTrait;
+
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_user.png';
     const SOMEONE_AVATAR = '/bundles/civixfront/img/default_someone.png';
 

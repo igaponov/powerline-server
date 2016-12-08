@@ -43,9 +43,7 @@ class CardsController extends BaseController
     {
         $cards = [];
         /* @var Customer $customer */
-        $customer = $this->getDoctrine()
-            ->getRepository(Customer::getEntityClassByUser($this->getUser()))
-            ->findOneBy(['user' => $this->getUser()]);
+        $customer = $this->getUser()->getStripeCustomer();
         if ($customer) {
             $cards = $customer->getCards();
         }

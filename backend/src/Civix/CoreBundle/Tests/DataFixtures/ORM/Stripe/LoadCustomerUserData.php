@@ -1,7 +1,8 @@
 <?php
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe;
 
-use Civix\CoreBundle\Entity\Stripe\CustomerUser;
+use Civix\CoreBundle\Entity\Stripe\Customer;
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -11,11 +12,11 @@ class LoadCustomerUserData extends AbstractFixture implements DependentFixtureIn
 {
     public function load(ObjectManager $manager)
     {
+        /** @var User $user */
         $user = $this->getReference('user_1');
 
-        $account = new CustomerUser();
-        $account->setUser($user)
-            ->setStripeId('65DAC0B12')
+        $customer = new Customer();
+        $customer->setId('65DAC0B12')
             ->updateCards([
                 (object)[
                     'id' => 'acc0',
@@ -24,8 +25,9 @@ class LoadCustomerUserData extends AbstractFixture implements DependentFixtureIn
                     'funding' => 'xxx',
                 ]
             ]);
-        $manager->persist($account);
-        $this->addReference('stripe_customer_user_1', $account);
+        $user->setStripeCustomer($customer);
+        $manager->persist($user);
+        $this->addReference('stripe_customer_user_1', $customer);
 
         $manager->flush();
     }

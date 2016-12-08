@@ -3,13 +3,10 @@
 namespace Civix\ApiBundle\Controller\V2\Group;
 
 use Civix\ApiBundle\Configuration\SecureParam;
-use Civix\ApiBundle\Controller\BaseController;
-use Civix\ApiBundle\Form\Type\BankAccountType;
+use Civix\ApiBundle\Controller\V2\AbstractBankAccountController;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Stripe\Account;
-use Civix\CoreBundle\Entity\Stripe\AccountGroup;
-use Civix\CoreBundle\Entity\Stripe\BankAccount;
-use Civix\CoreBundle\Service\StripeAccountManager;
+use Civix\CoreBundle\Service\PaymentManager;
 use FOS\RestBundle\Controller\Annotations\View;
 use JMS\DiExtraBundle\Annotation as DI;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
@@ -20,13 +17,18 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @Route("/groups/{group}/bank-accounts")
  */
-class BankAccountController extends BaseController
+class BankAccountController extends AbstractBankAccountController
 {
     /**
-     * @var StripeAccountManager
-     * @DI\Inject("civix_core.stripe_account_manager")
+     * @var PaymentManager
+     * @DI\Inject("civix_core.payment_manager")
      */
     private $manager;
+
+    protected function getManager()
+    {
+        return $this->manager;
+    }
 
     /**
      * @Route("")
@@ -65,14 +67,7 @@ class BankAccountController extends BaseController
      */
     public function postBankAccountAction(Request $request, Group $group)
     {
-        $form = $this->createForm(new BankAccountType());
-        $form->submit($request);
-
-        if ($form->isValid()) {
-            return $this->manager->addBankAccount($group, $form->getData());
-        }
-
-        return $form;
+        return $this->postBankAccount($request, $group);
     }
 
     /**
@@ -107,16 +102,7 @@ class BankAccountController extends BaseController
      */
     public function getBankAccountsAction(Group $group)
     {
-        /* @var Account $account */
-        $account = $this->getDoctrine()
-            ->getRepository(AccountGroup::class)
-            ->findOneBy(['group' => $group]);
-
-        if ($account) {
-            return $account->getBankAccounts();
-        }
-
-        return [];
+        return $this->getBankAccounts($group);
     }
 
     /**
@@ -142,14 +128,6 @@ class BankAccountController extends BaseController
      */
     public function deleteBankAccountAction(Group $group, $id)
     {
-        /* @var AccountGroup $account */
-        $account = $this->getDoctrine()
-            ->getRepository(AccountGroup::class)
-            ->findOneBy(['group' => $group]);
-        if ($account) {
-            $bankAccount = new BankAccount();
-            $bankAccount->setId($id);
-            $this->manager->deleteBankAccount($account, $bankAccount);
-        }
+        $this->deleteBankAccount($group, $id);
     }
 }

@@ -9,7 +9,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Stripe\Charge;
-use Civix\CoreBundle\Entity\Stripe\Customer;
 
 class ChargePaymentRequestCommand extends ContainerAwareCommand
 {
@@ -57,9 +56,7 @@ class ChargePaymentRequestCommand extends ContainerAwareCommand
 
         /** @var Answer $answer */
         foreach ($paymentRequest->getAnswers() as $answer) {
-            $customer = $this->getContainer()->get('doctrine')
-                ->getRepository(Customer::getEntityClassByUser($answer->getUser()))
-                ->findOneBy(['user' => $answer->getUser()]);
+            $customer = $answer->getUser()->getStripeCustomer();
 
             if (!$customer) {
                 continue;

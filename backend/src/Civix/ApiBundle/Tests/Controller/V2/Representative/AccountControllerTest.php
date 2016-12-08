@@ -2,7 +2,7 @@
 namespace Civix\ApiBundle\Tests\Controller\V2\Representative;
 
 use Civix\ApiBundle\Tests\WebTestCase;
-use Civix\CoreBundle\Entity\Stripe\AccountRepresentative;
+use Civix\CoreBundle\Entity\Stripe\Account;
 use Civix\CoreBundle\Service\Stripe;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe\LoadAccountRepresentativeData;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -47,7 +47,7 @@ class AccountControllerTest extends WebTestCase
             ->getMock();
         $service->expects($this->once())
             ->method('deleteAccount')
-            ->with($this->isInstanceOf(AccountRepresentative::class));
+            ->with($this->isInstanceOf(Account::class));
         $repository = $this->loadFixtures([
             LoadAccountRepresentativeData::class,
         ])->getReferenceRepository();

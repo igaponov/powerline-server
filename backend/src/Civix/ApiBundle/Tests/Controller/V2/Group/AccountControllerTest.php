@@ -2,7 +2,7 @@
 namespace Civix\ApiBundle\Tests\Controller\V2\Group;
 
 use Civix\ApiBundle\Tests\WebTestCase;
-use Civix\CoreBundle\Entity\Stripe\AccountGroup;
+use Civix\CoreBundle\Entity\Stripe\Account;
 use Civix\CoreBundle\Service\Stripe;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
@@ -56,7 +56,7 @@ class AccountControllerTest extends WebTestCase
             ->getMock();
         $service->expects($this->once())
             ->method('deleteAccount')
-            ->with($this->isInstanceOf(AccountGroup::class));
+            ->with($this->isInstanceOf(Account::class));
         $repository = $this->loadFixtures([
             LoadAccountGroupData::class,
         ])->getReferenceRepository();

@@ -1,7 +1,8 @@
 <?php
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe;
 
-use Civix\CoreBundle\Entity\Stripe\CustomerGroup;
+use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\Stripe\Customer;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -11,11 +12,11 @@ class LoadCustomerGroupData extends AbstractFixture implements DependentFixtureI
 {
     public function load(ObjectManager $manager)
     {
+        /** @var Group $group */
         $group = $this->getReference('group_1');
 
-        $customer = new CustomerGroup();
-        $customer->setUser($group)
-            ->setStripeId('65DAC0B12')
+        $customer = new Customer();
+        $customer->setId('65DAC0B12')
             ->updateCards([
                 (object)[
                     'id' => 'acc1',
@@ -24,7 +25,8 @@ class LoadCustomerGroupData extends AbstractFixture implements DependentFixtureI
                     'funding' => 'xxxx',
                 ]
             ]);
-        $manager->persist($customer);
+        $group->setStripeCustomer($customer);
+        $manager->persist($group);
         $this->addReference('stripe_customer_group_1', $customer);
 
         $manager->flush();

@@ -23,6 +23,8 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  */
 class Representative implements CheckingLimits, LeaderContentRootInterface
 {
+    use HasStripeAccountTrait;
+
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_representative.png';
 
     const STATUS_PENDING = 0;

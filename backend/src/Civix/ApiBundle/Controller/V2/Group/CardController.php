@@ -8,8 +8,7 @@ use Civix\ApiBundle\Form\Type\CardType;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Stripe\Card;
 use Civix\CoreBundle\Entity\Stripe\Customer;
-use Civix\CoreBundle\Entity\Stripe\CustomerGroup;
-use Civix\CoreBundle\Service\StripeAccountManager;
+use Civix\CoreBundle\Service\PaymentManager;
 use FOS\RestBundle\Controller\Annotations\View;
 use JMS\DiExtraBundle\Annotation as DI;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
@@ -23,8 +22,8 @@ use Symfony\Component\HttpFoundation\Request;
 class CardController extends BaseController
 {
     /**
-     * @var StripeAccountManager
-     * @DI\Inject("civix_core.stripe_account_manager")
+     * @var PaymentManager
+     * @DI\Inject("civix_core.payment_manager")
      */
     private $manager;
 
@@ -69,7 +68,7 @@ class CardController extends BaseController
         $form->submit($request);
 
         if ($form->isValid()) {
-            return $this->manager->addGroupCard($group, $form->getData());
+            return $this->manager->addCard($group, $form->getData());
         }
 
         return $form;
@@ -105,10 +104,7 @@ class CardController extends BaseController
      */
     public function getCardsAction(Group $group)
     {
-        /* @var Customer $customer */
-        $customer = $this->getDoctrine()
-            ->getRepository(CustomerGroup::class)
-            ->findOneBy(['user' => $group]);
+        $customer = $group->getStripeCustomer();
 
         if ($customer) {
             return $customer->getCards();
@@ -140,10 +136,7 @@ class CardController extends BaseController
      */
     public function deleteCardAction(Group $group, $id)
     {
-        /* @var Customer $customer */
-        $customer = $this->getDoctrine()
-            ->getRepository(CustomerGroup::class)
-            ->findOneBy(['user' => $group]);
+        $customer = $group->getStripeCustomer();
         if ($customer) {
             $card = new Card();
             $card->setId($id);
