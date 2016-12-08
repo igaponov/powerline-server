@@ -1,7 +1,7 @@
 <?php
 namespace Civix\CoreBundle\Entity;
 
-use Civix\CoreBundle\Entity\Stripe\Account;
+use Civix\CoreBundle\Entity\Stripe\AccountInterface;
 
 interface LeaderContentRootInterface
 {
@@ -31,13 +31,13 @@ interface LeaderContentRootInterface
     public function getOfficialTitle();
 
     /**
-     * @return Account
+     * @return AccountInterface
      */
     public function getStripeAccount();
 
     /**
-     * @param Account $account
+     * @param AccountInterface $account
      * @return $this
      */
-    public function setStripeAccount(Account $account);
+    public function setStripeAccount(AccountInterface $account);
 }

@@ -1,21 +1,21 @@
 <?php
 namespace Civix\CoreBundle\Entity;
 
-use Civix\CoreBundle\Entity\Stripe\Customer;
+use Civix\CoreBundle\Entity\Stripe\CustomerInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 trait HasStripeCustomerTrait
 {
     /**
-     * @var Customer
+     * @var CustomerInterface
      *
-     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\Stripe\Customer", cascade={"persist"})
+     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\Stripe\CustomerInterface", cascade={"persist"})
      * @ORM\JoinColumn(onDelete="SET NULL")
      */
     private $stripeCustomer;
 
     /**
-     * @return Customer
+     * @return CustomerInterface
      */
     public function getStripeCustomer()
     {
@@ -23,10 +23,10 @@ trait HasStripeCustomerTrait
     }
 
     /**
-     * @param Customer $stripeCustomer
+     * @param CustomerInterface $stripeCustomer
      * @return $this
      */
-    public function setStripeCustomer(Customer $stripeCustomer)
+    public function setStripeCustomer(CustomerInterface $stripeCustomer)
     {
         $this->stripeCustomer = $stripeCustomer;
 

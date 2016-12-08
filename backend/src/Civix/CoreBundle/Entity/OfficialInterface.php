@@ -1,7 +1,7 @@
 <?php
 namespace Civix\CoreBundle\Entity;
 
-use Civix\CoreBundle\Entity\Stripe\Customer;
+use Civix\CoreBundle\Entity\Stripe\CustomerInterface;
 
 interface OfficialInterface
 {
@@ -16,13 +16,13 @@ interface OfficialInterface
     public function getEmail();
 
     /**
-     * @return Customer
+     * @return CustomerInterface
      */
     public function getStripeCustomer();
 
     /**
-     * @param Customer $customer
+     * @param CustomerInterface $customer
      * @return $this
      */
-    public function setStripeCustomer(Customer $customer);
+    public function setStripeCustomer(CustomerInterface $customer);
 }

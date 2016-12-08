@@ -1,21 +1,21 @@
 <?php
 namespace Civix\CoreBundle\Entity;
 
-use Civix\CoreBundle\Entity\Stripe\Account;
+use Civix\CoreBundle\Entity\Stripe\AccountInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 trait HasStripeAccountTrait
 {
     /**
-     * @var Account
+     * @var AccountInterface
      *
-     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\Stripe\Account", cascade={"persist"})
+     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\Stripe\AccountInterface", cascade={"persist"})
      * @ORM\JoinColumn(onDelete="SET NULL")
      */
     private $stripeAccount;
 
     /**
-     * @return Account
+     * @return AccountInterface
      */
     public function getStripeAccount()
     {
@@ -23,10 +23,10 @@ trait HasStripeAccountTrait
     }
 
     /**
-     * @param Account $stripeAccount
+     * @param AccountInterface $stripeAccount
      * @return $this
      */
-    public function setStripeAccount(Account $stripeAccount)
+    public function setStripeAccount(AccountInterface $stripeAccount)
     {
         $this->stripeAccount = $stripeAccount;
 

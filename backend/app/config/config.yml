@@ -68,6 +68,9 @@ doctrine:
                     softdeleteable:
                         class: Gedmo\SoftDeleteable\Filter\SoftDeleteableFilter
                         enabled: true
+        resolve_target_entities:
+            Civix\CoreBundle\Entity\Stripe\AccountInterface: \Civix\CoreBundle\Entity\Stripe\Account
+            Civix\CoreBundle\Entity\Stripe\CustomerInterface: \Civix\CoreBundle\Entity\Stripe\Customer
 
 # Swiftmailer Configuration
 swiftmailer:
