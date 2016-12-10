@@ -2,15 +2,24 @@
 
 namespace Civix\CoreBundle\Serializer\Handler;
 
+use Imgix\UrlBuilder;
+use JMS\Serializer\Context;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\JsonSerializationVisitor;
 use Civix\CoreBundle\Serializer\Type\Image;
+use Vich\UploaderBundle\Storage\StorageInterface;
 
 class ImageHandler implements SubscribingHandlerInterface
 {
-    private $serviceVich;
-    private $serviceRequest;
+    /**
+     * @var StorageInterface
+     */
+    private $storage;
+    /**
+     * @var UrlBuilder
+     */
+    private $urlBuilder;
 
     public static function getSubscribingMethods()
     {
@@ -25,18 +34,26 @@ class ImageHandler implements SubscribingHandlerInterface
     }
 
     public function __construct(
-        \Vich\UploaderBundle\Templating\Helper\UploaderHelper $serviceVich,
-        \Symfony\Component\HttpFoundation\Request $serviceRequest
-    ) {
-        $this->serviceVich = $serviceVich;
-        $this->serviceRequest = $serviceRequest;
+        StorageInterface $storage,
+        UrlBuilder $urlBuilder
+    )
+    {
+        $this->storage = $storage;
+        $this->urlBuilder = $urlBuilder;
     }
 
-    public function serialize(JsonSerializationVisitor $visitor, Image $image, array $type)
+    public function serialize(JsonSerializationVisitor $visitor, Image $image, array $type, Context $context)
     {
-        if ($image->isAvailable()) {
-            return $image->isUrl() ? $image->getImageSrc() :
-                $this->serviceVich->asset($image->getEntity(), $image->getField());
+        if (!$image->isAvailable()) {
+            return null;
         }
+        if ($image->isUrl()) {
+            $url = $image->getImageSrc();
+        } else {
+            $uri = $this->storage->resolveUri($image->getEntity(), $image->getField());
+            $url = $this->urlBuilder->createURL($uri);
+        }
+
+        return $visitor->visitString($url, $type, $context);
     }
 }

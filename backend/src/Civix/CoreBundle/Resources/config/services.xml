@@ -94,15 +94,15 @@
         </service>
 
         <!-- Avatar Serializer Handler -->
-        <service id="civix_core.serializer.handler.avatar_handler" class="Civix\CoreBundle\Serializer\Handler\AvatarHandler" scope="request">
+        <service id="civix_core.serializer.handler.avatar_handler" class="Civix\CoreBundle\Serializer\Handler\AvatarHandler">
             <tag name="jms_serializer.handler" type="Avatar" direction="serialization" format="json" method="serialize" />
-            <argument type="service" id="vich_uploader.templating.helper.uploader_helper" />
-            <argument type="service" id="request" />
+            <argument type="service" id="civix_core.serializer.handler.image_handler" />
+            <argument type="string">%hostname%</argument>
         </service>
-        <service id="civix_core.deserializer.handler.avatar_handler" class="Civix\CoreBundle\Serializer\Handler\AvatarHandler" scope="request">
+        <service id="civix_core.deserializer.handler.avatar_handler" class="Civix\CoreBundle\Serializer\Handler\AvatarHandler">
             <tag name="jms_serializer.handler" type="Avatar" direction="deserialization" format="json" method="deserialize" />
-            <argument type="service" id="vich_uploader.templating.helper.uploader_helper" />
-            <argument type="service" id="request" />
+            <argument type="service" id="civix_core.serializer.handler.image_handler" />
+            <argument type="string">%hostname%</argument>
         </service>
 
         <service id="civix_core.serializer.handler.owner_data_handler" class="Civix\CoreBundle\Serializer\Handler\OwnerDataHandler" scope="request">
@@ -112,10 +112,10 @@
         </service>
 
         <!-- Image Serializer Handler -->
-        <service id="civix_core.serializer.handler.image_handler" class="Civix\CoreBundle\Serializer\Handler\ImageHandler" scope="request">
+        <service id="civix_core.serializer.handler.image_handler" class="Civix\CoreBundle\Serializer\Handler\ImageHandler">
             <tag name="jms_serializer.handler" type="Image" direction="serialization" format="json" method="serialize" />
-            <argument type="service" id="vich_uploader.templating.helper.uploader_helper" />
-            <argument type="service" id="request" />
+            <argument type="service" id="vich_uploader.storage" />
+            <argument type="service" id="imgix.url_builder" />
         </service>
 
         <!-- JoinStatus Serializer Handler -->

@@ -40,7 +40,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  * @Serializer\ExclusionPolicy("all")
  * @Vich\Uploadable
  */
-class User implements UserInterface, \Serializable, OfficialInterface
+class User implements UserInterface, \Serializable, OfficialInterface, HasAvatarInterface
 {
     use HasStripeCustomerTrait;
 

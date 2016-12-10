@@ -15,7 +15,7 @@ use Civix\CoreBundle\Serializer\Type\Avatar;
  *  
  * @UniqueEntity(fields={"username"}, groups={"registration"})
  */
-class Superuser implements UserInterface
+class Superuser implements UserInterface, HasAvatarInterface
 {
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_superuser.jpg';
 

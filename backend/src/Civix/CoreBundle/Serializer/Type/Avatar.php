@@ -2,20 +2,19 @@
 
 namespace Civix\CoreBundle\Serializer\Type;
 
-class Avatar
+use Civix\CoreBundle\Entity\HasAvatarInterface;
+
+class Avatar extends Image
 {
-    protected $entity;
+    /**
+     * @var bool
+     */
     protected $privacy;
 
-    public function __construct($entity, $privacy = false)
+    public function __construct(HasAvatarInterface $entity, $privacy = false)
     {
-        $this->entity = $entity;
+        parent::__construct($entity, 'avatar');
         $this->privacy = $privacy;
-    }
-
-    public function getEntity()
-    {
-        return $this->entity;
     }
 
     public function isPrivacy()

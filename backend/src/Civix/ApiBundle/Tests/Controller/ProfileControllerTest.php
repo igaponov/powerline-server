@@ -82,7 +82,10 @@ class ProfileControllerTest extends WebTestCase
             ->get('civix_core.storage.array')
             ->getFiles('avatar_image_fs');
         $this->assertCount(1, $files);
-        $this->assertEquals('/avatars/'.key($files), $data['avatar_file_name']);
+        $this->assertEquals(
+            'http://powerline-dev.imgix.net/avatars/'.key($files).'?ixlib=php-1.1.0',
+            $data['avatar_file_name']
+        );
     }
 
 	public function testUpdateSettings()
