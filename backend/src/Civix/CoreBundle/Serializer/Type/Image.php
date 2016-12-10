@@ -44,8 +44,10 @@ class Image
     public function isAvailable()
     {
         if (method_exists($this->entity, 'get'.$this->field)) {
-            return $this->entity->{'get'.$this->field}();
+            return $this->entity->{'get'.$this->field}() !== null;
         }
+
+        return false;
     }
 
     public function isUrl()

@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Serializer\Type;
 
+use Civix\CoreBundle\Entity\HasAvatarInterface;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Superuser;
@@ -10,7 +11,7 @@ use Civix\CoreBundle\Entity\User;
 /**
  * @Vich\Uploadable
  */
-class OwnerData
+class OwnerData implements HasAvatarInterface
 {
     private $data;
 

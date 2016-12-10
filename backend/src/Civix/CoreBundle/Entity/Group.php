@@ -31,7 +31,7 @@ use Civix\CoreBundle\Serializer\Type\JoinStatus;
  * @Vich\Uploadable
  * @Serializer\ExclusionPolicy("all")
  */
-class Group implements \Serializable, CheckingLimits, CropAvatarInterface, LeaderContentRootInterface, OfficialInterface
+class Group implements \Serializable, CheckingLimits, CropAvatarInterface, LeaderContentRootInterface, OfficialInterface, HasAvatarInterface
 {
     use HasStripeAccountTrait, HasStripeCustomerTrait;
 

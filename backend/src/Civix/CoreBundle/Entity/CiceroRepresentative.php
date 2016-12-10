@@ -22,7 +22,7 @@ use Civix\CoreBundle\Serializer\Type\Avatar;
  * @Vich\Uploadable
  * @Serializer\ExclusionPolicy("all")
  */
-class CiceroRepresentative
+class CiceroRepresentative implements HasAvatarInterface
 {
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_representative.png';
 
