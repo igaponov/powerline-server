@@ -2,8 +2,10 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\CoreBundle\Serializer\Type\Avatar;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
@@ -21,7 +23,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\RepresentativeRepository")
  * @Serializer\ExclusionPolicy("all")
  */
-class Representative implements CheckingLimits, LeaderContentRootInterface
+class Representative implements CheckingLimits, LeaderContentRootInterface, HasAvatarInterface
 {
     use HasStripeAccountTrait;
 
@@ -58,6 +60,42 @@ class Representative implements CheckingLimits, LeaderContentRootInterface
      * @Assert\NotBlank(groups={"approve"})
      */
     private $localGroup;
+
+    /**
+     * @Assert\File(
+     *     maxSize="10M",
+     *     mimeTypes={"image/png", "image/jpeg", "image/pjpeg"},
+     *     groups={"profile"}
+     * )
+     * @Vich\UploadableField(mapping="avatar_image", fileNameProperty="avatarFileName")
+     *
+     * @var UploadedFile $avatar
+     */
+    private $avatar;
+
+    /**
+     * @ORM\Column(name="avatar_file_name", type="string", nullable=true)
+     * @var string $avatarFileName
+     */
+    private $avatarFileName;
+
+    /**
+     * @Assert\File(
+     *     maxSize="10M",
+     *     mimeTypes={"image/png", "image/jpeg", "image/pjpeg"},
+     *     groups={"profile"}
+     * )
+     * @Vich\UploadableField(mapping="avatar_source_image", fileNameProperty="avatarSourceFileName")
+     *
+     * @var UploadedFile $avatarSource
+     */
+    private $avatarSource;
+
+    /**
+     * @ORM\Column(name="avatar_source_file_name", type="string", nullable=true)
+     * @var string $avatarSourceFileName
+     */
+    private $avatarSourceFileName;
 
     /**
      * @var string
@@ -232,6 +270,126 @@ class Representative implements CheckingLimits, LeaderContentRootInterface
         $this->user = $user;
 
         return $this;
+    }
+
+    /**
+     * Get avatarSrc
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"api-activities", "api-poll", "api-representatives-list", "api-info",
+     *      "api-search", "api-poll-public"})
+     * @Serializer\Type("Avatar")
+     * @Serializer\SerializedName("avatar_file_path")
+     * @return Avatar
+     */
+    public function getAvatarFilePath()
+    {
+        if ($this->getCiceroRepresentative() && !$this->getAvatarFileName()) {
+            return new Avatar($this->getCiceroRepresentative());
+        }
+        return new Avatar($this);
+    }
+
+    /**
+     * Set avatar
+     *
+     * @param UploadedFile $avatar
+     *
+     * @return Representative
+     */
+    public function setAvatar(UploadedFile $avatar)
+    {
+        $this->avatar = $avatar;
+        return $this;
+    }
+
+    /**
+     * Get avatar
+     *
+     * @return string
+     */
+    public function getAvatar()
+    {
+        return $this->avatar;
+    }
+
+    /**
+     * Get default avatar
+     *
+     * @return string
+     */
+    public function getDefaultAvatar()
+    {
+        return self::DEFAULT_AVATAR;
+    }
+
+    /**
+     * Set avatarFileName
+     *
+     * @param string $avatarFileName
+     *
+     * @return Representative
+     */
+    public function setAvatarFileName($avatarFileName)
+    {
+        $this->avatarFileName = $avatarFileName;
+        return $this;
+    }
+
+    /**
+     * Get avatarFileName
+     *
+     * @return string
+     */
+    public function getAvatarFileName()
+    {
+        return $this->avatarFileName;
+    }
+
+    /**
+     * Set avatarSourceFileName
+     *
+     * @param string $avatarSourceFileName
+     *
+     * @return Representative
+     */
+    public function setAvatarSourceFileName($avatarSourceFileName)
+    {
+        $this->avatarSourceFileName = $avatarSourceFileName;
+        return $this;
+    }
+
+    /**
+     * Get avatarSourceFileName
+     *
+     * @return string
+     */
+    public function getAvatarSourceFileName()
+    {
+        return $this->avatarSourceFileName;
+    }
+
+    /**
+     * Set avatarSource
+     *
+     * @param string $avatarSource
+     *
+     * @return Representative
+     */
+    public function setAvatarSource($avatarSource)
+    {
+        $this->avatarSource = $avatarSource;
+        return $this;
+    }
+
+    /**
+     * Get avatarSource
+     *
+     * @return string
+     */
+    public function getAvatarSource()
+    {
+        return $this->avatarSource;
     }
 
     /**
@@ -576,7 +734,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface
 
     public function __toString()
     {
-        return $this->officialTitle;
+        return (string)$this->officialTitle;
     }
 
     /**

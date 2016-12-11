@@ -48,3 +48,6 @@ monolog:
             type: 'null'
         slack:
             type: 'null'
+
+parameters:
+    hostname: api-test.powerli.ne
