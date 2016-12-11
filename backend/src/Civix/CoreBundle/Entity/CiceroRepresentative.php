@@ -698,9 +698,13 @@ class CiceroRepresentative implements HasAvatarInterface
     /**
      * Get avatarPath.
      *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"api-representatives-list", "api-info", "api-search"})
+     * @Serializer\Type("Avatar")
+     * @Serializer\SerializedName("avatar_file_path")
      * @return Avatar
      */
-    public function getAvatarPath()
+    public function getAvatarFilePath()
     {
         return new Avatar($this);
     }

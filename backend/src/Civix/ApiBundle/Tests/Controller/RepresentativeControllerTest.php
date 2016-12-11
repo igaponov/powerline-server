@@ -53,6 +53,7 @@ class RepresentativeControllerTest  extends WebTestCase
                                 'last_name' => 'One',
                                 'id' => 1,
                                 'official_title' => 'Vice President',
+                                'avatar_file_path' => 'api-test.powerli.ne/bundles/civixfront/img/default_representative.png',
                             ],
                         ],
                         [
@@ -61,6 +62,7 @@ class RepresentativeControllerTest  extends WebTestCase
                                 'last_name' => '3',
                                 'id' => 3,
                                 'official_title' => 'Software Engineer',
+                                'avatar_file_path' => 'api-test.powerli.ne/bundles/civixfront/img/default_representative.png',
                             ],
                         ],
                     ],
@@ -73,6 +75,7 @@ class RepresentativeControllerTest  extends WebTestCase
                             'first_name' => 'Joseph',
                             'last_name' => 'Biden',
                             'official_title' => 'Vice President',
+                            'avatar_file_path' => 'api-test.powerli.ne/bundles/civixfront/img/default_representative.png',
                         ],
                     ],
                 ],
@@ -112,6 +115,7 @@ class RepresentativeControllerTest  extends WebTestCase
         $this->assertEquals($representative->getCountry(), $data['country']);
         $this->assertEquals($representative->getPhone(), $data['phone']);
         $this->assertEquals($representative->getEmail(), $data['email']);
+        $this->assertEquals($this->client->getContainer()->getParameter('hostname').Representative::DEFAULT_AVATAR, $data['avatar_file_path']);
     }
 
     public function testGetNonExistentRepresentative()

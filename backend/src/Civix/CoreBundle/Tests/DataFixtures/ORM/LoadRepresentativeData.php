@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
+use Civix\CoreBundle\Entity\District;
 use Civix\CoreBundle\Entity\User;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -17,6 +18,8 @@ class LoadRepresentativeData extends AbstractFixture implements DependentFixture
 
         /** @var User $user */
         $user = $this->getReference('user_1');
+        /** @var District $district */
+        $district = $this->getReference('district_us');
         $representative = new Representative($user);
         $representative->setOfficialTitle('Vice President');
         $representative->setCity('Los Angeles');
@@ -25,12 +28,13 @@ class LoadRepresentativeData extends AbstractFixture implements DependentFixture
         $representative->setPrivatePhone($faker->phoneNumber);
         $representative->setEmail('josephb26@example.com');
         $representative->setPrivateEmail($faker->companyEmail);
-        $representative->setDistrict($this->getReference('district_us'));
+        $representative->setDistrict($district);
         $representative->setIsNonLegislative(true);
         $this->addReference('representative_jb', $representative);
         $manager->persist($representative);
 
         $user = $this->getReference('user_2');
+        $district = $this->getReference('district_sf');
         $representative = new Representative($user);
         $representative->setOfficialTitle('CEO');
         $representative->setCity('San Francisco');
@@ -39,12 +43,13 @@ class LoadRepresentativeData extends AbstractFixture implements DependentFixture
         $representative->setPrivatePhone($faker->phoneNumber);
         $representative->setEmail('jeanne.torres49@example.com');
         $representative->setPrivateEmail($faker->companyEmail);
-        $representative->setDistrict($this->getReference('district_sf'));
+        $representative->setDistrict($district);
         $representative->setUpdatedAt(new \DateTime('+1 week'));
         $this->addReference('representative_jt', $representative);
         $manager->persist($representative);
 
         $user = $this->getReference('user_3');
+        $district = $this->getReference('district_sd');
         $representative = new Representative($user);
         $representative->setOfficialTitle('Software Engineer');
         $representative->setCity('San Diego');
@@ -53,7 +58,7 @@ class LoadRepresentativeData extends AbstractFixture implements DependentFixture
         $representative->setPrivatePhone($faker->phoneNumber);
         $representative->setEmail('willie.carroll20@example.com');
         $representative->setPrivateEmail($faker->companyEmail);
-        $representative->setDistrict($this->getReference('district_sd'));
+        $representative->setDistrict($district);
         $representative->setIsNonLegislative(true);
         $representative->setUpdatedAt(new \DateTime('+1 week'));
         $this->addReference('representative_wc', $representative);
