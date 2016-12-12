@@ -9,6 +9,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 class PollContentVoter implements VoterInterface
 {
     const MANAGE = 'manage';
+    const CONTENT = 'content';
 
     /**
      * @var GroupVoter
@@ -31,6 +32,7 @@ class PollContentVoter implements VoterInterface
     {
         return in_array($attribute, array(
             self::MANAGE,
+            self::CONTENT,
         ));
     }
 

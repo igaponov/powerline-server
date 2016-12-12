@@ -70,7 +70,7 @@ class PollEducationalContextController extends FOSRestController
      *
      * @ParamConverter("question", options={"mapping" = {"poll" = "id"}})
      *
-     * @SecureParam("question", permission="manage")
+     * @SecureParam("question", permission="content")
      *
      * @ApiDoc(
      *     authentication=true,

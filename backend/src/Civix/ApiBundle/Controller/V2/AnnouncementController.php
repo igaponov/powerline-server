@@ -137,7 +137,7 @@ class AnnouncementController extends FOSRestController
      * @Route("/{id}")
      * @Method("PUT")
      *
-     * @SecureParam("announcement", permission="manage")
+     * @SecureParam("announcement", permission="content")
      *
      * @ApiDoc(
      *     authentication=true,
@@ -197,7 +197,7 @@ class AnnouncementController extends FOSRestController
      * @Route("/{id}")
      * @Method("PATCH")
      *
-     * @SecureParam("announcement", permission="manage")
+     * @SecureParam("announcement", permission="content")
      * @SecureParam("announcement", permission="publish")
      *
      * @ApiDoc(
@@ -243,7 +243,7 @@ class AnnouncementController extends FOSRestController
      * @Route("/{id}")
      * @Method("DELETE")
      *
-     * @SecureParam("announcement", permission="manage")
+     * @SecureParam("announcement", permission="content")
      *
      * @ApiDoc(
      *     authentication=true,

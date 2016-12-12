@@ -17,6 +17,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData as LoadGroupQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadFieldValueData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupRepresentativesData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadStripeCustomerUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
@@ -227,17 +228,16 @@ class PollControllerTest extends WebTestCase
 	}
 
     /**
+     * @param $fixtures
      * @param $user
      * @param $reference
      * @dataProvider getValidPollCredentialsForGetRequest
      */
-	public function testGetGroupPollIsOk($user, $reference)
+	public function testGetGroupPollIsOk($fixtures, $user, $reference)
 	{
-        $repository = $this->loadFixtures([
-            LoadUserGroupData::class,
-            LoadGroupManagerData::class,
-            LoadGroupQuestionData::class,
-        ])->getReferenceRepository();
+        $repository = $this->loadFixtures(
+            array_merge([LoadGroupQuestionData::class], $fixtures)
+        )->getReferenceRepository();
 		$question = $repository->getReference($reference);
 		$client = $this->client;
 		$client->request('GET', self::API_ENDPOINT.'/'.$question->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
@@ -374,17 +374,16 @@ class PollControllerTest extends WebTestCase
 	}
 
     /**
+     * @param $fixtures
      * @param $user
      * @param $reference
      * @dataProvider getValidPollCredentialsForUpdateRequest
      */
-	public function testUpdateGroupPollIsOk($user, $reference)
+	public function testUpdateGroupPollIsOk($fixtures, $user, $reference)
 	{
-        $repository = $this->loadFixtures([
-            LoadUserGroupData::class,
-            LoadGroupManagerData::class,
-            LoadGroupQuestionData::class,
-        ])->getReferenceRepository();
+        $repository = $this->loadFixtures(
+            array_merge([LoadGroupQuestionData::class], $fixtures)
+        )->getReferenceRepository();
 		$faker = Factory::create();
 		$params = [
 			'subject' => $faker->sentence,
@@ -551,17 +550,16 @@ class PollControllerTest extends WebTestCase
 	}
 
     /**
+     * @param $fixtures
      * @param $user
      * @param $reference
      * @dataProvider getValidPollCredentialsForUpdateRequest
      */
-	public function testPublishGroupPollIsOk($user, $reference)
+	public function testPublishGroupPollIsOk($fixtures, $user, $reference)
 	{
-        $repository = $this->loadFixtures([
-            LoadUserGroupData::class,
-            LoadGroupManagerData::class,
-            LoadGroupQuestionData::class,
-        ])->getReferenceRepository();
+        $repository = $this->loadFixtures(
+            array_merge([LoadGroupQuestionData::class], $fixtures)
+        )->getReferenceRepository();
         /** @var Question $question */
 		$question = $repository->getReference($reference);
         $this->assertNull($question->getPublishedAt());
@@ -736,17 +734,16 @@ class PollControllerTest extends WebTestCase
 	}
 
     /**
+     * @param $fixtures
      * @param $user
      * @param $reference
      * @dataProvider getValidPollCredentialsForUpdateRequest
      */
-	public function testDeleteGroupPollIsOk($user, $reference)
+	public function testDeleteGroupPollIsOk($fixtures, $user, $reference)
 	{
-        $repository = $this->loadFixtures([
-            LoadUserGroupData::class,
-            LoadGroupManagerData::class,
-            LoadGroupQuestionData::class,
-        ])->getReferenceRepository();
+        $repository = $this->loadFixtures(
+            array_merge([LoadGroupQuestionData::class], $fixtures)
+        )->getReferenceRepository();
 		$question = $repository->getReference($reference);
 		$client = $this->client;
 		$client->request('DELETE', self::API_ENDPOINT.'/'.$question->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
@@ -767,17 +764,16 @@ class PollControllerTest extends WebTestCase
 	}
 
     /**
+     * @param $fixtures
      * @param $user
      * @param $reference
      * @dataProvider getValidPollCredentialsForUpdateRequest
      */
-	public function testCreateGroupPollOptionReturnsErrors($user, $reference)
+	public function testCreateGroupPollOptionReturnsErrors($fixtures, $user, $reference)
 	{
-        $repository = $this->loadFixtures([
-            LoadUserGroupData::class,
-            LoadGroupManagerData::class,
-            LoadGroupQuestionData::class,
-        ])->getReferenceRepository();
+        $repository = $this->loadFixtures(
+            array_merge([LoadGroupQuestionData::class], $fixtures)
+        )->getReferenceRepository();
 		$question = $repository->getReference($reference);
 		$client = $this->client;
 		$client->request('POST', self::API_ENDPOINT.'/'.$question->getId().'/options', [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
@@ -806,17 +802,16 @@ class PollControllerTest extends WebTestCase
 	}
 
     /**
+     * @param $fixtures
      * @param $user
      * @param $reference
      * @dataProvider getValidPollCredentialsForUpdateRequest
      */
-	public function testCreateGroupPollOptionIsOk($user, $reference)
+	public function testCreateGroupPollOptionIsOk($fixtures, $user, $reference)
 	{
-        $repository = $this->loadFixtures([
-            LoadUserGroupData::class,
-            LoadGroupManagerData::class,
-            LoadGroupQuestionData::class,
-        ])->getReferenceRepository();
+        $repository = $this->loadFixtures(
+            array_merge([LoadGroupQuestionData::class], $fixtures)
+        )->getReferenceRepository();
 		$question = $repository->getReference($reference);
 		$client = $this->client;
         $params = [
@@ -951,17 +946,16 @@ class PollControllerTest extends WebTestCase
     }
 
     /**
+     * @param $fixtures
      * @param $user
      * @param $reference
      * @dataProvider getValidPollCredentialsForGetRequest
      */
-    public function testAddGroupAnswerIsOk($user, $reference)
+    public function testAddGroupAnswerIsOk($fixtures, $user, $reference)
     {
-        $repository = $this->loadFixtures([
-            LoadUserGroupData::class,
-            LoadGroupManagerData::class,
-            LoadGroupQuestionData::class,
-        ])->getReferenceRepository();
+        $repository = $this->loadFixtures(
+            array_merge([LoadGroupQuestionData::class], $fixtures)
+        )->getReferenceRepository();
         /** @var Question $question */
         $question = $repository->getReference($reference);
         /** @var Option $option */
@@ -1322,9 +1316,10 @@ class PollControllerTest extends WebTestCase
     public function getValidPollCredentialsForGetRequest()
     {
         return [
-            'owner' => ['user1', 'group_question_1'],
-            'manager' => ['user2', 'group_question_1'],
-            'member' => ['user4', 'group_question_1'],
+            'owner' => [[], 'user1', 'group_question_1'],
+            'manager' => [[LoadGroupManagerData::class], 'user2', 'group_question_1'],
+            'member' => [[LoadUserGroupData::class], 'user4', 'group_question_1'],
+            'representative' => [[LoadGroupRepresentativesData::class], 'user3', 'group_question_1'],
         ];
     }
 
@@ -1348,8 +1343,9 @@ class PollControllerTest extends WebTestCase
     public function getValidPollCredentialsForUpdateRequest()
     {
         return [
-            'owner' => ['user1', 'group_question_1'],
-            'manager' => ['user2', 'group_question_1'],
+            'owner' => [[], 'user1', 'group_question_1'],
+            'manager' => [[LoadGroupManagerData::class], 'user2', 'group_question_1'],
+            'representative' => [[LoadGroupRepresentativesData::class], 'user3', 'group_question_1'],
         ];
     }
 

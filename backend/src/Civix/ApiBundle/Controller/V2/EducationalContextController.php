@@ -19,7 +19,7 @@ class EducationalContextController extends FOSRestController
      * @Route("/{id}")
      * @Method("DELETE")
      *
-     * @SecureParam("context", permission="manage")
+     * @SecureParam("context", permission="content")
      *
      * @ApiDoc(
      *     authentication=true,

@@ -38,6 +38,12 @@
                  factory-method="getRepository">
             <argument type="string">Civix\CoreBundle\Entity\UserGroup</argument>
         </service>
+        <service class="Civix\CoreBundle\Repository\RepresentativeRepository"
+                 id="civix_core.repository.representative_repository"
+                 factory-service="doctrine.orm.entity_manager"
+                 factory-method="getRepository">
+            <argument type="string">Civix\CoreBundle\Entity\Representative</argument>
+        </service>
         <service id="civix_core.crop_image" class="Civix\CoreBundle\Service\CropImage">
         </service>
         <service class="Mailgun\Mailgun" id="mailgun.basic_client" public="false">

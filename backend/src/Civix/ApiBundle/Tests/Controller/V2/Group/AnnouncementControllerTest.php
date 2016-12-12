@@ -3,6 +3,8 @@ namespace Civix\ApiBundle\Tests\Controller\V2\Group;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupRepresentativesData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupSectionData;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -78,28 +80,34 @@ class AnnouncementControllerTest extends WebTestCase
         ];
     }
 
-	public function testCreateAnnouncementIsOk()
+    /**
+     * @param $fixtures
+     * @param $user
+     * @param $reference
+     * @dataProvider getValidAnnouncementCredentialsForUpdateRequest
+     */
+	public function testCreateAnnouncementIsOk($fixtures, $user, $reference)
 	{
-        $repository = $this->loadFixtures([
-            LoadGroupSectionData::class,
-        ])->getReferenceRepository();
-        $group = $repository->getReference('group_1');
-        $section1 = $repository->getReference('group_1_section_1');
-        $section2 = $repository->getReference('group_1_section_2');
+        $repository = $this->loadFixtures(
+            array_merge([LoadGroupSectionData::class], $fixtures)
+        )->getReferenceRepository();
+        $group = $repository->getReference($reference);
+        $section1 = $repository->getReference($reference.'_section_1');
+        $section2 = $repository->getReference($reference.'_section_2');
         $params = [
 			'content' => 'some text',
             'group_sections' => [$section1->getId(), $section2->getId()],
 		];
         $client = $this->client;
         $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
-        $client->request('POST', $uri, [], [], ['HTTP_Token'=>'user1'], json_encode($params));
+        $client->request('POST', $uri, [], [], ['HTTP_Token'=>$user], json_encode($params));
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
 		$this->assertNotNull($data['id']);
 		$this->assertSame($params['content'], $data['content_parsed']);
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM announcement_sections ps WHERE group_section_id IN (?, ?) AND announcement_id = ?', [$section1->getId(), $section2->getId(), $data['id']]);
         $this->assertEquals(2, $count);
 	}
@@ -120,5 +128,14 @@ class AnnouncementControllerTest extends WebTestCase
         $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
         $client->request('POST', $uri, [], [], ['HTTP_Token'=>'user1'], json_encode($params));
         $this->assertResponseHasErrors($client->getResponse(), $errors);
+    }
+
+    public function getValidAnnouncementCredentialsForUpdateRequest()
+    {
+        return [
+            'owner' => [[], 'user1', 'group_1'],
+            'manager' => [[LoadGroupManagerData::class], 'user3', 'group_1'],
+            'representative' => [[LoadGroupRepresentativesData::class], 'user3', 'group_1'],
+        ];
     }
 }

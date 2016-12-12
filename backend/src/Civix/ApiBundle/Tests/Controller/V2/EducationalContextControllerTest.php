@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadEducationalContextData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupRepresentativesData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -53,16 +54,16 @@ class EducationalContextControllerTest extends WebTestCase
     }
 
     /**
+     * @param $fixtures
      * @param $user
      * @param $reference
      * @dataProvider getValidEducationalContextCredentialsForUpdateRequest
      */
-    public function testDeleteEducationalContextIsOk($user, $reference)
+    public function testDeleteEducationalContextIsOk($fixtures, $user, $reference)
     {
-        $repository = $this->loadFixtures([
-            LoadGroupManagerData::class,
-            LoadEducationalContextData::class,
-        ])->getReferenceRepository();
+        $repository = $this->loadFixtures(
+            array_merge([LoadEducationalContextData::class], $fixtures)
+        )->getReferenceRepository();
         $context = $repository->getReference($reference);
         $client = $this->client;
         $storage = $this->getContainer()->get('civix_core.storage.array');
@@ -85,8 +86,9 @@ class EducationalContextControllerTest extends WebTestCase
     public function getValidEducationalContextCredentialsForUpdateRequest()
     {
         return [
-            'owner' => ['user1', 'educational_context_3'],
-            'manager' => ['user2', 'educational_context_3'],
+            'owner' => [[], 'user1', 'educational_context_3'],
+            'manager' => [[LoadGroupManagerData::class], 'user2', 'educational_context_3'],
+            'representative' => [[LoadGroupRepresentativesData::class], 'user3', 'educational_context_3'],
         ];
     }
 }

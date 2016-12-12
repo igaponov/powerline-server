@@ -48,6 +48,7 @@
         <service class="Civix\ApiBundle\Security\Authorization\Voter\GroupVoter" id="civix_api.security_authorization_voter.group_voter">
             <argument id="civix_core.subscription_manager" type="service"/>
             <argument id="civix_core.package_handler" type="service"/>
+            <argument id="civix_core.repository.representative_repository" type="service"/>
             <tag name="security.voter"/>
         </service>
 
@@ -66,6 +67,7 @@
         </service>
 
         <service class="Civix\ApiBundle\Security\Authorization\Voter\PollVoter" id="civix_api.security_authorization_voter.poll_voter">
+            <argument type="service" id="civix_core.repository.representative_repository" />
             <tag name="security.voter"/>
         </service>
 
