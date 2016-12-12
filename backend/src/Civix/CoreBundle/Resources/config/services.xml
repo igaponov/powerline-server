@@ -105,10 +105,9 @@
             <argument type="string">%hostname%</argument>
         </service>
 
-        <service id="civix_core.serializer.handler.owner_data_handler" class="Civix\CoreBundle\Serializer\Handler\OwnerDataHandler" scope="request">
+        <service id="civix_core.serializer.handler.owner_data_handler" class="Civix\CoreBundle\Serializer\Handler\OwnerDataHandler">
             <tag name="jms_serializer.handler" type="OwnerData" direction="serialization" format="json" method="serialize" />
-            <argument type="service" id="vich_uploader.templating.helper.uploader_helper" />
-            <argument type="service" id="request" />
+            <argument type="service" id="civix_core.serializer.handler.avatar_handler" />
         </service>
 
         <!-- Image Serializer Handler -->

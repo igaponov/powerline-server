@@ -2,8 +2,8 @@
 
 namespace Civix\CoreBundle\Serializer\Handler;
 
-use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
-use Symfony\Component\HttpFoundation\Request;
+use Civix\CoreBundle\Serializer\Type\Avatar;
+use JMS\Serializer\Context;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\JsonSerializationVisitor;
@@ -12,19 +12,13 @@ use Civix\CoreBundle\Serializer\Type\OwnerData;
 class OwnerDataHandler implements SubscribingHandlerInterface
 {
     /**
-     * @var UploaderHelper
+     * @var AvatarHandler
      */
-    private $uh;
+    private $avatarHandler;
 
-    /**
-     * @var Request
-     */
-    private $request;
-
-    public function __construct(UploaderHelper $uh, Request $request)
+    public function __construct(AvatarHandler $avatarHandler)
     {
-        $this->uh = $uh;
-        $this->request = $request;
+        $this->avatarHandler = $avatarHandler;
     }
 
     public static function getSubscribingMethods()
@@ -39,17 +33,11 @@ class OwnerDataHandler implements SubscribingHandlerInterface
         );
     }
 
-    public function serialize(JsonSerializationVisitor $visitor, OwnerData $owner, array $type)
+    public function serialize(JsonSerializationVisitor $visitor, OwnerData $owner, array $type, Context $context)
     {
-        $scheme = $this->request->getScheme().'://'.$this->request->getHttpHost();
-
         $data = $owner->getData();
-
-        if ($owner->getAvatarFileName()) {
-            $data['avatar_file_path'] = $this->uh->asset($owner, 'avatar');
-        } else {
-            $data['avatar_file_path'] = $scheme.$owner->getDefaultAvatar();
-        }
+        $avatar = new Avatar($owner);
+        $data['avatar_file_path'] = $this->avatarHandler->serialize($visitor, $avatar, $type, $context);
 
         return $data;
     }
