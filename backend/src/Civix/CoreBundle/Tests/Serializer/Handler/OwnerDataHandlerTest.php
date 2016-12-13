@@ -8,7 +8,6 @@ use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Serializer\Type\OwnerData;
 use JMS\Serializer\JsonSerializationVisitor;
 use JMS\Serializer\SerializationContext;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class OwnerDataHandlerTest extends WebTestCase
 {
@@ -17,7 +16,6 @@ class OwnerDataHandlerTest extends WebTestCase
         $avatar = 'avatar1.jpeg';
         $handler = $this->getContainer()->get('civix_core.serializer.handler.owner_data_handler');
         $ownerData = new OwnerData(['type' => 'user', 'avatar_file_path' => $avatar]);
-        $ownerData->setAvatar(new UploadedFile(__FILE__, uniqid()));
         /** @var JsonSerializationVisitor $visitor */
         $visitor = $this->getMockBuilder(JsonSerializationVisitor::class)
             ->setMethods(null)
