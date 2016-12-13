@@ -8,6 +8,7 @@ use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\JsonSerializationVisitor;
 use Civix\CoreBundle\Serializer\Type\OwnerData;
+use Symfony\Component\HttpFoundation\File\File;
 
 class OwnerDataHandler implements SubscribingHandlerInterface
 {
@@ -36,6 +37,10 @@ class OwnerDataHandler implements SubscribingHandlerInterface
     public function serialize(JsonSerializationVisitor $visitor, OwnerData $owner, array $type, Context $context)
     {
         $data = $owner->getData();
+        if (!empty($data['avatar_file_path'])) {
+            // inject a File for \Vich\UploaderBundle\Storage\StorageInterface::resolveUri
+            $owner->setAvatar(new File($data['avatar_file_path'], false));
+        }
         $avatar = new Avatar($owner);
         $data['avatar_file_path'] = $this->avatarHandler->serialize($visitor, $avatar, $type, $context);
 
