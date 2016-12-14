@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\CoreBundle\Serializer\Type\Target;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Converters\SocialActivityConverter;
@@ -97,8 +98,6 @@ class SocialActivity
      * @var array
      *
      * @ORM\Column(name="target", type="array")
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-activities"})
      */
     private $target;
 
@@ -330,4 +329,17 @@ class SocialActivity
     {
         return SocialActivityConverter::toImage($this);
     }
-} 
+
+    /**
+     * @return Target
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"api-activities"})
+     * @Serializer\SerializedName("target")
+     * @Serializer\Type("Target")
+     */
+    public function getTargetData()
+    {
+        return new Target($this->target);
+    }
+}
