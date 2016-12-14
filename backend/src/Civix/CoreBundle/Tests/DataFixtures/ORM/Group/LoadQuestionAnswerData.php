@@ -41,7 +41,8 @@ class LoadQuestionAnswerData extends AbstractFixture implements ContainerAwareIn
             'question_answer_2',
             $this->createAnswer(
                 $this->getReference('user_3'),
-                $this->getReference('group_question_1')
+                $this->getReference('group_question_1'),
+                Answer::PRIVACY_PRIVATE
             )
         );
         $this->addReference(
@@ -72,9 +73,10 @@ class LoadQuestionAnswerData extends AbstractFixture implements ContainerAwareIn
     /**
      * @param object|User $user
      * @param object|Question $question
+     * @param int $privacy
      * @return Answer
      */
-    private function createAnswer($user, $question)
+    private function createAnswer($user, $question, $privacy = Answer::PRIVACY_PUBLIC)
     {
         $faker = Factory::create();
         $answer = new Answer();
@@ -83,6 +85,7 @@ class LoadQuestionAnswerData extends AbstractFixture implements ContainerAwareIn
         $answer->setComment($faker->text);
         $answer->setOption($faker->randomElement($question->getOptions()->toArray()));
         $answer->setPaymentAmount($faker->randomDigit);
+        $answer->setPrivacy($privacy);
 
         $this->manager->persist($answer);
         $this->manager->flush();

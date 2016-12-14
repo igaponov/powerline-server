@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Repository\Poll;
 
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Question\Petition;
 use Civix\CoreBundle\Entity\UserFollow;
@@ -108,17 +109,19 @@ class AnswerRepository extends EntityRepository
     public function getResponsesByQuestion(Question $question)
     {
         $fields = $question->getGroup()->getFields();
+        $representatives = $question->getGroup()->getLocalRepresentatives();
         $qb = $this->getEntityManager()
             ->getConnection()
             ->createQueryBuilder()
             ->select(
-                'CASE WHEN a.privacy = :public THEN u.firstName ELSE "" END AS first_name',
-                'CASE WHEN a.privacy = :public THEN u.lastName  ELSE "" END AS last_name',
+                'CASE WHEN a.privacy = :public THEN u.firstName ELSE NULL END AS first_name',
+                'CASE WHEN a.privacy = :public THEN u.lastName  ELSE NULL END AS last_name',
                 'u.address1, u.address2, u.city, u.state, u.country, u.zip, u.email, u.phone, u.bio, u.slogan, CASE WHEN u.facebook_id IS NOT NULL THEN 1 ELSE 0 END AS facebook, COUNT(f.id) AS followers'
                 )
             ->from('poll_answers', 'a')
             ->leftJoin('a', 'user', 'u', 'a.user_id = u.id')
             ->leftJoin('u', 'users_follow', 'f', 'f.user_id = u.id')
+            ->leftJoin('u', 'users_districts', 'ud', 'ud.user_id = u.id')
             ->leftJoin('a', 'poll_options', 'o', 'a.option_id = o.id')
             ->where('a.question_id = :poll')
             ->setParameter(':poll', $question->getId())
@@ -133,6 +136,49 @@ class AnswerRepository extends EntityRepository
                 ->setParameter(":field$k", $field->getId());
         }
         $qb->addSelect('o.value AS choice, a.comment');
+        foreach ($representatives as $k => $representative) {
+            $qb->addSelect("CASE WHEN r$k.id IS NOT NULL THEN \"Yes\" ELSE \"No\" END AS {$platform->quoteSingleIdentifier($representative->getOfficialTitle())}")
+                ->leftJoin('ud', 'representatives', "r$k", "r$k.district_id = ud.district_id AND r$k.id = :representative$k")
+                ->setParameter(":representative$k", $representative->getId());
+        }
+
+        return $qb->execute();
+    }
+
+    /**
+     * @param Group $group
+     * @return Statement
+     */
+    public function getResponsesByGroup(Group $group)
+    {
+        $fields = $group->getFields();
+        $polls = $this->getEntityManager()
+            ->getRepository(Question::class)
+            ->findBy(['group' => $group]);
+        $qb = $this->getEntityManager()
+            ->getConnection()
+            ->createQueryBuilder()
+            ->select(
+                'u.firstName AS first_name, u.lastName AS last_name, u.address1, u.address2, u.city, u.state, u.country, u.zip, u.email, u.phone, u.bio, u.slogan, CASE WHEN u.facebook_id IS NOT NULL THEN 1 ELSE 0 END AS facebook, COUNT(f.id) AS followers'
+                )
+            ->from('user', 'u')
+            ->leftJoin('u', 'users_follow', 'f', 'f.user_id = u.id')
+            ->groupBy('u.id');
+        $platform = $this->getEntityManager()
+            ->getConnection()
+            ->getDatabasePlatform();
+        foreach ($fields as $k => $field) {
+            $qb->addSelect("v$k.field_value AS {$platform->quoteSingleIdentifier($field->getFieldName())}")
+                ->leftJoin('u', 'groups_fields_values', 'v'.$k, "v$k.user_id = u.id AND v$k.field_id = :field$k")
+                ->setParameter(":field$k", $field->getId());
+        }
+        foreach ($polls as $k => $poll) {
+            $qb->addSelect("CASE WHEN a$k.privacy = :private THEN \"Anonymous\" ELSE o$k.value END AS {$platform->quoteSingleIdentifier($poll->getSubject())}")
+                ->leftJoin('u', 'poll_answers', 'a'.$k, "a$k.user_id = u.id AND a$k.question_id = :poll$k")
+                ->leftJoin('a'.$k, 'poll_options', 'o'.$k, "a$k.option_id = o$k.id")
+                ->setParameter(':poll'.$k, $poll->getId())
+                ->setParameter(':private', Answer::PRIVACY_PRIVATE);
+        }
 
         return $qb->execute();
     }
