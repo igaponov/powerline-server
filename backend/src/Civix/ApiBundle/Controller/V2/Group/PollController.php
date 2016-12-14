@@ -78,7 +78,7 @@ class PollController extends AbstractPollController
      * @Route("")
      * @Method("POST")
      *
-     * @SecureParam("group", permission="manage")
+     * @SecureParam("group", permission="content")
      *
      * @ApiDoc(
      *     authentication=true,

@@ -3,6 +3,8 @@
 namespace Civix\CoreBundle\Repository;
 
 use Civix\CoreBundle\Entity\CiceroRepresentative;
+use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\UserInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
 use Civix\CoreBundle\Entity\Representative;
@@ -164,5 +166,17 @@ class RepresentativeRepository extends EntityRepository
             ->where('r.user = :user')
             ->setParameter(':user', $user)
             ->getQuery();
+    }
+
+    public function isGroupRepresentative(Group $group, UserInterface $user)
+    {
+        return $this->createQueryBuilder('r')
+            ->select('COUNT(r)')
+            ->where('r.localGroup = :group')
+            ->setParameter(':group', $group)
+            ->andWhere('r.user = :user')
+            ->setParameter(':user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }

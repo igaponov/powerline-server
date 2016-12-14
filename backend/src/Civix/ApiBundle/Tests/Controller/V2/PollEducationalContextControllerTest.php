@@ -7,6 +7,7 @@ use Civix\CoreBundle\Entity\Poll\Question\Group;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadEducationalContextData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupRepresentativesData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -53,17 +54,16 @@ class PollEducationalContextControllerTest extends WebTestCase
     }
 
     /**
+     * @param $fixtures
      * @param $user
      * @param $reference
      * @dataProvider getValidPollCredentialsForGetRequest
      */
-    public function testGetEducationalContextsIsOk($user, $reference)
+    public function testGetEducationalContextsIsOk($fixtures, $user, $reference)
     {
-        $repository = $this->loadFixtures([
-            LoadUserGroupData::class,
-            LoadGroupManagerData::class,
-            LoadEducationalContextData::class,
-        ])->getReferenceRepository();
+        $repository = $this->loadFixtures(
+            array_merge([LoadEducationalContextData::class], $fixtures)
+        )->getReferenceRepository();
         $question = $repository->getReference($reference);
         $client = $this->client;
         $uri = str_replace('{poll}', $question->getId(), self::API_ENDPOINT);
@@ -160,6 +160,32 @@ class PollEducationalContextControllerTest extends WebTestCase
         }
     }
 
+    /**
+     * @param $fixtures
+     * @param $user
+     * @param $reference
+     * @dataProvider getValidPollCredentialsForPostRequest
+     */
+    public function testCreateEducationalContextWithCorrectCredentialsIsOk($fixtures, $user, $reference)
+    {
+        $repository = $this->loadFixtures(
+            array_merge([LoadGroupQuestionData::class], $fixtures)
+        )->getReferenceRepository();
+        $question = $repository->getReference($reference);
+        $params = [
+            'type' => EducationalContext::TEXT_TYPE,
+            'content' => 'Lorem ipsum',
+        ];
+        $client = $this->client;
+        $uri = str_replace('{poll}', $question->getId(), self::API_ENDPOINT);
+        $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"'], json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals($params['type'], $data['type']);
+        $this->assertEquals($params['content'], $data['text']);
+    }
+
     public function getValidParams()
     {
         return [
@@ -187,9 +213,19 @@ class PollEducationalContextControllerTest extends WebTestCase
     public function getValidPollCredentialsForGetRequest()
     {
         return [
-            'owner' => ['user1', 'group_question_1'],
-            'manager' => ['user2', 'group_question_1'],
-            'member' => ['user4', 'group_question_1'],
+            'owner' => [[], 'user1', 'group_question_1'],
+            'manager' => [[LoadGroupManagerData::class], 'user2', 'group_question_1'],
+            'member' => [[LoadUserGroupData::class], 'user4', 'group_question_1'],
+            'representative' => [[LoadGroupRepresentativesData::class], 'user3', 'group_question_1'],
+        ];
+    }
+
+    public function getValidPollCredentialsForPostRequest()
+    {
+        return [
+            'owner' => [[], 'user1', 'group_question_1'],
+            'manager' => [[LoadGroupManagerData::class], 'user2', 'group_question_1'],
+            'representative' => [[LoadGroupRepresentativesData::class], 'user3', 'group_question_1'],
         ];
     }
 }

@@ -2,8 +2,10 @@
 namespace Civix\ApiBundle\Tests\Controller\V2\Group;
 
 use Civix\ApiBundle\Tests\Controller\V2\PollControllerTestCase;
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupRepresentativesData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupSectionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe\LoadAccountGroupData;
@@ -26,22 +28,22 @@ class PollControllerTest extends PollControllerTestCase
             LoadGroupManagerData::class,
             LoadGroupQuestionData::class,
         ])->getReferenceRepository();
+        /** @var Group $group */
         $group = $repository->getReference('group_3');
         $this->getPollsWithWrongCredentialsThrowsException($group);
 	}
 
     /**
+     * @param $fixtures
      * @param $user
      * @param $reference
      * @dataProvider getValidPollCredentialsForGetRequest
      */
-	public function testGetPollsIsOk($user, $reference)
+	public function testGetPollsIsOk($fixtures, $user, $reference)
 	{
-        $repository = $this->loadFixtures([
-            LoadUserGroupData::class,
-            LoadGroupManagerData::class,
-            LoadGroupQuestionData::class,
-        ])->getReferenceRepository();
+        $repository = $this->loadFixtures(
+            array_merge([LoadGroupQuestionData::class], $fixtures))->getReferenceRepository();
+        /** @var Group $group */
         $group = $repository->getReference($reference);
         $this->getPollsIsOk($group, $user);
 	}
@@ -55,6 +57,7 @@ class PollControllerTest extends PollControllerTestCase
         $repository = $this->loadFixtures([
             LoadGroupQuestionData::class,
         ])->getReferenceRepository();
+        /** @var Group $group */
         $group = $repository->getReference('group_3');
         $this->getFilteredPollsIsOk($group, $params);
 	}
@@ -70,6 +73,7 @@ class PollControllerTest extends PollControllerTestCase
             LoadUserGroupData::class,
             LoadGroupQuestionData::class,
         ])->getReferenceRepository();
+        /** @var Group $group */
         $group = $repository->getReference($reference);
         $this->createPollWithWrongCredentialsThrowsException($group, $user);
 	}
@@ -86,6 +90,7 @@ class PollControllerTest extends PollControllerTestCase
             LoadGroupManagerData::class,
             LoadGroupQuestionData::class,
         ])->getReferenceRepository();
+        /** @var Group $group */
         $group = $repository->getReference('group_1');
         $this->createPollReturnsErrors($group, $params, $errors);
 	}
@@ -102,6 +107,7 @@ class PollControllerTest extends PollControllerTestCase
             LoadGroupQuestionData::class,
             LoadAccountGroupData::class,
         ])->getReferenceRepository();
+        /** @var Group $group */
         $group = $repository->getReference('group_1');
         $this->createPollIsOk($group, $params);
 	}
@@ -111,23 +117,26 @@ class PollControllerTest extends PollControllerTestCase
         $repository = $this->loadFixtures([
             LoadGroupQuestionData::class,
         ])->getReferenceRepository();
+        /** @var Group $group */
         $group = $repository->getReference('group_1');
         $this->createPaymentRequestWithoutStripeAccountThrowsException($group);
 	}
 
     /**
+     * @param $fixtures
      * @param $user
      * @param $reference
      * @dataProvider getValidPollCredentialsForUpdateRequest
      */
-	public function testCreatePollWithCorrectCredentials($user, $reference)
+	public function testCreatePollWithCorrectCredentials($fixtures, $user, $reference)
 	{
-        $repository = $this->loadFixtures([
-            LoadUserGroupData::class,
-            LoadGroupManagerData::class,
-            LoadGroupQuestionData::class,
-            LoadGroupSectionData::class,
-        ])->getReferenceRepository();
+        $repository = $this->loadFixtures(
+            array_merge([
+                LoadGroupQuestionData::class,
+                LoadGroupSectionData::class,
+            ], $fixtures)
+        )->getReferenceRepository();
+        /** @var Group $group */
         $group = $repository->getReference($reference);
         $section1 = $repository->getReference('group_1_section_1');
         $section2 = $repository->getReference('group_1_section_2');
@@ -185,17 +194,19 @@ class PollControllerTest extends PollControllerTestCase
     public function getValidPollCredentialsForUpdateRequest()
     {
         return [
-            'owner' => ['user1', 'group_1'],
-            'manager' => ['user2', 'group_1'],
+            'owner' => [[], 'user1', 'group_1'],
+            'manager' => [[LoadGroupManagerData::class], 'user2', 'group_1'],
+            'representative' => [[LoadGroupRepresentativesData::class], 'user3', 'group_1'],
         ];
     }
 
     public function getValidPollCredentialsForGetRequest()
     {
         return [
-            'owner' => ['user3', 'group_3'],
-            'manager' => ['user2', 'group_3'],
-            'member' => ['user4', 'group_3'],
+            'owner' => [[], 'user3', 'group_3'],
+            'manager' => [[LoadGroupManagerData::class], 'user2', 'group_3'],
+            'member' => [[LoadUserGroupData::class], 'user4', 'group_3'],
+            'representative' => [[LoadGroupRepresentativesData::class], 'user3', 'group_1'],
         ];
     }
 }

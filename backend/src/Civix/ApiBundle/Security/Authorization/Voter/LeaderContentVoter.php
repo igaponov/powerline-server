@@ -12,6 +12,7 @@ class LeaderContentVoter implements VoterInterface
 {
     const EDIT = 'edit';
     const MANAGE = 'manage';
+    const CONTENT = 'content';
     const MEMBER = 'member';
     const VIEW = 'view';
     /**
@@ -41,6 +42,7 @@ class LeaderContentVoter implements VoterInterface
         return in_array($attribute, [
             self::EDIT,
             self::MANAGE,
+            self::CONTENT,
             self::MEMBER,
             self::VIEW,
         ]);

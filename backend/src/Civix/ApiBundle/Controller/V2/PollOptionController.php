@@ -22,7 +22,7 @@ class PollOptionController extends FOSRestController
      * @Route("/{id}")
      * @Method("PUT")
      *
-     * @SecureParam("option", permission="manage")
+     * @SecureParam("option", permission="content")
      *
      * @ApiDoc(
      *     authentication=true,
@@ -72,7 +72,7 @@ class PollOptionController extends FOSRestController
      * @Route("/{id}")
      * @Method("DELETE")
      *
-     * @SecureParam("option", permission="manage")
+     * @SecureParam("option", permission="content")
      *
      * @ApiDoc(
      *     authentication=true,

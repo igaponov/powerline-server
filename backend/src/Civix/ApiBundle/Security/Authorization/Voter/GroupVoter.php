@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Security\Authorization\Voter;
 
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\UserInterface;
+use Civix\CoreBundle\Repository\RepresentativeRepository;
 use Civix\CoreBundle\Service\Subscription\PackageHandler;
 use Civix\CoreBundle\Service\Subscription\SubscriptionManager;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
@@ -15,17 +16,21 @@ use Symfony\Component\Security\Core\Role\RoleInterface;
 class GroupVoter implements VoterInterface
 {
     /**
-     * Content creators (meta attribute)
+     * Group owner (meta attribute)
      */
     const EDIT = 'edit';
     /**
-     * Content creators (assign managers)
+     * Group owner (assign managers)
      */
     const ASSIGN = 'assign';
     /**
-     * Content creators and group managers (create/update/delete)
+     * Group owner and group managers (create/update/delete)
      */
     const MANAGE = 'manage';
+    /**
+     * Content creators + all above (representatives)
+     */
+    const CONTENT = 'content';
     /**
      * Group members + all above (comments/answers)
      */
@@ -53,13 +58,19 @@ class GroupVoter implements VoterInterface
      * @var PackageHandler
      */
     private $packageHandler;
+    /**
+     * @var RepresentativeRepository
+     */
+    private $representativeRepository;
 
     public function __construct(
         SubscriptionManager $subscriptionManager,
-        PackageHandler $packageHandler
+        PackageHandler $packageHandler,
+        RepresentativeRepository $representativeRepository
     ) {
         $this->subscriptionManager = $subscriptionManager;
         $this->packageHandler = $packageHandler;
+        $this->representativeRepository = $representativeRepository;
     }
 
     /**
@@ -76,6 +87,7 @@ class GroupVoter implements VoterInterface
             self::MEMBERSHIP,
             self::ASSIGN,
             self::MANAGE,
+            self::CONTENT,
             self::MEMBER,
             self::VIEW,
             self::MICROPETITION_CONFIG,
@@ -148,7 +160,8 @@ class GroupVoter implements VoterInterface
         $roleHierarchy = new RoleHierarchy([
             self::EDIT => [self::ASSIGN],
             self::ASSIGN => [self::MANAGE],
-            self::MANAGE => [self::MEMBER, self::MEMBERSHIP, self::MICROPETITION_CONFIG],
+            self::MANAGE => [self::CONTENT, self::MEMBERSHIP, self::MICROPETITION_CONFIG],
+            self::CONTENT => [self::MEMBER],
             self::MEMBER => [self::VIEW],
         ]);
 
@@ -158,6 +171,8 @@ class GroupVoter implements VoterInterface
             $userRole = self::MANAGE;
         } elseif ($object->isMember($user)) {
             $userRole = self::MEMBER;
+        } elseif ($this->representativeRepository->isGroupRepresentative($object, $user)) {
+            $userRole = self::CONTENT;
         } else {
             return VoterInterface::ACCESS_DENIED;
         }

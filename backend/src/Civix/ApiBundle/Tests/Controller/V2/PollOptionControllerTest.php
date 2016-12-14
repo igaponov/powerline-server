@@ -5,6 +5,7 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupRepresentativesData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Faker\Factory;
 use Symfony\Component\BrowserKit\Client;
@@ -38,17 +39,16 @@ class PollOptionControllerTest extends WebTestCase
 	}
 
     /**
+     * @param $fixtures
      * @param $user
      * @param $reference
      * @dataProvider getValidPollCredentialsForUpdateRequest
      */
-	public function testUpdateOptionReturnsErrors($user, $reference)
+	public function testUpdateOptionReturnsErrors($fixtures, $user, $reference)
 	{
-        $repository = $this->loadFixtures([
-            LoadUserGroupData::class,
-            LoadGroupManagerData::class,
-            LoadGroupQuestionData::class,
-        ])->getReferenceRepository();
+        $repository = $this->loadFixtures(
+            array_merge([LoadGroupQuestionData::class], $fixtures)
+        )->getReferenceRepository();
 		/** @var Question $question */
 		$question = $repository->getReference($reference);
 		$client = $this->client;
@@ -81,17 +81,16 @@ class PollOptionControllerTest extends WebTestCase
 	}
 
     /**
+     * @param $fixtures
      * @param $user
      * @param $reference
      * @dataProvider getValidPollCredentialsForUpdateRequest
      */
-	public function testUpdateOptionIsOk($user, $reference)
+	public function testUpdateOptionIsOk($fixtures, $user, $reference)
 	{
-        $repository = $this->loadFixtures([
-            LoadUserGroupData::class,
-            LoadGroupManagerData::class,
-            LoadGroupQuestionData::class,
-        ])->getReferenceRepository();
+        $repository = $this->loadFixtures(
+            array_merge([LoadGroupQuestionData::class], $fixtures)
+        )->getReferenceRepository();
 		$faker = Factory::create();
 		$params = [
 			'value' => $faker->word,
@@ -129,17 +128,16 @@ class PollOptionControllerTest extends WebTestCase
 	}
 
     /**
+     * @param $fixtures
      * @param $user
      * @param $reference
      * @dataProvider getValidPollCredentialsForUpdateRequest
      */
-	public function testDeleteOptionIsOk($user, $reference)
+	public function testDeleteOptionIsOk($fixtures, $user, $reference)
 	{
-        $repository = $this->loadFixtures([
-            LoadUserGroupData::class,
-            LoadGroupManagerData::class,
-            LoadGroupQuestionData::class,
-        ])->getReferenceRepository();
+        $repository = $this->loadFixtures(
+            array_merge([LoadGroupQuestionData::class], $fixtures)
+        )->getReferenceRepository();
 		$question = $repository->getReference($reference);
 		$client = $this->client;
 		$client->request('DELETE', self::API_ENDPOINT.'/'.$question->getOptions()->get(0)->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
@@ -158,8 +156,9 @@ class PollOptionControllerTest extends WebTestCase
     public function getValidPollCredentialsForUpdateRequest()
     {
         return [
-            'owner' => ['user1', 'group_question_1'],
-            'manager' => ['user2', 'group_question_1'],
+            'owner' => [[], 'user1', 'group_question_1'],
+            'manager' => [[LoadGroupManagerData::class], 'user2', 'group_question_1'],
+            'representative' => [[LoadGroupRepresentativesData::class], 'user3', 'group_question_1'],
         ];
     }
 }

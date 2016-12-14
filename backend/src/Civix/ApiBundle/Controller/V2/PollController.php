@@ -94,7 +94,7 @@ class PollController extends FOSRestController
      * @Route("/{id}")
      * @Method("PUT")
      *
-     * @SecureParam("question", permission="manage")
+     * @SecureParam("question", permission="content")
      *
      * @ApiDoc(
      *     authentication=true,
@@ -145,7 +145,7 @@ class PollController extends FOSRestController
      * @Route("/{id}")
      * @Method("PATCH")
      *
-     * @SecureParam("question", permission="manage")
+     * @SecureParam("question", permission="content")
      *
      * @ApiDoc(
      *     authentication=true,
@@ -189,7 +189,7 @@ class PollController extends FOSRestController
      * @Route("/{id}")
      * @Method("DELETE")
      *
-     * @SecureParam("question", permission="manage")
+     * @SecureParam("question", permission="content")
      *
      * @ApiDoc(
      *     authentication=true,
@@ -227,7 +227,7 @@ class PollController extends FOSRestController
      * @Route("/{id}/options")
      * @Method("POST")
      *
-     * @SecureParam("question", permission="manage")
+     * @SecureParam("question", permission="content")
      *
      * @ApiDoc(
      *     authentication=true,

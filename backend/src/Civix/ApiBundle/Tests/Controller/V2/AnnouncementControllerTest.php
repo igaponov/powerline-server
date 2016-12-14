@@ -9,6 +9,7 @@ use Civix\CoreBundle\Model\Subscription\PackageLimitState;
 use Civix\CoreBundle\Service\Subscription\PackageHandler;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupAnnouncementData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupRepresentativesData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeAnnouncementData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
@@ -145,17 +146,16 @@ class AnnouncementControllerTest extends WebTestCase
     }
 
     /**
+     * @param $fixtures
      * @param $user
      * @param $reference
      * @dataProvider getValidAnnouncementCredentialsForGetRequest
      */
-    public function testGetGroupAnnouncementIsOk($user, $reference)
+    public function testGetGroupAnnouncementIsOk($fixtures, $user, $reference)
     {
-        $repository = $this->loadFixtures([
-            LoadGroupManagerData::class,
-            LoadUserGroupData::class,
-            LoadGroupAnnouncementData::class,
-        ])->getReferenceRepository();
+        $repository = $this->loadFixtures(
+            array_merge([LoadGroupAnnouncementData::class], $fixtures)
+        )->getReferenceRepository();
         $announcement = $repository->getReference($reference);
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
@@ -168,9 +168,10 @@ class AnnouncementControllerTest extends WebTestCase
     public function getValidAnnouncementCredentialsForGetRequest()
     {
         return [
-            'owner' => ['user1', 'announcement_group_1'],
-            'manager' => ['user3', 'announcement_private_1'],
-            'member' => ['user3', 'announcement_topsecret_1'],
+            'owner' => [[], 'user1', 'announcement_group_1'],
+            'manager' => [[LoadGroupManagerData::class], 'user3', 'announcement_private_1'],
+            'member' => [[LoadUserGroupData::class], 'user3', 'announcement_topsecret_1'],
+            'representative' => [[LoadGroupRepresentativesData::class], 'user3', 'announcement_group_1'],
         ];
     }
 
@@ -315,17 +316,17 @@ class AnnouncementControllerTest extends WebTestCase
     }
 
     /**
+     * @param $fixtures
      * @param $user
      * @param $reference
      * @dataProvider getValidAnnouncementCredentialsForUpdateRequest
      */
-    public function testUpdateGroupAnnouncementIsOk($user, $reference)
+    public function testUpdateGroupAnnouncementIsOk($fixtures, $user, $reference)
     {
         $faker = Factory::create();
-        $repository = $this->loadFixtures([
-            LoadGroupManagerData::class,
-            LoadGroupAnnouncementData::class,
-        ])->getReferenceRepository();
+        $repository = $this->loadFixtures(
+            array_merge([LoadGroupAnnouncementData::class], $fixtures)
+        )->getReferenceRepository();
         $params = [
             'content' => $faker->sentence,
         ];
@@ -342,8 +343,9 @@ class AnnouncementControllerTest extends WebTestCase
     public function getValidAnnouncementCredentialsForUpdateRequest()
     {
         return [
-            'owner' => ['user1', 'announcement_group_1'],
-            'manager' => ['user3', 'announcement_group_1'],
+            'owner' => [[], 'user1', 'announcement_group_1'],
+            'manager' => [[LoadGroupManagerData::class], 'user3', 'announcement_group_1'],
+            'representative' => [[LoadGroupRepresentativesData::class], 'user3', 'announcement_group_1'],
         ];
     }
 
@@ -422,16 +424,22 @@ class AnnouncementControllerTest extends WebTestCase
         $this->assertSame(["Announcement is already published"], $data['errors']['errors']);
     }
 
-    public function testPublishGroupAnnouncementIsOk()
+    /**
+     * @param $fixtures
+     * @param $user
+     * @param $reference
+     * @dataProvider getValidAnnouncementCredentialsForUpdateRequest
+     */
+    public function testPublishGroupAnnouncementIsOk($fixtures, $user, $reference)
     {
-        $repository = $this->loadFixtures([
-            LoadGroupAnnouncementData::class,
-        ])->getReferenceRepository();
+        $repository = $this->loadFixtures(
+            array_merge([LoadGroupAnnouncementData::class], $fixtures)
+        )->getReferenceRepository();
         /** @var Announcement\GroupAnnouncement $announcement */
-        $announcement = $repository->getReference('announcement_group_1');
+        $announcement = $repository->getReference($reference);
         $client = $this->client;
         $client->getContainer()->set('civix_core.package_handler', $this->getPackageHandlerMock(Group::class));
-        $client->request('PATCH', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $client->request('PATCH', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
@@ -520,16 +528,16 @@ class AnnouncementControllerTest extends WebTestCase
     }
 
     /**
+     * @param $fixtures
      * @param $user
      * @param $reference
      * @dataProvider getValidAnnouncementCredentialsForUpdateRequest
      */
-    public function testDeleteGroupAnnouncementIsOk($user, $reference)
+    public function testDeleteGroupAnnouncementIsOk($fixtures, $user, $reference)
     {
-        $repository = $this->loadFixtures([
-            LoadGroupManagerData::class,
-            LoadGroupAnnouncementData::class,
-        ])->getReferenceRepository();
+        $repository = $this->loadFixtures(
+            array_merge([LoadGroupAnnouncementData::class], $fixtures)
+        )->getReferenceRepository();
         $announcement = $repository->getReference($reference);
         $client = $this->client;
         $client->request('DELETE', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);

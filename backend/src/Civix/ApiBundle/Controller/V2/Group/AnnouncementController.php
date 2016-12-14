@@ -23,12 +23,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 class AnnouncementController extends FOSRestController
 {
     /**
-     * Adds an user's announcement
+     * Adds a group's announcement
      *
      * @Route("")
      * @Method("POST")
      *
-     * @SecureParam("group", permission="manage")
+     * @SecureParam("group", permission="content")
      *
      * @ApiDoc(
      *     authentication=true,

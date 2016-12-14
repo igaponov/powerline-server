@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
 use Civix\CoreBundle\Entity\Announcement\GroupAnnouncement;
+use Civix\CoreBundle\Entity\Group;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\DataFixtures\FixtureInterface;
@@ -14,7 +15,7 @@ class LoadGroupAnnouncementData extends AbstractFixture implements FixtureInterf
     public function load(ObjectManager $manager)
     {
         $faker = Factory::create();
-        
+        /** @var Group $group */
         $group = $this->getReference('group_1');
 
         $announcement = new GroupAnnouncement();

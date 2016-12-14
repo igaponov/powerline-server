@@ -8,6 +8,7 @@ use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Superuser;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserInterface;
+use Civix\CoreBundle\Repository\RepresentativeRepository;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
@@ -15,6 +16,16 @@ class PollVoter implements VoterInterface
 {
     const SUBSCRIBE = 'subscribe';
     const ANSWER = 'answer';
+
+    /**
+     * @var RepresentativeRepository
+     */
+    private $representativeRepository;
+
+    public function __construct(RepresentativeRepository $representativeRepository)
+    {
+        $this->representativeRepository = $representativeRepository;
+    }
 
     /**
      * Checks if the voter supports the given attribute.
@@ -107,7 +118,7 @@ class PollVoter implements VoterInterface
             $questionOwner = $object->getOwner();
             if ($questionOwner instanceof Superuser) {
                 return VoterInterface::ACCESS_GRANTED;
-            } elseif ($questionOwner instanceof Group && ($questionOwner->isMember($user) || $questionOwner->isManager($user) || $questionOwner->getOwner()->isEqualTo($user))) {
+            } elseif ($questionOwner instanceof Group && ($questionOwner->isMember($user) || $questionOwner->isManager($user) || $questionOwner->getOwner()->isEqualTo($user) || $this->representativeRepository->isGroupRepresentative($questionOwner, $user))) {
                 return VoterInterface::ACCESS_GRANTED;
             } elseif ($questionOwner instanceof Representative
             && array_search($questionOwner->getDistrict() ? $questionOwner->getDistrict()->getId() : null, $user->getDistrictsIds()) !== false) {
