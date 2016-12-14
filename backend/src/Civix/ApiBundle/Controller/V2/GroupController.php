@@ -525,4 +525,37 @@ class GroupController extends FOSRestController
 
         return $result;
     }
+
+    /**
+     * List all the responses for a given group.
+     *
+     * @Route("/{id}/responses")
+     * @Method("GET")
+     *
+     * @SecureParam("group", permission="edit")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Groups",
+     *     description="List the responses for a given group.",
+     *     output="array",
+     *     statusCodes={
+     *         200="Returns list",
+     *         403="Access Denied",
+     *         404="Group Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Group $group
+     *
+     * @return array
+     */
+    public function getResponsesAction(Group $group)
+    {
+        $query = $this->em->getRepository('CivixCoreBundle:Poll\Answer')
+            ->getResponsesByGroup($group);
+
+        return $query->fetchAll();
+    }
 }

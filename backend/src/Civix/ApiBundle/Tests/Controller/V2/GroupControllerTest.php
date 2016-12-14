@@ -7,6 +7,7 @@ use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Test\SocialActivityTester;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadFieldValueData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
@@ -765,6 +766,132 @@ class GroupControllerTest extends WebTestCase
         );
         $this->assertContains('text/csv', $response->headers->get('content-type'));
         $this->assertSame('attachment; filename="membership_roster.csv"', $response->headers->get('content-disposition'));
+    }
+
+    /**
+     * @param $user
+     * @param $reference
+     * @dataProvider getInvalidGroupCredentialsForDeleteOwnerRequest
+     */
+    public function testGetGroupResponsesWithWrongCredentialsThrowsException($user, $reference)
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+        $group = $this->repository->getReference($reference);
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/responses', [], [], [
+            'HTTP_AUTHORIZATION' => 'Bearer type="user" token="'.$user.'"',
+        ]);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testGetGroupResponsesIsOk()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserFollowerData::class,
+            LoadGroupManagerData::class,
+            LoadFieldValueData::class,
+            LoadQuestionAnswerData::class,
+        ])->getReferenceRepository();
+        $user1 = $this->repository->getReference('user_1');
+        $user2 = $this->repository->getReference('user_2');
+        $user3 = $this->repository->getReference('user_3');
+        $user4 = $this->repository->getReference('user_4');
+        $poll1 = $this->repository->getReference('group_question_1');
+        $poll5 = $this->repository->getReference('group_question_5');
+        $answer1 = $this->repository->getReference('question_answer_1');
+        $answer3 = $this->repository->getReference('question_answer_3');
+        $group = $this->repository->getReference('group_1');
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/responses', [], [], [
+            'HTTP_AUTHORIZATION' => 'Bearer type="user" token="user1"',
+        ]);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+
+        $this->assertCount(9, $data);
+        $this->assertArrayHasKey('first_name', $data[0]);
+        $this->assertArrayHasKey('last_name', $data[0]);
+        $this->assertArrayHasKey('facebook', $data[0]);
+        $this->assertSame($user1->getEmail(), $data[0]['email']);
+        $this->assertSame($user1->getPhone(), $data[0]['phone']);
+        $this->assertSame("0", $data[0]['followers']);
+        $this->assertNull($data[0]['test-group-field']);
+        $this->assertNull($data[0][$poll1->getSubject()]);
+        $this->assertNull($data[0][$poll5->getSubject()]);
+
+        $this->assertSame($user2->getEmail(), $data[1]['email']);
+        $this->assertSame($user2->getPhone(), $data[1]['phone']);
+        $this->assertSame("1", $data[1]['followers']);
+        $this->assertSame("test-field-value-2", $data[1]['test-group-field']);
+        $this->assertSame($answer1->getOption()->getValue(), $data[1][$poll1->getSubject()]);
+        $this->assertNull($data[1][$poll5->getSubject()]);
+
+        $this->assertSame($user3->getEmail(), $data[2]['email']);
+        $this->assertSame($user3->getPhone(), $data[2]['phone']);
+        $this->assertSame("1", $data[2]['followers']);
+        $this->assertSame("test-field-value-3", $data[2]['test-group-field']);
+        $this->assertSame("Anonymous", $data[2][$poll1->getSubject()]);
+        $this->assertNull($data[2][$poll5->getSubject()]);
+
+        $this->assertSame($user4->getEmail(), $data[3]['email']);
+        $this->assertSame($user4->getPhone(), $data[3]['phone']);
+        $this->assertSame("1", $data[3]['followers']);
+        $this->assertNull($data[3]['test-group-field']);
+        $this->assertSame($answer3->getOption()->getValue(), $data[3][$poll1->getSubject()]);
+        $this->assertNull($data[3][$poll5->getSubject()]);
+    }
+
+    public function testGetGroupResponsesCsvIsOk()
+    {
+        $this->repository = $this->loadFixtures([
+            LoadUserFollowerData::class,
+            LoadGroupManagerData::class,
+            LoadFieldValueData::class,
+            LoadQuestionAnswerData::class,
+        ])->getReferenceRepository();
+        $user1 = $this->repository->getReference('user_1');
+        $user2 = $this->repository->getReference('user_2');
+        $user3 = $this->repository->getReference('user_3');
+        $user4 = $this->repository->getReference('user_4');
+        $followertest = $this->repository->getReference('followertest');
+        $userfollowtest1 = $this->repository->getReference('userfollowtest1');
+        $userfollowtest2 = $this->repository->getReference('userfollowtest2');
+        $userfollowtest3 = $this->repository->getReference('userfollowtest3');
+        $testuserbookmark1 = $this->repository->getReference('testuserbookmark1');
+        $poll1 = $this->repository->getReference('group_question_1');
+        $poll5 = $this->repository->getReference('group_question_5');
+        $answer1 = $this->repository->getReference('question_answer_1');
+        $answer3 = $this->repository->getReference('question_answer_3');
+        $group = $this->repository->getReference('group_1');
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/responses', [], [], [
+            'HTTP_ACCEPT' => 'text/csv',
+            'HTTP_AUTHORIZATION' => 'Bearer type="user" token="user1"',
+        ]);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $this->assertSame(
+            "first_name,last_name,address1,address2,city,state,country,zip,email,phone,bio,slogan,facebook,followers," .
+            "test-group-field,\"\"\"field1`\",\"\"\"field2`\",\"\"\"field3`\",\"\"\"field4`\"," .
+            "\"{$poll1->getSubject()}\",\"{$poll5->getSubject()}\"\n" .
+            "User,One,,,,,US,,{$user1->getEmail()},{$user1->getPhone()},\"{$user1->getBio()}\",\"{$user1->getSlogan()}\",1,0,,,,,,,\n" .
+            "user,2,,,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,test-field-value-2,,,,,\"{$answer1->getOption()->getValue()}\",\n" .
+            "user,3,,,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,test-field-value-3,,,,,Anonymous,\n" .
+            "user,4,,,,,US,,{$user4->getEmail()},{$user4->getPhone()},,,1,1,,,,,,\"{$answer3->getOption()->getValue()}\",\n" .
+            "followertest,,,,,,US,,{$followertest->getEmail()},{$followertest->getPhone()},,,1,0,,,,,,,\n" .
+            "userfollowtest,1,,,,,US,,{$userfollowtest1->getEmail()},{$userfollowtest1->getPhone()},,,1,0,,,,,,,\n" .
+            "userfollowtest,2,,,,,US,,{$userfollowtest2->getEmail()},{$userfollowtest2->getPhone()},,,1,0,,,,,,,\n" .
+            "userfollowtest,3,,,,,US,,{$userfollowtest3->getEmail()},{$userfollowtest3->getPhone()},,,1,0,,,,,,,\n" .
+            "testuserbookmark,1,,,,,US,,{$testuserbookmark1->getEmail()},{$testuserbookmark1->getPhone()},,,1,0,,,,,,,\n",
+            $response->getContent()
+        );
+        $this->assertContains('text/csv', $response->headers->get('content-type'));
+        $this->assertSame('attachment; filename="file.csv"', $response->headers->get('content-disposition'));
     }
 
 	protected function getGroups($username, $params)

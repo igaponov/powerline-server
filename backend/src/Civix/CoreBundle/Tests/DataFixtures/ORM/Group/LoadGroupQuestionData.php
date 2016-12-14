@@ -26,7 +26,7 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
         $question = new GroupQuestion();
         $question->setOwner($group1);
         $question->setUser($group1->getOwner());
-        $question->setSubject('subj with #testHashTag '.$faker->sentence);
+        $question->setSubject('subj1 with #testHashTag '.$faker->sentence);
         for ($i = 0; $i < 2; $i++) {
             $option = new Option();
             $option->setValue('val '.$i);
@@ -40,7 +40,7 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
         $question = new GroupQuestion();
         $question->setOwner($group2);
         $question->setUser($group2->getOwner());
-        $question->setSubject('subj '.$faker->sentence);
+        $question->setSubject('subj2 '.$faker->sentence);
         for ($i = 0; $i < 2; $i++) {
             $option = new Option();
             $option->setValue('val '.$i);
@@ -53,7 +53,7 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
         $question = new GroupQuestion();
         $question->setOwner($group3);
         $question->setUser($group3->getOwner());
-        $question->setSubject('subj '.$faker->sentence);
+        $question->setSubject('subj3 '.$faker->sentence);
         for ($i = 0; $i < 3; $i++) {
             $option = new Option();
             $option->setValue('val '.$i);
@@ -67,7 +67,7 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
         $question = new GroupQuestion();
         $question->setOwner($group3);
         $question->setUser($group3->getOwner());
-        $question->setSubject('subj '.$faker->sentence);
+        $question->setSubject('subj4 '.$faker->sentence);
         $question->setExpireAt(new \DateTime('+1 month'));
         $question->setPublishedAt(new \DateTime('-1 day'));
         for ($i = 0; $i < 2; $i++) {
@@ -83,7 +83,7 @@ class LoadGroupQuestionData extends AbstractFixture implements DependentFixtureI
         $question = new GroupQuestion();
         $question->setOwner($group1);
         $question->setUser($group1->getOwner());
-        $question->setSubject('subj '.$faker->sentence);
+        $question->setSubject('subj5 '.$faker->sentence);
         $question->setExpireAt(new \DateTime('+1 month'));
         $option = new Option();
         $option->setValue('val x');
