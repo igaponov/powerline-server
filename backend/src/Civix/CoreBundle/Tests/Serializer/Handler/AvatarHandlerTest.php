@@ -21,7 +21,7 @@ class AvatarHandlerTest extends WebTestCase
             ->disableOriginalConstructor()
             ->getMock();
         $this->assertEquals(
-            "http://powerline-dev.imgix.net/avatars/$avatar?ixlib=php-1.1.0",
+            "https://powerline-dev.imgix.net/avatars/$avatar?ixlib=php-1.1.0",
             $handler->serialize($visitor, $user->getAvatarWithPath(), [], new SerializationContext())
         );
     }
@@ -39,7 +39,7 @@ class AvatarHandlerTest extends WebTestCase
             ->disableOriginalConstructor()
             ->getMock();
         $this->assertEquals(
-            $this->getContainer()->getParameter('hostname').User::SOMEONE_AVATAR,
+            'http://'.$this->getContainer()->getParameter('hostname').User::SOMEONE_AVATAR,
             $handler->serialize($visitor, $user->getAvatarWithPath(true), [], new SerializationContext())
         );
     }
@@ -54,7 +54,7 @@ class AvatarHandlerTest extends WebTestCase
             ->disableOriginalConstructor()
             ->getMock();
         $this->assertEquals(
-            $this->getContainer()->getParameter('hostname').User::DEFAULT_AVATAR,
+            'http://'.$this->getContainer()->getParameter('hostname').User::DEFAULT_AVATAR,
             $handler->serialize($visitor, $user->getAvatarWithPath(), [], new SerializationContext())
         );
     }

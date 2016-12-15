@@ -83,7 +83,7 @@ class ProfileControllerTest extends WebTestCase
             ->getFiles('avatar_image_fs');
         $this->assertCount(1, $files);
         $this->assertEquals(
-            'http://powerline-dev.imgix.net/avatars/'.key($files).'?ixlib=php-1.1.0',
+            'https://powerline-dev.imgix.net/avatars/'.key($files).'?ixlib=php-1.1.0',
             $data['avatar_file_name']
         );
     }

@@ -37,6 +37,7 @@ parameters:
 
     domain: powerli.ne
     hostname: api-dev.powerli.ne
+    scheme: 'http'
 
     rabbitmq_connections:
         default:

@@ -21,7 +21,7 @@ class TargetHandlerTest extends WebTestCase
             ->getMock();
         $this->assertEquals(
             [
-                'image' => "http://powerline-dev.imgix.net/avatars/$avatar?ixlib=php-1.1.0",
+                'image' => "https://powerline-dev.imgix.net/avatars/$avatar?ixlib=php-1.1.0",
             ],
             $handler->serialize($visitor, $target, [], new SerializationContext())
         );
@@ -38,7 +38,7 @@ class TargetHandlerTest extends WebTestCase
             ->getMock();
         $this->assertEquals(
             [
-                'image' => $this->getContainer()->getParameter('hostname').User::SOMEONE_AVATAR,
+                'image' => 'http://'.$this->getContainer()->getParameter('hostname').User::SOMEONE_AVATAR,
             ],
             $handler->serialize($visitor, $target, [], new SerializationContext())
         );

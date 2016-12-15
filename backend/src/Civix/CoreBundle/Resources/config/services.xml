@@ -101,14 +101,10 @@
 
         <!-- Avatar Serializer Handler -->
         <service id="civix_core.serializer.handler.avatar_handler" class="Civix\CoreBundle\Serializer\Handler\AvatarHandler">
-            <tag name="jms_serializer.handler" type="Avatar" direction="serialization" format="json" method="serialize" />
             <argument type="service" id="civix_core.serializer.handler.image_handler" />
             <argument type="string">%hostname%</argument>
-        </service>
-        <service id="civix_core.deserializer.handler.avatar_handler" class="Civix\CoreBundle\Serializer\Handler\AvatarHandler">
-            <tag name="jms_serializer.handler" type="Avatar" direction="deserialization" format="json" method="deserialize" />
-            <argument type="service" id="civix_core.serializer.handler.image_handler" />
-            <argument type="string">%hostname%</argument>
+            <argument type="string">%scheme%</argument>
+            <tag name="jms_serializer.subscribing_handler" />
         </service>
 
         <service id="civix_core.serializer.handler.owner_data_handler" class="Civix\CoreBundle\Serializer\Handler\OwnerDataHandler">
@@ -354,6 +350,7 @@
 
         <service class="Imgix\UrlBuilder" id="imgix.url_builder">
             <argument type="string">%imgix.domain%</argument>
+            <argument type="string">true</argument>
         </service>
 
         <service class="Civix\CoreBundle\Service\HTMLMetadataParser" id="civix_core.service.htmlmetadata_parser"/>

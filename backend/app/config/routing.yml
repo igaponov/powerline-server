@@ -36,7 +36,7 @@ civix_front_representative_area:
     resource: "@CivixFrontBundle/Controller/Representative/"
     prefix:   /representative
     type: annotation
-    schemes: [ "https" ]
+    schemes: %scheme%
 
 civix_front_group_login_check:
     pattern:  /group/login_check
@@ -53,7 +53,7 @@ civix_front_group_area:
     resource: "@CivixFrontBundle/Controller/Group/"
     prefix:   /group
     type: annotation
-    schemes: [ "https" ]
+    schemes: %scheme%
 
 civix_front_superuser_login_check:
     pattern:  /superuser/login_check
@@ -65,7 +65,7 @@ civix_front_superuser_area:
     resource: "@CivixFrontBundle/Controller/Superuser/"
     prefix:   /superuser
     type: annotation
-    schemes: [ "https" ]
+    schemes: %scheme%
 
 civix_superuser:
     resource: "@CivixFrontBundle/Controller/SuperuserController.php"
