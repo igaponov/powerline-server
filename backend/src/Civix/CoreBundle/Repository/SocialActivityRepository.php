@@ -4,6 +4,7 @@ namespace Civix\CoreBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Civix\CoreBundle\Entity\User;
+use Doctrine\ORM\Query\Expr;
 
 class SocialActivityRepository extends EntityRepository
 {
@@ -59,29 +60,46 @@ class SocialActivityRepository extends EntityRepository
             ->leftJoin('sa.following', 'f')
             ->leftJoin('sa.group', 'g')
             ->orderBy('sa.id', 'DESC');
-        $exprBuilder = $qb->expr();
-        if ($tab === 'following') {
-            $userFollowingIds = $user->getFollowingIds();
-            $activeGroups = $this->getEntityManager()
-                ->getRepository('CivixCoreBundle:UserGroup')
-                ->getActiveGroupIds($user);
-            $expr = $exprBuilder->andX('sa.recipient is NULL');
-            if (empty($activeGroups)) {
-                return [];
-            } else {
-                $expr->add($exprBuilder->in('sa.group', $activeGroups));
-            }
-            if (empty($userFollowingIds)) {
-                return [];
-            } else {
-                $expr->add($exprBuilder->in('sa.following', $userFollowingIds));
-            }
-            $qb->where($expr);
-        } elseif ($tab === 'you') {
-            $qb->where('sa.recipient = :user')
-                ->setParameter(':user', $user);
+        $where = new Expr\Orx();
+        if (($tab === 'following' || !$tab) && $expr = $this->getExprForFollowingTab($user)) {
+            $where->add($expr);
         }
-        
-        return $qb->getQuery();
+        if (($tab === 'you' || !$tab) && $expr = $this->getExprForYouTab($user)) {
+            $where->add($expr);
+        }
+        if ($where->count()) {
+            return $qb->where($where)
+                ->getQuery();
+        } else {
+            return [];
+        }
+    }
+
+    private function getExprForYouTab(User $user)
+    {
+        $exprBuilder = new Expr();
+        return $exprBuilder->eq('sa.recipient', $user->getId());
+    }
+
+    private function getExprForFollowingTab(User $user)
+    {
+        $exprBuilder = new Expr();
+        $userFollowingIds = $user->getFollowingIds();
+        $activeGroups = $this->getEntityManager()
+            ->getRepository('CivixCoreBundle:UserGroup')
+            ->getActiveGroupIds($user);
+        $expr = $exprBuilder->andX('sa.recipient is NULL');
+        if (empty($activeGroups)) {
+            return null;
+        } else {
+            $expr->add($exprBuilder->in('sa.group', $activeGroups));
+        }
+        if (empty($userFollowingIds)) {
+            return null;
+        } else {
+            $expr->add($exprBuilder->in('sa.following', $userFollowingIds));
+        }
+
+        return $expr;
     }
 }
