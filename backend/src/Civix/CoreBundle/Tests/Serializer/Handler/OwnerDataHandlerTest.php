@@ -24,7 +24,7 @@ class OwnerDataHandlerTest extends WebTestCase
         $this->assertEquals(
             [
                 'type' => 'user',
-                'avatar_file_path' => "http://powerline-dev.imgix.net/avatars/$avatar?ixlib=php-1.1.0",
+                'avatar_file_path' => "https://powerline-dev.imgix.net/avatars/$avatar?ixlib=php-1.1.0",
             ],
             $handler->serialize($visitor, $ownerData, [], new SerializationContext())
         );
@@ -47,7 +47,7 @@ class OwnerDataHandlerTest extends WebTestCase
         $this->assertEquals(
             [
                 'type' => $type,
-                'avatar_file_path' => $this->getContainer()->getParameter('hostname').$avatar,
+                'avatar_file_path' => 'http://'.$this->getContainer()->getParameter('hostname').$avatar,
             ],
             $handler->serialize($visitor, $ownerData, [], new SerializationContext())
         );

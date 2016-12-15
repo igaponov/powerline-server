@@ -25,7 +25,7 @@ class ImageHandlerTest extends WebTestCase
             ->disableOriginalConstructor()
             ->getMock();
         $this->assertEquals(
-            "http://powerline-dev.imgix.net/avatars/$avatar?ixlib=php-1.1.0",
+            "https://powerline-dev.imgix.net/avatars/$avatar?ixlib=php-1.1.0",
             $handler->serialize($visitor, $post->getSharePicture(), [], new SerializationContext())
         );
     }

@@ -5,6 +5,7 @@ namespace Civix\CoreBundle\Serializer\Handler;
 use Civix\CoreBundle\Entity\HasAvatarInterface;
 use Civix\CoreBundle\Entity\User;
 use JMS\Serializer\Context;
+use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonSerializationVisitor;
 use JMS\Serializer\JsonDeserializationVisitor;
@@ -20,29 +21,49 @@ class AvatarHandler implements SubscribingHandlerInterface
      * @var string
      */
     private $hostname;
+    /**
+     * @var
+     */
+    private $scheme;
 
     public static function getSubscribingMethods()
     {
+        return [
+            [
+                'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
+                'format' => 'json',
+                'type' => 'Avatar',
+                'method' => 'serialize',
+            ],
+            [
+                'direction' => GraphNavigator::DIRECTION_DESERIALIZATION,
+                'format' => 'json',
+                'type' => 'Avatar',
+                'method' => 'deserialize',
+            ],
+        ];
     }
 
-    public function __construct(ImageHandler $imageHandler, $hostname)
+    public function __construct(ImageHandler $imageHandler, $hostname, $scheme)
     {
         $this->imageHandler = $imageHandler;
         $this->hostname = $hostname;
+        $this->scheme = $scheme;
     }
 
     public function serialize(JsonSerializationVisitor $visitor, Avatar $avatar, array $type, Context $context)
     {
+        $scheme = $this->scheme ? $this->scheme.'://' : null;
         if (!$avatar->isPrivacy()) {
             /** @var HasAvatarInterface $entity */
             $entity = $avatar->getEntity();
             if ($entity->getAvatar()) {
                 return $this->imageHandler->serialize($visitor, $avatar, $type, $context);
             } else {
-                $url = $this->hostname.$entity->getDefaultAvatar();
+                $url = $scheme.$this->hostname.$entity->getDefaultAvatar();
             }
         } else {
-            $url = $this->hostname.User::SOMEONE_AVATAR;
+            $url = $scheme.$this->hostname.User::SOMEONE_AVATAR;
         }
 
         return $visitor->visitString($url, $type, $context);
