@@ -24,14 +24,14 @@ class OwnerDataHandler implements SubscribingHandlerInterface
 
     public static function getSubscribingMethods()
     {
-        return array(
-            array(
+        return [
+            [
                 'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
                 'format' => 'json',
                 'type' => 'OwnerData',
                 'method' => 'serialize',
-            ),
-        );
+            ],
+        ];
     }
 
     public function serialize(JsonSerializationVisitor $visitor, OwnerData $owner, array $type, Context $context)
@@ -44,6 +44,6 @@ class OwnerDataHandler implements SubscribingHandlerInterface
         $avatar = new Avatar($owner);
         $data['avatar_file_path'] = $this->avatarHandler->serialize($visitor, $avatar, $type, $context);
 
-        return $data;
+        return $visitor->visitArray($data, $type, $context);
     }
 }

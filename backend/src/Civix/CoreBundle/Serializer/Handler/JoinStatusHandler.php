@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Serializer\Handler;
 
 use Civix\CoreBundle\Entity\UserInterface;
+use JMS\Serializer\Context;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\JsonSerializationVisitor;
@@ -15,14 +16,14 @@ class JoinStatusHandler implements SubscribingHandlerInterface
 
     public static function getSubscribingMethods()
     {
-        return array(
-            array(
+        return [
+            [
                 'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
                 'format' => 'json',
                 'type' => 'JoinStatus',
                 'method' => 'serialize',
-            ),
-        );
+            ],
+        ];
     }
 
     public function __construct(SecurityContextInterface $security)
@@ -30,11 +31,17 @@ class JoinStatusHandler implements SubscribingHandlerInterface
         $this->user = $security->getToken()->getUser();
     }
 
-    public function serialize(JsonSerializationVisitor $visitor, JoinStatus $joinStatusType)
+    public function serialize(JsonSerializationVisitor $visitor, JoinStatus $joinStatusType, array $type, Context $context)
     {
+        $result = false;
         if ($this->user instanceof UserInterface) {
-            return $joinStatusType->getEntity()
-                ->getJoined($this->user);
+            $result = $visitor->visitBoolean(
+                $joinStatusType->getEntity()->getJoined($this->user),
+                $type,
+                $context
+            );
         }
+
+        return $visitor->visitBoolean($result, $type, $context);
     }
 }

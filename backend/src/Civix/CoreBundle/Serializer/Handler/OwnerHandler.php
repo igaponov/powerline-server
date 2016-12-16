@@ -2,6 +2,7 @@
 namespace Civix\CoreBundle\Serializer\Handler;
 
 use Civix\CoreBundle\Entity\User;
+use JMS\Serializer\Context;
 use Symfony\Component\Security\Core\SecurityContextInterface;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\GraphNavigator;
@@ -16,14 +17,14 @@ class OwnerHandler implements SubscribingHandlerInterface
 
     public static function getSubscribingMethods()
     {
-        return array(
-            array(
+        return [
+            [
                 'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
                 'format' => 'json',
                 'type' => 'Owner',
                 'method' => 'serialize',
-            ),
-        );
+            ],
+        ];
     }
 
     public function __construct(SecurityContextInterface $securityContext)
@@ -31,12 +32,13 @@ class OwnerHandler implements SubscribingHandlerInterface
         $this->securityContext = $securityContext;
     }
 
-    public function serialize(JsonSerializationVisitor $visitor, User $user, array $type)
+    public function serialize(JsonSerializationVisitor $visitor, User $user, array $type, Context $context)
     {
+        $result = false;
         if ($this->securityContext->getToken() && $this->securityContext->getToken()->getUser() instanceof User) {
-            return $user->isEqualTo($this->securityContext->getToken()->getUser());
+            $result = $user->isEqualTo($this->securityContext->getToken()->getUser());
         }
 
-        return false;
+        return $visitor->visitBoolean($result, $type, $context);
     }
 }

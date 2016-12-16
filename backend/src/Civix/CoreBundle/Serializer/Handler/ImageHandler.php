@@ -23,14 +23,14 @@ class ImageHandler implements SubscribingHandlerInterface
 
     public static function getSubscribingMethods()
     {
-        return array(
-            array(
+        return [
+            [
                 'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
                 'format' => 'json',
                 'type' => 'Image',
                 'method' => 'serialize',
-            ),
-        );
+            ],
+        ];
     }
 
     public function __construct(

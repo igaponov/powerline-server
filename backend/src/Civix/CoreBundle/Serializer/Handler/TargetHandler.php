@@ -24,14 +24,14 @@ class TargetHandler implements SubscribingHandlerInterface
 
     public static function getSubscribingMethods()
     {
-        return array(
-            array(
+        return [
+            [
                 'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
                 'format' => 'json',
                 'type' => 'Target',
                 'method' => 'serialize',
-            ),
-        );
+            ],
+        ];
     }
 
     public function serialize(JsonSerializationVisitor $visitor, Target $target, array $type, Context $context)
@@ -44,6 +44,6 @@ class TargetHandler implements SubscribingHandlerInterface
         $avatar = new Avatar($target);
         $data['image'] = $this->avatarHandler->serialize($visitor, $avatar, $type, $context);
 
-        return $data;
+        return $visitor->visitArray($data, $type, $context);
     }
 }
