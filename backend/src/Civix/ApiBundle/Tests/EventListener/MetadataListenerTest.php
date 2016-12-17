@@ -38,12 +38,41 @@ class MetadataListenerTest extends \PHPUnit_Framework_TestCase
             ->method('getResponse')
             ->with('http://url.tld')
             ->will($this->returnValue($response));
-        $em = $this->getMockBuilder(EntityManager::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $em = $this->getManagerMock();
         $event = new LifecycleEventArgs($entity, $em);
         $listener->postPersist($event);
         $this->assertEquals('http://url.tld', $metadata->getUrl());
+    }
+
+    /**
+     * @param Post|UserPetition $entity
+     * @dataProvider getEntities
+     */
+    public function testPostPersistParsePostBodyAndSetsMetadataImage($entity)
+    {
+        $entity->setBody('Some text with http://url.tld/image.jpg for parsing.');
+        $parser = $this->getMockBuilder(HTMLMetadataParser::class)
+            ->setMethods(['parse'])
+            ->getMock();
+        $parser->expects($this->never())
+            ->method('parse');
+        /** @var \PHPUnit_Framework_MockObject_MockObject|MetadataListener $listener */
+        $listener = $this->getMockBuilder(MetadataListener::class)
+            ->setConstructorArgs([$parser])
+            ->setMethods(['getResponse'])
+            ->getMock();
+        $response = new Response(200, ['content-type' => 'image/jpeg'], 'body');
+        $listener->expects($this->once())
+            ->method('getResponse')
+            ->with('http://url.tld/image.jpg')
+            ->willReturn($response);
+        $em = $this->getManagerMock();
+        $event = new LifecycleEventArgs($entity, $em);
+        $listener->postPersist($event);
+        $metadata = $entity->getMetadata();
+        $this->assertEquals('http://url.tld/image.jpg', $metadata->getUrl());
+        $this->assertEquals('http://url.tld/image.jpg', $metadata->getImage());
+        $this->assertNull($metadata->getTitle());
     }
 
     public function getEntities()
@@ -52,5 +81,17 @@ class MetadataListenerTest extends \PHPUnit_Framework_TestCase
             'post' => [new Post],
             'petition' => [new UserPetition],
         ];
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|EntityManager
+     */
+    private function getManagerMock()
+    {
+        $em = $this->getMockBuilder(EntityManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        return $em;
     }
 }
