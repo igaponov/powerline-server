@@ -77,6 +77,13 @@ class RepresentativeControllerTest  extends WebTestCase
                             'official_title' => 'Vice President',
                             'avatar_file_path' => 'http://api-test.powerli.ne/bundles/civixfront/img/default_representative.png',
                         ],
+                        [
+                            'storage_id' => 123543,
+                            'first_name' => 'Barack',
+                            'last_name' => 'Obama',
+                            'official_title' => 'President',
+                            'avatar_file_path' => 'http://api-test.powerli.ne/bundles/civixfront/img/default_representative.png',
+                        ],
                     ],
                 ],
             ],

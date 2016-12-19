@@ -44,6 +44,13 @@ class LoadDistrictData extends AbstractFixture
             ->setDistrictType(District::LOCAL_EXEC);
         $manager->persist($district);
         $this->addReference('district_sd', $district);
+
+        $district = new District();
+        $district->setLabel('New Jersey')
+            ->setId(47)
+            ->setDistrictType(District::NATIONAL_UPPER);
+        $manager->persist($district);
+        $this->addReference('district_nj', $district);
         
         $manager->flush();
     }

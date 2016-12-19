@@ -109,7 +109,6 @@ class AnswerRepository extends EntityRepository
     public function getResponsesByQuestion(Question $question)
     {
         $fields = $question->getGroup()->getFields();
-        $representatives = $question->getGroup()->getLocalRepresentatives();
         $qb = $this->getEntityManager()
             ->getConnection()
             ->createQueryBuilder()
@@ -121,7 +120,6 @@ class AnswerRepository extends EntityRepository
             ->from('poll_answers', 'a')
             ->leftJoin('a', 'user', 'u', 'a.user_id = u.id')
             ->leftJoin('u', 'users_follow', 'f', 'f.user_id = u.id')
-            ->leftJoin('u', 'users_districts', 'ud', 'ud.user_id = u.id')
             ->leftJoin('a', 'poll_options', 'o', 'a.option_id = o.id')
             ->where('a.question_id = :poll')
             ->setParameter(':poll', $question->getId())
@@ -136,11 +134,6 @@ class AnswerRepository extends EntityRepository
                 ->setParameter(":field$k", $field->getId());
         }
         $qb->addSelect('o.value AS choice, a.comment');
-        foreach ($representatives as $k => $representative) {
-            $qb->addSelect("CASE WHEN r$k.id IS NOT NULL THEN \"Yes\" ELSE \"No\" END AS {$platform->quoteSingleIdentifier($representative->getOfficialTitle())}")
-                ->leftJoin('ud', 'representatives', "r$k", "r$k.district_id = ud.district_id AND r$k.id = :representative$k")
-                ->setParameter(":representative$k", $representative->getId());
-        }
 
         return $qb->execute();
     }
