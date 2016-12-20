@@ -164,7 +164,7 @@ class UserGroupRepository extends EntityRepository
         $qb = $this->getEntityManager()
             ->getConnection()
             ->createQueryBuilder()
-            ->select('u.firstName AS first_name, u.lastName AS last_name, u.address1, u.address2, u.city, u.state, u.country, u.zip, u.email, u.phone, u.bio, u.slogan, CASE WHEN u.facebook_id IS NOT NULL THEN 1 ELSE 0 END AS facebook, (SELECT COUNT(f.id) FROM users_follow f WHERE f.user_id = u.id) AS followers')
+            ->select('u.firstName AS first_name, u.lastName AS last_name, u.address1, u.address2, u.city, u.state, u.country, u.zip, u.email, u.phone, u.bio, u.slogan, CASE WHEN u.facebook_id IS NOT NULL THEN 1 ELSE 0 END AS facebook, (SELECT COUNT(f.id) FROM users_follow f WHERE f.user_id = u.id) AS followers, 0 AS karma')
             ->from('users_groups', 'ug')
             ->leftJoin('ug', 'user', 'u', 'ug.user_id = u.id')
             ->where('ug.group_id = :group')

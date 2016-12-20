@@ -1270,6 +1270,7 @@ class PollControllerTest extends WebTestCase
         $this->assertSame("test-field-value-3", $data[1]['test-group-field']);
         $this->assertNull($data[2]['test-group-field']);
         foreach ([$user2, $user3, $user4] as $k => $user) {
+            $this->assertArrayHasKey('karma', $data[$k]);
             $this->assertSame($user->getEmail(), $data[$k]['email']);
             $this->assertSame($user->getPhone(), $data[$k]['phone']);
             $this->assertSame("1", $data[$k]['followers']);
@@ -1309,11 +1310,11 @@ class PollControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $this->assertSame(
-            "first_name,last_name,address1,address2,city,state,country,zip,email,phone,bio,slogan,facebook,followers," .
+            "first_name,last_name,address1,address2,city,state,country,zip,email,phone,bio,slogan,facebook,followers,karma," .
             "test-group-field,\"\"\"field1`\",\"\"\"field2`\",\"\"\"field3`\",\"\"\"field4`\",choice,comment\n" .
-            "user,2,,,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,test-field-value-2,,,,,\"{$answer1->getOption()->getValue()}\",\"{$answer1->getComment()}\"\n" .
-            ",,,,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,test-field-value-3,,,,,\"{$answer2->getOption()->getValue()}\",\"{$answer2->getComment()}\"\n" .
-            "user,4,,,,,US,,{$user4->getEmail()},{$user4->getPhone()},,,1,1,,,,,,\"{$answer3->getOption()->getValue()}\",\"{$answer3->getComment()}\"\n",
+            "user,2,,,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,0,test-field-value-2,,,,,\"{$answer1->getOption()->getValue()}\",\"{$answer1->getComment()}\"\n" .
+            ",,,,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,0,test-field-value-3,,,,,\"{$answer2->getOption()->getValue()}\",\"{$answer2->getComment()}\"\n" .
+            "user,4,,,,,US,,{$user4->getEmail()},{$user4->getPhone()},,,1,1,0,,,,,,\"{$answer3->getOption()->getValue()}\",\"{$answer3->getComment()}\"\n",
             $response->getContent()
         );
     }

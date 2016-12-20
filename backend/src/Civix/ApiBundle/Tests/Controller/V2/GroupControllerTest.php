@@ -737,6 +737,7 @@ class GroupControllerTest extends WebTestCase
         $this->assertArrayHasKey('first_name', $data[0]);
         $this->assertArrayHasKey('last_name', $data[0]);
         $this->assertArrayHasKey('facebook', $data[0]);
+        $this->assertArrayHasKey('karma', $data[0]);
         $this->assertSame($user2->getEmail(), $data[0]['email']);
         $this->assertSame($user2->getPhone(), $data[0]['phone']);
         $this->assertSame("1", $data[0]['followers']);
@@ -781,10 +782,10 @@ class GroupControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $this->assertSame(
-            "first_name,last_name,address1,address2,city,state,country,zip,email,phone,bio,slogan,facebook,followers," .
+            "first_name,last_name,address1,address2,city,state,country,zip,email,phone,bio,slogan,facebook,followers,karma," .
             "test-group-field,\"\"\"field1`\",\"\"\"field2`\",\"\"\"field3`\",\"\"\"field4`\",president,vice_president,senator1,senator2,congressman\n" .
-            "user,2,,,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,test-field-value-2,,,,,,,,,\n" .
-            "user,3,,,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,test-field-value-3,,,,,\"{$bo->getFullName()}\",\"{$jb->getFullName()}\",\"{$rm->getFullName()}\",\"{$kg->getFullName()}\",\"{$eh->getFullName()}\"\n",
+            "user,2,,,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,0,test-field-value-2,,,,,,,,,\n" .
+            "user,3,,,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,0,test-field-value-3,,,,,\"{$bo->getFullName()}\",\"{$jb->getFullName()}\",\"{$rm->getFullName()}\",\"{$kg->getFullName()}\",\"{$eh->getFullName()}\"\n",
             $response->getContent()
         );
         $this->assertContains('text/csv', $response->headers->get('content-type'));
@@ -840,6 +841,7 @@ class GroupControllerTest extends WebTestCase
         $this->assertArrayHasKey('first_name', $data[0]);
         $this->assertArrayHasKey('last_name', $data[0]);
         $this->assertArrayHasKey('facebook', $data[0]);
+        $this->assertArrayHasKey('karma', $data[0]);
         $this->assertSame($user1->getEmail(), $data[0]['email']);
         $this->assertSame($user1->getPhone(), $data[0]['phone']);
         $this->assertSame("0", $data[0]['followers']);
@@ -899,18 +901,18 @@ class GroupControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $this->assertSame(
-            "first_name,last_name,address1,address2,city,state,country,zip,email,phone,bio,slogan,facebook,followers," .
+            "first_name,last_name,address1,address2,city,state,country,zip,email,phone,bio,slogan,facebook,followers,karma," .
             "test-group-field,\"\"\"field1`\",\"\"\"field2`\",\"\"\"field3`\",\"\"\"field4`\"," .
             "\"{$poll1->getSubject()}\",\"{$poll5->getSubject()}\"\n" .
-            "User,One,,,,,US,,{$user1->getEmail()},{$user1->getPhone()},\"{$user1->getBio()}\",\"{$user1->getSlogan()}\",1,0,,,,,,,\n" .
-            "user,2,,,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,test-field-value-2,,,,,\"{$answer1->getOption()->getValue()}\",\n" .
-            "user,3,,,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,test-field-value-3,,,,,Anonymous,\n" .
-            "user,4,,,,,US,,{$user4->getEmail()},{$user4->getPhone()},,,1,1,,,,,,\"{$answer3->getOption()->getValue()}\",\n" .
-            "followertest,,,,,,US,,{$followertest->getEmail()},{$followertest->getPhone()},,,1,0,,,,,,,\n" .
-            "userfollowtest,1,,,,,US,,{$userfollowtest1->getEmail()},{$userfollowtest1->getPhone()},,,1,0,,,,,,,\n" .
-            "userfollowtest,2,,,,,US,,{$userfollowtest2->getEmail()},{$userfollowtest2->getPhone()},,,1,0,,,,,,,\n" .
-            "userfollowtest,3,,,,,US,,{$userfollowtest3->getEmail()},{$userfollowtest3->getPhone()},,,1,0,,,,,,,\n" .
-            "testuserbookmark,1,,,,,US,,{$testuserbookmark1->getEmail()},{$testuserbookmark1->getPhone()},,,1,0,,,,,,,\n",
+            "User,One,,,,,US,,{$user1->getEmail()},{$user1->getPhone()},\"{$user1->getBio()}\",\"{$user1->getSlogan()}\",1,0,0,,,,,,,\n" .
+            "user,2,,,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,0,test-field-value-2,,,,,\"{$answer1->getOption()->getValue()}\",\n" .
+            "user,3,,,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,0,test-field-value-3,,,,,Anonymous,\n" .
+            "user,4,,,,,US,,{$user4->getEmail()},{$user4->getPhone()},,,1,1,0,,,,,,\"{$answer3->getOption()->getValue()}\",\n" .
+            "followertest,,,,,,US,,{$followertest->getEmail()},{$followertest->getPhone()},,,1,0,0,,,,,,,\n" .
+            "userfollowtest,1,,,,,US,,{$userfollowtest1->getEmail()},{$userfollowtest1->getPhone()},,,1,0,0,,,,,,,\n" .
+            "userfollowtest,2,,,,,US,,{$userfollowtest2->getEmail()},{$userfollowtest2->getPhone()},,,1,0,0,,,,,,,\n" .
+            "userfollowtest,3,,,,,US,,{$userfollowtest3->getEmail()},{$userfollowtest3->getPhone()},,,1,0,0,,,,,,,\n" .
+            "testuserbookmark,1,,,,,US,,{$testuserbookmark1->getEmail()},{$testuserbookmark1->getPhone()},,,1,0,0,,,,,,,\n",
             $response->getContent()
         );
         $this->assertContains('text/csv', $response->headers->get('content-type'));
