@@ -115,7 +115,7 @@ class AnswerRepository extends EntityRepository
             ->select(
                 'CASE WHEN a.privacy = :public THEN u.firstName ELSE NULL END AS first_name',
                 'CASE WHEN a.privacy = :public THEN u.lastName  ELSE NULL END AS last_name',
-                'u.address1, u.address2, u.city, u.state, u.country, u.zip, u.email, u.phone, u.bio, u.slogan, CASE WHEN u.facebook_id IS NOT NULL THEN 1 ELSE 0 END AS facebook, COUNT(f.id) AS followers'
+                'u.address1, u.address2, u.city, u.state, u.country, u.zip, u.email, u.phone, u.bio, u.slogan, CASE WHEN u.facebook_id IS NOT NULL THEN 1 ELSE 0 END AS facebook, COUNT(f.id) AS followers, 0 AS karma'
                 )
             ->from('poll_answers', 'a')
             ->leftJoin('a', 'user', 'u', 'a.user_id = u.id')
@@ -152,7 +152,7 @@ class AnswerRepository extends EntityRepository
             ->getConnection()
             ->createQueryBuilder()
             ->select(
-                'u.firstName AS first_name, u.lastName AS last_name, u.address1, u.address2, u.city, u.state, u.country, u.zip, u.email, u.phone, u.bio, u.slogan, CASE WHEN u.facebook_id IS NOT NULL THEN 1 ELSE 0 END AS facebook, COUNT(f.id) AS followers'
+                'u.firstName AS first_name, u.lastName AS last_name, u.address1, u.address2, u.city, u.state, u.country, u.zip, u.email, u.phone, u.bio, u.slogan, CASE WHEN u.facebook_id IS NOT NULL THEN 1 ELSE 0 END AS facebook, COUNT(f.id) AS followers, 0 AS karma'
                 )
             ->from('user', 'u')
             ->leftJoin('u', 'users_follow', 'f', 'f.user_id = u.id')
