@@ -164,10 +164,9 @@ class UserGroupRepository extends EntityRepository
         $qb = $this->getEntityManager()
             ->getConnection()
             ->createQueryBuilder()
-            ->select('u.firstName AS first_name, u.lastName AS last_name, u.address1, u.address2, u.city, u.state, u.country, u.zip, u.email, u.phone, u.bio, u.slogan, CASE WHEN u.facebook_id IS NOT NULL THEN 1 ELSE 0 END AS facebook, COUNT(f.id) AS followers')
+            ->select('u.firstName AS first_name, u.lastName AS last_name, u.address1, u.address2, u.city, u.state, u.country, u.zip, u.email, u.phone, u.bio, u.slogan, CASE WHEN u.facebook_id IS NOT NULL THEN 1 ELSE 0 END AS facebook, (SELECT COUNT(f.id) FROM users_follow f WHERE f.user_id = u.id) AS followers')
             ->from('users_groups', 'ug')
             ->leftJoin('ug', 'user', 'u', 'ug.user_id = u.id')
-            ->leftJoin('u', 'users_follow', 'f', 'f.user_id = u.id')
             ->where('ug.group_id = :group')
             ->setParameter(':group', $group->getId())
             ->groupBy('u.id');
@@ -179,6 +178,8 @@ class UserGroupRepository extends EntityRepository
                 ->leftJoin('u', 'groups_fields_values', 'v'.$k, "v$k.user_id = u.id AND v$k.field_id = :field$k")
                 ->setParameter(":field$k", $field->getId());
         }
+        $qb->addSelect('r.president, r.vice_president, r.senator1, r.senator2, r.congressman')
+            ->leftJoin('u', 'user_representative_report', 'r', 'r.user_id = u.id');
 
         return $qb->execute();
     }

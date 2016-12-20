@@ -2,11 +2,15 @@
 
 namespace Civix\CoreBundle\Service\User;
 
-use Civix\CoreBundle\Entity\Micropetitions\Petition;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserPetition;
+use Civix\CoreBundle\Entity\UserRepresentativeReport;
+use Civix\CoreBundle\Service\CiceroApi;
+use Civix\CoreBundle\Service\CropImage;
+use Civix\CoreBundle\Service\Group\GroupManager;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class UserManager
@@ -20,10 +24,10 @@ class UserManager
     private $kernelRootDir;
 
     public function __construct(
-        \Doctrine\ORM\EntityManager $entityManager,
-        \Civix\CoreBundle\Service\CiceroApi $ciceroApi,
-        \Civix\CoreBundle\Service\Group\GroupManager $groupManager,
-        \Civix\CoreBundle\Service\CropImage $cropImageService,
+        EntityManager $entityManager,
+        CiceroApi $ciceroApi,
+        GroupManager $groupManager,
+        CropImage $cropImageService,
         $kernelRootDir
     ) {
         $this->entityManager = $entityManager;
@@ -42,11 +46,38 @@ class UserManager
             $user->getCountry()
         );
         if (!empty($representatives)) {
+            $report = $this->entityManager->getRepository(UserRepresentativeReport::class)
+                ->findOneBy(['user' => $user]);
+            if (!$report) {
+                $report = new UserRepresentativeReport($user);
+            } else {
+                $report->reset();
+            }
+
             $user->getDistricts()->clear();
 
             foreach ($representatives as $representative) {
+                switch ($representative->getOfficialTitle()) {
+                    case 'President':
+                        $report->setPresident($representative->getFullName());
+                        break;
+                    case 'Vice President':
+                        $report->setVicePresident($representative->getFullName());
+                        break;
+                    case 'Senator':
+                        if (!$report->getSenator1()) {
+                            $report->setSenator1($representative->getFullName());
+                        } else {
+                            $report->setSenator2($representative->getFullName());
+                        }
+                        break;
+                    case 'Congressman':
+                        $report->setCongressman($representative->getFullName());
+                        break;
+                }
                 $user->addDistrict($representative->getDistrict());
             }
+            $this->entityManager->persist($report);
 
             $user->setUpdateProfileAt(new \DateTime());
         }

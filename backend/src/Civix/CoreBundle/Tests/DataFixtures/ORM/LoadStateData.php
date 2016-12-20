@@ -23,10 +23,10 @@ class LoadStateData extends AbstractFixture
         $this->addReference('state_wa', $state);
         
         $state = new State();
-        $state->setCode('TX')
-            ->setName('Texas');
+        $state->setCode('DC')
+            ->setName('District of Columbia');
         $manager->persist($state);
-        $this->addReference('state_tx', $state);
+        $this->addReference('state_dc', $state);
         
         $manager->flush();
     }

@@ -21,6 +21,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserRepresentativeReportData;
 use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
@@ -716,10 +717,16 @@ class GroupControllerTest extends WebTestCase
             LoadUserFollowerData::class,
             LoadGroupManagerData::class,
             LoadFieldValueData::class,
+            LoadUserRepresentativeReportData::class,
         ])->getReferenceRepository();
         $user2 = $this->repository->getReference('user_2');
         $user3 = $this->repository->getReference('user_3');
         $group = $this->repository->getReference('group_1');
+        $bo = $this->repository->getReference('cicero_representative_bo');
+        $jb = $this->repository->getReference('cicero_representative_jb');
+        $kg = $this->repository->getReference('cicero_representative_kg');
+        $eh = $this->repository->getReference('cicero_representative_eh');
+        $rm = $this->repository->getReference('cicero_representative_rm');
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/members', [], [], [
             'HTTP_AUTHORIZATION' => 'Bearer type="user" token="user1"',
@@ -734,10 +741,20 @@ class GroupControllerTest extends WebTestCase
         $this->assertSame($user2->getPhone(), $data[0]['phone']);
         $this->assertSame("1", $data[0]['followers']);
         $this->assertSame("test-field-value-2", $data[0]['test-group-field']);
+        $this->assertNull($data[0]['president']);
+        $this->assertNull($data[0]['vice_president']);
+        $this->assertNull($data[0]['senator1']);
+        $this->assertNull($data[0]['senator2']);
+        $this->assertNull($data[0]['congressman']);
         $this->assertSame($user3->getEmail(), $data[1]['email']);
         $this->assertSame($user3->getPhone(), $data[1]['phone']);
         $this->assertSame("1", $data[1]['followers']);
         $this->assertSame("test-field-value-3", $data[1]['test-group-field']);
+        $this->assertSame($bo->getFullName(), $data[1]['president']);
+        $this->assertSame($jb->getFullName(), $data[1]['vice_president']);
+        $this->assertSame($rm->getFullName(), $data[1]['senator1']);
+        $this->assertSame($kg->getFullName(), $data[1]['senator2']);
+        $this->assertSame($eh->getFullName(), $data[1]['congressman']);
     }
 
     public function testGetGroupMembersCsvIsOk()
@@ -746,10 +763,16 @@ class GroupControllerTest extends WebTestCase
             LoadUserFollowerData::class,
             LoadGroupManagerData::class,
             LoadFieldValueData::class,
+            LoadUserRepresentativeReportData::class,
         ])->getReferenceRepository();
         $user2 = $this->repository->getReference('user_2');
         $user3 = $this->repository->getReference('user_3');
         $group = $this->repository->getReference('group_1');
+        $bo = $this->repository->getReference('cicero_representative_bo');
+        $jb = $this->repository->getReference('cicero_representative_jb');
+        $kg = $this->repository->getReference('cicero_representative_kg');
+        $eh = $this->repository->getReference('cicero_representative_eh');
+        $rm = $this->repository->getReference('cicero_representative_rm');
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/members', [], [], [
             'HTTP_ACCEPT' => 'text/csv',
@@ -759,9 +782,9 @@ class GroupControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $this->assertSame(
             "first_name,last_name,address1,address2,city,state,country,zip,email,phone,bio,slogan,facebook,followers," .
-            "test-group-field,\"\"\"field1`\",\"\"\"field2`\",\"\"\"field3`\",\"\"\"field4`\"\n" .
-            "user,2,,,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,test-field-value-2,,,,\n" .
-            "user,3,,,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,test-field-value-3,,,,\n",
+            "test-group-field,\"\"\"field1`\",\"\"\"field2`\",\"\"\"field3`\",\"\"\"field4`\",president,vice_president,senator1,senator2,congressman\n" .
+            "user,2,,,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,test-field-value-2,,,,,,,,,\n" .
+            "user,3,,,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,test-field-value-3,,,,,\"{$bo->getFullName()}\",\"{$jb->getFullName()}\",\"{$rm->getFullName()}\",\"{$kg->getFullName()}\",\"{$eh->getFullName()}\"\n",
             $response->getContent()
         );
         $this->assertContains('text/csv', $response->headers->get('content-type'));
