@@ -161,7 +161,7 @@ class User implements UserInterface, \Serializable, OfficialInterface, HasAvatar
      * @Serializer\Expose()
      * @Serializer\Type("Avatar")
      * @Serializer\Groups({"api-profile", "api-info", "api-petitions-list", "api-petitions-info", "api-full-info",
-     *      "api-activities", "api-search", "api-comments", "api-invites"})
+     *      "api-activities", "api-search", "api-comments", "api-invites", "user-list"})
      * @Serializer\Accessor(getter="getAvatarWithPath")
      */
     private $avatarFileName;

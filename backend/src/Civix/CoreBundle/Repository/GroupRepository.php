@@ -396,7 +396,12 @@ class GroupRepository extends EntityRepository
 
         if (isset($criteria['exclude_owned']) && $criteria['exclude_owned'] instanceof User) {
             $ids = $criteria['exclude_owned']->getGroupsIds();
-            $qb->andWhere($qb->expr()->notIn('g.id', $ids));
+            if ($ids) {
+                $qb->andWhere(
+                    $qb->expr()
+                        ->notIn('g.id', $ids)
+                );
+            }
         }
 
         if (!empty($criteria['query'])) {
