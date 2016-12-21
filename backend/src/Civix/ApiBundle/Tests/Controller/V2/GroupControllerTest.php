@@ -9,20 +9,17 @@ use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Test\SocialActivityTester;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadFieldValueData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadInviteData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserRepresentativeReportData;
-use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -32,68 +29,59 @@ class GroupControllerTest extends WebTestCase
 	const API_ENDPOINT = '/api/v2/groups';
 	
 	/**
-	 * @var \Doctrine\ORM\EntityManager
-	 */
-	private $em;
-
-	/**
 	 * @var Client
 	 */
 	private $client = null;
 
-	/**
-	 * @var ProxyReferenceRepository
-	 */
-	private $repository;
-
 	public function setUp()
 	{
 		$this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
-
-		$this->repository = $this->loadFixtures([
-			LoadUserData::class,
-			LoadGroupFollowerTestData::class,
-			LoadUserGroupFollowerTestData::class,
-		])->getReferenceRepository();
-
-		$this->em = $this->getContainer()->get('doctrine')->getManager();
 	}
 
 	public function tearDown()
 	{
 		$this->client = NULL;
-        $this->repository = null;
-        $this->em = null;
         parent::tearDown();
     }
 
 	public function testGetGroupsIsOk()
 	{
-		$data = $this->getGroups('followertest', []);
-		$this->assertSame(3, $data['totalItems']);
-		$this->assertCount(3, $data['payload']);
+        $this->loadFixtures([
+            LoadGroupData::class,
+        ]);
+		$data = $this->getGroups('user1', []);
+		$this->assertSame(4, $data['totalItems']);
+		$this->assertCount(4, $data['payload']);
 	}
 
 	public function testGetGroupsByQueryIsOk()
 	{
-		$data = $this->getGroups('followertest', ['query' => 'stfollow']);
-		$this->assertSame(2, $data['totalItems']);
-		$this->assertCount(2, $data['payload']);
+        $this->loadFixtures([
+            LoadGroupData::class,
+        ]);
+		$data = $this->getGroups('user1', ['query' => '']);
+		$this->assertSame(4, $data['totalItems']);
+		$this->assertCount(4, $data['payload']);
 	}
 
 	public function testGetGroupsExcludeOwnedIsOk()
 	{
-		$data = $this->getGroups('userfollowtest1', ['exclude_owned' => true]);
-		$this->assertSame(1, $data['totalItems']);
-		$this->assertCount(1, $data['payload']);
-		$this->assertSame(LoadGroupFollowerTestData::GROUP_NAME, $data['payload'][0]['official_name']);
+        $this->loadFixtures([
+            LoadUserGroupOwnerData::class,
+        ]);
+		$data = $this->getGroups('user1', ['exclude_owned' => true]);
+		$this->assertSame(2, $data['totalItems']);
+		$this->assertCount(2, $data['payload']);
 	}
 
 	public function testGetGroupsSortedByCreatedAtIsOk()
 	{
-		$data = $this->getGroups('userfollowtest1', ['sort' => 'created_at', 'sort_dir' => 'DESC']);
-		$this->assertSame(3, $data['totalItems']);
-		$this->assertCount(3, $data['payload']);
+        $this->loadFixtures([
+            LoadGroupData::class,
+        ]);
+		$data = $this->getGroups('user1', ['sort' => 'created_at', 'sort_dir' => 'DESC']);
+		$this->assertSame(4, $data['totalItems']);
+		$this->assertCount(4, $data['payload']);
 		$current = reset($data['payload']);
 		while ($next = next($data['payload'])) {
 			$this->assertLessThanOrEqual(
@@ -106,15 +94,22 @@ class GroupControllerTest extends WebTestCase
 
 	public function testGetGroupsSortedByPopularityIsOk()
 	{
+        $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+        ]);
 		$data = $this->getGroups('userfollowtest1', ['sort' => 'popularity', 'sort_dir' => 'DESC']);
-		$this->assertSame(3, $data['totalItems']);
-		$this->assertCount(3, $data['payload']);
-		$this->assertSame('testfollowprivategroups', $data['payload'][0]['official_name']);
+		$this->assertSame(4, $data['totalItems']);
+		$this->assertCount(4, $data['payload']);
+		$this->assertSame('group1', $data['payload'][0]['official_name']);
 	}
 
 	public function testGetGroupsExcludeOwnedAndSortedByCreatedAtIsOk()
 	{
-		$data = $this->getGroups('testuserbookmark1', [
+        $this->loadFixtures([
+            LoadUserGroupOwnerData::class,
+        ]);
+		$data = $this->getGroups('user1', [
 			'exclude_owned' => true,
 			'sort' => 'created_at',
 			'sort_dir' => 'DESC',
@@ -133,7 +128,10 @@ class GroupControllerTest extends WebTestCase
 
 	public function testGetGroupsExcludeOwnedAndSortedByPopularityIsOk()
 	{
-		$data = $this->getGroups('testuserbookmark1', [
+        $this->loadFixtures([
+            LoadUserGroupOwnerData::class,
+        ]);
+		$data = $this->getGroups('user1', [
 			'exclude_owned' => true,
 			'sort' => 'popularity',
 			'sort_dir' => 'DESC',
@@ -144,7 +142,10 @@ class GroupControllerTest extends WebTestCase
 
 	public function testGetGroupNotAuthorized()
 	{
-		$group = $this->repository->getReference('group');
+        $repository = $this->loadFixtures([
+            LoadGroupData::class,
+        ])->getReferenceRepository();
+		$group = $repository->getReference('group_1');
 		$client = $this->client;
 		$client->request('GET', self::API_ENDPOINT.'/'.$group->getId());
 		$response = $client->getResponse();
@@ -153,15 +154,20 @@ class GroupControllerTest extends WebTestCase
 
 	public function testGetGroupIsOk()
 	{
-		$group = $this->repository->getReference('testfollowprivategroups');
+        $repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+            LoadUserGroupOwnerData::class,
+        ])->getReferenceRepository();
+		$group = $repository->getReference('group_2');
 		$client = $this->client;
-		$client->request('GET', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"']);
+		$client->request('GET', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user2"']);
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
 		$this->assertSame($group->getId(), $data['id']);
-        $this->assertSame(4, $data['total_members']);
-        $this->assertSame('member', $data['user_role']);
+        $this->assertSame(3, $data['total_members']);
+        $this->assertSame('owner', $data['user_role']);
         $this->assertSame(Group::GROUP_TRANSPARENCY_PRIVATE, $data['transparency']);
 	}
 
@@ -172,9 +178,12 @@ class GroupControllerTest extends WebTestCase
      */
 	public function testUpdateGroupWithErrors($params, $errors)
 	{
-		$group = $this->repository->getReference('testfollowsecretgroups');
+        $repository = $this->loadFixtures([
+            LoadGroupData::class,
+        ])->getReferenceRepository();
+		$group = $repository->getReference('group_1');
 		$client = $this->client;
-		$client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"'], json_encode($params));
+		$client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
 		$response = $client->getResponse();
 		$this->assertResponseHasErrors($response, $errors);
 	}
@@ -209,16 +218,22 @@ class GroupControllerTest extends WebTestCase
 
 	public function testUpdateGroupWithWrongPermissions()
 	{
-		$group = $this->repository->getReference('group');
+        $repository = $this->loadFixtures([
+            LoadGroupData::class,
+        ])->getReferenceRepository();
+		$group = $repository->getReference('group_1');
 		$client = $this->client;
-		$client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"'], '');
+		$client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user2"'], '');
 		$response = $client->getResponse();
 		$this->assertEquals(403, $response->getStatusCode(), $response->getContent());
 	}
 
 	public function testUpdateGroupIsOk()
 	{
-		$group = $this->repository->getReference('testfollowsecretgroups');
+        $repository = $this->loadFixtures([
+            LoadGroupData::class,
+        ])->getReferenceRepository();
+		$group = $repository->getReference('group_1');
 		$faker = Factory::create();
 		$params = [
 			'manager_first_name' => $faker->firstName,
@@ -235,7 +250,7 @@ class GroupControllerTest extends WebTestCase
             'transparency' => Group::GROUP_TRANSPARENCY_PRIVATE,
 		];
 		$client = $this->client;
-		$client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"'], json_encode($params));
+		$client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
@@ -246,9 +261,12 @@ class GroupControllerTest extends WebTestCase
 
 	public function testGetGroupUsersIsEmpty()
 	{
-		$group = $this->repository->getReference('group');
+        $repository = $this->loadFixtures([
+            LoadGroupData::class,
+        ])->getReferenceRepository();
+		$group = $repository->getReference('group_1');
 		$client = $this->client;
-		$headers = ['HTTP_Authorization' => 'Bearer type="user" token="userfollowtest1"'];
+		$headers = ['HTTP_Authorization' => 'Bearer type="user" token="user1"'];
 		$client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/users', [], [], $headers);
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -261,9 +279,13 @@ class GroupControllerTest extends WebTestCase
 
 	public function testGetGroupUsersIsOk()
 	{
-		$group = $this->repository->getReference('testfollowsecretgroups');
+        $repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+		$group = $repository->getReference('group_1');
 		$client = $this->client;
-		$headers = ['HTTP_Authorization' => 'Bearer type="user" token="userfollowtest1"'];
+		$headers = ['HTTP_Authorization' => 'Bearer type="user" token="user1"'];
 		$client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/users', [], [], $headers);
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -275,7 +297,7 @@ class GroupControllerTest extends WebTestCase
 		foreach ($data['payload'] as $item) {
 			$this->assertThat(
 				$item['username'],
-				$this->logicalOr('userfollowtest1', 'userfollowtest2', 'userfollowtest3')
+				$this->logicalOr('user2', 'user3', 'user4')
 			);
 			$this->assertArrayHasKey('id', $item);
 			$this->assertArrayHasKey('first_name', $item);
@@ -283,16 +305,17 @@ class GroupControllerTest extends WebTestCase
 			$this->assertArrayHasKey('email', $item);
 			$this->assertArrayHasKey('join_status', $item);
 			$this->assertArrayHasKey('user_role', $item);
+			$this->assertArrayHasKey('avatar_file_name', $item);
 		}
 	}
 
     public function testDeleteGroupUserWithWrongCredentialsThrowsException()
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserGroupData::class,
         ])->getReferenceRepository();
-        $group = $this->repository->getReference('group_2');
-        $user = $this->repository->getReference('user_1');
+        $group = $repository->getReference('group_2');
+        $user = $repository->getReference('user_1');
         $client = $this->client;
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user4"'];
         $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId().'/users/'.$user->getId(), [], [], $headers);
@@ -302,12 +325,12 @@ class GroupControllerTest extends WebTestCase
 
     public function testDeleteGroupUserIsOk()
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserGroupData::class,
             LoadGroupManagerData::class,
         ])->getReferenceRepository();
-        $group = $this->repository->getReference('group_2');
-        $user = $this->repository->getReference('user_1');
+        $group = $repository->getReference('group_2');
+        $user = $repository->getReference('user_1');
         $client = $this->client;
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user3"'];
         $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId().'/users/'.$user->getId(), [], [], $headers);
@@ -324,11 +347,11 @@ class GroupControllerTest extends WebTestCase
 
     public function testPatchGroupUserWithWrongCredentialsThrowsException()
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserGroupData::class,
         ])->getReferenceRepository();
-        $group = $this->repository->getReference('group_2');
-        $user = $this->repository->getReference('user_1');
+        $group = $repository->getReference('group_2');
+        $user = $repository->getReference('user_1');
         $client = $this->client;
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user4"'];
         $client->request('PATCH', self::API_ENDPOINT.'/'.$group->getId().'/users/'.$user->getId(), [], [], $headers);
@@ -338,12 +361,12 @@ class GroupControllerTest extends WebTestCase
 
     public function testPatchGroupUserIsOk()
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserGroupData::class,
             LoadGroupManagerData::class,
         ])->getReferenceRepository();
-        $group = $this->repository->getReference('group_2');
-        $user = $this->repository->getReference('user_1');
+        $group = $repository->getReference('group_2');
+        $user = $repository->getReference('user_1');
         $client = $this->client;
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user3"'];
         $client->request('PATCH', self::API_ENDPOINT.'/'.$group->getId().'/users/'.$user->getId(), [], [], $headers);
@@ -359,10 +382,10 @@ class GroupControllerTest extends WebTestCase
 
     public function testPutGroupUsersWithWrongCredentialsThrowsException()
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserGroupData::class,
         ])->getReferenceRepository();
-        $group = $this->repository->getReference('group_3');
+        $group = $repository->getReference('group_3');
         $client = $this->client;
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user1"'];
         $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/users', [], [], $headers);
@@ -372,10 +395,10 @@ class GroupControllerTest extends WebTestCase
 
     public function testPutGroupUsersReturnsErrors()
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserGroupData::class,
         ])->getReferenceRepository();
-        $group = $this->repository->getReference('group_1');
+        $group = $repository->getReference('group_1');
         $errors = [
             'users' => 'This collection should contain 1 element or more.',
             'post' => 'This value is not valid.',
@@ -389,15 +412,15 @@ class GroupControllerTest extends WebTestCase
 
     public function testInviteJoinedUsersToGroupIsOk()
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserGroupData::class,
             LoadGroupManagerData::class,
         ])->getReferenceRepository();
-        $group = $this->repository->getReference('group_1');
-        $user1 = $this->repository->getReference('user_1');
-        $user2 = $this->repository->getReference('user_2');
-        $user3 = $this->repository->getReference('user_3');
-        $user4 = $this->repository->getReference('user_4');
+        $group = $repository->getReference('group_1');
+        $user1 = $repository->getReference('user_1');
+        $user2 = $repository->getReference('user_2');
+        $user3 = $repository->getReference('user_3');
+        $user4 = $repository->getReference('user_4');
         $client = $this->client;
         $service = $this->getServiceMockBuilder('civix_core.push_task')
             ->setMethods(['addToQueue'])
@@ -422,12 +445,12 @@ class GroupControllerTest extends WebTestCase
 
     public function testInviteUsersToGroupByUsernameIsOk()
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserGroupData::class,
         ])->getReferenceRepository();
-        $group = $this->repository->getReference('group_1');
-        $user2 = $this->repository->getReference('user_2');
-        $user3 = $this->repository->getReference('user_3');
+        $group = $repository->getReference('group_1');
+        $user2 = $repository->getReference('user_2');
+        $user3 = $repository->getReference('user_3');
         $client = $this->client;
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user4"'];
         $params = ['users' => json_encode([$user2->getUsername(), $user3->getUsername()])];
@@ -446,15 +469,15 @@ class GroupControllerTest extends WebTestCase
 
     public function testInviteUsersToGroupByPostIsOk()
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserGroupOwnerData::class,
             LoadPostVoteData::class,
         ])->getReferenceRepository();
-        $group = $this->repository->getReference('group_2');
+        $group = $repository->getReference('group_2');
         /** @var Post $post */
-        $post = $this->repository->getReference('post_3');
-        $user3 = $this->repository->getReference('user_3');
-        $user4 = $this->repository->getReference('user_4');
+        $post = $repository->getReference('post_3');
+        $user3 = $repository->getReference('user_3');
+        $user4 = $repository->getReference('user_4');
         $client = $this->client;
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user2"'];
         $params = ['post' => $post->getId()];
@@ -474,12 +497,12 @@ class GroupControllerTest extends WebTestCase
 
     public function testInviteUsersToGroupByUsedPostFails()
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserGroupOwnerData::class,
             LoadPostData::class,
         ])->getReferenceRepository();
-        $group = $this->repository->getReference('group_3');
-        $post = $this->repository->getReference('post_6');
+        $group = $repository->getReference('group_3');
+        $post = $repository->getReference('post_6');
         $client = $this->client;
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user3"'];
         $params = ['post' => $post->getId()];
@@ -492,15 +515,15 @@ class GroupControllerTest extends WebTestCase
 
     public function testInviteUsersToGroupByUserPetitionIsOk()
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserGroupOwnerData::class,
             LoadUserPetitionSignatureData::class,
         ])->getReferenceRepository();
-        $group = $this->repository->getReference('group_2');
+        $group = $repository->getReference('group_2');
         /** @var UserPetition $petition */
-        $petition = $this->repository->getReference('user_petition_3');
-        $user3 = $this->repository->getReference('user_3');
-        $user4 = $this->repository->getReference('user_4');
+        $petition = $repository->getReference('user_petition_3');
+        $user3 = $repository->getReference('user_3');
+        $user4 = $repository->getReference('user_4');
         $client = $this->client;
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user2"'];
         $params = ['user_petition' => $petition->getId()];
@@ -520,12 +543,12 @@ class GroupControllerTest extends WebTestCase
 
     public function testInviteUsersToGroupByUsedUserPetitionFails()
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserGroupOwnerData::class,
             LoadUserPetitionData::class,
         ])->getReferenceRepository();
-        $group = $this->repository->getReference('group_3');
-        $post = $this->repository->getReference('user_petition_6');
+        $group = $repository->getReference('group_3');
+        $post = $repository->getReference('user_petition_6');
         $client = $this->client;
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user3"'];
         $params = ['user_petition' => $post->getId()];
@@ -543,12 +566,12 @@ class GroupControllerTest extends WebTestCase
      */
     public function testApproveInvitationWithWrongCredentialsThrowsException($user, $reference)
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserGroupData::class,
             LoadInviteData::class,
         ])->getReferenceRepository();
-        $group = $this->repository->getReference($reference);
-        $user1 = $this->repository->getReference('user_1');
+        $group = $repository->getReference($reference);
+        $user1 = $repository->getReference('user_1');
         $client = $this->client;
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="'.$user.'"'];
         $client->request('PATCH', self::API_ENDPOINT.'/'.$group->getId().'/invites/'.$user1->getId(), [], [], $headers);
@@ -563,12 +586,12 @@ class GroupControllerTest extends WebTestCase
      */
     public function testApproveInvitationIsOk($user, $reference)
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadGroupManagerData::class,
             LoadInviteData::class,
         ])->getReferenceRepository();
-        $group = $this->repository->getReference($reference);
-        $user1 = $this->repository->getReference('user_1');
+        $group = $repository->getReference($reference);
+        $user1 = $repository->getReference('user_1');
         $client = $this->client;
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="'.$user.'"'];
         $client->request('PATCH', self::API_ENDPOINT.'/'.$group->getId().'/invites/'.$user1->getId(), [], [], $headers);
@@ -587,12 +610,12 @@ class GroupControllerTest extends WebTestCase
      */
     public function testRejectInvitationWithWrongCredentialsThrowsException($user, $reference)
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserGroupData::class,
             LoadInviteData::class,
         ])->getReferenceRepository();
-        $group = $this->repository->getReference($reference);
-        $user1 = $this->repository->getReference('user_1');
+        $group = $repository->getReference($reference);
+        $user1 = $repository->getReference('user_1');
         $client = $this->client;
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="'.$user.'"'];
         $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId().'/invites/'.$user1->getId(), [], [], $headers);
@@ -607,12 +630,12 @@ class GroupControllerTest extends WebTestCase
      */
     public function testRejectInvitationIsOk($user, $reference)
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadGroupManagerData::class,
             LoadInviteData::class,
         ])->getReferenceRepository();
-        $group = $this->repository->getReference($reference);
-        $user1 = $this->repository->getReference('user_1');
+        $group = $repository->getReference($reference);
+        $user1 = $repository->getReference('user_1');
         $client = $this->client;
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="'.$user.'"'];
         $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId().'/invites/'.$user1->getId(), [], [], $headers);
@@ -631,12 +654,12 @@ class GroupControllerTest extends WebTestCase
      */
     public function testAddGroupManagerWithWrongCredentialsThrowsException($user, $reference)
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserGroupData::class,
             LoadGroupManagerData::class,
         ])->getReferenceRepository();
-        $user1 = $this->repository->getReference('userfollowtest1');
-        $group = $this->repository->getReference($reference);
+        $user1 = $repository->getReference('userfollowtest1');
+        $group = $repository->getReference($reference);
         $client = $this->client;
         $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/managers/'.$user1->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
         $response = $client->getResponse();
@@ -645,10 +668,13 @@ class GroupControllerTest extends WebTestCase
 
     public function testAddGroupManagerIsOk()
     {
-        $user = $this->repository->getReference('userfollowtest2');
-        $group = $this->repository->getReference('testfollowsecretgroups');
+        $repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+        ])->getReferenceRepository();
+        $user = $repository->getReference('user_4');
+        $group = $repository->getReference('group_1');
         $client = $this->client;
-        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/managers/'.$user->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest1"']);
+        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/managers/'.$user->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
@@ -662,12 +688,12 @@ class GroupControllerTest extends WebTestCase
      */
     public function testDeleteGroupManagerWithWrongCredentialsThrowsException($user, $reference)
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserGroupData::class,
             LoadGroupManagerData::class,
         ])->getReferenceRepository();
-        $user1 = $this->repository->getReference('userfollowtest1');
-        $group = $this->repository->getReference($reference);
+        $user1 = $repository->getReference('userfollowtest1');
+        $group = $repository->getReference($reference);
         $client = $this->client;
         $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId().'/managers/'.$user1->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
         $response = $client->getResponse();
@@ -676,11 +702,11 @@ class GroupControllerTest extends WebTestCase
 
     public function testDeleteGroupManagerIsOk()
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadGroupManagerData::class,
         ])->getReferenceRepository();
-        $user = $this->repository->getReference('user_2');
-        $group = $this->repository->getReference('group_1');
+        $user = $repository->getReference('user_2');
+        $group = $repository->getReference('group_1');
         $client = $this->client;
         $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId().'/managers/'.$user->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
@@ -698,11 +724,11 @@ class GroupControllerTest extends WebTestCase
      */
     public function testGetGroupMembersWithWrongCredentialsThrowsException($user, $reference)
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserGroupData::class,
             LoadGroupManagerData::class,
         ])->getReferenceRepository();
-        $group = $this->repository->getReference($reference);
+        $group = $repository->getReference($reference);
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/members', [], [], [
             'HTTP_AUTHORIZATION' => 'Bearer type="user" token="'.$user.'"',
@@ -713,20 +739,20 @@ class GroupControllerTest extends WebTestCase
 
     public function testGetGroupMembersIsOk()
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserFollowerData::class,
             LoadGroupManagerData::class,
             LoadFieldValueData::class,
             LoadUserRepresentativeReportData::class,
         ])->getReferenceRepository();
-        $user2 = $this->repository->getReference('user_2');
-        $user3 = $this->repository->getReference('user_3');
-        $group = $this->repository->getReference('group_1');
-        $bo = $this->repository->getReference('cicero_representative_bo');
-        $jb = $this->repository->getReference('cicero_representative_jb');
-        $kg = $this->repository->getReference('cicero_representative_kg');
-        $eh = $this->repository->getReference('cicero_representative_eh');
-        $rm = $this->repository->getReference('cicero_representative_rm');
+        $user2 = $repository->getReference('user_2');
+        $user3 = $repository->getReference('user_3');
+        $group = $repository->getReference('group_1');
+        $bo = $repository->getReference('cicero_representative_bo');
+        $jb = $repository->getReference('cicero_representative_jb');
+        $kg = $repository->getReference('cicero_representative_kg');
+        $eh = $repository->getReference('cicero_representative_eh');
+        $rm = $repository->getReference('cicero_representative_rm');
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/members', [], [], [
             'HTTP_AUTHORIZATION' => 'Bearer type="user" token="user1"',
@@ -760,20 +786,20 @@ class GroupControllerTest extends WebTestCase
 
     public function testGetGroupMembersCsvIsOk()
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserFollowerData::class,
             LoadGroupManagerData::class,
             LoadFieldValueData::class,
             LoadUserRepresentativeReportData::class,
         ])->getReferenceRepository();
-        $user2 = $this->repository->getReference('user_2');
-        $user3 = $this->repository->getReference('user_3');
-        $group = $this->repository->getReference('group_1');
-        $bo = $this->repository->getReference('cicero_representative_bo');
-        $jb = $this->repository->getReference('cicero_representative_jb');
-        $kg = $this->repository->getReference('cicero_representative_kg');
-        $eh = $this->repository->getReference('cicero_representative_eh');
-        $rm = $this->repository->getReference('cicero_representative_rm');
+        $user2 = $repository->getReference('user_2');
+        $user3 = $repository->getReference('user_3');
+        $group = $repository->getReference('group_1');
+        $bo = $repository->getReference('cicero_representative_bo');
+        $jb = $repository->getReference('cicero_representative_jb');
+        $kg = $repository->getReference('cicero_representative_kg');
+        $eh = $repository->getReference('cicero_representative_eh');
+        $rm = $repository->getReference('cicero_representative_rm');
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/members', [], [], [
             'HTTP_ACCEPT' => 'text/csv',
@@ -799,11 +825,11 @@ class GroupControllerTest extends WebTestCase
      */
     public function testGetGroupResponsesWithWrongCredentialsThrowsException($user, $reference)
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserGroupData::class,
             LoadGroupManagerData::class,
         ])->getReferenceRepository();
-        $group = $this->repository->getReference($reference);
+        $group = $repository->getReference($reference);
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/responses', [], [], [
             'HTTP_AUTHORIZATION' => 'Bearer type="user" token="'.$user.'"',
@@ -814,21 +840,21 @@ class GroupControllerTest extends WebTestCase
 
     public function testGetGroupResponsesIsOk()
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserFollowerData::class,
             LoadGroupManagerData::class,
             LoadFieldValueData::class,
             LoadQuestionAnswerData::class,
         ])->getReferenceRepository();
-        $user1 = $this->repository->getReference('user_1');
-        $user2 = $this->repository->getReference('user_2');
-        $user3 = $this->repository->getReference('user_3');
-        $user4 = $this->repository->getReference('user_4');
-        $poll1 = $this->repository->getReference('group_question_1');
-        $poll5 = $this->repository->getReference('group_question_5');
-        $answer1 = $this->repository->getReference('question_answer_1');
-        $answer3 = $this->repository->getReference('question_answer_3');
-        $group = $this->repository->getReference('group_1');
+        $user1 = $repository->getReference('user_1');
+        $user2 = $repository->getReference('user_2');
+        $user3 = $repository->getReference('user_3');
+        $user4 = $repository->getReference('user_4');
+        $poll1 = $repository->getReference('group_question_1');
+        $poll5 = $repository->getReference('group_question_5');
+        $answer1 = $repository->getReference('question_answer_1');
+        $answer3 = $repository->getReference('question_answer_3');
+        $group = $repository->getReference('group_1');
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/responses', [], [], [
             'HTTP_AUTHORIZATION' => 'Bearer type="user" token="user1"',
@@ -873,26 +899,26 @@ class GroupControllerTest extends WebTestCase
 
     public function testGetGroupResponsesCsvIsOk()
     {
-        $this->repository = $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserFollowerData::class,
             LoadGroupManagerData::class,
             LoadFieldValueData::class,
             LoadQuestionAnswerData::class,
         ])->getReferenceRepository();
-        $user1 = $this->repository->getReference('user_1');
-        $user2 = $this->repository->getReference('user_2');
-        $user3 = $this->repository->getReference('user_3');
-        $user4 = $this->repository->getReference('user_4');
-        $followertest = $this->repository->getReference('followertest');
-        $userfollowtest1 = $this->repository->getReference('userfollowtest1');
-        $userfollowtest2 = $this->repository->getReference('userfollowtest2');
-        $userfollowtest3 = $this->repository->getReference('userfollowtest3');
-        $testuserbookmark1 = $this->repository->getReference('testuserbookmark1');
-        $poll1 = $this->repository->getReference('group_question_1');
-        $poll5 = $this->repository->getReference('group_question_5');
-        $answer1 = $this->repository->getReference('question_answer_1');
-        $answer3 = $this->repository->getReference('question_answer_3');
-        $group = $this->repository->getReference('group_1');
+        $user1 = $repository->getReference('user_1');
+        $user2 = $repository->getReference('user_2');
+        $user3 = $repository->getReference('user_3');
+        $user4 = $repository->getReference('user_4');
+        $followertest = $repository->getReference('followertest');
+        $userfollowtest1 = $repository->getReference('userfollowtest1');
+        $userfollowtest2 = $repository->getReference('userfollowtest2');
+        $userfollowtest3 = $repository->getReference('userfollowtest3');
+        $testuserbookmark1 = $repository->getReference('testuserbookmark1');
+        $poll1 = $repository->getReference('group_question_1');
+        $poll5 = $repository->getReference('group_question_5');
+        $answer1 = $repository->getReference('question_answer_1');
+        $answer3 = $repository->getReference('question_answer_3');
+        $group = $repository->getReference('group_1');
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/responses', [], [], [
             'HTTP_ACCEPT' => 'text/csv',
