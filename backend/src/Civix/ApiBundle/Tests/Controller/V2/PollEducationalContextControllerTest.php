@@ -16,11 +16,6 @@ class PollEducationalContextControllerTest extends WebTestCase
     const API_ENDPOINT = '/api/v2/polls/{poll}/educational-contexts';
 
     /**
-     * @var \Doctrine\ORM\EntityManager
-     */
-    private $em;
-
-    /**
      * @var Client
      */
     private $client = null;
@@ -28,14 +23,11 @@ class PollEducationalContextControllerTest extends WebTestCase
     public function setUp()
     {
         $this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
-
-        $this->em = $this->getContainer()->get('doctrine')->getManager();
     }
 
     public function tearDown()
     {
         $this->client = NULL;
-        $this->em = null;
         parent::tearDown();
     }
 

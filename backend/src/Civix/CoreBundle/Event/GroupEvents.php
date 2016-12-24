@@ -12,4 +12,5 @@ class GroupEvents
     const MEMBERSHIP_CONTROL_CHANGED = 'group.membership_control_changed';
     const PERMISSIONS_CHANGED = 'group.permissions_changed';
     const USER_INQUIRED = 'group.user_inquired';
+    const BEFORE_AVATAR_DELETE = 'group.before_avatar_delete';
 }

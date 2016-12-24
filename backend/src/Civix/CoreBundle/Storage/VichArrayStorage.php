@@ -30,4 +30,9 @@ class VichArrayStorage extends AbstractStorage
     {
         return $this->files[$dir];
     }
+
+    public function addFile(UploadedFile $file, $dir, $name)
+    {
+        $this->doUpload($file, $dir, $name);
+    }
 }

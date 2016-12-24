@@ -385,6 +385,19 @@ class GroupManager
         $this->entityManager->flush();
     }
 
+    public function deleteGroupAvatar(Group $group)
+    {
+        $event = new GroupEvent($group);
+        $this->dispatcher->dispatch(GroupEvents::BEFORE_AVATAR_DELETE, $event);
+
+        $group->setAvatarFileName(null);
+
+        $this->entityManager->persist($group);
+        $this->entityManager->flush();
+
+        return $group;
+    }
+
     private function inviteUserToGroup(User $user, Group $group, User $inviter)
     {
         $invite = new UserToGroup();

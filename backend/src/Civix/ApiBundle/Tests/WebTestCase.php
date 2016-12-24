@@ -34,11 +34,11 @@ abstract class WebTestCase extends \Liip\FunctionalTestBundle\Test\WebTestCase
         }
         if ($checkExtraErrors) {
             if (!empty($data['errors']['errors'])) {
-                $this->fail('Form contains extra errors.');
+                $this->fail("Form contains extra errors.\nErrors:\n - ".implode("\n - ", $data['errors']['errors']));
             }
             foreach ($data['errors']['children'] as $child => $array) {
                 if (!empty($array['errors'])) {
-                    $this->fail('Form['.$child.'] contains extra errors.');
+                    $this->fail("Form[$child] contains extra errors.\nErrors:\n - ".implode("\n - ", $array['errors']));
                 }
             }
         }
