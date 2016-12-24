@@ -183,10 +183,9 @@ class GroupController extends FOSRestController
      * @ApiDoc(
      *     authentication=true,
      *     section="Groups",
-     *     description="",
+     *     description="Deletes group's avatar",
      *     statusCodes={
      *         204="Success",
-     *         400="Bad Request",
      *         404="Group Not Found",
      *         405="Method Not Allowed"
      *     }

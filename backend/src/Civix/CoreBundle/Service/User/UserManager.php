@@ -7,10 +7,13 @@ use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Entity\UserRepresentativeReport;
+use Civix\CoreBundle\Event\UserEvent;
+use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Service\CiceroApi;
 use Civix\CoreBundle\Service\CropImage;
 use Civix\CoreBundle\Service\Group\GroupManager;
 use Doctrine\ORM\EntityManager;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class UserManager
@@ -22,18 +25,24 @@ class UserManager
     private $groupManager;
     private $cropImageService;
     private $kernelRootDir;
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
 
     public function __construct(
         EntityManager $entityManager,
         CiceroApi $ciceroApi,
         GroupManager $groupManager,
         CropImage $cropImageService,
+        EventDispatcherInterface $dispatcher,
         $kernelRootDir
     ) {
         $this->entityManager = $entityManager;
         $this->ciceroApi = $ciceroApi;
         $this->groupManager = $groupManager;
         $this->cropImageService = $cropImageService;
+        $this->dispatcher = $dispatcher;
         $this->kernelRootDir = $kernelRootDir;
     }
 
@@ -257,5 +266,18 @@ class UserManager
             $this->entityManager->persist($user);
             $this->entityManager->flush();
         }
+    }
+
+    public function deleteUserAvatar(User $user)
+    {
+        $event = new UserEvent($user);
+        $this->dispatcher->dispatch(UserEvents::BEFORE_AVATAR_DELETE, $event);
+
+        $user->setAvatarFileName(null);
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return $user;
     }
 }

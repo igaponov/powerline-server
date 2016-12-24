@@ -5,6 +5,7 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class UserControllerTest extends WebTestCase
 {
@@ -56,5 +57,23 @@ class UserControllerTest extends WebTestCase
         $this->assertEquals($user->getIsNotifScheduled(), $data['is_notif_scheduled']);
         $this->assertEquals($user->getIsNotifOwnPostChanged(), $data['is_notif_own_post_changed']);
         $this->assertEquals($user->getIsRegistrationComplete(), $data['is_registration_complete']);
+    }
+
+    public function testDeleteUserAvatarIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+        ])->getReferenceRepository();
+        /** @var User $user */
+        $user = $repository->getReference('user_1');
+        $client = $this->client;
+        $storage = $client->getContainer()->get('civix_core.storage.array');
+        $file = new UploadedFile(__DIR__.'/../../data/image.png', uniqid());
+        $storage->addFile($file, 'avatar_image_fs', $user->getAvatarFileName());
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user1"'];
+        $client->request('DELETE', self::API_ENDPOINT.'/avatar', [], [], $headers);
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        $this->assertCount(0, $storage->getFiles('avatar_image_fs'));
     }
 }

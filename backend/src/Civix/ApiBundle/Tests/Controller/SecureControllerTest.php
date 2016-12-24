@@ -97,7 +97,8 @@ class SecureControllerTest extends WebTestCase
 	public function testRegistrationIsOk()
 	{
 		$faker = Factory::create();
-		$data = [
+        $path = 'http://example.com/image.jpg';
+        $data = [
 			'username' => 'testUser1',
 			'first_name' => $faker->firstName,
 			'last_name' => $faker->lastName,
@@ -110,8 +111,19 @@ class SecureControllerTest extends WebTestCase
 			'zip' => '67834',
 			'country' => 'US',
 			'birth' => $faker->date(),
+            'avatar_file_name' => $path,
 		];
 		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
+		$service = $this->getServiceMockBuilder('civix_core.crop_image')
+            ->setMethods(['rebuildImage'])
+            ->getMock();
+		$service->expects($this->once())
+            ->method('rebuildImage')
+            ->with($this->anything(), $path)
+            ->willReturnCallback(function ($tempFile) {
+                return file_put_contents($tempFile, file_get_contents(__DIR__.'/../data/image.png'));
+            });
+		$client->getContainer()->set('civix_core.crop_image', $service);
 		$client->request('POST', '/api/secure/registration', [], [], [], json_encode($data));
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -119,7 +131,7 @@ class SecureControllerTest extends WebTestCase
 		$result = json_decode($response->getContent(), true);
 		$this->assertSame($data['username'], $result['username']);
 		/** @var Connection $conn */
-		$conn = $client->getContainer()->get('database_connection');
+		$conn = $client->getContainer()->get('doctrine')->getConnection();
 		$user = $conn->fetchAssoc('SELECT * FROM user WHERE username = ?', [$result['username']]);
 		$this->assertSame($data['username'], $user['username']);
 		$this->assertSame($data['first_name'], $user['firstName']);
@@ -132,6 +144,8 @@ class SecureControllerTest extends WebTestCase
 		$this->assertSame($data['zip'], $user['zip']);
 		$this->assertSame($data['country'], $user['country']);
 		$this->assertSame(strtotime($data['birth']), strtotime($user['birth']));
+        $storage = $client->getContainer()->get('civix_core.storage.array');
+        $this->assertCount(1, $storage->getFiles('avatar_image_fs'));
 
 		$client->request('POST', '/api/secure/login', ['username' => $data['username'], 'password' => $data['password']]);
 		$response = $client->getResponse();
@@ -172,7 +186,7 @@ class SecureControllerTest extends WebTestCase
 		$result = json_decode($response->getContent(), true);
 		$this->assertSame($data['username'], $result['username']);
 		/** @var Connection $conn */
-		$conn = $client->getContainer()->get('database_connection');
+		$conn = $client->getContainer()->get('doctrine')->getConnection();
 		$user = $conn->fetchAssoc('SELECT * FROM user WHERE username = ?', [$result['username']]);
 		$this->assertSame($data['facebook_token'], $user['facebook_token']);
 		$this->assertSame($data['facebook_id'], $user['facebook_id']);
@@ -256,7 +270,7 @@ class SecureControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertEquals('ok', $data['status']);
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $data = $conn->fetchAssoc('SELECT password, reset_password_token, reset_password_at FROM user WHERE id = ?', [$user->getId()]);
         $this->assertNotEquals($user->getPassword(), $data['password']);
         $this->assertNull($data['reset_password_token']);
