@@ -106,12 +106,14 @@ class UserGroupControllerTest extends WebTestCase
             'official_name' => 'This value should not be blank.',
             'official_type' => 'This value should not be blank.',
             'transparency' => 'This value should not be blank.',
+            'avatar' => 'The mime type of the file is invalid ("text/x-php"). Allowed mime types are "image/png", "image/jpeg", "image/jpg".',
         ];
         $client = $this->client;
         $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode([
             'official_name' => '',
             'official_type' => '',
             'transparency' => '',
+            'avatar' => base64_encode(file_get_contents(__FILE__)),
         ]));
         $response = $client->getResponse();
         $this->assertResponseHasErrors($response, $errors);
@@ -138,13 +140,14 @@ class UserGroupControllerTest extends WebTestCase
             'official_state' => strtoupper($faker->randomLetter.$faker->randomLetter),
         ];
         $client = $this->client;
-        $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode($params));
+        $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode(array_merge($params,['avatar' => base64_encode(file_get_contents(__DIR__.'/../../data/image.png'))])));
         $response = $client->getResponse();
         $this->assertEquals(201, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         foreach ($params as $property => $value) {
             $this->assertSame($value, $data[$property]);
         }
+        $this->assertNotEmpty($data['avatar_file_path']);
         $this->assertSame(Group::GROUP_TRANSPARENCY_PUBLIC, $data['transparency']);
         $this->assertSame([
             Group::PERMISSIONS_NAME,
@@ -152,9 +155,11 @@ class UserGroupControllerTest extends WebTestCase
             Group::PERMISSIONS_RESPONSES,
         ], $data['required_permissions']);
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('database_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM users_groups WHERE group_id = ? and user_id = ?', [$data['id'], $user->getId()]);
         $this->assertEquals(1, $count);
+        $storage = $client->getContainer()->get('civix_core.storage.array');
+        $this->assertCount(1, $storage->getFiles('avatar_image_fs'));
     }
 
     /**
@@ -176,7 +181,7 @@ class UserGroupControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertEquals($status == UserGroup::STATUS_ACTIVE ? 'active' : 'pending', $data['join_status']);
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $currentStatus = $conn->fetchColumn('SELECT status FROM users_groups WHERE group_id = ?', [$group->getId()]);
         $this->assertEquals($status, $currentStatus);
     }
@@ -223,7 +228,7 @@ class UserGroupControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertSame('active', $data['join_status']);
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $currentStatus = $conn->fetchColumn('SELECT status FROM users_groups WHERE group_id = ?', [$group->getId()]);
         $this->assertEquals(UserGroup::STATUS_ACTIVE, $currentStatus);
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM groups_fields_values WHERE field_value = ? AND user_id = ?', [$fieldValue, $user->getId()]);
@@ -271,7 +276,7 @@ class UserGroupControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM users_groups WHERE group_id = ? AND user_id = ?', [$group->getId(), $user->getId()]);
         $this->assertEquals(0, $count);
     }
@@ -290,7 +295,7 @@ class UserGroupControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('database_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $userId = $conn->fetchColumn('SELECT user_id FROM groups WHERE id = ?', [$group->getId()]);
         $this->assertEquals($user->getId(), $userId);
     }
@@ -309,7 +314,7 @@ class UserGroupControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('database_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $userId = $conn->fetchColumn('SELECT user_id FROM groups WHERE id = ?', [$group->getId()]);
         $this->assertEquals($user->getId(), $userId);
     }
@@ -326,7 +331,7 @@ class UserGroupControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('database_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $userId = $conn->fetchColumn('SELECT user_id FROM groups WHERE id = ?', [$group->getId()]);
         $this->assertEquals(null, $userId);
     }

@@ -448,5 +448,10 @@
         <service class="Civix\CoreBundle\Storage\VichArrayStorage" id="civix_core.storage.array">
             <argument id="vich_uploader.property_mapping_factory" type="service"/>
         </service>
+
+        <service class="Civix\CoreBundle\EventListener\UploaderSubscriber" id="civix_core.event_listener.uploader_subscriber">
+            <argument id="vich_uploader.storage" type="service"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

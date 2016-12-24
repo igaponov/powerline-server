@@ -23,6 +23,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserRepresentativeReportData;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class GroupControllerTest extends WebTestCase
 {
@@ -172,16 +173,17 @@ class GroupControllerTest extends WebTestCase
 	}
 
     /**
+     * @param $reference
      * @param $params
      * @param $errors
      * @dataProvider getInvalidValues
      */
-	public function testUpdateGroupWithErrors($params, $errors)
+	public function testUpdateGroupWithErrors($reference, $params, $errors)
 	{
         $repository = $this->loadFixtures([
             LoadGroupData::class,
         ])->getReferenceRepository();
-		$group = $repository->getReference('group_1');
+		$group = $repository->getReference($reference);
 		$client = $this->client;
 		$client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
 		$response = $client->getResponse();
@@ -192,6 +194,7 @@ class GroupControllerTest extends WebTestCase
     {
         return [
             [
+                'group_4',
                 [
                     'official_name' => '',
                     'official_type' => '',
@@ -204,13 +207,16 @@ class GroupControllerTest extends WebTestCase
                 ],
             ],
             [
+                'group_1',
                 [
                     'official_type' => 'yyy',
                     'transparency' => 'xxx',
+                    'avatar' => base64_encode(file_get_contents(__FILE__)),
                 ],
                 [
                     'official_type' => 'The value you selected is not a valid choice.',
                     'transparency' => 'The value you selected is not a valid choice.',
+                    'avatar' => 'The mime type of the file is invalid ("text/x-php"). Allowed mime types are "image/png", "image/jpeg", "image/jpg".',
                 ],
             ]
         ];
@@ -250,14 +256,49 @@ class GroupControllerTest extends WebTestCase
             'transparency' => Group::GROUP_TRANSPARENCY_PRIVATE,
 		];
 		$client = $this->client;
-		$client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
+        $filePath = $group->getAvatarFilePath();
+		$client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode(array_merge($params, ['avatar' => base64_encode(file_get_contents(__DIR__.'/../../data/image2.png'))])));
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
 		foreach ($data as $property => $value) {
 			$this->assertSame($value, $data[$property]);
 		}
+        $storage = $client->getContainer()->get('civix_core.storage.array');
+        $this->assertCount(1, $storage->getFiles('avatar_image_fs'));
+        $this->assertNotEquals($filePath, $data['avatar_file_path']);
 	}
+
+    public function testDeleteGroupAvatarWithWrongCredentialsThrowsException()
+    {
+        $repository = $this->loadFixtures([
+            LoadGroupData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_1');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user2"'];
+        $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId().'/avatar', [], [], $headers);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testDeleteGroupAvatarIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadGroupData::class,
+        ])->getReferenceRepository();
+        /** @var Group $group */
+        $group = $repository->getReference('group_1');
+        $client = $this->client;
+        $storage = $client->getContainer()->get('civix_core.storage.array');
+        $file = new UploadedFile(__DIR__.'/../../data/image.png', uniqid());
+        $storage->addFile($file, 'avatar_image_fs', $group->getAvatarFileName());
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user1"'];
+        $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId().'/avatar', [], [], $headers);
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        $this->assertCount(0, $storage->getFiles('avatar_image_fs'));
+    }
 
 	public function testGetGroupUsersIsEmpty()
 	{

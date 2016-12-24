@@ -173,6 +173,33 @@ class GroupController extends FOSRestController
     }
 
     /**
+     * Deletes group's avatar
+     *
+     * @Route("/{id}/avatar")
+     * @Method("DELETE")
+     *
+     * @SecureParam("group", permission="edit")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Groups",
+     *     description="",
+     *     statusCodes={
+     *         204="Success",
+     *         400="Bad Request",
+     *         404="Group Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Group $group
+     */
+    public function deleteAvatarAction(Group $group)
+    {
+        $this->manager->deleteGroupAvatar($group);
+    }
+
+    /**
      * @Route("/{id}/users", requirements={"id"="\d+"})
      * @Method("GET")
      *

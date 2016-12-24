@@ -1,13 +1,13 @@
 <?php
 namespace Civix\ApiBundle\Form\Type;
 
+use Civix\ApiBundle\Helper\Base64ToFileConverter;
 use Civix\CoreBundle\Entity\Poll\EducationalContext;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 class EducationalContextType extends AbstractType
@@ -26,18 +26,18 @@ class EducationalContextType extends AbstractType
             ->add('content', 'textarea', [
                 'description' => 'Base64-encoded content',
             ]);
-        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
-            /** @var EducationalContext $data */
-            $data = $event->getData();
-            if (!empty($data['content']) && $data['type'] == EducationalContext::IMAGE_TYPE) {
-                $content = base64_decode($data['content'], true);
-                $path = tempnam(sys_get_temp_dir(), 'upload');
-                file_put_contents($path, $content);
-                $file = new UploadedFile($path, 'content', null, mb_strlen($content), null, true);
-                $data['content'] = $file;
-            }
-            $event->setData($data);
-        });
+        $builder->addEventListener(
+            FormEvents::PRE_SUBMIT,
+            function (FormEvent $event) {
+                /** @var EducationalContext $data */
+                $data = $event->getData();
+                if ($data['type'] === EducationalContext::IMAGE_TYPE) {
+                    $data['content'] = Base64ToFileConverter::convert($data['content']);
+                    $event->setData($data);
+                }
+            },
+            1
+        );
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)
