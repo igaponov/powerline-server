@@ -51,24 +51,24 @@ class CropImage
 
     public function rebuildImage($destPath, $srcPath, $maxSize = 256)
     {
-        list($width, $height, $type) = getimagesize($srcPath);
+        list($width, $height) = getimagesize($srcPath);
         $srcImageResource = $this->getImageResource($srcPath);
 
         //get new image size
         $newImageSize = max(array($width, $height));
         $ratio = $width / $height;
-        $newHeigth = $height;
+        $newHeight = $height;
         $newWidth = $width;
 
         //resize if need
         if ($newImageSize > $maxSize) {
             $newImageSize = $maxSize;
             if ($ratio < 1) {
-                $newHeigth = $maxSize;
-                $newWidth = $newHeigth * $ratio;
+                $newHeight = $maxSize;
+                $newWidth = $newHeight * $ratio;
             } else {
                 $newWidth = $maxSize;
-                $newHeigth = $newWidth * $ratio;
+                $newHeight = $newWidth * $ratio;
             }
         }
 
@@ -77,10 +77,10 @@ class CropImage
         imagecolorallocate($newImageResource, 0, 0, 0);
 
         $insertCoordX = ($newImageSize - $newWidth) / 2;
-        $insertCoordY = ($newImageSize - $newHeigth) / 2;
+        $insertCoordY = ($newImageSize - $newHeight) / 2;
 
         imagecopyresampled($newImageResource, $srcImageResource, $insertCoordX,
-            $insertCoordY, 0, 0, $newWidth, $newHeigth, $width, $height
+            $insertCoordY, 0, 0, $newWidth, $newHeight, $width, $height
         );
 
         $this->saveImage($newImageResource, $destPath);
@@ -206,7 +206,7 @@ class CropImage
             $type = stristr($type, '?', true);
         }
         if (array_search($type, $this->allowedTypes) === false) {
-            list($width, $height, $typeConst) = getimagesize($imagePath);
+            list(, , $typeConst) = getimagesize($imagePath);
 
             return image_type_to_extension($typeConst, false);
         }
