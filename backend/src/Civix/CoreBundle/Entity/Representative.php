@@ -21,6 +21,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  *     uniqueConstraints={@ORM\UniqueConstraint(columns={"user_id", "local_group"})}
  * )
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\RepresentativeRepository")
+ * @Vich\Uploadable()
  * @Serializer\ExclusionPolicy("all")
  */
 class Representative implements CheckingLimits, LeaderContentRootInterface, HasAvatarInterface
@@ -64,8 +65,8 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
     /**
      * @Assert\File(
      *     maxSize="10M",
-     *     mimeTypes={"image/png", "image/jpeg", "image/pjpeg"},
-     *     groups={"profile"}
+     *     mimeTypes={"image/png", "image/jpeg", "image/jpg"},
+     *     groups={"profile", "registration"}
      * )
      * @Vich\UploadableField(mapping="avatar_image", fileNameProperty="avatarFileName")
      *

@@ -34,10 +34,11 @@ class RepresentativeControllerTest  extends WebTestCase
 
     public function testGetRepresentatives()
     {
-        $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadRepresentativeData::class,
             LoadCiceroRepresentativeData::class,
-        ]);
+        ])->getReferenceRepository();
+        $representative = $repository->getReference('representative_jb');
         $this->client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"']);
         $response = $this->client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -53,7 +54,7 @@ class RepresentativeControllerTest  extends WebTestCase
                                 'last_name' => 'One',
                                 'id' => 1,
                                 'official_title' => 'Vice President',
-                                'avatar_file_path' => 'http://api-test.powerli.ne/bundles/civixfront/img/default_representative.png',
+                                'avatar_file_path' => "https://powerline-dev.imgix.net/avatars/{$representative->getAvatarFileName()}?ixlib=php-1.1.0",
                             ],
                         ],
                         [
@@ -122,7 +123,7 @@ class RepresentativeControllerTest  extends WebTestCase
         $this->assertEquals($representative->getCountry(), $data['country']);
         $this->assertEquals($representative->getPhone(), $data['phone']);
         $this->assertEquals($representative->getEmail(), $data['email']);
-        $this->assertEquals('http://'.$this->client->getContainer()->getParameter('hostname').Representative::DEFAULT_AVATAR, $data['avatar_file_path']);
+        $this->assertEquals("https://powerline-dev.imgix.net/avatars/{$representative->getAvatarFileName()}?ixlib=php-1.1.0", $data['avatar_file_path']);
     }
 
     public function testGetNonExistentRepresentative()

@@ -30,6 +30,7 @@ class LoadRepresentativeData extends AbstractFixture implements DependentFixture
         $representative->setPrivateEmail($faker->companyEmail);
         $representative->setDistrict($district);
         $representative->setIsNonLegislative(true);
+        $representative->setAvatarFileName(uniqid().'.jpg');
         $this->addReference('representative_jb', $representative);
         $manager->persist($representative);
 

@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Serializer\Type;
 
 use Civix\CoreBundle\Entity\HasAvatarInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Superuser;
@@ -62,11 +63,11 @@ class OwnerData implements HasAvatarInterface
     }
 
     /**
-     * @param mixed $avatar
+     * @param UploadedFile $avatar
      *
      * @return $this
      */
-    public function setAvatar($avatar)
+    public function setAvatar(UploadedFile $avatar)
     {
         $this->avatar = $avatar;
 

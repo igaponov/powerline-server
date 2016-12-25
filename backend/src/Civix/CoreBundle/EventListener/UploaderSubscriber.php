@@ -1,10 +1,8 @@
 <?php
 namespace Civix\CoreBundle\EventListener;
 
-use Civix\CoreBundle\Event\GroupEvent;
-use Civix\CoreBundle\Event\GroupEvents;
-use Civix\CoreBundle\Event\UserEvent;
-use Civix\CoreBundle\Event\UserEvents;
+use Civix\CoreBundle\Event\AvatarEvent;
+use Civix\CoreBundle\Event\AvatarEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Vich\UploaderBundle\Storage\StorageInterface;
 
@@ -18,8 +16,7 @@ class UploaderSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            GroupEvents::BEFORE_AVATAR_DELETE => 'removeGroupAvatar',
-            UserEvents::BEFORE_AVATAR_DELETE => 'removeUserAvatar',
+            AvatarEvents::BEFORE_DELETE => 'removeAvatar',
         ];
     }
 
@@ -28,15 +25,9 @@ class UploaderSubscriber implements EventSubscriberInterface
         $this->storage = $storage;
     }
 
-    public function removeGroupAvatar(GroupEvent $event)
+    public function removeAvatar(AvatarEvent $event)
     {
-        $group = $event->getGroup();
-        $this->storage->remove($group);
-    }
-
-    public function removeUserAvatar(UserEvent $event)
-    {
-        $user = $event->getUser();
-        $this->storage->remove($user);
+        $entity = $event->getEntity();
+        $this->storage->remove($entity);
     }
 }

@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
@@ -980,11 +981,11 @@ class User implements UserInterface, \Serializable, OfficialInterface, HasAvatar
     /**
      * Set avatar.
      *
-     * @param string $avatar
+     * @param UploadedFile $avatar
      *
      * @return User
      */
-    public function setAvatar($avatar)
+    public function setAvatar(UploadedFile $avatar)
     {
         $this->avatar = $avatar;
 

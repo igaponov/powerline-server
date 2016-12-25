@@ -8,7 +8,7 @@ use JMS\Serializer\Context;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\JsonSerializationVisitor;
-use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class TargetHandler implements SubscribingHandlerInterface
 {
@@ -39,7 +39,7 @@ class TargetHandler implements SubscribingHandlerInterface
         $data = $target->getData();
         if (!empty($data['image'])) {
             // inject a File for \Vich\UploaderBundle\Storage\StorageInterface::resolveUri
-            $target->setAvatar(new File($data['image'], false));
+            $target->setAvatar(new UploadedFile($data['image'], uniqid(), null, null, 1));
         }
         $avatar = new Avatar($target);
         $data['image'] = $this->avatarHandler->serialize($visitor, $avatar, $type, $context);
