@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
+use Civix\CoreBundle\Entity\District;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -52,9 +53,10 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
             ->setSlogan('User 1 Slogan')
             ->setBio('User 1 Bio')
             ->setFacebookId('xXxXxXxXxXx')
-            ->setFacebookToken('yYyYyYyYyYy');
+            ->setFacebookToken('yYyYyYyYyYy')
+            ->setAvatarFileName(uniqid().'.jpg');
         foreach (['district_la', 'district_sd', 'district_us'] as $item) {
-            $user->addDistrict($this->getReference($item));
+            $user->addDistrict($this->getDistrict($item));
         }
 
         $this->encodePassword($user);
@@ -104,10 +106,10 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
         
         if (is_array($district)) {
             foreach ($district as $item) {
-                $user->addDistrict($this->getReference($item));
+                $user->addDistrict($this->getDistrict($item));
             }
         } elseif ($district !== null) {
-            $user->addDistrict($this->getReference($district));
+            $user->addDistrict($this->getDistrict($district));
         }
 
         $this->encodePassword($user);
@@ -124,6 +126,15 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
         $encoder = $this->container->get('security.encoder_factory')->getEncoder($user);
         $password = $encoder->encodePassword($user->getPlainPassword(), $user->getSalt());
         $user->setPassword($password);
+    }
+
+    /**
+     * @param string $reference
+     * @return District|object
+     */
+    private function getDistrict($reference)
+    {
+        return $this->getReference($reference);
     }
 
     public function getDependencies()

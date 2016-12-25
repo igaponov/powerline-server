@@ -3,6 +3,7 @@
 namespace Civix\ApiBundle\Controller\V2;
 
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Service\User\UserManager;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -15,6 +16,12 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
  */
 class UserController extends FOSRestController
 {
+    /**
+     * @var UserManager
+     * @DI\Inject("civix_core.user_manager")
+     */
+    private $manager;
+
     /**
      * Profile of the authenticated user
      *
@@ -46,5 +53,26 @@ class UserController extends FOSRestController
     public function getAction()
     {
         return $this->getUser();
+    }
+
+    /**
+     * Deletes user's avatar
+     *
+     * @Route("/avatar")
+     * @Method("DELETE")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Users",
+     *     description="Deletes user's avatar",
+     *     statusCodes={
+     *         204="Success",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     */
+    public function deleteAvatarAction()
+    {
+        $this->manager->deleteUserAvatar($this->getUser());
     }
 }

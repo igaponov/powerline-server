@@ -2,7 +2,7 @@
 
 namespace Civix\CoreBundle\Service;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Civix\CoreBundle\Model\CropAvatarInterface;
 use Civix\CoreBundle\Entity\User;
@@ -20,11 +20,12 @@ class CropAvatar
     protected $serviceCropImage;
 
     /**
-     * @param ContainerInterface $container
+     * @param CropImage $serviceCropImage
+     * @param LoggerInterface $logger
      */
     public function __construct(
-        \Civix\CoreBundle\Service\CropImage $serviceCropImage,
-        $logger
+        CropImage $serviceCropImage,
+        LoggerInterface $logger
     ) {
         $this->serviceCropImage = $serviceCropImage;
         $this->logger = $logger;
@@ -33,7 +34,7 @@ class CropAvatar
     /**
      * Crop entity avatar.
      *
-     * @param object   $entity
+     * @param CropAvatarInterface   $entity
      * @param int      $x
      * @param int      $y
      * @param int|null $w
@@ -52,7 +53,7 @@ class CropAvatar
             $this->serviceCropImage
                 ->crop($tempFile, $avatarSourcePath, 0, 0, $x, $y, self::AVATAR_WIDTH, self::AVATAR_HEIGHT, $w, $h);
         } catch (\Exception $exc) {
-            $this->logger->addError('Image '.$avatarSourcePath.'. '.$exc->getMessage());
+            $this->logger->error('Image '.$avatarSourcePath.'. '.$exc->getMessage());
         }
 
         $entity->setAvatarFileName($filename);
@@ -75,7 +76,7 @@ class CropAvatar
                 $size
             );
         } catch (\Exception $exc) {
-            $this->logger->addError('Image '.$srcPath.'. '.$exc->getMessage());
+            $this->logger->error('Image '.$srcPath.'. '.$exc->getMessage());
         }
 
         $entity->setAvatarFileName($tempFile);

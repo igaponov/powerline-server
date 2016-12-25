@@ -141,7 +141,7 @@ class ProfileControllerTest extends WebTestCase
             LoadUserData::class,
         ])->getReferenceRepository();
         /** @var User $user */
-        $user = $repository->getReference('user_1');
+        $user = $repository->getReference('user_2');
         $params = [
             'facebook_id' => 'id_00001',
             'facebook_token' => 'xxx_token',
@@ -156,7 +156,7 @@ class ProfileControllerTest extends WebTestCase
             ->with($params['facebook_token'])
             ->willReturn(true);
         $client->getContainer()->set('civix_core.facebook_api', $service);
-		$client->request('POST', self::API_ENDPOINT.'link-to-facebook', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode($params));
+		$client->request('POST', self::API_ENDPOINT.'link-to-facebook', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user2"'], json_encode($params));
 		$response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
