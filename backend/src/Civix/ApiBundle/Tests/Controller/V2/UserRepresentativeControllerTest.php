@@ -83,9 +83,10 @@ class UserRepresentativeControllerTest extends WebTestCase
             'private_phone' => 'This value should not be blank.',
             'email' => 'This value should not be blank.',
             'private_email' => 'This value should not be blank.',
+            'avatar' => 'The mime type of the file is invalid ("text/x-php"). Allowed mime types are "image/png", "image/jpeg", "image/jpg".',
         ];
         $client = $this->client;
-        $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode(['avatar' => base64_encode(file_get_contents(__FILE__))]));
         $response = $client->getResponse();
         $this->assertResponseHasErrors($response, $errors);
     }
@@ -108,6 +109,7 @@ class UserRepresentativeControllerTest extends WebTestCase
         $privateParams = [
             'private_phone' => $faker->phoneNumber,
             'private_email' => $faker->companyEmail,
+            'avatar' => base64_encode(file_get_contents(__DIR__.'/../../data/image.png')),
         ];
         $client = $this->client;
         $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode(array_merge($params, $privateParams)));
@@ -121,5 +123,7 @@ class UserRepresentativeControllerTest extends WebTestCase
         $conn = $client->getContainer()->get('doctrine')->getConnection();
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM representatives r WHERE r.privatePhone = ? AND r.privateEmail = ?', [$privateParams['private_phone'], $privateParams['private_email']]);
         $this->assertEquals(1, $count);
+        $storage = $client->getContainer()->get('civix_core.storage.array');
+        $this->assertCount(1, $storage->getFiles('avatar_image_fs'));
     }
 }

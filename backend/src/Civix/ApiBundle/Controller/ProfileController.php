@@ -405,14 +405,10 @@ class ProfileController extends BaseController
         }
 
         if ($request->get('avatar_file_name') && !$user->getAvatarFileName()) {
-            $fileInfo = explode('.', basename($request->get('avatar_file_name')));
-            $fileExt = array_pop($fileInfo);
-            $user->setAvatar(uniqid().'.'.$fileExt);
             try {
                 $this->get('civix_core.crop_avatar')
                     ->saveSquareAvatarFromPath($user, $request->get('avatar_file_name'));
             } catch (\Exception $e) {
-                $user->setAvatar(null);
                 $this->get('logger')->addError($e->getMessage());
             }
         }

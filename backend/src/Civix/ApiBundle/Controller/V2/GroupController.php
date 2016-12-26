@@ -7,6 +7,7 @@ use Civix\ApiBundle\Form\Type\InviteType;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
+use Civix\CoreBundle\Service\AvatarManager;
 use Civix\CoreBundle\Service\Group\GroupManager;
 use Doctrine\ORM\EntityManager;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
@@ -37,6 +38,12 @@ class GroupController extends FOSRestController
      * @DI\Inject("civix_core.group_manager")
      */
     private $manager;
+
+    /**
+     * @var AvatarManager
+     * @DI\Inject("civix_core.service.avatar_manager")
+     */
+    private $avatarManager;
 
     /**
      * Returns groups.
@@ -195,7 +202,7 @@ class GroupController extends FOSRestController
      */
     public function deleteAvatarAction(Group $group)
     {
-        $this->manager->deleteGroupAvatar($group);
+        $this->avatarManager->deleteAvatar($group);
     }
 
     /**

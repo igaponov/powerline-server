@@ -19,7 +19,7 @@ use Civix\CoreBundle\Serializer\Type\Avatar;
  * })
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\CiceroRepresentativeRepository")
  * @ORM\HasLifecycleCallbacks
- * @Vich\Uploadable
+ * @Vich\Uploadable()
  * @Serializer\ExclusionPolicy("all")
  */
 class CiceroRepresentative implements HasAvatarInterface
@@ -650,11 +650,11 @@ class CiceroRepresentative implements HasAvatarInterface
     /**
      * Set avatar.
      *
-     * @param string $avatar
+     * @param UploadedFile $avatar
      *
      * @return CiceroRepresentative
      */
-    public function setAvatar($avatar)
+    public function setAvatar(UploadedFile $avatar)
     {
         $this->avatar = $avatar;
 
