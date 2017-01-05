@@ -111,7 +111,7 @@ class CiceroRepresentative implements HasAvatarInterface
     private $country;
 
     /**
-     * @var string
+     * @var State
      *
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\State", inversedBy="stRepresentatives", cascade="persist")
      * @ORM\JoinColumn(name="state", referencedColumnName="code", nullable=true, onDelete="SET NULL")

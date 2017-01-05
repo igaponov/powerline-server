@@ -5,7 +5,6 @@ namespace Civix\FrontBundle\Controller\Superuser;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
 use Civix\CoreBundle\Exception\MailgunException;
-use Cocur\Slugify\Slugify;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -13,8 +12,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Civix\FrontBundle\Form\Type\Poll\QuestionLimit;
 use Civix\FrontBundle\Form\Type\Superuser\LocalRepresentative;
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\State;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * @Route("/group")
@@ -25,6 +22,8 @@ class GroupController extends Controller
      * @Route("/limits/{id}", name="civix_front_superuser_group_limits")
      * @Method({"GET"})
      * @Template("CivixFrontBundle:Superuser:limitQuestionEdit.html.twig")
+     * @param Group $group
+     * @return array
      */
     public function limitsGroupAction(Group $group)
     {
@@ -40,13 +39,15 @@ class GroupController extends Controller
      * @Route("/limits/{id}/save", name="civix_front_superuser_group_limits_update")
      * @Method({"POST"})
      * @Template("CivixFrontBundle:Superuser:limitQuestionEdit.html.twig")
+     * @param Group $group
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function limitsGroupEditAction(Group $group)
     {
         $entityManager = $this->getDoctrine()->getManager();
 
         $questionLimitForm = $this->createForm(new QuestionLimit(), $group);
-        $questionLimitForm->bind($this->getRequest());
+        $questionLimitForm->handleRequest($this->getRequest());
 
         if ($questionLimitForm->isValid()) {
             $entityManager->persist($group);
@@ -66,6 +67,8 @@ class GroupController extends Controller
     /**
      * @Route("/remove/{id}", name="civix_front_superuser_group_remove")
      * @Method({"POST"})
+     * @param Group $group
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function removeGroupAction(Group $group)
     {
@@ -86,16 +89,16 @@ class GroupController extends Controller
             }
 
             try {
-                throw new AccessDeniedException();
+                $entityManager
+                    ->getRepository('CivixCoreBundle:Group')
+                    ->removeGroup($group);
             } catch (\Exception $e) {
                 $this->get('session')->getFlashBag()->add('error', $e->getMessage());
 
                 return $this->redirect($this->generateUrl('civix_front_superuser_manage_groups'));
             }
 
-            $entityManager
-                    ->getRepository('CivixCoreBundle:Group')
-                    ->removeGroup($group);
+
             $this->get('session')->getFlashBag()->add('notice', 'Group was removed');
         } else {
             $this->get('session')->getFlashBag()->add('error', 'Something went wrong');
@@ -105,49 +108,11 @@ class GroupController extends Controller
     }
 
     /**
-     * @Route("/switch/{id}", name="civix_front_superuser_group_switch")
-     */
-    public function switchToStateGroup($id)
-    {
-        $this->get('session')->set('groupid_to_switch', $id);
-
-        return $this->redirect($this->generateUrl('civix_account_switch'));
-    }
-
-    /**
-     * @Route("/state", name="civix_front_superuser_state_groups")
-     * @Route("/state/{id}", name="civix_front_superuser_country_groups_children")
-     * @Method({"GET"})
-     * @Template("CivixFrontBundle:Superuser:manageStateGroups.html.twig")
-     */
-    public function stateGroupAction(Group $countryGroup = null)
-    {
-        $pagination = null;
-
-        if ($countryGroup) {
-            $query = $this->getDoctrine()
-                ->getRepository('CivixCoreBundle:Group')
-                ->getQueryCountryGroupChildren($countryGroup);
-
-            $paginator = $this->get('knp_paginator');
-            $pagination = $paginator->paginate(
-                $query,
-                $this->getRequest()->get('page', 1),
-                20
-            );
-        }
-
-        return array(
-            'pagination' => $pagination,
-            'countryGroup' => $countryGroup,
-            'countryGroups' => $this->getCountryGroups(),
-        );
-    }
-
-    /**
      * @Route("/local/assign/{group}", name="civix_front_superuser_local_groups_assign")
      * @Method({"GET"})
      * @Template("CivixFrontBundle:Superuser:assignLocalGroups.html.twig")
+     * @param Group $group
+     * @return array
      */
     public function assignLocalGroup(Group $group)
     {
@@ -163,13 +128,15 @@ class GroupController extends Controller
      * @Route("/local/assign/{group}", name="civix_front_superuser_local_groups_assign_save")
      * @Method({"POST"})
      * @Template("CivixFrontBundle:Superuser:assignLocalGroups.html.twig")
+     * @param Group $group
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function saveAssignLocalGroup(Group $group)
     {
         $entityManager = $this->getDoctrine()->getManager();
 
         $localGroupForm = $this->createForm(new LocalRepresentative($group), $group);
-        $localGroupForm->bind($this->getRequest());
+        $localGroupForm->handleRequest($this->getRequest());
 
         if ($localGroupForm->isValid()) {
             $entityManager->persist($group);
@@ -192,6 +159,8 @@ class GroupController extends Controller
      * @Route("/local/{id}", name="civix_front_superuser_local_groups_by_parent")
      * @Method({"GET"})
      * @Template("CivixFrontBundle:Superuser:manageLocalGroups.html.twig")
+     * @param Group $parent
+     * @return array
      */
     public function localGroupActionByState(Group $parent)
     {

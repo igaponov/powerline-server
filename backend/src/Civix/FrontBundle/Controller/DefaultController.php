@@ -5,6 +5,7 @@ namespace Civix\FrontBundle\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Controller for index page.
@@ -27,16 +28,6 @@ class DefaultController extends Controller
      */
     public function headerAction()
     {
-        $logoutPath = null;
-
-        if ($this->get('session')->get('groupid_to_switch')) {
-            if ($this->get('session')->get('switch_representative')) {
-                $logoutPath = ['Back to the Representative', $this->generateUrl('civix_account_exit_switch')];
-            } else {
-                $logoutPath = ['Back to the Superuser', $this->generateUrl('civix_account_exit_switch')];
-            }
-        }
-
         return [
             'paths' => [
                 'profile' => [
@@ -50,7 +41,6 @@ class DefaultController extends Controller
                     'superuser' => 'civix_front_superuser_settings_states',
                 ],
             ],
-            'logoutPath' => $logoutPath,
         ];
     }
 }

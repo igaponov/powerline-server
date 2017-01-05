@@ -7,11 +7,7 @@
             <div class="right-block">
                 <p>{{ app.user.officialName }}</p>
                 <p>
-                    {% if logoutPath %}
-                        <a href="{{ logoutPath[1] }}">{{ logoutPath[0] }}</a>
-                    {% else %}
-                        <a href="{{ path('civix_' ~ app.user.type ~ '_logout') }}">Sign Out</a>
-                    {% endif %}
+                    <a href="{{ path('civix_' ~ app.user.type ~ '_logout') }}">Sign Out</a>
                 </p>
             </div>
             <div class="right-block avatar">

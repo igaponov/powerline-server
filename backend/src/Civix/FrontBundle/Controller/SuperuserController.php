@@ -10,7 +10,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
 use Civix\CoreBundle\Entity\Representative;
-use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\FrontBundle\Form\Type\Superuser\RepresentativeEdit;
 use Civix\FrontBundle\Form\Type\Poll\QuestionLimit;
@@ -59,6 +58,8 @@ class SuperuserController extends Controller
      * @Route("/representative/edit/{id}", name="civix_front_superuser_representative_edit")
      * @Method({"GET", "POST"})
      * @Template("CivixFrontBundle:Superuser:form.html.twig")
+     * @param $id
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function editRepresentativeAction($id)
     {
@@ -70,7 +71,7 @@ class SuperuserController extends Controller
             $request = $this->getRequest();
 
             if ($request->getMethod() == 'POST') {
-                $form->bind($request);
+                $form->handleRequest($request);
                 if ($form->isValid()) {
                     $representativeObj = $form->getData();
 
@@ -99,6 +100,8 @@ class SuperuserController extends Controller
     /**
      * @Route("/representative/delete/{id}", name="civix_front_superuser_representative_delete")
      * @Method({"POST"})
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteRepresentativeAction($id)
     {
@@ -130,6 +133,8 @@ class SuperuserController extends Controller
     /**
      * @Route("/representative/approve/{id}", name="civix_front_superuser_representative_approve")
      * @Method({"POST"})
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function approveRepresentativeAction($id)
     {
@@ -269,6 +274,9 @@ class SuperuserController extends Controller
     /**
      * @Route("/manage/users/{id}/reset-password", name="civix_front_superuser_reset_user_password")
      * @Method({"GET"})
+     * @param User $user
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function resetUserPasswordAction(User $user, Request $request)
     {
@@ -280,7 +288,7 @@ class SuperuserController extends Controller
         $user->setResetPasswordToken($resetPasswordToken);
         $user->setResetPasswordAt(new \DateTime());
         $this->getDoctrine()->getManager()->persist($user);
-        $this->getDoctrine()->getManager()->flush($user);
+        $this->getDoctrine()->getManager()->flush();
 
         //send mail
         $this->get('civix_core.email_sender')->sendResetPasswordEmail(
@@ -318,16 +326,19 @@ class SuperuserController extends Controller
             'pagination' => $pagination,
         );
     }
+
     /**
      * @Route("/representative/remove/{id}", name="civix_front_superuser_representative_remove")
      * @Method({"POST"})
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function removeRepresentativeAction($id)
     {
         $entityManager = $this->getDoctrine()->getManager();
         $representative = $entityManager->getRepository('CivixCoreBundle:Representative')->find($id);
 
-        if (!$representative instanceof \Civix\CoreBundle\Entity\Representative) {
+        if (!$representative instanceof Representative) {
             throw $this->createNotFoundException('The representative is not found');
         }
 
@@ -352,6 +363,8 @@ class SuperuserController extends Controller
      * @Route("/limits/edit/{id}", name="civix_front_superuser_limit_edit")
      * @Method({"GET"})
      * @Template("CivixFrontBundle:Superuser:defaultLimitEdit.html.twig")
+     * @param $id
+     * @return array
      */
     public function defaultLimitEditAction($id)
     {
@@ -374,6 +387,8 @@ class SuperuserController extends Controller
      * @Route("/limits/save/{id}", name="civix_front_superuser_limit_save")
      * @Method({"POST"})
      * @Template("CivixFrontBundle:Superuser:defaultLimitEdit.html.twig")
+     * @param $id
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function defaultLimitSaveAction($id)
     {
@@ -387,7 +402,7 @@ class SuperuserController extends Controller
 
         $questionLimitForm = $this->createForm(new QuestionLimit(), $questionLimit);
 
-        $questionLimitForm->bind($this->getRequest());
+        $questionLimitForm->handleRequest($this->getRequest());
 
         if ($questionLimitForm->isValid()) {
             $entityManager->persist($questionLimit);
@@ -407,6 +422,8 @@ class SuperuserController extends Controller
      * @Route("/representative/limits/{id}", name="civix_front_superuser_representative_limits")
      * @Method({"GET"})
      * @Template("CivixFrontBundle:Superuser:limitQuestionEdit.html.twig")
+     * @param $id
+     * @return array
      */
     public function limitsRepresentativeAction($id)
     {
@@ -430,6 +447,8 @@ class SuperuserController extends Controller
      * @Route("/representative/limits/{id}/save", name="civix_front_superuser_representative_limits_update")
      * @Method({"POST"})
      * @Template("CivixFrontBundle:Superuser:limitQuestionEdit.html.twig")
+     * @param $id
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function limitsRepresentativeEditAction($id)
     {
@@ -443,7 +462,7 @@ class SuperuserController extends Controller
 
         $questionLimitForm = $this->createForm(new QuestionLimit(), $representative);
 
-        $questionLimitForm->bind($this->getRequest());
+        $questionLimitForm->handleRequest($this->getRequest());
 
         if ($questionLimitForm->isValid()) {
             $entityManager->persist($representative);
@@ -463,13 +482,15 @@ class SuperuserController extends Controller
     /**
      * @Route("/user/remove/{id}", name="civix_front_superuser_user_remove")
      * @Method({"POST"})
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function removeUserAction($id)
     {
         $entityManager = $this->getDoctrine()->getManager();
         $user = $entityManager->getRepository('CivixCoreBundle:User')->find($id);
 
-        if (!$user instanceof \Civix\CoreBundle\Entity\User) {
+        if (!$user instanceof User) {
             throw $this->createNotFoundException('The user is not found');
         }
 

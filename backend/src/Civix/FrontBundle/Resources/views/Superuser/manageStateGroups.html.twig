@@ -18,9 +18,6 @@
                     {% endfor %}
                 </ul>
             </div>
-            {% if countryGroup %}
-                <a href="{{ path('civix_front_superuser_group_switch', {'id': countryGroup.id}) }}" title="Manage"><i class="icon-wrench"></i>Manage</a>
-            {% endif %}
             {% if pagination %}
             <br><br>
             <table class="table table-bordered table-striped">
@@ -29,7 +26,6 @@
                         <th class="span1">{{ knp_pagination_sortable(pagination, 'Id', 'g.id') }}</th>
                         <th class="span5">{{ knp_pagination_sortable(pagination, 'Official Name', 'g.officialName') }}</th>
                         <th class="span4">{{ knp_pagination_sortable(pagination, 'Location Name', 'g.locationName') }}</th>
-                        <th class="span2">Options</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -38,9 +34,6 @@
                         <td>{{ group.id }}</td>
                         <td>{% if group.officialName %}{{ group.officialName }}{% else %}{{ group.locationName }}{% endif %}</td>
                         <td>{{ group.locationName }}</td>
-                        <td class="table-options">
-                           <a href="{{ path('civix_front_superuser_group_switch', {'id': group.id}) }}" title="Manage"><i class="icon-wrench"></i>Manage</a>
-                        </td>
                     </tr>
                     {% else %}
                     <tr>

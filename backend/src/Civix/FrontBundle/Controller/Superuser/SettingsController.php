@@ -20,19 +20,22 @@ class SettingsController extends Controller
      * @Route("/states", name="civix_front_superuser_settings_states")
      * @Method({"GET", "POST"})
      * @Template("CivixFrontBundle:Superuser:statesSettings.html.twig")
+     * @param Request $request
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function statesListAction(Request $request)
     {
         $settingsForm = $this->createForm(new SettingsType(), new CoreSettings($this->get('civix_core.settings')));
         $query = $this->getDoctrine()
             ->getRepository('CivixCoreBundle:State')
-            ->getStatesWithSTRepresentative();
+            ->getStatesWithRepresentative();
 
         $paginator = $this->get('knp_paginator');
         $pagination = $paginator->paginate(
             $query,
             $this->getRequest()->get('page', 1),
-            60
+            60,
+            array('distinct' => false)
         );
 
         if ('POST' === $request->getMethod()) {
@@ -54,6 +57,8 @@ class SettingsController extends Controller
      * @Route("/states/{state}", name="civix_front_superuser_settings_states_update")
      * @Method({"POST"})
      * @Template("CivixFrontBundle:Superuser:statesSettings.html.twig")
+     * @param State $state
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function statesUpdateAction(State $state)
     {

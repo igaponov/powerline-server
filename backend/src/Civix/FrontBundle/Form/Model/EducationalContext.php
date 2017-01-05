@@ -2,12 +2,13 @@
 
 namespace Civix\FrontBundle\Form\Model;
 
+use Civix\CoreBundle\Entity\Poll\Question;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class EducationalContext
 {
     /**
-     * @var \Civix\CoreBundle\Entity\Poll\Question
+     * @var Question
      */
     private $question;
 
@@ -16,7 +17,7 @@ class EducationalContext
      */
     private $items = array();
 
-    public function __construct(\Civix\CoreBundle\Entity\Poll\Question $question = null)
+    public function __construct(Question $question = null)
     {
         $this->question = $question;
 

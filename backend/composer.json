@@ -29,7 +29,7 @@
         "aws/aws-sdk-php": "2.5.*",
         "knplabs/knp-menu-bundle": "2.0.*",
         "knplabs/knp-paginator-bundle": "2.3.*",
-        "mopa/bootstrap-bundle": "2.3.x-dev",
+        "mopa/bootstrap-bundle": "~2.3",
         "twbs/bootstrap": "v2.3.2",
         "leafo/lessphp": "0.3.*",
         "excelwebzone/recaptcha-bundle": "2.3.*@dev",
