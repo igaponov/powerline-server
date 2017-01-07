@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Model;
 
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 interface CropAvatarInterface
@@ -12,10 +13,10 @@ interface CropAvatarInterface
     public function getAvatar();
 
     /**
-     * @param UploadedFile $avatar
+     * @param File|UploadedFile $avatar
      * @return $this
      */
-    public function setAvatar(UploadedFile $avatar);
+    public function setAvatar(File $avatar);
 
     /**
      * @return string

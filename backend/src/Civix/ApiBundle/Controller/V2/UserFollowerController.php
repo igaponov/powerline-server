@@ -100,7 +100,7 @@ class UserFollowerController extends FOSRestController
     {
         if ($userFollow && $userFollow->isActive()) {
             /** @var View $configuration */
-            $configuration = $request->attributes->get('_view');
+            $configuration = $request->attributes->get('_template');
             $groups = $configuration->getSerializerGroups();
             $groups[] = 'api-full-info';
             $configuration->setSerializerGroups($groups);

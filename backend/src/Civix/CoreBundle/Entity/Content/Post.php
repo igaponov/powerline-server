@@ -50,7 +50,7 @@ class Post
     /**
      * @Assert\File(
      *     maxSize="1M",
-     *     mimeTypes={"image/png", "image/jpeg", "image/pjpeg"}
+     *     mimeTypes={"image/png", "image/jpeg", "image/jpg"}
      * )
      * @Assert\NotBlank
      * @Vich\UploadableField(mapping="post_image", fileNameProperty="postImage")

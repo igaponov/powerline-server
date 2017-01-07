@@ -5,6 +5,7 @@ namespace Civix\CoreBundle\Entity;
 use Civix\CoreBundle\Serializer\Type\Avatar;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
@@ -83,7 +84,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
     /**
      * @Assert\File(
      *     maxSize="10M",
-     *     mimeTypes={"image/png", "image/jpeg", "image/pjpeg"},
+     *     mimeTypes={"image/png", "image/jpeg", "image/jpg"},
      *     groups={"profile"}
      * )
      * @Vich\UploadableField(mapping="avatar_source_image", fileNameProperty="avatarSourceFileName")
@@ -294,11 +295,10 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
     /**
      * Set avatar
      *
-     * @param UploadedFile $avatar
-     *
+     * @param File|UploadedFile $avatar
      * @return Representative
      */
-    public function setAvatar(UploadedFile $avatar)
+    public function setAvatar(File $avatar)
     {
         $this->avatar = $avatar;
         return $this;

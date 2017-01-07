@@ -97,7 +97,7 @@
 
         <service class="Civix\ApiBundle\Request\ParamConverter\DoctrineParamConverter" id="civix_api.request_param_converter.doctrine_param_converter">
             <argument id="sensio_framework_extra.converter.doctrine.orm" type="service"/>
-            <argument id="security.context" type="service"/>
+            <argument id="security.token_storage" type="service"/>
             <tag name="request.param_converter" converter="doctrine.param_converter" priority="-10"/>
         </service>
 
@@ -135,6 +135,10 @@
         </service>
 
         <service class="Civix\ApiBundle\View\CsvHandler" id="civix_api.csv_handler" />
+
+        <service class="Civix\ApiBundle\Security\Http\EntryPoint\BearerTokenAuthenticationEntryPoint" id="civix_api.bearer_token_authentication_entry_point">
+            <argument id="router" type="service" />
+        </service>
     </services>
 
 </container>

@@ -53,39 +53,29 @@ class CiceroApiTest extends WebTestCase
             ORM\LoadRepresentativeData::class,
         ));
         /** @var \PHPUnit_Framework_MockObject_MockObject|CiceroApi $mock */
-        $mock = $this->getMock('Civix\CoreBundle\Service\CiceroApi',
-            array('getNonlegislaveDistricts'),
-            array(),
-            '',
-            false
-        );
-        $ciceroCallsMock = $this->getMock('Civix\CoreBundle\Service\CiceroCalls',
-            array('getResponse'),
-            array(),
-            '',
-            false
-        );
+        $mock = $this->getMockBuilder('Civix\CoreBundle\Service\CiceroApi')
+            ->setMethods(array('getNonlegislaveDistricts'))
+            ->disableOriginalConstructor()
+            ->getMock();
+        $ciceroCallsMock = $this->getMockBuilder('Civix\CoreBundle\Service\CiceroCalls')
+            ->setMethods(array('getResponse'))
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        $congressMock = $this->getMock('Civix\CoreBundle\Service\CongressApi',
-            array('updateRepresentativeProfile'),
-            array(),
-            '',
-            false
-        );
+        $congressMock = $this->getMockBuilder('Civix\CoreBundle\Service\CongressApi')
+            ->setMethods(array('updateRepresentativeProfile'))
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        $openstatesApi = $this->getMock('Civix\CoreBundle\Service\OpenstatesApi',
-            array('updateRepresentativeProfile'),
-            array(),
-            '',
-            false
-        );
+        $openstatesApi = $this->getMockBuilder('Civix\CoreBundle\Service\OpenstatesApi')
+            ->setMethods(array('updateRepresentativeProfile'))
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        $vichUploader = $this->getMock('Vich\UploaderBundle\Templating\Helper\UploaderHelper',
-            array('asset'),
-            array(),
-            '',
-            false
-        );
+        $vichUploader = $this->getMockBuilder('Vich\UploaderBundle\Templating\Helper\UploaderHelper')
+            ->setMethods(array('asset'))
+            ->disableOriginalConstructor()
+            ->getMock();
         $vichUploader->expects($this->any())
             ->method('asset')
             ->will($this->returnValue(null));
@@ -103,7 +93,7 @@ class CiceroApiTest extends WebTestCase
         static::$kernel->getContainer()->set('knp_gaufrette.filesystem_map', $fileSystem);
         static::$kernel->getContainer()->set('vich_uploader.storage.gaufrette', $storage);
 
-        $mock->setCropImage($this->getMock('Civix\CoreBundle\Service\CropImage'));
+        $mock->setCropImage($this->createMock('Civix\CoreBundle\Service\CropImage'));
         $mock->setVichService($vichUploader);
         $mock->setEntityManager(static::$kernel->getContainer()->get('doctrine')->getManager());
         $mock->setCongressApi($congressMock);
@@ -151,40 +141,30 @@ class CiceroApiTest extends WebTestCase
         $representativeObj->setPrivatePhone($faker->phoneNumber);
         $representativeObj->setPrivateEmail($faker->companyEmail);
         /** @var \PHPUnit_Framework_MockObject_MockObject|CiceroApi $mock */
-        $mock = $this->getMock('Civix\CoreBundle\Service\CiceroApi',
-            ['checkLink'],
-            array(),
-            '',
-            false
-        );
+        $mock = $this->getMockBuilder('Civix\CoreBundle\Service\CiceroApi')
+            ->setMethods(['checkLink'])
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        $ciceroCallsMock = $this->getMock('Civix\CoreBundle\Service\CiceroCalls',
-            array('getResponse'),
-            array(),
-            '',
-            false
-        );
+        $ciceroCallsMock = $this->getMockBuilder('Civix\CoreBundle\Service\CiceroCalls')
+            ->setMethods(array('getResponse'))
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        $congressMock = $this->getMock('Civix\CoreBundle\Service\CongressApi',
-            array('updateRepresentativeProfile'),
-            array(),
-            '',
-            false
-        );
+        $congressMock = $this->getMockBuilder('Civix\CoreBundle\Service\CongressApi')
+            ->setMethods(array('updateRepresentativeProfile'))
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        $openstatesApi = $this->getMock('Civix\CoreBundle\Service\OpenstatesApi',
-            array('updateRepresentativeProfile'),
-            array(),
-            '',
-            false
-        );
+        $openstatesApi = $this->getMockBuilder('Civix\CoreBundle\Service\OpenstatesApi')
+            ->setMethods(array('updateRepresentativeProfile'))
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        $vichUploader = $this->getMock('Vich\UploaderBundle\Templating\Helper\UploaderHelper',
-            array('asset'),
-            array(),
-            '',
-            false
-        );
+        $vichUploader = $this->getMockBuilder('Vich\UploaderBundle\Templating\Helper\UploaderHelper')
+            ->setMethods(array('asset', 'updateRepresentativeProfile'))
+            ->disableOriginalConstructor()
+            ->getMock();
         $vichUploader->expects($this->any())
             ->method('asset')
             ->will($this->returnValue(null));
@@ -202,7 +182,7 @@ class CiceroApiTest extends WebTestCase
         static::$kernel->getContainer()->set('knp_gaufrette.filesystem_map', $fileSystem);
         static::$kernel->getContainer()->set('vich_uploader.storage.gaufrette', $storage);
 
-        $mock->setCropImage($this->getMock('Civix\CoreBundle\Service\CropImage'));
+        $mock->setCropImage($this->createMock('Civix\CoreBundle\Service\CropImage'));
         $mock->setVichService($vichUploader);
         $mock->setEntityManager($em);
         $mock->setCongressApi($congressMock);

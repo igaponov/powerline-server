@@ -78,9 +78,8 @@ class ProfileControllerTest extends WebTestCase
         foreach (array_keys($params) as $key) {
             $this->assertEquals($params[$key], $data[$key], $key);
         }
-        $files = $client->getContainer()
-            ->get('civix_core.storage.array')
-            ->getFiles('avatar_image_fs');
+        $storage = $client->getContainer()->get('civix_core.storage.array');
+        $files = $storage->getFiles('avatar_image_fs');
         $this->assertCount(1, $files);
         $this->assertEquals(
             'https://powerline-dev.imgix.net/avatars/'.key($files).'?ixlib=php-1.1.0',

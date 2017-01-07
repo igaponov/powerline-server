@@ -3,30 +3,40 @@
 namespace Civix\FrontBundle\Menu;
 
 use Symfony\Component\HttpFoundation\Request;
-use Mopa\Bundle\BootstrapBundle\Navbar\AbstractNavbarMenuBuilder;
 use Knp\Menu\FactoryInterface;
 use Knp\Menu\ItemInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\SecurityContextInterface;
 use Civix\CoreBundle\Entity\Group;
 
 /**
  * Class for build menu.
  */
-class MenuBuilder extends AbstractNavbarMenuBuilder
+class MenuBuilder
 {
     protected $securityContext;
     protected $isLoggedIn;
+    /**
+     * @var AuthorizationCheckerInterface
+     */
+    private $authorizationChecker;
 
     /**
-     * @param FactoryInterface         $factory
-     * @param SecurityContextInterface $securityContext
+     * @param FactoryInterface $factory
+     * @param TokenStorageInterface $tokenStorage
+     * @param AuthorizationCheckerInterface $authorizationChecker
      */
-    public function __construct(FactoryInterface $factory, SecurityContextInterface $securityContext)
-    {
-        parent::__construct($factory);
+    public function __construct(
+        FactoryInterface $factory,
+        TokenStorageInterface $tokenStorage,
+        AuthorizationCheckerInterface $authorizationChecker
+    ) {
+//        parent::__construct($factory);
 
-        $this->securityContext = $securityContext;
-        $this->isLoggedIn = $this->securityContext->isGranted('IS_AUTHENTICATED_FULLY');
+        $this->securityContext = $tokenStorage;
+        $this->authorizationChecker = $authorizationChecker;
+        $this->isLoggedIn = $this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY');
     }
 
     /**

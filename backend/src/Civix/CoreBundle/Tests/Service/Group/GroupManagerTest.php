@@ -60,8 +60,8 @@ class GroupManagerTest extends WebTestCase
         $this->em->persist($this->user);
         $this->em->flush();
 
-        /** @var GroupManager $groupManager */
-        $geocode = $this->getMock(Geocode::class);
+        /** @var \PHPUnit_Framework_MockObject_MockObject|Geocode $geocode */
+        $geocode = $this->createMock(Geocode::class);
         $geocode->expects($this->once())
             ->method('getCountry')
             ->will($this->returnValue(new AddressComponent('Mozambique', 'MZ')));
@@ -71,26 +71,22 @@ class GroupManagerTest extends WebTestCase
         $geocode->expects($this->once())
             ->method('getLocality')
             ->will($this->returnValue(new AddressComponent('Chinde', 'Chinde')));
-        $groupManager = $this->getMock(
-            GroupManager::class,
-            null,
-            [
-                $this->container->get('doctrine.orm.entity_manager'),
-                $geocode,
-                $this->container->get('event_dispatcher')
-            ]
+        $groupManager = new GroupManager(
+            $this->container->get('doctrine')->getManager(),
+            $geocode,
+            $this->container->get('event_dispatcher')
         );
         $groupManager->autoJoinUser($this->user);
 
-        /** @var UserGroup $groups */
+        /** @var UserGroup[] $groups */
         $groups = $this->em
             ->getRepository(UserGroup::class)
             ->findBy(array('user' => $this->user));
 
         $groupLocations = array();
-        foreach($groups as $item)
+        foreach($groups as $item) {
             $groupLocations[] = $item->getGroup()->getLocationName();
-
+        }
         $this->assertContains('MZ', $groupLocations);
     }
 }

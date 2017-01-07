@@ -30,8 +30,8 @@ security:
             form_login:
                 check_path: /superuser/login_check
                 login_path: /superuser/login
-                csrf_provider: form.csrf_provider
-                intention: superuser_authentication
+#                csrf_provider: form.csrf_provider
+#                intention: superuser_authentication
             logout:
                 path: /superuser/logout
                 target: /superuser
@@ -72,6 +72,7 @@ security:
             security: true
             bearer_token: true
             provider: mobileuser
+            entry_point: civix_api.bearer_token_authentication_entry_point
 
         leader_api_login:
             pattern: ^/api-leader/sessions/$

@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Serializer\Type\Avatar;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * Superuser Entity.
@@ -256,7 +256,7 @@ class Superuser implements UserInterface, HasAvatarInterface
     /**
      * Get avatarSrc.
      *
-     * @return \Civix\CoreBundle\Model\Avatar
+     * @return Avatar
      */
     public function getAvatarSrc()
     {
@@ -273,7 +273,7 @@ class Superuser implements UserInterface, HasAvatarInterface
      *
      * @param string $token
      *
-     * @return User
+     * @return $this
      */
     public function setToken($token)
     {
@@ -310,7 +310,7 @@ class Superuser implements UserInterface, HasAvatarInterface
     	$this->setToken(base_convert(bin2hex($bytes), 16, 36).$this->getId());
     }
 
-    public function setAvatar(UploadedFile $avatar)
+    public function setAvatar(File $avatar)
     {
 
     }

@@ -4,10 +4,10 @@ namespace Civix\ApiBundle\EventListener;
 
 use Civix\ApiBundle\Configuration\SecureParam;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Security\Core\SecurityContextInterface;
 
 /**
  * Listens to SecureParam annotations.
@@ -15,16 +15,16 @@ use Symfony\Component\Security\Core\SecurityContextInterface;
 class SecureParamListener implements EventSubscriberInterface
 {
     /**
-     * @var SecurityContextInterface
+     * @var AuthorizationCheckerInterface
      */
-    private $securityContext;
+    private $authorizationChecker;
 
     /**
-     * @param SecurityContextInterface $securityContext
+     * @param AuthorizationCheckerInterface $authorizationChecker
      */
-    public function __construct(SecurityContextInterface $securityContext)
+    public function __construct(AuthorizationCheckerInterface $authorizationChecker)
     {
-        $this->securityContext = $securityContext;
+        $this->authorizationChecker = $authorizationChecker;
     }
     
     /**
@@ -85,7 +85,7 @@ class SecureParamListener implements EventSubscriberInterface
      */
     public function checkPermission($entity, $permission)
     {
-        if (false === $this->securityContext->isGranted($permission, $entity)) {
+        if (false === $this->authorizationChecker->isGranted($permission, $entity)) {
             throw new AccessDeniedException('You are not allowed to access this resource..');
         }
     }

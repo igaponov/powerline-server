@@ -6,7 +6,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\DoctrineParamConverter as BaseDoctrineParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\ParamConverterInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
  * Class DoctrineParamConverter
@@ -23,16 +23,16 @@ class DoctrineParamConverter implements ParamConverterInterface
      */
     private $paramConverter;
     /**
-     * @var SecurityContextInterface
+     * @var TokenStorageInterface
      */
     private $securityContext;
 
     public function __construct(
         BaseDoctrineParamConverter $paramConverter,
-        SecurityContextInterface $securityContext
+        TokenStorageInterface $tokenStorage
     ) {
         $this->paramConverter = $paramConverter;
-        $this->securityContext = $securityContext;
+        $this->securityContext = $tokenStorage;
     }
 
     /**
@@ -40,7 +40,7 @@ class DoctrineParamConverter implements ParamConverterInterface
      * @param ParamConverter|ConfigurationInterface $configuration
      * @return bool
      */
-    function apply(Request $request, ConfigurationInterface $configuration)
+    function apply(Request $request, ParamConverter $configuration)
     {
         $needUser = isset($configuration->getOptions()['mapping']['loggedInUser']);
         $hasUser = $request->attributes->has('loggedInUser');
@@ -60,7 +60,7 @@ class DoctrineParamConverter implements ParamConverterInterface
         return $result;
     }
 
-    function supports(ConfigurationInterface $configuration)
+    function supports(ParamConverter $configuration)
     {
         return $this->paramConverter->supports($configuration);
     }

@@ -9,7 +9,6 @@ use Civix\CoreBundle\Entity\UserGroupManager;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
 use FOS\RestBundle\Controller\Annotations\View;
-use FOS\RestBundle\Util\Codes;
 use JMS\Serializer\Exception\RuntimeException;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -96,18 +95,18 @@ class GroupController extends BaseController
     	{
     		return new JsonResponse(
                 ['error' => 'The user is not owner of the group'], 
-                Codes::HTTP_BAD_REQUEST
+                Response::HTTP_BAD_REQUEST
             );
     	}
 
-    	return new JsonResponse('', Codes::HTTP_NO_CONTENT);
+    	return new JsonResponse('', Response::HTTP_NO_CONTENT);
     }
-    
+
     /**
      * Deprecated
      *
      * Checks if the current user is group member for a group given.
-     * 
+     *
      * Note that a group owner is a group member as default definition.
      *
      *     curl -i -X GET -G 'http://domain.com/api/groups/is-member/{id}' -d ''
@@ -127,7 +126,7 @@ class GroupController extends BaseController
      *     ["error","some error message"]
      *
      * @ApiDoc(
-     * 	   https = true,
+     *       https = true,
      *     authentication = true,
      *     resource=true,
      *     section="Groups",
@@ -146,9 +145,9 @@ class GroupController extends BaseController
      *     parameters={
      *     },
      *     input = {
-     *   	"class" = "",
-     *	    "options" = {"method" = "GET"},
-     *	   },
+     *    "class" = "",
+     *        "options" = {"method" = "GET"},
+     *       },
      *     statusCodes={
      *          200="Returned when successful",
      *          400="Returned when incorrect login or password",
@@ -164,8 +163,10 @@ class GroupController extends BaseController
      *      class="CivixCoreBundle:Group",
      *      options={"repository_method" = "getGroupByIdAndType"}
      * )
+     * @param Group $group
+     * @return JsonResponse
      */
-    public function isGroupMemberAction(Request $request, Group $group)
+    public function isGroupMemberAction(Group $group)
     {
     	/** @var $user User */
     	$user = $this->getUser();
@@ -188,7 +189,7 @@ class GroupController extends BaseController
      * Deprecated
      *
      * Checks if the current user is group manager for a group given.
-     * 
+     *
      * By definition, a group manager MUST BE a group member too.
      *
      *     curl -i -X GET -G 'http://domain.com/api/groups/is-manager/{id}' -d ''
@@ -208,7 +209,7 @@ class GroupController extends BaseController
      *     ["error","some error message"]
      *
      * @ApiDoc(
-     * 	   https = true,
+     *       https = true,
      *     authentication = true,
      *     resource=true,
      *     section="Groups",
@@ -227,9 +228,9 @@ class GroupController extends BaseController
      *     parameters={
      *     },
      *     input = {
-     *   	"class" = "",
-     *	    "options" = {"method" = "GET"},
-     *	   },
+     *    "class" = "",
+     *        "options" = {"method" = "GET"},
+     *       },
      *     statusCodes={
      *          200="Returned when successful",
      *          400="Returned when incorrect login or password",
@@ -245,8 +246,10 @@ class GroupController extends BaseController
      *      class="CivixCoreBundle:Group",
      *      options={"repository_method" = "getGroupByIdAndType"}
      * )
+     * @param Group $group
+     * @return JsonResponse
      */
-    public function isGroupManagerAction(Request $request, Group $group)
+    public function isGroupManagerAction(Group $group)
     {
     	/** @var $user User */
     	$user = $this->getUser();
@@ -301,6 +304,8 @@ class GroupController extends BaseController
      *     section="Groups",
      *     deprecated=true
      * )
+     * @param Request $request
+     * @return Response
      */
     public function createGroupAction(Request $request)
     {
@@ -316,7 +321,6 @@ class GroupController extends BaseController
 
         /** @var Group $group */
         $group = $this->jmsDeserialization($request->getContent(), Group::class, ['api-create-by-user']);
-        $group->init();
 
         $errors = $this->getValidator()->validate($group, ['user-registration']);
 
@@ -520,7 +524,7 @@ class GroupController extends BaseController
      *     ["error","some error message"]
      *
      * @ApiDoc(
-     * 	   https = true,
+     *       https = true,
      *     authentication = false,
      *     resource=true,
      *     section="Groups",
@@ -528,20 +532,20 @@ class GroupController extends BaseController
      *     views = { "default"},
      *     output = "",
      *     requirements={
-	 *     },
+     *     },
      *     tags={
-	 *         "stable" = "#89BF04",
-	 *         "POST" = "#10a54a",
-	 *         "join group manager",
-	 *     },
+     *         "stable" = "#89BF04",
+     *         "POST" = "#10a54a",
+     *         "join group manager",
+     *     },
      *     filters={
      *     },
      *     parameters={
-	 *     },
+     *     },
      *     input = {
-	 *   	"class" = "",
-	 *	    "options" = {"method" = "POST"},
-	 *	   },
+     *    "class" = "",
+     *        "options" = {"method" = "POST"},
+     *       },
      *     statusCodes={
      *          200="Returned when successful",
      *          400="Returned when incorrect login or password",
@@ -549,7 +553,7 @@ class GroupController extends BaseController
      *     },
      *     deprecated=true
      * )
-     * 
+     *
      * @Route("/join-group-manager/{id}", name="civix_api_groups_join_group_manager")
      * @Method("POST")
      * @ParamConverter(
@@ -557,8 +561,10 @@ class GroupController extends BaseController
      *      class="CivixCoreBundle:Group",
      *      options={"repository_method" = "getGroupByIdAndType"}
      * )
+     * @param Group $group
+     * @return JsonResponse
      */
-    public function joinToGroupAsGroupManagerAction(Request $request, Group $group)
+    public function joinToGroupAsGroupManagerAction(Group $group)
     {
     	$entityManager = $this->getDoctrine()->getManager();
     	/** @var $user User */
@@ -737,21 +743,21 @@ class GroupController extends BaseController
     /**
      * Returns group information.
      * Deprecated, use /api/v2/groups/{id} instead.
-     * 
+     *
      * @Route("/info/{group}", requirements={"group"="\d+"}, name="civix_api_groups_information")
      * @Method("GET")
      * @ParamConverter("group", class="CivixCoreBundle:Group")
-     * 
+     *
      * @ApiDoc(
      *     section="Groups",
      *     description="Returns group information",
      *     deprecated=true
      * )
+     * @param $group
+     * @return Response
      */
-    public function getInformationAction(Request $request, $group)
+    public function getInformationAction($group)
     {
-        $entityManager = $this->getDoctrine()->getManager();
-
         if (!$group) {
             throw $this->createNotFoundException();
         }

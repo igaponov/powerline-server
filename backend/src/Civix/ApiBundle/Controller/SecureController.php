@@ -371,7 +371,7 @@ class SecureController extends BaseController
      */
     public function checkResetToken(Request $request)
     {
-        $user = $this->getUserByResetToken($request->get('token'));
+        $this->getUserByResetToken($request->get('token'));
 
         $response = new Response();
         $response->headers->set('Content-Type', 'application/json');

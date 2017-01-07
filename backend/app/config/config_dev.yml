@@ -18,7 +18,7 @@ monolog:
             max_files: 10
         push:
             type:  stream
-            path:  %kernel.logs_dir%/push_%kernel.environment%.log
+            path:  '%kernel.logs_dir%/push_%kernel.environment%.log'
             level: debug
             channels: [push]
         slack:

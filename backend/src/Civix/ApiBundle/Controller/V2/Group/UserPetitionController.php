@@ -4,11 +4,10 @@ namespace Civix\ApiBundle\Controller\V2\Group;
 
 use Civix\ApiBundle\Form\Type\UserPetitionCreateType;
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\Micropetitions\Petition;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Service\UserPetitionManager;
+use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
-use FOS\RestBundle\Util\Codes;
 use JMS\DiExtraBundle\Annotation as DI;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -57,10 +56,12 @@ class UserPetitionController extends FOSRestController
      *     }
      * )
      *
+     * @View(statusCode=201)
+     *
      * @param Request $request
      * @param Group $group
      *
-     * @return Petition|\Symfony\Component\Form\Form
+     * @return UserPetition|\Symfony\Component\Form\Form
      */
     public function postAction(Request $request, Group $group)
     {
@@ -79,7 +80,7 @@ class UserPetitionController extends FOSRestController
             $petition->setGroup($group);
             $petition = $this->petitionManager->savePetition($petition);
 
-            return $this->view($petition, Codes::HTTP_CREATED);
+            return $petition;
         }
 
         return $form;

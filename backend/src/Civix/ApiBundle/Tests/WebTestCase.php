@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 abstract class WebTestCase extends \Liip\FunctionalTestBundle\Test\WebTestCase
 {
-    protected function onNotSuccessfulTest(\Exception $e)
+    protected function onNotSuccessfulTest($e)
     {
         $this->containers = [];
         parent::onNotSuccessfulTest($e);

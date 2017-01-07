@@ -11,7 +11,7 @@ class Base64ToFileConverter
             $content = base64_decode($content, true);
             $path = tempnam(sys_get_temp_dir(), 'upload');
             file_put_contents($path, $content);
-            $content = new UploadedFile($path, $content, null, mb_strlen($content), null, true);
+            $content = new UploadedFile($path, uniqid(), null, mb_strlen($content), null, true);
         }
 
         return $content;

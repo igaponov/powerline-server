@@ -84,7 +84,7 @@ class UserGroupController extends FOSRestController
      *     responseMap={
      *          201 = {
      *              "class" = "Civix\CoreBundle\Entity\Group",
-     *              "groups" = {"api-info"},
+     *              "groups" = {"api-info", "permission-settings"},
      *              "parsers" = {
      *                  "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
      *              }
@@ -92,11 +92,11 @@ class UserGroupController extends FOSRestController
      *     }
      * )
      *
-     * @View(serializerGroups={"api-info"})
+     * @View(serializerGroups={"api-info", "permission-settings"}, statusCode=201)
      *
      * @param Request $request
      *
-     * @return \FOS\RestBundle\View\View|\Symfony\Component\Form\Form
+     * @return Group|\Symfony\Component\Form\Form
      */
     public function postAction(Request $request)
     {
@@ -112,7 +112,7 @@ class UserGroupController extends FOSRestController
             $this->manager->create($group);
             $this->manager->joinToGroup($this->getUser(), $group);
 
-            return $this->view($group, 201);
+            return $group;
         }
 
         return $form;

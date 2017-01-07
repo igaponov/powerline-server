@@ -8,7 +8,6 @@ use Civix\CoreBundle\Entity\Group;
 use Doctrine\Common\Collections\Collection;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
-use FOS\RestBundle\Util\Codes;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -84,12 +83,12 @@ class FieldController extends FOSRestController
      *     }
      * )
      *
-     * @View(serializerGroups={"api-group-field"})
+     * @View(serializerGroups={"api-group-field"}, statusCode=201)
      *
      * @param Request $request
      * @param Group $group
      *
-     * @return \FOS\RestBundle\View\View|\Symfony\Component\Form\Form
+     * @return Group\GroupField|\Symfony\Component\Form\Form
      */
     public function postAction(Request $request, Group $group)
     {
@@ -105,7 +104,7 @@ class FieldController extends FOSRestController
             $em->persist($field);
             $em->flush();
 
-            return $this->view($field, Codes::HTTP_CREATED);
+            return $field;
         }
 
         return $form;

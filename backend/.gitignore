@@ -2,13 +2,9 @@ web/bundles/
 web/css/
 web/js/
 web/images/*
-app/bootstrap.php.cache
-app/cache/*
-app/logs/*
-app/cache
-app/logs
 build/
 /vendor
+/var
 bin
 composer.phar
 app/config/parameters.yml

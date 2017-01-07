@@ -273,37 +273,29 @@ class CiceroSyncCommandTest extends WebTestCase
         static::$kernel->boot();
         $container = static::$kernel->getContainer();
 
-        $ciceroMock = $this->getMock('Civix\CoreBundle\Service\CiceroCalls',
-            array('getResponse'),
-            array(),
-            '',
-            false
-        );
+        $ciceroMock = $this->getMockBuilder('Civix\CoreBundle\Service\CiceroCalls')
+            ->setMethods(array('getResponse'))
+            ->disableOriginalConstructor()
+            ->getMock();
         $ciceroMock->expects($this->any())
            ->method('getResponse')
            ->will($this->returnValue($ciceroReturnResult));
 
-        $openstateServiceMock = $this->getMock('Civix\CoreBundle\Service\OpenstatesApi',
-            array('updateRepresentativeProfile'),
-            array(),
-            '',
-            false
-        );
+        $openstateServiceMock = $this->getMockBuilder('Civix\CoreBundle\Service\OpenstatesApi')
+            ->setMethods(array('updateRepresentativeProfile'))
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        $congressMock = $this->getMock('Civix\CoreBundle\Service\CongressApi',
-            array('updateRepresentativeProfile'),
-            array(),
-            '',
-            false
-        );
+        $congressMock = $this->getMockBuilder('Civix\CoreBundle\Service\CongressApi')
+            ->setMethods(array('updateRepresentativeProfile'))
+            ->disableOriginalConstructor()
+            ->getMock();
 
         /** @var \PHPUnit_Framework_MockObject_MockObject|CiceroApi $mock */
-        $mock = $this->getMock('Civix\CoreBundle\Service\CiceroApi',
-            array('checkLink'),
-            array(),
-            '',
-            false
-        );
+        $mock = $this->getMockBuilder('Civix\CoreBundle\Service\CiceroApi')
+            ->setMethods(array('checkLink'))
+            ->disableOriginalConstructor()
+            ->getMock();
         $mock->expects($this->any())->method('checkLink')->willReturn(false);
         $mock->setEntityManager($container->get('doctrine')->getManager());
         $mock->setCongressApi($congressMock);

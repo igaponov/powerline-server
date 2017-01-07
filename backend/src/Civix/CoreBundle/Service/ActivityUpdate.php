@@ -22,7 +22,7 @@ use Civix\CoreBundle\Entity\UserInterface;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 use Doctrine\ORM\EntityManager;
-use Symfony\Component\Validator\ValidatorInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ActivityUpdate
 {

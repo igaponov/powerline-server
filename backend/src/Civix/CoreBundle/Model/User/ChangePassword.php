@@ -49,7 +49,7 @@ class ChangePassword
     }
 
     /**
-     * @Assert\True(message = "Passwords entered do not match")
+     * @Assert\IsTrue(message = "Passwords entered do not match")
      */
     public function isIdenticalPasswords()
     {

@@ -4,10 +4,15 @@ namespace Civix\CoreBundle\EventListener;
 use Civix\CoreBundle\Event\AvatarEvent;
 use Civix\CoreBundle\Event\AvatarEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Vich\UploaderBundle\Mapping\PropertyMappingFactory;
 use Vich\UploaderBundle\Storage\StorageInterface;
 
 class UploaderSubscriber implements EventSubscriberInterface
 {
+    /**
+     * @var PropertyMappingFactory
+     */
+    private $factory;
     /**
      * @var StorageInterface
      */
@@ -20,14 +25,16 @@ class UploaderSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function __construct(StorageInterface $storage)
+    public function __construct(PropertyMappingFactory $factory, StorageInterface $storage)
     {
+        $this->factory = $factory;
         $this->storage = $storage;
     }
 
     public function removeAvatar(AvatarEvent $event)
     {
         $entity = $event->getEntity();
-        $this->storage->remove($entity);
+        $mapping = $this->factory->fromField($entity, 'avatar');
+        $this->storage->remove($entity, $mapping);
     }
 }

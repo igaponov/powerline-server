@@ -1,15 +1,16 @@
 <?php
 namespace Civix\CoreBundle\Entity;
 
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 interface HasAvatarInterface
 {
     /**
-     * @param UploadedFile $avatar
+     * @param File|UploadedFile $avatar
      * @return $this
      */
-    public function setAvatar(UploadedFile $avatar);
+    public function setAvatar(File $avatar);
 
     /**
      * Get avatar.

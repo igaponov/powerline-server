@@ -35,9 +35,9 @@ class ProfileController extends BaseController
      *     deprecated=true
      * )
      */
-    public function indexAction(Request $request)
+    public function indexAction()
     {
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $response = new Response($this->jmsSerialization($user, array('api-profile')));
         $response->headers->set('Content-Type', 'application/json');
@@ -61,8 +61,10 @@ class ProfileController extends BaseController
      *     },
      *     deprecated=true
      * )
+     * @param User $user
+     * @return Response
      */
-    public function getInformationAction(Request $request, User $user)
+    public function getInformationAction(User $user)
     {
         $userFollow = $this->getDoctrine()->getRepository(UserFollow::class)->findOneBy([
             'user' => $user,
@@ -80,7 +82,7 @@ class ProfileController extends BaseController
      * Deprecated, use `PUT|DELETE /api/v2/user/followings/{id}` instead
      *
      * @Route(
-     *     "/follow/{status}/{targetUser}", 
+     *     "/follow/{status}/{targetUser}",
      *     requirements={"targetUser"="\d+", "status"="follow|unfollow|active|reject"},
      *     name="api_profile_follow_unfollow"
      * )
@@ -93,8 +95,11 @@ class ProfileController extends BaseController
      * )
      *
      * @deprecated
+     * @param $status
+     * @param User $targetUser
+     * @return Response
      */
-    public function followAction(Request $request, $status, User $targetUser)
+    public function followAction($status, User $targetUser)
     {
         $entityManager = $this->getDoctrine()->getManager();
 
@@ -187,6 +192,8 @@ class ProfileController extends BaseController
      * )
      *
      * @deprecated
+     * @param User $targetUser
+     * @return Response
      */
     public function getFollowingByUser(User $targetUser)
     {
@@ -214,6 +221,8 @@ class ProfileController extends BaseController
      * )
      *
      * @deprecated
+     * @param Request $request
+     * @return Response
      */
     public function getLastApprovedFollowing(Request $request)
     {
@@ -248,13 +257,15 @@ class ProfileController extends BaseController
      *         405="Method Not Allowed"
      *     }
      * )
+     * @param Request $request
+     * @return Response
      */
     public function updateAction(Request $request)
     {
         /** @var User $user */
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $entityManager = $this->getDoctrine()->getManager();
-        $user->setAvatarPath($this->getDomain().'/images/avatars/');
+        $user->setAvatarPath($request->getScheme().'://'.$request->getHttpHost().'/images/avatars/');
 
         $response = new Response();
         $response->headers->set('Content-Type', 'application/json');
@@ -313,6 +324,8 @@ class ProfileController extends BaseController
      *         405="Method Not Allowed"
      *     }
      * )
+     * @param Request $request
+     * @return Response
      */
     public function updateSettings(Request $request)
     {
@@ -320,7 +333,7 @@ class ProfileController extends BaseController
         $response->headers->set('Content-Type', 'application/json');
 
         $entityManager = $this->getDoctrine()->getManager();
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $userSetting = $this->jmsDeserialization(
             $request->getContent(),
             'Civix\CoreBundle\Entity\User',
@@ -349,6 +362,8 @@ class ProfileController extends BaseController
      *         405="Method Not Allowed"
      *     }
      * )
+     * @param Request $request
+     * @return Response
      */
     public function getMyFacebookFriends(Request $request)
     {
@@ -382,6 +397,8 @@ class ProfileController extends BaseController
      *         405="Method Not Allowed"
      *     }
      * )
+     * @param Request $request
+     * @return Response
      */
     public function linkToFacebook(Request $request)
     {
@@ -425,6 +442,8 @@ class ProfileController extends BaseController
 
     /**
      * @deprecated
+     * @param $status
+     * @return Response
      */
     private function getFollowersResultsByStatus($status)
     {
@@ -437,12 +456,5 @@ class ProfileController extends BaseController
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
-    }
-
-    private function getDomain()
-    {
-        $request = $this->getRequest();
-
-        return $request->getScheme().'://'.$request->getHttpHost();
     }
 }

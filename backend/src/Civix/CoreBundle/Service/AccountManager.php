@@ -2,6 +2,11 @@
 
 namespace Civix\CoreBundle\Service;
 
+use Doctrine\ORM\EntityManager;
+use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Civix\CoreBundle\Entity\Group;
@@ -12,20 +17,20 @@ class AccountManager
     const ACCOUNT_TYPE_LOCAL = 'local';
 
     protected $entityManager;
-    protected $securityContext;
+    protected $tokenStorage;
     protected $session;
     protected $eventDispatcher;
     protected $serviceRequest;
 
     public function __construct(
-        \Doctrine\ORM\EntityManager $entityManager,
-        \Symfony\Component\Security\Core\SecurityContext $securityContext,
-        \Symfony\Component\HttpFoundation\Session\Session $session,
-        \Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher $eventDispatcher,
-        \Symfony\Component\HttpFoundation\Request $serviceRequest
+        EntityManager $entityManager,
+        TokenStorageInterface $tokenStorage,
+        Session $session,
+        ContainerAwareEventDispatcher $eventDispatcher,
+        RequestStack $serviceRequest
     ) {
         $this->entityManager = $entityManager;
-        $this->securityContext = $securityContext;
+        $this->tokenStorage = $tokenStorage;
         $this->session = $session;
         $this->eventDispatcher = $eventDispatcher;
         $this->serviceRequest = $serviceRequest;
@@ -47,11 +52,11 @@ class AccountManager
             );
 
             //set token instance to security context
-            $this->securityContext->setToken($token);
+            $this->tokenStorage->setToken($token);
             $this->session->set('_security_group_security_area', serialize($token));
 
             //fire a login event
-            $event = new InteractiveLoginEvent($this->serviceRequest, $token);
+            $event = new InteractiveLoginEvent($this->serviceRequest->getCurrentRequest(), $token);
             $this->eventDispatcher->dispatch('security.interactive_login', $event);
 
             return $token;

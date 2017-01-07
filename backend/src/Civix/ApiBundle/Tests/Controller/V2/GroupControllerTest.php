@@ -28,7 +28,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class GroupControllerTest extends WebTestCase
 {
 	const API_ENDPOINT = '/api/v2/groups';
-	
+
 	/**
 	 * @var Client
 	 */
@@ -45,73 +45,73 @@ class GroupControllerTest extends WebTestCase
         parent::tearDown();
     }
 
-	public function testGetGroupsIsOk()
+	public function testgetGroupsRequestIsOk()
 	{
         $this->loadFixtures([
             LoadGroupData::class,
         ]);
-		$data = $this->getGroups('user1', []);
+		$data = $this->getGroupsRequest('user1', []);
 		$this->assertSame(4, $data['totalItems']);
 		$this->assertCount(4, $data['payload']);
 	}
 
-	public function testGetGroupsByQueryIsOk()
+	public function testGetGroupsRequestByQueryIsOk()
 	{
         $this->loadFixtures([
             LoadGroupData::class,
         ]);
-		$data = $this->getGroups('user1', ['query' => '']);
-		$this->assertSame(4, $data['totalItems']);
-		$this->assertCount(4, $data['payload']);
-	}
+        $data = $this->getGroupsRequest('user1', ['query' => '']);
+        $this->assertSame(4, $data['totalItems']);
+        $this->assertCount(4, $data['payload']);
+    }
 
 	public function testGetGroupsExcludeOwnedIsOk()
 	{
         $this->loadFixtures([
             LoadUserGroupOwnerData::class,
         ]);
-		$data = $this->getGroups('user1', ['exclude_owned' => true]);
-		$this->assertSame(2, $data['totalItems']);
-		$this->assertCount(2, $data['payload']);
-	}
+        $data = $this->getGroupsRequest('user1', ['exclude_owned' => true]);
+        $this->assertSame(2, $data['totalItems']);
+        $this->assertCount(2, $data['payload']);
+    }
 
 	public function testGetGroupsSortedByCreatedAtIsOk()
 	{
         $this->loadFixtures([
             LoadGroupData::class,
         ]);
-		$data = $this->getGroups('user1', ['sort' => 'created_at', 'sort_dir' => 'DESC']);
-		$this->assertSame(4, $data['totalItems']);
-		$this->assertCount(4, $data['payload']);
-		$current = reset($data['payload']);
-		while ($next = next($data['payload'])) {
-			$this->assertLessThanOrEqual(
-				new \DateTime($current['created_at']),
-				new \DateTime($next['created_at'])
-			);
-			$current = $next;
-		}
-	}
+        $data = $this->getGroupsRequest('user1', ['sort' => 'created_at', 'sort_dir' => 'DESC']);
+        $this->assertSame(4, $data['totalItems']);
+        $this->assertCount(4, $data['payload']);
+        $current = reset($data['payload']);
+        while ($next = next($data['payload'])) {
+            $this->assertLessThanOrEqual(
+                new \DateTime($current['created_at']),
+                new \DateTime($next['created_at'])
+            );
+            $current = $next;
+        }
+    }
 
-	public function testGetGroupsSortedByPopularityIsOk()
+	public function testgetGroupsRequestSortedByPopularityIsOk()
 	{
         $this->loadFixtures([
             LoadUserGroupData::class,
             LoadGroupManagerData::class,
         ]);
-		$data = $this->getGroups('userfollowtest1', ['sort' => 'popularity', 'sort_dir' => 'DESC']);
-		$this->assertSame(4, $data['totalItems']);
-		$this->assertCount(4, $data['payload']);
-		$this->assertSame('group1', $data['payload'][0]['official_name']);
-	}
+        $data = $this->getGroupsRequest('userfollowtest1', ['sort' => 'popularity', 'sort_dir' => 'DESC']);
+        $this->assertSame(4, $data['totalItems']);
+        $this->assertCount(4, $data['payload']);
+        $this->assertSame('group1', $data['payload'][0]['official_name']);
+    }
 
-	public function testGetGroupsExcludeOwnedAndSortedByCreatedAtIsOk()
+	public function testgetGroupsRequestExcludeOwnedAndSortedByCreatedAtIsOk()
 	{
         $this->loadFixtures([
             LoadUserGroupOwnerData::class,
         ]);
-		$data = $this->getGroups('user1', [
-			'exclude_owned' => true,
+        $data = $this->getGroupsRequest('user1', [
+            'exclude_owned' => true,
 			'sort' => 'created_at',
 			'sort_dir' => 'DESC',
 		]);
@@ -127,13 +127,13 @@ class GroupControllerTest extends WebTestCase
 		}
 	}
 
-	public function testGetGroupsExcludeOwnedAndSortedByPopularityIsOk()
+	public function testgetGroupsRequestExcludeOwnedAndSortedByPopularityIsOk()
 	{
         $this->loadFixtures([
             LoadUserGroupOwnerData::class,
         ]);
-		$data = $this->getGroups('user1', [
-			'exclude_owned' => true,
+        $data = $this->getGroupsRequest('user1', [
+            'exclude_owned' => true,
 			'sort' => 'popularity',
 			'sort_dir' => 'DESC',
 		]);
@@ -1057,7 +1057,7 @@ class GroupControllerTest extends WebTestCase
         $this->assertSame('attachment; filename="file.csv"', $response->headers->get('content-disposition'));
     }
 
-	protected function getGroups($username, $params)
+	protected function getGroupsRequest($username, $params)
 	{
 		$client = $this->client;
 		$headers = ['HTTP_Authorization' => 'Bearer type="user" token="'.$username.'"'];

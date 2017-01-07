@@ -4,11 +4,10 @@ namespace Civix\ApiBundle\Controller\V2\Group;
 
 use Civix\ApiBundle\Form\Type\PostType;
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\Micropetitions\Petition;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Service\PostManager;
+use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
-use FOS\RestBundle\Util\Codes;
 use JMS\DiExtraBundle\Annotation as DI;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -57,10 +56,12 @@ class PostController extends FOSRestController
      *     }
      * )
      *
+     * @View(statusCode=201)
+     *
      * @param Request $request
      * @param Group $group
      *
-     * @return Petition|\Symfony\Component\Form\Form
+     * @return Post|\Symfony\Component\Form\Form
      */
     public function postAction(Request $request, Group $group)
     {
@@ -79,7 +80,7 @@ class PostController extends FOSRestController
             $post->setGroup($group);
             $post = $this->manager->savePost($post);
 
-            return $this->view($post, Codes::HTTP_CREATED);
+            return $post;
         }
 
         return $form;

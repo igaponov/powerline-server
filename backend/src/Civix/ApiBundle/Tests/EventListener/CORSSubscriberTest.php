@@ -2,8 +2,8 @@
 
 namespace Civix\ApiBundle\Tests\EventListener;
 
-use FOS\RestBundle\Util\Codes;
 use Civix\ApiBundle\Tests\WebTestCase;
+use Symfony\Component\HttpFoundation\Response;
 
 class CORSSubscriberTest extends WebTestCase
 {
@@ -19,7 +19,7 @@ class CORSSubscriberTest extends WebTestCase
         ));
         $client->request('GET', '/api-public/users/');
         $this->assertEquals(
-            Codes::HTTP_OK,
+            Response::HTTP_OK,
             $client->getResponse()->getStatusCode(),
             'Should return content'
         );
@@ -50,7 +50,7 @@ class CORSSubscriberTest extends WebTestCase
         $client->request('POST', '/api-public/users/');
         $response = $client->getResponse();
         $this->assertEquals(
-            Codes::HTTP_METHOD_NOT_ALLOWED,
+            Response::HTTP_METHOD_NOT_ALLOWED,
             $response->getStatusCode(),
             $response->getContent()
         );
@@ -81,7 +81,7 @@ class CORSSubscriberTest extends WebTestCase
 
         $client->request('OPTIONS', '/api/activity');
         $this->assertEquals(
-            Codes::HTTP_OK,
+            Response::HTTP_OK,
             $client->getResponse()->getStatusCode(),
             'Should return 200 ok'
         );

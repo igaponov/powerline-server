@@ -34,7 +34,7 @@ class RepresentativeControllerTest extends WebTestCase
         $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
 
-    public function testDeleteGroupAvatarIsOk()
+    public function testDeleteRepresentativeAvatarIsOk()
     {
         $repository = $this->loadFixtures([
             LoadRepresentativeData::class,

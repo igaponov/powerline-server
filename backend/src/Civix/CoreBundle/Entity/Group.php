@@ -158,7 +158,7 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
      *
      * @ORM\Column(name="manager_first_name", type="string", length=255, nullable=true)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-create-by-user", "api-group"})
+     * @Serializer\Groups({"api-create-by-user", "api-group", "api-info"})
      */
     private $managerFirstName;
 
@@ -167,7 +167,7 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
      *
      * @ORM\Column(name="manager_last_name", type="string", length=255, nullable=true)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-create-by-user", "api-group"})
+     * @Serializer\Groups({"api-create-by-user", "api-group", "api-info"})
      */
     private $managerLastName;
 
@@ -178,7 +178,7 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
      * @Assert\Email(groups={"registration", "api-registration"})
      * @Assert\NotBlank(groups={"registration", "api-registration"})
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-create-by-user", "api-group"})
+     * @Serializer\Groups({"api-create-by-user", "api-group", "api-info"})
      */
     private $managerEmail;
 
@@ -483,7 +483,7 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
      *
      * @ORM\Column(name="transparency", type="string", nullable=false)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-full-info"})
+     * @Serializer\Groups({"api-full-info", "api-info"})
      * @Assert\NotBlank(groups={"Default", "user-registration"})
      * @Assert\Choice(callback="getTransparencyStates", groups={"Default", "user-registration"})
      */
@@ -959,11 +959,10 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
     /**
      * Set avatar.
      *
-     * @param UploadedFile $avatar
-     *
+     * @param File|UploadedFile $avatar
      * @return Group
      */
-    public function setAvatar(UploadedFile $avatar)
+    public function setAvatar(File $avatar)
     {
         $this->avatar = $avatar;
 

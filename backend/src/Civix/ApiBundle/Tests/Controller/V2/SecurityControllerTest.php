@@ -9,7 +9,6 @@ use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Service\CropAvatar;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Faker\Factory;
-use FOS\RestBundle\Util\Codes;
 use HWI\Bundle\OAuthBundle\OAuth\ResourceOwnerInterface;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -70,7 +69,7 @@ class SecurityControllerTest extends WebTestCase
         $response = $client->getResponse();
 
         $this->assertEquals(
-            Codes::HTTP_OK,
+            \Symfony\Component\HttpFoundation\Response::HTTP_OK,
             $response->getStatusCode(),
             $response->getContent()
         );
@@ -111,7 +110,7 @@ class SecurityControllerTest extends WebTestCase
         $response = $client->getResponse();
 
         $this->assertEquals(
-            Codes::HTTP_OK,
+            \Symfony\Component\HttpFoundation\Response::HTTP_OK,
             $response->getStatusCode(),
             $response->getContent()
         );
@@ -147,7 +146,7 @@ class SecurityControllerTest extends WebTestCase
         $client->request('GET', self::API_ENDPOINT.'?'.http_build_query($params));
         $response = $client->getResponse();
         $this->assertEquals(
-            Codes::HTTP_INTERNAL_SERVER_ERROR,
+            \Symfony\Component\HttpFoundation\Response::HTTP_INTERNAL_SERVER_ERROR,
             $response->getStatusCode(),
             $response->getContent()
         );
@@ -191,7 +190,7 @@ class SecurityControllerTest extends WebTestCase
         $response = $client->getResponse();
 
         $this->assertEquals(
-            Codes::HTTP_OK,
+            \Symfony\Component\HttpFoundation\Response::HTTP_OK,
             $response->getStatusCode(),
             $response->getContent()
         );

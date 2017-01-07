@@ -2,13 +2,13 @@
 namespace Civix\ApiBundle\Tests\Controller;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
-use FOS\RestBundle\Util\Codes;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Component\HttpFoundation\Response;
 
 class GroupControllerTest extends WebTestCase
 {
@@ -20,9 +20,14 @@ class GroupControllerTest extends WebTestCase
 	 * @var \Doctrine\ORM\EntityManager
 	 */
 	private $em;
-	
-	private $client = null;
 
+    /**
+     * @var Client
+     */
+	private $client = null;
+    /**
+     * @var Group
+     */
     private $group;
 
     private $mobile1;
@@ -34,7 +39,6 @@ class GroupControllerTest extends WebTestCase
 		// Creates a initial client
 		$this->client = static::createClient();
 
-		/** @var AbstractExecutor $fixtures */
 		$fixtures = $this->loadFixtures([
 				LoadUserData::class,
 				LoadGroupFollowerTestData::class,
@@ -70,16 +74,6 @@ class GroupControllerTest extends WebTestCase
 	{
 		$this->assertNotEmpty($this->mobile1_token, 'Login token should not empty');
 		
-		// Create a request scope context that allows serialize the question object
-		$container = $this->getContainer();
-		
-		$request = Request::create('/');
-		
-		$request->setSession( new Session() );
-		$container->enterScope('request');
-		
-		$container->set('request', $request, 'request');
-		
 		$content = [];
 		
 		// Test is owner endpoint for failed result
@@ -94,7 +88,7 @@ class GroupControllerTest extends WebTestCase
 		$this->assertNotEmpty($content->error, 'The user is not owner of the group');
 		
 		$this->assertEquals(
-				Codes::HTTP_BAD_REQUEST,
+				Response::HTTP_BAD_REQUEST,
 				$response->getStatusCode(),
 				'Should be a 400 response'
 				);
@@ -112,7 +106,7 @@ class GroupControllerTest extends WebTestCase
 		$response = $this->client->getResponse();
 		
 		$this->assertEquals(
-				Codes::HTTP_NO_CONTENT,
+				Response::HTTP_NO_CONTENT,
 				$response->getStatusCode(),
 				'Should be a 204 response'
 				);

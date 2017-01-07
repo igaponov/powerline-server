@@ -27,7 +27,7 @@ class SuperuserController extends Controller
      */
     public function indexAction()
     {
-        if (true === $this->get('security.context')->isGranted('ROLE_SUPERUSER')) {
+        if (true === $this->get('security.authorization_checker')->isGranted('ROLE_SUPERUSER')) {
             return $this->redirect($this->generateUrl('civix_front_superuser_approvals'));
         }
 

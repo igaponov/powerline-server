@@ -1,25 +1,15 @@
+
 <?php
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Debug\Debug;
 
-$loader = require_once __DIR__.'/../app/bootstrap.php.cache';
-require_once __DIR__.'/../app/AppKernel.php';
-
+/** @var \Composer\Autoload\ClassLoader $loader */
+$loader = require __DIR__.'/../app/autoload.php';
+Debug::enable();
 $kernel = new AppKernel('dev', true);
 $kernel->loadClassCache();
 $request = Request::createFromGlobals();
-
-if ('OPTIONS' === $request->getMethod()) {
-    $response = new Response();
-} else {
-    $response = $kernel->handle($request);
-}
-$response->headers->set('Access-Control-Allow-Origin', '*');
-$response->headers->set('Access-Control-Allow-Headers',
-    'content-disposition, accept, origin, x-requested-with, authorization, content-type, token');
-$response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-
+$response = $kernel->handle($request);
 $response->send();
-
 $kernel->terminate($request, $response);

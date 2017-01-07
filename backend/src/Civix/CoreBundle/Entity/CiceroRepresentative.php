@@ -4,6 +4,7 @@ namespace Civix\CoreBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
@@ -650,11 +651,10 @@ class CiceroRepresentative implements HasAvatarInterface
     /**
      * Set avatar.
      *
-     * @param UploadedFile $avatar
-     *
+     * @param File|UploadedFile $avatar
      * @return CiceroRepresentative
      */
-    public function setAvatar(UploadedFile $avatar)
+    public function setAvatar(File $avatar)
     {
         $this->avatar = $avatar;
 

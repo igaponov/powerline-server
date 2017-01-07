@@ -1,7 +1,6 @@
 <?php
 namespace Civix\ApiBundle\View;
 
-use FOS\RestBundle\Util\Codes;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\View\ViewHandler;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,12 +20,12 @@ class ConstraintViolationListHandler
      */
     public function createResponse(ViewHandler $viewHandler, View $view, Request $request, $format)
     {
-        $view->getSerializationContext()->setVersion($request->attributes->get('version'));
+        $view->getContext()->setVersion($request->attributes->get('version'));
         $data = $view->getData();
         if ($data instanceof ConstraintViolationList && $data->count() > 0) {
             /** @var ConstraintViolation[] $iterator */
             $iterator = $data->getIterator();
-            $code = Codes::HTTP_BAD_REQUEST;
+            $code = Response::HTTP_BAD_REQUEST;
             $data = [
                 'code' => $code,
                 'message' => 'Validation Failed',

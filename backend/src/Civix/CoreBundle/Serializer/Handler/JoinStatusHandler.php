@@ -7,7 +7,7 @@ use JMS\Serializer\Context;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\JsonSerializationVisitor;
-use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Civix\CoreBundle\Serializer\Type\JoinStatus;
 
 class JoinStatusHandler implements SubscribingHandlerInterface
@@ -26,9 +26,9 @@ class JoinStatusHandler implements SubscribingHandlerInterface
         ];
     }
 
-    public function __construct(SecurityContextInterface $security)
+    public function __construct(TokenStorageInterface $tokenStorage)
     {
-        $this->user = $security->getToken()->getUser();
+        $this->user = $tokenStorage->getToken()->getUser();
     }
 
     public function serialize(JsonSerializationVisitor $visitor, JoinStatus $joinStatusType, array $type, Context $context)

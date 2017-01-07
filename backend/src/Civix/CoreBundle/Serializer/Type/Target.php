@@ -3,6 +3,7 @@ namespace Civix\CoreBundle\Serializer\Type;
 
 use Civix\CoreBundle\Entity\HasAvatarInterface;
 use Civix\CoreBundle\Entity\User;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
@@ -57,11 +58,10 @@ class Target implements HasAvatarInterface
     }
 
     /**
-     * @param UploadedFile $avatar
-     *
+     * @param File|UploadedFile $avatar
      * @return $this
      */
-    public function setAvatar(UploadedFile $avatar)
+    public function setAvatar(File $avatar)
     {
         $this->avatar = $avatar;
 

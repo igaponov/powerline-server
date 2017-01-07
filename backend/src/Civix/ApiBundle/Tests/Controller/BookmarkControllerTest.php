@@ -13,8 +13,7 @@ use Civix\CoreBundle\Repository\BookmarkRepository;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
-use FOS\RestBundle\Util\Codes;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class BookmarkControllerTest
@@ -97,6 +96,7 @@ class BookmarkControllerTest extends WebTestCase
         $this->microPetitions = [];
         $this->questions = [];
         $this->posts = [];
+        $this->bookmarks = [];
         $this->userToken = null;
         parent::tearDown();
     }
@@ -160,24 +160,20 @@ class BookmarkControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $client->setServerParameter("HTTP_Token", $this->userToken);
-        $em = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $em = $this->getContainer()->get('doctrine')->getManager();
         foreach ($this->bookmarks as $bookmark) {
             $client->request('DELETE', '/api/bookmarks/remove/' . $bookmark->getId());
-            $this->assertEquals(Codes::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
+            $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
             $this->assertNull($em->refresh($bookmark));
         }
     }
 
     private function toJsonObject($object)
     {
-        $request = Request::create('http://localhost:80');
-        $this->getContainer()->enterScope('request');
-        $this->getContainer()->set('request', $request, 'request');
-
         $json = $this->jmsSerialization($object, ['api-bookmarks', 'api-activities', 'activity-list']);
 
         $array = json_decode($json, true);
-        unset($array[0]['comments_count'], $array[0]['answers'], $array[0]['group']['group_type_label']);
+        unset($array[0]['group']['group_type_label']);
 
         return $array;
     }
