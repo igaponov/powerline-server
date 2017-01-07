@@ -44,11 +44,11 @@ class RepresentativeControllerTest extends WebTestCase
         $client = $this->client;
         $storage = $client->getContainer()->get('civix_core.storage.array');
         $file = new UploadedFile(__DIR__.'/../../data/image.png', uniqid());
-        $storage->addFile($file, 'avatar_image_fs', $representative->getAvatarFileName());
+        $storage->addFile($file, 'avatar_representative_fs', $representative->getAvatarFileName());
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user1"'];
         $client->request('DELETE', self::API_ENDPOINT.'/'.$representative->getId().'/avatar', [], [], $headers);
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
-        $this->assertCount(0, $storage->getFiles('avatar_image_fs'));
+        $this->assertCount(0, $storage->getFiles('avatar_representative_fs'));
     }
 }

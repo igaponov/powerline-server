@@ -54,7 +54,7 @@ class RepresentativeControllerTest  extends WebTestCase
                                 'last_name' => 'One',
                                 'id' => 1,
                                 'official_title' => 'Vice President',
-                                'avatar_file_path' => "https://powerline-dev.imgix.net/avatars/{$representative->getAvatarFileName()}?ixlib=php-1.1.0",
+                                'avatar_file_path' => "https://powerline-dev.imgix.net/avatars/representatives/{$representative->getAvatarFileName()}?ixlib=php-1.1.0",
                             ],
                         ],
                         [
@@ -123,7 +123,7 @@ class RepresentativeControllerTest  extends WebTestCase
         $this->assertEquals($representative->getCountry(), $data['country']);
         $this->assertEquals($representative->getPhone(), $data['phone']);
         $this->assertEquals($representative->getEmail(), $data['email']);
-        $this->assertEquals("https://powerline-dev.imgix.net/avatars/{$representative->getAvatarFileName()}?ixlib=php-1.1.0", $data['avatar_file_path']);
+        $this->assertEquals("https://powerline-dev.imgix.net/avatars/representatives/{$representative->getAvatarFileName()}?ixlib=php-1.1.0", $data['avatar_file_path']);
     }
 
     public function testGetNonExistentRepresentative()

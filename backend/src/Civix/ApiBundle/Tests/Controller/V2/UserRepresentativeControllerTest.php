@@ -124,6 +124,6 @@ class UserRepresentativeControllerTest extends WebTestCase
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM representatives r WHERE r.privatePhone = ? AND r.privateEmail = ?', [$privateParams['private_phone'], $privateParams['private_email']]);
         $this->assertEquals(1, $count);
         $storage = $client->getContainer()->get('civix_core.storage.array');
-        $this->assertCount(1, $storage->getFiles('avatar_image_fs'));
+        $this->assertCount(1, $storage->getFiles('avatar_representative_fs'));
     }
 }
