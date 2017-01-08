@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Civix\FrontBundle\Form\Type\Content;
+use Civix\FrontBundle\Form\Type\Content\Post as PostType;
 
 /**
  * @Route("/post")
@@ -70,7 +70,7 @@ class PostController extends Controller
     public function newAction(Request $request)
     {
         $post = new Post();
-        $form = $this->createForm(new Content\Post(), $post);
+        $form = $this->createForm(new PostType(), $post);
 
         if ('POST' === $request->getMethod()) {
             if ($form->submit($request)->isValid()) {
@@ -97,7 +97,7 @@ class PostController extends Controller
      */
     public function editAction(Post $post, Request $request)
     {
-        $form = $this->createForm(new Content\Post(), $post);
+        $form = $this->createForm(new PostType(), $post);
 
         if ('POST' === $request->getMethod()) {
             if ($form->submit($request)->isValid()) {
