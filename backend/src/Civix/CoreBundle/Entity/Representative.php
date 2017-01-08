@@ -68,7 +68,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *     mimeTypes={"image/png", "image/jpeg", "image/jpg"},
      *     groups={"profile", "registration"}
      * )
-     * @Vich\UploadableField(mapping="avatar_image", fileNameProperty="avatarFileName")
+     * @Vich\UploadableField(mapping="avatar_representative", fileNameProperty="avatarFileName")
      *
      * @var UploadedFile $avatar
      */
