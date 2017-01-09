@@ -229,7 +229,7 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
      *
      * @ORM\Column(name="official_type", type="string", length=255, nullable=true)
      * @Assert\NotBlank(groups={"user-registration"})
-     * @Assert\Choice(callback="getOfficialTypes", groups={"user-registration"})
+     * @Assert\Choice(callback="getOfficialTypes", groups={"user-registration"}, strict=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-info", "api-create-by-user", "api-group"})
      */
@@ -356,7 +356,7 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
      *      options={"default" = 0}
      * )
      * @Assert\NotBlank(groups={"membership-control"})
-     * @Assert\Choice(callback="getMembershipControlTypes", groups={"membership-control"})
+     * @Assert\Choice(callback="getMembershipControlTypes", groups={"membership-control"}, strict=true)
      */
     private $membershipControl;
 
@@ -485,7 +485,7 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
      * @Serializer\Expose()
      * @Serializer\Groups({"api-full-info", "api-info"})
      * @Assert\NotBlank(groups={"Default", "user-registration"})
-     * @Assert\Choice(callback="getTransparencyStates", groups={"Default", "user-registration"})
+     * @Assert\Choice(callback="getTransparencyStates", groups={"Default", "user-registration"}, strict=true)
      */
     private $transparency;
 

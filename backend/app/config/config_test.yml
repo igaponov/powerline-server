@@ -27,6 +27,7 @@ parameters:
     cicero_login: ~
     cicero_password: ~
     ciceroapi_class: Civix\CoreBundle\Service\CiceroCalls
+    hostname: api-test.powerli.ne
 
 civix_core:
     mailgun_client: mailgun.test_client
@@ -46,6 +47,3 @@ monolog:
             type: 'null'
         slack:
             type: 'null'
-
-parameters:
-    hostname: api-test.powerli.ne

@@ -146,7 +146,7 @@ class Petition implements HtmlBodyInterface
      * @Serializer\Expose()
      * @Serializer\Groups({"api-petitions-create", "api-petitions-list", "api-petitions-info",
      *      "api-leader-micropetition"})
-     * @Assert\Choice(callback = "getTypes", groups={"Default", "create", "update"})
+     * @Assert\Choice(callback = "getTypes", groups={"Default", "create", "update"}, strict=true)
      */
     private $type = self::TYPE_QUORUM;
 

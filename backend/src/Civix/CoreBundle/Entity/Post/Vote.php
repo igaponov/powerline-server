@@ -43,7 +43,7 @@ class Vote
      * @ORM\Column(name="`option`", type="integer")
      * @Serializer\Expose()
      * @Assert\NotBlank()
-     * @Assert\Choice(callback="getOptions", message="Incorrect vote's option")
+     * @Assert\Choice(callback="getOptions", message="Incorrect vote's option", strict=true)
      * @Serializer\Groups({"post-votes", "api-leader-answers", "api-answers-list", "api-petitions-answers", "api-activities"})
      */
     protected $option;

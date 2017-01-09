@@ -33,7 +33,7 @@ class BaseCommentRate
     /**
      * @ORM\Column(name="rate_value", type="smallint")
      * @Assert\NotBlank()
-     * @Assert\Choice(callback="getRateValues")
+     * @Assert\Choice(callback="getRateValues", strict=true)
      */
     protected $rateValue;
 

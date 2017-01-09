@@ -21,7 +21,7 @@ class AuthRequest
 
     /**
      * @Assert\NotBlank
-     * @Assert\Choice(choices = {"group", "representative", "superuser"}, message = "Choose a valid type.")
+     * @Assert\Choice(choices = {"group", "representative", "superuser"}, message = "Choose a valid type.", strict=true)
      * @Serializer\Type("string")
      */
     private $type;
