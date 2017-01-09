@@ -12,11 +12,13 @@ class PushSenderDoctrineSubscriberTest extends \PHPUnit_Framework_TestCase
 {
     public function testQueue()
     {
+        /** @var \PHPUnit_Framework_MockObject_MockObject|PushTask $pushTask */
         $pushTask = $this->getMockBuilder(PushTask::class)
             ->disableOriginalConstructor()
             ->setMethods(['addToQueue'])
             ->getMock();
         $subscriber = new PushSenderDoctrineSubscriber($pushTask);
+        /** @var EntityManager $em */
         $em = $this->getMockBuilder(EntityManager::class)
             ->disableOriginalConstructor()
             ->getMock();

@@ -37,8 +37,8 @@ abstract class AbstractPollController extends FOSRestController
 
     protected function postPoll(Request $request, LeaderContentRootInterface $root)
     {
-        $form = $this->createForm(new QuestionType($root));
-        $form->submit($request);
+        $form = $this->createForm(QuestionType::class, null, ['root_model' => $root]);
+        $form->submit($request->request->all());
 
         if ($form->isValid()) {
             /** @var Question $question */

@@ -52,9 +52,9 @@ class PollOptionController extends FOSRestController
      */
     public function putAction(Request $request, Option $option)
     {
-        $form = $this->createForm(new OptionType(), $option);
+        $form = $this->createForm(OptionType::class, $option);
 
-        $form->submit($request, false);
+        $form->submit($request->request->all(), false);
         if ($form->isValid()) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($option);

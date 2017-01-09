@@ -103,8 +103,8 @@ class PollEducationalContextController extends FOSRestController
     {
         $context = new EducationalContext();
         $question->addEducationalContext($context);
-        $form = $this->createForm(new EducationalContextType(), $context);
-        $form->submit($request);
+        $form = $this->createForm(EducationalContextType::class, $context);
+        $form->submit($request->request->all());
 
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();

@@ -37,9 +37,8 @@
             <argument type="string">Civix\CoreBundle\Entity\UserGroup</argument>
         </service>
         <service class="Civix\CoreBundle\Repository\RepresentativeRepository"
-                 id="civix_core.repository.representative_repository"
-                 factory-service="doctrine.orm.entity_manager"
-                 factory-method="getRepository">
+                 id="civix_core.repository.representative_repository" public="false">
+            <factory service="doctrine.orm.entity_manager" method="getRepository" />
             <argument type="string">Civix\CoreBundle\Entity\Representative</argument>
         </service>
         <service id="civix_core.crop_image" class="Civix\CoreBundle\Service\CropImage">
@@ -124,7 +123,7 @@
 
         <!-- JoinStatus Serializer Handler -->
         <service id="civix_core.serializer.handler.join_status_handler" class="Civix\CoreBundle\Serializer\Handler\JoinStatusHandler">
-            <argument type="service" id="security.context" />
+            <argument type="service" id="security.token_storage" />
             <tag name="jms_serializer.subscribing_handler" type="JoinStatus" direction="serialization" format="json" />
         </service>
 
@@ -144,7 +143,7 @@
 
         <service class="Civix\CoreBundle\Serializer\Handler\ContentRemainingHandler" id="civix_core.serializer_handler.content_remaining_handler">
             <argument type="service" id="doctrine.orm.entity_manager" />
-            <argument type="service" id="security.context" />
+            <argument type="service" id="security.token_storage" />
             <tag name="jms_serializer.subscribing_handler" />
         </service>
 
@@ -290,7 +289,8 @@
             <tag name="validator.constraint_validator" alias="civix_core.validator.package_state_validator"/>
         </service>
 
-        <service id="aws_s3.client" class="Aws\S3\S3Client" factory-class="Aws\S3\S3Client" factory-method="factory">
+        <service id="aws_s3.client" class="Aws\S3\S3Client">
+            <factory class="Aws\S3\S3Client" method="factory" />
             <argument type="collection">
                 <argument key="key">%amazon_s3.key%</argument>
                 <argument key="secret">%amazon_s3.secret%</argument>

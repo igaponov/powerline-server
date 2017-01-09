@@ -5,6 +5,7 @@ use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Civix\CoreBundle\Service\PollClassNameFactory;
 use Doctrine\Common\Inflector\Inflector;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
@@ -55,7 +56,7 @@ class QuestionTypeSubscriber implements EventSubscriberInterface
         $form = $event->getForm();
 
         if (!$data) {
-            $form->add('type', 'text', [
+            $form->add('type', TextType::class, [
                 'description' => 'Poll type (group (regular poll), representative, event, news, payment_request, petition)',
                 'mapped' => false,
                 'constraints' => [

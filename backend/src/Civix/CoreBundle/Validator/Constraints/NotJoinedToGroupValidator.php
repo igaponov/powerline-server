@@ -24,7 +24,9 @@ class NotJoinedToGroupValidator extends ConstraintValidator
         $group = $entity->{$constraint->groupGetter}();
 
         if ($this->em->getRepository('CivixCoreBundle:UserGroup')->isJoinedUser($group, $user)) {
-            $this->context->addViolationAt('user', $constraint->message, [], null);
+            $this->context->buildViolation($constraint->message)
+                ->atPath('user')
+                ->addViolation();
         }
     }
 }

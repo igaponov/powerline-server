@@ -10,7 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\ExecutionContextInterface;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * Announcement.
@@ -31,7 +31,7 @@ use Symfony\Component\Validator\ExecutionContextInterface;
  *      "group" = "Civix\CoreBundle\Entity\Announcement\GroupAnnouncement",
  *      "representative" = "Civix\CoreBundle\Entity\Announcement\RepresentativeAnnouncement",
  * })
- * @Assert\Callback(methods={"isContentValid"})
+ * @Assert\Callback(callback="isContentValid")
  * @Serializer\ExclusionPolicy("all")
  * @PublishDate(objectName="Announcement", groups={"update", "publish"})
  */
@@ -229,7 +229,9 @@ abstract class Announcement implements LeaderContentInterface
         $text = preg_replace(array('/<a[^>]+href[^>]+>/', '/<\/a>/'), '', $this->contentParsed);
 
         if (mb_strlen($text, 'utf-8') > 250) {
-            $context->addViolationAt('content', 'The message too long');
+            $context->buildViolation('The message too long')
+                ->atPath('content')
+                ->addViolation();
         }
     }
 

@@ -4,8 +4,9 @@ namespace Civix\ApiBundle\Form\Type\Poll;
 
 use Civix\CoreBundle\Entity\Poll\Option;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Option form type.
@@ -20,12 +21,12 @@ class OptionType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('value', 'text')
-            ->add('payment_amount', 'integer', [
+        $builder->add('value', Type\TextType::class)
+            ->add('payment_amount', Type\IntegerType::class, [
                 'property_path' => 'paymentAmount',
                 'required' => false,
             ])
-            ->add('is_user_amount', 'checkbox', [
+            ->add('is_user_amount', Type\CheckboxType::class, [
                 'property_path' => 'isUserAmount',
                 'required' => false,
             ]);
@@ -36,17 +37,12 @@ class OptionType extends AbstractType
      *
      * @return string
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return '';
     }
 
-    /**
-     * Set default form option.
-     *
-     * @param OptionsResolverInterface $resolver
-     */
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => Option::class,

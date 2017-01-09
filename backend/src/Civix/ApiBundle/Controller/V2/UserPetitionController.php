@@ -138,8 +138,8 @@ class UserPetitionController extends FOSRestController
      */
     public function putAction(Request $request, UserPetition $petition)
     {
-        $form = $this->createForm(new UserPetitionCreateType(), $petition, ['validation_groups' => 'create']);
-        $form->submit($request, false);
+        $form = $this->createForm(UserPetitionCreateType::class, $petition, ['validation_groups' => 'create']);
+        $form->submit($request->request->all(), false);
 
         if ($form->isValid()) {
             $this->manager->savePetition($petition);

@@ -5,7 +5,7 @@ namespace Civix\ApiBundle\Form\Type\Group;
 use Civix\CoreBundle\Entity\Group\GroupField;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class GroupFieldType extends AbstractType
 {
@@ -28,17 +28,12 @@ class GroupFieldType extends AbstractType
      *
      * @return string
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return '';
     }
 
-    /**
-     * Set default form option.
-     *
-     * @param OptionsResolverInterface $resolver
-     */
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
             'data_class' => GroupField::class,

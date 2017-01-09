@@ -65,8 +65,8 @@ class PostController extends FOSRestController
      */
     public function postAction(Request $request, Group $group)
     {
-        $form = $this->createForm(new PostType(), null, ['validation_groups' => 'create']);
-        $form->submit($request);
+        $form = $this->createForm(PostType::class, null, ['validation_groups' => 'create']);
+        $form->submit($request->request->all());
 
         // check limit petition
         if (!$this->manager->checkPostLimitPerMonth($this->getUser(), $group)) {

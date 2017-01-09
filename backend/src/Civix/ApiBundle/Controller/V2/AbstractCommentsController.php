@@ -6,7 +6,6 @@ use Civix\ApiBundle\Form\Type\CreateCommentType;
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\CommentedInterface;
 use Civix\CoreBundle\Repository\CommentRepository;
-use Civix\CoreBundle\Service\CommentManager;
 use Doctrine\ORM\EntityManager;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
@@ -38,8 +37,8 @@ abstract class AbstractCommentsController extends FOSRestController
     {
         /** @var EntityManager $entityManager */
         $entityManager = $this->getDoctrine()->getManager();
-        $form = $this->createForm(new CreateCommentType($entityManager, $commentClass));
-        $form->submit($request);
+        $form = $this->createForm(CreateCommentType::class, null, ['em' => $entityManager, 'data_class' => $commentClass]);
+        $form->submit($request->request->all());
 
         if ($form->isValid()) {
             /** @var BaseComment $comment */

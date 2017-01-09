@@ -2,6 +2,7 @@
 namespace Civix\ApiBundle\Tests\Controller\V2\Representative;
 
 use Civix\ApiBundle\Tests\Controller\V2\PollControllerTestCase;
+use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Representative\LoadRepresentativeQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe\LoadAccountRepresentativeData;
@@ -21,6 +22,7 @@ class PollControllerTest extends PollControllerTestCase
         $repository = $this->loadFixtures([
             LoadRepresentativeQuestionData::class,
         ])->getReferenceRepository();
+        /** @var Representative $representative */
         $representative = $repository->getReference('representative_wc');
         $this->getPollsWithWrongCredentialsThrowsException($representative);
 	}
@@ -30,6 +32,7 @@ class PollControllerTest extends PollControllerTestCase
         $repository = $this->loadFixtures([
             LoadRepresentativeQuestionData::class,
         ])->getReferenceRepository();
+        /** @var Representative $representative */
         $representative = $repository->getReference('representative_wc');
         $this->getPollsIsOk($representative, 'user3');
 	}
@@ -43,6 +46,7 @@ class PollControllerTest extends PollControllerTestCase
         $repository = $this->loadFixtures([
             LoadRepresentativeQuestionData::class,
         ])->getReferenceRepository();
+        /** @var Representative $representative */
         $representative = $repository->getReference('representative_wc');
         $this->getFilteredPollsIsOk($representative, $params);
 	}
@@ -52,6 +56,7 @@ class PollControllerTest extends PollControllerTestCase
         $repository = $this->loadFixtures([
             LoadRepresentativeQuestionData::class,
         ])->getReferenceRepository();
+        /** @var Representative $representative */
         $representative = $repository->getReference('representative_wc');
         $this->createPollWithWrongCredentialsThrowsException($representative, 'user1');
 	}
@@ -66,6 +71,7 @@ class PollControllerTest extends PollControllerTestCase
         $repository = $this->loadFixtures([
             LoadRepresentativeData::class,
         ])->getReferenceRepository();
+        /** @var Representative $representative */
         $representative = $repository->getReference('representative_jb');
         $this->createPollReturnsErrors($representative, $params, $errors);
 	}
@@ -80,6 +86,7 @@ class PollControllerTest extends PollControllerTestCase
             LoadRepresentativeQuestionData::class,
             LoadAccountRepresentativeData::class,
         ])->getReferenceRepository();
+        /** @var Representative $representative */
         $representative = $repository->getReference('representative_jb');
         $this->createPollIsOk($representative, $params);
 	}
@@ -89,6 +96,7 @@ class PollControllerTest extends PollControllerTestCase
         $repository = $this->loadFixtures([
             LoadRepresentativeQuestionData::class,
         ])->getReferenceRepository();
+        /** @var Representative $representative */
         $representative = $repository->getReference('representative_jb');
         $this->createPaymentRequestWithoutStripeAccountThrowsException($representative);
 	}
@@ -98,6 +106,7 @@ class PollControllerTest extends PollControllerTestCase
         $repository = $this->loadFixtures([
             LoadRepresentativeQuestionData::class,
         ])->getReferenceRepository();
+        /** @var Representative $representative */
         $representative = $repository->getReference('representative_jb');
         $this->createPollWithCorrectCredentials($representative, 'user1');
 	}

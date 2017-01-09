@@ -107,7 +107,7 @@ class PostControllerTest extends WebTestCase
         $this->assertFalse($data['boosted']);
         // check addHashTags event listener
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
+        $conn = $client->getContainer()->get('doctrine')
             ->getConnection();
         $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM hash_tags');
         $this->assertCount($count, $hashTags);
@@ -122,7 +122,7 @@ class PostControllerTest extends WebTestCase
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM post_subscribers WHERE post_id = ?', [$data['id']]);
         $this->assertEquals(1, $count);
         // check social activity
-        $tester = new SocialActivityTester($client->getContainer()->get('doctrine.orm.entity_manager'));
+        $tester = new SocialActivityTester($client->getContainer()->get('doctrine')->getManager());
         $tester->assertActivitiesCount(2);
         $tester->assertActivity(SocialActivity::TYPE_FOLLOW_POST_CREATED, null, $user->getId());
         $tester->assertActivity(SocialActivity::TYPE_POST_MENTIONED, $mentioned->getId());
@@ -157,7 +157,7 @@ class PostControllerTest extends WebTestCase
             'body' => $faker->text."\n".implode(' ', $hashTags),
         ];
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
+        $conn = $client->getContainer()->get('doctrine')
             ->getConnection();
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM activities');
         $this->assertEquals(0, $count);
@@ -199,7 +199,7 @@ class PostControllerTest extends WebTestCase
         return $this->getMockBuilder(PostManager::class)
             ->setMethods($methods)
             ->setConstructorArgs([
-                $container->get('doctrine.orm.entity_manager'),
+                $container->get('doctrine')->getManager(),
                 $container->get('event_dispatcher')
             ])
             ->getMock();

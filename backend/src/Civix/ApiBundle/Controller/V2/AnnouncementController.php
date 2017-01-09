@@ -170,15 +170,17 @@ class AnnouncementController extends FOSRestController
     public function putAction(Request $request, Announcement $announcement)
     {
         $leader = $announcement->getRoot();
+        $options = [
+            'validation_groups' => ['Default', 'update'],
+        ];
         if ($leader instanceof Group) {
-            $type = new GroupAnnouncementType($leader);
+            $type = GroupAnnouncementType::class;
+            $options['group_model'] = $leader;
         } else {
-            $type = new AnnouncementType();
+            $type = AnnouncementType::class;
         }
-        $form = $this->createForm($type, $announcement, [
-            'validation_groups' => ['Default', 'update']
-        ]);
-        $form->submit($request, false);
+        $form = $this->createForm($type, $announcement, $options);
+        $form->submit($request->request->all(), false);
 
         if ($form->isValid()) {
             $manager = $this->getDoctrine()->getManager();
@@ -229,7 +231,7 @@ class AnnouncementController extends FOSRestController
      */
     public function patchAction(Announcement $announcement)
     {
-        $violations = $this->get('validator')->validate($announcement, ['publish']);
+        $violations = $this->get('validator')->validate($announcement, null, ['publish']);
         if (!$violations->count()) {
             return $this->manager->publish($announcement);
         }
@@ -265,7 +267,7 @@ class AnnouncementController extends FOSRestController
      */
     public function deleteAction(Announcement $announcement)
     {
-        $violations = $this->get('validator')->validate($announcement, ['publish']);
+        $violations = $this->get('validator')->validate($announcement, null, ['publish']);
         if (!$violations->count()) {
             $manager = $this->getDoctrine()->getManager();
             $manager->remove($announcement);

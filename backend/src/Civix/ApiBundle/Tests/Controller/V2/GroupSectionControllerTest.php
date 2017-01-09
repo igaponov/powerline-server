@@ -198,7 +198,7 @@ class GroupSectionControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM groupsection_user WHERE groupsection_id = ? AND user_id = ?', [$section->getId(), $user4->getId()]);
         $this->assertEquals(1, $count);
     }
@@ -215,7 +215,7 @@ class GroupSectionControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM groupsection_user WHERE groupsection_id = ? AND user_id = ?', [$section->getId(), $user4->getId()]);
         $this->assertEquals(1, $count);
     }
@@ -257,7 +257,7 @@ class GroupSectionControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM groupsection_user WHERE groupsection_id = ? AND user_id = ?', [$section->getId(), $user4->getId()]);
         $this->assertEquals(0, $count);
     }

@@ -4,8 +4,9 @@ namespace Civix\ApiBundle\Form\Type;
 
 use Civix\CoreBundle\Entity\Announcement;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Announcement form.
@@ -21,7 +22,7 @@ class AnnouncementType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('content', 'textarea', [
+            ->add('content', TextareaType::class, [
                 'description' => 'Message. The limit is 250 symbols. Long hyperlinks will be cut to 20 symbols.',
                 'required' => true,
             ]);
@@ -32,17 +33,12 @@ class AnnouncementType extends AbstractType
      *
      * @return string
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return '';
     }
 
-    /**
-     * Set default form option.
-     *
-     * @param OptionsResolverInterface $resolver
-     */
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => Announcement::class,

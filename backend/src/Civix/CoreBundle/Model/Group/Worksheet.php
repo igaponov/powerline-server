@@ -7,14 +7,14 @@ use Civix\CoreBundle\Validator\Constraints\Passcode;
 use JMS\Serializer\Annotation as Serializer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\ExecutionContextInterface;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Group;
 
 /**
  * @Serializer\ExclusionPolicy("all")
- * @Assert\Callback(methods={"isCorrectRequiredFields"}, groups={"api-group-field"})
- * @Assert\Callback(methods={"isCorrectRequiredAnsweredFields"}, groups={"group-join"})
+ * @Assert\Callback(callback="isCorrectRequiredFields", groups={"api-group-field"})
+ * @Assert\Callback(callback="isCorrectRequiredAnsweredFields", groups={"group-join"})
  * @Passcode(groups={"group-join"})
  */
 class Worksheet
@@ -75,7 +75,7 @@ class Worksheet
             return array();
         }
 
-        return $this->fields->map(function ($fieldValue) {
+        return $this->fields->map(function (Group\FieldValue $fieldValue) {
                 return $fieldValue->getField()->getId();
         })->toArray();
     }
@@ -138,7 +138,9 @@ class Worksheet
             $userFieldsIds = $this->getFieldsIds();
 
             if (!empty(array_diff($groupFieldsIds, $userFieldsIds))) {
-                $context->addViolationAt('fields', 'Please to fill required fields', array(), null);
+                $context->buildViolation('Please to fill required fields')
+                    ->atPath('fields')
+                    ->addViolation();
             }
         }
     }
@@ -152,7 +154,9 @@ class Worksheet
             }, $this->getAnsweredFields());
 
             if (!empty(array_diff($groupFieldsIds, $userFieldsIds))) {
-                $context->addViolationAt('answered_fields', 'Please fill group\'s required fields.');
+                $context->buildViolation('Please fill group\'s required fields.')
+                    ->atPath('answered_fields')
+                    ->addViolation();
             }
         }
     }

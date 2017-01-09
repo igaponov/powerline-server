@@ -87,8 +87,8 @@ class SubscriptionController extends Controller
     public function putAction(Request $request, Group $group)
     {
         $subscription = $this->manager->getSubscription($group);
-        $form = $this->createForm(new SubscriptionType, $subscription);
-        $form->submit($request, true);
+        $form = $this->createForm(SubscriptionType::class, $subscription);
+        $form->submit($request->request->all(), true);
         
         if ($form->isValid()) {
             return $this->manager->subscribe($form->getData());

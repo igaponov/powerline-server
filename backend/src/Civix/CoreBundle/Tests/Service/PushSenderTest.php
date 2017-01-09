@@ -2,6 +2,8 @@
 namespace Civix\CoreBundle\Tests\Service;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Poll\Comment;
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Service\Notification;
 use Civix\CoreBundle\Service\PushSender;
 use Civix\CoreBundle\Service\SocialActivityManager;
@@ -143,7 +145,8 @@ class PushSenderTest extends WebTestCase
         /** @var SocialActivityManager $manager */
         $manager = $this->getContainer()->get('civix_core.social_activity_manager');
         /** @var Connection $conn */
-        $conn = $this->getContainer()->get('doctrine.dbal.default_connection');
+        $conn = $this->getContainer()->get('doctrine')->getConnection();
+        /** @var \Civix\CoreBundle\Entity\UserPetition\Comment $comment */
         $comment = $repository->getReference('petition_comment_3');
         $manager->noticeUserPetitionCommented($comment);
         $id = $conn->fetchColumn('SELECT id FROM social_activities');
@@ -161,7 +164,8 @@ class PushSenderTest extends WebTestCase
         /** @var SocialActivityManager $manager */
         $manager = $this->getContainer()->get('civix_core.social_activity_manager');
         /** @var Connection $conn */
-        $conn = $this->getContainer()->get('doctrine.dbal.default_connection');
+        $conn = $this->getContainer()->get('doctrine')->getConnection();
+        /** @var \Civix\CoreBundle\Entity\Post\Comment $comment */
         $comment = $repository->getReference('post_comment_3');
         $manager->noticePostCommented($comment);
         $id = $conn->fetchColumn('SELECT id FROM social_activities');
@@ -179,7 +183,8 @@ class PushSenderTest extends WebTestCase
         /** @var SocialActivityManager $manager */
         $manager = $this->getContainer()->get('civix_core.social_activity_manager');
         /** @var Connection $conn */
-        $conn = $this->getContainer()->get('doctrine.dbal.default_connection');
+        $conn = $this->getContainer()->get('doctrine')->getConnection();
+        /** @var Comment $comment */
         $comment = $repository->getReference('question_comment_4');
         $manager->noticePollCommented($comment);
         $id = $conn->fetchColumn('SELECT id FROM social_activities');
@@ -193,7 +198,9 @@ class PushSenderTest extends WebTestCase
         $repository = $this->loadFixtures([
             LoadEndpointData::class,
         ])->getReferenceRepository();
+        /** @var User $user */
         $user = $repository->getReference('user_1');
+        /** @var \PHPUnit_Framework_MockObject_MockObject|Notification $notification */
         $notification = $this->getMockBuilder(Notification::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -210,7 +217,7 @@ class PushSenderTest extends WebTestCase
             );
         $sender = new PushSender(
                 $this->getContainer()
-                    ->get('doctrine.orm.entity_manager'),
+                    ->get('doctrine')->getManager(),
                 $this->getContainer()
                     ->get('civix_core.question_users_push'),
                 $notification,
@@ -232,7 +239,7 @@ class PushSenderTest extends WebTestCase
             ->setConstructorArgs(
                 [
                     $this->getContainer()
-                        ->get('doctrine.orm.entity_manager'),
+                        ->get('doctrine')->getManager(),
                     $this->getContainer()
                         ->get('civix_core.question_users_push'),
                     $this->getContainer()

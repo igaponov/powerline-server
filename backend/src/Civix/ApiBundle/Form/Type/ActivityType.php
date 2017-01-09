@@ -3,12 +3,13 @@ namespace Civix\ApiBundle\Form\Type;
 
 use Civix\ApiBundle\Entity\ActivityData;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ActivityType extends AbstractType
 {
-    public function getName()
+    public function getBlockPrefix()
     {
         return '';
     }
@@ -16,17 +17,17 @@ class ActivityType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('id', 'integer', [
+            ->add('id', Type\IntegerType::class, [
                 'description' => 'Activity id',
                 'required' => true,
             ])
-            ->add('read', 'checkbox', [
+            ->add('read', Type\CheckboxType::class, [
                 'description' => 'Mark activity as read',
                 'required' => true,
             ]);
     }
 
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => ActivityData::class,

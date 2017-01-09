@@ -18,6 +18,7 @@ use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Option;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Poll\Question\Group as GroupQuestion;
+use Civix\CoreBundle\Entity\Poll;
 
 /**
  * @Route("/poll")
@@ -43,7 +44,7 @@ class PollController extends BaseController
      *     deprecated=true
 	 * )
 	 */
-	public function putQuestionNewAction(Request $request)
+	public function putQuestionNewAction()
 	{
 		// @ŧodo Pending to use $question param as doctrine converter
 		// , \Civix\CoreBundle\Entity\Poll\Question\Group $question,  = NULL
@@ -71,7 +72,7 @@ class PollController extends BaseController
 		$question->setExpireAt($question_data->getExpireAt());
 		*/
 		
-		$this->validate($question, ['api-poll']);
+		$this->validate($question, null, ['api-poll']);
 		
 		$manager->persist($question);
 		$manager->flush();
@@ -86,7 +87,7 @@ class PollController extends BaseController
 	
 		return $response;
 	}
-	
+
     /**
      * Get Question by ID.
      * Deprecated, use `GET /api/v2/polls/{id}` instead
@@ -105,13 +106,15 @@ class PollController extends BaseController
      *     },
      *     deprecated=true
      * )
+     * @param Request $request
+     * @return Response
      */
     public function questionGetAction(Request $request)
     {
         $id = $request->get('question_id');
 
         $entityManager = $this->getDoctrine()->getManager();
-        /** @var $question \Civix\CoreBundle\Entity\Poll\Question */
+        /** @var $question Poll\Question */
         $question = $entityManager->getRepository('CivixCoreBundle:Poll\Question')->findAsUser($id, $this->getUser());
         if (!$question) {
             throw $this->createNotFoundException();
@@ -148,8 +151,10 @@ class PollController extends BaseController
      *         405="Method Not Allowed"
      *     }
      * )
+     * @param $activities
+     * @return Response
      */
-    public function questionGetByRepresentativeAction(Request $request, $activities)
+    public function questionGetByRepresentativeAction($activities)
     {
         $response = new Response($this->jmsSerialization($activities, array('api-activities')));
         $response->headers->set('Content-Type', 'application/json');
@@ -180,8 +185,10 @@ class PollController extends BaseController
      *     },
      *     deprecated=true
      * )
+     * @param $activities
+     * @return Response
      */
-    public function questionGetByGroupAction(Request $request, $activities)
+    public function questionGetByGroupAction($activities)
     {
         $response = new Response($this->jmsSerialization($activities, array('api-activities')));
         $response->headers->set('Content-Type', 'application/json');
@@ -212,8 +219,11 @@ class PollController extends BaseController
      *     },
      *     deprecated=true
      * )
+     * @param Request $request
+     * @param Poll\Question $question
+     * @return Response
      */
-    public function answersByInfluenceAction(Request $request, \Civix\CoreBundle\Entity\Poll\Question $question)
+    public function answersByInfluenceAction(Request $request, Poll\Question $question)
     {
         $entityManager = $this->getDoctrine()->getManager();
 
@@ -223,10 +233,10 @@ class PollController extends BaseController
 
         $result = array(
             'answers' => $answers,
-            'avatar_friend_hidden' => $this->getRequest()->getScheme()
+            'avatar_friend_hidden' => $request->getScheme()
                 .'://'
-                .$this->getRequest()->getHttpHost()
-                .\Civix\CoreBundle\Entity\User::SOMEONE_AVATAR,
+                .$request->getHttpHost()
+                .User::SOMEONE_AVATAR,
         );
 
         $response = new Response($this->jmsSerialization($result, array('api-answer', 'api-info')));
@@ -258,8 +268,11 @@ class PollController extends BaseController
      *     },
      *     deprecated=true
      * )
+     * @param Request $request
+     * @param Poll\Question $question
+     * @return Response
      */
-    public function answersByOutsideInfluenceAction(Request $request, \Civix\CoreBundle\Entity\Poll\Question $question)
+    public function answersByOutsideInfluenceAction(Request $request, Poll\Question $question)
     {
         $entityManager = $this->getDoctrine()->getManager();
 
@@ -269,10 +282,10 @@ class PollController extends BaseController
 
         $result = array(
             'answers' => $answers,
-            'avatar_someone' => $this->getRequest()->getScheme()
+            'avatar_someone' => $request->getScheme()
                 .'://'
-                .$this->getRequest()->getHttpHost()
-                .\Civix\CoreBundle\Entity\User::SOMEONE_AVATAR,
+                .$request->getHttpHost()
+                .User::SOMEONE_AVATAR,
         );
 
         $response = new Response($this->jmsSerialization($result, array('api-answer')));
@@ -292,6 +305,8 @@ class PollController extends BaseController
      *     section="Polls",
      *     deprecated=true
      * )
+     * @param Request $request
+     * @return Response
      */
     public function answerAddAction(Request $request)
     {
@@ -300,7 +315,7 @@ class PollController extends BaseController
 
         /** @var $user User */
         $user = $this->getUser();
-        /** @var $question \Civix\CoreBundle\Entity\Poll\Question */
+        /** @var $question Poll\Question */
         $question = $entityManager->getRepository('CivixCoreBundle:Poll\Question')->find($request->get('question_id'));
         if (is_null($question)) {
             throw new BadRequestHttpException('Question not found');
@@ -334,7 +349,7 @@ class PollController extends BaseController
         $answer->setPrivacy($request->get('privacy'));
         $answer->setPaymentAmount($request->get('payment_amount'));
 
-        $errors = $this->getValidator()->validate($answer, array('api-poll'));
+        $errors = $this->getValidator()->validate($answer, null, array('api-poll'));
 
         $response = new Response();
         $response->headers->set('Content-Type', 'application/json');
@@ -375,9 +390,12 @@ class PollController extends BaseController
      *         405="Method Not Allowed"
      *     },
      *     deprecated=true
-     * ) 
+     * )
+     * @param Poll\Comment $comment
+     * @param $action
+     * @return Response
      */
-    public function rateCommentAction(\Civix\CoreBundle\Entity\Poll\Comment $comment, $action)
+    public function rateCommentAction(Poll\Comment $comment, $action)
     {
         $user = $this->getUser();
         $rateActionConstant = 'Civix\CoreBundle\Entity\Poll\CommentRate::RATE_'.strtoupper($action);
@@ -389,9 +407,10 @@ class PollController extends BaseController
         $rate = $this->get('civix_core.comment_manager')
                 ->updateRateToComment($comment, $user, constant($rateActionConstant));
 
-        if ($comment instanceof \Civix\CoreBundle\Entity\Poll\Comment &&
+        if ($comment instanceof Poll\Comment &&
             !$comment->getParentComment() &&
-            $comment->getQuestion() instanceof \Civix\CoreBundle\Entity\Poll\Question\LeaderNews) {
+            $comment->getQuestion() instanceof Poll\Question\LeaderNews
+        ) {
             $this->get('civix_core.activity_update')->updateEntityRateCount($rate);
         }
 

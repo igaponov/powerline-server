@@ -86,7 +86,7 @@ class SecureController extends BaseController
      *
      * @Route("/facebook/login", name="api_secure_facebook_login")
      * @Method("POST")
-     * 
+     *
      * @ApiDoc(
      *     section="Security",
      *     description="Facebook login",
@@ -102,6 +102,8 @@ class SecureController extends BaseController
      *     },
      *     deprecated=true
      * )
+     * @param Request $request
+     * @return Response
      */
     public function facebookLogin(Request $request)
     {
@@ -165,6 +167,9 @@ class SecureController extends BaseController
      *          405="Method Not Allowed"
      *      }
      * )
+     * @param Request $request
+     * @param null $validatorGroups
+     * @return Response
      */
     public function registrationAction(Request $request, $validatorGroups = null)
     {
@@ -191,7 +196,7 @@ class SecureController extends BaseController
             }
         }
 
-        $errors = $this->getValidator()->validate($user, $validatorGroups);
+        $errors = $this->getValidator()->validate($user, null, $validatorGroups);
         if (count($errors) > 0) {
             $response->setStatusCode(400)->setContent(json_encode(array('errors' => $this->transformErrors($errors))));
 
@@ -206,7 +211,7 @@ class SecureController extends BaseController
             $em->flush();
 
             $this->get('civix_core.user_manager')->updateDistrictsIds($user);
-
+            /** @var DeferredInvites[] $deferredInvites */
             $deferredInvites = $em->getRepository('CivixCoreBundle:DeferredInvites')
                     ->checkEmail($user->getEmail());
 
@@ -270,6 +275,8 @@ class SecureController extends BaseController
      *     },
      *     deprecated=true
      * )
+     * @param Request $request
+     * @return Response
      */
     public function facebookRegistration(Request $request)
     {
@@ -307,6 +314,8 @@ class SecureController extends BaseController
      *         405="Method Not Allowed"
      *     }
      * )
+     * @param Request $request
+     * @return Response
      */
     public function forgotPassword(Request $request)
     {
@@ -337,14 +346,14 @@ class SecureController extends BaseController
         $user->setResetPasswordToken($resetPasswordToken);
         $user->setResetPasswordAt(new \DateTime());
         $em->persist($user);
-        $em->flush($user);
+        $em->flush();
 
         //send mail
         $this->get('civix_core.email_sender')->sendResetPasswordEmail(
             $user->getEmail(),
             array(
                 'name' => $user->getOfficialName(),
-                'link' => $this->getWebDomain().'/#/reset-password/'.$resetPasswordToken,
+                'link' => $request->getScheme().'://'.str_replace('api.', '', $request->getHttpHost()).'/#/reset-password/'.$resetPasswordToken,
             )
         );
         $response->setContent(json_encode(array('status' => 'ok')))->setStatusCode(200);
@@ -368,6 +377,8 @@ class SecureController extends BaseController
      *         405="Method Not Allowed"
      *     }
      * )
+     * @param Request $request
+     * @return Response
      */
     public function checkResetToken(Request $request)
     {
@@ -398,6 +409,8 @@ class SecureController extends BaseController
      *         405="Method Not Allowed"
      *     }
      * )
+     * @param Request $request
+     * @return Response
      */
     public function saveNewPassword(Request $request)
     {
@@ -445,13 +458,5 @@ class SecureController extends BaseController
         }
 
         return $user;
-    }
-
-    private function getWebDomain()
-    {
-        $request = $this->getRequest();
-        $host = $request->getHttpHost();
-
-        return $request->getScheme().'://'.str_replace('api.', '', $host);
     }
 }

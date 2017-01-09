@@ -27,7 +27,7 @@
 
         <service id="api.security.authentication.listener.bearer_token"
                  class="Civix\ApiBundle\Security\Firewall\BearerTokenAuthenticationListener" public="false" abstract="true">
-            <argument type="service" id="security.context"/>
+            <argument type="service" id="security.token_storage"/>
             <argument type="service" id="security.authentication.manager" />
             <argument /> <!-- Provider-shared Key -->
             <argument type="service" id="logger" />

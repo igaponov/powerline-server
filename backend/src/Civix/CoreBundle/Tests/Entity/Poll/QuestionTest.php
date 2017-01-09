@@ -2,6 +2,11 @@
 
 namespace Civix\CoreBundle\Tests\Entity\Poll;
 
+use Civix\CoreBundle\Entity\Poll\Answer;
+use Civix\CoreBundle\Entity\Poll\Option;
+use Civix\CoreBundle\Entity\Poll\Question;
+use Civix\CoreBundle\Entity\Poll\Question\Representative;
+
 class QuestionTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -81,28 +86,28 @@ class QuestionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \Civix\CoreBundle\Entity\Poll\Question\Representative
+     * @return Representative
      */
     protected function getNewQuestion()
     {
-        return new \Civix\CoreBundle\Entity\Poll\Question\Representative();
+        return new Representative();
     }
     /**
-     * @return \Civix\CoreBundle\Entity\Poll\Answer
+     * @return Answer
      */
     protected function getNewAnswer()
     {
-        return new \Civix\CoreBundle\Entity\Poll\Answer();
+        return new Answer();
     }
     /**
-     * @param \Civix\CoreBundle\Entity\Poll\Question $question
-     * @param type                                   $answersCount
+     * @param Question $question
+     * @param int $answersCount
      *
-     * @return \Civix\CoreBundle\Entity\Poll\Option
+     * @return Option
      */
-    protected function createNewOption(\Civix\CoreBundle\Entity\Poll\Question $question, $answersCount = 0)
+    protected function createNewOption(Question $question, $answersCount = 0)
     {
-        $option = new \Civix\CoreBundle\Entity\Poll\Option();
+        $option = new Option();
 
         for ($i = 0; $i < $answersCount; ++$i) {
             $answer = $this->getNewAnswer();

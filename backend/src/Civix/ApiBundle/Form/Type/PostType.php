@@ -4,11 +4,11 @@ namespace Civix\ApiBundle\Form\Type;
 use Civix\CoreBundle\Entity\Post;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class PostType extends AbstractType
 {
-    public function getName()
+    public function getBlockPrefix()
     {
         return '';
     }
@@ -18,7 +18,7 @@ class PostType extends AbstractType
         $builder->add('body');
     }
 
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => Post::class,

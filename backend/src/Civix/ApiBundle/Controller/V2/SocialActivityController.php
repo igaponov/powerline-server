@@ -56,8 +56,8 @@ class SocialActivityController extends FOSRestController
      */
     public function putAction(Request $request, SocialActivity $socialActivity)
     {
-        $form = $this->createForm(new SocialActivityType(), $socialActivity);
-        $form->submit($request);
+        $form = $this->createForm(SocialActivityType::class, $socialActivity);
+        $form->submit($request->request->all());
         
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
@@ -95,8 +95,6 @@ class SocialActivityController extends FOSRestController
      * )
      *
      * @param SocialActivity $socialActivity
-     *
-     * @return mixed
      */
     public function deleteAction(SocialActivity $socialActivity)
     {

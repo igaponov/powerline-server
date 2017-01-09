@@ -2,11 +2,12 @@
 namespace Civix\ApiBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 class UserPetitionCreateType extends AbstractType
 {
-    public function getName()
+    public function getBlockPrefix()
     {
         return '';
     }
@@ -15,10 +16,10 @@ class UserPetitionCreateType extends AbstractType
     {
         $builder
             ->add('title')
-            ->add('is_outsiders_sign', 'checkbox', [
+            ->add('is_outsiders_sign', CheckboxType::class, [
                 'property_path' => 'outsidersSign',
             ])
-            ->add('organization_needed', 'checkbox', [
+            ->add('organization_needed', CheckboxType::class, [
                 'property_path' => 'organizationNeeded',
             ])
             // @todo for compatibility with old endpoints
@@ -29,6 +30,6 @@ class UserPetitionCreateType extends AbstractType
 
     public function getParent()
     {
-        return new UserPetitionUpdateType();
+        return UserPetitionUpdateType::class;
     }
 }

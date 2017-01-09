@@ -24,8 +24,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\Validator;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class for Leader Polls controller
@@ -35,7 +35,7 @@ use Symfony\Component\Validator\Validator;
 class PollController extends FOSRestController
 {
     /**
-     * @var Validator
+     * @var ValidatorInterface
      * @DI\Inject("validator")
      */
     private $validator;
@@ -127,9 +127,9 @@ class PollController extends FOSRestController
      */
     public function putAction(Request $request, Question $question)
     {
-        $form = $this->createForm(new QuestionType($question->getOwner()), $question, ['validation_groups' => 'update']);
+        $form = $this->createForm(QuestionType::class, $question, ['validation_groups' => 'update', 'root_model' => $question->getOwner()]);
+        $form->submit($request->request->all(), false);
 
-        $form->submit($request, false);
         if ($form->isValid()) {
             $this->em->persist($question);
             $this->em->flush();
@@ -171,11 +171,11 @@ class PollController extends FOSRestController
      *
      * @param Question $question
      *
-     * @return Question|ConstraintViolationList
+     * @return Question|ConstraintViolationListInterface
      */
     public function patchAction(Question $question)
     {
-        $violations = $this->validator->validate($question, ['publish']);
+        $violations = $this->validator->validate($question, null, ['publish']);
 
         if (!$violations->count()) {
             return $this->manager->publish($question);
@@ -211,7 +211,7 @@ class PollController extends FOSRestController
      */
     public function deleteAction(Question $question)
     {
-        $violations = $this->get('validator')->validate($question, ['update']);
+        $violations = $this->get('validator')->validate($question, null, ['update']);
         if (!$violations->count()) {
             $this->em->remove($question);
             $this->em->flush();
@@ -260,9 +260,9 @@ class PollController extends FOSRestController
      */
     public function postOptionAction(Request $request, Question $question)
     {
-        $form = $this->createForm(new OptionType());
+        $form = $this->createForm(OptionType::class);
+        $form->submit($request->request->all());
 
-        $form->submit($request);
         if ($form->isValid()) {
             /** @var Option $option */
             $option = $form->getData();
@@ -382,8 +382,8 @@ class PollController extends FOSRestController
                 ->setOption($option);
         }
 
-        $form = $this->createForm(new AnswerType(), $answer, ['validation_groups' => 'api-poll']);
-        $form->submit($request);
+        $form = $this->createForm(AnswerType::class, $answer, ['validation_groups' => 'api-poll']);
+        $form->submit($request->request->all());
 
         if ($form->isValid()) {
             return $this->manager->addAnswer($question, $answer);

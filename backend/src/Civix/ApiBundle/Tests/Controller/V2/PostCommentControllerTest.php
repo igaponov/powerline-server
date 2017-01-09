@@ -1,6 +1,7 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
+use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostCommentRateData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostCommentData;
@@ -18,6 +19,7 @@ class PostCommentControllerTest extends CommentControllerTestCase
         $repository = $this->loadFixtures([
             LoadPostCommentData::class,
         ])->getReferenceRepository();
+        /** @var BaseComment $comment */
         $comment = $repository->getReference('post_comment_3');
         $this->updateComment($comment);
     }
@@ -32,6 +34,7 @@ class PostCommentControllerTest extends CommentControllerTestCase
         $repository = $this->loadFixtures([
             LoadPostCommentData::class,
         ])->getReferenceRepository();
+        /** @var BaseComment $comment */
         $comment = $repository->getReference('post_comment_3');
         $this->updateCommentWithWrongData($comment, $params, $errors);
     }
@@ -41,6 +44,7 @@ class PostCommentControllerTest extends CommentControllerTestCase
         $repository = $this->loadFixtures([
             LoadPostCommentData::class,
         ])->getReferenceRepository();
+        /** @var BaseComment $comment */
         $comment = $repository->getReference('post_comment_3');
         $this->updateCommentWithWrongCredentials($comment);
     }
@@ -50,6 +54,7 @@ class PostCommentControllerTest extends CommentControllerTestCase
         $repository = $this->loadFixtures([
             LoadPostCommentData::class,
         ])->getReferenceRepository();
+        /** @var BaseComment $comment */
         $comment = $repository->getReference('post_comment_3');
         $this->deleteComment($comment);
     }
@@ -59,6 +64,7 @@ class PostCommentControllerTest extends CommentControllerTestCase
         $repository = $this->loadFixtures([
             LoadPostCommentData::class,
         ])->getReferenceRepository();
+        /** @var BaseComment $comment */
         $comment = $repository->getReference('post_comment_3');
         $this->deleteCommentWithWrongCredentials($comment);
     }
@@ -68,6 +74,7 @@ class PostCommentControllerTest extends CommentControllerTestCase
         $repository = $this->loadFixtures([
             LoadPostCommentRateData::class,
         ])->getReferenceRepository();
+        /** @var BaseComment $comment */
         $comment = $repository->getReference('post_comment_1');
         $this->rateCommentWithWrongCredentials($comment);
     }
@@ -82,6 +89,7 @@ class PostCommentControllerTest extends CommentControllerTestCase
         $repository = $this->loadFixtures([
             LoadPostCommentRateData::class,
         ])->getReferenceRepository();
+        /** @var BaseComment $comment */
         $comment = $repository->getReference('post_comment_1');
         $this->rateCommentWithWrongData($comment, $params, $errors);
     }
@@ -98,6 +106,7 @@ class PostCommentControllerTest extends CommentControllerTestCase
             LoadGroupManagerData::class,
             LoadUserGroupData::class,
         ])->getReferenceRepository();
+        /** @var BaseComment $comment */
         $comment = $repository->getReference('post_comment_1');
         $this->rateComment($comment, $rate, $user);
     }
@@ -113,6 +122,7 @@ class PostCommentControllerTest extends CommentControllerTestCase
             LoadGroupManagerData::class,
             LoadUserGroupData::class,
         ])->getReferenceRepository();
+        /** @var BaseComment $comment */
         $comment = $repository->getReference('post_comment_3');
         $this->updateCommentRate($comment, $rate);
     }

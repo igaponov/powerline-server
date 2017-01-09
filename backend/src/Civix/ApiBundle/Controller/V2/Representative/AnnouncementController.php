@@ -58,8 +58,8 @@ class AnnouncementController extends FOSRestController
     {
         /** @var Announcement $announcement */
         $announcement = new Announcement\RepresentativeAnnouncement();
-        $form = $this->createForm(new AnnouncementType(), $announcement);
-        $form->submit($request);
+        $form = $this->createForm(AnnouncementType::class, $announcement);
+        $form->submit($request->request->all());
 
         if ($form->isValid()) {
             $announcement->setRoot($representative);

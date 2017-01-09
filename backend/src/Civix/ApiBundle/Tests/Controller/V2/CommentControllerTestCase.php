@@ -42,7 +42,7 @@ abstract class CommentControllerTestCase extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertEquals($params['comment_body'], $data['comment_body']);
         $this->assertEquals($params['comment_body'], $data['comment_body_html']);
-        $comment = $client->getContainer()->get('doctrine.orm.entity_manager')->merge($comment);
+        $comment = $client->getContainer()->get('doctrine')->getManager()->merge($comment);
         $this->assertEquals($params['comment_body'], $comment->getCommentBodyHtml());
         $this->assertEquals($params['privacy'], $data['privacy']);
     }
@@ -97,7 +97,7 @@ abstract class CommentControllerTestCase extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var EntityManager $em */
-        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
+        $em = $client->getContainer()->get('doctrine')->getManager();
         /** @var BaseComment $comment */
         $comment = $em->merge($comment);
         $this->assertEquals('Deleted by author', $comment->getCommentBody());

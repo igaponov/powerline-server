@@ -4,8 +4,9 @@ namespace Civix\ApiBundle\Form\Type;
 
 use Civix\CoreBundle\Entity\Group;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class MicropetitionConfigType extends AbstractType
 {
@@ -17,15 +18,15 @@ class MicropetitionConfigType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('petition_per_month', 'integer', [
+        $builder->add('petition_per_month', Type\IntegerType::class, [
             'description' => 'Limit micropetitions per month',
             'property_path' => 'petitionPerMonth',
         ]);
-        $builder->add('petition_percent', 'integer', [
+        $builder->add('petition_percent', Type\IntegerType::class, [
             'description' => 'Quorum percentage',
             'property_path' => 'petitionPercent',
         ]);
-        $builder->add('petition_duration', 'integer', [
+        $builder->add('petition_duration', Type\IntegerType::class, [
             'description' => 'Quorum duration',
             'property_path' => 'petitionDuration',
         ]);
@@ -36,17 +37,12 @@ class MicropetitionConfigType extends AbstractType
      *
      * @return string
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return '';
     }
 
-    /**
-     * Set default form option.
-     *
-     * @param OptionsResolverInterface $resolver
-     */
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
             'data_class' => Group::class,

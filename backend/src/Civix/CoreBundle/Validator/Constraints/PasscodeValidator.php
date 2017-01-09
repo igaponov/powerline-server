@@ -38,7 +38,9 @@ class PasscodeValidator extends ConstraintValidator
             && !$user->getInvites()->contains($group)
             && $value->getPasscode() !== $group->getMembershipPasscode()
         ) {
-            $this->context->addViolationAt('passcode', $constraint->message);
+            $this->context->buildViolation($constraint->message)
+                ->atPath('passcode')
+                ->addViolation();
         }
     }
 }

@@ -58,8 +58,8 @@ class CardController extends BaseController
      */
     public function postCardAction(Request $request)
     {
-        $form = $this->createForm(new CardType());
-        $form->submit($request);
+        $form = $this->createForm(CardType::class);
+        $form->submit($request->request->all());
 
         if ($form->isValid()) {
             return $this->manager->addCard($this->getUser(), $form->getData());

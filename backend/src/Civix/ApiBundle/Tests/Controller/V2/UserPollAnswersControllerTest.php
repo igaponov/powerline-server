@@ -6,7 +6,7 @@ use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
-class UserPollAnswerControllerTest extends WebTestCase
+class UserPollAnswersControllerTest extends WebTestCase
 {
     const API_ENDPOINT = '/api/v2/user/poll-answers';
 

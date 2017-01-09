@@ -166,10 +166,10 @@ class GroupController extends FOSRestController
      */
     public function putAction(Request $request, Group $group)
     {
-        $form = $this->createForm(new GroupType(), $group, [
+        $form = $this->createForm(GroupType::class, $group, [
             'validation_groups' => 'user-registration',
         ]);
-        $form->submit($request, false);
+        $form->submit($request->request->all(), false);
 
         if ($form->isValid()) {
             $this->em->persist($group);
@@ -217,7 +217,7 @@ class GroupController extends FOSRestController
      */
     public function putAvatarAction(Request $request, Group $group)
     {
-        $form = $this->createForm(new GroupAvatarType(), $group, [
+        $form = $this->createForm(GroupAvatarType::class, $group, [
             'validation_groups' => 'avatar',
         ]);
         $form->submit($request);
@@ -414,8 +414,8 @@ class GroupController extends FOSRestController
     public function putInvitesAction(Request $request, Group $group)
     {
         $user = $this->getUser();
-        $form = $this->createForm(new InviteType($user));
-        $form->submit($request);
+        $form = $this->createForm(InviteType::class, null, ['user_model' => $user]);
+        $form->submit($request->request->all());
 
         if ($form->isValid()) {
             if ($form->get('users')->getData()) {

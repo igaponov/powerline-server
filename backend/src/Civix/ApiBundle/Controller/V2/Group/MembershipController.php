@@ -110,9 +110,9 @@ class MembershipController extends Controller
         if (!$this->subscriptionManager->getSubscription($group)->isNotFree()) {
             throw new BadRequestHttpException('You must have a Silver subscription or above to change membership controls. Upgrade today!');
         }
-        $form = $this->createForm(new MembershipType(), $group);
+        $form = $this->createForm(MembershipType::class, $group);
         
-        $form->submit($request);
+        $form->submit($request->request->all());
         
         if ($form->isValid()) {
             return $this->manager->changeMembershipControl($group);

@@ -65,8 +65,8 @@ class UserPetitionController extends FOSRestController
      */
     public function postAction(Request $request, Group $group)
     {
-        $form = $this->createForm(new UserPetitionCreateType(), null, ['validation_groups' => 'create']);
-        $form->submit($request);
+        $form = $this->createForm(UserPetitionCreateType::class, null, ['validation_groups' => 'create']);
+        $form->submit($request->request->all());
 
         // check limit petition
         if (!$this->petitionManager->checkPetitionLimitPerMonth($this->getUser(), $group)) {

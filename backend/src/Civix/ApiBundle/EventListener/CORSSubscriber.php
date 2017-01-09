@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle\EventListener;
 
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -35,7 +36,7 @@ class CORSSubscriber implements EventSubscriberInterface
         );
     }
 
-    public function onKernelRequest(GetResponseEvent $event)
+    public function onKernelRequest(GetResponseEvent $event, $eventName, EventDispatcherInterface $dispatcher)
     {
         if (HttpKernelInterface::MASTER_REQUEST !== $event->getRequestType()) {
             return;
@@ -53,7 +54,7 @@ class CORSSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $event->getDispatcher()->addListener('kernel.response', array($this, 'onKernelResponse'));
+        $dispatcher->addListener('kernel.response', array($this, 'onKernelResponse'));
     }
 
     public function onKernelResponse(FilterResponseEvent $event)

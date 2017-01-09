@@ -4,9 +4,11 @@ namespace Civix\ApiBundle\Form\Type;
 
 use Civix\ApiBundle\Form\DataTransformer\Base64EncodedStringToUploadedFileTransformer;
 use Civix\CoreBundle\Entity\Representative;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Representative registration form.
@@ -28,12 +30,12 @@ class RepresentativeType extends AbstractType
         $builder->add('city', null, [
             'description' => 'City',
         ]);
-        $builder->add('state', 'entity', [
+        $builder->add('state', EntityType::class, [
             'class' => 'Civix\CoreBundle\Entity\State',
-            'property' => 'code',
+            'choice_label' => 'code',
         ]);
-        $builder->add('country', 'choice', [
-            'choices' => ['US' => 'USA'],
+        $builder->add('country', Type\ChoiceType::class, [
+            'choices' => ['USA' => 'US'],
         ]);
         $builder->add('phone', null, [
             'description' => 'Public Phone',
@@ -49,7 +51,7 @@ class RepresentativeType extends AbstractType
             'property_path' => 'privateEmail',
             'description' => 'Private Email',
         ]);
-        $builder->add('avatar', 'textarea', [
+        $builder->add('avatar', Type\TextareaType::class, [
             'required' => false,
             'description' => 'Base64-encoded content',
         ]);
@@ -62,17 +64,12 @@ class RepresentativeType extends AbstractType
      *
      * @return string
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return '';
     }
 
-    /**
-     * Set default form option.
-     *
-     * @param OptionsResolverInterface $resolver
-     */
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
             'data_class' => Representative::class,

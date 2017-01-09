@@ -1,6 +1,8 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
+use Civix\CoreBundle\Entity\BaseComment;
+use Civix\CoreBundle\Entity\CommentedInterface;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadPollCommentRateData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
@@ -18,6 +20,7 @@ class PollCommentsControllerTest extends CommentsControllerTest
         $repository = $this->loadFixtures([
             LoadQuestionCommentData::class,
         ])->getReferenceRepository();
+        /** @var CommentedInterface $entity */
         $entity = $repository->getReference('group_question_1');
         $this->getComments($entity, 3);
     }
@@ -27,6 +30,7 @@ class PollCommentsControllerTest extends CommentsControllerTest
         $repository = $this->loadFixtures([
             LoadQuestionCommentData::class,
         ])->getReferenceRepository();
+        /** @var CommentedInterface $entity */
         $entity = $repository->getReference('group_question_3');
         $this->getCommentsWithInvalidCredentials($entity);
     }
@@ -67,7 +71,9 @@ class PollCommentsControllerTest extends CommentsControllerTest
             LoadGroupManagerData::class,
             LoadPollSubscriberData::class,
         ])->getReferenceRepository();
+        /** @var CommentedInterface $entity */
         $entity = $repository->getReference('group_question_1');
+        /** @var BaseComment $comment */
         $comment = $repository->getReference('question_comment_1');
         $this->createComment($entity, $comment);
     }

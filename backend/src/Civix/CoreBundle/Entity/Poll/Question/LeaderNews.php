@@ -2,14 +2,15 @@
 
 namespace Civix\CoreBundle\Entity\Poll\Question;
 
+use Civix\CoreBundle\Parser\UrlConverter;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\ExecutionContextInterface;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Civix\CoreBundle\Entity\Poll\Question;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * @Assert\Callback(methods={"isSubjectValid"})
+ * @Assert\Callback(callback="isSubjectValid")
  * @Serializer\ExclusionPolicy("all")
  */
 abstract class LeaderNews extends Question
@@ -55,7 +56,7 @@ abstract class LeaderNews extends Question
     public function setSubject($subject)
     {
         parent::setSubject($subject);
-        $this->setSubjectParsed(\Civix\CoreBundle\Parser\UrlConverter::convert($subject));
+        $this->setSubjectParsed(UrlConverter::convert($subject));
 
         return $this;
     }
@@ -65,7 +66,9 @@ abstract class LeaderNews extends Question
         $text = preg_replace(array('/<a[^>]+href[^>]+>/', '/<\/a>/'), '', $this->subjectParsed);
 
         if (mb_strlen($text, 'utf-8') > 500) {
-            $context->addViolationAt('subject', 'The subject too long');
+            $context->buildViolation('The subject too long')
+                ->atPath('subject')
+                ->addViolation();
         }
     }
 }

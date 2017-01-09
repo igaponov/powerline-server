@@ -5,24 +5,16 @@ namespace Civix\ApiBundle\Form\Type;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\GroupSection;
 use Civix\CoreBundle\Repository\GroupSectionRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Announcement form.
  */
 class GroupAnnouncementType extends AbstractType
 {
-    /**
-     * @var Group
-     */
-    private $group;
-
-    public function __construct(Group $group)
-    {
-        $this->group = $group;
-    }
-
     /**
      * Set form fields.
      *
@@ -32,12 +24,12 @@ class GroupAnnouncementType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('group_sections', 'entity', [
+            ->add('group_sections', EntityType::class, [
                 'class' => GroupSection::class,
                 'multiple' => true,
-                'query_builder' => function (GroupSectionRepository $repository) {
-                    if ($this->group instanceof Group) {
-                        return $repository->getFindByGroupQueryBuilder($this->group);
+                'query_builder' => function (GroupSectionRepository $repository) use ($options) {
+                    if ($options['group_model'] instanceof Group) {
+                        return $repository->getFindByGroupQueryBuilder($options['group_model']);
                     } else {
                         return $repository->createQueryBuilder('s');
                     }
@@ -51,13 +43,19 @@ class GroupAnnouncementType extends AbstractType
      *
      * @return string
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return '';
     }
 
     public function getParent()
     {
-        return new AnnouncementType();
+        return AnnouncementType::class;
+    }
+
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setRequired('group_model');
+        $resolver->setAllowedTypes('group_model', Group::class);
     }
 }

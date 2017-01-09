@@ -97,6 +97,7 @@ class BookmarkRepositoryTest extends WebTestCase
 
         $deleted = array();
         foreach($savedBookmarks['items'] as $item) {
+            /** @var Activity $item */
             $deleted[] = $this->repo->delete($item->getId());
         }
 

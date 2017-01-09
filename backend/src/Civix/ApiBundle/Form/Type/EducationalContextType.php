@@ -4,15 +4,16 @@ namespace Civix\ApiBundle\Form\Type;
 use Civix\ApiBundle\Helper\Base64ToFileConverter;
 use Civix\CoreBundle\Entity\Poll\EducationalContext;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class EducationalContextType extends AbstractType
 {
-    public function getName()
+    public function getBlockPrefix()
     {
         return '';
     }
@@ -20,10 +21,10 @@ class EducationalContextType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('type', 'text', [
+            ->add('type', Type\TextType::class, [
                 'description' => 'Type, one of: '.implode(', ', EducationalContext::getTypes()),
             ])
-            ->add('content', 'textarea', [
+            ->add('content', Type\TextareaType::class, [
                 'description' => 'Base64-encoded content',
             ]);
         $builder->addEventListener(
@@ -40,7 +41,7 @@ class EducationalContextType extends AbstractType
         );
     }
 
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => EducationalContext::class,

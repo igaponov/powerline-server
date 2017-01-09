@@ -7,6 +7,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\DeserializationContext;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class BaseController extends Controller
 {
@@ -19,14 +21,14 @@ class BaseController extends Controller
     }
 
     /**
-     * @return \Symfony\Component\Validator\Validator
+     * @return ValidatorInterface
      */
     protected function getValidator()
     {
         return $this->get('validator');
     }
 
-    protected function transformErrors(\Symfony\Component\Validator\ConstraintViolationList $errors)
+    protected function transformErrors(ConstraintViolationListInterface $errors)
     {
         $result = array();
         foreach ($errors as $error) {
@@ -40,9 +42,9 @@ class BaseController extends Controller
         return $result;
     }
 
-    protected function validate($data, $groups = null)
+    protected function validate($data, $constraints = null, $groups = null)
     {
-        $errors = $this->getValidator()->validate($data, $groups);
+        $errors = $this->getValidator()->validate($data, $constraints, $groups);
         if (count($errors) > 0) {
             throw new BadRequestHttpException(json_encode(array('errors' => $this->transformErrors($errors))));
         }

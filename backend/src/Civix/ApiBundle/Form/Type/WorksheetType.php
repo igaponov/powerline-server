@@ -3,12 +3,13 @@ namespace Civix\ApiBundle\Form\Type;
 
 use Civix\CoreBundle\Model\Group\Worksheet;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class WorksheetType extends AbstractType
 {
-    public function getName()
+    public function getBlockPrefix()
     {
         return '';
     }
@@ -16,15 +17,15 @@ class WorksheetType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('passcode', 'text')
-            ->add('answered_fields', 'collection', [
+            ->add('passcode', Type\TextType::class)
+            ->add('answered_fields', Type\CollectionType::class, [
                 'property_path' => 'answeredFields',
-                'type' => new WorksheetFieldType(),
+                'entry_type' => WorksheetFieldType::class,
                 'allow_add' => true,
             ]);
     }
 
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => Worksheet::class,

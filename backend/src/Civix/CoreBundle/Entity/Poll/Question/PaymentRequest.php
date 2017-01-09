@@ -5,11 +5,11 @@ namespace Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\ExecutionContextInterface;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * @Assert\Callback(methods={"isCrowdfundingValid"}, groups={"payment-manage"})
+ * @Assert\Callback(callback="isCrowdfundingValid", groups={"payment-manage"})
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Poll\PaymentRequestRepository")
  */
 abstract class PaymentRequest extends Question
@@ -109,6 +109,8 @@ abstract class PaymentRequest extends Question
     public function setCrowdfundingDeadline($crowdfundingDeadline)
     {
         $this->crowdfundingDeadline = $crowdfundingDeadline;
+
+        return $this;
     }
 
     public function setIsAllowOutsiders($isAllowOutsiders)
@@ -172,8 +174,9 @@ abstract class PaymentRequest extends Question
             $minDeadline = new \DateTime();
             $minDeadline->add(new \DateInterval('P1D'));
             if ($this->getCrowdfundingDeadline() < $minDeadline) {
-                $context->addViolationAt('crowdfundingDeadline',
-                    'The deadline must be at least 24 hours from the current date.');
+                $context->buildViolation('The deadline must be at least 24 hours from the current date.')
+                    ->atPath('crowdfundingDeadline')
+                    ->addViolation();
             }
         }
     }

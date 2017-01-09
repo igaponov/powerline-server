@@ -286,7 +286,7 @@ class ProfileController extends BaseController
         $this->get('civix_core.user_manager')
             ->updateProfileFull($user, $new);
 
-        $errors = $this->getValidator()->validate($user, array('profile'));
+        $errors = $this->getValidator()->validate($user, null, array('profile'));
 
         if (count($errors) > 0) {
             $response->setStatusCode(400)->setContent(json_encode(array('errors' => $this->transformErrors($errors))));
@@ -410,7 +410,7 @@ class ProfileController extends BaseController
         $user->setFacebookId($request->get('facebook_id'));
         $user->setFacebookToken($request->get('facebook_token'));
 
-        $errors = $this->getValidator()->validate($user, array('facebook'));
+        $errors = $this->getValidator()->validate($user, null, array('facebook'));
         if (count($errors) > 0) {
             $response->setStatusCode(400)->setContent(json_encode(array('errors' => $this->transformErrors($errors))));
 

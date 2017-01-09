@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Tests\Service;
 
+use Civix\CoreBundle\Service\User\UserManager;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Civix\CoreBundle\Entity\User;
 
@@ -12,6 +13,7 @@ class UserManagerTest extends WebTestCase
      */
     public function testCheckResetInterval()
     {
+        /** @var UserManager $userManager */
         $userManager = $this->getMockBuilder('Civix\CoreBundle\Service\User\UserManager')
             ->disableOriginalConstructor()
             ->setMethods(array('updateDistrictsIds'))

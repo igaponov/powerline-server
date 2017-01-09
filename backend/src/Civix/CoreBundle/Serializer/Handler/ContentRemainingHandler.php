@@ -10,7 +10,7 @@ use JMS\Serializer\Context;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\JsonSerializationVisitor;
-use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class ContentRemainingHandler implements SubscribingHandlerInterface
 {
@@ -19,9 +19,9 @@ class ContentRemainingHandler implements SubscribingHandlerInterface
      */
     private $em;
     /**
-     * @var SecurityContextInterface
+     * @var TokenStorageInterface
      */
-    private $securityContext;
+    private $tokenStorage;
 
     public static function getSubscribingMethods()
     {
@@ -35,10 +35,10 @@ class ContentRemainingHandler implements SubscribingHandlerInterface
         ];
     }
 
-    public function __construct(EntityManager $em, SecurityContextInterface $securityContext)
+    public function __construct(EntityManager $em, TokenStorageInterface $tokenStorage)
     {
         $this->em = $em;
-        $this->securityContext = $securityContext;
+        $this->tokenStorage = $tokenStorage;
     }
 
     public function serialize(JsonSerializationVisitor $visitor, ContentRemaining $contentRemaining, array $type, Context $context)
@@ -49,10 +49,10 @@ class ContentRemainingHandler implements SubscribingHandlerInterface
         $remaining = 0;
         switch ($contentType) {
             case 'post':
-                $remaining = $limit - $this->em->getRepository(Post::class)->getCountPerMonthPostByOwner($this->securityContext->getToken()->getUser(), $group);
+                $remaining = $limit - $this->em->getRepository(Post::class)->getCountPerMonthPostByOwner($this->tokenStorage->getToken()->getUser(), $group);
                 break;
             case 'petition':
-                $remaining = $limit - $this->em->getRepository(UserPetition::class)->getCountPerMonthPetitionByOwner($this->securityContext->getToken()->getUser(), $group);;
+                $remaining = $limit - $this->em->getRepository(UserPetition::class)->getCountPerMonthPetitionByOwner($this->tokenStorage->getToken()->getUser(), $group);;
                 break;
         }
 

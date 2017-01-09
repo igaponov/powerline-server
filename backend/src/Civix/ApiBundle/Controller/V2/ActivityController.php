@@ -136,8 +136,8 @@ class ActivityController extends FOSRestController
      */
     public function patchAction(Request $request)
     {
-        $form = $this->createForm(new ActivitiesType());
-        $form->submit($request);
+        $form = $this->createForm(ActivitiesType::class);
+        $form->submit($request->request->all());
         
         if ($form->isValid()) {
             return $this->get('civix_core.service.activity_manager')

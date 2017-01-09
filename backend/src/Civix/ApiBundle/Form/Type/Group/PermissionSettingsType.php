@@ -4,8 +4,9 @@ namespace Civix\ApiBundle\Form\Type\Group;
 
 use Civix\CoreBundle\Entity\Group;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class PermissionSettingsType extends AbstractType
 {
@@ -15,10 +16,10 @@ class PermissionSettingsType extends AbstractType
             ->add(
                 $builder->create(
                     'required_permissions',
-                    'choice',
+                    ChoiceType::class,
                     [
                         'property_path' => 'requiredPermissions',
-                        'choices' => Group::getPermissions(),
+                        'choices' => array_flip(Group::getPermissions()),
                         'multiple' => true,
                         'expanded' => true,
                     ]
@@ -26,12 +27,12 @@ class PermissionSettingsType extends AbstractType
             );
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return '';
     }
 
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => Group::class,

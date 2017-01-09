@@ -92,9 +92,8 @@ class FieldController extends FOSRestController
      */
     public function postAction(Request $request, Group $group)
     {
-        $form = $this->createForm(new GroupFieldType());
-
-        $form->submit($request);
+        $form = $this->createForm(GroupFieldType::class);
+        $form->submit($request->request->all());
 
         if ($form->isValid()) {
             /** @var Group\GroupField $field */

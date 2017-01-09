@@ -3,12 +3,13 @@ namespace Civix\ApiBundle\Form\Type;
 
 use Civix\CoreBundle\Model\Group\WorksheetField;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class WorksheetFieldType extends AbstractType
 {
-    public function getName()
+    public function getBlockPrefix()
     {
         return '';
     }
@@ -16,11 +17,11 @@ class WorksheetFieldType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('id', 'integer')
-            ->add('value', 'text');
+            ->add('id', Type\IntegerType::class)
+            ->add('value', Type\TextType::class);
     }
 
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => WorksheetField::class,

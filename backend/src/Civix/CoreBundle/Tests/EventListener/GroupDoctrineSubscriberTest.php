@@ -11,7 +11,7 @@ class GroupDoctrineSubscriberTest extends WebTestCase
     {
         $this->loadFixtures([]);
         /** @var EntityManager $em */
-        $em = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $em = $this->getContainer()->get('doctrine')->getManager();
         $group = new Group();
         $group->setOfficialName('Test Group Name');
         $em->persist($group);
@@ -24,7 +24,7 @@ class GroupDoctrineSubscriberTest extends WebTestCase
     {
         $this->loadFixtures([]);
         /** @var EntityManager $em */
-        $em = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $em = $this->getContainer()->get('doctrine')->getManager();
         $this->createGroup('test-name');
         $em->flush();
         $group = new Group();
@@ -39,7 +39,7 @@ class GroupDoctrineSubscriberTest extends WebTestCase
     {
         $this->loadFixtures([]);
         /** @var EntityManager $em */
-        $em = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $em = $this->getContainer()->get('doctrine')->getManager();
         $this->createGroup('test-name');
         $this->createGroup('test-name-x');
         $em->flush();
@@ -55,7 +55,7 @@ class GroupDoctrineSubscriberTest extends WebTestCase
     {
         $this->loadFixtures([]);
         /** @var EntityManager $em */
-        $em = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $em = $this->getContainer()->get('doctrine')->getManager();
         $this->createGroup('test-name-q');
         $em->flush();
         $group = new Group();
@@ -70,7 +70,7 @@ class GroupDoctrineSubscriberTest extends WebTestCase
     {
         $this->loadFixtures([]);
         /** @var EntityManager $em */
-        $em = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $em = $this->getContainer()->get('doctrine')->getManager();
         $this->createGroup('test-name');
         $this->createGroup('test-name-1');
         $this->createGroup('test-name-5');
@@ -87,7 +87,7 @@ class GroupDoctrineSubscriberTest extends WebTestCase
     {
         $this->loadFixtures([]);
         /** @var EntityManager $em */
-        $em = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $em = $this->getContainer()->get('doctrine')->getManager();
         $this->createGroup('test-name');
         $this->createGroup('test-name-1');
         $this->createGroup('test-name-5');
@@ -106,6 +106,6 @@ class GroupDoctrineSubscriberTest extends WebTestCase
         $group = new Group();
         $group->setOfficialName(uniqid('name-', true))
             ->setSlug($slug);
-        $this->getContainer()->get('doctrine.orm.entity_manager')->persist($group);
+        $this->getContainer()->get('doctrine')->getManager()->persist($group);
     }
 }

@@ -9,6 +9,11 @@ class PackageLimitStateTest extends \PHPUnit_Framework_TestCase
     /**
      * @group subscription
      * @dataProvider dataLimits
+     * @param $currentValue
+     * @param $limit
+     * @param $addValue
+     * @param $hasLimit
+     * @param $isAllowed
      */
     public function testPackageLimitState($currentValue, $limit, $addValue, $hasLimit, $isAllowed)
     {
@@ -23,6 +28,10 @@ class PackageLimitStateTest extends \PHPUnit_Framework_TestCase
     /**
      * @group subscription
      * @dataProvider dataLimitsAllowed
+     * @param $currentValue
+     * @param $limit
+     * @param $hasLimit
+     * @param $isAllowed
      */
     public function testPackageLimitStateAllowed($currentValue, $limit, $hasLimit, $isAllowed)
     {

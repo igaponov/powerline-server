@@ -31,7 +31,7 @@ civix_front_superuser_area:
     resource: "@CivixFrontBundle/Controller/Superuser/"
     prefix:   /superuser
     type: annotation
-    schemes: %scheme%
+    schemes: '%scheme%'
 
 civix_superuser:
     resource: "@CivixFrontBundle/Controller/SuperuserController.php"

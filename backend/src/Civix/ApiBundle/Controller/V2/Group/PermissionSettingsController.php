@@ -97,8 +97,8 @@ class PermissionSettingsController extends Controller
      */
     public function putAction(Request $request, Group $group)
     {
-        $form = $this->createForm(new PermissionSettingsType(), $group);
-        $form->submit($request);
+        $form = $this->createForm(PermissionSettingsType::class, $group);
+        $form->submit($request->request->all());
         
         if ($form->isValid()) {
             return $this->manager->changePermissionSettings($group);

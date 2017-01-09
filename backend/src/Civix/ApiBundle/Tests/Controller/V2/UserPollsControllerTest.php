@@ -9,7 +9,7 @@ use Doctrine\DBAL\Connection;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
-class UserPollControllerTest extends WebTestCase
+class UserPollsControllerTest extends WebTestCase
 {
     const API_ENDPOINT = '/api/v2/user/polls';
 
@@ -52,7 +52,7 @@ class UserPollControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $count = $conn->fetchColumn(
             'SELECT COUNT(*) FROM poll_subscribers WHERE question_id = ?',
             [$poll->getId()]
@@ -77,7 +77,7 @@ class UserPollControllerTest extends WebTestCase
         $client = $this->client;
         $poll = $this->repository->getReference('group_question_3');
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $client->request('DELETE',
             self::API_ENDPOINT.'/'.$poll->getId(), [], [],
             ['HTTP_Authorization'=>'Bearer type="user" token="user1"']

@@ -179,7 +179,7 @@ class PollControllerTest extends PollControllerTestCase
                         'subject' => $faker->sentence,
                     ]
                 ],
-            ], parent::getValidParams()
+            ], []
         );
 	}
 

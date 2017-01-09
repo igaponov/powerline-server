@@ -11,8 +11,6 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Symfony\Bundle\FrameworkBundle\Client;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Session;
 
 class PollControllerTest extends WebTestCase
 {
@@ -59,19 +57,12 @@ class PollControllerTest extends WebTestCase
         $group = $reference->getReference('group');
         $group->setOwner($reference->getReference('user_1'));
         $container = $this->getContainer();
-        $em = $container->get('doctrine.orm.entity_manager');
+        $em = $container->get('doctrine')->getManager();
         $em->persist($group);
         $em->flush();
 
 		// Create a request scope context that allows serialize the question object
 
-		$request = Request::create( '/' );
-		
-		$request->setSession( new Session() );
-		$container->enterScope('request');
-		
-		$container->set('request', $request, 'request');
-		
 		$question = new GroupQuestion();
 		$question->setOwner($group);
 

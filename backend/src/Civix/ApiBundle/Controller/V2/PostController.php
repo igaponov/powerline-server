@@ -139,8 +139,8 @@ class PostController extends FOSRestController
      */
     public function putAction(Request $request, Post $post)
     {
-        $form = $this->createForm(new PostType(), $post, ['validation_groups' => 'create']);
-        $form->submit($request, false);
+        $form = $this->createForm(PostType::class, $post, ['validation_groups' => 'create']);
+        $form->submit($request->request->all(), false);
 
         if ($form->isValid()) {
             $this->manager->savePost($post);
@@ -259,8 +259,8 @@ class PostController extends FOSRestController
             $vote->setUser($this->getUser());
             $vote->setPost($post);
         }
-        $form = $this->createForm(new VoteType(), $vote);
-        $form->submit($request);
+        $form = $this->createForm(VoteType::class, $vote);
+        $form->submit($request->request->all());
 
         if ($form->isValid()) {
             $this->manager->signPost($vote);

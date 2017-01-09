@@ -89,7 +89,7 @@ abstract class CommentsControllerTest extends WebTestCase
             $followType = SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED;
         }
         $this->assertRegExp('{comment text <a data-user-id="\d+">@user2</a>}', $data['comment_body_html']);
-        $tester = new SocialActivityTester($client->getContainer()->get('doctrine.orm.entity_manager'));
+        $tester = new SocialActivityTester($client->getContainer()->get('doctrine')->getManager());
         $tester->assertActivitiesCount(4);
         $tester->assertActivity(SocialActivity::TYPE_COMMENT_MENTIONED, $comment->getUser()->getId());
         $tester->assertActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser()->getId());

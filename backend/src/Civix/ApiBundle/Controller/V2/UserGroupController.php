@@ -100,10 +100,10 @@ class UserGroupController extends FOSRestController
      */
     public function postAction(Request $request)
     {
-        $form = $this->createForm(new GroupType(), null, [
+        $form = $this->createForm(GroupType::class, null, [
             'validation_groups' => 'user-registration',
         ]);
-        $form->submit($request, false);
+        $form->submit($request->request->all(), false);
 
         if ($form->isValid()) {
             /** @var Group $group */
@@ -151,8 +151,8 @@ class UserGroupController extends FOSRestController
      */
     public function putAction(Request $request, Group $group)
     {
-        $form = $this->createForm(new WorksheetType(), new Worksheet($this->getUser(), $group));
-        $form->submit($request);
+        $form = $this->createForm(WorksheetType::class, new Worksheet($this->getUser(), $group));
+        $form->submit($request->request->all());
 
         if ($form->isValid()) {
             return $this->manager->inquire($form->getData());

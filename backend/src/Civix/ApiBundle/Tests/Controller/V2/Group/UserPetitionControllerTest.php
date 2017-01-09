@@ -106,7 +106,7 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertFalse($data['organization_needed']);
         // check addHashTags event listener
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
+        $conn = $client->getContainer()->get('doctrine')
             ->getConnection();
         $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM hash_tags_petitions');
         $this->assertCount($count, $hashTags);
@@ -121,7 +121,7 @@ class UserPetitionControllerTest extends WebTestCase
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM petition_subscribers WHERE userpetition_id = ?', [$data['id']]);
         $this->assertEquals(1, $count);
         // check social activity
-        $tester = new SocialActivityTester($client->getContainer()->get('doctrine.orm.entity_manager'));
+        $tester = new SocialActivityTester($client->getContainer()->get('doctrine')->getManager());
         $tester->assertActivitiesCount(1);
         $tester->assertActivity(SocialActivity::TYPE_FOLLOW_USER_PETITION_CREATED, null, $user->getId());
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
@@ -157,7 +157,7 @@ class UserPetitionControllerTest extends WebTestCase
             'is_outsiders_sign' => true,
         ];
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.orm.entity_manager')
+        $conn = $client->getContainer()->get('doctrine')
             ->getConnection();
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM activities');
         $this->assertEquals(0, $count);
@@ -241,7 +241,7 @@ class UserPetitionControllerTest extends WebTestCase
         return $this->getMockBuilder(UserPetitionManager::class)
             ->setMethods($methods)
             ->setConstructorArgs([
-                $container->get('doctrine.orm.entity_manager'),
+                $container->get('doctrine')->getManager(),
                 $container->get('event_dispatcher')
             ])
             ->getMock();

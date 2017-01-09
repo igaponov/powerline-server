@@ -98,7 +98,7 @@ class PermissionSettingsControllerTest extends WebTestCase
 		$data = json_decode($response->getContent(), true);
 		$this->assertSame($params['required_permissions'], $data['required_permissions']);
 		$this->assertArrayHasKey('permissions_changed_at', $data);
-        $tester = new SocialActivityTester($client->getContainer()->get('doctrine.orm.entity_manager'));
+        $tester = new SocialActivityTester($client->getContainer()->get('doctrine')->getManager());
         $tester->assertActivitiesCount($group->getUsers()->count());
         foreach ($group->getUsers() as $user) {
             $tester->assertActivity(SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED, $user->getId());
@@ -114,7 +114,7 @@ class PermissionSettingsControllerTest extends WebTestCase
 		$data = json_decode($response->getContent(), true);
 		$this->assertSame($params['required_permissions'], $data['required_permissions']);
 		$this->assertArrayHasKey('permissions_changed_at', $data);
-        $tester = new SocialActivityTester($client->getContainer()->get('doctrine.orm.entity_manager'));
+        $tester = new SocialActivityTester($client->getContainer()->get('doctrine')->getManager());
         $tester->assertActivitiesCount($group->getUsers()->count());
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
         $this->assertEquals(0, $queue->count());

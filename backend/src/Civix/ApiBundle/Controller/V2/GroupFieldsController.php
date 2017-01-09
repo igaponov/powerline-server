@@ -55,9 +55,8 @@ class GroupFieldsController extends FOSRestController
      */
     public function putAction(Group\GroupField $field, Request $request)
     {
-        $form = $this->createForm(new GroupFieldType(), $field);
-
-        $form->submit($request);
+        $form = $this->createForm(GroupFieldType::class, $field);
+        $form->submit($request->request->all());
 
         if ($form->isValid()) {
             $field = $form->getData();

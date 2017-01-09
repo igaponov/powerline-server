@@ -73,7 +73,7 @@ class PostController extends Controller
         $form = $this->createForm(new PostType(), $post);
 
         if ('POST' === $request->getMethod()) {
-            if ($form->submit($request)->isValid()) {
+            if ($form->submit($request->request->all())->isValid()) {
                 $manager = $this->getDoctrine()->getManager();
                 $manager->persist($post);
                 $manager->flush();
@@ -100,7 +100,7 @@ class PostController extends Controller
         $form = $this->createForm(new PostType(), $post);
 
         if ('POST' === $request->getMethod()) {
-            if ($form->submit($request)->isValid()) {
+            if ($form->submit($request->request->all())->isValid()) {
                 $manager = $this->getDoctrine()->getManager();
                 $manager->persist($post);
                 $manager->flush();

@@ -19,8 +19,8 @@ abstract class AbstractBankAccountController extends BaseController
 
     public function postBankAccount(Request $request, LeaderContentRootInterface $root)
     {
-        $form = $this->createForm(new BankAccountType());
-        $form->submit($request);
+        $form = $this->createForm(BankAccountType::class);
+        $form->submit($request->request->all());
 
         if ($form->isValid()) {
             return $this->getManager()->addBankAccount($root, $form->getData());

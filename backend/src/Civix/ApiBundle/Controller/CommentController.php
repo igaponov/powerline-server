@@ -3,7 +3,11 @@
 namespace Civix\ApiBundle\Controller;
 
 use Civix\CoreBundle\Entity\BaseComment;
+use Civix\CoreBundle\Entity\CommentedInterface;
+use Civix\CoreBundle\Entity\Poll;
 use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
+use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Model\Comment\CommentModelInterface;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -46,6 +50,10 @@ class CommentController extends BaseController
      *     },
      *     deprecated=true
      * )
+     * @param CommentModelInterface $commentModel
+     * @param $entityId
+     * @param Request $request
+     * @return Response
      */
     public function getCommentsAction(CommentModelInterface $commentModel, $entityId, Request $request)
     {
@@ -70,7 +78,7 @@ class CommentController extends BaseController
     /**
      * Add comment.
      * Deprecated, use `POST /api/v2/polls/{id}/comments`, `POST /api/v2/user-petitions/{id}/comments`, `POST /api/v2/posts/{id}/comments` instead
-     * 
+     *
      * @Route(
      *      "/{typeEntity}/{entityId}/comments/",
      *      requirements={"entityId"="\d+", "typeEntity" = "poll|micro-petitions|post"},
@@ -92,6 +100,10 @@ class CommentController extends BaseController
      *     },
      *     deprecated=true
      * )
+     * @param Request $request
+     * @param CommentModelInterface $commentModel
+     * @param $entityId
+     * @return Response
      */
     public function addCommentAction(Request $request, CommentModelInterface $commentModel, $entityId)
     {
@@ -110,7 +122,7 @@ class CommentController extends BaseController
         if (is_null($parentComment)) {
             throw new BadRequestHttpException('Incorrect parent comment');
         }
-
+        /** @var CommentedInterface $entityForComment */
         $entityForComment = $commentModel->getEntityForComment($parentComment);
         if ($entityForComment->getId() != $entityId) {
             throw new NotFoundHttpException('Not found');
@@ -128,11 +140,11 @@ class CommentController extends BaseController
         if ($entityForComment instanceof LeaderNews) {
             $this->get('civix_core.activity_update')->updateResponsesQuestion($entityForComment);
         }
-        if ($comment instanceof \Civix\CoreBundle\Entity\Poll\Comment) {
+        if ($comment instanceof Poll\Comment) {
             $this->get('civix_core.social_activity_manager')->noticePollCommented($comment);
-        } elseif ($comment instanceof \Civix\CoreBundle\Entity\UserPetition\Comment) {
+        } elseif ($comment instanceof UserPetition\Comment) {
             $this->get('civix_core.social_activity_manager')->noticeUserPetitionCommented($comment);
-        } elseif ($comment instanceof \Civix\CoreBundle\Entity\Post\Comment) {
+        } elseif ($comment instanceof Post\Comment) {
             $this->get('civix_core.social_activity_manager')->noticePostCommented($comment);
         }
 
@@ -169,6 +181,8 @@ class CommentController extends BaseController
      * )
      *
      * @deprecated Use getCommentsAction
+     * @param $questionId
+     * @return Response
      */
     public function commentsByQuestionAction($questionId)
     {
@@ -207,12 +221,15 @@ class CommentController extends BaseController
      * )
      *
      * @deprecated Use getCommentsAction
+     * @param Request $request
+     * @param Poll\Question $question
+     * @return Response
      */
-    public function addCommentToQuestion(Request $request, \Civix\CoreBundle\Entity\Poll\Question $question)
+    public function addCommentToQuestion(Request $request, Poll\Question $question)
     {
         $entityManager = $this->getDoctrine()->getManager();
 
-        /* @var \Civix\CoreBundle\Entity\Poll\Comment $comment */
+        /* @var Poll\Comment $comment */
         $comment = $this->jmsDeserialization(
             $request->getContent(),
             'Civix\CoreBundle\Entity\Poll\Comment',
@@ -271,6 +288,10 @@ class CommentController extends BaseController
      *     },
      *     deprecated=true
      * )
+     * @param Request $request
+     * @param CommentModelInterface $commentModel
+     * @param $entityId
+     * @return Response
      */
     public function putCommentAction(Request $request, CommentModelInterface $commentModel, $entityId)
     {
@@ -282,7 +303,7 @@ class CommentController extends BaseController
             ['api-comments-update']
         );
 
-        $this->validate($updated, ['api-comments-update']);
+        $this->validate($updated, null, ['api-comments-update']);
         /** @var BaseComment $comment */
         $comment = $entityManager->getRepository($commentModel->getRepositoryName())
             ->find($request->get('id'));
@@ -332,6 +353,10 @@ class CommentController extends BaseController
      *     },
      *     deprecated=true
      * )
+     * @param Request $request
+     * @param CommentModelInterface $commentModel
+     * @param $entityId
+     * @return Response
      */
     public function deleteCommentAction(Request $request, CommentModelInterface $commentModel, $entityId)
     {

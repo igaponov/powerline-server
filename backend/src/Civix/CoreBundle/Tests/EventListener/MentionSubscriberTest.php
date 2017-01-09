@@ -3,6 +3,7 @@ namespace Civix\CoreBundle\Tests\EventListener;
 
 use Civix\CoreBundle\Entity\Activities\UserPetition;
 use Civix\CoreBundle\Entity\Metadata;
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\ApiBundle\Tests\WebTestCase;
@@ -21,7 +22,7 @@ class MentionSubscriberTest extends WebTestCase
             ->setDescription('Hello, @'.$username.'!')
             ->setResponsesCount(2)
             ->setOwner([]);
-        $manager = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $manager = $this->getContainer()->get('doctrine')->getManager();
         $manager->persist($activity);
         $manager->flush();
         $this->assertEquals(
@@ -41,7 +42,7 @@ class MentionSubscriberTest extends WebTestCase
             ->setDescription('Hello, @'.$username.'!')
             ->setResponsesCount(2)
             ->setOwner([]);
-        $manager = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $manager = $this->getContainer()->get('doctrine')->getManager();
         $manager->persist($activity);
         $manager->flush();
         $this->assertEquals(
@@ -55,6 +56,7 @@ class MentionSubscriberTest extends WebTestCase
         $repository = $this->loadFixtures([
             LoadGroupData::class,
         ])->getReferenceRepository();
+        /** @var User $user */
         $user = $repository->getReference('user_2');
         $group = $repository->getReference('group_2');
         $username = $user->getUsername();
@@ -64,7 +66,7 @@ class MentionSubscriberTest extends WebTestCase
             ->setGroup($group)
             ->setBody('Hello, @'.$username.'!')
             ->setMetadata(new Metadata());
-        $manager = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $manager = $this->getContainer()->get('doctrine')->getManager();
         $manager->persist($petition);
         $manager->flush();
         $this->assertEquals(
@@ -78,6 +80,7 @@ class MentionSubscriberTest extends WebTestCase
         $repository = $this->loadFixtures([
             LoadGroupData::class,
         ])->getReferenceRepository();
+        /** @var User $user */
         $user = $repository->getReference('user_2');
         $group = $repository->getReference('group_2');
         $username = 'mention';
@@ -87,7 +90,7 @@ class MentionSubscriberTest extends WebTestCase
             ->setGroup($group)
             ->setBody('Hello, @'.$username.'!')
             ->setMetadata(new Metadata());
-        $manager = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $manager = $this->getContainer()->get('doctrine')->getManager();
         $manager->persist($activity);
         $manager->flush();
         $this->assertEquals(

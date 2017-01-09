@@ -78,7 +78,7 @@ class UserPostControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $count = $conn->fetchColumn(
             'SELECT COUNT(*) FROM post_subscribers WHERE post_id = ?',
             [$post->getId()]
@@ -104,7 +104,7 @@ class UserPostControllerTest extends WebTestCase
         $petition = $this->repository->getReference('post_1');
         $user = $this->repository->getReference('user_2');
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $conn->insert(
             'post_subscribers',
             ['user_id' => $user->getId(), 'post_id' => $petition->getId()]

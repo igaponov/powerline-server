@@ -89,10 +89,10 @@ class MicropetitionConfigController extends Controller
      */
     public function putConfigAction(Request $request, Group $group)
     {
-        $form = $this->createForm(new MicropetitionConfigType(), $group, [
+        $form = $this->createForm(MicropetitionConfigType::class, $group, [
             'validation_groups' => ['micropetition-config'],
         ]);
-        $form->submit($request);
+        $form->submit($request->request->all());
 
         if ($form->isValid()) {
             $entityManager = $this->getDoctrine()->getManager();

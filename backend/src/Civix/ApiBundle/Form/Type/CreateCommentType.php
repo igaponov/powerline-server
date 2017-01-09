@@ -5,26 +5,13 @@ use Civix\CoreBundle\Entity\BaseComment;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CreateCommentType extends AbstractType
 {
-    /**
-     * @var EntityManager
-     */
-    private $em;
-    /**
-     * @var string
-     */
-    private $entityClass;
-
-    public function __construct(EntityManager $em, $entityClass)
-    {
-        $this->em = $em;
-        $this->entityClass = $entityClass;
-    }
-
-    public function getName()
+    public function getBlockPrefix()
     {
         return '';
     }
@@ -32,7 +19,7 @@ class CreateCommentType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('parent_comment', 'integer', [
+            ->add('parent_comment', IntegerType::class, [
                 'property_path' => 'parentComment',
             ]);
 
@@ -43,9 +30,9 @@ class CreateCommentType extends AbstractType
                 }
 
                 return $value;
-            }, function ($value) {
+            }, function ($value) use ($options) {
                 if ($value) {
-                    return $this->em->getRepository($this->entityClass)->find($value);
+                    return $options['em']->getRepository($options['data_class'])->find($value);
                 }
 
                 return $value;
@@ -55,6 +42,12 @@ class CreateCommentType extends AbstractType
 
     public function getParent()
     {
-        return new CommentType($this->entityClass);
+        return CommentType::class;
+    }
+
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setRequired('em')
+            ->setAllowedTypes('em', EntityManager::class);
     }
 }

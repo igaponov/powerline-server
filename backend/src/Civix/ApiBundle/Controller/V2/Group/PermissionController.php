@@ -93,8 +93,8 @@ class PermissionController extends FOSRestController
      */
     public function putAction(UserGroup $userGroup, Request $request)
     {
-        $form = $this->createForm(new UserGroupPermissionType(), $userGroup);
-        $form->submit($request, false);
+        $form = $this->createForm(UserGroupPermissionType::class, $userGroup);
+        $form->submit($request->request->all(), false);
 
         if ($form->isValid()) {
             $userGroup->setPermissionsApprovedAt(new \DateTime());

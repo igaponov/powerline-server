@@ -1,11 +1,11 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
-use Civix\CoreBundle\Entity\SocialActivity;
+use Civix\CoreBundle\Entity\BaseComment;
+use Civix\CoreBundle\Entity\CommentedInterface;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSubscriberData;
-use Doctrine\DBAL\Connection;
 
 class UserPetitionCommentsControllerTest extends CommentsControllerTest
 {
@@ -19,6 +19,7 @@ class UserPetitionCommentsControllerTest extends CommentsControllerTest
         $repository = $this->loadFixtures([
             LoadUserPetitionCommentData::class,
         ])->getReferenceRepository();
+        /** @var CommentedInterface $entity */
         $entity = $repository->getReference('user_petition_5');
         $this->getComments($entity, 2);
     }
@@ -28,6 +29,7 @@ class UserPetitionCommentsControllerTest extends CommentsControllerTest
         $repository = $this->loadFixtures([
             LoadUserPetitionCommentData::class,
         ])->getReferenceRepository();
+        /** @var CommentedInterface $entity */
         $entity = $repository->getReference('user_petition_1');
         $this->getCommentsWithInvalidCredentials($entity);
     }
@@ -39,7 +41,9 @@ class UserPetitionCommentsControllerTest extends CommentsControllerTest
             LoadGroupManagerData::class,
             LoadUserPetitionSubscriberData::class,
         ])->getReferenceRepository();
+        /** @var CommentedInterface $entity */
         $entity = $repository->getReference('user_petition_1');
+        /** @var BaseComment $comment */
         $comment = $repository->getReference('petition_comment_3');
         $this->createComment($entity, $comment);
     }

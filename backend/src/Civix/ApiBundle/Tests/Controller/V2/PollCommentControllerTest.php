@@ -1,6 +1,7 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
+use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadPollCommentRateData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Issue\PM354;
@@ -20,6 +21,7 @@ class PollCommentControllerTest extends CommentControllerTestCase
         $repository = $this->loadFixtures([
             LoadQuestionCommentData::class,
         ])->getReferenceRepository();
+        /** @var BaseComment $comment */
         $comment = $repository->getReference('question_comment_1');
         $this->updateComment($comment);
     }
@@ -34,6 +36,7 @@ class PollCommentControllerTest extends CommentControllerTestCase
         $repository = $this->loadFixtures([
             LoadQuestionCommentData::class,
         ])->getReferenceRepository();
+        /** @var BaseComment $comment */
         $comment = $repository->getReference('question_comment_1');
         $this->updateCommentWithWrongData($comment, $params, $errors);
     }
@@ -43,6 +46,7 @@ class PollCommentControllerTest extends CommentControllerTestCase
         $repository = $this->loadFixtures([
             LoadQuestionCommentData::class,
         ])->getReferenceRepository();
+        /** @var BaseComment $comment */
         $comment = $repository->getReference('question_comment_1');
         $this->updateCommentWithWrongCredentials($comment);
     }
@@ -52,6 +56,7 @@ class PollCommentControllerTest extends CommentControllerTestCase
         $repository = $this->loadFixtures([
             LoadQuestionCommentData::class,
         ])->getReferenceRepository();
+        /** @var BaseComment $comment */
         $comment = $repository->getReference('question_comment_1');
         $this->deleteComment($comment);
     }
@@ -61,6 +66,7 @@ class PollCommentControllerTest extends CommentControllerTestCase
         $repository = $this->loadFixtures([
             LoadQuestionCommentData::class,
         ])->getReferenceRepository();
+        /** @var BaseComment $comment */
         $comment = $repository->getReference('question_comment_1');
         $this->deleteCommentWithWrongCredentials($comment);
     }
@@ -70,6 +76,7 @@ class PollCommentControllerTest extends CommentControllerTestCase
         $repository = $this->loadFixtures([
             LoadPollCommentRateData::class,
         ])->getReferenceRepository();
+        /** @var BaseComment $comment */
         $comment = $repository->getReference('question_comment_1');
         $this->rateCommentWithWrongCredentials($comment);
     }
@@ -84,6 +91,7 @@ class PollCommentControllerTest extends CommentControllerTestCase
         $repository = $this->loadFixtures([
             LoadPollCommentRateData::class,
         ])->getReferenceRepository();
+        /** @var BaseComment $comment */
         $comment = $repository->getReference('question_comment_1');
         $this->rateCommentWithWrongData($comment, $params, $errors);
     }
@@ -100,6 +108,7 @@ class PollCommentControllerTest extends CommentControllerTestCase
             LoadGroupManagerData::class,
             LoadUserGroupData::class,
         ])->getReferenceRepository();
+        /** @var BaseComment $comment */
         $comment = $repository->getReference('question_comment_1');
         $this->rateComment($comment, $rate, $user);
     }
@@ -115,6 +124,7 @@ class PollCommentControllerTest extends CommentControllerTestCase
             LoadGroupManagerData::class,
             LoadUserGroupData::class,
         ])->getReferenceRepository();
+        /** @var BaseComment $comment */
         $comment = $repository->getReference('question_comment_3');
         $this->updateCommentRate($comment, $rate);
     }
@@ -140,7 +150,7 @@ class PollCommentControllerTest extends CommentControllerTestCase
         $this->assertEquals(1, $data['rate_sum']);
         $this->assertEquals(1, $data['rates_count']);
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
         $rate = $conn->fetchColumn('
             SELECT a.rate_up FROM activities a 
             INNER JOIN activities_read ar ON a.id = ar.activity_id

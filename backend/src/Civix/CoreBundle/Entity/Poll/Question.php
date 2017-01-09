@@ -65,7 +65,7 @@ use Symfony\Component\Validator\Context\ExecutionContext;
  * @Serializer\ExclusionPolicy("all")
  * 
  * @method setOwner(LeaderContentRootInterface $group)
- * @Assert\Callback(methods={"areOptionsValid"}, groups={"publish"})
+ * @Assert\Callback(callback="areOptionsValid", groups={"publish"})
  * @PublishDate(objectName="Poll", groups={"update", "publish"})
  * @PublishedPollAmount(groups={"publish"})
  */

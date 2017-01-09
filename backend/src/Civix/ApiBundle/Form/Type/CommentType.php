@@ -4,22 +4,13 @@ namespace Civix\ApiBundle\Form\Type;
 use Civix\ApiBundle\Form\KeyToValueTransformer;
 use Civix\CoreBundle\Entity\BaseComment;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CommentType extends AbstractType
 {
-    /**
-     * @var string
-     */
-    private $entityClass;
-
-    public function __construct($entityClass)
-    {
-        $this->entityClass = $entityClass;
-    }
-
-    public function getName()
+    public function getBlockPrefix()
     {
         return '';
     }
@@ -28,19 +19,18 @@ class CommentType extends AbstractType
     {
         $choices = BaseComment::getPrivacyLabels();
         $builder
-            ->add('comment_body', 'textarea', [
+            ->add('comment_body', Type\TextareaType::class, [
                 'property_path' => 'commentBody',
             ])
-            ->add('privacy', 'text', [
+            ->add('privacy', Type\TextType::class, [
                 'description' => 'Privacy, one of: '.implode(', ', $choices),
         ]);
         $builder->get('privacy')->addModelTransformer(new KeyToValueTransformer($choices));
     }
 
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => $this->entityClass,
             'csrf_protection' => false,
         ]);
     }

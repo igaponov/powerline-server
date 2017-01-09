@@ -114,8 +114,8 @@ class SectionsController extends FOSRestController
      */
     public function postGroupSectionAction(Request $request, Group $group)
     {
-        $form = $this->createForm(new GroupSectionType());
-        $form->submit($request);
+        $form = $this->createForm(GroupSectionType::class);
+        $form->submit($request->request->all());
 
         if ($form->isValid()) {
             /** @var GroupSection $section */

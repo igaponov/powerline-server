@@ -7,13 +7,14 @@ use Civix\CoreBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\ExecutionContextInterface;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * @ORM\Table(name="post_votes")
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Post\VoteRepository")
  * @Serializer\ExclusionPolicy("all")
- * @Assert\Callback(methods={"isPostExpired", "isPostAuthor"})
+ * @Assert\Callback(callback="isPostExpired")
+ * @Assert\Callback(callback="isPostAuthor")
  */
 class Vote
 {
