@@ -188,4 +188,30 @@ class UserPetitionRepository extends EntityRepository
             ->andWhere('p.user = :user')
             ->setParameter(':user', $user);
     }
+
+    public function getFindByGroupQuery(Group $group, $params, $orderBy = [])
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select('p', 'u', 'g')
+            ->leftJoin('p.user', 'u')
+            ->leftJoin('p.group', 'g')
+            ->where('p.group = :group')
+            ->setParameter(':group', $group)
+            ->groupBy('p');
+
+        if (!empty($params['user'])) {
+            $qb->andWhere('p.user = :user')
+                ->setParameter(':user', $params['user']);
+        }
+        if (!empty($params['marked_as_spam'])) {
+            $qb->leftJoin('p.spamMarks', 'sm')
+                ->andWhere('sm.id IS NOT NULL');
+        }
+        if (!empty($orderBy)) {
+            list($sort, $order) = each($orderBy);
+            $qb->orderBy('p.'.$sort, $order);
+        }
+
+        return $qb->getQuery();
+    }
 }

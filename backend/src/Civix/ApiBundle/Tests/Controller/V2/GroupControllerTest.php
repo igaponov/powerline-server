@@ -5,6 +5,7 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\SocialActivity;
+use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Test\SocialActivityTester;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData;
@@ -17,6 +18,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupStatusData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserRepresentativeReportData;
@@ -398,6 +400,37 @@ class GroupControllerTest extends WebTestCase
 		}
 	}
 
+    /**
+     * @param int $status
+     * @dataProvider getUserStatuses
+     */
+	public function testGetGroupUsersByStatusIsOk($status)
+	{
+        $repository = $this->loadFixtures([
+            LoadUserGroupStatusData::class,
+        ])->getReferenceRepository();
+		$group = $repository->getReference('group_1');
+		$client = $this->client;
+		$headers = ['HTTP_Authorization' => 'Bearer type="user" token="user1"'];
+		$client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/users', ['status' => $status], [], $headers);
+		$response = $client->getResponse();
+		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+		$data = json_decode($response->getContent(), true);
+		$this->assertSame(1, $data['page']);
+		$this->assertSame(20, $data['items']);
+		$this->assertSame(1, $data['totalItems']);
+		$this->assertCount(1, $data['payload']);
+	}
+
+    public function getUserStatuses()
+    {
+        return [
+            ['pending'],
+            ['active'],
+            ['banned'],
+        ];
+	}
+
     public function testDeleteGroupUserWithWrongCredentialsThrowsException()
     {
         $repository = $this->loadFixtures([
@@ -448,7 +481,7 @@ class GroupControllerTest extends WebTestCase
         $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
 
-    public function testPatchGroupUserIsOk()
+    public function testActivateGroupUserIsOk()
     {
         $repository = $this->loadFixtures([
             LoadUserGroupData::class,
@@ -467,6 +500,25 @@ class GroupControllerTest extends WebTestCase
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
         $this->assertEquals(1, $queue->count());
         $this->assertEquals(1, $queue->hasMessageWithMethod('sendSocialActivity'));
+    }
+
+    public function testBanGroupUserIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_2');
+        $user = $repository->getReference('user_1');
+        $client = $this->client;
+        $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user3"'];
+        $client->request('PATCH', self::API_ENDPOINT.'/'.$group->getId().'/users/'.$user->getId(), [], [], $headers, json_encode(['status' => 'banned']));
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM users_groups WHERE user_id = ? AND group_id = ? AND status = ?', [$user->getId(), $group->getId(), UserGroup::STATUS_BANNED]);
+        $this->assertEquals(1, $count);
     }
 
     public function testPutGroupUsersWithWrongCredentialsThrowsException()

@@ -119,17 +119,23 @@ class UserGroupRepository extends EntityRepository
             ->getQuery()->getResult();
     }
 
-    public function getFindByGroupQuery(Group $group)
+    public function getFindByGroupQuery(Group $group, $params = [])
     {
-        return $this->createQueryBuilder('ug')
+        $qb = $this->createQueryBuilder('ug')
             ->select('ug', 'u', 'g', 'gm')
             ->innerJoin('ug.user', 'u')
             ->leftJoin('ug.group', 'g')
             ->leftJoin('g.managers', 'gm')
             ->where('ug.group = :group')
             ->setParameter('group', $group)
-            ->orderBy('u.id', 'ASC')
-            ->getQuery();
+            ->orderBy('u.id', 'ASC');
+        $labels = UserGroup::getStatusLabels();
+        if (!empty($params['status']) && $status = array_search($params['status'], $labels) !== false) {
+            $qb->andWhere('ug.status = :status')
+                ->setParameter(':status', $status);
+        }
+
+        return $qb->getQuery();
     }
 
     public function getOldestMember(Group $group)

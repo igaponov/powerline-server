@@ -110,6 +110,7 @@ class PetitionVoter implements VoterInterface
             return $object->getUser()->isEqualTo($user) ? VoterInterface::ACCESS_DENIED : VoterInterface::ACCESS_GRANTED;
         }
 
+        // unsubscribed users from the group can subscribe
         if ($attribute === self::SUBSCRIBE) {
             $group = $object->getGroup();
             $func = function($i, UserGroup $userGroup) use($group) {
@@ -121,6 +122,7 @@ class PetitionVoter implements VoterInterface
             }
         }
 
+        // group members can view the post
         if ($attribute === self::VIEW) {
             $group = $object->getGroup();
             if ($group instanceof Group) {
@@ -128,13 +130,18 @@ class PetitionVoter implements VoterInterface
             }
         }
 
+        // post creator can do anything except subscribing
         if ($attribute !== self::SUBSCRIBE) {
             if ($object->getUser()->isEqualTo($user)) {
                 return VoterInterface::ACCESS_GRANTED;
             }
-            $group = $object->getGroup();
-            if ($group instanceof Group) {
-                return $this->groupVoter->vote($token, $group, [GroupVoter::MANAGE]);
+            // group's managers can delete the post
+            // if it was marked as spam more than 4 times
+            if ($attribute !== self::DELETE || $object->getSpamMarks()->count() >= 4) {
+                $group = $object->getGroup();
+                if ($group instanceof Group) {
+                    return $this->groupVoter->vote($token, $group, [GroupVoter::MANAGE]);
+                }
             }
         }
 

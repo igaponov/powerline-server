@@ -5,6 +5,7 @@ use Civix\ApiBundle\Configuration\SecureParam;
 use Civix\ApiBundle\Form\Type\GroupAvatarType;
 use Civix\ApiBundle\Form\Type\GroupType;
 use Civix\ApiBundle\Form\Type\InviteType;
+use Civix\ApiBundle\Form\Type\UserGroupType;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\TempFile;
 use Civix\CoreBundle\Entity\User;
@@ -262,6 +263,7 @@ class GroupController extends FOSRestController
      * @Route("/{id}/users", requirements={"id"="\d+"})
      * @Method("GET")
      *
+     * @QueryParam(name="status", requirements="pending|active|banned", nullable=true, description="Filter by user's status in the group.")
      * @QueryParam(name="page", requirements="\d+", default="1")
      * @QueryParam(name="per_page", requirements="(10|20)", default="20")
      * 
@@ -271,7 +273,13 @@ class GroupController extends FOSRestController
      *     authentication=true,
      *     section="Groups",
      *     description="Returns a list of users from a group",
-     *     output="Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination",
+     *     output={
+     *          "class" = "array<Civix\CoreBundle\Entity\UserGroup> as paginator",
+     *          "groups" = {"user-list"},
+     *          "parsers" = {
+     *              "Civix\ApiBundle\Parser\PaginatorParser"
+     *          }
+     *     },
      *     statusCodes={
      *         400="Bad request",
      *         401="Authorization required",
@@ -290,7 +298,7 @@ class GroupController extends FOSRestController
     public function getUsersAction(ParamFetcher $params, Group $group)
     {
         $query = $this->getDoctrine()->getRepository(UserGroup::class)
-            ->getFindByGroupQuery($group);
+            ->getFindByGroupQuery($group, $params->all());
 
         return $this->get('knp_paginator')->paginate(
             $query,
@@ -339,6 +347,7 @@ class GroupController extends FOSRestController
      *     description="Updates a status of an user in a group to `active`",
      *     statusCodes={
      *         204="Success",
+     *         400="Bad Request",
      *         404="Group or User Not Found",
      *         405="Method Not Allowed"
      *     }
@@ -346,11 +355,24 @@ class GroupController extends FOSRestController
      *
      * @View(serializerGroups={"api-info"})
      *
+     * @param Request $request
      * @param UserGroup $userGroup
+     *
+     * @return null|\Symfony\Component\Form\Form
      */
-    public function patchUserAction(UserGroup $userGroup)
+    public function patchUserAction(Request $request, UserGroup $userGroup)
     {
-        $this->manager->approveUser($userGroup);
+        $form = $this->createForm(UserGroupType::class);
+        $form->submit($request->request->all());
+
+        if ($form->isValid()) {
+            $status = $form->get('status')->getData();
+            $this->manager->changeUserStatus($userGroup, $status);
+
+            return null;
+        }
+
+        return $form;
     }
 
     /**

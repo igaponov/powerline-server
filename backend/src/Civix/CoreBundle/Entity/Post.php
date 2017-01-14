@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterface, HashTaggableInterface, UserMentionableInterface
 {
-    use HashTaggableTrait, MetadataTrait, UserMentionableTrait;
+    use HashTaggableTrait, MetadataTrait, UserMentionableTrait, SpamMarksTrait;
 
     /**
      * @ORM\Id

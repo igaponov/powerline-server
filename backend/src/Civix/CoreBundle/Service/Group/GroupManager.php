@@ -331,6 +331,18 @@ class GroupManager
         $this->inviteUsersToGroup($group, $inviter, $iterator);
     }
 
+    public function changeUserStatus(UserGroup $userGroup, $status)
+    {
+        switch ($status) {
+            case UserGroup::STATUS_ACTIVE:
+                $this->approveUser($userGroup);
+                break;
+            case UserGroup::STATUS_BANNED:
+                $this->banUser($userGroup);
+                break;
+        }
+    }
+
     public function approveUser(UserGroup $userGroup)
     {
         $userGroup->setStatus(UserGroup::STATUS_ACTIVE);
@@ -339,6 +351,13 @@ class GroupManager
 
         $event = new GroupUserEvent($userGroup->getGroup(), $userGroup->getUser());
         $this->dispatcher->dispatch(GroupEvents::USER_JOINED, $event);
+    }
+
+    public function banUser(UserGroup $userGroup)
+    {
+        $userGroup->setStatus(UserGroup::STATUS_BANNED);
+        $this->entityManager->persist($userGroup);
+        $this->entityManager->flush();
     }
 
     public function removeInvite(Group $group, User $user)

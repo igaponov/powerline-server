@@ -7,6 +7,7 @@ use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Service\UserPetitionManager;
 use Civix\CoreBundle\Test\SocialActivityTester;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSpamUserPetitionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionHashTagData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionData;
@@ -294,9 +295,10 @@ class UserPetitionControllerTest extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadUserPetitionData::class,
+            LoadGroupManagerData::class,
         ])->getReferenceRepository();
         /** @var UserPetition $petition */
-        $petition = $repository->getReference('user_petition_1');
+        $petition = $repository->getReference('user_petition_4');
         $client = $this->client;
         $client->request('DELETE',
             self::API_ENDPOINT.'/'.$petition->getId(), [], [],
@@ -317,6 +319,28 @@ class UserPetitionControllerTest extends WebTestCase
         $client->request('DELETE',
             self::API_ENDPOINT.'/'.$petition->getId(), [], [],
             ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine')
+            ->getConnection();
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM user_petitions WHERE id = ?', [$petition->getId()]);
+        $this->assertEquals(0, $count);
+    }
+
+    public function testDeleteUserPetitionByGroupManager()
+    {
+        $repository = $this->loadFixtures([
+            LoadSpamUserPetitionData::class,
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+        /** @var UserPetition $petition */
+        $petition = $repository->getReference('user_petition_4');
+        $client = $this->client;
+        $client->request('DELETE',
+            self::API_ENDPOINT.'/'.$petition->getId(), [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user2"']
         );
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());

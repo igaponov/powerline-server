@@ -10,6 +10,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostHashTagData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSpamPostData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
@@ -293,9 +294,10 @@ class PostControllerTest extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadPostData::class,
+            LoadGroupManagerData::class,
         ])->getReferenceRepository();
         /** @var Post $post */
-        $post = $repository->getReference('post_1');
+        $post = $repository->getReference('post_4');
         $client = $this->client;
         $client->request('DELETE',
             self::API_ENDPOINT.'/'.$post->getId(), [], [],
@@ -316,6 +318,28 @@ class PostControllerTest extends WebTestCase
         $client->request('DELETE',
             self::API_ENDPOINT.'/'.$post->getId(), [], [],
             ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine')
+            ->getConnection();
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM posts WHERE id = ?', [$post->getId()]);
+        $this->assertEquals(0, $count);
+    }
+
+    public function testDeletePostByGroupManager()
+    {
+        $repository = $this->loadFixtures([
+            LoadSpamPostData::class,
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+        /** @var Post $post */
+        $post = $repository->getReference('post_4');
+        $client = $this->client;
+        $client->request('DELETE',
+            self::API_ENDPOINT.'/'.$post->getId(), [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user2"']
         );
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());

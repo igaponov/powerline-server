@@ -5,7 +5,9 @@ use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Service\UserPetitionManager;
 use Civix\CoreBundle\Test\SocialActivityTester;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSpamUserPetitionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionData;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Civix\ApiBundle\Tests\WebTestCase;
@@ -229,6 +231,86 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertSame($params['is_outsiders_sign'], $data['is_outsiders_sign']);
         $this->assertSame($params['organization_needed'], $data['organization_needed']);
         $this->assertFalse($data['boosted']);
+    }
+
+    public function testGetPetitionsWithWrongCredentialsThrowException()
+    {
+        $repository = $this->loadFixtures([
+            LoadGroupData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_1');
+        $client = $this->client;
+        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
+        $client->request('GET',
+            $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user2"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testGetPetitions()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserPetitionData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_1');
+        $client = $this->client;
+        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
+        $client->request('GET',
+            $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame(1, $data['page']);
+        $this->assertSame(20, $data['items']);
+        $this->assertSame(4, $data['totalItems']);
+        $this->assertCount(4, $data['payload']);
+        foreach ($data['payload'] as $item) {
+            $this->assertNotEmpty($item['user']);
+            $this->assertNotEmpty($item['group']);
+        }
+    }
+
+    public function testGetPetitionsByUser()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserPetitionData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_1');
+        $user = $repository->getReference('user_2');
+        $client = $this->client;
+        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
+        $client->request('GET',
+            $uri, ['user' => $user->getId()], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame(1, $data['page']);
+        $this->assertSame(20, $data['items']);
+        $this->assertSame(1, $data['totalItems']);
+        $this->assertCount(1, $data['payload']);
+    }
+
+    public function testGetPetitionsMarkedAsSpam()
+    {
+        $repository = $this->loadFixtures([
+            LoadSpamUserPetitionData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_1');
+        $client = $this->client;
+        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
+        $client->request('GET',
+            $uri, ['marked_as_spam' => 'true'], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame(1, $data['page']);
+        $this->assertSame(20, $data['items']);
+        $this->assertSame(2, $data['totalItems']);
+        $this->assertCount(2, $data['payload']);
     }
 
     /**

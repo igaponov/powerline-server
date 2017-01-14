@@ -28,7 +28,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class UserPetition implements HtmlBodyInterface, SubscriptionInterface, CommentedInterface, HashTaggableInterface
 {
-    use HashTaggableTrait, MetadataTrait;
+    use HashTaggableTrait, MetadataTrait, SpamMarksTrait;
 
     /**
      * @ORM\Id
@@ -60,6 +60,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
     /**
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Group")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
+     * @Serializer\Expose()
      */
     private $group;
 

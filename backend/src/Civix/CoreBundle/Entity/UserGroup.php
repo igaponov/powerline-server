@@ -24,6 +24,7 @@ class UserGroup implements GroupContentInterface
 {
     const STATUS_PENDING = 0;
     const STATUS_ACTIVE = 1;
+    const STATUS_BANNED = 2;
 
     /**
      * @ORM\Id
@@ -159,6 +160,7 @@ class UserGroup implements GroupContentInterface
         return [
             self::STATUS_PENDING => 'pending',
             self::STATUS_ACTIVE => 'active',
+            self::STATUS_BANNED => 'banned',
         ];
     }
 
