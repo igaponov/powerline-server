@@ -1,7 +1,6 @@
 <?php
 namespace Civix\ApiBundle\Form\Type;
 
-use Civix\ApiBundle\Form\DataTransformer\Base64EncodedStringToUploadedFileTransformer;
 use Civix\CoreBundle\Entity\Group;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -63,12 +62,6 @@ class GroupType extends AbstractType
             'required' => false,
             'description' => 'Transparency, can be one of '.join(', ', Group::getTransparencyStates()),
         ]);
-        $builder->add('avatar', 'textarea', [
-            'required' => false,
-            'description' => 'Base64-encoded content',
-        ]);
-        $transformer = new Base64EncodedStringToUploadedFileTransformer();
-        $builder->get('avatar')->addModelTransformer($transformer);
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)

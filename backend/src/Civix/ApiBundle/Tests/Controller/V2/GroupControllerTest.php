@@ -211,12 +211,10 @@ class GroupControllerTest extends WebTestCase
                 [
                     'official_type' => 'yyy',
                     'transparency' => 'xxx',
-                    'avatar' => base64_encode(file_get_contents(__FILE__)),
                 ],
                 [
                     'official_type' => 'The value you selected is not a valid choice.',
                     'transparency' => 'The value you selected is not a valid choice.',
-                    'avatar' => 'The mime type of the file is invalid ("text/x-php"). Allowed mime types are "image/png", "image/jpeg", "image/jpg".',
                 ],
             ]
         ];
@@ -256,14 +254,42 @@ class GroupControllerTest extends WebTestCase
             'transparency' => Group::GROUP_TRANSPARENCY_PRIVATE,
 		];
 		$client = $this->client;
-        $filePath = $group->getAvatarFilePath();
-		$client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode(array_merge($params, ['avatar' => base64_encode(file_get_contents(__DIR__.'/../../data/image2.png'))])));
+		$client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
 		foreach ($data as $property => $value) {
 			$this->assertSame($value, $data[$property]);
 		}
+	}
+
+	public function testUpdateGroupAvatarWithWrongCredentialsThrowsException()
+	{
+        $repository = $this->loadFixtures([
+            LoadGroupData::class,
+        ])->getReferenceRepository();
+		$group = $repository->getReference('group_1');
+		$client = $this->client;
+		$client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/avatar', [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user2"']);
+		$response = $client->getResponse();
+		$this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+	}
+
+	public function testUpdateGroupAvatarIsOk()
+	{
+        $repository = $this->loadFixtures([
+            LoadGroupData::class,
+        ])->getReferenceRepository();
+		$group = $repository->getReference('group_1');
+		$params = [
+            'avatar' => base64_encode(file_get_contents(__DIR__.'/../../data/image2.png'))
+		];
+		$client = $this->client;
+        $filePath = $group->getAvatarFilePath();
+		$client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/avatar', [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
+		$response = $client->getResponse();
+		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+		$data = json_decode($response->getContent(), true);
         $storage = $client->getContainer()->get('civix_core.storage.array');
         $this->assertCount(1, $storage->getFiles('avatar_image_fs'));
         $this->assertNotEquals($filePath, $data['avatar_file_path']);

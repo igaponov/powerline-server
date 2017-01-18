@@ -105,7 +105,7 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
      * @Assert\File(
      *     maxSize="10M",
      *     mimeTypes={"image/png", "image/jpeg", "image/jpg"},
-     *     groups={"profile", "user-registration"}
+     *     groups={"profile", "avatar"}
      * )
      * @Vich\UploadableField(mapping="avatar_image", fileNameProperty="avatarFileName")
      *

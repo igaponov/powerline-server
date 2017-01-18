@@ -2,6 +2,7 @@
 namespace Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Configuration\SecureParam;
+use Civix\ApiBundle\Form\Type\GroupAvatarType;
 use Civix\ApiBundle\Form\Type\GroupType;
 use Civix\ApiBundle\Form\Type\InviteType;
 use Civix\CoreBundle\Entity\Group;
@@ -168,6 +169,57 @@ class GroupController extends FOSRestController
             'validation_groups' => 'user-registration',
         ]);
         $form->submit($request, false);
+
+        if ($form->isValid()) {
+            $this->em->persist($group);
+            $this->em->flush();
+
+            return $group;
+        }
+
+        return $form;
+    }
+
+    /**
+     * Updates a group's avatar
+     *
+     * @Route("/{id}/avatar")
+     * @Method("PUT")
+     *
+     * @SecureParam("group", permission="edit")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Groups",
+     *     description="Updates a group's avatar",
+     *     input="Civix\ApiBundle\Form\Type\GroupAvatarType",
+     *     output = {
+     *          "class" = "Civix\CoreBundle\Entity\Group",
+     *          "groups" = {"api-info"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
+     *     },
+     *     statusCodes={
+     *         400="Bad Request",
+     *         404="Group Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @View(serializerGroups={"api-info"})
+     *
+     * @param Request $request
+     * @param Group $group
+     *
+     * @return Group|\Symfony\Component\Form\Form
+     */
+    public function putAvatarAction(Request $request, Group $group)
+    {
+        $form = $this->createForm(new GroupAvatarType(), $group, [
+            'validation_groups' => 'avatar',
+        ]);
+        $form->submit($request);
 
         if ($form->isValid()) {
             $this->em->persist($group);
