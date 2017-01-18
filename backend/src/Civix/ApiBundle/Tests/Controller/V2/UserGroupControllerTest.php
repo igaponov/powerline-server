@@ -106,14 +106,12 @@ class UserGroupControllerTest extends WebTestCase
             'official_name' => 'This value should not be blank.',
             'official_type' => 'This value should not be blank.',
             'transparency' => 'This value should not be blank.',
-            'avatar' => 'The mime type of the file is invalid ("text/x-php"). Allowed mime types are "image/png", "image/jpeg", "image/jpg".',
         ];
         $client = $this->client;
         $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode([
             'official_name' => '',
             'official_type' => '',
             'transparency' => '',
-            'avatar' => base64_encode(file_get_contents(__FILE__)),
         ]));
         $response = $client->getResponse();
         $this->assertResponseHasErrors($response, $errors);
@@ -140,14 +138,13 @@ class UserGroupControllerTest extends WebTestCase
             'official_state' => strtoupper($faker->randomLetter.$faker->randomLetter),
         ];
         $client = $this->client;
-        $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode(array_merge($params,['avatar' => base64_encode(file_get_contents(__DIR__.'/../../data/image.png'))])));
+        $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode($params));
         $response = $client->getResponse();
         $this->assertEquals(201, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         foreach ($params as $property => $value) {
             $this->assertSame($value, $data[$property]);
         }
-        $this->assertNotEmpty($data['avatar_file_path']);
         $this->assertSame(Group::GROUP_TRANSPARENCY_PUBLIC, $data['transparency']);
         $this->assertSame([
             Group::PERMISSIONS_NAME,
@@ -158,8 +155,6 @@ class UserGroupControllerTest extends WebTestCase
         $conn = $client->getContainer()->get('doctrine')->getConnection();
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM users_groups WHERE group_id = ? and user_id = ?', [$data['id'], $user->getId()]);
         $this->assertEquals(1, $count);
-        $storage = $client->getContainer()->get('civix_core.storage.array');
-        $this->assertCount(1, $storage->getFiles('avatar_image_fs'));
     }
 
     /**
