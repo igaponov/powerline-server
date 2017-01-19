@@ -29,7 +29,7 @@ class GroupAvatarType extends AbstractType
             $data = $event->getData();
             $modelData = $form->getData();
             if (!empty($data['avatar'])) {
-                $modelData->setAvatarFileName(null);
+                $modelData->setAvatarFileName('');
             }
         });
     }
