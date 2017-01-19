@@ -275,6 +275,28 @@ class GroupControllerTest extends WebTestCase
 		$this->assertEquals(403, $response->getStatusCode(), $response->getContent());
 	}
 
+	public function testAddGroupAvatarIsOk()
+	{
+        $repository = $this->loadFixtures([
+            LoadGroupData::class,
+        ])->getReferenceRepository();
+        /** @var Group $group */
+		$group = $repository->getReference('group_2');
+		$this->assertNull($group->getAvatarFileName());
+		$params = [
+            'avatar' => base64_encode(file_get_contents(__DIR__.'/../../data/image2.png'))
+		];
+		$client = $this->client;
+        $filePath = $group->getAvatarFilePath();
+		$client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/avatar', [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user2"'], json_encode($params));
+		$response = $client->getResponse();
+		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+		$data = json_decode($response->getContent(), true);
+        $storage = $client->getContainer()->get('civix_core.storage.array');
+        $this->assertCount(1, $storage->getFiles('avatar_image_fs'));
+        $this->assertNotEquals($filePath, $data['avatar_file_path']);
+	}
+
 	public function testUpdateGroupAvatarIsOk()
 	{
         $repository = $this->loadFixtures([
