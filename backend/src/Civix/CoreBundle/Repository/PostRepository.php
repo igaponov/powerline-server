@@ -62,7 +62,7 @@ class PostRepository extends EntityRepository
         $resetTimeDate = new \DateTime($currentDate->format('Y-m-d'));
         $startOfMonth = $resetTimeDate->modify('first day of this month');
 
-        return $this->createQueryBuilder('p')
+        return (int)$this->createQueryBuilder('p')
                 ->select('count(p)')
                 ->where('p.user = :user')
                 ->andWhere('p.group = :group')
