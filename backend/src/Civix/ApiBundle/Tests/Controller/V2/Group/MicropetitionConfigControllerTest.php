@@ -4,9 +4,11 @@ namespace Civix\ApiBundle\Tests\Controller\V2\Group;
 use Civix\CoreBundle\Model\Subscription\PackageLimitState;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSubscriptionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionData;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class MicropetitionConfigControllerTest extends WebTestCase
@@ -45,20 +47,25 @@ class MicropetitionConfigControllerTest extends WebTestCase
     /**
      * @param $user
      * @param $reference
+     * @param $remaining
      * @dataProvider getValidGroupCredentialsForGetRequest
      */
-	public function testGetMicropetitionConfigIsOk($user, $reference)
+	public function testGetMicropetitionConfigIsOk($user, $reference, $remaining)
 	{
         $repository = $this->loadFixtures([
             LoadUserGroupData::class,
             LoadGroupManagerData::class,
+            LoadPostData::class,
+            LoadUserPetitionData::class,
         ])->getReferenceRepository();
         $group = $repository->getReference($reference);
 		$client = $this->client;
 		$params = [
-			'petition_percent' => 55,
-			'petition_duration' => 35,
-			'petition_per_month' => 10,
+			'petition_percent' => 45,
+			'petition_duration' => 25,
+			'petition_per_month' => 5,
+            'posts_remaining' => $remaining,
+            'petitions_remaining' => $remaining,
 		];
         $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
         $client->request('GET', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
@@ -230,9 +237,9 @@ class MicropetitionConfigControllerTest extends WebTestCase
     public function getValidGroupCredentialsForGetRequest()
     {
         return [
-            'owner' => ['user3', 'group_3'],
-            'manager' => ['user2', 'group_3'],
-            'member' => ['user4', 'group_3'],
+            'owner' => ['user1', 'group_1', 4],
+            'manager' => ['user3', 'group_1', 3],
+            'member' => ['user4', 'group_1', 5],
         ];
     }
 

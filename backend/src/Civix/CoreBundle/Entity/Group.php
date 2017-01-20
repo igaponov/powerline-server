@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Entity;
 
 use Civix\CoreBundle\Entity\Group\GroupField;
+use Civix\CoreBundle\Serializer\Type\ContentRemaining;
 use Civix\CoreBundle\Serializer\Type\TotalMembers;
 use Civix\CoreBundle\Serializer\Type\UserRole;
 use Doctrine\ORM\Mapping as ORM;
@@ -1910,5 +1911,27 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
     public function getOfficialTitle()
     {
         return $this->getOfficialName();
+    }
+
+    /**
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"micropetition-config"})
+     * @Serializer\Type("ContentRemaining")
+     * @return ContentRemaining
+     */
+    public function getPostsRemaining()
+    {
+        return new ContentRemaining('post', $this);
+    }
+
+    /**
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"micropetition-config"})
+     * @Serializer\Type("ContentRemaining")
+     * @return ContentRemaining
+     */
+    public function getPetitionsRemaining()
+    {
+        return new ContentRemaining('petition', $this);
     }
 }
