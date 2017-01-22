@@ -221,7 +221,7 @@ class GroupController extends FOSRestController
         $form = $this->createForm(GroupAvatarType::class, $group, [
             'validation_groups' => 'avatar',
         ]);
-        $form->submit($request);
+        $form->submit($request->request->all());
 
         if ($form->isValid()) {
             $this->em->persist($group);

@@ -110,7 +110,7 @@ class UserPetitionController extends FOSRestController
      *     description="List all the petitions from the group.",
      *     output={
      *          "class" = "array<Civix\CoreBundle\Entity\UserPetition> as paginator",
-     *          "groups" = {"Default"},
+     *          "groups" = {"Default", "api-info"},
      *          "parsers" = {
      *              "Civix\ApiBundle\Parser\PaginatorParser"
      *          }
@@ -123,14 +123,14 @@ class UserPetitionController extends FOSRestController
      *     }
      * )
      *
-     * @View(serializerGroups={"paginator", "Default"})
+     * @View(serializerGroups={"paginator", "Default", "api-info"})
      *
      * @param ParamFetcher $params
      * @param Group $group
      *
      * @return \Knp\Component\Pager\Pagination\PaginationInterface
      */
-    public function getPostsAction(ParamFetcher $params, Group $group)
+    public function getUserPetitionAction(ParamFetcher $params, Group $group)
     {
         $query = $this->getDoctrine()->getRepository(UserPetition::class)
             ->getFindByGroupQuery(
