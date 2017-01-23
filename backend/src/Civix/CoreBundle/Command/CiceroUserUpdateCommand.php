@@ -28,6 +28,7 @@ class CiceroUserUpdateCommand extends ContainerAwareCommand
         $userManager->updateDistrictsIds($user);
 
         $entityManager->persist($user);
+        $entityManager->flush();
 
         $output->writeln('<comment>Completed</comment>');
     }

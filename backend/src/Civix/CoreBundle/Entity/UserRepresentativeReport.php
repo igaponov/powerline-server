@@ -19,31 +19,31 @@ class UserRepresentativeReport
 
     /**
      * @var string
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
     private $president;
 
     /**
      * @var string
-     * @ORM\Column(name="vice_president", type="string")
+     * @ORM\Column(name="vice_president", type="string", nullable=true)
      */
     private $vicePresident;
 
     /**
      * @var string
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
     private $senator1;
 
     /**
      * @var string
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
     private $senator2;
 
     /**
      * @var string
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
     private $congressman;
 
