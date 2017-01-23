@@ -5,7 +5,6 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Issue\PM533;
 use Civix\CoreBundle\Service\CiceroApi;
-use Civix\CoreBundle\Service\Group\GroupManager;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -67,13 +66,6 @@ class ProfileControllerTest extends WebTestCase
             'registration' => 'new-registration',
         ];
         $client = $this->client;
-        $service = $this->getMockBuilder(GroupManager::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $service->expects($this->once())
-            ->method('autoJoinUser')
-            ->with($this->isInstanceOf(User::class));
-        $client->getContainer()->set('civix_core.group_manager', $service);
         $service = $this->getMockBuilder(CiceroApi::class)
             ->disableOriginalConstructor()
             ->setMethods(['getRepresentativesByLocation'])
@@ -150,13 +142,13 @@ class ProfileControllerTest extends WebTestCase
             'zip' => 'new-zip',
         ];
         $client = $this->client;
-        $service = $this->getServiceMockBuilder('civix_core.group_manager')
+        $service = $this->getMockBuilder(CiceroApi::class)
             ->disableOriginalConstructor()
+            ->setMethods(['getRepresentativesByLocation'])
             ->getMock();
         $service->expects($this->once())
-            ->method('autoJoinUser')
-            ->with($this->isInstanceOf(User::class));
-        $client->getContainer()->set('civix_core.group_manager', $service);
+            ->method('getRepresentativesByLocation');
+        $client->getContainer()->set('civix_core.cicero_api', $service);
 		$client->request('POST', self::API_ENDPOINT.'update', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode($params));
 		$response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
