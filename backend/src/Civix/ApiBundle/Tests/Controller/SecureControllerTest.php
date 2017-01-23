@@ -4,7 +4,9 @@ namespace Civix\ApiBundle\Tests\Controller;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Report\UserReport;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Service\CiceroApi;
 use Civix\CoreBundle\Service\CropImage;
+use Civix\CoreBundle\Service\FacebookApi;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
@@ -155,6 +157,7 @@ class SecureControllerTest extends WebTestCase
 		];
 		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
 		$service = $this->getMockBuilder(CropImage::class)
+            ->disableOriginalConstructor()
             ->setMethods(['rebuildImage'])
             ->getMock();
 		$service->expects($this->once())
@@ -163,7 +166,15 @@ class SecureControllerTest extends WebTestCase
             ->willReturnCallback(function ($tempFile) {
                 return file_put_contents($tempFile, file_get_contents(__DIR__.'/../data/image.png'));
             });
-		$client->getContainer()->set('civix_core.crop_image', $service);
+        $container = $client->getContainer();
+        $container->set('civix_core.crop_image', $service);
+        $service = $this->getMockBuilder(CiceroApi::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getRepresentativesByLocation'])
+            ->getMock();
+        $service->expects($this->once())
+            ->method('getRepresentativesByLocation');
+        $client->getContainer()->set('civix_core.cicero_api', $service);
 		$service = $this->createMock(Geocoder::class);
 		$service->expects($this->exactly(2))
             ->method('geocode')
@@ -193,7 +204,7 @@ class SecureControllerTest extends WebTestCase
 		$result = json_decode($response->getContent(), true);
 		$this->assertSame($data['username'], $result['username']);
 		/** @var Connection $conn */
-		$conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+		$conn = $container->get('doctrine.dbal.default_connection');
 		$user = $conn->fetchAssoc('SELECT * FROM user WHERE username = ?', [$result['username']]);
 		$this->assertSame($data['username'], $user['username']);
 		$this->assertSame($data['first_name'], $user['firstName']);
@@ -206,7 +217,7 @@ class SecureControllerTest extends WebTestCase
 		$this->assertSame($data['zip'], $user['zip']);
 		$this->assertSame($data['country'], $user['country']);
 		$this->assertSame(strtotime($data['birth']), strtotime($user['birth']));
-        $storage = $client->getContainer()->get('civix_core.storage.array');
+        $storage = $container->get('civix_core.storage.array');
         $this->assertCount(1, $storage->getFiles('avatar_image_fs'));
         $code = $conn->fetchAssoc('SELECT * FROM discount_codes WHERE owner_id = ?', [$user['id']]);
         $this->assertNotEmpty($code['code']);
@@ -276,11 +287,19 @@ class SecureControllerTest extends WebTestCase
 		];
 		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
         $serviceId = 'civix_core.facebook_api';
-        $mock = $this->getServiceMockBuilder($serviceId)
+        $mock = $this->getMockBuilder(FacebookApi::class)
+            ->disableOriginalConstructor()
             ->setMethods(['getFacebookId'])
             ->getMock();
         $mock->expects($this->any())->method('getFacebookId')->will($this->returnValue('yyy'));
         $client->getContainer()->set($serviceId, $mock);
+        $service = $this->getMockBuilder(CiceroApi::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getRepresentativesByLocation'])
+            ->getMock();
+        $service->expects($this->once())
+            ->method('getRepresentativesByLocation');
+        $client->getContainer()->set('civix_core.cicero_api', $service);
         $service = $this->createMock(Geocoder::class);
         $service->expects($this->exactly(2))
             ->method('geocode')
