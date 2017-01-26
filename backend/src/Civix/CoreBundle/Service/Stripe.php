@@ -95,6 +95,13 @@ class Stripe
             'postal_code' => $bankAccount->getPostalCode(),
             'country' => $bankAccount->getCountry(),
         ];
+        if ($dob = $bankAccount->getDob()) {
+            $sa->legal_entity->dob = [
+                'day' => $dob->format('d'),
+                'month' => $dob->format('m'),
+                'year' => $dob->format('Y'),
+            ];
+        }
 
         $sa->save();
     }
