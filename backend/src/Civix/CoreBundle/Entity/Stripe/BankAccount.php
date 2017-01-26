@@ -90,6 +90,11 @@ class BankAccount
     private $country;
 
     /**
+     * @var \DateTime
+     */
+    private $dob;
+
+    /**
      * @return string
      */
     public function getId()
@@ -370,6 +375,25 @@ class BankAccount
     public function setCountry($country)
     {
         $this->country = $country;
+
+        return $this;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getDob()
+    {
+        return $this->dob;
+    }
+
+    /**
+     * @param \DateTime $dob
+     * @return BankAccount
+     */
+    public function setDob(\DateTime $dob = null)
+    {
+        $this->dob = $dob;
 
         return $this;
     }

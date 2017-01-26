@@ -62,6 +62,10 @@ class BankAccountType extends AbstractType
             ->add('country', 'text', [
                 'description' => '2-letter country code.',
             ])
+            ->add('dob', 'date', [
+                'description' => 'Date of birth',
+                'widget' => 'single_text',
+            ])
         ;
     }
 
