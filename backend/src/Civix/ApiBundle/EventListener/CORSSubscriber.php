@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 class CORSSubscriber implements EventSubscriberInterface
 {
     private $headers = [
+        'content-disposition',
         'accept',
         'origin',
         'x-requested-with',
