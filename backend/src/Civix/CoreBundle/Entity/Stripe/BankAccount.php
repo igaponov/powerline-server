@@ -95,6 +95,11 @@ class BankAccount
     private $dob;
 
     /**
+     * @var string
+     */
+    private $taxId;
+
+    /**
      * @return string
      */
     public function getId()
@@ -394,6 +399,25 @@ class BankAccount
     public function setDob(\DateTime $dob = null)
     {
         $this->dob = $dob;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTaxId()
+    {
+        return $this->taxId;
+    }
+
+    /**
+     * @param string $taxId
+     * @return BankAccount
+     */
+    public function setTaxId($taxId)
+    {
+        $this->taxId = $taxId;
 
         return $this;
     }

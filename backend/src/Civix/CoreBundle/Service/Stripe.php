@@ -86,6 +86,7 @@ class Stripe
             $sa->legal_entity->ssn_last_4 = $bankAccount->getSsnLast4();
         }
         $sa->legal_entity->business_name = $bankAccount->getBusinessName();
+        $sa->legal_entity->business_tax_id = $bankAccount->getTaxId();
 
         $sa->legal_entity->address = [
             'line1' => $bankAccount->getAddressLine1(),
