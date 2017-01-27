@@ -66,6 +66,10 @@ class BankAccountType extends AbstractType
                 'description' => 'Date of birth',
                 'widget' => 'single_text',
             ])
+            ->add('tax_id', 'text', [
+                'property_path' => 'taxId',
+                'description' => 'Tax ID',
+            ])
         ;
     }
 

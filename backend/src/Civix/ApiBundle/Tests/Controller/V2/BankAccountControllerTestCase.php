@@ -107,7 +107,7 @@ abstract class BankAccountControllerTestCase extends WebTestCase
         $client = $this->client;
         $client->getContainer()->set('civix_core.stripe', $service);
         $uri = str_replace('{root}', $root->getId(), $this->getApiEndpoint());
-        $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode(['source' => '#123', 'dob' => date('Y-m-d')]));
+        $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode(['source' => '#123', 'dob' => date('Y-m-d'), 'tax_id' => 'xxx']));
 		$response = $client->getResponse();
 		$this->assertEquals(201, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
