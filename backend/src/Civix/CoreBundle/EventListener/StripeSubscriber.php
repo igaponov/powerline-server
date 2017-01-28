@@ -3,6 +3,8 @@ namespace Civix\CoreBundle\EventListener;
 
 use Civix\CoreBundle\Entity\Stripe\Charge;
 use Civix\CoreBundle\Event\ChargeEvent;
+use Civix\CoreBundle\Event\GroupEvent;
+use Civix\CoreBundle\Event\GroupEvents;
 use Civix\CoreBundle\Event\PollEvents;
 use Civix\CoreBundle\Service\Stripe;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -18,6 +20,7 @@ class StripeSubscriber implements EventSubscriberInterface
     {
         return [
             PollEvents::QUESTION_CHARGE => 'chargeToPaymentRequest',
+            GroupEvents::CREATED => 'createAccount',
         ];
     }
 
@@ -31,6 +34,11 @@ class StripeSubscriber implements EventSubscriberInterface
         $charge = $event->getCharge();
         $stripeCharge = $this->stripe->chargeToPaymentRequest($charge);
         $this->updateStripeData($charge, $stripeCharge);
+    }
+
+    public function createAccount(GroupEvent $event)
+    {
+        $this->stripe->createAccount($event->getGroup());
     }
 
     private function updateStripeData(Charge $charge, \Stripe\Charge $sc)

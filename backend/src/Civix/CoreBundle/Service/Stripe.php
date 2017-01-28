@@ -326,6 +326,10 @@ class Stripe
             'managed' => true,
             'metadata' => ['id' => $root->getId(), 'type' => $root->getType()],
             'email' => $root->getEmail(),
+            'tos_acceptance' => [
+                'date' => time(),
+                'ip' => $_SERVER['REMOTE_ADDR'],
+            ],
         ];
         if ($root->getUser() && $root->getUser()->getCountry()) {
             $params['country'] = $root->getUser()->getCountry();
