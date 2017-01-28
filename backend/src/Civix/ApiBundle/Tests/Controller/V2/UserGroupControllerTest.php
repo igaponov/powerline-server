@@ -5,6 +5,7 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Model\Subscription\PackageLimitState;
+use Civix\CoreBundle\Service\Stripe;
 use Civix\CoreBundle\Service\Subscription\PackageHandler;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFieldsData;
@@ -138,6 +139,14 @@ class UserGroupControllerTest extends WebTestCase
             'official_state' => strtoupper($faker->randomLetter.$faker->randomLetter),
         ];
         $client = $this->client;
+        $service = $this->getMockBuilder(Stripe::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['createAccount'])
+            ->getMock();
+        $service->expects($this->once())
+            ->method('createAccount')
+            ->with($this->isInstanceOf(Group::class));
+        $client->getContainer()->set('civix_core.stripe', $service);
         $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode($params));
         $response = $client->getResponse();
         $this->assertEquals(201, $response->getStatusCode(), $response->getContent());
