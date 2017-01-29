@@ -46,7 +46,8 @@
         "guzzlehttp/guzzle": "~6.1",
         "giggsey/libphonenumber-for-php": "^7.2",
         "friendsofsymfony/rest-bundle": "~1.5",
-        "hwi/oauth-bundle": "~0.4"
+        "hwi/oauth-bundle": "~0.4",
+        "ramsey/uuid-doctrine": "1.0.1"
     },
     "require-dev": {
         "phing/phing": "2.5.*",

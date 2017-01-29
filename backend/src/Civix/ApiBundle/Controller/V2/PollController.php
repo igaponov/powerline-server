@@ -9,6 +9,7 @@ use Civix\ApiBundle\Form\Type\Poll\QuestionType;
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Option;
 use Civix\CoreBundle\Entity\Poll\Question;
+use Civix\CoreBundle\Entity\TempFile;
 use Civix\CoreBundle\Service\PollManager;
 use Doctrine\ORM\EntityManager;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
@@ -423,5 +424,44 @@ class PollController extends FOSRestController
             ->getResponsesByQuestion($question);
 
         return $query->fetchAll();
+    }
+
+
+
+    /**
+     * Return link to a file with all the responses for a given question.
+     *
+     * @Route("/{id}/responses-link")
+     * @Method("GET")
+     *
+     * @ParamConverter("question", options={"repository_method" = "getGroupQuestion"})
+     * @SecureParam("question", permission="edit")
+     *
+     * @ApiDoc(
+     *     authentication = true,
+     *     section="Polls",
+     *     description="Return link to a file with all the responses for a given question.",
+     *     output="\Civix\CoreBundle\Entity\TempFile",
+     *     statusCodes={
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Question $question
+     *
+     * @return TempFile
+     */
+    public function getResponsesLinkAction(Question $question)
+    {
+        $result = $this->getResponsesAction($question);
+        $file = new TempFile(
+            serialize($result),
+            new \DateTime('+2 minutes'),
+            'text/csv'
+        );
+        $this->em->persist($file);
+        $this->em->flush();
+
+        return $file;
     }
 }

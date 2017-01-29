@@ -53,7 +53,7 @@ class CsvHandler
 
         $response = new Response($content);
 
-        $fileName = $request->attributes->get('_filename', 'file.csv');
+        $fileName = $request->attributes->get('_filename') ?: 'file.csv';
         $response->headers->set('Content-Disposition', sprintf('attachment; filename="%s"', $fileName));
         $response->headers->set('Content-Type', 'text/csv');
 
