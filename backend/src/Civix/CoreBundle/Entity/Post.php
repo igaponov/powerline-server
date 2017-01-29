@@ -19,6 +19,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\AssociationOverrides({
  *      @ORM\AssociationOverride(name="hashTags",
  *          joinTable=@ORM\JoinTable(name="hash_tags_posts")
+ *      ),
+ *      @ORM\AssociationOverride(name="spamMarks",
+ *          joinTable=@ORM\JoinTable(name="spam_posts")
  *      )
  * })
  * @Serializer\ExclusionPolicy("all")

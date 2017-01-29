@@ -22,6 +22,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  *              joinColumns={@ORM\JoinColumn(name="petition_id", referencedColumnName="id", onDelete="CASCADE")},
  *              inverseJoinColumns={@ORM\JoinColumn(name="hash_tag_id", referencedColumnName="id", onDelete="CASCADE")}
  *          )
+ *      ),
+ *      @ORM\AssociationOverride(name="spamMarks",
+ *          joinTable=@ORM\JoinTable(name="spam_user_petitions")
  *      )
  * })
  * @Serializer\ExclusionPolicy("all")

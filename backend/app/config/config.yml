@@ -22,10 +22,6 @@ framework:
 twig:
     debug:            '%kernel.debug%'
     strict_variables: '%kernel.debug%'
-#    form:
-#        resources:
-#            - 'CivixFrontBundle::fields.html.twig'
-#            - 'CivixFrontBundle::imageField.html.twig'
     globals:
         stripe_publishable_key: '%stripe_publishable_key%'
 
@@ -37,7 +33,7 @@ assetic:
     #java: /usr/bin/java
     filters:
         lessphp:
-            file: '%kernel.root_dir%/../vendor/leafo/lessphp/lessc.inc.php'
+            file: '%kernel.root_dir%/../vendor/oyejorge/less.php/lessc.inc.php'
             apply_to: '\.less$'
         cssrewrite: ~
         #closure:
@@ -85,6 +81,7 @@ swiftmailer:
     
 mopa_bootstrap:
     menu: ~
+    form: ~
     
 knp_paginator:
     page_range: 5                      # default page range used in pagination control

@@ -123,9 +123,8 @@ a.dropdown-toggle::after {
 	display: block;
 }
 
-/* filter table*/
-div.filterOfTable label {
-	float: right;
+body {
+    padding-top: 90px;
 }
 
 #membership_membershipPasscode_control_group

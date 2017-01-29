@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\File\File;
  *  
  * @UniqueEntity(fields={"username"}, groups={"registration"})
  */
-class Superuser implements UserInterface, HasAvatarInterface
+class Superuser implements UserInterface, HasAvatarInterface, PasswordEncodeInterface
 {
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_superuser.jpg';
 
@@ -94,6 +94,11 @@ class Superuser implements UserInterface, HasAvatarInterface
      * @ORM\Column(name="token", type="string", length=255, nullable=true)
      */
     private $token;
+
+    /**
+     * @var string
+     */
+    private $plainPassword;
     
     public function __construct()
     {
@@ -323,5 +328,24 @@ class Superuser implements UserInterface, HasAvatarInterface
     public function getAvatarFileName()
     {
 
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlainPassword()
+    {
+        return $this->plainPassword;
+    }
+
+    /**
+     * @param string $plainPassword
+     * @return Superuser
+     */
+    public function setPlainPassword($plainPassword)
+    {
+        $this->plainPassword = $plainPassword;
+
+        return $this;
     }
 }

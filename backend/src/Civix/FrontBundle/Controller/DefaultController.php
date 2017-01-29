@@ -20,7 +20,7 @@ class DefaultController extends Controller
      */
     public function indexAction()
     {
-        return $this->render('CivixFrontBundle:Default:index.html.twig');
+        return $this->redirect($this->generateUrl('civix_front_representative_approvals'));
     }
 
     /**

@@ -12,7 +12,6 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use EWZ\Bundle\RecaptchaBundle\Validator\Constraints as RecaptchaAssert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Serializer\Type\Avatar;
@@ -1794,11 +1793,21 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
     }
 
     /**
-     * @return mixed
+     * @return ArrayCollection
      */
     public function getChildren()
     {
         return $this->children;
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getLocalChildren()
+    {
+        return $this->children->filter(function(Group $group) {
+            return $group->isLocalGroup();
+        });
     }
 
     /**

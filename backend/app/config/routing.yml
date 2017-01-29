@@ -17,26 +17,15 @@ civix_api_public:
     defaults: { _format: 'json' }
 
 civix_front_default:
-    resource: "@CivixFrontBundle/Controller/DefaultController.php"
+    resource: "@CivixFrontBundle/Controller"
     type: annotation
     prefix:   /
 
 civix_front_superuser_login_check:
-    path:  /superuser/login_check
+    path:  /admin/login_check
 
 civix_superuser_logout:
-    path:  /superuser/logout
-
-civix_front_superuser_area:
-    resource: "@CivixFrontBundle/Controller/Superuser/"
-    prefix:   /superuser
-    type: annotation
-    schemes: '%scheme%'
-
-civix_superuser:
-    resource: "@CivixFrontBundle/Controller/SuperuserController.php"
-    prefix:   /superuser
-    type: annotation
+    path:  /admin/logout
 
 NelmioApiDocBundle:
     resource: "@NelmioApiDocBundle/Resources/config/routing.yml"

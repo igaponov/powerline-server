@@ -37,36 +37,42 @@ class MenuBuilder
     public function createMainMenu()
     {
         $menu = $this->factory->createItem('root', array(
-            'navbar' => true,
+            'childrenAttributes' => [
+                'class' => 'nav nav-sidebar',
+                ],
             'push_right' => true,
         ));
 
         if ($this->authorizationChecker->isGranted('ROLE_SUPERUSER')) {
-            $menu->addChild('Manage approvals', array('route' => 'civix_front_superuser_approvals'));
+            $menu->addChild('Manage approvals', array('route' => 'civix_front_representative_approvals'))
+                ->setExtra('routes', [
+                    'civix_front_representative_approvals',
+                    'civix_front_representative_edit',
+                ]);
             $menu->addChild(
                 'Manage Users',
-                array('route' => 'civix_front_superuser_manage_representatives')
+                array('route' => 'civix_front_representative_index')
             )
                 ->setExtras(
                     array(
                         'routes' => array(
-                            'civix_front_superuser_manage_representatives',
-                            'civix_front_superuser_manage_groups',
-                            'civix_front_superuser_manage_users',
-                            'civix_front_superuser_manage_limits',
+                            'civix_front_representative_index',
+                            'civix_front_groups',
+                            'civix_front_user_index',
+                            'civix_front_limits_index',
                         )
                     )
                 );
             $menu->addChild(
                 'Local Groups',
-                array('route' => 'civix_front_superuser_local_groups')
+                array('route' => 'civix_front_local_groups')
             )
                 ->setExtras(
                     array(
                         'routes' => array(
-                            'civix_front_superuser_local_groups',
-                            'civix_front_superuser_local_groups_assign',
-                            'civix_front_superuser_local_groups_by_state',
+                            'civix_front_local_groups',
+                            'civix_front_local_group',
+                            'civix_front_local_groups_by_state',
                         )
                     )
                 );
@@ -77,6 +83,14 @@ class MenuBuilder
                             'civix_front_superuser_post_index',
                             'civix_front_superuser_post_new',
                             'civix_front_superuser_post_edit',
+                        ),
+                    )
+                );
+            $menu->addChild('Posts', array('route' => 'civix_front_superuser_posts'))
+                ->setExtras(
+                    array(
+                        'routes' => array(
+                            'civix_front_superuser_posts',
                         ),
                     )
                 );
@@ -91,9 +105,6 @@ class MenuBuilder
                     'civix_front_superuser_settings_states',
                     ))
                 );
-        } else {
-            $menu->addChild('Superuser', array('route' => 'civix_front_superuser'))
-                ->setExtras(array('routes' => array('civix_front_superuser', 'civix_front_superuser_login')));
         }
 
         return $menu;
@@ -111,10 +122,10 @@ class MenuBuilder
         $menu->setChildrenAttribute('class', 'nav nav-tabs');
 
         if ($this->authorizationChecker->isGranted('ROLE_SUPERUSER')) {
-            $menu->addChild('Manage Representatives', array('route' => 'civix_front_superuser_manage_representatives'));
-            $menu->addChild('Manage Groups', array('route' => 'civix_front_superuser_manage_groups'));
-            $menu->addChild('Manage Users', array('route' => 'civix_front_superuser_manage_users'));
-            $menu->addChild('Manage Limits', array('route' => 'civix_front_superuser_manage_limits'));
+            $menu->addChild('Manage Representatives', array('route' => 'civix_front_representative_index'));
+            $menu->addChild('Manage Groups', array('route' => 'civix_front_groups'));
+            $menu->addChild('Manage Users', array('route' => 'civix_front_user_index'));
+            $menu->addChild('Manage Limits', array('route' => 'civix_front_limits_index'));
         }
 
         return $menu;

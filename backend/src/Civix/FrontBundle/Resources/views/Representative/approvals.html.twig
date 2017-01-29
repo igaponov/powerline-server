@@ -1,0 +1,66 @@
+{% extends 'CivixFrontBundle::layout.html.twig' %}
+
+{% block page_title %}Approvals{% endblock %}
+
+{% block content %}
+<section>
+    <h1 class="page-header">Manage approvals</h1>
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>{{ knp_pagination_sortable(pagination, 'Id', 'repr.id') }}</th>
+                    <th>Name</th>
+                    <th{% if pagination.isSorted('repr.officialTitle') %} class="sorted"{% endif %}>{{ knp_pagination_sortable(pagination, 'Official Title', 'repr.officialTitle') }}</th>
+                    <th>Phone</th>
+                    <th>Private Phone</th>
+                    <th>Email</th>
+                    <th>Private Email</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for repr in pagination %}
+                    <tr>
+                        <td>{{ repr.id }}</td>
+                        <td>{{ repr.user.firstname }} {{ repr.user.lastname }}</td>
+                        <td>{{ repr.officialTitle }}</td>
+                        <td>{{ repr.phone }}</td>
+                        <td>{{ repr.privatePhone }}</td>
+                        <td>{{ repr.email }}</td>
+                        <td>{{ repr.privateEmail }}</td>
+                        <td>
+                                <a href="{{ path('civix_front_representative_edit', {'id': repr.id}) }}" title="Edit" class="btn-link">
+                                    <i class="glyphicon glyphicon-pencil"></i>
+                                    Edit
+                                </a>
+                            <form action="{{ path('civix_front_representative_delete', {'id': repr.id}) }}" method="POST">
+                                <input type="hidden" name="_token" value="{{ csrf_token('representative_delete_' ~ repr.id) }}">
+                                <button type="submit" class="btn-link">
+                                    <i class="glyphicon glyphicon-remove"></i>
+                                    Remove
+                                </button>
+                            </form>
+                            <form action="{{ path('civix_front_superuser_representative_approve', {'id': repr.id}) }}" method="POST">
+                                <input type="hidden" name="_token" value="{{ csrf_token('representative_approve_' ~ repr.id) }}">
+                                <button type="submit" class="btn-link">
+                                    <i class="glyphicon glyphicon-ok"></i>
+                                    Approve
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center">Table is empty.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            {{ knp_pagination_render(pagination, 'KnpPaginatorBundle:Pagination:twitter_bootstrap_v3_pagination.html.twig') }}
+        </div>
+    </div>
+</section>
+{% endblock %}

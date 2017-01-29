@@ -13,6 +13,9 @@ swiftmailer:
 
 liip_functional_test:
     cache_sqlite_db: false
+    authentication:
+        username: "admin"
+        password: "admin"
 
 doctrine:
     dbal:
@@ -47,3 +50,8 @@ monolog:
             type: 'null'
         slack:
             type: 'null'
+
+security:
+    firewalls:
+        superuser_security_area:
+            http_basic: ~

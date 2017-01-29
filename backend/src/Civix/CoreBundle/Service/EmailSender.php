@@ -36,7 +36,7 @@ class EmailSender
         $message = $this->createMessage(
             'Reset password',
             $emailTo,
-            'CivixFrontBundle:User:email/reset_password.html.twig',
+            'CivixFrontBundle:Email:reset_password.html.twig',
             $templateParams
         );
         $this->mailer->send($message);
@@ -47,7 +47,7 @@ class EmailSender
         $message = $this->createMessage(
             'You’ve been invited to a group on Powerline',
             $emailTo,
-            'CivixFrontBundle:Group:email/invite.html.twig',
+            'CivixFrontBundle:Email:invite.html.twig',
             array(
                 'group' => $group,
                 'link' => '#',
@@ -61,7 +61,7 @@ class EmailSender
         $message = $this->createMessage(
             'Group successful registered',
             $group->getManagerEmail(),
-            'CivixFrontBundle:Group:email/group_registered.html.twig',
+            'CivixFrontBundle:Email:group_registered.html.twig',
             array(
                 'name' => $group->getOfficialName(),
             )
@@ -74,7 +74,7 @@ class EmailSender
         $message = $this->createMessage(
             'New Representative Registration',
             $emailTo,
-            'CivixFrontBundle:Representative:notification.html.twig',
+            'CivixFrontBundle:Email:notification.html.twig',
             array('title' => $representativeTitle)
         );
         $this->mailer->send($message);
@@ -85,7 +85,7 @@ class EmailSender
         $message = $this->createMessage(
             'Representative Registration approved',
             $representative->getEmail(),
-            'CivixFrontBundle:Superuser:email/representative_approved.html.twig',
+            'CivixFrontBundle:Email:representative_approved.html.twig',
             array(
                     'name' => $representative->getUser()->getFirstName().' '.$representative->getUser()->getLastName(),
             )

@@ -21,20 +21,19 @@ security:
 
     firewalls:
         superuser_anonymous:
-            pattern: ^/superuser/login$
+            pattern: ^/admin/login$
             anonymous: ~
         superuser_security_area:
-            pattern: ^/superuser/
+            pattern: ^/admin/
             provider: superuser
             security: true
             form_login:
-                check_path: /superuser/login_check
-                login_path: /superuser/login
-#                csrf_provider: form.csrf_provider
-#                intention: superuser_authentication
+                check_path: /admin/login_check
+                login_path: /admin/login
+                csrf_token_generator: security.csrf.token_manager
             logout:
-                path: /superuser/logout
-                target: /superuser
+                path: /admin/logout
+                target: /admin
 
         public_api:
             pattern: ^/api-public/
