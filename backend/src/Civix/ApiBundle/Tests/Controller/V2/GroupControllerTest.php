@@ -907,6 +907,30 @@ class GroupControllerTest extends WebTestCase
         $this->assertSame('attachment; filename="membership_roster.csv"', $response->headers->get('content-disposition'));
     }
 
+    public function testGetGroupMembersCsvLinkIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadGroupData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_1');
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/members-link', [], [], ['HTTP_AUTHORIZATION' => 'Bearer type="user" token="user1"']);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertCount(2, $data);
+        $this->assertRegExp('~/api-public/files/\S{8}-\S{4}-\S{4}-\S{4}-\S{12}~', $data['url']);
+        $this->assertLessThanOrEqual(new \DateTime('+2 minutes'), new \DateTime($data['expired_at']));
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
+        $file = $conn->fetchAssoc('SELECT * FROM temp_files LIMIT 1');
+        $this->assertRegExp('~\S{8}-\S{4}-\S{4}-\S{4}-\S{12}~', $file['id']);
+        $this->assertEquals('a:0:{}', $file['body']);
+        $this->assertEquals('membership_roster.csv', $file['filename']);
+        $this->assertEquals('text/csv', $file['mimeType']);
+        $this->assertLessThanOrEqual(new \DateTime('+2 minutes'), new \DateTime($file['expiredAt']));
+    }
+
     /**
      * @param $user
      * @param $reference

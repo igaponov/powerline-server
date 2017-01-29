@@ -6,6 +6,7 @@ use Civix\ApiBundle\Form\Type\GroupAvatarType;
 use Civix\ApiBundle\Form\Type\GroupType;
 use Civix\ApiBundle\Form\Type\InviteType;
 use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\TempFile;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Service\AvatarManager;
@@ -609,6 +610,43 @@ class GroupController extends FOSRestController
         $result = $query->fetchAll();
 
         return $result;
+    }
+
+    /**
+     * Returns link to a file with group's members.
+     *
+     * @Route("/{id}/members-link")
+     * @Method("GET")
+     *
+     * @SecureParam("group", permission="edit")
+     *
+     * @ApiDoc(
+     *     authentication = true,
+     *     section="Groups",
+     *     description="Returns link to a file with group's members.",
+     *     output="\Civix\CoreBundle\Entity\TempFile",
+     *     statusCodes={
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Group $group
+     *
+     * @return TempFile
+     */
+    public function getMembersLinkAction(Group $group)
+    {
+        $result = $this->getMembersAction($group);
+        $file = new TempFile(
+            serialize($result),
+            new \DateTime('+2 minutes'),
+            'text/csv',
+            'membership_roster.csv'
+        );
+        $this->em->persist($file);
+        $this->em->flush();
+
+        return $file;
     }
 
     /**
