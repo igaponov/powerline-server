@@ -12,6 +12,6 @@ class TempFileRepository extends EntityRepository
             ->where('f.id = :id')
             ->setParameter(':id', $id)
             ->andWhere('f.expiredAt > CURRENT_TIMESTAMP()')
-            ->getQuery()->getSingleResult();
+            ->getQuery()->getOneOrNullResult();
     }
 }
