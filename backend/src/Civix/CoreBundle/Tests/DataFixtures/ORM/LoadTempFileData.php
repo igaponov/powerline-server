@@ -18,6 +18,15 @@ class LoadTempFileData extends AbstractFixture
         );
         $manager->persist($file);
         $this->addReference('file_1', $file);
+
+        $file = new TempFile(
+            serialize([['i' => 100, 'j' => 500]]),
+            new \DateTime('-1 second'),
+            'text/csv'
+        );
+        $manager->persist($file);
+        $this->addReference('file_2', $file);
+
         $manager->flush();
     }
 }

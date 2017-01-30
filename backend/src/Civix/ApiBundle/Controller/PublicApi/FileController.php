@@ -29,6 +29,7 @@ class FileController extends BaseController
      *     section="Groups",
      *     description="Return group's members",
      *     statusCodes={
+     *         404="File Not Found Or Expired",
      *         405="Method Not Allowed"
      *     }
      * )

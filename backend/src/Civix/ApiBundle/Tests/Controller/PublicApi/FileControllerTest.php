@@ -10,6 +10,19 @@ class FileControllerTest extends WebTestCase
 {
     const API_ENDPOINT = '/api-public/files/';
 
+    public function testGetExpiredFile()
+    {
+        $repository = $this->loadFixtures([
+            LoadTempFileData::class,
+        ])->getReferenceRepository();
+        /** @var TempFile $file */
+        $file = $repository->getReference('file_2');
+        $client = $this->makeClient();
+        $client->request('GET', self::API_ENDPOINT.$file->getId());
+        $response = $client->getResponse();
+        $this->assertEquals(404, $response->getStatusCode(), $response->getContent());
+    }
+
     public function testGetFile()
     {
         $repository = $this->loadFixtures([
