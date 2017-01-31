@@ -112,11 +112,6 @@ class AnswerRepository extends EntityRepository
         $qb = $this->getEntityManager()
             ->getConnection()
             ->createQueryBuilder()
-            ->select(
-                'CASE WHEN a.privacy = :public THEN u.firstName ELSE NULL END AS first_name',
-                'CASE WHEN a.privacy = :public THEN u.lastName  ELSE NULL END AS last_name',
-                'u.address1, u.address2, u.city, u.state, u.country, u.zip, u.email, u.phone, u.bio, u.slogan, CASE WHEN u.facebook_id IS NOT NULL THEN 1 ELSE 0 END AS facebook, COUNT(f.id) AS followers, 0 AS karma'
-                )
             ->from('poll_answers', 'a')
             ->leftJoin('a', 'user', 'u', 'a.user_id = u.id')
             ->leftJoin('u', 'users_follow', 'f', 'f.user_id = u.id')
@@ -125,6 +120,13 @@ class AnswerRepository extends EntityRepository
             ->setParameter(':poll', $question->getId())
             ->setParameter(':public', Answer::PRIVACY_PUBLIC)
             ->groupBy('a.id');
+        foreach (['firstName' => 'first_name', 'lastName' => 'last_name', 'address1', 'address2', 'city', 'state', 'country', 'zip', 'email', 'phone', 'bio'] as $attribute => $alias) {
+            if (!is_string($attribute)) {
+                $attribute = $alias;
+            }
+            $qb->addSelect("CASE WHEN a.privacy = :public THEN u.{$attribute} ELSE NULL END AS {$alias}");
+        }
+        $qb->addSelect('u.slogan, CASE WHEN u.facebook_id IS NOT NULL THEN 1 ELSE 0 END AS facebook, COUNT(f.id) AS followers, 0 AS karma');
         $platform = $this->getEntityManager()
             ->getConnection()
             ->getDatabasePlatform();
