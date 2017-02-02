@@ -28,7 +28,6 @@
         "knplabs/knp-paginator-bundle": "~2.5",
         "mopa/bootstrap-bundle": "~3.1",
         "twbs/bootstrap": "~3.3",
-        "leafo/lessphp": "~0.5",
         "excelwebzone/recaptcha-bundle": "3.0.x-dev",
         "nelmio/api-doc-bundle": "~2.13",
         "jms/serializer-bundle": "~1.1",
@@ -45,7 +44,8 @@
         "friendsofsymfony/rest-bundle": "~2.1",
         "hwi/oauth-bundle": "~0.5",
         "ramsey/uuid-doctrine": "1.0.1",
-        "ocramius/proxy-manager": "2.0.4"
+        "ocramius/proxy-manager": "2.0.4",
+        "oyejorge/less.php": "v1.7.0.10"
     },
     "require-dev": {
         "phing/phing": "~2.16",
