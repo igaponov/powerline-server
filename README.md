@@ -1,14 +1,39 @@
 # Introduction
 Powerline is an open, social, streamlined mobile app and web platform that makes it easier for people to change their world through individual or collective action at the local and global levels. Think of it as Twitter/Yammer for democracy or as a community network for civil society (a.k.a. the non-profit and activist space).
 
-Learn more through the [Detailed Overview](https://assembly.com/powerline/posts/the-detailed-overview).
-For new contributors and general questions, check out the [FAQ](https://assembly.com/powerline/posts/faq)
-
 ## Open Source
-Powerline is now open source under the AGPL license for development with the Assembly community. Powerline runs as a SaaS application – there is a free “mission” tier as well as paid upgrade plans. With the Assembly platform, all generated revenue from the product is funneled into the project and it's contributors. After subtracting hosting costs and other expenses, 10% goes to Assembly as a fee and the rest is distributed back to project contributors via Assembly based on their ownership (determined by their project contributions).
+Powerline is now open source under the AGPLv3 license. Powerline runs as a SaaS application – there is a free “mission” tier as well as paid upgrade plans. By contributing to Powerline, you’re making a difference for a fun open source project with a real world-changing mission.
 
-By contributing to Powerline, you’re making a difference for a fun open source project with a real world-changing mission and, unlike traditional OSS, you’re earning your fair share of the profits, too. To get started simply join us on our [Assembly Project Page](https://assembly.com/powerline).
+##API Reference Documentation
+Please contact @jterps08 or @austinpapp
 
+## Contributing
+Want to help build an amazing product? There’s a lot happening with Powerline and we welcome help wherever we can get it. Help build a new feature, improve the user experience, or contribute to our marketing efforts.
+
+Here’s how to get started:
+* Introduce yourself to the team in our GitHub 
+* Understand our core principles
+* Take a look at our open Issues
+* Fork us
+* Work with @jterps08 or @austinpapp on the issue on a separate branch
+* Submit your pull request and we'll merge it and deploy in the next release
+
+Powerline is built with the following technologies:
+* Backend Server: LAMP stack, Symfony2, Doctrine2, RabbitMQ 
+* Mobile Apps: PhoneGap, AngularJS, Ionic
+* Frontend Web: AngularJS
+
+## Branching
+Our branching strategy is straightforward and well documented . For a detailed look please see [A successful Branching Model](http://nvie.com/posts/a-successful-git-branching-model/). 
+
+### Branches
+* develop - Our main branch for all features
+* master - Production ready code
+* feature - Your feature branch (temporary branch)
+* release-*, hotfix-* - temporary branches 
+
+## Documentation
+**Work in progress. Please help us build our documentation!**
 
 ## Server DEV Setup 
 
@@ -24,9 +49,6 @@ By contributing to Powerline, you’re making a difference for a fun open source
 php app/console doctrine:database:create
 php app/console doctrine:migration:migrate -n
 ```
-
-### Cache / Asset
-Although we are hard at work building our new Leader experience, admin.powerli.ne serves as our interim Leader portal. It is built on the symfony framework. At this point, few if any Pull Requests will be merged for symfony backed Leader work. Please see the [Powerline Web App](https://github.com/PowerlineApp/powerline-web) or contact us before moving forward.
 
 #### Cache
 ```
@@ -59,26 +81,10 @@ backend/app/console load:scenario --100000
 backend/app/console load:scenario --1000000
 ```
 
-## Contributing
-Want to help build an amazing product? Check out our [Powerline Assembly Project](https://assembly.com/powerline) for all the latest bounties and roadmap. We follow the [GitHub Flow](https://guides.github.com/introduction/flow/index.html) model so pull requests are easy! Although you don’t have to create a feature branch, it helps streamline the merge process.
-
-
-## Branching
-Our branching strategy is straightforward and well documented . For a detailed look please see [A successful Branching Model](http://nvie.com/posts/a-successful-git-branching-model/). 
-
-### Branches
-* develop - Our main branch for all features
-* master - Production ready code
-* feature - Your feature branch (temporary branch)
-* release-*, hotfix-* - temporary branches 
-
-
-## Documentation
-**Work in progress. Please help us build our documentation!**
-Check out all of our documentation for more details include our API [PowerlineApp Documentation](http://powerlineapp.github.io/).
-
- 
-## Pull Request & Claiming your Bounty
-When your code is ready and on GitHub, create a pull request via the GitHub UI. Once your pull request is created, it is best practice to go to the bounty on Assembly and submit your work with a link to the pull request. If the feature you created does not have a bounty created yet, simply create one explaining what you've done and why. The core team will award the bounty after confirming and merging the contribution. We recommend you include the appropriate unit tests to make things easier for everyone. 
-
-After the bounty or work is submitted, add a comment to the pull request with a link to the bounty. This keeps the code review and merging process quick and easy.
+# Core Principles
+* Frameworks – There’s a lot of moving parts to Powerline, so we should try to be modular and use frameworks and well-known technologies whenever possible
+* Streamlined experience – The user experience (citizen or leader) should flow effortlessly, beautifully, and naturally for a simple, streamlined experience.
+* Mission first – Powerline exists to strengthen democracy, civic engagement, and civil society. Any major feature that does that directly will likely be put in the free tier by the core team. Any major feature that can help generate revenue without putting our mission at risk (or sacrificing our values of accessibility, accountability, integrity, privacy, or people) will likely be put into a Silver or above tier.
+* Simplifying civic engagement – All features, UI, and UX should make engagement easier for the user (citizen or leader) whenever possible. Pre-fill the field automatically, reduce the number of steps, etc.
+* Strengthening leader-community relationships – A leader could be positional (e.g. mayor, director, etc.) or organic (some citizen or group member), but the relationship between a leader and a community is fundamentally different than one community member to another. The concepts of leadership, communities, and the relationships between the two should always be kept in mind in the development of new features.
+* Communication is key - Join us on Slack, create an issue, whatever it takes to communicate. Let’s work together!
