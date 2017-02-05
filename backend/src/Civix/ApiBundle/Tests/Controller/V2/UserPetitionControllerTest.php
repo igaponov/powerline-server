@@ -6,6 +6,7 @@ use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Service\UserPetitionManager;
 use Civix\CoreBundle\Test\SocialActivityTester;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionHashTagData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionData;
@@ -240,18 +241,22 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertCount($count, $data['cached_hash_tags']);
     }
 
-    public function testBoostUserPetition()
+    /**
+     * @param $fixtures
+     * @param $user
+     * @param $reference
+     * @dataProvider getValidPetitionCredentialsForBoostRequest
+     */
+    public function testBoostUserPetition($fixtures, $user, $reference)
     {
-        $repository = $this->loadFixtures([
-            LoadUserPetitionData::class,
-        ])->getReferenceRepository();
+        $repository = $this->loadFixtures($fixtures)->getReferenceRepository();
         /** @var UserPetition $petition */
-        $petition = $repository->getReference('user_petition_2');
+        $petition = $repository->getReference($reference);
         $this->assertFalse($petition->isBoosted());
         $client = $this->client;
         $client->request('PATCH',
             self::API_ENDPOINT.'/'.$petition->getId(), [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']
         );
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -271,6 +276,7 @@ class UserPetitionControllerTest extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadUserPetitionData::class,
+            LoadUserGroupData::class,
         ])->getReferenceRepository();
         /** @var UserPetition $petition */
         $petition = $repository->getReference('user_petition_2');
@@ -278,7 +284,7 @@ class UserPetitionControllerTest extends WebTestCase
         $client = $this->client;
         $client->request('PATCH',
             self::API_ENDPOINT.'/'.$petition->getId(), [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user2"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="user4"']
         );
         $response = $client->getResponse();
         $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
@@ -410,6 +416,15 @@ class UserPetitionControllerTest extends WebTestCase
         // check social activity
         $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM user_petition_signatures WHERE petition_id = ? AND user_id = ?', [$petition->getId(), $user->getId()]);
         $this->assertSame(0, $count);
+    }
+
+    public function getValidPetitionCredentialsForBoostRequest()
+    {
+        return [
+            'creator' => [[LoadUserPetitionData::class], 'user1', 'user_petition_2'],
+            'owner' => [[LoadUserPetitionData::class], 'user2', 'user_petition_2'],
+            'manager' => [[LoadUserPetitionData::class, LoadGroupManagerData::class], 'user3', 'user_petition_2'],
+        ];
     }
 
     /**

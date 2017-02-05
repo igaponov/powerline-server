@@ -5,6 +5,7 @@ use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Service\PostManager;
 use Civix\CoreBundle\Test\SocialActivityTester;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostHashTagData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteData;
@@ -243,6 +244,7 @@ class PostControllerTest extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadPostData::class,
+            LoadUserGroupData::class,
         ])->getReferenceRepository();
         /** @var Post $post */
         $post = $repository->getReference('post_2');
@@ -250,24 +252,28 @@ class PostControllerTest extends WebTestCase
         $client = $this->client;
         $client->request('PATCH',
             self::API_ENDPOINT.'/'.$post->getId(), [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user2"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="user4"']
         );
         $response = $client->getResponse();
         $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
 
-    public function testBoostPost()
+    /**
+     * @param $fixtures
+     * @param $user
+     * @param $reference
+     * @dataProvider getValidPostCredentialsForBoostRequest
+     */
+    public function testBoostPost($fixtures, $user, $reference)
     {
-        $repository = $this->loadFixtures([
-            LoadPostData::class,
-        ])->getReferenceRepository();
+        $repository = $this->loadFixtures($fixtures)->getReferenceRepository();
         /** @var Post $post */
-        $post = $repository->getReference('post_2');
+        $post = $repository->getReference($reference);
         $this->assertFalse($post->isBoosted());
         $client = $this->client;
         $client->request('PATCH',
             self::API_ENDPOINT.'/'.$post->getId(), [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
+            ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']
         );
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -467,6 +473,15 @@ class PostControllerTest extends WebTestCase
         // check social activity
         $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM post_votes WHERE post_id = ? AND user_id = ?', [$post->getId(), $user->getId()]);
         $this->assertSame(0, $count);
+    }
+
+    public function getValidPostCredentialsForBoostRequest()
+    {
+        return [
+            'creator' => [[LoadPostData::class], 'user1', 'post_2'],
+            'owner' => [[LoadPostData::class], 'user2', 'post_2'],
+            'manager' => [[LoadPostData::class, LoadGroupManagerData::class], 'user3', 'post_2'],
+        ];
     }
 
     /**

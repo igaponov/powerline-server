@@ -128,8 +128,14 @@ class PetitionVoter implements VoterInterface
             }
         }
 
-        if ($attribute !== self::SUBSCRIBE && $object->getUser()->isEqualTo($user)) {
-            return VoterInterface::ACCESS_GRANTED;
+        if ($attribute !== self::SUBSCRIBE) {
+            if ($object->getUser()->isEqualTo($user)) {
+                return VoterInterface::ACCESS_GRANTED;
+            }
+            $group = $object->getGroup();
+            if ($group instanceof Group) {
+                return $this->groupVoter->vote($token, $group, [GroupVoter::MANAGE]);
+            }
         }
 
         return VoterInterface::ACCESS_DENIED;
