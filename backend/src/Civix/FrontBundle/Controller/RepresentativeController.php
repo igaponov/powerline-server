@@ -103,7 +103,7 @@ class RepresentativeController extends Controller
     }
 
     /**
-     * @Route("/representatives/{id}/delete", name="civix_front_representative_delete")
+     * @Route("/{id}/delete", name="civix_front_representative_delete")
      * @Method({"POST"})
      * @param Request $request
      * @param Representative $representative
@@ -126,7 +126,7 @@ class RepresentativeController extends Controller
     }
 
     /**
-     * @Route("/representatives/{id}/approve", name="civix_front_superuser_representative_approve")
+     * @Route("/{id}/approve", name="civix_front_representative_approve")
      * @Method({"POST"})
      * @param Request $request
      * @param Representative $representative
@@ -164,7 +164,7 @@ class RepresentativeController extends Controller
     }
 
     /**
-     * @Route("/representatives/{id}/limit", name="civix_front_representative_limit")
+     * @Route("/{id}/limit", name="civix_front_representative_limit")
      * @Method({"GET", "POST"})
      * @Template("CivixFrontBundle::form.html.twig")
      * @param Request $request

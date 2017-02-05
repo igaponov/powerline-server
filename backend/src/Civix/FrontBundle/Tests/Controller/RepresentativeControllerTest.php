@@ -1,6 +1,6 @@
 <?php
 
-namespace Civix\FrontBundle\Tests\Controller\Superuser;
+namespace Civix\FrontBundle\Tests\Controller;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Representative;
@@ -18,11 +18,10 @@ class RepresentativeControllerTest extends WebTestCase
             LoadSuperuserData::class,
             LoadRepresentativeData::class,
         ]);
-        $crawler = $this->fetchCrawler('/superuser/representatives', 'GET', true);
+        $crawler = $this->fetchCrawler('/admin/representatives', 'GET', true);
         $this->assertCount(1, $crawler->filter('tbody > tr'));
         $this->assertCount(1, $crawler->filter('a:contains("Edit")'));
         $this->assertCount(1, $crawler->filter('button:contains("Remove")'));
-        $this->assertCount(1, $crawler->filter('button:contains("Approve")'));
     }
 
     public function testEditRepresentative()
@@ -33,19 +32,19 @@ class RepresentativeControllerTest extends WebTestCase
             LoadGroupData::class,
         ]);
         $client = $this->makeClient(true);
-        $crawler = $client->request('GET', '/superuser/representatives');
+        $crawler = $client->request('GET', '/admin/representatives');
         $link = $crawler->selectLink('Edit')->link();
         $crawler = $client->click($link);
         $form = $crawler->selectButton('Submit')->form();
-        $form['representative_edit[officialTitle]'] = 'Senator';
-        $form['representative_edit[phone]'] = '+1 (202) 224-4451';
-        $form['representative_edit[privatePhone]'] = '+1 (020) 442-5144';
-        $form['representative_edit[city]'] = 'New York';
-        $form['representative_edit[state]'] = 'CA';
-        $form['representative_edit[country]'] = 'USA';
-        $form['representative_edit[email]'] = 'new-test@email.com';
-        $form['representative_edit[privateEmail]'] = 'private@email.com';
-        $form['representative_edit[localGroup]'] = 2;
+        $form['representative[officialTitle]'] = 'Senator';
+        $form['representative[phone]'] = '+1 (202) 224-4451';
+        $form['representative[privatePhone]'] = '+1 (020) 442-5144';
+        $form['representative[city]'] = 'New York';
+        $form['representative[state]'] = 'CA';
+        $form['representative[country]'] = 'USA';
+        $form['representative[email]'] = 'new-test@email.com';
+        $form['representative[privateEmail]'] = 'private@email.com';
+        $form['representative[localGroup]'] = 2;
         $client->submit($form);
         $crawler = $client->followRedirect();
         $this->assertContains(
@@ -66,7 +65,7 @@ class RepresentativeControllerTest extends WebTestCase
             LoadGroupData::class,
         ]);
         $client = $this->makeClient(true);
-        $crawler = $client->request('GET', '/superuser/representatives');
+        $crawler = $client->request('GET', '/admin/representatives');
         $form = $crawler->selectButton('Remove')->form();
         $client->submit($form);
         $response = $client->getResponse();
@@ -93,7 +92,7 @@ class RepresentativeControllerTest extends WebTestCase
         $service->expects($this->once())
             ->method('synchronizeRepresentative');
         $client = $this->makeClient(true);
-        $crawler = $client->request('GET', '/superuser/representatives');
+        $crawler = $client->request('GET', '/admin/representatives/approvals');
         $form = $crawler->selectButton('Approve')->form();
         $client->disableReboot();
         $client->getContainer()->set('civix_core.representative_manager', $service);

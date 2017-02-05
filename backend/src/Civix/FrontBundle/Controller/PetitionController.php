@@ -3,6 +3,7 @@
 namespace Civix\FrontBundle\Controller;
 
 use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\UserPetition;
 use Doctrine\ORM\EntityManager;
 use JMS\DiExtraBundle\Annotation as DI;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -13,9 +14,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * @Route("/admin/posts")
+ * @Route("/admin/petitions")
  */
-class PostController extends Controller
+class PetitionController extends Controller
 {
     /**
      * @var EntityManager
@@ -24,15 +25,15 @@ class PostController extends Controller
     private $em;
 
     /**
-     * @Route("", name="civix_front_post_index")
+     * @Route("", name="civix_front_petition_index")
      * @Method({"GET"})
-     * @Template("CivixFrontBundle:Post:index.html.twig")
+     * @Template("CivixFrontBundle:Petition:index.html.twig")
      * @param Request $request
      * @return array
      */
     public function indexAction(Request $request)
     {
-        $query = $this->em->getRepository(Post::class)
+        $query = $this->em->getRepository(UserPetition::class)
             ->getFindByQuery(['marked_as_spam' => true]);
 
         $pagination = $this->get('knp_paginator')->paginate(
@@ -45,59 +46,59 @@ class PostController extends Controller
     }
 
     /**
-     * @Route("/{id}/delete", name="civix_front_post_delete")
+     * @Route("/{id}/delete", name="civix_front_petition_delete")
      * @Method({"POST"})
      * @param Request $request
-     * @param Post $post
+     * @param UserPetition $petition
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function deletePostAction(Request $request, Post $post)
+    public function deletePetitionAction(Request $request, UserPetition $petition)
     {
-        if ($this->isCsrfTokenValid('post_delete', $request->get('_token'))) {
-            $this->em->remove($post);
+        if ($this->isCsrfTokenValid('petition_delete', $request->get('_token'))) {
+            $this->em->remove($petition);
             $this->em->flush();
 
-            return $this->redirectToRoute('civix_front_post_index');
+            return $this->redirectToRoute('civix_front_petition_index');
         }
         throw new BadRequestHttpException();
     }
 
     /**
-     * @Route("/delete", name="civix_front_posts_delete")
+     * @Route("/delete", name="civix_front_petitions_delete")
      * @Method({"POST"})
      *
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function deletePostsAction(Request $request)
+    public function deletePetitionsAction(Request $request)
     {
-        if ($this->isCsrfTokenValid('posts_delete', $request->get('_mass_token'))) {
-            $posts = $this->em->getRepository(Post::class)
-                ->findAllForDeletionByIds((array)$request->get('post'));
+        if ($this->isCsrfTokenValid('petitions_delete', $request->get('_mass_token'))) {
+            $posts = $this->em->getRepository(UserPetition::class)
+                ->findAllForDeletionByIds((array)$request->get('petition'));
             foreach ($posts as $post) {
                 $this->em->remove($post);
             }
             $this->em->flush();
 
-            return $this->redirectToRoute('civix_front_post_index');
+            return $this->redirectToRoute('civix_front_petition_index');
         }
         throw new BadRequestHttpException();
     }
 
     /**
-     * @Route("/authors/ban", name="civix_front_posts_authors_ban")
+     * @Route("/authors/ban", name="civix_front_petitions_authors_ban")
      * @Method({"POST"})
      *
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function banPostAuthorsAction(Request $request)
+    public function banPetitionAuthorsAction(Request $request)
     {
         if ($this->isCsrfTokenValid('users_ban', $request->get('_mass_token'))) {
-            $posts = $this->em->getRepository(Post::class)
-                ->findAllWithUserByIds((array)$request->get('post'));
-            foreach ($posts as $post) {
-                $user = $post->getUser();
+            $petitions = $this->em->getRepository(UserPetition::class)
+                ->findAllWithUserByIds((array)$request->get('petition'));
+            foreach ($petitions as $petition) {
+                $user = $petition->getUser();
                 $user->disable();
                 $this->em->persist($user);
             }

@@ -12,6 +12,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
@@ -42,7 +43,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  * @Serializer\ExclusionPolicy("all")
  * @Vich\Uploadable
  */
-class User implements UserInterface, \Serializable, OfficialInterface, HasAvatarInterface, PasswordEncodeInterface
+class User implements UserInterface, \Serializable, OfficialInterface, HasAvatarInterface, PasswordEncodeInterface, AdvancedUserInterface
 {
     use HasStripeCustomerTrait;
 
@@ -643,6 +644,13 @@ class User implements UserInterface, \Serializable, OfficialInterface, HasAvatar
      * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\Representative", mappedBy="user", orphanRemoval=true)
      */
     private $representatives;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(type="boolean", options={"default" = true})
+     */
+    private $enabled = true;
 
     public function __construct()
     {
@@ -2534,5 +2542,35 @@ class User implements UserInterface, \Serializable, OfficialInterface, HasAvatar
     public function getRepresentatives()
     {
         return $this->representatives;
+    }
+
+    public function isEnabled()
+    {
+        return $this->enabled;
+    }
+
+    public function disable()
+    {
+        $this->enabled = false;
+    }
+
+    public function enable()
+    {
+        $this->enabled = true;
+    }
+
+    public function isAccountNonExpired()
+    {
+        return true;
+    }
+
+    public function isAccountNonLocked()
+    {
+        return true;
+    }
+
+    public function isCredentialsNonExpired()
+    {
+        return true;
     }
 }

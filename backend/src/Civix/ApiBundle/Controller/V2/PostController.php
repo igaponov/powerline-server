@@ -64,7 +64,7 @@ class PostController extends FOSRestController
     {
         $query = $this->getDoctrine()
             ->getRepository(Post::class)
-            ->getFindByQuery($this->getUser(), $params->all());
+            ->getFindByUserQuery($this->getUser(), $params->all());
 
         return $this->get('knp_paginator')->paginate(
             $query,

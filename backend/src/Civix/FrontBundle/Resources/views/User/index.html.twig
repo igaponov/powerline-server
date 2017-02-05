@@ -33,7 +33,7 @@
                                     Reset password
                                 </button>
                             </form>
-                            <form action="{{ path('civix_front_user_delete', {'id': user.id}) }}" method="POST">
+                            <form action="{{ path('civix_front_user_ban', {'id': user.id}) }}" method="POST">
                                 <input type="hidden" name="_token" value="{{ csrf_token('remove_user_' ~ user.id) }}">
                                 <button type="submit" class="btn-link">
                                     <i class="glyphicon glyphicon-remove"></i>

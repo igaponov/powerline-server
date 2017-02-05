@@ -4,8 +4,10 @@ namespace Civix\FrontBundle\Form\Type;
 
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Repository\RepresentativeRepository;
+use Mopa\Bundle\BootstrapBundle\Form\Type\FormActionsType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -30,6 +32,14 @@ class LocalRepresentativeType extends AbstractType
                 return $er->getQueryBuilderLocalRepr();
             },
         ));
+        $builder->add('buttons', FormActionsType::class, [
+            'button_offset' => 'col-sm-offset-3 col-sm-9',
+            'buttons' => [
+                'submit' => [
+                    'type' => SubmitType::class,
+                ],
+            ]
+        ]);
     }
 
     /**

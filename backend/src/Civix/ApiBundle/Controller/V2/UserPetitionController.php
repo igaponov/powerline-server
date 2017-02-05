@@ -63,7 +63,7 @@ class UserPetitionController extends FOSRestController
     {
         $query = $this->getDoctrine()
             ->getRepository(UserPetition::class)
-            ->getFindByQuery($this->getUser(), $params->all());
+            ->getFindByUserQuery($this->getUser(), $params->all());
 
         return $this->get('knp_paginator')->paginate(
             $query,

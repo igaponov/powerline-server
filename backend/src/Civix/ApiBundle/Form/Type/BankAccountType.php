@@ -63,11 +63,11 @@ class BankAccountType extends AbstractType
             ->add('country', Type\TextType::class, [
                 'description' => '2-letter country code.',
             ])
-            ->add('dob', 'date', [
+            ->add('dob', Type\DateType::class, [
                 'description' => 'Date of birth',
                 'widget' => 'single_text',
             ])
-            ->add('tax_id', 'text', [
+            ->add('tax_id', Type\TextType::class, [
                 'property_path' => 'taxId',
                 'description' => 'Tax ID',
             ])

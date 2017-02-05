@@ -2,7 +2,9 @@
 
 namespace Civix\FrontBundle\Controller;
 
+use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserPetition;
 use Doctrine\ORM\EntityManager;
 use JMS\DiExtraBundle\Annotation as DI;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -10,9 +12,10 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * @Route("/admin")
+ * @Route("/admin/users")
  */
 class UserController extends Controller
 {
@@ -23,7 +26,7 @@ class UserController extends Controller
     private $em;
 
     /**
-     * @Route("/users", name="civix_front_user_index")
+     * @Route("", name="civix_front_user_index")
      * @Method({"GET"})
      * @Template("CivixFrontBundle:User:index.html.twig")
      * @param Request $request
@@ -48,7 +51,7 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/users/{id}/reset-password", name="civix_front_user_reset_password")
+     * @Route("/{id}/reset-password", name="civix_front_user_reset_password")
      * @Method({"GET"})
      * @param Request $request
      * @param User $user
@@ -80,24 +83,68 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/user/{id}/delete", name="civix_front_user_delete")
+     * @Route("/{id}/ban", name="civix_front_user_ban")
      * @Method({"POST"})
      * @param Request $request
      * @param User $user
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function removeAction(Request $request, User $user)
+    public function banAction(Request $request, User $user)
     {
-        if ($this->isCsrfTokenValid('remove_user_'.$user->getId(), $request->get('_token'))) {
-            $this->em
-                ->getRepository('CivixCoreBundle:User')
-                ->removeUser($user);
+        if ($this->isCsrfTokenValid('user_ban', $request->get('_token'))) {
+            $user->disable();
+            $this->em->persist($user);
+            $this->em->flush();
 
-            $this->addFlash('notice', 'User was removed');
+            $this->addFlash('notice', 'User was banned');
         } else {
             $this->addFlash('error', 'Something went wrong');
         }
 
-        return $this->redirectToRoute('civix_front_user_index');
+        return $this->redirect($request->headers->get('Referer'));
+    }
+
+    /**
+     * @Route("/{id}/posts", name="civix_front_user_posts")
+     * @Method({"GET"})
+     * @Template("CivixFrontBundle:Post:index.html.twig")
+     * @param Request $request
+     * @param $id
+     * @return array
+     */
+    public function getUserPostsAction(Request $request, $id)
+    {
+        $query = $this->em->getRepository(Post::class)
+            ->getFindByQuery(['user' => $id]);
+
+        $pagination = $this->get('knp_paginator')->paginate(
+            $query,
+            $request->get('page', 1),
+            20
+        );
+
+        return compact('pagination');
+    }
+
+    /**
+     * @Route("/{id}/petitions", name="civix_front_user_petitions")
+     * @Method({"GET"})
+     * @Template("CivixFrontBundle:Petition:index.html.twig")
+     * @param Request $request
+     * @param User $user
+     * @return array
+     */
+    public function getUserPetitionsAction(Request $request, User $user)
+    {
+        $query = $this->em->getRepository(UserPetition::class)
+            ->getFindByQuery(['user' => $user]);
+
+        $pagination = $this->get('knp_paginator')->paginate(
+            $query,
+            $request->get('page', 1),
+            20
+        );
+
+        return compact('pagination');
     }
 }

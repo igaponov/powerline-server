@@ -86,11 +86,19 @@ class MenuBuilder
                         ),
                     )
                 );
-            $menu->addChild('Posts', array('route' => 'civix_front_superuser_posts'))
+            $menu->addChild('Posts', array('route' => 'civix_front_post_index'))
                 ->setExtras(
                     array(
                         'routes' => array(
-                            'civix_front_superuser_posts',
+                            'civix_front_post_index',
+                        ),
+                    )
+                );
+            $menu->addChild('Petitions', array('route' => 'civix_front_petition_index'))
+                ->setExtras(
+                    array(
+                        'routes' => array(
+                            'civix_front_petition_index',
                         ),
                     )
                 );

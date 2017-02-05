@@ -55,8 +55,8 @@ class LocalGroupControllerTest extends WebTestCase
         $crawler = $client->request('GET', '/admin/local-groups?id='.$groupCa->getId());
         $link = $crawler->selectLink('Assign')->link();
         $crawler = $client->click($link);
-        $form = $crawler->selectButton('Save')->form();
-        $form['assign_local_groups[localRepresentatives]']->setValue([1]);
+        $form = $crawler->selectButton('Submit')->form();
+        $form['local_representative[localRepresentatives]']->setValue([1]);
         $client->submit($form);
         $crawler = $client->followRedirect();
         $this->assertCount(1, $crawler->filter('.alert-info:contains("Assign to local group is completed")'));

@@ -42,7 +42,7 @@
                                     Remove
                                 </button>
                             </form>
-                            <form action="{{ path('civix_front_superuser_representative_approve', {'id': repr.id}) }}" method="POST">
+                            <form action="{{ path('civix_front_representative_approve', {'id': repr.id}) }}" method="POST">
                                 <input type="hidden" name="_token" value="{{ csrf_token('representative_approve_' ~ repr.id) }}">
                                 <button type="submit" class="btn-link">
                                     <i class="glyphicon glyphicon-ok"></i>

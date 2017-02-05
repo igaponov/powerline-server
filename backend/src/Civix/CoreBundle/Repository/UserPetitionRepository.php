@@ -145,7 +145,7 @@ class UserPetitionRepository extends EntityRepository
             ->getResult();
     }
 
-    public function getFindByQuery(User $user, $criteria)
+    public function getFindByUserQuery(User $user, $criteria)
     {
         $qb = $this->createQueryBuilder('p')
             ->select('p, u, g, a')
@@ -213,5 +213,66 @@ class UserPetitionRepository extends EntityRepository
         }
 
         return $qb->getQuery();
+    }
+
+    public function getFindByQuery($params = [], $orderBy = [])
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select('p', 'u', 'g')
+            ->leftJoin('p.user', 'u')
+            ->leftJoin('p.group', 'g')
+            ->groupBy('p');
+
+        if (!empty($params['group'])) {
+            $qb->andWhere('p.group = :group')
+                ->setParameter(':group', $params['group']);
+        }
+        if (!empty($params['user'])) {
+            $qb->andWhere('p.user = :user')
+                ->setParameter(':user', $params['user']);
+        }
+        if (!empty($params['marked_as_spam'])) {
+            $qb->leftJoin('p.spamMarks', 'sm')
+                ->andWhere('sm.id IS NOT NULL');
+        }
+        if (!empty($orderBy)) {
+            list($sort, $order) = each($orderBy);
+            $qb->orderBy('p.'.$sort, $order);
+        }
+
+        return $qb->getQuery();
+    }
+
+    /**
+     * @param $ids
+     * @return array|UserPetition[]
+     */
+    public function findAllForDeletionByIds($ids)
+    {
+        $expr = $this->getEntityManager()->getExpressionBuilder();
+
+        return $this->createQueryBuilder('p')
+            ->leftJoin('p.spamMarks', 'sm')
+            ->where($expr->in('p.id', $ids))
+            ->groupBy('p.id')
+            ->having('COUNT(sm) >= 4')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @param $ids
+     * @return array|UserPetition[]
+     */
+    public function findAllWithUserByIds($ids)
+    {
+        $expr = $this->getEntityManager()->getExpressionBuilder();
+
+        return $this->createQueryBuilder('p')
+            ->addSelect('u')
+            ->leftJoin('p.user', 'u')
+            ->where($expr->in('p.id', $ids))
+            ->getQuery()
+            ->getResult();
     }
 }

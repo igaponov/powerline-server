@@ -1,22 +1,22 @@
 {% extends 'CivixFrontBundle::layout.html.twig' %}
 
-{% block page_title %}Posts marked as spam{% endblock %}
+{% block page_title %}Petitions marked as spam{% endblock %}
 
 {% block content %}
-    <h1 class="page-header">Manage posts</h1>
+    <h1 class="page-header">Manage petitions</h1>
     <p>
         Checked:
-    <form action="{{ path('civix_front_posts_authors_ban') }}" method="post"  class="form-horizontal mass-action pull-left">
+    <form action="{{ path('civix_front_petitions_authors_ban') }}" method="post"  class="form-horizontal mass-action pull-left">
         <input type="hidden" name="_mass_token" value="{{ csrf_token('users_ban') }}">
         <button type="submit" class="btn btn-warning">
             <i class="glyphicon glyphicon-alert"></i> Ban users
         </button>
     </form>
 
-    <form action="{{ path('civix_front_posts_delete') }}" method="post" class="form-horizontal mass-action">
-        <input type="hidden" name="_mass_token" value="{{ csrf_token('posts_delete') }}">
+    <form action="{{ path('civix_front_petitions_delete') }}" method="post" class="form-horizontal mass-action">
+        <input type="hidden" name="_mass_token" value="{{ csrf_token('petitions_delete') }}">
         <button type="submit" class="btn btn-danger">
-            <i class="glyphicon glyphicon-remove"></i> Remove posts
+            <i class="glyphicon glyphicon-remove"></i> Remove petitions
         </button>
     </form>
     </p>
@@ -38,28 +38,28 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for post in pagination %}
+                {% for petition in pagination %}
                     <tr>
-                        <td><input type="checkbox" name="post[]" value="{{ post.id }}"></td>
-                        <td>{{ post.id }}</td>
+                        <td><input type="checkbox" name="petition[]" value="{{ petition.id }}"></td>
+                        <td>{{ petition.id }}</td>
                         <td>
-                            <a href="{{ path('civix_front_user_posts', {id: post.user.id}) }}">
-                                {{ post.user.firstname }} {{ post.user.lastname }}
+                            <a href="{{ path('civix_front_user_petitions', {id: petition.user.id}) }}">
+                                {{ petition.user.firstname }} {{ petition.user.lastname }}
                             </a>
                         </td>
-                        <td>{{ post.group.officialTitle }}</td>
+                        <td>{{ petition.group.officialTitle }}</td>
                         <td>
-                            {% if post.spamMarks.count() >= 4 %}
-                            <form class="form-link" action="{{ path('civix_front_post_delete', {'id': post.id}) }}" method="POST">
-                                <input type="hidden" name="_token" value="{{ csrf_token('post_delete') }}">
+                            {% if petition.spamMarks.count() >= 4 %}
+                            <form class="form-link" action="{{ path('civix_front_petition_delete', {'id': petition.id}) }}" method="POST">
+                                <input type="hidden" name="_token" value="{{ csrf_token('petition_delete') }}">
                                 <button type="submit" class="btn-link">
                                     <i class="glyphicon glyphicon-remove"></i>
-                                    Remove post
+                                    Remove petition
                                 </button>
                             </form>
                             {% endif %}
-                            {% if post.user.enabled %}
-                            <form class="form-link" action="{{ path('civix_front_user_ban', {'id': post.user.id}) }}" method="POST">
+                            {% if petition.user.enabled %}
+                            <form class="form-link" action="{{ path('civix_front_user_ban', {'id': petition.user.id}) }}" method="POST">
                                 <input type="hidden" name="_token" value="{{ csrf_token('user_ban') }}">
                                 <button type="submit" class="btn-link">
                                     <i class="glyphicon glyphicon-remove"></i>
@@ -93,7 +93,7 @@
             });
             $(".mass-action").submit(function() {
                 var form = $(this),
-                    data = $('input:checkbox:checked[name="post[]"]')
+                    data = $('input:checkbox:checked[name="petition[]"]')
                         .map(function() {return $(this).val()})
                         .get();
 
@@ -101,7 +101,7 @@
                     for(var i = 0; i < data.length; i++) {
                         $("<input>", {
                             type: "hidden",
-                            name: "post[]",
+                            name: "petition[]",
                             value: data[i]
                         }).appendTo(form);
                     }

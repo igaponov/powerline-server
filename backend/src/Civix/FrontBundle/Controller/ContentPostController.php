@@ -116,7 +116,7 @@ class ContentPostController extends Controller
     }
 
     /**
-     * @Route("/delete/{id}", requirements={"id"="\d+"}, name="civix_front_superuser_post_delete")
+     * @Route("/delete/{id}", requirements={"id"="\d+"}, name="civix_front_post_delete")
      * @param Post $post
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */

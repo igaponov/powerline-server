@@ -2,6 +2,7 @@
 namespace Civix\ApiBundle\Tests\Controller;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
@@ -71,6 +72,21 @@ class SecureControllerTest extends WebTestCase
 		$this->client->request('GET', '/api/v2/user', [], [], ['HTTP_TOKEN' => $data['token']]);
         $response = $this->client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+	}
+
+	public function testDisabledUserLoginFails()
+	{
+	    $em = $this->client->getContainer()->get('doctrine')->getManager();
+	    $user = $em->getRepository(User::class)->findOneBy(['username' => 'user1']);
+	    $user->disable();
+	    $em->persist($user);
+	    $em->flush();
+		$parameters = ['username' => 'user1', 'password' => 'user1'];
+		$content = ['application/x-www-form-urlencoded'];
+
+		$this->client->request('POST', self::API_LOGIN_ENDPOINT, $parameters, [], [], $content);
+		$response = $this->client->getResponse();
+		$this->assertEquals(401, $response->getStatusCode(), $response->getContent());
 	}
 
 	public function testRegistrationWithWrongDataReturnsErrors()

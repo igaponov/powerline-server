@@ -31,12 +31,15 @@
                         <td>{{ rep.privatePhone }}</td>
                         <td class="table-options">
                             <form action="{{ path('civix_front_representative_delete', {'id': rep.id}) }}" method="POST">
-                                <input type="hidden" name="_token" value="{{ csrf_token('remove_representative_' ~ rep.id) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('representative_delete_' ~ rep.id) }}">
                                 <button type="submit" class="btn-link">
                                     <i class="glyphicon glyphicon-remove"></i>
                                     Remove
                                 </button>
                             </form>
+                            <a href="{{ path('civix_front_representative_edit',{'id': rep.id}) }}" title="Edit">
+                                <i class="glyphicon glyphicon-pencil"></i> Edit
+                            </a>
                             <a href="{{ path('civix_front_representative_limit',{'id': rep.id}) }}" title="Limits">
                                 <i class="glyphicon glyphicon-wrench"></i> Limits
                             </a>
