@@ -43,4 +43,4 @@
 - name: reset application cache
   become_user: civix
   tags: deploy
-  command: /srv/{{ project }}/app/console cache:clear --env={% if dev_env is defined %}dev{% else %}prod{% endif %} --no-debug
+  command: /srv/{{ project }}/bin/console cache:clear --env={% if dev_env is defined %}dev{% else %}prod{% endif %} --no-debug

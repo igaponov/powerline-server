@@ -15,7 +15,7 @@ class QueueCommand extends ContainerAwareCommand
         $this
             ->setName('push:queue')
             ->setDescription('Start new process with RabbitMQ daemon')
-            ->setHelp('Usage: <info>php app/console push:queue start </info>')
+            ->setHelp('Usage: <info>php bin/console push:queue start </info>')
             ->addArgument(
                 'method',
                 InputArgument::REQUIRED, 'start'

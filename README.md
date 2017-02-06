@@ -46,21 +46,21 @@ Our branching strategy is straightforward and well documented . For a detailed l
 
 ### Build Database
 ```
-php app/console doctrine:database:create
-php app/console doctrine:migration:migrate -n
+php bin/console doctrine:database:create
+php bin/console doctrine:migration:migrate -n
 ```
 
 #### Cache
 ```
-/vagrant/backend/app/console cache:clear -e=prod
-/vagrant/backend/app/console cache:clear -e=dev
-/vagrant/backend/app/console cache:clear -e=test_behat
+/vagrant/backend/bin/console cache:clear -e=prod
+/vagrant/backend/bin/console cache:clear -e=dev
+/vagrant/backend/bin/console cache:clear -e=test_behat
 ```
 
 #### Assets
 ```
-/vagrant/backend/app/console assetic:dump -e=prod
-/vagrant/backend/app/console assets:install --symlink
+/vagrant/backend/bin/console assetic:dump -e=prod
+/vagrant/backend/bin/console assets:install --symlink
 ```
 
 ### Tests
@@ -76,9 +76,9 @@ php app/console doctrine:migration:migrate -n
 
 * Fixtures (db will be dropped!):
 ```
-backend/app/console load:scenario --10000
-backend/app/console load:scenario --100000
-backend/app/console load:scenario --1000000
+backend/bin/console load:scenario --10000
+backend/bin/console load:scenario --100000
+backend/bin/console load:scenario --1000000
 ```
 
 # Core Principles

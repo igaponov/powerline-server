@@ -3,6 +3,6 @@
 chown -R civix:civix /srv/civix &&
 sudo -u civix ln -sf /srv/config/parameters.yml /srv/civix/app/config/parameters.yml &&
 sudo -u civix rm -rf /srv/civix/app/cache/* &&
-sudo -u civix /srv/civix/app/console cache:warmup --env=prod &&
-sudo -u civix /srv/civix/app/console doctrine:migrations:migrate -n &&
+sudo -u civix /srv/civix/bin/console cache:warmup --env=prod &&
+sudo -u civix /srv/civix/bin/console doctrine:migrations:migrate -n &&
 sudo supervisorctl start civix_push_queue

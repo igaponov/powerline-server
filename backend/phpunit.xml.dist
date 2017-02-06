@@ -10,7 +10,7 @@
         processIsolation            = "true"
         stopOnFailure               = "false"
         syntaxCheck                 = "false"
-        bootstrap                   = "autoload.php" >
+        bootstrap                   = "app/autoload.php" >
 
     <php>
         <ini name="error_reporting" value="-1" />
@@ -19,7 +19,7 @@
 
     <testsuites>
         <testsuite name="Project Test Suite">
-            <directory>../src/Civix/*Bundle/Tests</directory>
+            <directory>src/Civix/*Bundle/Tests</directory>
         </testsuite>
     </testsuites>
 

@@ -15,7 +15,7 @@ class SuperuserPasswordCommand extends ContainerAwareCommand
         $this
             ->setName('superuser:password')
             ->setDescription('Update password for superuser according to username')
-            ->setHelp('Usage: <info>php app/console superuser:password admin newpassword</info>')
+            ->setHelp('Usage: <info>php bin/console superuser:password admin newpassword</info>')
             ->addArgument(
                 'username',
                 InputArgument::REQUIRED, 'Superuser\'s username'
