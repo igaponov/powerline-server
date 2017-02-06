@@ -76,6 +76,7 @@ class ActivityControllerTest extends WebTestCase
 		$this->assertCount(8, $data['payload']);
         foreach ($data['payload'] as $item) {
             $this->assertNotEmpty($item['user']);
+            $this->assertArrayHasKey('group', $item);
             if ($item['entity']['type'] == 'user-petition') {
                 $this->assertTrue($item['user_petition']['is_subscribed']);
             } elseif ($item['entity']['type'] == 'post') {
@@ -85,6 +86,7 @@ class ActivityControllerTest extends WebTestCase
                 $this->assertArrayHasKey('educational_context', $item['poll']);
                 $this->assertCount(2, $item['poll']['educational_context']);
             } elseif ($item['entity']['type'] == 'petition') {
+                $this->assertNotEmpty($item['group']['avatar_file_path']);
                 $this->assertFalse($item['poll']['is_subscribed']);
             }
             if ($item['entity']['type'] == 'micro-petition') {

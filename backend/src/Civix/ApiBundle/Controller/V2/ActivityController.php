@@ -38,8 +38,11 @@ class ActivityController extends FOSRestController
      *     resource=true,
      *     section="Activity",
      *     output = {
-     *          "class" = "Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination",
-     *          "groups" = {"paginator", "api-activities"}
+     *          "class" = "array<Civix\CoreBundle\Entity\Activity> as paginator",
+     *          "groups" = {"api-activities", "activity-list"},
+     *          "parsers" = {
+     *              "Civix\ApiBundle\Parser\PaginatorParser"
+     *          }
      *     },
      *     description="Return a user's list of activities",
      *     statusCodes={

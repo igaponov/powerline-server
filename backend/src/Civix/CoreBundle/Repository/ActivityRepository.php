@@ -504,7 +504,7 @@ class ActivityRepository extends EntityRepository
     {
         $qb = $this->createQueryBuilder('act')
             ->distinct(true)
-            ->select('act', 'act_r', 'p', 'up', 'ups', 'pv', 'q', 'qs', 'ps', 'pos')
+            ->select('act', 'act_r', 'p', 'up', 'ups', 'pv', 'q', 'qs', 'ps', 'pos', 'g')
             // 0 = Prioritized Zone (unread, unanswered)
             // 2 = Expired Zone (expired)
             // 1 = Non-Prioritized Zone (others)
@@ -562,6 +562,7 @@ class ActivityRepository extends EntityRepository
             ->leftJoin('act.activityConditions', 'act_c')
             ->leftJoin('act.activityRead', 'act_r', Query\Expr\Join::WITH, 'act_r.user = :user')
             ->setParameter(':user', $user)
+            ->leftJoin('act.group', 'g')
             ->leftJoin('act.question', 'q')
             ->leftJoin('act.petition', 'up')
             ->leftJoin('act.post', 'p')

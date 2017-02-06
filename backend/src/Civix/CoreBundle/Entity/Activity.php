@@ -2,7 +2,6 @@
 
 namespace Civix\CoreBundle\Entity;
 
-use Civix\CoreBundle\Entity\Activities\Petition;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\InheritanceType;
@@ -139,6 +138,8 @@ abstract class Activity implements HtmlBodyInterface
     /**
      * @ORM\ManyToOne(targetEntity="\Civix\CoreBundle\Entity\Group")
      * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="CASCADE")
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-activities"})
      */
     protected $group;
 

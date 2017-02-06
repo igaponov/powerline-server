@@ -177,7 +177,7 @@ class BookmarkControllerTest extends WebTestCase
         $json = $this->jmsSerialization($object, ['api-bookmarks', 'api-activities', 'activity-list']);
 
         $array = json_decode($json, true);
-        unset($array[0]['comments_count'], $array[0]['answers']);
+        unset($array[0]['comments_count'], $array[0]['answers'], $array[0]['group']['group_type_label']);
 
         return $array;
     }
