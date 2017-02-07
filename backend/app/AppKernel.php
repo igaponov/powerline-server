@@ -34,6 +34,7 @@ class AppKernel extends Kernel
             new Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle(),
             new FOS\RestBundle\FOSRestBundle(),
             new HWI\Bundle\OAuthBundle\HWIOAuthBundle(),
+            new Nelmio\ApiDocBundle\NelmioApiDocBundle(),
 
             new Civix\FrontBundle\CivixFrontBundle(),
             new Civix\CoreBundle\CivixCoreBundle(),
@@ -44,7 +45,6 @@ class AppKernel extends Kernel
 
             $bundles[] = new Sensio\Bundle\DistributionBundle\SensioDistributionBundle();
             $bundles[] = new Sensio\Bundle\GeneratorBundle\SensioGeneratorBundle();
-            $bundles[] = new Nelmio\ApiDocBundle\NelmioApiDocBundle();
             $bundles[] = new Civix\LoadBundle\CivixLoadBundle();
         }
 
