@@ -138,6 +138,15 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      */
     private $supportersWereInvited = false;
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column("automatic_boost", type="boolean", options={"default" = true}, nullable=false)
+     * @Serializer\Expose()
+     * @Serializer\Type("boolean")
+     */
+    private $automaticBoost = true;
+
     public function __construct()
     {
         $this->signatures = new ArrayCollection();
@@ -644,6 +653,25 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
     public function setSupportersWereInvited($supportersWereInvited)
     {
         $this->supportersWereInvited = $supportersWereInvited;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAutomaticBoost()
+    {
+        return $this->automaticBoost;
+    }
+
+    /**
+     * @param bool $automaticBoost
+     * @return $this
+     */
+    public function setAutomaticBoost($automaticBoost)
+    {
+        $this->automaticBoost = $automaticBoost;
 
         return $this;
     }

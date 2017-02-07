@@ -403,6 +403,29 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertEquals(1, $queue->hasMessageWithMethod('sendBoostedPetitionPush', [$petition->getGroup()->getId(), $petition->getId()]));
     }
 
+    public function testSignUserPetitionWithoutAutomaticBoost()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserPetitionData::class,
+        ])->getReferenceRepository();
+        $client = $this->client;
+        $manager = $this->getPetitionManagerMock(['checkIfNeedBoost']);
+        $manager->expects($this->once())
+            ->method('checkIfNeedBoost')
+            ->willReturn(true);
+        $client->getContainer()->set('civix_core.user_petition_manager', $manager);
+        /** @var UserPetition $petition */
+        $petition = $repository->getReference('user_petition_4');
+        $client->request('POST',
+            self::API_ENDPOINT.'/'.$petition->getId().'/sign', [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+        $this->assertEquals(0, $queue->count());
+    }
+
     public function testUpdateAnswer()
     {
         $repository = $this->loadFixtures([

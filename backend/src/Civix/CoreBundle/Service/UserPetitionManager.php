@@ -52,6 +52,7 @@ class UserPetitionManager
 
         if (!$petition->isBoosted()
             && $this->checkIfNeedBoost($petition)
+            && $petition->isAutomaticBoost()
         ) {
             $this->boostPetition($petition);
         }

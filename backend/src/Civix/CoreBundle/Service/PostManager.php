@@ -51,6 +51,7 @@ class PostManager
         $post = $answer->getPost();
         if (!$post->isBoosted()
             && $this->checkIfNeedBoost($post)
+            && $post->isAutomaticBoost()
         ) {
             $this->boostPost($post);
         }

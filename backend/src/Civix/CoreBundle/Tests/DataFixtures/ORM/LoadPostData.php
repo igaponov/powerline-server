@@ -58,10 +58,10 @@ class LoadPostData extends AbstractFixture implements DependentFixtureInterface
         $post = new Post();
         $post->setUser($user3)
             ->setBody('John Feal led a movement to pass the Zadroga Act to give healthcare coverage to 9/11 first responders and survivors. His campaign included a petition with more than 180,000 signatures.')
-            ->boost()
             ->setExpiredAt(new \DateTime('+1 week'))
             ->setUserExpireInterval(500)
-            ->setGroup($group2);
+            ->setGroup($group2)
+        ->setAutomaticBoost(false);
         $user3->addPostSubscription($post);
         $manager->persist($post);
         $this->addReference('post_4', $post);

@@ -59,8 +59,8 @@ Women WWII pilots get burial rights at Arlington National Cemetery')
         $petition->setUser($user3)
             ->setTitle('')
             ->setBody('John Feal led a movement to pass the Zadroga Act to give healthcare coverage to 9/11 first responders and survivors. His campaign included a petition with more than 180,000 signatures.')
-            ->boost()
-            ->setGroup($group2);
+            ->setGroup($group2)
+            ->setAutomaticBoost(false);
         $user3->addPetitionSubscription($petition);
         $manager->persist($petition);
         $this->addReference('user_petition_4', $petition);

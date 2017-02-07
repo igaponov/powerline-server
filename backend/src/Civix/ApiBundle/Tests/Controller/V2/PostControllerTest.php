@@ -101,6 +101,7 @@ class PostControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertSame($post->getBody(), $data['body']);
         $this->assertSame($post->isSupportersWereInvited(), $data['supporters_were_invited']);
+        $this->assertSame($post->isAutomaticBoost(), $data['automatic_boost']);
     }
 
     public function testGetDeletedPost()
@@ -186,6 +187,7 @@ class PostControllerTest extends WebTestCase
         ];
         $params = [
             'body' => $faker->text."\n".implode(' ', $hashTags),
+            'automatic_boost' => false,
         ];
         $client->request('PUT',
             self::API_ENDPOINT.'/'.$post->getId(), [], [],
@@ -196,6 +198,7 @@ class PostControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertSame($params['body'], $data['body']);
+        $this->assertSame($params['automatic_boost'], $data['automatic_boost']);
         // check addHashTags event listener
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine')
@@ -418,6 +421,32 @@ class PostControllerTest extends WebTestCase
         $this->assertEquals(2, $queue->count());
         $this->assertEquals(1, $queue->hasMessageWithMethod('sendSocialActivity'));
         $this->assertEquals(1, $queue->hasMessageWithMethod('sendBoostedPostPush', [$post->getGroup()->getId(), $post->getId()]));
+    }
+
+    public function testSignPostWithoutAutomaticBoost()
+    {
+        $repository = $this->loadFixtures([
+            LoadPostData::class,
+        ])->getReferenceRepository();
+        $client = $this->client;
+        $manager = $this->getPostManagerMock(['checkIfNeedBoost']);
+        $manager->expects($this->once())
+            ->method('checkIfNeedBoost')
+            ->willReturn(true);
+        $client->getContainer()->set('civix_core.post_manager', $manager);
+        /** @var Post $post */
+        $post = $repository->getReference('post_4');
+        $client->request('POST',
+            self::API_ENDPOINT.'/'.$post->getId().'/vote', [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user1"'],
+            json_encode(['option' => 'upvote'])
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame(Post\Vote::OPTION_UPVOTE, $data['option']);
+        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+        $this->assertEquals(0, $queue->count());
     }
 
     public function testUpdateAnswer()
