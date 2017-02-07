@@ -260,3 +260,6 @@ hwi_oauth:
 
 monolog:
     channels: ['push']
+
+nelmio_api_doc:
+    name: Civix API documentation

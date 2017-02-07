@@ -4,13 +4,3 @@ _configurator:
 
 _main:
     resource: routing.yml
-
-NelmioApiDocBundle:
-    resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
-    prefix:   /api-doc
-    defaults: { view: default }
-
-NelmioSwaggerApiDocBundle:
-    resource: "@NelmioApiDocBundle/Resources/config/swagger_routing.yml"
-    prefix:   /swagger
-    defaults: { view: default }

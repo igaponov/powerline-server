@@ -75,4 +75,14 @@ civix_superuser:
 civix_account:
     resource: "@CivixFrontBundle/Controller/AccountController.php"
     prefix:   /account
-    type: annotation 
+    type: annotation
+
+NelmioApiDocBundle:
+    resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
+    prefix:   /api-doc
+    defaults: { view: default }
+
+NelmioSwaggerApiDocBundle:
+    resource: "@NelmioApiDocBundle/Resources/config/swagger_routing.yml"
+    prefix:   /swagger
+    defaults: { view: default }
