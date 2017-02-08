@@ -31,7 +31,7 @@ monolog:
             channel: "#errors"
             bot_name: 'Monolog [%kernel.environment% - %domain%]'
             include_extra: true
-            level: error
+            level: critical
             excluded_404s:
                 - ^/
         push:
