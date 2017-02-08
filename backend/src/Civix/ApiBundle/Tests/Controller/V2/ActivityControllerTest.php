@@ -63,6 +63,7 @@ class ActivityControllerTest extends WebTestCase
             LoadPollSubscriberData::class,
             LoadEducationalContextData::class,
             LoadActivityReadAuthorData::class,
+            LoadUserGroupOwnerData::class,
         ]);
 		$client = $this->client;
 		$client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
@@ -136,16 +137,14 @@ class ActivityControllerTest extends WebTestCase
 		$data = json_decode($response->getContent(), true);
 		$this->assertSame(1, $data['page']);
 		$this->assertSame(20, $data['items']);
-		$this->assertSame(1, $data['totalItems']);
-		$this->assertCount(1, $data['payload']);
-		$current = reset($data['payload']);
-		while ($next = next($data['payload'])) {
-            $this->assertSame('prioritized', $next['zone']);
-            $this->assertLessThanOrEqual(
-				strtotime($current['sent_at']),
-				strtotime($next['sent_at'])
-			);
-			$current = $next;
+		$this->assertSame(2, $data['totalItems']);
+		$this->assertCount(2, $data['payload']);
+		foreach ($data['payload'] as $next) {
+		    if ($next['entity']['type'] === 'question') {
+                $this->assertSame('expired', $next['zone']);
+            } else {
+                $this->assertSame('prioritized', $next['zone']);
+            }
 		}
 	}
 
