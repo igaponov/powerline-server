@@ -30,17 +30,16 @@ class Geocode
 
     public function getLocality($query)
     {
-        return $this->getAddressComponent($query, 'locality');
+        return $this->getAddressComponent($query, ['locality', 'sublocality']);
     }
 
     /**
      * @param string $query
-     * @param string $component
-     * @param string $type
+     * @param string|array $types
      *
      * @return AddressComponent
      */
-    private function getAddressComponent($query, $type)
+    private function getAddressComponent($query, $types)
     {
         if (isset($this->results[$query])) {
             $result = $this->results[$query];
@@ -50,8 +49,11 @@ class Geocode
 
         if (!empty($result) && count($result['results']) === 1 && isset($result['results'][0]['address_components'])) {
             foreach ($result['results'][0]['address_components'] as $item) {
-                if (in_array($type, $item['types'])) {
-                    return new AddressComponent($item['long_name'], $item['short_name']);
+                $types = (array)$types;
+                foreach ($types as $type) {
+                    if (in_array($type, $item['types'])) {
+                        return new AddressComponent($item['long_name'], $item['short_name']);
+                    }
                 }
             }
         }
