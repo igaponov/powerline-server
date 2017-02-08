@@ -31,7 +31,7 @@ class ActivityController extends FOSRestController
      *
      * @QueryParam(name="following", requirements="\d+", description="Following user id")
      * @QueryParam(name="page", requirements="\d+", default="1")
-     * @QueryParam(name="per_page", requirements="(10|20)", default="20")
+     * @QueryParam(name="per_page", requirements="(10|15|20)", default="20")
      *
      * @ApiDoc(
      *     authentication = true,
