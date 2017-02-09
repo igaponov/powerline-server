@@ -61,6 +61,7 @@ class Charge
     private $question;
 
     /**
+     * @var Customer
      * @ORM\JoinColumn(name="from_customer", nullable=false)
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Stripe\Customer")
      * @ORM\JoinColumn(onDelete="CASCADE", nullable=false)
@@ -68,6 +69,7 @@ class Charge
     private $fromCustomer;
 
     /**
+     * @var Account|null
      * @ORM\JoinColumn(name="to_account")
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Stripe\Account")
      * @ORM\JoinColumn(onDelete="CASCADE")
@@ -116,7 +118,7 @@ class Charge
     }
 
     /**
-     * @return mixed
+     * @return Customer
      */
     public function getFromCustomer()
     {
@@ -124,7 +126,7 @@ class Charge
     }
 
     /**
-     * @return mixed
+     * @return Account|null
      */
     public function getToAccount()
     {
