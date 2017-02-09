@@ -158,10 +158,10 @@ class Stripe
             'amount' => $amount,
             'application_fee' => ceil($amount * self::VOLUME_TRANSACTION_FEE + self::PER_TRANSACTION_FEE),
             'currency' => 'usd',
-            'customer' => $customer->getStripeId(),
+            'customer' => $customer->getId(),
             'statement_descriptor' => 'PowerlinePay-'.
                                         $this->getAppearsOnStatement($paymentRequest->getOwner()),
-            'destination' => $account->getStripeId(),
+            'destination' => $account->getId(),
             'description' => sprintf(
                 'Powerline Payment: (%s) - (%s)',
                 $paymentRequest->getOwner()->getOfficialTitle(),
