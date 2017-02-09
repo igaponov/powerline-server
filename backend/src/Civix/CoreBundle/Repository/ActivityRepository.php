@@ -440,13 +440,16 @@ class ActivityRepository extends EntityRepository
 
         return $this->getActivitiesQueryBuilder($user, $start)
             ->andWhere(
-                $expr->orX(
-                    $expr->in('act_c.district', ':userDistrictsIds'),
-                    'act_c.isSuperuser != 1',
-                    $expr->in('act_c.group', ':userGroupsIds'),
-                    $expr->in('act_c.user', ':userFollowingIds'),
-                    $expr->in('act_c.groupSection', ':userGroupSectionIds'),
-                    ':user MEMBER OF act_c.users'
+                $expr->andX(
+                    $expr->in('act.group', ':userGroupsIds'),
+                    $expr->orX(
+                        $expr->in('act_c.district', ':userDistrictsIds'),
+                        'act_c.isSuperuser != 1',
+                        $expr->in('act_c.group', ':userGroupsIds'),
+                        $expr->in('act_c.user', ':userFollowingIds'),
+                        $expr->in('act_c.groupSection', ':userGroupSectionIds'),
+                        ':user MEMBER OF act_c.users'
+                    )
                 )
             )
             ->setParameter('userDistrictsIds', empty($districtsIds) ? false : $districtsIds)
@@ -474,14 +477,17 @@ class ActivityRepository extends EntityRepository
             ->getActiveGroupIds($user);
 
         $query = $this->getActivitiesQueryBuilder($following, $start)
-            ->andWhere('act_c.user = :following')
             ->andWhere(
-                $expr->orX(
-                    $expr->in('act_c.district', ':userDistrictsIds'),
-                    'act_c.isSuperuser != 1',
-                    $expr->in('act_c.group', ':userGroupsIds'),
-                    $expr->in('act_c.groupSection', ':userGroupSectionIds'),
-                    ':user MEMBER OF act_c.users'
+                $expr->andX(
+                    'act_c.user = :following',
+                    $expr->in('act.group', ':userGroupsIds'),
+                    $expr->orX(
+                        $expr->in('act_c.district', ':userDistrictsIds'),
+                        'act_c.isSuperuser != 1',
+                        $expr->in('act_c.group', ':userGroupsIds'),
+                        $expr->in('act_c.groupSection', ':userGroupSectionIds'),
+                        ':user MEMBER OF act_c.users'
+                    )
                 )
             )
             ->setParameter('following', $following->getId())
