@@ -3,6 +3,7 @@
 namespace Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Configuration\SecureParam;
+use Civix\ApiBundle\Form\Type\AnnouncementsType;
 use Civix\ApiBundle\Form\Type\AnnouncementType;
 use Civix\ApiBundle\Form\Type\GroupAnnouncementType;
 use Civix\CoreBundle\Entity\Announcement;
@@ -42,6 +43,7 @@ class AnnouncementController extends FOSRestController
      *
      * @QueryParam(name="page", requirements="\d+", default="1")
      * @QueryParam(name="per_page", requirements="(10|20)", default="20")
+     * @QueryParam(name="start", requirements=@Assert\DateTime, default="-1 day")
      *
      * @ApiDoc(
      *     authentication=true,
@@ -50,7 +52,7 @@ class AnnouncementController extends FOSRestController
      *     description="Return a user's list of announcements",
      *     output = {
      *          "class" = "array<Civix\CoreBundle\Entity\Announcement> as paginator",
-     *          "groups" = {"api", "api-activities"},
+     *          "groups" = {"api", "api-activities", "announcement-list"},
      *          "parsers" = {
      *              "Civix\ApiBundle\Parser\PaginatorParser"
      *          }
@@ -69,19 +71,13 @@ class AnnouncementController extends FOSRestController
      *     }
      * )
      *
-     * @View(serializerGroups={"paginator", "api", "api-activities"})
+     * @View(serializerGroups={"paginator", "api", "api-activities", "announcement-list"})
      *
      * @param ParamFetcher $params
      * @return \Knp\Component\Pager\Pagination\PaginationInterface
      */
-    public function getcAction(ParamFetcher $params)
+    public function getAnnouncementsAction(ParamFetcher $params)
     {
-        $param = new QueryParam();
-        $param->name = 'start';
-        $param->requirements = new Assert\DateTime();
-        $param->default = '-1 day';
-        $params->addParam($param);
-
         $start = new \DateTime($params->get('start'));
 
         $query = $this->getDoctrine()->getRepository(Announcement::class)
@@ -277,5 +273,44 @@ class AnnouncementController extends FOSRestController
         }
 
         return $violations;
+    }
+
+    /**
+     * Bulk update announcements
+     *
+     * @Route("")
+     * @Method("PATCH")
+     *
+     * @ApiDoc(
+     *     authentication = true,
+     *     resource=true,
+     *     section="Announcements",
+     *     description="Bulk update announcements",
+     *     input = "Civix\ApiBundle\Form\Type\AnnouncementsType",
+     *     output = {
+     *          "class" = "array<Civix\CoreBundle\Entity\Announcement>",
+     *          "groups" = {"api-activities", "announcement-list"}
+     *     },
+     *     statusCodes={
+     *          405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @View(serializerGroups={"api", "api-activities", "announcement-list"})
+     *
+     * @param Request $request
+     * @return \Symfony\Component\Form\Form
+     */
+    public function patchAnnouncementsAction(Request $request)
+    {
+        $form = $this->createForm(AnnouncementsType::class, null, ['user_model' => $this->getUser()]);
+        $form->submit($request->request->all());
+
+        if ($form->isValid()) {
+            return $this->get('civix_core.announcement_manager')
+                ->bulkUpdate($form->getData(), $this->getUser());
+        }
+
+        return $form;
     }
 }

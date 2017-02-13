@@ -8,12 +8,14 @@ use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Model\Subscription\PackageLimitState;
 use Civix\CoreBundle\Service\Subscription\PackageHandler;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupAnnouncementData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupAnnouncementReadData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupRepresentativesData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeAnnouncementData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
+use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -54,13 +56,14 @@ class AnnouncementControllerTest extends WebTestCase
         $this->assertCount(1, $data['payload']);
         $announcement = $repository->getReference('announcement_jb_3');
         $this->assertEquals($announcement->getContent(), $data['payload'][0]['content_parsed']);
+        $this->assertFalse($data['payload'][0]['is_read']);
     }
 
     public function testGetGroupAnnouncementsIsOk()
     {
         $repository = $this->loadFixtures([
             LoadUserGroupOwnerData::class,
-            LoadGroupAnnouncementData::class,
+            LoadGroupAnnouncementReadData::class,
         ])->getReferenceRepository();
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
@@ -75,6 +78,7 @@ class AnnouncementControllerTest extends WebTestCase
         $this->assertArrayHasKey('avatar_file_path', $data['payload'][0]['group']);
         $announcement = $repository->getReference('announcement_group_3');
         $this->assertEquals($announcement->getContent(), $data['payload'][0]['content_parsed']);
+        $this->assertTrue($data['payload'][0]['is_read']);
     }
 
     public function testGetAnnouncementsWithStartParameterIsOk()
@@ -555,6 +559,49 @@ class AnnouncementControllerTest extends WebTestCase
         $client->request('DELETE', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testPatchGroupAnnouncementsIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadGroupAnnouncementData::class,
+        ])->getReferenceRepository();
+        $announcement1 = $repository->getReference('announcement_group_1');
+        $announcement3 = $repository->getReference('announcement_group_3');
+        $user = $repository->getReference('user_1');
+        $params = ['announcements' => [$announcement1->getId(), $announcement3->getId()], 'read' => true];
+        $client = $this->client;
+        $client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        foreach ($data as $item) {
+            $this->assertThat($item['id'], $this->logicalOr($announcement1->getId(), $announcement3->getId()));
+            $this->assertTrue($item['is_read']);
+        }
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM announcement_read WHERE user_id = ?', [$user->getId()]);
+        $this->assertEquals(2, $count);
+    }
+
+    public function testPatchGroupAnnouncementsReadFalseIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadGroupAnnouncementData::class,
+        ])->getReferenceRepository();
+        $announcement1 = $repository->getReference('announcement_group_1');
+        $announcement3 = $repository->getReference('announcement_group_3');
+        $params = ['announcements' => [$announcement1->getId(), $announcement3->getId()], 'read' => false];
+        $client = $this->client;
+        $client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        foreach ($data as $item) {
+            $this->assertThat($item['id'], $this->logicalOr($announcement1->getId(), $announcement3->getId()));
+            $this->assertFalse($item['is_read']);
+        }
     }
 
     private function getPackageHandlerMock($class, $currentValue = 1, $limitValue = 2)

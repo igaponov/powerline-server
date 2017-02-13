@@ -139,6 +139,11 @@
         <service class="Civix\ApiBundle\Security\Http\EntryPoint\BearerTokenAuthenticationEntryPoint" id="civix_api.bearer_token_authentication_entry_point">
             <argument id="router" type="service" />
         </service>
+
+        <service class="Civix\ApiBundle\Form\Type\AnnouncementsType" id="civix_api.form_type.announcements_type">
+            <argument id="doctrine.orm.entity_manager" type="service"/>
+            <tag alias="Civix\ApiBundle\Form\Type\AnnouncementsType" name="form.type"/>
+        </service>
     </services>
 
 </container>

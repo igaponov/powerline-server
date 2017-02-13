@@ -104,9 +104,17 @@ abstract class Announcement implements LeaderContentInterface
      */
     protected $group;
 
+    /**
+     * @var ArrayCollection|AnnouncementRead[]
+     *
+     * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\AnnouncementRead", mappedBy="announcement", cascade={"persist"})
+     */
+    protected $announcementRead;
+
     public function __construct()
     {
         $this->groupSections = new ArrayCollection();
+        $this->announcementRead = new ArrayCollection();
     }
 
     /**
@@ -246,6 +254,28 @@ abstract class Announcement implements LeaderContentInterface
         $entity = $this->getRoot();
 
         return new Image($entity, 'avatar');
+    }
+
+    /**
+     * @return bool
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"announcement-list"})
+     * @Serializer\Type("boolean")
+     */
+    public function isRead()
+    {
+        return !!$this->announcementRead->count();
+    }
+
+    /**
+     * @param User $user
+     */
+    public function markAsRead(User $user)
+    {
+        $this->announcementRead->add(
+            new AnnouncementRead($this, $user)
+        );
     }
 
     /**

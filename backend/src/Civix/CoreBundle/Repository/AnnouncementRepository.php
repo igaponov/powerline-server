@@ -84,13 +84,14 @@ class AnnouncementRepository extends EntityRepository
         $representativeIds = empty($representativeIds) ? array(0) : $representativeIds;
         $groupsIds = empty($groupsIds) ? array(0) : $groupsIds;
 
-        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb = $this->createQueryBuilder('a');
 
-        return $qb->select('a, r, gr, cr')
-            ->from('CivixCoreBundle:Announcement', 'a')
+        return $qb->addSelect('r, gr, cr')
             ->leftJoin('a.group', 'gr')
             ->leftJoin('a.representative', 'r')
             ->leftJoin('r.ciceroRepresentative', 'cr')
+            ->leftJoin('a.announcementRead', 'ar', 'WITH', 'ar.user = :user')
+            ->setParameter(':user', $user)
             ->where(
                 $qb->expr()->orX(
                     $qb->expr()->in('a.representative', $representativeIds),
