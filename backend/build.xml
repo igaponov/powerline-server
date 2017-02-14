@@ -82,11 +82,8 @@
         <copy todir="${dist}">
             <fileset dir=".">
                 <include name="app/**/*"/>
-                <exclude name="app/cache/**/*"/>
-                <exclude name="app/logs/**/*"/>
-                <exclude name="app/cache"/>
-                <exclude name="app/logs"/>
-                <exclude name="app/phpunit.xml.dist"/>
+                <include name="bin/*"/>
+                <include name="var/bootstrap.php.cache"/>
                 <include name="src/**/*"/>
                 <exclude name="src/**/*Test.php"/>
                 <include name="web/**/*"/>
