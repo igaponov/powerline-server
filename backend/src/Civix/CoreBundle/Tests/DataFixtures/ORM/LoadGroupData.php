@@ -32,7 +32,18 @@ class LoadGroupData extends AbstractFixture implements DependentFixtureInterface
             ->setMembershipControl(Group::GROUP_MEMBERSHIP_PUBLIC)
             ->setCreatedAt($faker->dateTimeBetween('-1 day', '-10 minutes'))
             ->setOwner($user1)
-            ->setAvatarFileName(uniqid().'.jpg');
+            ->setAvatarFileName(uniqid().'.jpg')
+            ->setRequiredPermissions([
+                'permissions_name',
+                'permissions_address',
+                'permissions_city',
+                'permissions_state',
+                'permissions_country',
+                'permissions_zip_code',
+                'permissions_email',
+                'permissions_phone',
+                'permissions_responses',
+            ]);
         $manager->persist($group);
         $this->addReference('group_1', $group);
 

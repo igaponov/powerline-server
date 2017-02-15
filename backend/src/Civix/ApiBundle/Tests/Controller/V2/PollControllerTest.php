@@ -1272,35 +1272,23 @@ class PollControllerTest extends WebTestCase
         $this->assertNull($data[2]['test-group-field']);
         foreach ([$user2, $user3, $user4] as $k => $user) {
             /** @var User $user */
+            $this->assertEquals($user->getAddress(), $data[$k]['address']);
+            $this->assertSame($user->getEmail(), $data[$k]['email']);
+            $this->assertSame($user->getPhone(), $data[$k]['phone']);
+            $this->assertSame($user->getCity(), $data[$k]['city']);
+            $this->assertSame($user->getState(), $data[$k]['state']);
+            $this->assertSame($user->getCountry(), $data[$k]['country']);
+            $this->assertSame($user->getZip(), $data[$k]['zip_code']);
+            $this->assertSame($user->getBio(), $data[$k]['bio']);
             $this->assertArrayHasKey('karma', $data[$k]);
             $this->assertSame("1", $data[$k]['followers']);
             $this->assertEquals('1', $data[$k]['facebook']);
             $this->assertNotEmpty($data[$k]['comment']);
             $this->assertThat($data[$k]['choice'], $this->logicalOr('val 0', 'val 1'));
             if ($user === $user3) { // private
-                $this->assertNull($data[$k]['first_name']);
-                $this->assertNull($data[$k]['last_name']);
-                $this->assertNull($data[$k]['email']);
-                $this->assertNull($data[$k]['phone']);
-                $this->assertNull($data[$k]['address1']);
-                $this->assertNull($data[$k]['address2']);
-                $this->assertNull($data[$k]['city']);
-                $this->assertNull($data[$k]['state']);
-                $this->assertNull($data[$k]['country']);
-                $this->assertNull($data[$k]['zip']);
-                $this->assertNull($data[$k]['bio']);
+                $this->assertNull($data[$k]['name']);
             } else {
-                $this->assertSame($user->getFirstName(), $data[$k]['first_name']);
-                $this->assertSame($user->getLastName(), $data[$k]['last_name']);
-                $this->assertSame($user->getEmail(), $data[$k]['email']);
-                $this->assertSame($user->getPhone(), $data[$k]['phone']);
-                $this->assertSame($user->getAddress1(), $data[$k]['address1']);
-                $this->assertSame($user->getAddress2(), $data[$k]['address2']);
-                $this->assertSame($user->getCity(), $data[$k]['city']);
-                $this->assertSame($user->getState(), $data[$k]['state']);
-                $this->assertSame($user->getCountry(), $data[$k]['country']);
-                $this->assertSame($user->getZip(), $data[$k]['zip']);
-                $this->assertSame($user->getBio(), $data[$k]['bio']);
+                $this->assertSame($user->getFullName(), $data[$k]['name']);
             }
         }
     }
@@ -1318,6 +1306,7 @@ class PollControllerTest extends WebTestCase
         $answer2 = $repository->getReference('question_answer_2');
         $answer3 = $repository->getReference('question_answer_3');
         $user2 = $repository->getReference('user_2');
+        $user3 = $repository->getReference('user_3');
         $user4 = $repository->getReference('user_4');
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT.'/'.$question->getId().'/responses', [], [], [
@@ -1327,11 +1316,11 @@ class PollControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $this->assertSame(
-            "first_name,last_name,address1,address2,city,state,country,zip,email,phone,bio,slogan,facebook,followers,karma," .
+            "name,address,city,state,country,zip_code,email,phone,bio,slogan,facebook,followers,karma," .
             "test-group-field,\"\"\"field1`\",\"\"\"field2`\",\"\"\"field3`\",\"\"\"field4`\",choice,comment\n" .
-            "user,2,,,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,0,test-field-value-2,,,,,\"{$answer1->getOption()->getValue()}\",\"{$answer1->getComment()}\"\n" .
-            ",,,,,,,,,,,,1,1,0,test-field-value-3,,,,,\"{$answer2->getOption()->getValue()}\",\"{$answer2->getComment()}\"\n" .
-            "user,4,,,,,US,,{$user4->getEmail()},{$user4->getPhone()},,,1,1,0,,,,,,\"{$answer3->getOption()->getValue()}\",\"{$answer3->getComment()}\"\n",
+            "\"user 2\",,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,0,test-field-value-2,,,,,\"{$answer1->getOption()->getValue()}\",\"{$answer1->getComment()}\"\n" .
+            ",,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,0,test-field-value-3,,,,,\"{$answer2->getOption()->getValue()}\",\"{$answer2->getComment()}\"\n" .
+            "\"user 4\",,,,US,,{$user4->getEmail()},{$user4->getPhone()},,,1,1,0,,,,,,\"{$answer3->getOption()->getValue()}\",\"{$answer3->getComment()}\"\n",
             $response->getContent()
         );
     }

@@ -161,10 +161,10 @@ class UserGroupRepository extends EntityRepository
     public function getFindMembersWithRequiredFieldsQuery(Group $group)
     {
         $fields = $group->getFields();
+        $permissions = $group->getRequiredPermissions();
         $qb = $this->getEntityManager()
             ->getConnection()
             ->createQueryBuilder()
-            ->select('u.firstName AS first_name, u.lastName AS last_name, u.address1, u.address2, u.city, u.state, u.country, u.zip, u.email, u.phone, u.bio, u.slogan, CASE WHEN u.facebook_id IS NOT NULL THEN 1 ELSE 0 END AS facebook, (SELECT COUNT(f.id) FROM users_follow f WHERE f.user_id = u.id) AS followers, 0 AS karma')
             ->from('users_groups', 'ug')
             ->leftJoin('ug', 'user', 'u', 'ug.user_id = u.id')
             ->where('ug.group_id = :group')
@@ -173,6 +173,16 @@ class UserGroupRepository extends EntityRepository
         $platform = $this->getEntityManager()
             ->getConnection()
             ->getDatabasePlatform();
+        foreach ([$platform->getConcatExpression('firstName', '" "', 'lastName') => 'name', $platform->getConcatExpression('address1', '", "', 'address2') => 'address', 'city', 'state', 'country', 'zip' => 'zip_code', 'email', 'phone'] as $attribute => $alias) {
+            if (!in_array('permissions_'.$alias, $permissions)) {
+                continue;
+            }
+            if (!is_string($attribute)) {
+                $attribute = $alias;
+            }
+            $qb->addSelect("u.{$attribute} AS {$alias}");
+        }
+        $qb->addSelect('u.bio, u.slogan, CASE WHEN u.facebook_id IS NOT NULL THEN 1 ELSE 0 END AS facebook, (SELECT COUNT(f.id) FROM users_follow f WHERE f.user_id = u.id) AS followers, 0 AS karma');
         foreach ($fields as $k => $field) {
             $qb->addSelect("v$k.field_value AS {$platform->quoteSingleIdentifier($field->getFieldName())}")
                 ->leftJoin('u', 'groups_fields_values', 'v'.$k, "v$k.user_id = u.id AND v$k.field_id = :field$k")
