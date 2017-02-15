@@ -849,8 +849,7 @@ class GroupControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertArrayHasKey('first_name', $data[0]);
-        $this->assertArrayHasKey('last_name', $data[0]);
+        $this->assertArrayHasKey('name', $data[0]);
         $this->assertArrayHasKey('facebook', $data[0]);
         $this->assertArrayHasKey('karma', $data[0]);
         $this->assertSame($user2->getEmail(), $data[0]['email']);
@@ -897,10 +896,10 @@ class GroupControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $this->assertSame(
-            "first_name,last_name,address1,address2,city,state,country,zip,email,phone,bio,slogan,facebook,followers,karma," .
+            "name,address,city,state,country,zip_code,email,phone,bio,slogan,facebook,followers,karma," .
             "test-group-field,\"\"\"field1`\",\"\"\"field2`\",\"\"\"field3`\",\"\"\"field4`\",president,vice_president,senator1,senator2,congressman\n" .
-            "user,2,,,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,0,test-field-value-2,,,,,,,,,\n" .
-            "user,3,,,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,0,test-field-value-3,,,,,\"{$bo->getFullName()}\",\"{$jb->getFullName()}\",\"{$rm->getFullName()}\",\"{$kg->getFullName()}\",\"{$eh->getFullName()}\"\n",
+            "\"user 2\",,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,0,test-field-value-2,,,,,,,,,\n" .
+            "\"user 3\",,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,0,test-field-value-3,,,,,\"{$bo->getFullName()}\",\"{$jb->getFullName()}\",\"{$rm->getFullName()}\",\"{$kg->getFullName()}\",\"{$eh->getFullName()}\"\n",
             $response->getContent()
         );
         $this->assertContains('text/csv', $response->headers->get('content-type'));

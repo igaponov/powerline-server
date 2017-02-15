@@ -108,7 +108,11 @@ class AnswerRepository extends EntityRepository
      */
     public function getResponsesByQuestion(Question $question)
     {
+        $platform = $this->getEntityManager()
+            ->getConnection()
+            ->getDatabasePlatform();
         $fields = $question->getGroup()->getFields();
+        $permissions = $question->getGroup()->getRequiredPermissions();
         $qb = $this->getEntityManager()
             ->getConnection()
             ->createQueryBuilder()
@@ -120,16 +124,20 @@ class AnswerRepository extends EntityRepository
             ->setParameter(':poll', $question->getId())
             ->setParameter(':public', Answer::PRIVACY_PUBLIC)
             ->groupBy('a.id');
-        foreach (['firstName' => 'first_name', 'lastName' => 'last_name', 'address1', 'address2', 'city', 'state', 'country', 'zip', 'email', 'phone', 'bio'] as $attribute => $alias) {
+        foreach ([$platform->getConcatExpression('firstName', '" "', 'lastName') => 'name', $platform->getConcatExpression('address1', '", "', 'address2') => 'address', 'city', 'state', 'country', 'zip' => 'zip_code', 'email', 'phone'] as $attribute => $alias) {
+            if (!in_array('permissions_'.$alias, $permissions)) {
+                continue;
+            }
             if (!is_string($attribute)) {
                 $attribute = $alias;
             }
-            $qb->addSelect("CASE WHEN a.privacy = :public THEN u.{$attribute} ELSE NULL END AS {$alias}");
+            if ($alias === 'name') {
+                $qb->addSelect("CASE WHEN a.privacy = :public THEN u.{$attribute} ELSE NULL END AS {$alias}");
+            } else {
+                $qb->addSelect("u.{$attribute} AS {$alias}");
+            }
         }
-        $qb->addSelect('u.slogan, CASE WHEN u.facebook_id IS NOT NULL THEN 1 ELSE 0 END AS facebook, COUNT(f.id) AS followers, 0 AS karma');
-        $platform = $this->getEntityManager()
-            ->getConnection()
-            ->getDatabasePlatform();
+        $qb->addSelect('u.bio, u.slogan, CASE WHEN u.facebook_id IS NOT NULL THEN 1 ELSE 0 END AS facebook, COUNT(f.id) AS followers, 0 AS karma');
         foreach ($fields as $k => $field) {
             $qb->addSelect("v$k.field_value AS {$platform->quoteSingleIdentifier($field->getFieldName())}")
                 ->leftJoin('u', 'groups_fields_values', 'v'.$k, "v$k.user_id = u.id AND v$k.field_id = :field$k")

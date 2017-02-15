@@ -1097,6 +1097,16 @@ class User implements UserInterface, \Serializable, OfficialInterface, HasAvatar
     }
 
     /**
+     * Get both addresses
+     *
+     * @return string
+     */
+    public function getAddress()
+    {
+        return implode(', ', array_filter([$this->getAddress1(), $this->getAddress2()]));
+    }
+
+    /**
      * Set city.
      *
      * @param string $city
