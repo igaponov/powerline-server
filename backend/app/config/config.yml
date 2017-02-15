@@ -227,6 +227,9 @@ fos_rest:
         enabled: true
         codes:
             Symfony\Component\Security\Core\Exception\AccessDeniedException: 403
+            Stripe\Error\Card: 400
+        messages:
+            Stripe\Error\Card: true
     view:
         view_response_listener: 'force'
         formats:
@@ -263,3 +266,5 @@ monolog:
 
 nelmio_api_doc:
     name: Civix API documentation
+    motd:
+        template: CivixApiBundle::motd.html.twig
