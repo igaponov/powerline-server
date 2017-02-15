@@ -1,0 +1,29 @@
+<div class="motd">
+    <ul>
+        <li class="section active">
+            <div class="actions">
+                <a class="action-show-hide">Show/hide</a>
+            </div>
+            <h1>Authentication</h1>
+            <div class="section-list">
+                <p>There are two ways to authenticate through Powerline API.</p>
+                <h3>Bearer token (sent in a "Token" header)</h3>
+                <p><code>curl -H "Token: token" https://api.powerli.ne</code></p>
+                <h3>Bearer token (sent in a "Authorization" header)</h3>
+                <p><code>curl -H "Authorization: Bearer type='user' token='token'" https://api.powerli.ne</code></p>
+            </div>
+        </li>
+        <li class="section active">
+            <div class="actions">
+                <a class="action-show-hide">Show/hide</a>
+            </div>
+            <h1>Errors</h1>
+            <p class="section-list">
+                Powerline API uses conventional HTTP response codes to indicate the success or failure of an API request. In general, codes in the <code>2xx</code> range indicate success, codes in the <code>4xx</code> range indicate an error that failed given the information provided (e.g., a required parameter was omitted, a charge failed, etc.), and codes in the <code>5xx</code> range indicate an error with Powerline's servers (these are rare).
+                <br>
+                <br>
+                <code lang="json">{"code": 400, "message": "Error message"}</code>
+            </p>
+        </li>
+    </ul>
+</div>
