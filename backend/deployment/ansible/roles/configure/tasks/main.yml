@@ -4,7 +4,7 @@
 
 - name: configure fpm pool
   tags: configure
-  template: src=fpm.j2 dest="/etc/php5/fpm/pool.d/{{ project }}.conf"
+  template: src=fpm.j2 dest="/etc/php/7.0/fpm/pool.d/{{ project }}.conf"
 
 - name: setup nginx vhost
   tags: configure
@@ -79,14 +79,6 @@
 - name: configure payments daemon (supervisor) present
   tags: configure
   supervisorctl: name={{ project }}_payments state=present
-
-- name: configure subscriptions daemon (supervisor)
-  tags: configure
-  template: src=supervisor_subscriptions.j2 dest="/etc/supervisor/conf.d/{{ project }}-subscriptions.conf"
-
-- name: configure subscriptions daemon (supervisor) present
-  tags: configure
-  supervisorctl: name={{ project }}_subscriptions state=stopped
 
 - name: cron job for time sync
   cron: user="root" name="time sync"  job="ntpdate ntp.ubuntu.com" special_time="daily"
