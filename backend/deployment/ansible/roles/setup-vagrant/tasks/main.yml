@@ -1,10 +1,10 @@
-- name: update apt
-  tags: vagrant
-  apt: update_cache=yes
+- lineinfile:
+    dest: /etc/environment
+    line: 'SYMFONY__KERNEL__CACHE_DIR=/dev/shm/powerline/cache/%kernel.environment%'
 
-- name: install python modules for ansible
-  tags: vagrant
-  apt: pkg=python-pycurl state=latest
+- lineinfile:
+    dest: /etc/environment
+    line: 'SYMFONY__KERNEL__LOGS_DIR=/dev/shm/powerline/logs'
 
 - name: install curl
   tags: vagrant
