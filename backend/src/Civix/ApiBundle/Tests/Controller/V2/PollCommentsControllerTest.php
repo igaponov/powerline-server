@@ -7,6 +7,8 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadPollCommentRateData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPollSubscriberData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
 
 class PollCommentsControllerTest extends CommentsControllerTest
 {
@@ -76,5 +78,42 @@ class PollCommentsControllerTest extends CommentsControllerTest
         /** @var BaseComment $comment */
         $comment = $repository->getReference('question_comment_1');
         $this->createComment($entity, $comment);
+    }
+
+    public function testCreateCommentNotifyEveryone()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+            LoadUserGroupOwnerData::class,
+            LoadQuestionCommentData::class,
+            LoadPollSubscriberData::class,
+        ])->getReferenceRepository();
+        /** @var CommentedInterface $entity */
+        $entity = $repository->getReference('group_question_1');
+        /** @var BaseComment $comment */
+        $comment = $repository->getReference('question_comment_1');
+        $users = [
+            $repository->getReference('user_1'),
+            $repository->getReference('user_2'),
+            $repository->getReference('user_4'),
+        ];
+        $this->createCommentNotifyEveryone($entity, $comment, $users);
+    }
+
+    public function testCreateCommentWithEveryoneByMemberNotifyNobody()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+            LoadUserGroupOwnerData::class,
+            LoadQuestionCommentData::class,
+            LoadPollSubscriberData::class,
+        ])->getReferenceRepository();
+        /** @var CommentedInterface $entity */
+        $entity = $repository->getReference('group_question_1');
+        /** @var BaseComment $comment */
+        $comment = $repository->getReference('question_comment_1');
+        $this->createCommentWithEveryoneByMemberNotifyNobody($entity, $comment);
     }
 }

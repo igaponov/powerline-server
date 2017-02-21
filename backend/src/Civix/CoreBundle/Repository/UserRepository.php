@@ -675,4 +675,25 @@ class UserRepository extends EntityRepository
             return $this->getUsersByGroupForPush($content->getGroup()->getId(), $type, $startId, $limit);
         }
     }
+
+    /**
+     * Return ids of group's members
+     * @param Group $group
+     * @return array
+     */
+    public function findAllMemberIdsByGroup(Group $group)
+    {
+        return $this->createQueryBuilder('u')
+            ->select('u.id')
+            ->leftJoin('u.groups', 'ug')
+            ->leftJoin('u.managedGroups', 'mg')
+            ->leftJoin('u.ownedGroups', 'og')
+            ->where('ug.group = :group')
+            ->orWhere('mg.group = :group')
+            ->orWhere('og = :group')
+            ->setParameter(':group', $group)
+            ->groupBy('u.id')
+            ->getQuery()
+            ->getResult(Query::HYDRATE_ARRAY);
+    }
 }
