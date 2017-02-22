@@ -4,6 +4,8 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\CommentedInterface;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSubscriberData;
 
@@ -46,5 +48,42 @@ class UserPetitionCommentsControllerTest extends CommentsControllerTest
         /** @var BaseComment $comment */
         $comment = $repository->getReference('petition_comment_3');
         $this->createComment($entity, $comment);
+    }
+
+    public function testCreateCommentNotifyEveryone()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+            LoadUserGroupOwnerData::class,
+            LoadUserPetitionCommentData::class,
+            LoadUserPetitionSubscriberData::class,
+        ])->getReferenceRepository();
+        /** @var CommentedInterface $entity */
+        $entity = $repository->getReference('user_petition_1');
+        /** @var BaseComment $comment */
+        $comment = $repository->getReference('petition_comment_3');
+        $users = [
+            $repository->getReference('user_1'),
+            $repository->getReference('user_2'),
+            $repository->getReference('user_4'),
+        ];
+        $this->createCommentNotifyEveryone($entity, $comment, $users);
+    }
+
+    public function testCreateCommentWithEveryoneByMemberNotifyNobody()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserGroupData::class,
+            LoadGroupManagerData::class,
+            LoadUserGroupOwnerData::class,
+            LoadUserPetitionCommentData::class,
+            LoadUserPetitionSubscriberData::class,
+        ])->getReferenceRepository();
+        /** @var CommentedInterface $entity */
+        $entity = $repository->getReference('user_petition_1');
+        /** @var BaseComment $comment */
+        $comment = $repository->getReference('petition_comment_3');
+        $this->createCommentWithEveryoneByMemberNotifyNobody($entity, $comment);
     }
 }

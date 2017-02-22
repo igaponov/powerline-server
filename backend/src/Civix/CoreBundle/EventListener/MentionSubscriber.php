@@ -1,6 +1,8 @@
 <?php
 namespace Civix\CoreBundle\EventListener;
 
+use Civix\CoreBundle\Entity\BaseComment;
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\HtmlBodyInterface;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserMentionableInterface;
@@ -43,17 +45,40 @@ class MentionSubscriber implements EventSubscriber
             '/@([a-zA-Z0-9._-]+[a-zA-Z0-9])/',
             function ($matches) use ($manager, $entity, $notify) {
                 $username = $matches[1];
-                $user = $manager->getRepository(User::class)
-                    ->findOneBy(['username' => $username]);
+                if ($username === 'everyone'
+                    && $entity instanceof BaseComment
+                    && method_exists($entity->getCommentedEntity(), 'getGroup')
+                ) {
+                    /** @var Group $group */
+                    $group = $entity->getCommentedEntity()
+                        ->getGroup();
+                    if (!$group->isOwner($entity->getUser()) && !$group->isManager($entity->getUser())) {
+                        return '@'.$username;
+                    }
+                    $userIds = $manager->getRepository(User::class)
+                        ->findAllMemberIdsByGroup($group);
+                    foreach ($userIds as $userId) {
+                        /** @var User $user */
+                        $user = $manager->getReference(User::class, $userId);
+                        if ($notify && $entity instanceof UserMentionableInterface) {
+                            $entity->addMentionedUser($user);
+                        }
+                    }
 
-                if (!$user) {
                     return '@'.$username;
-                }
-                if ($notify && $entity instanceof UserMentionableInterface) {
-                    $entity->addMentionedUser($user);
-                }
+                } else {
+                    $user = $manager->getRepository(User::class)
+                        ->findOneBy(['username' => $username]);
 
-                return "<a data-user-id=\"{$user->getId()}\">@$username</a>";
+                    if (!$user) {
+                        return '@'.$username;
+                    }
+                    if ($notify && $entity instanceof UserMentionableInterface) {
+                        $entity->addMentionedUser($user);
+                    }
+
+                    return "<a data-user-id=\"{$user->getId()}\">@$username</a>";
+                }
             },
             $content
         );

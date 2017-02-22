@@ -323,10 +323,13 @@ class SocialActivityManager
         $target['image'] = $user->getAvatarFileName();
 
         foreach ($recipients as $recipient) {
-            if (($group instanceof Group &&
+            if ($comment->getUser()->getId() != $recipient->getId()
+                && (($group instanceof Group &&
                 $this->em->getRepository(UserGroup::class)
                     ->isJoinedUser($group, $recipient))
-            || $this->em->getRepository(UserFollow::class)->findActiveFollower($user, $recipient)) {
+            || $this->em->getRepository(UserFollow::class)
+                    ->findActiveFollower($user, $recipient))
+            ) {
                 $socialActivity = (new SocialActivity(SocialActivity::TYPE_COMMENT_MENTIONED, null, $group))
                     ->setTarget($target)
                     ->setRecipient($recipient)
