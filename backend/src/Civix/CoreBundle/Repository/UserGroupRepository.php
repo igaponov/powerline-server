@@ -173,14 +173,14 @@ class UserGroupRepository extends EntityRepository
         $platform = $this->getEntityManager()
             ->getConnection()
             ->getDatabasePlatform();
-        foreach ([$platform->getConcatExpression('firstName', '" "', 'lastName') => 'name', $platform->getConcatExpression('address1', '", "', 'address2') => 'address', 'city', 'state', 'country', 'zip' => 'zip_code', 'email', 'phone'] as $attribute => $alias) {
+        foreach ([$platform->getConcatExpression('u.firstName', '" "', 'u.lastName') => 'name', $platform->getConcatExpression('u.address1', '", "', 'u.address2') => 'address', 'u.city' => 'city', 'u.state' => 'state', 'u.country' => 'country', 'u.zip' => 'zip_code', 'u.email' => 'email', 'u.phone' => 'phone'] as $attribute => $alias) {
             if (!in_array('permissions_'.$alias, $permissions)) {
                 continue;
             }
             if (!is_string($attribute)) {
                 $attribute = $alias;
             }
-            $qb->addSelect("u.{$attribute} AS {$alias}");
+            $qb->addSelect("{$attribute} AS {$alias}");
         }
         $qb->addSelect('u.bio, u.slogan, CASE WHEN u.facebook_id IS NOT NULL THEN 1 ELSE 0 END AS facebook, (SELECT COUNT(f.id) FROM users_follow f WHERE f.user_id = u.id) AS followers, 0 AS karma');
         foreach ($fields as $k => $field) {

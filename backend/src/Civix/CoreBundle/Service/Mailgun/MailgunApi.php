@@ -60,7 +60,7 @@ class MailgunApi
             $params = array(
                 'address' => $listname.self::GROUP_EMAIL,
                 'description' => $description,
-                'access_level' => 'members',
+                'access_level' => 'readonly',
             );
             $this->client->post('lists', $params);
         } catch (\Exception $e) {
