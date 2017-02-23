@@ -50,6 +50,21 @@ class PostCommentsControllerTest extends CommentsControllerTest
         $this->createComment($entity, $comment);
     }
 
+    public function testCreateCommentMentionedContentOwner()
+    {
+        $repository = $this->loadFixtures([
+            LoadPostCommentData::class,
+            LoadGroupManagerData::class,
+            LoadPostSubscriberData::class,
+            LoadUserGroupOwnerData::class,
+        ])->getReferenceRepository();
+        /** @var CommentedInterface $entity */
+        $entity = $repository->getReference('post_1');
+        /** @var BaseComment $comment */
+        $comment = $repository->getReference('post_comment_3');
+        $this->createCommentMentionedContentOwner($entity, $comment);
+    }
+
     public function testCreateCommentNotifyEveryone()
     {
         $repository = $this->loadFixtures([

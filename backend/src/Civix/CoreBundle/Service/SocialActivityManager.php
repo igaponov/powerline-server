@@ -159,7 +159,11 @@ class SocialActivityManager
             $this->em->persist($socialActivity2);
         }
 
-        if ($question->getUser()->getIsNotifOwnPostChanged() && $question->getSubscribers()->contains($question->getUser())) {
+        if ($question->getUser()->getIsNotifOwnPostChanged()
+            && $question->getSubscribers()->contains($question->getUser())
+            && !$comment->getUser()->isEqualTo($question->getUser())
+            && !in_array($question->getUser(), $comment->getMentionedUsers())
+        ) {
             $socialActivity3 = new SocialActivity(
                 SocialActivity::TYPE_OWN_POLL_COMMENTED,
                 null,
@@ -203,7 +207,11 @@ class SocialActivityManager
             $this->em->persist($socialActivity2);
         }
 
-        if ($petition->getUser()->getIsNotifOwnPostChanged() && $petition->getSubscribers()->contains($petition->getUser())) {
+        if ($petition->getUser()->getIsNotifOwnPostChanged()
+            && $petition->getSubscribers()->contains($petition->getUser())
+            && !$comment->getUser()->isEqualTo($petition->getUser())
+            && !in_array($petition->getUser(), $comment->getMentionedUsers())
+        ) {
             $socialActivity3 = new SocialActivity(
                 SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED,
                 null,
@@ -247,7 +255,11 @@ class SocialActivityManager
             $this->em->persist($socialActivity2);
         }
 
-        if ($post->getUser()->getIsNotifOwnPostChanged() && $post->getSubscribers()->contains($post->getUser()) && $comment->getUser() != $post->getUser()) {
+        if ($post->getUser()->getIsNotifOwnPostChanged()
+            && $post->getSubscribers()->contains($post->getUser())
+            && !$comment->getUser()->isEqualTo($post->getUser())
+            && !in_array($post->getUser(), $comment->getMentionedUsers())
+        ) {
             $socialActivity3 = new SocialActivity(
                 SocialActivity::TYPE_OWN_POST_COMMENTED,
                 null,

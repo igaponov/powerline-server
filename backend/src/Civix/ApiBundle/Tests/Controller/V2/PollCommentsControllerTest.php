@@ -80,6 +80,21 @@ class PollCommentsControllerTest extends CommentsControllerTest
         $this->createComment($entity, $comment);
     }
 
+    public function testCreateCommentMentionedContentOwner()
+    {
+        $repository = $this->loadFixtures([
+            LoadQuestionCommentData::class,
+            LoadGroupManagerData::class,
+            LoadPollSubscriberData::class,
+            LoadUserGroupOwnerData::class,
+        ])->getReferenceRepository();
+        /** @var CommentedInterface $entity */
+        $entity = $repository->getReference('group_question_1');
+        /** @var BaseComment $comment */
+        $comment = $repository->getReference('question_comment_1');
+        $this->createCommentMentionedContentOwner($entity, $comment);
+    }
+
     public function testCreateCommentNotifyEveryone()
     {
         $repository = $this->loadFixtures([
