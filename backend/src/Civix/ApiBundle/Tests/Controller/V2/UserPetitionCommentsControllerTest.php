@@ -50,6 +50,21 @@ class UserPetitionCommentsControllerTest extends CommentsControllerTest
         $this->createComment($entity, $comment);
     }
 
+    public function testCreateCommentMentionedContentOwner()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserPetitionCommentData::class,
+            LoadGroupManagerData::class,
+            LoadUserPetitionSubscriberData::class,
+            LoadUserGroupOwnerData::class,
+        ])->getReferenceRepository();
+        /** @var CommentedInterface $entity */
+        $entity = $repository->getReference('user_petition_1');
+        /** @var BaseComment $comment */
+        $comment = $repository->getReference('petition_comment_3');
+        $this->createCommentMentionedContentOwner($entity, $comment);
+    }
+
     public function testCreateCommentNotifyEveryone()
     {
         $repository = $this->loadFixtures([
