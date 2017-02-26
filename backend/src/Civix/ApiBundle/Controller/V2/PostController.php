@@ -45,7 +45,13 @@ class PostController extends FOSRestController
      *     resource=true,
      *     section="Posts",
      *     description="List posts",
-     *     output="Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination",
+     *     output={
+     *          "class" = "array<Civix\CoreBundle\Entity\Post> as paginator",
+     *          "groups" = {"Default", "post-votes"},
+     *          "parsers" = {
+     *              "Civix\ApiBundle\Parser\PaginatorParser"
+     *          }
+     *     },
      *     filters={
      *          {"name"="start", "dataType"="datetime", "description"="Start date"}
      *     },
@@ -60,11 +66,11 @@ class PostController extends FOSRestController
      *
      * @return \Knp\Component\Pager\Pagination\PaginationInterface
      */
-    public function getcAction(ParamFetcher $params)
+    public function getPostsAction(ParamFetcher $params)
     {
         $query = $this->getDoctrine()
             ->getRepository(Post::class)
-            ->getFindByUserQuery($this->getUser(), $params->all());
+            ->getFindWithVotesQuery($this->getUser(), $params->all());
 
         return $this->get('knp_paginator')->paginate(
             $query,
@@ -74,7 +80,7 @@ class PostController extends FOSRestController
     }
 
     /**
-     * Get a single petition
+     * Get a single post
      *
      * @Route("/{id}")
      * @Method("GET")

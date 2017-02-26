@@ -140,7 +140,7 @@ class PostRepository extends EntityRepository
             ->getResult();
     }
 
-    public function getFindByUserQuery(User $user, $criteria)
+    public function getFindWithVotesQuery(User $user, $criteria)
     {
         $qb = $this->createQueryBuilder('p')
             ->select('p, u, g, a')
@@ -253,5 +253,28 @@ class PostRepository extends EntityRepository
             ->where($expr->in('p.id', $ids))
             ->getQuery()
             ->getResult();
+    }
+
+    public function getFindByUserQuery(User $user, $criteria)
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select('p, u, g')
+            ->leftJoin('p.user', 'u')
+            ->where('p.user = :creator')
+            ->setParameter(':creator', $user)
+        ;
+        if (!empty($criteria['user'])) {
+            $qb->leftJoin('p.group', 'g')
+                ->leftJoin('g.users', 'gu')
+                ->leftJoin('g.managers', 'gm')
+                ->andWhere($qb->expr()->orX(
+                    'gu.user = :user',
+                    'gm.user = :user',
+                    'g.owner = :user'
+                ))
+                ->setParameter(':user', $criteria['user']);
+        }
+
+        return $qb->getQuery();
     }
 }
