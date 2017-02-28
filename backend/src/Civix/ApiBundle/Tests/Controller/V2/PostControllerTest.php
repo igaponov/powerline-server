@@ -528,6 +528,46 @@ class PostControllerTest extends WebTestCase
         $this->assertSame(0, $count);
     }
 
+    public function testMarkPostAsSpam()
+    {
+        $repository = $this->loadFixtures([
+            LoadPostData::class,
+        ])->getReferenceRepository();
+        $client = $this->client;
+        /** @var Post $post */
+        $post = $repository->getReference('post_2');
+        $user = $repository->getReference('user_2');
+        $client->request('POST',
+            self::API_ENDPOINT.'/'.$post->getId().'/spam', [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user2"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM spam_posts WHERE post_id = ? AND user_id = ?', [$post->getId(), $user->getId()]);
+        $this->assertEquals(1, $count);
+    }
+
+    public function testUnmarkPostAsSpam()
+    {
+        $repository = $this->loadFixtures([
+            LoadSpamPostData::class,
+        ])->getReferenceRepository();
+        $client = $this->client;
+        /** @var Post $post */
+        $post = $repository->getReference('post_1');
+        $user = $repository->getReference('user_2');
+        $client->request('DELETE',
+            self::API_ENDPOINT.'/'.$post->getId().'/spam', [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user3"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM spam_posts WHERE post_id = ? AND user_id = ?', [$post->getId(), $user->getId()]);
+        $this->assertEquals(0, $count);
+    }
+
     public function getValidPostCredentialsForBoostRequest()
     {
         return [

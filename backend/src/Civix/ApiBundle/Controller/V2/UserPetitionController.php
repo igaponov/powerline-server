@@ -287,4 +287,55 @@ class UserPetitionController extends FOSRestController
     {
         $this->manager->unsignPetition($signature);
     }
+
+    /**
+     * Mark a petition as a spam
+     *
+     * @Route("/{id}/spam", requirements={"id"="\d+"})
+     * @Method("POST")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="User Petitions",
+     *     description="Mark a petition as a spam",
+     *     statusCodes={
+     *         400="Bad Request",
+     *         404="Petition Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param UserPetition $petition
+     */
+    public function postSpamAction(UserPetition $petition)
+    {
+        $petition->markAsSpam($this->getUser());
+        $this->manager->savePetition($petition);
+    }
+
+    /**
+     * Mark a petition as not a spam.
+     *
+     * @Route("/{id}/spam", requirements={"id"="\d+"})
+     * @Method("DELETE")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="User Petitions",
+     *     description="Mark a petition as not a spam",
+     *     statusCodes={
+     *         204="Success",
+     *         400="Bad Request",
+     *         404="Petition or Vote Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param UserPetition $petition
+     */
+    public function deleteSpamAction(UserPetition $petition)
+    {
+        $petition->markAsNotSpam($this->getUser());
+        $this->manager->savePetition($petition);
+    }
 }

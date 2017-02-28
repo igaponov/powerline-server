@@ -304,4 +304,55 @@ class PostController extends FOSRestController
     {
         $this->manager->unsignPost($vote);
     }
+
+    /**
+     * Mark a post as a spam
+     *
+     * @Route("/{id}/spam", requirements={"id"="\d+"})
+     * @Method("POST")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Posts",
+     *     description="Mark a post as a spam",
+     *     statusCodes={
+     *         400="Bad Request",
+     *         404="Post Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Post $post
+     */
+    public function postSpamAction(Post $post)
+    {
+        $post->markAsSpam($this->getUser());
+        $this->manager->savePost($post);
+    }
+
+    /**
+     * Mark a post as not a spam.
+     *
+     * @Route("/{id}/spam", requirements={"id"="\d+"})
+     * @Method("DELETE")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Posts",
+     *     description="Mark a post as not a spam",
+     *     statusCodes={
+     *         204="Success",
+     *         400="Bad Request",
+     *         404="Post or Vote Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Post $post
+     */
+    public function deleteSpamAction(Post $post)
+    {
+        $post->markAsNotSpam($this->getUser());
+        $this->manager->savePost($post);
+    }
 }

@@ -465,6 +465,46 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertSame(0, $count);
     }
 
+    public function testMarkPetitionAsSpam()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserPetitionData::class,
+        ])->getReferenceRepository();
+        $client = $this->client;
+        /** @var UserPetition $petition */
+        $petition = $repository->getReference('user_petition_2');
+        $user = $repository->getReference('user_2');
+        $client->request('POST',
+            self::API_ENDPOINT.'/'.$petition->getId().'/spam', [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user2"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM spam_user_petitions WHERE userpetition_id = ? AND user_id = ?', [$petition->getId(), $user->getId()]);
+        $this->assertEquals(1, $count);
+    }
+
+    public function testUnmarkPetitionAsSpam()
+    {
+        $repository = $this->loadFixtures([
+            LoadSpamUserPetitionData::class,
+        ])->getReferenceRepository();
+        $client = $this->client;
+        /** @var UserPetition $petition */
+        $petition = $repository->getReference('user_petition_1');
+        $user = $repository->getReference('user_2');
+        $client->request('DELETE',
+            self::API_ENDPOINT.'/'.$petition->getId().'/spam', [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user3"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        $conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM spam_user_petitions WHERE userpetition_id = ? AND user_id = ?', [$petition->getId(), $user->getId()]);
+        $this->assertEquals(0, $count);
+    }
+
     public function getValidPetitionCredentialsForBoostRequest()
     {
         return [
