@@ -325,7 +325,6 @@
             <argument type="service" id="mailer" />
             <argument type="service" id="templating"/>
             <argument>%mailer_from%</argument>
-            <argument>%mailer_beta_access_recipient%</argument>
             <argument>%domain%</argument>
         </service>
 

@@ -4,30 +4,25 @@ namespace Civix\CoreBundle\Service;
 
 use Civix\CoreBundle\Entity\Representative;
 use Symfony\Component\Templating\EngineInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
 
 class EmailSender
 {
     private $mailer;
     private $templating;
     private $mailFrom;
-    private $mailBetaRequestRecipient;
     private $domain;
 
     public function __construct(
         \Swift_Mailer $mailer,
         EngineInterface $templating,
         $mailFrom,
-        $mailBetaRequestRecipient,
         $domain
     ) {
         $this->mailer = $mailer;
         $this->templating = $templating;
         $this->mailFrom = $mailFrom;
-        $this->mailBetaRequestRecipient = $mailBetaRequestRecipient;
         $this->domain = $domain;
     }
 
@@ -105,86 +100,6 @@ class EmailSender
         $this->mailer->send($message);
     }
 
-    public function sendPaymentRequestCharged(
-        PaymentHistory $history,
-        PaymentRequest $paymentRequest,
-        UserInterface $user
-    ) {
-        $message = $this->createMessage(
-            'Your Powerline Payment Receipt',
-            $user->getEmail(),
-            'CivixCoreBundle:Email:payment_request_charged.html.twig',
-            [
-                'data' => $history->getDataAsArray(),
-                'paymentRequest' => $paymentRequest,
-                'user' => $user,
-                'transaction_number' => $history->getPublicId(),
-                'order_number' => $history->getOrderId(),
-            ]
-        );
-        $this->mailer->send($message);
-    }
-
-    public function sendSubscriptionCharged(PaymentHistory $history, UserInterface $user, $subscription)
-    {
-        $message = $this->createMessage(
-            'Powerline Payment: '.$history->getPublicId(),
-            $user->getEmail(),
-            'CivixCoreBundle:Email:subscription_charged.html.twig',
-            compact('user', 'history', 'subscription')
-        );
-        $this->mailer->send($message);
-    }
-
-    public function sendPaymentRequestPublishingCharged(PaymentHistory $history, UserInterface $user)
-    {
-        $message = $this->createMessage(
-            'Powerline Payment: '.$history->getPublicId(),
-            $user->getEmail(),
-            'CivixCoreBundle:Email:payment_request_publishing_charged.html.twig',
-            compact('user', 'history')
-        );
-        $this->mailer->send($message);
-    }
-
-    public function sendTransactionInfo(PaymentHistory $history, UserInterface $user,  $description = '')
-    {
-        $message = $this->createMessage(
-            'Powerline Payment: '.$history->getPublicId(),
-            $user->getEmail(),
-            'CivixCoreBundle:Email:transaction-info.html.twig',
-            compact('user', 'history', 'description')
-        );
-        $this->mailer->send($message);
-    }
-
-    public function sendPaymentRequest(PaymentRequest $paymentRequest, UserInterface $user)
-    {
-        $message = $this->createMessage(
-            $paymentRequest->getTitle(),
-            $user->getEmail(),
-            'CivixCoreBundle:Email:payment_request.html.twig',
-            [
-                'paymentRequest' => $paymentRequest,
-                'user' => $user,
-                'domain' => $this->domain,
-            ]
-        );
-        $this->mailer->send($message);
-    }
-
-    public function sendPaymentRequestOrderPayout(PaymentRequest $paymentRequest, PaymentHistory $history,
-                                                  $marketplaceAmount, $customerAmount)
-    {
-        $message = $this->createMessage(
-            'Powerline Payout: '.$history->getPublicId(),
-            $paymentRequest->getOwner()->getEmail(),
-            'CivixCoreBundle:Email:payment_request_payout.html.twig',
-            compact('history', 'paymentRequest', 'marketplaceAmount', 'customerAmount')
-        );
-        $this->mailer->send($message);
-    }
-
     /**
      * @param $subject
      * @param $emailTo
@@ -195,13 +110,10 @@ class EmailSender
      */
     private function createMessage($subject, $emailTo, $templatePath, $templateParams, $mailFrom = null)
     {
-        return \Swift_Message::newInstance()
-            ->setSubject($subject)
-            ->setFrom($mailFrom ?: $this->mailFrom)
-            ->setTo($emailTo)
-            ->setBody($this->templating->render(
-                $templatePath,
-                $templateParams
-            ), 'text/html');
+        $body = $this->templating->render($templatePath, $templateParams);
+        $message = \Swift_Message::newInstance($subject, $body, 'text/html');
+        $message->setFrom($mailFrom ?: $this->mailFrom)->setTo($emailTo);
+
+        return $message;
     }
 }
