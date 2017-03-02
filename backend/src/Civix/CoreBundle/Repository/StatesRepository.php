@@ -9,13 +9,13 @@ class StatesRepository extends EntityRepository
     public function getStatesWithSTRepresentative()
     {
         return $this->getEntityManager()
+            ->getConnection()
             ->createQueryBuilder()
-            ->select('st, COUNT(rs) AS stcount, MIN(rs.updatedAt) as lastUpdatedAt')
-            ->from('CivixCoreBundle:State', 'st')
-            ->leftJoin('st.stRepresentatives', 'rs')
-            ->groupBy('st.code, rs.state')
+            ->select('st.code, COUNT(rs.id) AS stcount, MIN(rs.updated_at) as lastUpdatedAt')
+            ->from('states', 'st')
+            ->leftJoin('st', 'cicero_representatives', 'rs', 'rs.state = st.code')
+            ->groupBy('st.code')
             ->orderBy('lastUpdatedAt', 'DESC')
-            ->addOrderBy('st.code', 'ASC')
-            ->getQuery();
+            ->addOrderBy('st.code', 'ASC');
     }
 }
