@@ -24,13 +24,13 @@
                 <tbody>
                     {% for stateRecord in pagination %}
                     <tr>
-                        <td>{{ stateRecord[0].code }}</td>
+                        <td>{{ stateRecord.code }}</td>
                         <td>{{ stateRecord.stcount }}</td>
                         <td>{{ stateRecord.lastUpdatedAt }}</td>
                         <td class="table-options">
                            {% if  stateRecord.stcount>0 %}
-                           <form class="form-link" action="{{ path('civix_front_superuser_settings_states_update', {'state': stateRecord[0].code}) }}" method="POST">
-                                <input type="hidden" name="_token" value="{{ csrf_token('state_repr_update_' ~ stateRecord[0].code) }}">
+                           <form class="form-link" action="{{ path('civix_front_superuser_settings_states_update', {'state': stateRecord.code}) }}" method="POST">
+                                <input type="hidden" name="_token" value="{{ csrf_token('state_repr_update_' ~ stateRecord.code) }}">
                                 <button type="submit" class="btn btn-link">Update</button>
                            </form>
                            {% else %}
