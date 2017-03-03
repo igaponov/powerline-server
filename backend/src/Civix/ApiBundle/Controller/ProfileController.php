@@ -282,11 +282,15 @@ class ProfileController extends BaseController
 
         $avatarFileName = $user->getAvatarFileName();
         $isAddressChanged = $new->getAddressQuery() !== $user->getAddressQuery();
+        $validationGroups = ['profile'];
+        if ($new->getEmail() !== $user->getEmail()) {
+            $validationGroups[] = 'profile-email';
+        }
 
         $this->get('civix_core.user_manager')
             ->updateProfileFull($user, $new);
 
-        $errors = $this->getValidator()->validate($user, null, array('profile'));
+        $errors = $this->getValidator()->validate($user, null, $validationGroups);
 
         if (count($errors) > 0) {
             $response->setStatusCode(400)->setContent(json_encode(array('errors' => $this->transformErrors($errors))));

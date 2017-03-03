@@ -3,6 +3,7 @@ namespace Civix\ApiBundle\Tests\Controller;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Issue\PM533;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -85,6 +86,73 @@ class ProfileControllerTest extends WebTestCase
             'https://powerline-dev.imgix.net/avatars/'.key($files).'?ixlib=php-1.1.0',
             $data['avatar_file_name']
         );
+    }
+
+	public function testUpdateProfileWithErrors()
+	{
+        $this->loadFixtures([
+            LoadUserData::class,
+        ]);
+        $params = [
+            'username' => 'user2',
+            'first_name' => '',
+            'last_name' => '',
+            'email' => 'user2@example.com',
+            'zip' => '',
+        ];
+        $client = $this->client;
+		$client->request('POST', self::API_ENDPOINT.'update', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode($params));
+		$response = $client->getResponse();
+        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertCount(4, $data['errors']);
+        foreach ($data['errors'] as $error) {
+            switch ($error['property']) {
+                case 'firstName':
+                    $message = 'This value should not be blank.';
+                    break;
+                case 'lastName':
+                    $message = 'This value should not be blank.';
+                    break;
+                case 'zip':
+                    $message = 'This value should not be blank.';
+                    break;
+                case 'email':
+                    $message = 'This value is already used.';
+                    break;
+                default:
+                    $this->fail("Property {$error['property']} should not have an error");
+                    return;
+            }
+            $this->assertEquals($message, $error['message']);
+        }
+    }
+
+	public function testUpdateWithSameEmail()
+	{
+        $this->loadFixtures([
+            LoadUserData::class,
+            PM533::class,
+        ]);
+        $params = [
+            'email' => 'user1@example.com',
+            'first_name' => 'new-firstName',
+            'last_name' => 'new-lastName',
+            'zip' => 'new-zip',
+        ];
+        $client = $this->client;
+        $service = $this->getServiceMockBuilder('civix_core.group_manager')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $service->expects($this->once())
+            ->method('autoJoinUser')
+            ->with($this->isInstanceOf(User::class));
+        $client->getContainer()->set('civix_core.group_manager', $service);
+		$client->request('POST', self::API_ENDPOINT.'update', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode($params));
+		$response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame($params['email'], $data['email']);
     }
 
 	public function testUpdateSettings()
