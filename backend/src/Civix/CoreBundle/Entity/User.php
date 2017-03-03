@@ -33,7 +33,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  * )
  * @UniqueEntity(
  *      fields={"email"},
- *      groups={"registration", "profile"}
+ *      groups={"registration", "profile-email"}
  * )
  * @UniqueEntity(
  *      fields={"facebookId"},
