@@ -6,6 +6,7 @@
 
     <imports>
         <import resource="services/security.xml"/>
+        <import resource="services/form.yml"/>
     </imports>
 
     <services>

@@ -6,6 +6,7 @@ use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Civix\CoreBundle\Entity\OfficialInterface;
 use Civix\CoreBundle\Entity\Stripe\BankAccount;
 use Civix\CoreBundle\Entity\Stripe\Card;
+use Civix\CoreBundle\Entity\User;
 use Doctrine\ORM\EntityManager;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Stripe\Customer;
@@ -218,7 +219,7 @@ class Stripe
                 $stripeSubscription = $stripeCustomer->subscriptions
                     ->retrieve($subscription->getStripeId());
                 $stripeSubscription->plan = $subscription->getPlanId();
-                $stripeSubscription->coupon = $subscription->getCoupon();
+                $stripeSubscription->coupon = $subscription->getCoupon()->getCode();
                 $stripeSubscription->save();
             } catch (Error\InvalidRequest $e) {
                 if (404 === $e->getHttpStatus()) {
@@ -227,14 +228,14 @@ class Stripe
                 $stripeSubscription = $stripeCustomer->subscriptions
                     ->create([
                         'plan' => $subscription->getPlanId(),
-                        'coupon' => $subscription->getCoupon(),
+                        'coupon' => $subscription->getCoupon()->getCode(),
                     ]);
             }
         } else {
             $stripeSubscription = $stripeCustomer->subscriptions
                 ->create([
                     'plan' => $subscription->getPlanId(),
-                    'coupon' => $subscription->getCoupon(),
+                    'coupon' => $subscription->getCoupon()->getCode(),
                 ]);
         }
 
@@ -344,6 +345,23 @@ class Stripe
     public function deleteAccount(AccountInterface $account)
     {
         Account::retrieve($account->getId())->delete();
+    }
+
+    public function createCoupon(User $user)
+    {
+        /** @var Coupon|\stdClass $coupon */
+        $coupon = Coupon::create(
+            [
+                "percent_off" => 100,
+                "duration" => "repeating",
+                "duration_in_months" => 3,
+                "metadata" => [
+                    "id" => $user->getId(),
+                ],
+            ]
+        );
+
+        return $coupon->id;
     }
 
     private function getAppearsOnStatement(LeaderContentRootInterface $root)

@@ -45,6 +45,7 @@ parameters:
 
     stripe_api_key:  sk_test_vpedTPsiXZZ8SSwS4isZzHWw
     stripe_publishable_key:  pk_test_QUgSE3ZhORW9yoDuCkMjnaA2
+    stripe_referral_code: 1STMONTH
 
     domain: powerli.ne
     hostname: api.powerli.ne

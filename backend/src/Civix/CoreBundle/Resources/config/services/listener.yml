@@ -1,0 +1,10 @@
+services:
+    civix_core.event_listener.discount_code_subscriber:
+        class: Civix\CoreBundle\EventListener\DiscountCodeSubscriber
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - '@security.token_storage'
+            - '@civix_core.stripe'
+            - '%stripe_referral_code%'
+        tags:
+            - { name: kernel.event_subscriber }

@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Entity\Subscription;
 
 use Civix\CoreBundle\Entity\LeaderContentRootInterface;
+use Civix\CoreBundle\Model\Coupon;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinColumn;
 use JMS\Serializer\Annotation as Serializer;
@@ -114,7 +115,7 @@ class Subscription
     private $stripeSyncAt;
 
     /**
-     * @var string
+     * @var Coupon
      */
     private $coupon;
 
@@ -438,7 +439,7 @@ class Subscription
     }
 
     /**
-     * @return string
+     * @return Coupon
      */
     public function getCoupon()
     {
@@ -446,10 +447,10 @@ class Subscription
     }
 
     /**
-     * @param string $coupon
+     * @param Coupon $coupon
      * @return Subscription
      */
-    public function setCoupon($coupon)
+    public function setCoupon(Coupon $coupon)
     {
         $this->coupon = $coupon;
 

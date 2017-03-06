@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Service;
 
+use Civix\CoreBundle\Entity\DiscountCode;
 use Civix\CoreBundle\Entity\Representative;
 use Symfony\Component\Templating\EngineInterface;
 use Civix\CoreBundle\Entity\Group;
@@ -96,6 +97,17 @@ class EmailSender
             'CivixCoreBundle:Email:registration.html.twig',
             compact('user'),
             'welcome@powerli.ne'
+        );
+        $this->mailer->send($message);
+    }
+
+    public function sendRewardCodeEmail(User $user, DiscountCode $discountCode)
+    {
+        $message = $this->createMessage(
+            'You\'ve earned a Powerline Reward!',
+            $user->getEmail(),
+            '@CivixCore/Email/reward_code.html.twig',
+            compact('discountCode')
         );
         $this->mailer->send($message);
     }

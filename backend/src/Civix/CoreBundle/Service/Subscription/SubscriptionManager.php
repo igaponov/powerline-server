@@ -3,10 +3,14 @@
 namespace Civix\CoreBundle\Service\Subscription;
 
 use Civix\CoreBundle\Entity\LeaderContentRootInterface;
+use Civix\CoreBundle\Event\SubscriptionEvent;
+use Civix\CoreBundle\Event\SubscriptionEvents;
 use Doctrine\ORM\EntityManager;
 use Civix\CoreBundle\Service\Stripe;
 use Civix\CoreBundle\Entity\Subscription\Subscription;
 use Civix\CoreBundle\Model\Subscription\Package;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SubscriptionManager
 {
@@ -35,11 +39,19 @@ class SubscriptionManager
         Subscription::PACKAGE_TYPE_PLATINUM => 125,
         Subscription::PACKAGE_TYPE_COMMERCIAL => null,
     ];
+    /**
+     * @var EventDispatcher
+     */
+    private $dispatcher;
 
-    public function __construct(EntityManager $em, Stripe $stripe)
-    {
+    public function __construct(
+        EntityManager $em,
+        Stripe $stripe,
+        EventDispatcherInterface $dispatcher
+    ) {
         $this->em = $em;
         $this->stripe = $stripe;
+        $this->dispatcher = $dispatcher;
     }
 
     /**
@@ -146,7 +158,12 @@ class SubscriptionManager
 
     public function subscribe(Subscription $subscription)
     {
-        return $this->stripe->handleSubscription($subscription);
+        $subscription = $this->stripe->handleSubscription($subscription);
+
+        $event = new SubscriptionEvent($subscription);
+        $this->dispatcher->dispatch(SubscriptionEvents::SUBSCRIBE, $event);
+
+        return $subscription;
     }
 
     public function unsubscribe(Subscription $subscription)
