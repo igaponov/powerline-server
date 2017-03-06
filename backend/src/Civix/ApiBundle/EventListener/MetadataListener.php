@@ -7,18 +7,24 @@ use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Service\HTMLMetadataParser;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 
 class MetadataListener
 {
     const PATTERN = '@((https?://)?([-\w]+\.[-\w\.]+)+\w(:\d+)?(/([-\w/_\.\,]*(\?\S+)?)?)*)@';
 
     /**
+     * @var Client
+     */
+    private $client;
+    /**
      * @var HTMLMetadataParser
      */
     private $parser;
 
-    public function __construct(HTMLMetadataParser $parser)
+    public function __construct(Client $client, HTMLMetadataParser $parser)
     {
+        $this->client = $client;
         $this->parser = $parser;
     }
 
@@ -26,13 +32,18 @@ class MetadataListener
     {
         $entity = $args->getEntity();
 
-        if (!$entity instanceof Post && !$entity instanceof UserPetition) {
+        if ((!$entity instanceof Post && !$entity instanceof UserPetition)
+            || !preg_match_all(self::PATTERN, $entity->getBody(), $matches)
+        ) {
             return;
         }
 
-        if (preg_match(self::PATTERN, $entity->getBody(), $matches)) {
-            $url = $matches[1];
-            $response = $this->getResponse($url);
+        foreach ($matches[0] as $url) {
+            try {
+                $response = $this->client->get($url);
+            } catch (GuzzleException $e) {
+                continue;
+            }
             $header = $response->getHeaderLine('content-type');
             if ($header && strpos($header, 'image') === 0) {
                 $metadata = new Metadata();
@@ -46,12 +57,7 @@ class MetadataListener
                     $entity->setMetadata($metadata);
                 }
             }
+            break;
         }
-    }
-
-    protected function getResponse($url)
-    {
-        $client = new Client();
-        return $client->get($url);
     }
 }

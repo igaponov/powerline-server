@@ -9,6 +9,8 @@
     </imports>
 
     <services>
+        <service id="http.client" class="GuzzleHttp\Client" />
+
         <service id="api.cors" class="Civix\ApiBundle\EventListener\CORSSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -21,6 +23,7 @@
         </service>
 
         <service class="Civix\ApiBundle\EventListener\MetadataListener" id="civix_api.event_listener.petition_metadata_listener">
+            <argument id="http.client" type="service" />
             <argument id="civix_core.service.htmlmetadata_parser" type="service"/>
             <tag name="doctrine.event_listener" event="postPersist" />
         </service>
