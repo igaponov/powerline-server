@@ -1,0 +1,6 @@
+services:
+    civix_api.form_type.subscription_type:
+        class: Civix\ApiBundle\Form\Type\SubscriptionType
+        arguments: ['@doctrine.orm.default_entity_manager']
+        tags:
+            - { name: form.type, alias: Civix\ApiBundle\Form\Type\SubscriptionType }

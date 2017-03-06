@@ -3,6 +3,7 @@ namespace Civix\ApiBundle\Tests\Controller;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Service\CropImage;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
@@ -77,6 +78,7 @@ class SecureControllerTest extends WebTestCase
 	public function testDisabledUserLoginFails()
 	{
 	    $em = $this->client->getContainer()->get('doctrine')->getManager();
+	    /** @var User $user */
 	    $user = $em->getRepository(User::class)->findOneBy(['username' => 'user1']);
 	    $user->disable();
 	    $em->persist($user);
@@ -130,7 +132,7 @@ class SecureControllerTest extends WebTestCase
             'avatar_file_name' => $path,
 		];
 		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
-		$service = $this->getServiceMockBuilder('civix_core.crop_image')
+		$service = $this->getMockBuilder(CropImage::class)
             ->setMethods(['rebuildImage'])
             ->getMock();
 		$service->expects($this->once())
@@ -162,6 +164,9 @@ class SecureControllerTest extends WebTestCase
 		$this->assertSame(strtotime($data['birth']), strtotime($user['birth']));
         $storage = $client->getContainer()->get('civix_core.storage.array');
         $this->assertCount(1, $storage->getFiles('avatar_image_fs'));
+        $code = $conn->fetchAssoc('SELECT * FROM discount_codes WHERE owner_id = ?', [$user['id']]);
+        $this->assertNotEmpty($code['code']);
+        $this->assertSame($client->getContainer()->getParameter('stripe_referral_code'), $code['original_code']);
 
 		$client->request('POST', '/api/secure/login', ['username' => $data['username'], 'password' => $data['password']]);
 		$response = $client->getResponse();

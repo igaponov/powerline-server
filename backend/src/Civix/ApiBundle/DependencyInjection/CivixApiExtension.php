@@ -2,6 +2,8 @@
 
 namespace Civix\ApiBundle\DependencyInjection;
 
+use Symfony\Component\Config\Loader\DelegatingLoader;
+use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
@@ -20,9 +22,15 @@ class CivixApiExtension extends Extension
     public function load(array $configs, ContainerBuilder $container)
     {
         $configuration = new Configuration();
-        $config = $this->processConfiguration($configuration, $configs);
+        $this->processConfiguration($configuration, $configs);
 
-        $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $fileLocator = new FileLocator(__DIR__.'/../Resources/config');
+        $loader = new DelegatingLoader(
+            new LoaderResolver([
+                new Loader\XmlFileLoader($container, $fileLocator),
+                new Loader\YamlFileLoader($container, $fileLocator),
+            ])
+        );
         $loader->load('services.xml');
     }
 }
