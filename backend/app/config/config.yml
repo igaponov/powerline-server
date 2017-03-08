@@ -227,8 +227,10 @@ fos_rest:
         codes:
             Symfony\Component\Security\Core\Exception\AccessDeniedException: 403
             Stripe\Error\Card: 400
+            Stripe\Error\InvalidRequest: 400
         messages:
             Stripe\Error\Card: true
+            Stripe\Error\InvalidRequest: true
     view:
         view_response_listener: 'force'
         formats:
