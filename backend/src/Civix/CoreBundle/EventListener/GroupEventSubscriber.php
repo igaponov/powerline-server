@@ -74,7 +74,7 @@ class GroupEventSubscriber implements EventSubscriberInterface
     {
         $group = $event->getGroup();
 
-        if (!$group->getOwner()->isEqualTo($event->getUser())) {
+        if (!$group->getOwner() || !$group->getOwner()->isEqualTo($event->getUser())) {
             return;
         }
 
