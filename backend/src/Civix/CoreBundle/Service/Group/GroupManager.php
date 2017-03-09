@@ -78,6 +78,15 @@ class GroupManager
         $this->dispatcher->dispatch(GroupEvents::CREATED, $event);
     }
 
+    public function delete(Group $group)
+    {
+        $event = new GroupEvent($group);
+        $this->dispatcher->dispatch(GroupEvents::BEFORE_DELETE, $event);
+
+        $this->entityManager->remove($group);
+        $this->entityManager->flush();
+    }
+
     /**
      * @param Worksheet $worksheet
      * @return UserGroup
