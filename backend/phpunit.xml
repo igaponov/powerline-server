@@ -15,7 +15,7 @@
     <php>
         <ini name="error_reporting" value="-1" />
         <server name="KERNEL_DIR" value="app/" />
-        <const name="PHPUNIT_COMPOSER_INSTALL" value="autoload.php"/>
+        <const name="PHPUNIT_COMPOSER_INSTALL" value="app/autoload.php"/>
     </php>
 
     <testsuites>
