@@ -4,12 +4,14 @@ namespace Civix\ApiBundle\Tests\Controller;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Service\CropImage;
+use Civix\CoreBundle\Service\Group\GroupManager;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
+use Liip\FunctionalTestBundle\Annotations\QueryCount;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class SecureControllerTest extends WebTestCase
@@ -112,6 +114,9 @@ class SecureControllerTest extends WebTestCase
 		}
 	}
 
+    /**
+     * @QueryCount(10)
+     */
 	public function testRegistrationIsOk()
 	{
 		$faker = Factory::create();
@@ -142,6 +147,13 @@ class SecureControllerTest extends WebTestCase
                 return file_put_contents($tempFile, file_get_contents(__DIR__.'/../data/image.png'));
             });
 		$client->getContainer()->set('civix_core.crop_image', $service);
+		$service = $this->getMockBuilder(GroupManager::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['autoJoinUser'])
+            ->getMock();
+		$service->expects($this->once())
+            ->method('autoJoinUser');
+		$client->getContainer()->set('civix_core.group_manager', $service);
 		$client->request('POST', '/api/secure/registration', [], [], [], json_encode($data));
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -174,7 +186,10 @@ class SecureControllerTest extends WebTestCase
 		$this->assertNotEmpty($data['token']);
 	}
 
-	public function testFacebookRegistrationIsOk()
+    /**
+     * @QueryCount(10)
+     */
+    public function testFacebookRegistrationIsOk()
 	{
 		$faker = Factory::create();
 		$data = [
@@ -200,6 +215,13 @@ class SecureControllerTest extends WebTestCase
             ->getMock();
         $mock->expects($this->any())->method('getFacebookId')->will($this->returnValue('yyy'));
         $client->getContainer()->set($serviceId, $mock);
+        $service = $this->getMockBuilder(GroupManager::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['autoJoinUser'])
+            ->getMock();
+        $service->expects($this->once())
+            ->method('autoJoinUser');
+        $client->getContainer()->set('civix_core.group_manager', $service);
 		$client->request('POST', '/api/secure/registration-facebook', [], [], [], json_encode($data));
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
