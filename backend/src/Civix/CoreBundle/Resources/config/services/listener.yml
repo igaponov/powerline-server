@@ -8,3 +8,9 @@ services:
             - '%stripe_referral_code%'
         tags:
             - { name: kernel.event_subscriber }
+
+    civix_core.event_listener.report_subscriber:
+        class: Civix\CoreBundle\EventListener\ReportSubscriber
+        arguments: ['@doctrine.orm.default_entity_manager']
+        tags:
+            - { name: kernel.event_subscriber }

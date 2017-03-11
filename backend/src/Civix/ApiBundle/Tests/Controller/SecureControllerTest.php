@@ -2,6 +2,7 @@
 namespace Civix\ApiBundle\Tests\Controller;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Report\UserReport;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Service\CropImage;
 use Civix\CoreBundle\Service\Group\GroupManager;
@@ -10,6 +11,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManager;
 use Faker\Factory;
 use Liip\FunctionalTestBundle\Annotations\QueryCount;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -115,7 +117,15 @@ class SecureControllerTest extends WebTestCase
 	}
 
     /**
-     * @QueryCount(10)
+     * @QueryCount(11)
+     * 1. Check username is free
+     * 2. Check email is free
+     * 3-5. Insert user in transaction
+     * 6. Select deferred_invites
+     * 7-9. Add discount code in transaction
+     * 10. Add user report
+     * 11. Check "Powerline Powerusers" group to join
+     * @todo move all updates to one transaction
      */
 	public function testRegistrationIsOk()
 	{
@@ -161,7 +171,7 @@ class SecureControllerTest extends WebTestCase
 		$result = json_decode($response->getContent(), true);
 		$this->assertSame($data['username'], $result['username']);
 		/** @var Connection $conn */
-		$conn = $client->getContainer()->get('doctrine')->getConnection();
+		$conn = $client->getContainer()->get('doctrine.dbal.default_connection');
 		$user = $conn->fetchAssoc('SELECT * FROM user WHERE username = ?', [$result['username']]);
 		$this->assertSame($data['username'], $user['username']);
 		$this->assertSame($data['first_name'], $user['firstName']);
@@ -179,6 +189,14 @@ class SecureControllerTest extends WebTestCase
         $code = $conn->fetchAssoc('SELECT * FROM discount_codes WHERE owner_id = ?', [$user['id']]);
         $this->assertNotEmpty($code['code']);
         $this->assertSame($client->getContainer()->getParameter('stripe_referral_code'), $code['original_code']);
+        /** @var EntityManager $em */
+        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
+        $user = $em->getRepository(User::class)->find($user['id']);
+        $report = $em->getRepository(UserReport::class)
+            ->getUserReport($user);
+        $this->assertEquals($user->getId(), $report[0]['user']);
+        $this->assertEquals(0, $report[0]['followers']);
+        $this->assertEquals([], $report[0]['representatives']);
 
 		$client->request('POST', '/api/secure/login', ['username' => $data['username'], 'password' => $data['password']]);
 		$response = $client->getResponse();
@@ -187,7 +205,8 @@ class SecureControllerTest extends WebTestCase
 	}
 
     /**
-     * @QueryCount(10)
+     * @QueryCount(11)
+     * @todo see testRegistrationIsOk
      */
     public function testFacebookRegistrationIsOk()
 	{
@@ -244,6 +263,14 @@ class SecureControllerTest extends WebTestCase
 		$this->assertSame($data['zip'], $user['zip']);
 		$this->assertSame($data['country'], $user['country']);
 		$this->assertSame(strtotime($data['birth']), strtotime($user['birth']));
+        /** @var EntityManager $em */
+        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
+        $user = $em->getRepository(User::class)->find($user['id']);
+        $report = $em->getRepository(UserReport::class)
+            ->getUserReport($user);
+        $this->assertEquals($user->getId(), $report[0]['user']);
+        $this->assertEquals(0, $report[0]['followers']);
+        $this->assertEquals([], $report[0]['representatives']);
 
         $client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
         $client->getContainer()->set($serviceId, $mock);

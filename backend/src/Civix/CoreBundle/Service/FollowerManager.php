@@ -46,13 +46,16 @@ class FollowerManager
         $this->em->flush();
 
         $event = new UserFollowEvent($userFollow);
-        $this->dispatcher->dispatch(UserEvents::FOLLOWED, $event);
+        $this->dispatcher->dispatch(UserEvents::FOLLOW, $event);
     }
 
     public function unfollow(UserFollow $userFollow)
     {
         $this->em->remove($userFollow);
         $this->em->flush();
+
+        $event = new UserFollowEvent($userFollow);
+        $this->dispatcher->dispatch(UserEvents::UNFOLLOW, $event);
     }
 
     public function approve(UserFollow $userFollow)
@@ -61,6 +64,9 @@ class FollowerManager
             $userFollow->approve();
             $this->em->persist($userFollow);
             $this->em->flush();
+
+            $event = new UserFollowEvent($userFollow);
+            $this->dispatcher->dispatch(UserEvents::FOLLOW_REQUEST_APPROVE, $event);
         }
     }
 }

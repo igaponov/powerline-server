@@ -118,7 +118,7 @@ class ProfileController extends BaseController
             $entityManager->flush();
             if ('follow' === $status) {
                 $event = new UserFollowEvent($follow);
-                $this->get('event_dispatcher')->dispatch(UserEvents::FOLLOWED, $event);
+                $this->get('event_dispatcher')->dispatch(UserEvents::FOLLOW, $event);
             }
             $response->setContent(json_encode(array('success' => 'ok')));
         } else {
