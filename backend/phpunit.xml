@@ -34,8 +34,4 @@
         </whitelist>
     </filter>
 
-    <listeners>
-        <listener class="Civix\CoreBundle\Tests\CacheClearListener" />
-    </listeners>
-
 </phpunit>
