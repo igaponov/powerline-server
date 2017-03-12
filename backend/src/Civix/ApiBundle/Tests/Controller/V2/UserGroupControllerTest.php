@@ -3,6 +3,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\Report\MembershipReport;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Model\Subscription\PackageLimitState;
 use Civix\CoreBundle\Service\Stripe;
@@ -13,8 +14,10 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadMembershipReportData;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
+use Liip\FunctionalTestBundle\Annotations\QueryCount;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class UserGroupControllerTest extends WebTestCase
@@ -167,6 +170,8 @@ class UserGroupControllerTest extends WebTestCase
     }
 
     /**
+     * @QueryCount(14)
+     * @todo see testJoinGroupWithFieldsIsOk
      * @param $reference
      * @param $status
      * @dataProvider getJoinedGroupStatuses
@@ -177,6 +182,7 @@ class UserGroupControllerTest extends WebTestCase
             LoadUserData::class,
             LoadGroupData::class,
         ])->getReferenceRepository();
+        /** @var Group $group */
         $group = $repository->getReference($reference);
         $client = $this->client;
         $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user4"']);
@@ -188,6 +194,10 @@ class UserGroupControllerTest extends WebTestCase
         $conn = $client->getContainer()->get('doctrine')->getConnection();
         $currentStatus = $conn->fetchColumn('SELECT status FROM users_groups WHERE group_id = ?', [$group->getId()]);
         $this->assertEquals($status, $currentStatus);
+        $result = $this->em->getRepository(MembershipReport::class)
+            ->getMembershipReport($group);
+        $this->assertEquals($group->getId(), $result[0]['group']);
+        $this->assertEquals([], $result[0]['fields']);
     }
 
     public function getJoinedGroupStatuses()
@@ -198,12 +208,29 @@ class UserGroupControllerTest extends WebTestCase
         ];
     }
 
+    /**
+     * @QueryCount(17)
+     * Queries:
+     * 1. Get user
+     * 2. Get group
+     * 3. Get group fields for group
+     * 4. Get notification_invites (get rid?)
+     * 5. Check if the user is already joined
+     * 6. Delete invites
+     * 7-9. Insert user group in transaction
+     * 10-12. Insert social activity "join-to-group-approved" in transaction
+     * 13-15. Insert group field values in transaction
+     * 16. Replace membership report
+     * 17. Get a user's role for a group (serializer, JoinStatusHandler)
+     * @todo get rid from one invite? Move all queries to one transaction.
+     */
     public function testJoinGroupWithFieldsIsOk()
     {
         $repository = $this->loadFixtures([
             LoadGroupFieldsData::class,
         ])->getReferenceRepository();
         $user = $repository->getReference('user_4');
+        /** @var Group $group */
         $group = $repository->getReference('group_3');
         /** @var Group\GroupField $field */
         $field = $repository->getReference('another-group-field');
@@ -237,6 +264,10 @@ class UserGroupControllerTest extends WebTestCase
         $this->assertEquals(UserGroup::STATUS_ACTIVE, $currentStatus);
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM groups_fields_values WHERE field_value = ? AND user_id = ?', [$fieldValue, $user->getId()]);
         $this->assertEquals(1, $count);
+        $result = $this->em->getRepository(MembershipReport::class)
+            ->getMembershipReport($group);
+        $this->assertEquals($group->getId(), $result[0]['group']);
+        $this->assertEquals([$field->getId() => $fieldValue], $result[0]['fields']);
     }
 
     public function testJoinGroupWithErrors()
@@ -266,13 +297,15 @@ class UserGroupControllerTest extends WebTestCase
         ]);
     }
 
+    /**
+     * @QueryCount(4)
+     */
     public function testUnjoinGroupIsOk()
     {
         $repository = $this->loadFixtures([
-            LoadUserData::class,
-            LoadGroupData::class,
-            LoadUserGroupData::class,
+            LoadMembershipReportData::class,
         ])->getReferenceRepository();
+        /** @var Group $group */
         $group = $repository->getReference('group_1');
         $user = $repository->getReference('user_4');
         $client = $this->client;
@@ -283,8 +316,16 @@ class UserGroupControllerTest extends WebTestCase
         $conn = $client->getContainer()->get('doctrine')->getConnection();
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM users_groups WHERE group_id = ? AND user_id = ?', [$group->getId(), $user->getId()]);
         $this->assertEquals(0, $count);
+        $result = $this->em->getRepository(MembershipReport::class)
+            ->getMembershipReport($group);
+        $this->assertEmpty($result);
     }
 
+    /**
+     * @QueryCount(9)
+     * 7. Get group's fields to count
+     * @todo get rid of Group::updateFillFieldsRequired()
+     */
     public function testOwnerUnjoinGroupSetsManagerAsOwner()
     {
         $repository = $this->loadFixtures([

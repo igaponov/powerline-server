@@ -25,7 +25,7 @@ class GroupManager
     /**
      * @var EntityManager
      */
-    private $entityManager;
+    private $em;
 
     /**
      * @var Geocode
@@ -50,20 +50,20 @@ class GroupManager
     ];
 
     public function __construct(
-        EntityManager $entityManager, 
+        EntityManager $em,
         Geocode $geocode,
         EventDispatcherInterface $dispatcher
     )
     {
-        $this->entityManager = $entityManager;
+        $this->em = $em;
         $this->geocode = $geocode;
         $this->dispatcher = $dispatcher;
     }
 
     public function register(Group $group)
     {
-        $this->entityManager->persist($group);
-        $this->entityManager->flush();
+        $this->em->persist($group);
+        $this->em->flush();
 
         $event = new GroupEvent($group);
         $this->dispatcher->dispatch(GroupEvents::REGISTERED, $event);
@@ -71,8 +71,8 @@ class GroupManager
 
     public function create(Group $group)
     {
-        $this->entityManager->persist($group);
-        $this->entityManager->flush();
+        $this->em->persist($group);
+        $this->em->flush();
 
         $event = new GroupEvent($group);
         $this->dispatcher->dispatch(GroupEvents::CREATED, $event);
@@ -84,7 +84,23 @@ class GroupManager
      */
     public function inquire(Worksheet $worksheet)
     {
-        $userGroup = $this->joinToGroup($worksheet->getUser(), $worksheet->getGroup());
+        $user = $worksheet->getUser();
+        $group = $worksheet->getGroup();
+        $userGroup = $this->joinToGroup($user, $group);
+
+        //save fields values
+        if ($group->getFillFieldsRequired()) {
+            foreach ($worksheet->getAnsweredFields() as $field) {
+                $groupField = $this->em->getRepository(Group\GroupField::class)
+                    ->find($field->getId());
+                $fieldValue = new Group\FieldValue();
+                $fieldValue->setField($groupField);
+                $fieldValue->setFieldValue($field->getValue());
+                $fieldValue->setUser($user);
+                $this->em->persist($fieldValue);
+            }
+        }
+        $this->em->flush();
 
         $event = new InquiryEvent($worksheet);
         $this->dispatcher->dispatch(GroupEvents::USER_INQUIRED, $event);
@@ -95,7 +111,7 @@ class GroupManager
     public function joinToGroup(User $user, Group $group)
     {
         //current status Group
-        $userGroup = $this->entityManager
+        $userGroup = $this->em
             ->getRepository('CivixCoreBundle:UserGroup')
             ->isJoinedUser($group, $user);
 
@@ -110,14 +126,14 @@ class GroupManager
             $user->removeInvite($group);
         }
         $userGroup->setPermissionsByGroup($group);
-        $this->entityManager->createQueryBuilder()
+        $this->em->createQueryBuilder()
             ->delete(UserToGroup::class, 'i')
             ->where('i.user = :user AND i.group = :group')
             ->setParameter('user', $user)
             ->setParameter('group', $group)
             ->getQuery()->execute();
-        $this->entityManager->persist($userGroup);
-        $this->entityManager->flush($userGroup);
+        $this->em->persist($userGroup);
+        $this->em->flush($userGroup);
 
         $event = new GroupUserEvent($group, $user);
         $this->dispatcher->dispatch(GroupEvents::USER_JOINED, $event);
@@ -130,7 +146,7 @@ class GroupManager
         $event = new GroupUserEvent($group, $user);
         $this->dispatcher->dispatch(GroupEvents::USER_BEFORE_UNJOIN, $event);
         
-        $this->entityManager->createQueryBuilder()
+        $this->em->createQueryBuilder()
             ->delete(UserGroup::class, 'ug')
             ->where('ug.group = :group AND ug.user = :user')
             ->setParameter('group', $group)
@@ -179,7 +195,7 @@ class GroupManager
         $this->resetGeoGroups($user);
 
         $query = $user->getAddressQuery();
-        $repository = $this->entityManager->getRepository('CivixCoreBundle:Group');
+        $repository = $this->em->getRepository('CivixCoreBundle:Group');
 
         $country = $this->geocode->getCountry($query);
         if ($country) {
@@ -245,9 +261,9 @@ class GroupManager
 
     public function resetGeoGroups(User $user)
     {
-        $userGroups = $this->entityManager->getRepository(UserGroup::class)->getGeoUserGroups($user);
+        $userGroups = $this->em->getRepository(UserGroup::class)->getGeoUserGroups($user);
         if (!empty($userGroups)) {
-            $this->entityManager->createQueryBuilder()
+            $this->em->createQueryBuilder()
                 ->delete(UserGroup::class, 'ug')
                 ->where('ug.id IN (:ids)')
                 ->setParameter('ids', array_map(function (UserGroup $userGroup) {
@@ -264,8 +280,8 @@ class GroupManager
 
     public function changeMembershipControl(Group $group)
     {
-        $this->entityManager->persist($group);
-        $this->entityManager->flush();
+        $this->em->persist($group);
+        $this->em->flush();
         
         $event = new GroupEvent($group);
         $this->dispatcher->dispatch(GroupEvents::MEMBERSHIP_CONTROL_CHANGED, $event);
@@ -275,12 +291,12 @@ class GroupManager
 
     public function changePermissionSettings(Group $group)
     {
-        $uow = $this->entityManager->getUnitOfWork();
+        $uow = $this->em->getUnitOfWork();
         $changeSet = $uow->getOriginalEntityData($group);
 
         $group->setPermissionsChangedAt(new \DateTime());
-        $this->entityManager->persist($group);
-        $this->entityManager->flush();
+        $this->em->persist($group);
+        $this->em->flush();
 
         $isMore = $this->isMorePermissions(
             $changeSet['requiredPermissions'],
@@ -302,7 +318,7 @@ class GroupManager
      */
     public function joinUsersByUsername(Group $group, User $inviter, $userNames)
     {
-        $iterator = $this->entityManager->getRepository(User::class)
+        $iterator = $this->em->getRepository(User::class)
             ->findForInviteByGroupUsername($group, $userNames);
         $this->inviteUsersToGroup($group, $inviter, $iterator);
     }
@@ -312,10 +328,10 @@ class GroupManager
         if ($post->isSupportersWereInvited()) {
             throw new \RuntimeException('Supporters were already invited for this post.');
         }
-        $iterator = $this->entityManager->getRepository(User::class)
+        $iterator = $this->em->getRepository(User::class)
             ->findForInviteByPostUpvotes($group, $post);
         $post->setSupportersWereInvited(true);
-        $this->entityManager->persist($post);
+        $this->em->persist($post);
         $this->inviteUsersToGroup($group, $inviter, $iterator);
     }
 
@@ -324,10 +340,10 @@ class GroupManager
         if ($petition->isSupportersWereInvited()) {
             throw new \RuntimeException('Supporters were already invited for this petition.');
         }
-        $iterator = $this->entityManager->getRepository(User::class)
+        $iterator = $this->em->getRepository(User::class)
             ->findForInviteByUserPetitionSignatures($group, $petition);
         $petition->setSupportersWereInvited(true);
-        $this->entityManager->persist($petition);
+        $this->em->persist($petition);
         $this->inviteUsersToGroup($group, $inviter, $iterator);
     }
 
@@ -346,8 +362,8 @@ class GroupManager
     public function approveUser(UserGroup $userGroup)
     {
         $userGroup->setStatus(UserGroup::STATUS_ACTIVE);
-        $this->entityManager->persist($userGroup);
-        $this->entityManager->flush();
+        $this->em->persist($userGroup);
+        $this->em->flush();
 
         $event = new GroupUserEvent($userGroup->getGroup(), $userGroup->getUser());
         $this->dispatcher->dispatch(GroupEvents::USER_JOINED, $event);
@@ -356,16 +372,16 @@ class GroupManager
     public function banUser(UserGroup $userGroup)
     {
         $userGroup->setStatus(UserGroup::STATUS_BANNED);
-        $this->entityManager->persist($userGroup);
-        $this->entityManager->flush();
+        $this->em->persist($userGroup);
+        $this->em->flush();
     }
 
     public function removeInvite(Group $group, User $user)
     {
         if ($user->getInvites()->contains($group)) {
             $user->removeInvite($group);
-            $this->entityManager->persist($user);
-            $this->entityManager->flush();
+            $this->em->persist($user);
+            $this->em->flush();
         }
     }
 
@@ -384,8 +400,8 @@ class GroupManager
         $userGroupManager->setStatus(UserGroupManager::STATUS_ACTIVE);
         $group->addManager($userGroupManager);
 
-        $this->entityManager->persist($group);
-        $this->entityManager->flush();
+        $this->em->persist($group);
+        $this->em->flush();
 
         return $userGroupManager;
     }
@@ -397,11 +413,11 @@ class GroupManager
             throw new \RuntimeException('The user is not a group manager of this group');
         }
 
-        $userGroupManager = $this->entityManager->getRepository(UserGroupManager::class)
+        $userGroupManager = $this->em->getRepository(UserGroupManager::class)
             ->findOneBy(['group' => $group, 'user' => $user]);
 
-        $this->entityManager->remove($userGroupManager);
-        $this->entityManager->flush();
+        $this->em->remove($userGroupManager);
+        $this->em->flush();
     }
 
     private function inviteUserToGroup(User $user, Group $group, User $inviter)
@@ -410,7 +426,7 @@ class GroupManager
         $invite->setInviter($inviter);
         $invite->setUser($user);
         $invite->setGroup($group);
-        $this->entityManager->persist($invite);
+        $this->em->persist($invite);
         $event = new InviteEvent($invite);
         $this->dispatcher->dispatch(InviteEvents::CREATE, $event);
 
@@ -434,12 +450,12 @@ class GroupManager
             $count++;
             if ($count === $max) {
                 foreach ($invites as $invite) {
-                    $this->entityManager->flush();
-                    $this->entityManager->detach($invite->getUser());
-                    $this->entityManager->detach($invite);
+                    $this->em->flush();
+                    $this->em->detach($invite->getUser());
+                    $this->em->detach($invite);
                 }
             }
         }
-        $this->entityManager->flush();
+        $this->em->flush();
     }
 }

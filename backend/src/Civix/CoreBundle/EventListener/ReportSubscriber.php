@@ -2,7 +2,11 @@
 
 namespace Civix\CoreBundle\EventListener;
 
+use Civix\CoreBundle\Entity\Report\MembershipReport;
 use Civix\CoreBundle\Entity\Report\UserReport;
+use Civix\CoreBundle\Event\GroupEvents;
+use Civix\CoreBundle\Event\GroupUserEvent;
+use Civix\CoreBundle\Event\InquiryEvent;
 use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Event\UserFollowEvent;
@@ -22,6 +26,8 @@ class ReportSubscriber implements EventSubscriberInterface
             UserEvents::FOLLOW_REQUEST_APPROVE => 'updateUserReport',
             UserEvents::UNFOLLOW => 'updateUserReport',
             UserEvents::REGISTRATION => 'createUserReport',
+            GroupEvents::USER_INQUIRED => 'createMembershipReport',
+            GroupEvents::USER_UNJOIN => 'deleteMembershipReport',
         ];
     }
 
@@ -41,5 +47,25 @@ class ReportSubscriber implements EventSubscriberInterface
     {
         $this->em->getRepository(UserReport::class)
             ->upsertUserReport($event->getUser(), 0);
+    }
+
+    public function createMembershipReport(InquiryEvent $event)
+    {
+        $worksheet = $event->getWorksheet();
+        $user = $worksheet->getUser();
+        $group = $worksheet->getGroup();
+        $answeredFields = $worksheet->getAnsweredFields();
+        $fields = [];
+        foreach ($answeredFields as $field) {
+            $fields[$field->getId()] = $field->getValue();
+        }
+        $this->em->getRepository(MembershipReport::class)
+            ->upsertMembershipReport($user, $group, $fields);
+    }
+
+    public function deleteMembershipReport(GroupUserEvent $event)
+    {
+        $this->em->getRepository(MembershipReport::class)
+            ->deleteMembershipReport($event->getUser(), $event->getGroup());
     }
 }
