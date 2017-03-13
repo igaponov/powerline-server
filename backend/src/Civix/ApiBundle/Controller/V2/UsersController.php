@@ -62,48 +62,4 @@ class UsersController extends FOSRestController
 
         return $user;
     }
-
-    /**
-     * Get user's posts filtered by logged in user's groups
-     *
-     * @Route("/{id}/posts")
-     * @Method("GET")
-     *
-     * @QueryParam(name="page", requirements="\d+", default="1")
-     * @QueryParam(name="per_page", requirements="(10|20)", default="20")
-     *
-     * @ApiDoc(
-     *     authentication = true,
-     *     section="Users",
-     *     description="Get user's posts",
-     *     output={
-     *          "class" = "array<Civix\CoreBundle\Entity\Post> as paginator",
-     *          "groups" = {"Default", "api-info"},
-     *          "parsers" = {
-     *              "Civix\ApiBundle\Parser\PaginatorParser"
-     *          }
-     *     },
-     *     statusCodes={
-     *         405="Method Not Allowed"
-     *     }
-     * )
-     *
-     * @View(serializerGroups={"Default", "api-info"})
-     *
-     * @param ParamFetcher $params
-     * @param User $user
-     * @return User
-     */
-    public function getUserPostsAction(ParamFetcher $params, User $user)
-    {
-        $query = $this->getDoctrine()
-            ->getRepository(Post::class)
-            ->getFindByUserQuery($user, ['user' => $this->getUser()]);
-
-        return $this->get('knp_paginator')->paginate(
-            $query,
-            $params->get('page'),
-            $params->get('per_page')
-        );
-    }
 }

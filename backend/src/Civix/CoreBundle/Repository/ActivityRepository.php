@@ -412,17 +412,18 @@ class ActivityRepository extends EntityRepository
     /**
      * Find activities by user.
      *
-     * @param User      $user
+     * @param User $user
      * @param \DateTime $start
      *
+     * @param null $activityTypes
      * @return Query
      */
-    public function getActivitiesByUserQuery(User $user, \DateTime $start = null) {
-        return $this->getActivitiesByUserQueryBuilder($user, $start)
+    public function getActivitiesByUserQuery(User $user, \DateTime $start = null, $activityTypes = null) {
+        return $this->getActivitiesByUserQueryBuilder($user, $start, $activityTypes)
             ->getQuery();
     }
 
-    public function getActivitiesByUserQueryBuilder(User $user, \DateTime $start = null)
+    public function getActivitiesByUserQueryBuilder(User $user, \DateTime $start = null, $activityTypes = null)
     {
         /** @var $em EntityManager */
         $em = $this->getEntityManager();
@@ -438,7 +439,7 @@ class ActivityRepository extends EntityRepository
 
         $userFollowingIds = $user->getFollowingIds();
 
-        return $this->getActivitiesQueryBuilder($user, $start)
+        return $this->getActivitiesQueryBuilder($user, $start, $activityTypes)
             ->andWhere(
                 $expr->andX(
                     $expr->in('act.group', ':userGroupsIds'),
@@ -465,10 +466,11 @@ class ActivityRepository extends EntityRepository
      * @param User $user
      * @param User $following
      * @param \DateTime $start
+     * @param null $activityTypes
      * @return Query
      * @internal param int $followingId
      */
-    public function getActivitiesByFollowingQuery(User $user, User $following, \DateTime $start = null)
+    public function getActivitiesByFollowingQuery(User $user, User $following, \DateTime $start = null, $activityTypes = null)
     {
         $expr = $this->getEntityManager()->getExpressionBuilder();
         $districtsIds = $user->getDistrictsIds();
@@ -476,7 +478,7 @@ class ActivityRepository extends EntityRepository
         $activeGroups = $this->getEntityManager()->getRepository('CivixCoreBundle:UserGroup')
             ->getActiveGroupIds($user);
 
-        $query = $this->getActivitiesQueryBuilder($following, $start)
+        $query = $this->getActivitiesQueryBuilder($following, $start, $activityTypes)
             ->andWhere(
                 $expr->andX(
                     'act_c.user = :following',
@@ -500,18 +502,10 @@ class ActivityRepository extends EntityRepository
         return $query;
     }
 
-    protected function getActivitiesQueryBuilder(User $user, \DateTime $start = null)
+    protected function getActivitiesQueryBuilder(User $user, \DateTime $start = null, array $activityTypes = null)
     {
-        $qb = $this->createQueryBuilder('act')
-            ->distinct(true)
-            ->select('act', 'act_r', 'p', 'up', 'ups', 'pv', 'q', 'qs', 'ps', 'pos', 'g')
-            // 0 = Prioritized Zone (unread, unanswered)
-            // 2 = Expired Zone (expired)
-            // 1 = Non-Prioritized Zone (others)
-            ->addSelect('
-            (CASE WHEN act.expireAt < CURRENT_TIMESTAMP()
-            THEN 2 
-            WHEN 
+        $cases = [
+            'poll' => '
                 (
                     qa.id IS NULL AND 
                     act NOT INSTANCE OF (
@@ -536,7 +530,8 @@ class ActivityRepository extends EntityRepository
                         Civix\CoreBundle\Entity\Activities\LeaderNews
                     )
                 )
-                OR
+            ',
+            'post' => '
                 (
                     p.boosted = true AND
                     pv.id IS NULL AND 
@@ -545,7 +540,8 @@ class ActivityRepository extends EntityRepository
                         Civix\CoreBundle\Entity\Activities\Post
                     )
                 )
-                OR
+            ',
+            'petition' => '
                 (
                     up.boosted = true AND
                     act_r.id IS NULL AND 
@@ -555,6 +551,22 @@ class ActivityRepository extends EntityRepository
                         Civix\CoreBundle\Entity\Activities\UserPetition
                     )
                 )
+            '
+        ];
+        if ($activityTypes) {
+            $cases = array_intersect_key($cases, array_flip($activityTypes));
+        }
+        $qb = $this->createQueryBuilder('act')
+            ->distinct(true)
+            ->select('act', 'act_r', 'g')
+            // 0 = Prioritized Zone (unread, unanswered)
+            // 2 = Expired Zone (expired)
+            // 1 = Non-Prioritized Zone (others)
+            ->addSelect('
+            (CASE WHEN act.expireAt < CURRENT_TIMESTAMP()
+            THEN 2 
+            WHEN 
+                '.($cases ? implode(' OR ', $cases) : 'FALSE').'
             THEN 0
             ELSE 1
             END) AS zone')
@@ -563,20 +575,53 @@ class ActivityRepository extends EntityRepository
             ->leftJoin('act.activityRead', 'act_r', Query\Expr\Join::WITH, 'act_r.user = :user')
             ->setParameter(':user', $user)
             ->leftJoin('act.group', 'g')
-            ->leftJoin('act.question', 'q')
-            ->leftJoin('act.petition', 'up')
-            ->leftJoin('act.post', 'p')
-            ->leftJoin('q.answers', 'qa', Query\Expr\Join::WITH, 'qa.user = :user')
-            ->leftJoin('up.signatures', 'ups', Query\Expr\Join::WITH, 'ups.user = :user')
-            ->leftJoin('p.votes', 'pv', Query\Expr\Join::WITH, 'pv.user = :user')
-            ->leftJoin('up.subscribers', 'ps', Query\Expr\Join::WITH, 'ps = :user')
-            ->leftJoin('p.subscribers', 'pos', Query\Expr\Join::WITH, 'pos = :user')
-            ->leftJoin('q.subscribers', 'qs', Query\Expr\Join::WITH, 'qs = :user')
             ->orderBy('zone', 'ASC') // order by priority zone
             ->addOrderBy('is_followed', 'ASC') // order by followed user
             ->addOrderBy('act.sentAt', 'DESC');
+        if (isset($cases['poll'])) {
+            $qb->addSelect('q', 'qa', 'qs')
+                ->leftJoin('act.question', 'q')
+                ->leftJoin('q.answers', 'qa', Query\Expr\Join::WITH, 'qa.user = :user')
+                ->leftJoin('q.subscribers', 'qs', Query\Expr\Join::WITH, 'qs = :user');
+        } else {
+            $qb->andWhere('
+                act NOT INSTANCE OF (
+                    Civix\CoreBundle\Entity\Activities\CrowdfundingPaymentRequest,
+                    Civix\CoreBundle\Entity\Activities\LeaderEvent,
+                    Civix\CoreBundle\Entity\Activities\LeaderNews,
+                    Civix\CoreBundle\Entity\Activities\PaymentRequest,
+                    Civix\CoreBundle\Entity\Activities\Petition,
+                    Civix\CoreBundle\Entity\Activities\Question
+                )
+            ');
+        }
+        if (isset($cases['post'])) {
+            $qb->addSelect('p', 'pv', 'pos')
+                ->leftJoin('act.post', 'p')
+                ->leftJoin('p.votes', 'pv', Query\Expr\Join::WITH, 'pv.user = :user')
+                ->leftJoin('p.subscribers', 'pos', Query\Expr\Join::WITH, 'pos = :user');
+        } else {
+            $qb->andWhere('
+                act NOT INSTANCE OF (
+                    Civix\CoreBundle\Entity\Activities\Post
+                )
+            ');
+        }
+        if (isset($cases['petition'])) {
+            $qb->addSelect('up', 'ups', 'ps')
+                ->leftJoin('act.petition', 'up')
+                ->leftJoin('up.signatures', 'ups', Query\Expr\Join::WITH, 'ups.user = :user')
+                ->leftJoin('up.subscribers', 'ps', Query\Expr\Join::WITH, 'ps = :user');
+        } else {
+            $qb->andWhere('
+                act NOT INSTANCE OF (
+                    Civix\CoreBundle\Entity\Activities\UserPetition
+                )
+            ');
+        }
+
         if ($start) {
-            $qb->where('act.sentAt > :start')
+            $qb->andWhere('act.sentAt > :start')
                 ->setParameter('start', $start->format('Y-m-d H:i:s'));
         }
         
