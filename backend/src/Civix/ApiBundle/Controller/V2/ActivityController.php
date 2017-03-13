@@ -5,6 +5,7 @@ namespace Civix\ApiBundle\Controller\V2;
 use Civix\ApiBundle\Form\Type\ActivitiesType;
 use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\ActivityRead;
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserFollow;
 use Doctrine\Common\Collections\ArrayCollection;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
@@ -30,6 +31,8 @@ class ActivityController extends FOSRestController
      * @Method("GET")
      *
      * @QueryParam(name="following", requirements="\d+", description="Following user id")
+     * @QueryParam(name="user", requirements="\d+", description="Another user's id")
+     * @QueryParam(name="type", requirements="poll|post|petition", description="Activity types (array)", map=true)
      * @QueryParam(name="page", requirements="\d+", default="1")
      * @QueryParam(name="per_page", requirements="(10|15|20)", default="20")
      *
@@ -56,9 +59,10 @@ class ActivityController extends FOSRestController
      * @param ParamFetcher $params
      * @return Response
      */
-    public function getcAction(ParamFetcher $params)
+    public function getActivitiesAction(ParamFetcher $params)
     {
         $start = new \DateTime('-30 days');
+        $activityTypes = $params->get('type') ? (array)$params->get('type') : null;
 
         $user = $this->getUser();
         if ($followingId = $params->get('following')) {
@@ -74,11 +78,21 @@ class ActivityController extends FOSRestController
             } else {
                 $query = $this->getDoctrine()
                     ->getRepository('CivixCoreBundle:Activity')
-                    ->getActivitiesByFollowingQuery($userFollow->getFollower(), $userFollow->getUser(), $start);
+                    ->getActivitiesByFollowingQuery($userFollow->getFollower(), $userFollow->getUser(), $start, $activityTypes);
+            }
+        } elseif ($params->get('user')) {
+            $following = $this->getDoctrine()
+                ->getRepository(User::class)->find($params->get('user'));
+            if (!$following) {
+                $query = [];
+            } else {
+                $query = $this->getDoctrine()
+                    ->getRepository('CivixCoreBundle:Activity')
+                    ->getActivitiesByFollowingQuery($user, $following, $start, $activityTypes);
             }
         } else {
             $query = $this->getDoctrine()->getRepository('CivixCoreBundle:Activity')
-                ->getActivitiesByUserQuery($user, $start);
+                ->getActivitiesByUserQuery($user, $start, $activityTypes);
         }
 
         $paginator = $this->get('knp_paginator');

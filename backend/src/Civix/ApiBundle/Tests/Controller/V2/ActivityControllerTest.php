@@ -7,10 +7,12 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityReadAuthorData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityRelationsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadEducationalContextData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPollSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSubscriberData;
 use Doctrine\DBAL\Connection;
@@ -167,6 +169,33 @@ class ActivityControllerTest extends WebTestCase
 		$this->assertSame(20, $data['items']);
 		$this->assertSame(0, $data['totalItems']);
 		$this->assertCount(0, $data['payload']);
+	}
+
+	public function testGetActivitiesByAnotherUserIsOk()
+	{
+        $repository = $this->loadFixtures([
+            LoadActivityData::class,
+            LoadUserGroupData::class,
+            LoadUserGroupOwnerData::class,
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+		/** @var User $user */
+		$user = $repository->getReference('user_1');
+		$client = $this->client;
+		$client->request('GET', self::API_ENDPOINT, ['user' => $user->getId(), 'type' => ['post', 'petition']], [], ['HTTP_Authorization'=>'Bearer type="user" token="user2"']);
+		$response = $client->getResponse();
+		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+		$data = json_decode($response->getContent(), true);
+		$this->assertSame(1, $data['page']);
+		$this->assertSame(20, $data['items']);
+		$this->assertSame(2, $data['totalItems']);
+		$this->assertCount(2, $data['payload']);
+        foreach ($data['payload'] as $item) {
+            $this->assertThat(
+                $item['entity']['type'],
+                $this->logicalOr('post', 'user-petition')
+            );
+		}
 	}
 
 	public function testPatchActivitiesWithEmptyArray()
