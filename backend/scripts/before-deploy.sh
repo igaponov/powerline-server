@@ -18,14 +18,10 @@ mkdir -p $BUILD_DIR
 mkdir -p $REL_DIR
 
 rsync -qavz \
-    --exclude='app/phpunit.xml.dist' \
-    --exclude='app/cache' \
-    --exclude='app/logs' \
     --include='app/***' \
     --include='bin/***' \
-    --exclude='src/Civix/ApiBundle/Test*' \
-    --exclude='src/Civix/CoreBundle/Test*' \
-    --exclude='src/Civix/FrontBundle/Test*' \
+    --include='var/bootstrap.php.cache' \
+    --exclude='src/Civix/*Bundle/Test*' \
     --include='src/***' \
     --exclude='web/app_test.php' \
     --include='web/***' \
