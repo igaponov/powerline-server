@@ -1,14 +1,46 @@
 language: php
 php:
   - 7.0
+addons:
+  apt:
+    packages:
+      - ruby-dev
+      - build-essential
 before_script:
+  - gem install -q fpm
   - phpenv config-rm xdebug.ini; true
   - echo "memory_limit=4608M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   - cd backend
   - cp app/config/parameters.travis.yml app/config/parameters.yml
-  - composer install --ignore-platform-reqs --no-interaction --prefer-dist
+  - composer install --quiet --ignore-platform-reqs --no-interaction --prefer-dist
 script:
-- phpunit -c phpunit.xml.dist
+  - phpunit -c phpunit.xml.dist
+before_deploy:
+  - scripts/before-deploy.sh
+deploy:
+  # deploy develop to the dev environment
+  - provider: s3
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    bucket: powerline-apiserver-builds
+    skip_cleanup: true
+    region: us-east-1
+    local_dir: build/release/$TRAVIS_BUILD_NUMBER
+    upload-dir: develop
+    on:
+      branch: develop
+  # deploy master to the staging environment
+  - provider: s3
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    bucket: powerline-apiserver-builds
+    skip_cleanup: true
+    region: us-east-1
+    local_dir: build/release/$TRAVIS_BUILD_NUMBER
+    upload-dir: master
+    on:
+      branch: master
+
 notifications:
   slack:
     rooms:
