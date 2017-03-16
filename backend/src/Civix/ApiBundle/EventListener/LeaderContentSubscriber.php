@@ -64,7 +64,6 @@ class LeaderContentSubscriber implements EventSubscriberInterface
             PollEvents::QUESTION_ANSWER => [
                 ['updateCrowdfundingPledgedAmount'],
                 ['addCommentByQuestionAnswer'],
-                ['updateResponsesQuestion'],
             ],
             PollEvents::QUESTION_PRE_CREATE => 'checkHasPayoutAccount'
         ];
@@ -171,15 +170,10 @@ class LeaderContentSubscriber implements EventSubscriberInterface
     public function updateResponsesQuestion(AnswerEvent $event)
     {
         $question = $event->getAnswer()->getQuestion();
-        if ($question instanceof LeaderNews) {
-            $this->em->getRepository('CivixCoreBundle:Activity')
-                ->updateLeaderNewsResponseCountQuestion($question);
-        } else {
-            $this->em->getRepository('CivixCoreBundle:Poll\Question')
-                ->updateAnswersCount($question);
-            $this->em->getRepository('CivixCoreBundle:Activity')
-                ->updateResponseCountQuestion($question);
-        }
+        $this->em->getRepository('CivixCoreBundle:Poll\Question')
+            ->updateAnswersCount($question);
+        $this->em->getRepository('CivixCoreBundle:Activity')
+            ->updateResponseCountQuestion($question);
     }
 
     public function checkHasPayoutAccount(QuestionEvent $event)

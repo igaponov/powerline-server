@@ -254,82 +254,83 @@ class ActivityRepository extends EntityRepository
 
     public function updateResponseCountQuestion(Question $question)
     {
-        $query = $this->getEntityManager()
-            ->createQuery('UPDATE Civix\CoreBundle\Entity\Activities\Question a
-                              SET a.responsesCount = :questions_count
-                            WHERE a.question = :question');
-        $query->setParameter('question', $question->getId())
-            ->setParameter('questions_count', $question->getAnswersCount())
-        ;
+        $query = $this->getEntityManager()->getConnection()->executeQuery(
+            'UPDATE activities a
+            SET responses_count = (
+                SELECT (
+                    (
+                        SELECT COUNT(pa.id)
+                        FROM poll_questions pq
+                        LEFT JOIN poll_answers pa ON pq.id = pa.question_id
+                        WHERE pq.id = a.question_id
+                    )
+                    +
+                    (
+                        SELECT COUNT(pc.id)
+                        FROM poll_questions pq
+                        LEFT JOIN poll_comments pc ON pq.id = pc.question_id
+                        WHERE pq.id = a.question_id
+                    )
+                )
+            )
+            WHERE a.question_id = :question'
+        );
 
-        return $query->execute();
-    }
-
-    public function updateLeaderNewsResponseCountQuestion(Question $question)
-    {
-        $count = $this->getEntityManager()
-            ->createQuery('SELECT count(c) FROM CivixCoreBundle:Poll\Comment c WHERE c.question = :question')
-            ->setParameter('question', $question)
-            ->getSingleScalarResult()
-        ;
-
-        //representative news auto add new comment after creation
-        --$count;
-
-        $this->getEntityManager()
-            ->createQuery('UPDATE Civix\CoreBundle\Entity\Activities\LeaderNews rn
-                              SET rn.responsesCount = :rn_count
-                            WHERE rn.question = :question')
-            ->setParameter('question', $question->getId())
-            ->setParameter('rn_count', $count)
-            ->execute()
-        ;
+        return $query->execute([':question', $question->getId()]);
     }
 
     public function updateResponseCountUserPetition(UserPetition $petition)
     {
-        $count = $this->getEntityManager()->createQueryBuilder()
-            ->select('count(a)')
-            ->from(UserPetition\Signature::class, 'a')
-            ->where('a.petition = :petition')
-            ->setParameter('petition', $petition)
-            ->getQuery()
-            ->getSingleScalarResult()
-        ;
+        $query = $this->getEntityManager()->getConnection()->executeQuery(
+            'UPDATE activities a
+            SET responses_count = (
+                SELECT (
+                    (
+                        SELECT COUNT(ps.id)
+                        FROM user_petitions p
+                        LEFT JOIN user_petition_signatures ps ON p.id = ps.petition_id
+                        WHERE p.id = a.petition_id
+                    )
+                    +
+                    (
+                        SELECT COUNT(pc.id)
+                        FROM user_petitions p
+                        LEFT JOIN user_petition_comments pc ON p.id = pc.petition_id
+                        WHERE p.id = a.petition_id
+                    )
+                )
+            )
+            WHERE a.petition_id = :petition'
+        );
 
-        $quorum = $petition->getQuorumCount();
-        $qb = $this->getEntityManager()->createQueryBuilder()
-            ->update()
-            ->from(\Civix\CoreBundle\Entity\Activities\UserPetition::class, 'a')
-            ->set('a.responsesCount', $count)
-            ->set('a.quorum', $quorum)
-            ->where('a.petition = :petition')
-            ->setParameter('petition', $petition);
-
-        return $qb->getQuery()->execute();
+        return $query->execute([':petition' => $petition->getId()]);
     }
 
     public function updateResponseCountPost(Post $post)
     {
-        $count = $this->getEntityManager()->createQueryBuilder()
-            ->select('count(a)')
-            ->from(UserPetition\Signature::class, 'a')
-            ->where('a.petition = :petition')
-            ->setParameter('petition', $post)
-            ->getQuery()
-            ->getSingleScalarResult()
-        ;
+        $query = $this->getEntityManager()->getConnection()->executeQuery(
+            "UPDATE activities
+            SET responses_count = (
+              SELECT (
+                (
+                  SELECT COUNT(pv.id)
+                  FROM user_posts p
+                    LEFT JOIN post_votes pv ON p.id = pv.post_id
+                  WHERE p.id = post_id
+                )
+                +
+                (
+                  SELECT COUNT(pc.id)
+                  FROM user_posts p
+                    LEFT JOIN post_comments pc ON p.id = pc.post_id
+                  WHERE p.id = post_id
+                )
+              )
+            )
+            WHERE post_id = :post"
+        );
 
-        $quorum = $post->getQuorumCount();
-        $qb = $this->getEntityManager()->createQueryBuilder()
-            ->update()
-            ->from(\Civix\CoreBundle\Entity\Activities\UserPetition::class, 'a')
-            ->set('a.responsesCount', $count)
-            ->set('a.quorum', $quorum)
-            ->where('a.petition = :petition')
-            ->setParameter('petition', $post);
-
-        return $qb->getQuery()->execute();
+        return $query->execute([':post' => $post->getId()]);
     }
 
     public function getActivitiesByGroupId($groupId, $maxResults = 500)

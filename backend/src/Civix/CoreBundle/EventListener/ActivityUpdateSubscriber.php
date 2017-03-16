@@ -26,7 +26,7 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
             Event\UserPetitionEvents::PETITION_CREATE => ['publishUserPetitionToActivity', -100],
             Event\UserPetitionEvents::PETITION_UPDATE => ['publishUserPetitionToActivity', -100],
             Event\UserPetitionEvents::PETITION_SIGN => [
-                ['updateResponsesPetition', -100],
+                ['updateResponsesPetition', -110],
                 ['updatePetitionAuthorActivity', -100],
             ],
             Event\UserPetitionEvents::PETITION_UNSIGN => ['updatePetitionAuthorActivity', -100],
@@ -35,13 +35,14 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
             Event\PostEvents::POST_CREATE => ['publishPostToActivity', -100],
             Event\PostEvents::POST_UPDATE => ['publishPostToActivity', -100],
             Event\PostEvents::POST_SIGN => [
-                ['updateResponsesPost', -100],
+                ['updateResponsesPost', -110],
                 ['updatePostAuthorActivity', -100],
             ],
             Event\PostEvents::POST_UNSIGN => ['updatePostAuthorActivity', -100],
             Event\PostEvents::POST_BOOST => ['publishPostToActivity', -100],
 
             Event\PollEvents::QUESTION_PUBLISHED => ['publishQuestionToActivity', -100],
+            Event\PollEvents::QUESTION_ANSWER => ['updateResponsesQuestion', -110],
 
             Event\CommentEvents::RATE => ['updateEntityRateCount', -100],
         ];
@@ -65,6 +66,11 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
     public function updateResponsesPost(Event\Post\AnswerEvent $event)
     {
         $this->activityUpdate->updateResponsesPost($event->getAnswer()->getPost());
+    }
+
+    public function updateResponsesQuestion(Event\Poll\AnswerEvent $event)
+    {
+        $this->activityUpdate->updateResponsesQuestion($event->getAnswer()->getQuestion());
     }
 
     public function updatePetitionAuthorActivity(Event\UserPetition\SignatureEvent $event)

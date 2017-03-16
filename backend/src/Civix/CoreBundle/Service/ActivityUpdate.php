@@ -126,7 +126,6 @@ class ActivityUpdate
         }
         $activity->setTitle($petition->getTitle());
         $activity->setDescription($petition->getBody());
-        $activity->setResponsesCount($petition->getSignatures()->count());
         $activity->setIsOutsiders($petition->isOutsidersSign());
         $activity->setQuorum($petition->getQuorumCount());
 
@@ -156,7 +155,6 @@ class ActivityUpdate
         }
         $activity->setTitle('');
         $activity->setDescription($post->getBody());
-        $activity->setResponsesCount($post->getVotes()->count());
         $activity->setQuorum($post->getQuorumCount());
         $activity->setExpireAt($post->getExpiredAt());
 
@@ -173,13 +171,8 @@ class ActivityUpdate
 
     public function updateResponsesQuestion(Question $question)
     {
-        if ($question instanceof LeaderNews) {
-            $this->entityManager->getRepository('CivixCoreBundle:Activity')
-                ->updateLeaderNewsResponseCountQuestion($question);
-        } else {
-            $this->entityManager->getRepository('CivixCoreBundle:Poll\Question')->updateAnswersCount($question);
-            $this->entityManager->getRepository('CivixCoreBundle:Activity')->updateResponseCountQuestion($question);
-        }
+        $this->entityManager->getRepository('CivixCoreBundle:Poll\Question')->updateAnswersCount($question);
+        $this->entityManager->getRepository('CivixCoreBundle:Activity')->updateResponseCountQuestion($question);
     }
 
     public function updateResponsesPetition(UserPetition $petition)
