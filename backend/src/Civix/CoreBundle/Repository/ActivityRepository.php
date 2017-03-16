@@ -255,52 +255,52 @@ class ActivityRepository extends EntityRepository
     public function updateResponseCountQuestion(Question $question)
     {
         $query = $this->getEntityManager()->getConnection()->executeQuery(
-            'UPDATE activities a
+            'UPDATE activities
             SET responses_count = (
                 SELECT (
                     (
                         SELECT COUNT(pa.id)
                         FROM poll_questions pq
                         LEFT JOIN poll_answers pa ON pq.id = pa.question_id
-                        WHERE pq.id = a.question_id
+                        WHERE pq.id = question_id
                     )
                     +
                     (
                         SELECT COUNT(pc.id)
                         FROM poll_questions pq
                         LEFT JOIN poll_comments pc ON pq.id = pc.question_id
-                        WHERE pq.id = a.question_id
+                        WHERE pq.id = question_id
                     )
                 )
             )
-            WHERE a.question_id = :question'
+            WHERE question_id = :question'
         );
 
-        return $query->execute([':question', $question->getId()]);
+        return $query->execute([':question' => $question->getId()]);
     }
 
     public function updateResponseCountUserPetition(UserPetition $petition)
     {
         $query = $this->getEntityManager()->getConnection()->executeQuery(
-            'UPDATE activities a
+            'UPDATE activities 
             SET responses_count = (
                 SELECT (
                     (
                         SELECT COUNT(ps.id)
                         FROM user_petitions p
                         LEFT JOIN user_petition_signatures ps ON p.id = ps.petition_id
-                        WHERE p.id = a.petition_id
+                        WHERE p.id = petition_id
                     )
                     +
                     (
                         SELECT COUNT(pc.id)
                         FROM user_petitions p
                         LEFT JOIN user_petition_comments pc ON p.id = pc.petition_id
-                        WHERE p.id = a.petition_id
+                        WHERE p.id = petition_id
                     )
                 )
             )
-            WHERE a.petition_id = :petition'
+            WHERE petition_id = :petition'
         );
 
         return $query->execute([':petition' => $petition->getId()]);
