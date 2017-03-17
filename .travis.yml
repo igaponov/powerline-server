@@ -13,8 +13,9 @@ before_script:
   - cd backend
   - cp app/config/parameters.travis.yml app/config/parameters.yml
   - composer install --quiet --ignore-platform-reqs --no-interaction --prefer-dist
+  - curl -Lo phpunit.phar https://phar.phpunit.de/phpunit-5.7.phar
 script:
-  - phpunit -c phpunit.xml.dist
+  - php ./phpunit.phar -c phpunit.xml.dist
 before_deploy:
   - scripts/before-deploy.sh
 deploy:
