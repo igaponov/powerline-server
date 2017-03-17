@@ -480,9 +480,10 @@ class ActivityRepository extends EntityRepository
             ->getActiveGroupIds($user);
 
         $query = $this->getActivitiesQueryBuilder($following, $start, $activityTypes)
+            ->leftJoin('act.activityConditions', 'act_c2')
             ->andWhere(
                 $expr->andX(
-                    'act_c.user = :following',
+                    'act_c2.user = :following',
                     $expr->in('act.group', ':userGroupsIds'),
                     $expr->orX(
                         $expr->in('act_c.district', ':userDistrictsIds'),
