@@ -269,7 +269,7 @@ class ActivityRepository extends EntityRepository
                         SELECT COUNT(pc.id)
                         FROM poll_questions pq
                         LEFT JOIN poll_comments pc ON pq.id = pc.question_id
-                        WHERE pq.id = question_id
+                        WHERE pq.id = question_id AND pc.pid IS NULL
                     )
                 )
             )
@@ -296,7 +296,7 @@ class ActivityRepository extends EntityRepository
                         SELECT COUNT(pc.id)
                         FROM user_petitions p
                         LEFT JOIN user_petition_comments pc ON p.id = pc.petition_id
-                        WHERE p.id = petition_id
+                        WHERE p.id = petition_id AND pc.pid IS NULL
                     )
                 )
             )
@@ -311,21 +311,21 @@ class ActivityRepository extends EntityRepository
         $query = $this->getEntityManager()->getConnection()->executeQuery(
             "UPDATE activities
             SET responses_count = (
-              SELECT (
-                (
-                  SELECT COUNT(pv.id)
-                  FROM user_posts p
-                    LEFT JOIN post_votes pv ON p.id = pv.post_id
-                  WHERE p.id = post_id
+                SELECT (
+                    (
+                        SELECT COUNT(pv.id)
+                        FROM user_posts p
+                        LEFT JOIN post_votes pv ON p.id = pv.post_id
+                        WHERE p.id = post_id
+                    )
+                    +
+                    (
+                        SELECT COUNT(pc.id)
+                        FROM user_posts p
+                        LEFT JOIN post_comments pc ON p.id = pc.post_id
+                        WHERE p.id = post_id AND pc.pid IS NULL
+                    )
                 )
-                +
-                (
-                  SELECT COUNT(pc.id)
-                  FROM user_posts p
-                    LEFT JOIN post_comments pc ON p.id = pc.post_id
-                  WHERE p.id = post_id
-                )
-              )
             )
             WHERE post_id = :post"
         );
