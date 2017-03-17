@@ -285,10 +285,12 @@ class PollController extends FOSRestController
      * @Route("/{id}/answers")
      * @Method("GET")
      *
+     * @ParamConverter("question", options={"repository_method" = "findWithGroupAndRepresentative"})
+     *
      * @SecureParam("question", permission="view")
      *
      * @QueryParam(name="page", requirements="\d+", default=1)
-     * @QueryParam(name="per_page", requirements="(10|20)", default="20")
+     * @QueryParam(name="per_page", requirements="(10|15|20)", default="20")
      * @QueryParam(name="following", requirements="1|0|", default=null)
      *
      * @ApiDoc(
@@ -297,7 +299,7 @@ class PollController extends FOSRestController
      *     description="List the answers for a given question.",
      *     output={
      *          "class" = "array<Civix\CoreBundle\Entity\Poll\Answer> as paginator",
-     *          "groups" = {"api-poll"},
+     *          "groups" = {"api-leader-answers"},
      *          "parsers" = {
      *              "Civix\ApiBundle\Parser\PaginatorParser"
      *          }
@@ -310,7 +312,7 @@ class PollController extends FOSRestController
      *     }
      * )
      *
-     * @View(serializerGroups={"paginator", "api-poll"})
+     * @View(serializerGroups={"paginator", "api-leader-answers"})
      *
      * @param ParamFetcher $params
      * @param Question $question
@@ -329,7 +331,8 @@ class PollController extends FOSRestController
         return $this->get('knp_paginator')->paginate(
             $query,
             $params->get('page'),
-            $params->get('per_page')
+            $params->get('per_page'),
+            ['distinct' => false]
         );
     }
 

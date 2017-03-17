@@ -16,7 +16,10 @@ class AnswerRepository extends EntityRepository
     public function getAnswersByQuestion(Question $question, User $user = null, $revert = false)
     {
         $qb = $this->createQueryBuilder('a')
+                ->distinct()
+                ->addSelect('u', 'o')
                 ->join('a.user', 'u')
+                ->leftJoin('a.option', 'o')
                 ->where('a.question  = :question')
                 ->setParameter('question', $question);
 
