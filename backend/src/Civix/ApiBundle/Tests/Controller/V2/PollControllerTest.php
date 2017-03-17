@@ -32,6 +32,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe\LoadAccountRepresentativeData
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Faker\Factory;
+use Liip\FunctionalTestBundle\Annotations\QueryCount;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class PollControllerTest extends WebTestCase
@@ -88,6 +89,9 @@ class PollControllerTest extends WebTestCase
 		$this->assertEquals(403, $response->getStatusCode(), $response->getContent());
 	}
 
+    /**
+     * @QueryCount(4)
+     */
 	public function testGetGroupPollAnswersIsOk()
 	{
         $repository = $this->loadFixtures([
@@ -105,6 +109,9 @@ class PollControllerTest extends WebTestCase
 		$this->assertCount(3, $data['payload']);
 	}
 
+    /**
+     * @QueryCount(4)
+     */
 	public function testGetRepresentativePollAnswersIsOk()
 	{
         $repository = $this->loadFixtures([
@@ -122,6 +129,9 @@ class PollControllerTest extends WebTestCase
 		$this->assertCount(3, $data['payload']);
 	}
 
+    /**
+     * @QueryCount(4)
+     */
 	public function testGetGroupPollAnswersFollowingIsOk()
 	{
         $repository = $this->loadFixtures([
@@ -140,6 +150,9 @@ class PollControllerTest extends WebTestCase
 		$this->assertCount(2, $data['payload']);
 	}
 
+    /**
+     * @QueryCount(4)
+     */
 	public function testGetRepresentativePollAnswersFollowingIsOk()
 	{
         $repository = $this->loadFixtures([
@@ -158,6 +171,9 @@ class PollControllerTest extends WebTestCase
 		$this->assertCount(2, $data['payload']);
 	}
 
+    /**
+     * @QueryCount(4)
+     */
 	public function testGetGroupPollAnswersFollowingOutsideIsOk()
 	{
         $repository = $this->loadFixtures([
@@ -176,6 +192,9 @@ class PollControllerTest extends WebTestCase
 		$this->assertCount(1, $data['payload']);
 	}
 
+    /**
+     * @QueryCount(4)
+     */
 	public function testGetRepresentativePollAnswersFollowingOutsideIsOk()
 	{
         $repository = $this->loadFixtures([

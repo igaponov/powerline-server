@@ -304,6 +304,17 @@ class QuestionRepository extends EntityRepository
         return $query->getOneOrNullResult();
     }
 
+    public function findWithGroupAndRepresentative($id)
+    {
+        return $this->createQueryBuilder('q')
+            ->addSelect('g', 'r')
+            ->leftJoin('q.group', 'g')
+            ->leftJoin('q.representative', 'r')
+            ->where('q.id = :id')
+            ->setParameter(':id', $id)
+            ->getQuery()->getOneOrNullResult();
+    }
+
     /**
      * @param LeaderContentRootInterface $root
      *
