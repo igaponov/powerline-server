@@ -54,9 +54,9 @@ class AnnouncementsType extends AbstractType implements ChoiceLoaderInterface
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefined(['user_model']);
-        $resolver->setAllowedTypes('user_model', User::class);
-        $resolver->setRequired(['user_model']);
+        $resolver->setAllowedTypes('user_model', [User::class, 'null']);
         $resolver->setDefaults([
+            'user_model' => null,
             'data_class' => AnnouncementCollection::class,
             'empty_data' => function(FormInterface $form) {
                 $collection = new AnnouncementCollection(
