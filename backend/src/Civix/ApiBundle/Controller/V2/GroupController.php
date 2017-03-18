@@ -10,6 +10,7 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\TempFile;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
+use Civix\CoreBundle\QueryFunction\MembershipRosterQuery;
 use Civix\CoreBundle\Service\AvatarManager;
 use Civix\CoreBundle\Service\Group\GroupManager;
 use Doctrine\ORM\EntityManager;
@@ -627,11 +628,9 @@ class GroupController extends FOSRestController
      */
     public function getMembersAction(Group $group)
     {
-        $query = $this->em->getRepository(UserGroup::class)
-            ->getFindMembersWithRequiredFieldsQuery($group);
-        $result = $query->fetchAll();
+        $query = new MembershipRosterQuery($this->em);
 
-        return $result;
+        return $query($group);
     }
 
     /**

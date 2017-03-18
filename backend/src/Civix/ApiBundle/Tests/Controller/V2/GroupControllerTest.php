@@ -21,7 +21,8 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupStatusData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserRepresentativeReportData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadMembershipReportData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadUserReportData;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -881,19 +882,16 @@ class GroupControllerTest extends WebTestCase
     public function testGetGroupMembersIsOk()
     {
         $repository = $this->loadFixtures([
-            LoadUserFollowerData::class,
-            LoadGroupManagerData::class,
-            LoadFieldValueData::class,
-            LoadUserRepresentativeReportData::class,
+            LoadUserReportData::class,
+            LoadMembershipReportData::class,
         ])->getReferenceRepository();
-        $user2 = $repository->getReference('user_2');
         $user3 = $repository->getReference('user_3');
+        $user4 = $repository->getReference('user_4');
         $group = $repository->getReference('group_1');
         $bo = $repository->getReference('cicero_representative_bo');
         $jb = $repository->getReference('cicero_representative_jb');
-        $kg = $repository->getReference('cicero_representative_kg');
-        $eh = $repository->getReference('cicero_representative_eh');
         $rm = $repository->getReference('cicero_representative_rm');
+        $field = $repository->getReference('test-group-field');
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/members', [], [], [
             'HTTP_AUTHORIZATION' => 'Bearer type="user" token="user1"',
@@ -904,41 +902,29 @@ class GroupControllerTest extends WebTestCase
         $this->assertArrayHasKey('name', $data[0]);
         $this->assertArrayHasKey('facebook', $data[0]);
         $this->assertArrayHasKey('karma', $data[0]);
-        $this->assertSame($user2->getEmail(), $data[0]['email']);
-        $this->assertSame($user2->getPhone(), $data[0]['phone']);
-        $this->assertSame("1", $data[0]['followers']);
-        $this->assertSame("test-field-value-2", $data[0]['test-group-field']);
-        $this->assertNull($data[0]['president']);
-        $this->assertNull($data[0]['vice_president']);
-        $this->assertNull($data[0]['senator1']);
-        $this->assertNull($data[0]['senator2']);
-        $this->assertNull($data[0]['congressman']);
-        $this->assertSame($user3->getEmail(), $data[1]['email']);
-        $this->assertSame($user3->getPhone(), $data[1]['phone']);
-        $this->assertSame("1", $data[1]['followers']);
-        $this->assertSame("test-field-value-3", $data[1]['test-group-field']);
-        $this->assertSame($bo->getFullName(), $data[1]['president']);
-        $this->assertSame($jb->getFullName(), $data[1]['vice_president']);
-        $this->assertSame($rm->getFullName(), $data[1]['senator1']);
-        $this->assertSame($kg->getFullName(), $data[1]['senator2']);
-        $this->assertSame($eh->getFullName(), $data[1]['congressman']);
+        $this->assertSame($user3->getEmail(), $data[0]['email']);
+        $this->assertSame($user3->getPhone(), $data[0]['phone']);
+        $this->assertSame(0, $data[0]['followers']);
+        $this->assertSame([$field->getId() => 'Test Answer'], $data[0]['fields']);
+        $this->assertSame([$rm->getFullName()], $data[0]['representatives']);
+        $this->assertSame($user4->getEmail(), $data[1]['email']);
+        $this->assertSame($user4->getPhone(), $data[1]['phone']);
+        $this->assertSame(1, $data[1]['followers']);
+        $this->assertSame([$field->getId() => 'Second Answer'], $data[1]['fields']);
+        $this->assertSame([$bo->getFullName(), $jb->getFullName()], $data[1]['representatives']);
     }
 
     public function testGetGroupMembersCsvIsOk()
     {
         $repository = $this->loadFixtures([
-            LoadUserFollowerData::class,
-            LoadGroupManagerData::class,
-            LoadFieldValueData::class,
-            LoadUserRepresentativeReportData::class,
+            LoadUserReportData::class,
+            LoadMembershipReportData::class,
         ])->getReferenceRepository();
-        $user2 = $repository->getReference('user_2');
         $user3 = $repository->getReference('user_3');
+        $user4 = $repository->getReference('user_4');
         $group = $repository->getReference('group_1');
         $bo = $repository->getReference('cicero_representative_bo');
         $jb = $repository->getReference('cicero_representative_jb');
-        $kg = $repository->getReference('cicero_representative_kg');
-        $eh = $repository->getReference('cicero_representative_eh');
         $rm = $repository->getReference('cicero_representative_rm');
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/members', [], [], [
@@ -948,10 +934,9 @@ class GroupControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $this->assertSame(
-            "name,address,city,state,country,zip_code,email,phone,bio,slogan,facebook,followers,karma," .
-            "test-group-field,\"\"\"field1`\",\"\"\"field2`\",\"\"\"field3`\",\"\"\"field4`\",president,vice_president,senator1,senator2,congressman\n" .
-            "\"user 2\",,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,0,test-field-value-2,,,,,,,,,\n" .
-            "\"user 3\",,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,0,test-field-value-3,,,,,\"{$bo->getFullName()}\",\"{$jb->getFullName()}\",\"{$rm->getFullName()}\",\"{$kg->getFullName()}\",\"{$eh->getFullName()}\"\n",
+            "name,address,city,state,country,zip_code,email,phone,bio,slogan,facebook,followers,karma,fields,representatives\n" .
+            "\"user 3\",,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,,,\"test-group-field: Test Answer\",\"{$rm->getFullName()}\"\n" .
+            "\"user 4\",,,,US,,{$user4->getEmail()},{$user4->getPhone()},,,1,1,,\"test-group-field: Second Answer\",\"{$bo->getFullName()}, {$jb->getFullName()}\"\n",
             $response->getContent()
         );
         $this->assertContains('text/csv', $response->headers->get('content-type'));
