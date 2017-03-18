@@ -40,6 +40,20 @@ class CsvHandler
             fputcsv($output, array_keys(reset($data)));
         }
         foreach ($data as $row) {
+            array_walk($row, function (&$cell) {
+                if (!$cell) {
+                    $cell = '';
+                } elseif (is_array($cell)) {
+                    $keys = array_keys($cell);
+                    if ($keys !== range(0, count($cell) - 1)) {
+                        $cell = implode(', ', array_map(function ($key, $value) {
+                            return $key.': '.$value;
+                        }, $keys, $cell));
+                    } else {
+                        $cell = implode(', ', $cell);
+                    }
+                }
+            });
             fputcsv($output, $row);
         }
         $length = ftell($output);
