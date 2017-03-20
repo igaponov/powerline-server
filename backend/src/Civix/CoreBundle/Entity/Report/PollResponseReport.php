@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity\Report;
 
+use Civix\CoreBundle\Entity\Poll\Answer;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -54,7 +55,14 @@ class PollResponseReport
      */
     private $comment;
 
-    public function __construct(int $user, int $poll, int $group, string $text = '', string $answer = '', string $comment = '')
+    /**
+     * @var int
+     *
+     * @ORM\Column(type="smallint")
+     */
+    private $privacy;
+
+    public function __construct(int $user, int $poll, int $group, string $text = '', string $answer = '', string $comment = '', int $privacy = Answer::PRIVACY_PUBLIC)
     {
         $this->user = $user;
         $this->poll = $poll;
@@ -62,5 +70,6 @@ class PollResponseReport
         $this->text = $text;
         $this->answer = $answer;
         $this->comment = $comment;
+        $this->privacy = $privacy;
     }
 }

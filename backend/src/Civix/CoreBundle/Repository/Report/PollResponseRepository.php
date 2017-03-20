@@ -32,6 +32,7 @@ class PollResponseRepository extends EntityRepository
                 'text' => (string)($poll instanceof Question\PaymentRequest || $poll instanceof Question\LeaderEvent ? $poll->getTitle() : $poll->getSubject()),
                 'answer' => (string)$answer->getOption()->getValue(),
                 'comment' => (string)$answer->getComment(),
+                'privacy' => (int)$answer->getPrivacy(),
             ]);
     }
 }

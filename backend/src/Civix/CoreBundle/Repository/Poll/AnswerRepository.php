@@ -106,52 +106,6 @@ class AnswerRepository extends EntityRepository
     }
 
     /**
-     * @param Question $question
-     * @return Statement
-     */
-    public function getResponsesByQuestion(Question $question)
-    {
-        $platform = $this->getEntityManager()
-            ->getConnection()
-            ->getDatabasePlatform();
-        $fields = $question->getGroup()->getFields();
-        $permissions = $question->getGroup()->getRequiredPermissions();
-        $qb = $this->getEntityManager()
-            ->getConnection()
-            ->createQueryBuilder()
-            ->from('poll_answers', 'a')
-            ->leftJoin('a', 'user', 'u', 'a.user_id = u.id')
-            ->leftJoin('u', 'users_follow', 'f', 'f.user_id = u.id')
-            ->leftJoin('a', 'poll_options', 'o', 'a.option_id = o.id')
-            ->where('a.question_id = :poll')
-            ->setParameter(':poll', $question->getId())
-            ->setParameter(':public', Answer::PRIVACY_PUBLIC)
-            ->groupBy('a.id');
-        foreach ([$platform->getConcatExpression('u.firstName', '" "', 'u.lastName') => 'name', $platform->getConcatExpression('u.address1', '", "', 'u.address2') => 'address', 'u.city' => 'city', 'u.state' => 'state', 'u.country' => 'country', 'u.zip' => 'zip_code', 'u.email' => 'email', 'u.phone' => 'phone'] as $attribute => $alias) {
-            if (!in_array('permissions_'.$alias, $permissions)) {
-                continue;
-            }
-            if (!is_string($attribute)) {
-                $attribute = $alias;
-            }
-            if ($alias === 'name') {
-                $qb->addSelect("CASE WHEN a.privacy = :public THEN {$attribute} ELSE NULL END AS {$alias}");
-            } else {
-                $qb->addSelect("{$attribute} AS {$alias}");
-            }
-        }
-        $qb->addSelect('u.bio, u.slogan, CASE WHEN u.facebook_id IS NOT NULL THEN 1 ELSE 0 END AS facebook, COUNT(f.id) AS followers, 0 AS karma');
-        foreach ($fields as $k => $field) {
-            $qb->addSelect("v$k.field_value AS {$platform->quoteSingleIdentifier($field->getFieldName())}")
-                ->leftJoin('u', 'groups_fields_values', 'v'.$k, "v$k.user_id = u.id AND v$k.field_id = :field$k")
-                ->setParameter(":field$k", $field->getId());
-        }
-        $qb->addSelect('o.value AS choice, a.comment');
-
-        return $qb->execute();
-    }
-
-    /**
      * @param Group $group
      * @return Statement
      */
