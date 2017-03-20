@@ -10,6 +10,7 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\TempFile;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
+use Civix\CoreBundle\QueryFunction\GroupResponsesQuery;
 use Civix\CoreBundle\QueryFunction\MembershipRosterQuery;
 use Civix\CoreBundle\Service\AvatarManager;
 use Civix\CoreBundle\Service\Group\GroupManager;
@@ -697,9 +698,44 @@ class GroupController extends FOSRestController
      */
     public function getResponsesAction(Group $group)
     {
-        $query = $this->em->getRepository('CivixCoreBundle:Poll\Answer')
-            ->getResponsesByGroup($group);
+        $query = new GroupResponsesQuery($this->em);
 
-        return $query->fetchAll();
+        return $query($group);
+    }
+
+    /**
+     * Returns link to a file with group's responses.
+     *
+     * @Route("/{id}/responses-link")
+     * @Method("GET")
+     *
+     * @SecureParam("group", permission="edit")
+     *
+     * @ApiDoc(
+     *     authentication = true,
+     *     section="Groups",
+     *     description="Returns link to a file with group's responses.",
+     *     output="\Civix\CoreBundle\Entity\TempFile",
+     *     statusCodes={
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Group $group
+     *
+     * @return TempFile
+     */
+    public function getResponsesLinkAction(Group $group)
+    {
+        $result = $this->getResponsesAction($group);
+        $file = new TempFile(
+            serialize($result),
+            new \DateTime('+2 minutes'),
+            'text/csv'
+        );
+        $this->em->persist($file);
+        $this->em->flush();
+
+        return $file;
     }
 }

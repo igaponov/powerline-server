@@ -318,7 +318,9 @@ class UserGroupControllerTest extends WebTestCase
         $this->assertEquals(0, $count);
         $result = $this->em->getRepository(MembershipReport::class)
             ->getMembershipReport($group);
-        $this->assertEmpty($result);
+        foreach ($result as $item) {
+            $this->assertNotEquals($user->getId(), $item['user']);
+        }
     }
 
     /**

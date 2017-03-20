@@ -104,42 +104,4 @@ class AnswerRepository extends EntityRepository
 
         return $qb->getQuery();
     }
-
-    /**
-     * @param Group $group
-     * @return Statement
-     */
-    public function getResponsesByGroup(Group $group)
-    {
-        $fields = $group->getFields();
-        $polls = $this->getEntityManager()
-            ->getRepository(Question::class)
-            ->findBy(['group' => $group]);
-        $qb = $this->getEntityManager()
-            ->getConnection()
-            ->createQueryBuilder()
-            ->select(
-                'u.firstName AS first_name, u.lastName AS last_name, u.address1, u.address2, u.city, u.state, u.country, u.zip, u.email, u.phone, u.bio, u.slogan, CASE WHEN u.facebook_id IS NOT NULL THEN 1 ELSE 0 END AS facebook, COUNT(f.id) AS followers, 0 AS karma'
-                )
-            ->from('user', 'u')
-            ->leftJoin('u', 'users_follow', 'f', 'f.user_id = u.id')
-            ->groupBy('u.id');
-        $platform = $this->getEntityManager()
-            ->getConnection()
-            ->getDatabasePlatform();
-        foreach ($fields as $k => $field) {
-            $qb->addSelect("v$k.field_value AS {$platform->quoteSingleIdentifier($field->getFieldName())}")
-                ->leftJoin('u', 'groups_fields_values', 'v'.$k, "v$k.user_id = u.id AND v$k.field_id = :field$k")
-                ->setParameter(":field$k", $field->getId());
-        }
-        foreach ($polls as $k => $poll) {
-            $qb->addSelect("CASE WHEN a$k.privacy = :private THEN \"Anonymous\" ELSE o$k.value END AS {$platform->quoteSingleIdentifier($poll->getSubject())}")
-                ->leftJoin('u', 'poll_answers', 'a'.$k, "a$k.user_id = u.id AND a$k.question_id = :poll$k")
-                ->leftJoin('a'.$k, 'poll_options', 'o'.$k, "a$k.option_id = o$k.id")
-                ->setParameter(':poll'.$k, $poll->getId())
-                ->setParameter(':private', Answer::PRIVACY_PRIVATE);
-        }
-
-        return $qb->execute();
-    }
 }

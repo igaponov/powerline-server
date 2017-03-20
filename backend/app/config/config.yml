@@ -64,6 +64,9 @@ doctrine:
                     softdeleteable:
                         class: Gedmo\SoftDeleteable\Filter\SoftDeleteableFilter
                         enabled: true
+                dql:
+                    string_functions:
+                        GROUP_CONCAT: Civix\CoreBundle\Doctrine\Query\Functions\GroupConcat
         resolve_target_entities:
             Civix\CoreBundle\Entity\Stripe\AccountInterface: \Civix\CoreBundle\Entity\Stripe\Account
             Civix\CoreBundle\Entity\Stripe\CustomerInterface: \Civix\CoreBundle\Entity\Stripe\Customer
