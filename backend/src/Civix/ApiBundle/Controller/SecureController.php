@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Controller;
 
 use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
+use Civix\CoreBundle\Model\User\FacebookUserCreator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -168,20 +169,19 @@ class SecureController extends BaseController
      *      }
      * )
      * @param Request $request
-     * @param null $validatorGroups
      * @return Response
      */
-    public function registrationAction(Request $request, $validatorGroups = null)
+    public function registrationAction(Request $request)
     {
         $response = new Response();
         $response->headers->set('Content-Type', 'application/json');
 
         $userCreator = UserCreator::createUserFromRequest($request);
+        $validatorGroups = $userCreator->getValidationGroups();
         $user = $userCreator->create($request);
 
         //registration from facebook (from website)
-        if (is_null($validatorGroups)) {
-            $validatorGroups = $userCreator->getValidationGroups();
+        if (!$userCreator instanceof FacebookUserCreator) {
             $user->setIsRegistrationComplete(true);
         } else {
             $user->setIsRegistrationComplete(false);
@@ -288,14 +288,7 @@ class SecureController extends BaseController
             throw new HttpException(400);
         }
 
-        $user = $this->getDoctrine()->getManager()
-            ->getRepository('CivixCoreBundle:User')
-            ->getUserByFacebookId($request->get('facebook_id'));
-        if ($user instanceof User) {
-            throw new HttpException(400);
-        }
-
-        return $this->registrationAction($request, array('facebook'));
+        return $this->registrationAction($request);
     }
 
     /**

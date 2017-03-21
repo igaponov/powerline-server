@@ -218,8 +218,29 @@ class SecureControllerTest extends WebTestCase
 		$this->assertNotEmpty($data['token']);
 	}
 
+    public function testFacebookRegistrationWithWrongDataReturnsErrors()
+    {
+        $client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
+        $client->request('POST', '/api/secure/registration', [], [], [], json_encode(['email' => 'qwerty']));
+        $response = $client->getResponse();
+        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $errors = $data['errors'];
+        $expectedErrors = [
+            'username' => 'This value should not be blank.',
+            'password' => 'This value should not be blank.',
+            'firstName' => 'This value should not be blank.',
+            'lastName' => 'This value should not be blank.',
+            'zip' => 'This value should not be blank.',
+            'email' => 'This value is not a valid email address.',
+        ];
+        foreach ($errors as $error) {
+            $this->assertEquals($expectedErrors[$error['property']], $error['message']);
+        }
+    }
+
     /**
-     * @QueryCount(11)
+     * @QueryCount(12)
      * @todo see testRegistrationIsOk
      */
     public function testFacebookRegistrationIsOk()
