@@ -22,7 +22,7 @@ class LoadRepresentativePaymentRequestData extends AbstractFixture implements De
         $question = new RepresentativePaymentRequest();
         $question->setOwner($representative);
         $question->setUser($representative->getUser());
-        $question->setSubject('subj with #test-tag '.$faker->sentence);
+        $question->setTitle('subj with #test-tag '.$faker->sentence);
         $question->setIsAllowOutsiders(true);
         $question->setIsCrowdfunding(true);
 
@@ -44,7 +44,7 @@ class LoadRepresentativePaymentRequestData extends AbstractFixture implements De
         $question = new RepresentativePaymentRequest();
         $question->setOwner($representative);
         $question->setUser($representative->getUser());
-        $question->setSubject('subj with #test-tag '.$faker->sentence);
+        $question->setTitle('subj with #test-tag '.$faker->sentence);
         $question->setIsAllowOutsiders(false);
         $question->setIsCrowdfunding(false);
 

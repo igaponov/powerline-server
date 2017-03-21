@@ -22,7 +22,7 @@ class LoadGroupPaymentRequestData extends AbstractFixture implements DependentFi
         $question = new GroupPaymentRequest();
         $question->setOwner($group1);
         $question->setUser($group1->getOwner());
-        $question->setSubject('subj with #test-tag '.$faker->sentence);
+        $question->setTitle('subj with #test-tag '.$faker->sentence);
         $question->setIsAllowOutsiders(true);
         $question->setIsCrowdfunding(true);
 
@@ -44,7 +44,7 @@ class LoadGroupPaymentRequestData extends AbstractFixture implements DependentFi
         $question = new GroupPaymentRequest();
         $question->setOwner($group1);
         $question->setUser($group1->getOwner());
-        $question->setSubject('subj with #test-tag '.$faker->sentence);
+        $question->setTitle('subj with #test-tag '.$faker->sentence);
         $question->setIsAllowOutsiders(false);
         $question->setIsCrowdfunding(false);
 

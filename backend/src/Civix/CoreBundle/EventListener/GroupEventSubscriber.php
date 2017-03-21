@@ -2,12 +2,12 @@
 namespace Civix\CoreBundle\EventListener;
 
 use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Entity\UserGroupManager;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
 use Civix\CoreBundle\Event\GroupUserEvent;
-use Civix\CoreBundle\Event\InquiryEvent;
 use Civix\CoreBundle\Repository\UserGroupRepository;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -36,7 +36,6 @@ class GroupEventSubscriber implements EventSubscriberInterface
     {
         return [
             GroupEvents::MEMBERSHIP_CONTROL_CHANGED => 'setApprovedAllUsersInGroup',
-            GroupEvents::USER_INQUIRED => 'setAnsweredFields',
             GroupEvents::USER_UNJOIN => 'deleteGroupOwner',
         ];
     }
@@ -49,32 +48,11 @@ class GroupEventSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function setAnsweredFields(InquiryEvent $event)
-    {
-        $worksheet = $event->getWorksheet();
-        $user = $worksheet->getUser();
-        $group = $worksheet->getGroup();
-
-        //save fields values
-        if ($group->getFillFieldsRequired()) {
-            foreach ($worksheet->getAnsweredFields() as $field) {
-                $groupField = $this->em->getRepository(Group\GroupField::class)->find($field->getId());
-                $fieldValue = new Group\FieldValue();
-                $fieldValue->setField($groupField);
-                $fieldValue->setFieldValue($field->getValue());
-                $fieldValue->setUser($user);
-                $this->em->persist($fieldValue);
-            }
-        }
-
-        $this->em->flush();
-    }
-
     public function deleteGroupOwner(GroupUserEvent $event)
     {
         $group = $event->getGroup();
 
-        if (!$group->getOwner() || !$group->getOwner()->isEqualTo($event->getUser())) {
+        if (!$group->getOwner() instanceof User || $group->getOwner()->getId() != $event->getUser()->getId()) {
             return;
         }
 

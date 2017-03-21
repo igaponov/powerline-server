@@ -4,9 +4,9 @@ namespace Civix\CoreBundle\Service\User;
 
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\Report\UserReport;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserPetition;
-use Civix\CoreBundle\Entity\UserRepresentativeReport;
 use Civix\CoreBundle\Service\CiceroApi;
 use Civix\CoreBundle\Service\CropImage;
 use Civix\CoreBundle\Service\Group\GroupManager;
@@ -53,38 +53,15 @@ class UserManager
             $user->getCountry()
         );
         if (!empty($representatives)) {
-            $report = $this->entityManager->getRepository(UserRepresentativeReport::class)
-                ->findOneBy(['user' => $user]);
-            if (!$report) {
-                $report = new UserRepresentativeReport($user);
-            } else {
-                $report->reset();
-            }
-
             $user->getDistricts()->clear();
 
+            $list = [];
             foreach ($representatives as $representative) {
-                switch ($representative->getOfficialTitle()) {
-                    case 'President':
-                        $report->setPresident($representative->getFullName());
-                        break;
-                    case 'Vice President':
-                        $report->setVicePresident($representative->getFullName());
-                        break;
-                    case 'Senator':
-                        if (!$report->getSenator1()) {
-                            $report->setSenator1($representative->getFullName());
-                        } else {
-                            $report->setSenator2($representative->getFullName());
-                        }
-                        break;
-                    case 'Congressman':
-                        $report->setCongressman($representative->getFullName());
-                        break;
-                }
+                $list[] = $representative->getOfficialTitle().' '.$representative->getFullName();
                 $user->addDistrict($representative->getDistrict());
             }
-            $this->entityManager->persist($report);
+            $this->entityManager->getRepository(UserReport::class)
+                ->upsertUserReport($user, $user->getFollowers()->count(), $list);
 
             $user->setUpdateProfileAt(new \DateTime());
         }

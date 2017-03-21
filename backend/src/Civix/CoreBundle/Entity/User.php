@@ -479,7 +479,7 @@ class User implements UserInterface, \Serializable, OfficialInterface, HasAvatar
     private $following;
 
     /**
-     * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\UserFollow", mappedBy="user", cascade={"remove","persist"})
+     * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\UserFollow", mappedBy="user", cascade={"remove","persist"}, fetch="EXTRA_LAZY")
      */
     private $followers;
 

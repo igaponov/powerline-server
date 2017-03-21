@@ -85,7 +85,7 @@ class PackageHandler
      */
     public function getPackageStateForGroupSize(Group $group)
     {
-        $memberCount = $group->getTotalMembers();
+        $memberCount = $group->getUsers()->count();
 
         return (new PackageLimitState())
             ->setLimitValue($this->sm->getPackage($group)->getGroupSizeLimitation())

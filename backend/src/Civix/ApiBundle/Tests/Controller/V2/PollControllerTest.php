@@ -2,9 +2,11 @@
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Option;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Question\Group;
+use Civix\CoreBundle\Entity\Report\PollResponseReport;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\Stripe\Charge;
 use Civix\CoreBundle\Entity\User;
@@ -16,12 +18,14 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData as LoadGroupQuestionAnswerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData as LoadGroupQuestionCommentData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadFieldValueData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupRepresentativesData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadStripeCustomerUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadMembershipReportData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadPollResponseReportData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadUserReportData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Representative\LoadRepresentativeNewsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Representative\LoadRepresentativePaymentRequestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Representative\LoadRepresentativeQuestionData;
@@ -976,6 +980,8 @@ class PollControllerTest extends WebTestCase
         $repository = $this->loadFixtures(
             array_merge([LoadGroupQuestionData::class], $fixtures)
         )->getReferenceRepository();
+        /** @var User $user */
+        $user = $repository->getReference(str_replace('user', 'user_', $user));
         /** @var Question $question */
         $question = $repository->getReference($reference);
         /** @var Option $option */
@@ -993,7 +999,7 @@ class PollControllerTest extends WebTestCase
             'privacy' => 'private',
             'payment_amount' => 1234,
         ];
-        $client->request('PUT', self::API_ENDPOINT.'/'.$question->getId().'/answers/'.$option->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"'], json_encode($params));
+        $client->request('PUT', self::API_ENDPOINT.'/'.$question->getId().'/answers/'.$option->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user->getUsername().'"'], json_encode($params));
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
@@ -1012,6 +1018,15 @@ class PollControllerTest extends WebTestCase
         $tester = new SocialActivityTester($em);
         $tester->assertActivitiesCount(1);
         $tester->assertActivity(SocialActivity::TYPE_OWN_POLL_ANSWERED, $question->getUser()->getId());
+        $result = $this->em->getRepository(PollResponseReport::class)
+            ->getPollResponseReport($user, $question);
+        $this->assertEquals($user->getId(), $result[0]['user']);
+        $this->assertEquals($question->getId(), $result[0]['poll']);
+        $this->assertEquals($question->getGroup()->getId(), $result[0]['group']);
+        $this->assertEquals($question->getSubject(), $result[0]['text']);
+        $this->assertEquals($option->getValue(), $result[0]['answer']);
+        $this->assertEquals($params['comment'], $result[0]['comment']);
+        $this->assertEquals(Answer::PRIVACY_PRIVATE, $result[0]['privacy']);
     }
 
     public function testAddRepresentativeAnswerIsOk()
@@ -1019,6 +1034,8 @@ class PollControllerTest extends WebTestCase
         $repository = $this->loadFixtures([
             LoadRepresentativeQuestionData::class,
         ])->getReferenceRepository();
+        /** @var User $user */
+        $user = $repository->getReference('user_1');
         /** @var Question $question */
         $question = $repository->getReference('representative_question_1');
         /** @var Option $option */
@@ -1052,6 +1069,15 @@ class PollControllerTest extends WebTestCase
         $this->assertEquals(1, $count);
         $count = $conn->fetchColumn('SELECT answers_count FROM poll_questions WHERE id = ?', [$question->getId()]);
         $this->assertEquals(1, $count);
+        $result = $this->em->getRepository(PollResponseReport::class)
+            ->getPollResponseReport($user, $question);
+        $this->assertEquals($user->getId(), $result[0]['user']);
+        $this->assertEquals($question->getId(), $result[0]['poll']);
+        $this->assertEquals($question->getGroup()->getId(), $result[0]['group']);
+        $this->assertEquals($question->getSubject(), $result[0]['text']);
+        $this->assertEquals($option->getValue(), $result[0]['answer']);
+        $this->assertEquals($params['comment'], $result[0]['comment']);
+        $this->assertEquals(Answer::PRIVACY_PRIVATE, $result[0]['privacy']);
     }
 
     public function testAddGroupPaymentAnswerToCrowdfundingRequestIsOk()
@@ -1061,7 +1087,9 @@ class PollControllerTest extends WebTestCase
             LoadGroupManagerData::class,
             LoadGroupPaymentRequestData::class,
         ])->getReferenceRepository();
-        /** @var Question $question */
+        /** @var User $user */
+        $user = $repository->getReference('user_1');
+        /** @var Question\PaymentRequest $question */
         $question = $repository->getReference('group_payment_request_1');
         /** @var Option $option */
         $option = $question->getOptions()->get(0);
@@ -1097,6 +1125,15 @@ class PollControllerTest extends WebTestCase
         $tester = new SocialActivityTester($em);
         $tester->assertActivitiesCount(1);
         $tester->assertActivity(SocialActivity::TYPE_OWN_POLL_ANSWERED, $question->getUser()->getId());
+        $result = $this->em->getRepository(PollResponseReport::class)
+            ->getPollResponseReport($user, $question);
+        $this->assertEquals($user->getId(), $result[0]['user']);
+        $this->assertEquals($question->getId(), $result[0]['poll']);
+        $this->assertEquals($question->getGroup()->getId(), $result[0]['group']);
+        $this->assertEquals($question->getTitle(), $result[0]['text']);
+        $this->assertEquals($option->getValue(), $result[0]['answer']);
+        $this->assertEquals($params['comment'], $result[0]['comment']);
+        $this->assertEquals(Answer::PRIVACY_PRIVATE, $result[0]['privacy']);
     }
 
     public function testAddRepresentativePaymentAnswerToCrowdfundingRequestIsOk()
@@ -1104,7 +1141,9 @@ class PollControllerTest extends WebTestCase
         $repository = $this->loadFixtures([
             LoadRepresentativePaymentRequestData::class,
         ])->getReferenceRepository();
-        /** @var Question $question */
+        /** @var User $user */
+        $user = $repository->getReference('user_1');
+        /** @var Question\PaymentRequest $question */
         $question = $repository->getReference('representative_payment_request_1');
         /** @var Option $option */
         $option = $question->getOptions()->get(0);
@@ -1137,6 +1176,15 @@ class PollControllerTest extends WebTestCase
         $this->assertEquals(1, $count);
         $count = $conn->fetchColumn('SELECT answers_count FROM poll_questions WHERE id = ?', [$question->getId()]);
         $this->assertEquals(1, $count);
+        $result = $this->em->getRepository(PollResponseReport::class)
+            ->getPollResponseReport($user, $question);
+        $this->assertEquals($user->getId(), $result[0]['user']);
+        $this->assertEquals($question->getId(), $result[0]['poll']);
+        $this->assertEquals($question->getGroup()->getId(), $result[0]['group']);
+        $this->assertEquals($question->getTitle(), $result[0]['text']);
+        $this->assertEquals($option->getValue(), $result[0]['answer']);
+        $this->assertEquals($params['comment'], $result[0]['comment']);
+        $this->assertEquals(Answer::PRIVACY_PRIVATE, $result[0]['privacy']);
     }
 
     public function testAddGroupPaymentAnswerToNotCrowdfundingRequestIsOk()
@@ -1148,7 +1196,9 @@ class PollControllerTest extends WebTestCase
             LoadStripeCustomerUserData::class,
             LoadAccountGroupData::class,
         ])->getReferenceRepository();
-        /** @var Question $question */
+        /** @var User $user */
+        $user = $repository->getReference('user_1');
+        /** @var Question\PaymentRequest $question */
         $question = $repository->getReference('group_payment_request_2');
         /** @var Option $option */
         $option = $question->getOptions()->get(1);
@@ -1189,6 +1239,15 @@ class PollControllerTest extends WebTestCase
         $tester = new SocialActivityTester($em);
         $tester->assertActivitiesCount(1);
         $tester->assertActivity(SocialActivity::TYPE_OWN_POLL_ANSWERED, $question->getUser()->getId());
+        $result = $this->em->getRepository(PollResponseReport::class)
+            ->getPollResponseReport($user, $question);
+        $this->assertEquals($user->getId(), $result[0]['user']);
+        $this->assertEquals($question->getId(), $result[0]['poll']);
+        $this->assertEquals($question->getGroup()->getId(), $result[0]['group']);
+        $this->assertEquals($question->getTitle(), $result[0]['text']);
+        $this->assertEquals($option->getValue(), $result[0]['answer']);
+        $this->assertEquals($params['comment'], $result[0]['comment']);
+        $this->assertEquals(Answer::PRIVACY_PRIVATE, $result[0]['privacy']);
     }
 
     public function testAddRepresentativePaymentAnswerToNotCrowdfundingRequestIsOk()
@@ -1198,7 +1257,9 @@ class PollControllerTest extends WebTestCase
             LoadStripeCustomerUserData::class,
             LoadAccountRepresentativeData::class,
         ])->getReferenceRepository();
-        /** @var Question $question */
+        /** @var User $user */
+        $user = $repository->getReference('user_1');
+        /** @var Question\PaymentRequest $question */
         $question = $repository->getReference('representative_payment_request_2');
         /** @var Option $option */
         $option = $question->getOptions()->get(1);
@@ -1236,6 +1297,15 @@ class PollControllerTest extends WebTestCase
         $this->assertEquals(1, $count);
         $count = $conn->fetchColumn('SELECT answers_count FROM poll_questions WHERE id = ?', [$question->getId()]);
         $this->assertEquals(1, $count);
+        $result = $this->em->getRepository(PollResponseReport::class)
+            ->getPollResponseReport($user, $question);
+        $this->assertEquals($user->getId(), $result[0]['user']);
+        $this->assertEquals($question->getId(), $result[0]['poll']);
+        $this->assertEquals($question->getGroup()->getId(), $result[0]['group']);
+        $this->assertEquals($question->getTitle(), $result[0]['text']);
+        $this->assertEquals($option->getValue(), $result[0]['answer']);
+        $this->assertEquals($params['comment'], $result[0]['comment']);
+        $this->assertEquals(Answer::PRIVACY_PRIVATE, $result[0]['privacy']);
     }
 
     /**
@@ -1270,13 +1340,17 @@ class PollControllerTest extends WebTestCase
     public function testGetPollResponsesIsOk()
     {
         $repository = $this->loadFixtures([
-            LoadGroupQuestionAnswerData::class,
-            LoadUserFollowerData::class,
-            LoadGroupManagerData::class,
-            LoadFieldValueData::class,
-            LoadGroupRepresentativesData::class,
+            LoadUserReportData::class,
+            LoadMembershipReportData::class,
+            LoadPollResponseReportData::class,
         ])->getReferenceRepository();
         $question = $repository->getReference('group_question_1');
+        /** @var Answer[] $answers */
+        $answers = [
+            $repository->getReference('question_answer_1'),
+            $repository->getReference('question_answer_2'),
+            $repository->getReference('question_answer_3'),
+        ];
         $user2 = $repository->getReference('user_2');
         $user3 = $repository->getReference('user_3');
         $user4 = $repository->getReference('user_4');
@@ -1286,9 +1360,9 @@ class PollControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertCount(3, $data);
-        $this->assertSame("test-field-value-2", $data[0]['test-group-field']);
-        $this->assertSame("test-field-value-3", $data[1]['test-group-field']);
-        $this->assertNull($data[2]['test-group-field']);
+        $this->assertSame([], $data[0]['fields']);
+        $this->assertSame(["test-group-field" => "Test Answer"], $data[1]['fields']);
+        $this->assertSame(["test-group-field" => "Second Answer"], $data[2]['fields']);
         foreach ([$user2, $user3, $user4] as $k => $user) {
             /** @var User $user */
             $this->assertEquals($user->getAddress(), $data[$k]['address']);
@@ -1300,14 +1374,24 @@ class PollControllerTest extends WebTestCase
             $this->assertSame($user->getZip(), $data[$k]['zip_code']);
             $this->assertSame($user->getBio(), $data[$k]['bio']);
             $this->assertArrayHasKey('karma', $data[$k]);
-            $this->assertSame("1", $data[$k]['followers']);
             $this->assertEquals('1', $data[$k]['facebook']);
-            $this->assertNotEmpty($data[$k]['comment']);
-            $this->assertThat($data[$k]['choice'], $this->logicalOr('val 0', 'val 1'));
+            $this->assertSame($question->getSubject(), $data[$k]['text']);
+            $this->assertSame($answers[$k]->getComment(), $data[$k]['comment']);
+            $this->assertSame($answers[$k]->getOption()->getValue(), $data[$k]['answer']);
+            if ($user === $user2) {
+                $this->assertEmpty($data[$k]['representatives']);
+            } else {
+                $this->assertNotEmpty($data[$k]['representatives']);
+            }
             if ($user === $user3) { // private
-                $this->assertNull($data[$k]['name']);
+                $this->assertSame('', $data[$k]['name']);
             } else {
                 $this->assertSame($user->getFullName(), $data[$k]['name']);
+            }
+            if ($user === $user4) {
+                $this->assertSame('1', $data[$k]['followers']);
+            } else {
+                $this->assertSame('0', $data[$k]['followers']);
             }
         }
     }
@@ -1315,10 +1399,9 @@ class PollControllerTest extends WebTestCase
     public function testGetPollResponsesCsvIsOk()
     {
         $repository = $this->loadFixtures([
-            LoadGroupQuestionAnswerData::class,
-            LoadUserFollowerData::class,
-            LoadGroupManagerData::class,
-            LoadFieldValueData::class,
+            LoadUserReportData::class,
+            LoadMembershipReportData::class,
+            LoadPollResponseReportData::class,
         ])->getReferenceRepository();
         $question = $repository->getReference('group_question_1');
         $answer1 = $repository->getReference('question_answer_1');
@@ -1327,6 +1410,9 @@ class PollControllerTest extends WebTestCase
         $user2 = $repository->getReference('user_2');
         $user3 = $repository->getReference('user_3');
         $user4 = $repository->getReference('user_4');
+        $bo = $repository->getReference('cicero_representative_bo');
+        $jb = $repository->getReference('cicero_representative_jb');
+        $rm = $repository->getReference('cicero_representative_rm');
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT.'/'.$question->getId().'/responses', [], [], [
             'HTTP_ACCEPT' => 'text/csv',
@@ -1335,11 +1421,10 @@ class PollControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $this->assertSame(
-            "name,address,city,state,country,zip_code,email,phone,bio,slogan,facebook,followers,karma," .
-            "test-group-field,\"\"\"field1`\",\"\"\"field2`\",\"\"\"field3`\",\"\"\"field4`\",choice,comment\n" .
-            "\"user 2\",,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,0,test-field-value-2,,,,,\"{$answer1->getOption()->getValue()}\",\"{$answer1->getComment()}\"\n" .
-            ",,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,0,test-field-value-3,,,,,\"{$answer2->getOption()->getValue()}\",\"{$answer2->getComment()}\"\n" .
-            "\"user 4\",,,,US,,{$user4->getEmail()},{$user4->getPhone()},,,1,1,0,,,,,,\"{$answer3->getOption()->getValue()}\",\"{$answer3->getComment()}\"\n",
+            "name,address,city,state,country,zip_code,email,phone,bio,slogan,facebook,followers,karma,fields,representatives,text,answer,comment\n" .
+            "\"user 2\",,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,,,,,\"{$question->getSubject()}\",\"{$answer1->getOption()->getValue()}\",\"{$answer1->getComment()}\"\n" .
+            ",,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,,,\"test-group-field: Test Answer\",\"{$rm->getFullName()}\",\"{$question->getSubject()}\",\"{$answer2->getOption()->getValue()}\",\"{$answer2->getComment()}\"\n" .
+            "\"user 4\",,,,US,,{$user4->getEmail()},{$user4->getPhone()},,,1,1,,\"test-group-field: Second Answer\",\"{$bo->getFullName()}, {$jb->getFullName()}\",\"{$question->getSubject()}\",\"{$answer3->getOption()->getValue()}\",\"{$answer3->getComment()}\"\n",
             $response->getContent()
         );
     }
@@ -1405,10 +1490,11 @@ class PollControllerTest extends WebTestCase
     }
 
     /**
-     * @return \Stripe\Charge
+     * @return \Stripe\Charge|\stdClass
      */
     public function getCharge()
     {
+        /** @var \stdClass $charge */
         $charge = new \Stripe\Charge('ch_0000');
         $charge->status = 'success';
         $charge->amount = 50000;

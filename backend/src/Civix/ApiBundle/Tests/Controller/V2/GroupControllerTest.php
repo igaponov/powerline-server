@@ -3,25 +3,26 @@ namespace Civix\ApiBundle\Tests\Controller\Leader;
 
 use Civix\CoreBundle\Entity\Group;
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\SocialActivity;
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Test\SocialActivityTester;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadFieldValueData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadInviteData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupStatusData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserRepresentativeReportData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadMembershipReportData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadPollResponseReportData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadUserReportData;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -881,19 +882,16 @@ class GroupControllerTest extends WebTestCase
     public function testGetGroupMembersIsOk()
     {
         $repository = $this->loadFixtures([
-            LoadUserFollowerData::class,
-            LoadGroupManagerData::class,
-            LoadFieldValueData::class,
-            LoadUserRepresentativeReportData::class,
+            LoadUserReportData::class,
+            LoadMembershipReportData::class,
         ])->getReferenceRepository();
-        $user2 = $repository->getReference('user_2');
         $user3 = $repository->getReference('user_3');
+        $user4 = $repository->getReference('user_4');
         $group = $repository->getReference('group_1');
         $bo = $repository->getReference('cicero_representative_bo');
         $jb = $repository->getReference('cicero_representative_jb');
-        $kg = $repository->getReference('cicero_representative_kg');
-        $eh = $repository->getReference('cicero_representative_eh');
         $rm = $repository->getReference('cicero_representative_rm');
+        $field = $repository->getReference('test-group-field');
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/members', [], [], [
             'HTTP_AUTHORIZATION' => 'Bearer type="user" token="user1"',
@@ -904,41 +902,29 @@ class GroupControllerTest extends WebTestCase
         $this->assertArrayHasKey('name', $data[0]);
         $this->assertArrayHasKey('facebook', $data[0]);
         $this->assertArrayHasKey('karma', $data[0]);
-        $this->assertSame($user2->getEmail(), $data[0]['email']);
-        $this->assertSame($user2->getPhone(), $data[0]['phone']);
-        $this->assertSame("1", $data[0]['followers']);
-        $this->assertSame("test-field-value-2", $data[0]['test-group-field']);
-        $this->assertNull($data[0]['president']);
-        $this->assertNull($data[0]['vice_president']);
-        $this->assertNull($data[0]['senator1']);
-        $this->assertNull($data[0]['senator2']);
-        $this->assertNull($data[0]['congressman']);
-        $this->assertSame($user3->getEmail(), $data[1]['email']);
-        $this->assertSame($user3->getPhone(), $data[1]['phone']);
-        $this->assertSame("1", $data[1]['followers']);
-        $this->assertSame("test-field-value-3", $data[1]['test-group-field']);
-        $this->assertSame($bo->getFullName(), $data[1]['president']);
-        $this->assertSame($jb->getFullName(), $data[1]['vice_president']);
-        $this->assertSame($rm->getFullName(), $data[1]['senator1']);
-        $this->assertSame($kg->getFullName(), $data[1]['senator2']);
-        $this->assertSame($eh->getFullName(), $data[1]['congressman']);
+        $this->assertSame($user3->getEmail(), $data[0]['email']);
+        $this->assertSame($user3->getPhone(), $data[0]['phone']);
+        $this->assertSame('0', $data[0]['followers']);
+        $this->assertSame([$field->getFieldName() => 'Test Answer'], $data[0]['fields']);
+        $this->assertSame([$rm->getFullName()], $data[0]['representatives']);
+        $this->assertSame($user4->getEmail(), $data[1]['email']);
+        $this->assertSame($user4->getPhone(), $data[1]['phone']);
+        $this->assertSame('1', $data[1]['followers']);
+        $this->assertSame([$field->getFieldName() => 'Second Answer'], $data[1]['fields']);
+        $this->assertSame([$bo->getFullName(), $jb->getFullName()], $data[1]['representatives']);
     }
 
     public function testGetGroupMembersCsvIsOk()
     {
         $repository = $this->loadFixtures([
-            LoadUserFollowerData::class,
-            LoadGroupManagerData::class,
-            LoadFieldValueData::class,
-            LoadUserRepresentativeReportData::class,
+            LoadUserReportData::class,
+            LoadMembershipReportData::class,
         ])->getReferenceRepository();
-        $user2 = $repository->getReference('user_2');
         $user3 = $repository->getReference('user_3');
+        $user4 = $repository->getReference('user_4');
         $group = $repository->getReference('group_1');
         $bo = $repository->getReference('cicero_representative_bo');
         $jb = $repository->getReference('cicero_representative_jb');
-        $kg = $repository->getReference('cicero_representative_kg');
-        $eh = $repository->getReference('cicero_representative_eh');
         $rm = $repository->getReference('cicero_representative_rm');
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/members', [], [], [
@@ -948,10 +934,9 @@ class GroupControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $this->assertSame(
-            "name,address,city,state,country,zip_code,email,phone,bio,slogan,facebook,followers,karma," .
-            "test-group-field,\"\"\"field1`\",\"\"\"field2`\",\"\"\"field3`\",\"\"\"field4`\",president,vice_president,senator1,senator2,congressman\n" .
-            "\"user 2\",,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,0,test-field-value-2,,,,,,,,,\n" .
-            "\"user 3\",,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,0,test-field-value-3,,,,,\"{$bo->getFullName()}\",\"{$jb->getFullName()}\",\"{$rm->getFullName()}\",\"{$kg->getFullName()}\",\"{$eh->getFullName()}\"\n",
+            "name,address,city,state,country,zip_code,email,phone,bio,slogan,facebook,followers,karma,fields,representatives\n" .
+            "\"user 3\",,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,,,\"test-group-field: Test Answer\",\"{$rm->getFullName()}\"\n" .
+            "\"user 4\",,,,US,,{$user4->getEmail()},{$user4->getPhone()},,,1,1,,\"test-group-field: Second Answer\",\"{$bo->getFullName()}, {$jb->getFullName()}\"\n",
             $response->getContent()
         );
         $this->assertContains('text/csv', $response->headers->get('content-type'));
@@ -1005,19 +990,20 @@ class GroupControllerTest extends WebTestCase
     public function testGetGroupResponsesIsOk()
     {
         $repository = $this->loadFixtures([
-            LoadUserFollowerData::class,
-            LoadGroupManagerData::class,
-            LoadFieldValueData::class,
-            LoadQuestionAnswerData::class,
+            LoadUserReportData::class,
+            LoadMembershipReportData::class,
+            LoadPollResponseReportData::class,
         ])->getReferenceRepository();
-        $user1 = $repository->getReference('user_1');
         $user2 = $repository->getReference('user_2');
         $user3 = $repository->getReference('user_3');
         $user4 = $repository->getReference('user_4');
-        $poll1 = $repository->getReference('group_question_1');
-        $poll5 = $repository->getReference('group_question_5');
-        $answer1 = $repository->getReference('question_answer_1');
-        $answer3 = $repository->getReference('question_answer_3');
+        $question = $repository->getReference('group_question_1');
+        /** @var Answer[] $answers */
+        $answers = [
+            $repository->getReference('question_answer_1'),
+            $repository->getReference('question_answer_2'),
+            $repository->getReference('question_answer_3'),
+        ];
         $group = $repository->getReference('group_1');
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/responses', [], [], [
@@ -1026,63 +1012,58 @@ class GroupControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-
-        $this->assertCount(9, $data);
-        $this->assertArrayHasKey('first_name', $data[0]);
-        $this->assertArrayHasKey('last_name', $data[0]);
-        $this->assertArrayHasKey('facebook', $data[0]);
-        $this->assertArrayHasKey('karma', $data[0]);
-        $this->assertSame($user1->getEmail(), $data[0]['email']);
-        $this->assertSame($user1->getPhone(), $data[0]['phone']);
-        $this->assertSame("0", $data[0]['followers']);
-        $this->assertNull($data[0]['test-group-field']);
-        $this->assertNull($data[0][$poll1->getSubject()]);
-        $this->assertNull($data[0][$poll5->getSubject()]);
-
-        $this->assertSame($user2->getEmail(), $data[1]['email']);
-        $this->assertSame($user2->getPhone(), $data[1]['phone']);
-        $this->assertSame("1", $data[1]['followers']);
-        $this->assertSame("test-field-value-2", $data[1]['test-group-field']);
-        $this->assertSame($answer1->getOption()->getValue(), $data[1][$poll1->getSubject()]);
-        $this->assertNull($data[1][$poll5->getSubject()]);
-
-        $this->assertSame($user3->getEmail(), $data[2]['email']);
-        $this->assertSame($user3->getPhone(), $data[2]['phone']);
-        $this->assertSame("1", $data[2]['followers']);
-        $this->assertSame("test-field-value-3", $data[2]['test-group-field']);
-        $this->assertSame("Anonymous", $data[2][$poll1->getSubject()]);
-        $this->assertNull($data[2][$poll5->getSubject()]);
-
-        $this->assertSame($user4->getEmail(), $data[3]['email']);
-        $this->assertSame($user4->getPhone(), $data[3]['phone']);
-        $this->assertSame("1", $data[3]['followers']);
-        $this->assertNull($data[3]['test-group-field']);
-        $this->assertSame($answer3->getOption()->getValue(), $data[3][$poll1->getSubject()]);
-        $this->assertNull($data[3][$poll5->getSubject()]);
+        $this->assertCount(3, $data);
+        $this->assertSame([], $data[0]['fields']);
+        $this->assertSame(["test-group-field" => "Test Answer"], $data[1]['fields']);
+        $this->assertSame(["test-group-field" => "Second Answer"], $data[2]['fields']);
+        foreach ([$user2, $user3, $user4] as $k => $user) {
+            /** @var User $user */
+            $this->assertEquals($user->getAddress(), $data[$k]['address']);
+            $this->assertSame($user->getFullName(), $data[$k]['name']);
+            $this->assertSame($user->getEmail(), $data[$k]['email']);
+            $this->assertSame($user->getPhone(), $data[$k]['phone']);
+            $this->assertSame($user->getCity(), $data[$k]['city']);
+            $this->assertSame($user->getState(), $data[$k]['state']);
+            $this->assertSame($user->getCountry(), $data[$k]['country']);
+            $this->assertSame($user->getZip(), $data[$k]['zip_code']);
+            $this->assertSame($user->getBio(), $data[$k]['bio']);
+            $this->assertArrayHasKey('karma', $data[$k]);
+            $this->assertEquals('1', $data[$k]['facebook']);
+            if ($user === $user2) {
+                $this->assertEmpty($data[$k]['representatives']);
+            } else {
+                $this->assertNotEmpty($data[$k]['representatives']);
+            }
+            if ($user === $user3) { // private
+                $this->assertSame([$question->getSubject() => 'Anonymous'], $data[$k]['polls']);
+            } else {
+                $this->assertSame([$question->getSubject() => $answers[$k]->getOption()->getValue()], $data[$k]['polls']);
+            }
+            if ($user === $user4) {
+                $this->assertSame('1', $data[$k]['followers']);
+            } else {
+                $this->assertSame('0', $data[$k]['followers']);
+            }
+        }
     }
 
     public function testGetGroupResponsesCsvIsOk()
     {
         $repository = $this->loadFixtures([
-            LoadUserFollowerData::class,
-            LoadGroupManagerData::class,
-            LoadFieldValueData::class,
-            LoadQuestionAnswerData::class,
+            LoadUserReportData::class,
+            LoadMembershipReportData::class,
+            LoadPollResponseReportData::class,
         ])->getReferenceRepository();
-        $user1 = $repository->getReference('user_1');
         $user2 = $repository->getReference('user_2');
         $user3 = $repository->getReference('user_3');
         $user4 = $repository->getReference('user_4');
-        $followertest = $repository->getReference('followertest');
-        $userfollowtest1 = $repository->getReference('userfollowtest1');
-        $userfollowtest2 = $repository->getReference('userfollowtest2');
-        $userfollowtest3 = $repository->getReference('userfollowtest3');
-        $testuserbookmark1 = $repository->getReference('testuserbookmark1');
-        $poll1 = $repository->getReference('group_question_1');
-        $poll5 = $repository->getReference('group_question_5');
+        $question = $repository->getReference('group_question_1');
         $answer1 = $repository->getReference('question_answer_1');
         $answer3 = $repository->getReference('question_answer_3');
         $group = $repository->getReference('group_1');
+        $bo = $repository->getReference('cicero_representative_bo');
+        $jb = $repository->getReference('cicero_representative_jb');
+        $rm = $repository->getReference('cicero_representative_rm');
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/responses', [], [], [
             'HTTP_ACCEPT' => 'text/csv',
@@ -1091,22 +1072,38 @@ class GroupControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $this->assertSame(
-            "first_name,last_name,address1,address2,city,state,country,zip,email,phone,bio,slogan,facebook,followers,karma," .
-            "test-group-field,\"\"\"field1`\",\"\"\"field2`\",\"\"\"field3`\",\"\"\"field4`\"," .
-            "\"{$poll1->getSubject()}\",\"{$poll5->getSubject()}\"\n" .
-            "User,One,,,,,US,,{$user1->getEmail()},{$user1->getPhone()},\"{$user1->getBio()}\",\"{$user1->getSlogan()}\",1,0,0,,,,,,,\n" .
-            "user,2,,,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,1,0,test-field-value-2,,,,,\"{$answer1->getOption()->getValue()}\",\n" .
-            "user,3,,,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,1,0,test-field-value-3,,,,,Anonymous,\n" .
-            "user,4,,,,,US,,{$user4->getEmail()},{$user4->getPhone()},,,1,1,0,,,,,,\"{$answer3->getOption()->getValue()}\",\n" .
-            "followertest,,,,,,US,,{$followertest->getEmail()},{$followertest->getPhone()},,,1,0,0,,,,,,,\n" .
-            "userfollowtest,1,,,,,US,,{$userfollowtest1->getEmail()},{$userfollowtest1->getPhone()},,,1,0,0,,,,,,,\n" .
-            "userfollowtest,2,,,,,US,,{$userfollowtest2->getEmail()},{$userfollowtest2->getPhone()},,,1,0,0,,,,,,,\n" .
-            "userfollowtest,3,,,,,US,,{$userfollowtest3->getEmail()},{$userfollowtest3->getPhone()},,,1,0,0,,,,,,,\n" .
-            "testuserbookmark,1,,,,,US,,{$testuserbookmark1->getEmail()},{$testuserbookmark1->getPhone()},,,1,0,0,,,,,,,\n",
+            "name,address,city,state,country,zip_code,email,phone,bio,slogan,facebook,followers,karma,fields,representatives,polls\n" .
+            "\"user 2\",,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,,,,,\"{$question->getSubject()}: {$answer1->getOption()->getValue()}\"\n" .
+            "\"user 3\",,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,,,\"test-group-field: Test Answer\",\"{$rm->getFullName()}\",\"{$question->getSubject()}: Anonymous\"\n" .
+            "\"user 4\",,,,US,,{$user4->getEmail()},{$user4->getPhone()},,,1,1,,\"test-group-field: Second Answer\",\"{$bo->getFullName()}, {$jb->getFullName()}\",\"{$question->getSubject()}: {$answer3->getOption()->getValue()}\"\n",
             $response->getContent()
         );
         $this->assertContains('text/csv', $response->headers->get('content-type'));
         $this->assertSame('attachment; filename="file.csv"', $response->headers->get('content-disposition'));
+    }
+
+    public function testGetGroupResponsesCsvLinkIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadGroupData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_1');
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/responses-link', [], [], ['HTTP_AUTHORIZATION' => 'Bearer type="user" token="user1"']);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertCount(2, $data);
+        $this->assertRegExp('~/api-public/files/\S{8}-\S{4}-\S{4}-\S{4}-\S{12}~', $data['url']);
+        $this->assertLessThanOrEqual(new \DateTime('+2 minutes'), new \DateTime($data['expired_at']));
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
+        $file = $conn->fetchAssoc('SELECT * FROM temp_files LIMIT 1');
+        $this->assertRegExp('~\S{8}-\S{4}-\S{4}-\S{4}-\S{12}~', $file['id']);
+        $this->assertEquals('a:0:{}', $file['body']);
+        $this->assertNull($file['filename']);
+        $this->assertEquals('text/csv', $file['mimeType']);
+        $this->assertLessThanOrEqual(new \DateTime('+2 minutes'), new \DateTime($file['expiredAt']));
     }
 
 	protected function getGroupsRequest($username, $params)

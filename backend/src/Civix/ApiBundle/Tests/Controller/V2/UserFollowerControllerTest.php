@@ -2,10 +2,12 @@
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Report\UserReport;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowData;
+use Liip\FunctionalTestBundle\Annotations\QueryCount;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class UserFollowerControllerTest extends WebTestCase
@@ -121,6 +123,9 @@ class UserFollowerControllerTest extends WebTestCase
         $this->assertArrayHasKey('date_approval', $data);
     }
 
+    /**
+     * @QueryCount(7)
+     */
     public function testApproveFollowUserIsSuccessful()
     {
         $repository = $this->loadFixtures([
@@ -129,6 +134,7 @@ class UserFollowerControllerTest extends WebTestCase
         ])->getReferenceRepository();
         /** @var UserFollow $userFollow */
         $userFollow = $repository->getReference('userfollowtest2_followertest');
+        $user = $userFollow->getUser();
         $follower = $userFollow->getFollower();
         $client = $this->client;
         $client->request('PATCH', self::API_ENDPOINT.'/'.$follower->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="userfollowtest2"']);
@@ -137,8 +143,16 @@ class UserFollowerControllerTest extends WebTestCase
         $this->em->refresh($userFollow);
         $this->assertSame($follower->getId(), $userFollow->getFollower()->getId());
         $this->assertSame(UserFollow::STATUS_ACTIVE, $userFollow->getStatus());
+        $result = $this->em->getRepository(UserReport::class)
+            ->getUserReport($user);
+        $this->assertEquals($user->getId(), $result[0]['user']);
+        $this->assertEquals($user->getFollowers()->count(), $result[0]['followers']);
+        $this->assertEquals([], $result[0]['representatives']);
     }
 
+    /**
+     * @QueryCount(7)
+     */
     public function testUnapproveActiveUserIsSuccessful()
     {
         $repository = $this->loadFixtures([
@@ -155,6 +169,11 @@ class UserFollowerControllerTest extends WebTestCase
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         $followers = $this->em->getRepository(UserFollow::class)->findBy(['user' => $user]);
         $this->assertCount(0, $followers);
+        $result = $this->em->getRepository(UserReport::class)
+            ->getUserReport($user);
+        $this->assertEquals($user->getId(), $result[0]['user']);
+        $this->assertEquals(0, $result[0]['followers']);
+        $this->assertEquals([], $result[0]['representatives']);
     }
 
     public function testUnapprovePendingUserIsSuccessful()

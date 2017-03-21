@@ -10,6 +10,7 @@ use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Option;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\TempFile;
+use Civix\CoreBundle\QueryFunction\PollResponsesQuery;
 use Civix\CoreBundle\Service\PollManager;
 use Doctrine\ORM\EntityManager;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
@@ -423,13 +424,10 @@ class PollController extends FOSRestController
      */
     public function getResponsesAction(Question $question)
     {
-        $query = $this->em->getRepository('CivixCoreBundle:Poll\Answer')
-            ->getResponsesByQuestion($question);
+        $query = new PollResponsesQuery($this->em);
 
-        return $query->fetchAll();
+        return $query($question);
     }
-
-
 
     /**
      * Return link to a file with all the responses for a given question.
