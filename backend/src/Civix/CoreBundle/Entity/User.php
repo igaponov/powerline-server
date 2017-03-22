@@ -389,7 +389,7 @@ class User implements UserInterface, \Serializable, OfficialInterface, HasAvatar
      *
      * @ORM\Column(name="interests", type="array", nullable=true)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-profile", "api-leader-answers"})
+     * @Serializer\Groups({"api-profile", "api-info", "api-leader-answers"})
      */
     private $interests;
 
