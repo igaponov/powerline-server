@@ -73,7 +73,7 @@ class UserFollowerControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertCount(19, $data);
+        $this->assertCount(20, $data);
         $this->assertEquals('active', $data['status']);
         $this->assertEquals($follower->getId(), $data['id']);
         $this->assertEquals($follower->getType(), $data['type']);
@@ -90,6 +90,7 @@ class UserFollowerControllerTest extends WebTestCase
         $this->assertEquals($follower->getTwitterLink(), $data['twitter_link']);
         $this->assertEquals($follower->getBio(), $data['bio']);
         $this->assertEquals($follower->getSlogan(), $data['slogan']);
+        $this->assertEquals($follower->getInterests(), $data['interests']);
         $this->assertArrayHasKey('date_create', $data);
         $this->assertArrayHasKey('date_approval', $data);
     }
@@ -107,7 +108,7 @@ class UserFollowerControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertCount(14, $data);
+        $this->assertCount(15, $data);
         $this->assertEquals('pending', $data['status']);
         $this->assertEquals($follower->getId(), $data['id']);
         $this->assertEquals($follower->getFullName(), $data['full_name']);
@@ -119,6 +120,7 @@ class UserFollowerControllerTest extends WebTestCase
         $this->assertEquals($follower->getCountry(), $data['country']);
         $this->assertEquals($follower->getBio(), $data['bio']);
         $this->assertEquals($follower->getSlogan(), $data['slogan']);
+        $this->assertEquals($follower->getInterests(), $data['interests']);
         $this->assertArrayHasKey('date_create', $data);
         $this->assertArrayHasKey('date_approval', $data);
     }
