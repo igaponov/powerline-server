@@ -60,7 +60,7 @@ class AnnouncementsType extends AbstractType implements ChoiceLoaderInterface
             'data_class' => AnnouncementCollection::class,
             'empty_data' => function(FormInterface $form) {
                 $collection = new AnnouncementCollection(
-                    ...$form->get('announcements')->getData()
+                    ...$form->get('announcements')->getData() ? : []
                 );
                 $collection->setRead($form->get('read')->getData());
 

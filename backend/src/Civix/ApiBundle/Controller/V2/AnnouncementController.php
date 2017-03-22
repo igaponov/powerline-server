@@ -289,7 +289,7 @@ class AnnouncementController extends FOSRestController
      *     input = "Civix\ApiBundle\Form\Type\AnnouncementsType",
      *     output = {
      *          "class" = "array<Civix\CoreBundle\Entity\Announcement>",
-     *          "groups" = {"api-activities", "announcement-list"}
+     *          "groups" = {"api", "api-activities", "announcement-list"}
      *     },
      *     statusCodes={
      *          405="Method Not Allowed"
