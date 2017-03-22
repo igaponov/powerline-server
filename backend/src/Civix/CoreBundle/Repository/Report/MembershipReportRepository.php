@@ -20,18 +20,17 @@ class MembershipReportRepository extends EntityRepository
     public function upsertMembershipReport(User $user, Group $group, $groupFields)
     {
         return $this->getEntityManager()->getConnection()
-            ->executeQuery('
+            ->executeQuery("
                     REPLACE INTO membership_report(user_id, group_id, group_fields) 
                     VALUES (
-                        ?1,
-                        ?2,
-                        COALESCE(?3, (SELECT group_fields FROM membership_report WHERE user_id = ?1 AND group_id = ?2), ?4)
+                        :user,
+                        :group,
+                        COALESCE(:fields, (SELECT group_fields FROM membership_report WHERE user_id = :user AND group_id = :group), '{}')
                     )
-                ', [
-                $user->getId(),
-                $group->getId(),
-                $groupFields ? json_encode($groupFields) : null,
-                '{}'
+                ", [
+                ':user' => $user->getId(),
+                ':group' => $group->getId(),
+                ':fields' => $groupFields ? json_encode($groupFields) : null,
             ])
             ->execute();
     }

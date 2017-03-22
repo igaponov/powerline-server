@@ -20,17 +20,15 @@ class UserReportRepository extends EntityRepository
     {
         return $this->getEntityManager()->getConnection()
             ->executeQuery(
-                'REPLACE INTO user_report(user_id, followers, representatives) 
+                "REPLACE INTO user_report(user_id, followers, representatives) 
                 VALUES (
-                    ?1,
-                    COALESCE(?2, (SELECT followers FROM user_report WHERE user_id = ?1), ?4),
-                    COALESCE(?3, (SELECT representatives FROM user_report WHERE user_id = ?1), ?5)
-                )', [
-                    $user->getId(),
-                    $followers,
-                    $representatives ? json_encode($representatives) : null,
-                    0,
-                    '[]',
+                    :id,
+                    COALESCE(:followers, (SELECT followers FROM user_report WHERE user_id = :id), 0),
+                    COALESCE(:representatives, (SELECT representatives FROM user_report WHERE user_id = :id), '[]')
+                )", [
+                    ':id' => $user->getId(),
+                    ':followers' => $followers,
+                    ':representatives' => $representatives ? json_encode($representatives) : null,
             ])
             ->execute();
     }
