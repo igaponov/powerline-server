@@ -652,6 +652,20 @@ class User implements UserInterface, \Serializable, OfficialInterface, HasAvatar
      */
     private $enabled = true;
 
+    /**
+     * @var float|null
+     *
+     * @ORM\Column(type="decimal", precision=4, scale=2, nullable=true)
+     */
+    private $latitude;
+
+    /**
+     * @var float|null
+     *
+     * @ORM\Column(type="decimal", precision=5, scale=2, nullable=true)
+     */
+    private $longitude;
+
     public function __construct()
     {
         $this->salt = base_convert(sha1(uniqid(mt_rand(), true)), 16, 36);
@@ -2572,5 +2586,43 @@ class User implements UserInterface, \Serializable, OfficialInterface, HasAvatar
     public function isCredentialsNonExpired()
     {
         return true;
+    }
+
+    /**
+     * @return float
+     */
+    public function getLatitude()
+    {
+        return $this->latitude;
+    }
+
+    /**
+     * @param float $latitude
+     * @return User
+     */
+    public function setLatitude(float $latitude): User
+    {
+        $this->latitude = $latitude;
+
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getLongitude()
+    {
+        return $this->longitude;
+    }
+
+    /**
+     * @param float $longitude
+     * @return User
+     */
+    public function setLongitude(float $longitude): User
+    {
+        $this->longitude = $longitude;
+
+        return $this;
     }
 }

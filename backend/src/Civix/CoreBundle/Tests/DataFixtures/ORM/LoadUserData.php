@@ -65,7 +65,7 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
         $manager->flush();
 
         $this->addReference('user_2', $this->generateUser('user2'));
-        $this->addReference('user_3', $this->generateUser('user3', null, ['district_sd', 'district_us', 'district_nj']));
+        $this->addReference('user_3', $this->generateUser('user3', null, ['district_sd', 'district_us', 'district_nj'], false, ['lat' => 40.781, 'lng' => -73.982]));
         $this->addReference('user_4', $this->generateUser('user4'));
 
         $this->addReference('followertest', $this->generateUser('followertest', null, ['district_la', 'district_sf', 'district_us']));
@@ -80,9 +80,10 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
      * @param null $birthDate
      * @param null $district
      * @param bool $isNotifOwnPostChanged
+     * @param array $coordinates
      * @return User
      */
-    private function generateUser($username, $birthDate = null, $district = null, $isNotifOwnPostChanged = false)
+    private function generateUser($username, $birthDate = null, $district = null, $isNotifOwnPostChanged = false, $coordinates = [])
     {
         $birthDate = $birthDate ?: new \DateTime();
 
@@ -110,6 +111,10 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
             }
         } elseif ($district !== null) {
             $user->addDistrict($this->getDistrict($district));
+        }
+        if ($coordinates) {
+            $user->setLatitude($coordinates['lat'])
+                ->setLongitude($coordinates['lng']);
         }
 
         $this->encodePassword($user);
