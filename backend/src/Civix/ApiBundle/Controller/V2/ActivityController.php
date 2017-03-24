@@ -117,7 +117,8 @@ class ActivityController extends FOSRestController
         return $paginator->paginate(
             $query,
             $params->get('page'),
-            $params->get('per_page')
+            $params->get('per_page'),
+            ['distinct' => false]
         );
     }
 

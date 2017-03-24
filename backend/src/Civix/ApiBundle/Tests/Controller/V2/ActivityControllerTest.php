@@ -16,6 +16,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSubscriberData;
 use Doctrine\DBAL\Connection;
+use Liip\FunctionalTestBundle\Annotations\QueryCount;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class ActivityControllerTest extends WebTestCase
@@ -55,6 +56,10 @@ class ActivityControllerTest extends WebTestCase
 		$this->assertEquals(401, $response->getStatusCode(), $response->getContent());
 	}
 
+    /**
+     * @QueryCount(10)
+     * @todo cache user's newsfeed
+     */
 	public function testGetActivitiesIsOk()
 	{
         $this->loadFixtures([
@@ -109,6 +114,9 @@ class ActivityControllerTest extends WebTestCase
         }
 	}
 
+    /**
+     * @QueryCount(7)
+     */
 	public function testGetActivitiesIsEmpty()
 	{
         $this->loadFixtures([
@@ -125,6 +133,9 @@ class ActivityControllerTest extends WebTestCase
 		$this->assertCount(0, $data['payload']);
 	}
 
+    /**
+     * @QueryCount(7)
+     */
 	public function testGetActivitiesByFollowingIsOk()
 	{
         $repository = $this->loadFixtures([
@@ -152,6 +163,9 @@ class ActivityControllerTest extends WebTestCase
 		}
 	}
 
+    /**
+     * @QueryCount(7)
+     */
 	public function testGetActivitiesByFollowingIsEmpty()
 	{
         $repository = $this->loadFixtures([
@@ -171,6 +185,9 @@ class ActivityControllerTest extends WebTestCase
 		$this->assertCount(0, $data['payload']);
 	}
 
+    /**
+     * @QueryCount(7)
+     */
 	public function testGetActivitiesByAnotherUserIsOk()
 	{
         $repository = $this->loadFixtures([
@@ -227,6 +244,9 @@ class ActivityControllerTest extends WebTestCase
 		);
 	}
 
+    /**
+     * @QueryCount(7)
+     */
 	public function testPatchActivities()
 	{
         $repository = $this->loadFixtures([
@@ -244,7 +264,7 @@ class ActivityControllerTest extends WebTestCase
 		];
 		$client = $this->client;
 		$client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
-		$response = $client->getResponse();
+        $response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
 		$this->assertCount(3, $data);

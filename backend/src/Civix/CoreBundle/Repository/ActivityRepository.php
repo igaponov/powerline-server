@@ -15,6 +15,7 @@ use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\ActivityRead;
 use Civix\CoreBundle\Entity\Poll\Question;
+use Knp\Component\Pager\Event\Subscriber\Paginate\Doctrine\ORM\QuerySubscriber;
 
 class ActivityRepository extends EntityRepository
 {
@@ -420,8 +421,17 @@ class ActivityRepository extends EntityRepository
      * @return Query
      */
     public function getActivitiesByUserQuery(User $user, \DateTime $start = null, $activityTypes = null) {
-        return $this->getActivitiesByUserQueryBuilder($user, $start, $activityTypes)
-            ->getQuery();
+        $qb = $this->getActivitiesByUserQueryBuilder($user, $start, $activityTypes);
+
+        $countQb = clone $qb;
+        $countQb->distinct(false)
+            ->select('COUNT(DISTINCT act)')
+            ->resetDQLPart('orderBy')
+            ->setParameters(clone $qb->getParameters());
+        $query = $qb->getQuery();
+        $query->setHint(QuerySubscriber::HINT_COUNT, $countQb->getQuery()->getSingleScalarResult());
+
+        return $query;
     }
 
     public function getActivitiesByUserQueryBuilder(User $user, \DateTime $start = null, $activityTypes = null)
@@ -479,7 +489,7 @@ class ActivityRepository extends EntityRepository
         $activeGroups = $this->getEntityManager()->getRepository('CivixCoreBundle:UserGroup')
             ->getActiveGroupIds($user);
 
-        $query = $this->getActivitiesQueryBuilder($following, $start, $activityTypes)
+        $qb = $this->getActivitiesQueryBuilder($following, $start, $activityTypes)
             ->leftJoin('act.activityConditions', 'act_c2')
             ->andWhere(
                 $expr->andX(
@@ -498,8 +508,15 @@ class ActivityRepository extends EntityRepository
             ->setParameter('userDistrictsIds', empty($districtsIds) ? false : $districtsIds)
             ->setParameter('userGroupsIds', empty($activeGroups) ? false : $activeGroups)
             ->setParameter('userGroupSectionIds', empty($sectionsIds) ? false : $sectionsIds)
-            ->setParameter('user', $user)
-            ->getQuery();
+            ->setParameter('user', $user);
+
+        $countQb = clone $qb;
+        $countQb->distinct(false)
+            ->select('COUNT(DISTINCT act)')
+            ->resetDQLPart('orderBy')
+            ->setParameters(clone $qb->getParameters());
+        $query = $qb->getQuery();
+        $query->setHint(QuerySubscriber::HINT_COUNT, $countQb->getQuery()->getSingleScalarResult());
         
         return $query;
     }
@@ -560,7 +577,7 @@ class ActivityRepository extends EntityRepository
         }
         $qb = $this->createQueryBuilder('act')
             ->distinct(true)
-            ->select('act', 'act_r', 'g')
+            ->select('act', 'act_r', 'g', 'u')
             // 0 = Prioritized Zone (unread, unanswered)
             // 2 = Expired Zone (expired)
             // 1 = Non-Prioritized Zone (others)
@@ -573,6 +590,7 @@ class ActivityRepository extends EntityRepository
             ELSE 1
             END) AS zone')
             ->addSelect('CASE WHEN act_c.user = :user THEN 0 ELSE 1 END AS HIDDEN is_followed')
+            ->leftJoin('act.user', 'u')
             ->leftJoin('act.activityConditions', 'act_c')
             ->leftJoin('act.activityRead', 'act_r', Query\Expr\Join::WITH, 'act_r.user = :user')
             ->setParameter(':user', $user)
@@ -638,7 +656,9 @@ class ActivityRepository extends EntityRepository
     public function findWithActivityReadByIdAndUser($id, User $user)
     {
         return $this->createQueryBuilder('a')
-            ->select('a', 'ar')
+            ->addSelect('ar', 'u', 'g')
+            ->leftJoin('a.user', 'u')
+            ->leftJoin('a.group', 'g')
             ->leftJoin('a.activityRead', 'ar', Query\Expr\Join::WITH, 'ar.user = :user')
             ->setParameter(':user', $user)
             ->where($this->_em->getExpressionBuilder()->in('a.id', $id))
