@@ -13,6 +13,10 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Faker\Factory;
+use Geocoder\Geocoder;
+use Geocoder\Model\Address;
+use Geocoder\Model\AddressCollection;
+use Geocoder\Model\Coordinates;
 use Liip\FunctionalTestBundle\Annotations\QueryCount;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -164,6 +168,14 @@ class SecureControllerTest extends WebTestCase
 		$service->expects($this->once())
             ->method('autoJoinUser');
 		$client->getContainer()->set('civix_core.group_manager', $service);
+		$service = $this->createMock(Geocoder::class);
+		$service->expects($this->once())
+            ->method('geocode')
+            ->with($data['address1'].','.$data['city'].','.$data['state'].','.$data['country'])
+            ->willReturn(new AddressCollection([
+                new Address(new Coordinates(12.345, 67.089))
+            ]));
+		$client->getContainer()->set('bazinga_geocoder.geocoder', $service);
 		$client->request('POST', '/api/secure/registration', [], [], [], json_encode($data));
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -192,6 +204,8 @@ class SecureControllerTest extends WebTestCase
         /** @var EntityManager $em */
         $em = $client->getContainer()->get('doctrine.orm.entity_manager');
         $user = $em->getRepository(User::class)->find($user['id']);
+        $this->assertSame(12.345, $user->getLatitude());
+        $this->assertSame(67.089, $user->getLongitude());
         $report = $em->getRepository(UserReport::class)
             ->getUserReport($user);
         $this->assertEquals($user->getId(), $report[0]['user']);
@@ -241,6 +255,12 @@ class SecureControllerTest extends WebTestCase
         $service->expects($this->once())
             ->method('autoJoinUser');
         $client->getContainer()->set('civix_core.group_manager', $service);
+        $service = $this->createMock(Geocoder::class);
+        $service->expects($this->once())
+            ->method('geocode')
+            ->with($data['address1'].','.$data['city'].','.$data['state'].','.$data['country'])
+            ->willReturn(new AddressCollection());
+        $client->getContainer()->set('bazinga_geocoder.geocoder', $service);
 		$client->request('POST', '/api/secure/registration-facebook', [], [], [], json_encode($data));
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -266,6 +286,8 @@ class SecureControllerTest extends WebTestCase
         /** @var EntityManager $em */
         $em = $client->getContainer()->get('doctrine.orm.entity_manager');
         $user = $em->getRepository(User::class)->find($user['id']);
+        $this->assertNull($user->getLatitude());
+        $this->assertNull($user->getLongitude());
         $report = $em->getRepository(UserReport::class)
             ->getUserReport($user);
         $this->assertEquals($user->getId(), $report[0]['user']);

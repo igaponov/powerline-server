@@ -14,3 +14,9 @@ services:
         arguments: ['@doctrine.orm.default_entity_manager']
         tags:
             - { name: kernel.event_subscriber }
+
+    civix_core.event_listener.geocoder_subscriber:
+        class: Civix\CoreBundle\EventListener\GeocoderSubscriber
+        arguments: ['@geocoder']
+        tags:
+            - { name: kernel.event_subscriber }

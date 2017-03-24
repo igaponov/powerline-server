@@ -45,7 +45,8 @@
         "hwi/oauth-bundle": "~0.5",
         "ramsey/uuid-doctrine": "1.0.1",
         "ocramius/proxy-manager": "2.0.4",
-        "oyejorge/less.php": "v1.7.0.10"
+        "oyejorge/less.php": "v1.7.0.10",
+        "willdurand/geocoder-bundle": "~4.1"
     },
     "require-dev": {
         "phing/phing": "~2.16",
