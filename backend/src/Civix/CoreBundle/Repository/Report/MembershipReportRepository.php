@@ -25,7 +25,7 @@ class MembershipReportRepository extends EntityRepository
                     VALUES (
                         :user,
                         :group,
-                        COALESCE(:fields, (SELECT group_fields FROM membership_report WHERE user_id = :user AND group_id = :group), '{}')
+                        COALESCE(:fields, (SELECT group_fields FROM (SELECT group_fields FROM membership_report WHERE user_id = :user AND group_id = :group) AS temp), '{}')
                     )
                 ", [
                 ':user' => $user->getId(),
