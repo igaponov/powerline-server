@@ -22,7 +22,7 @@ class InviteController extends BaseController
      * @Method("GET")
      *
      * @ApiDoc(
-     *     section="Invites",
+     *     section="Groups",
      *     deprecated=true
      * )
      */
@@ -79,7 +79,7 @@ class InviteController extends BaseController
      * @Method("DELETE")
      *
      * @ApiDoc(
-     *     section="Invites",
+     *     section="Groups",
      *     deprecated=true
      * )
      */

@@ -552,7 +552,7 @@ class UserRepository extends EntityRepository
         return $query->getQuery()->getResult(Query::HYDRATE_OBJECT);
     }
 
-    public function findForInviteByGroupUsername(Group $group, $userNames)
+    public function findForInviteByGroupWithUsernameOrEmail(Group $group, $userNames)
     {
         $qb = $this->createQueryBuilder('u');
         $query = $qb
@@ -561,12 +561,18 @@ class UserRepository extends EntityRepository
             ->leftJoin('u.ownedGroups', 'og', Query\Expr\Join::WITH, 'og = :group')
             ->leftJoin('u.groups', 'ug', Query\Expr\Join::WITH, 'ug.group = :group')
             ->leftJoin('u.invites', 'i', Query\Expr\Join::WITH, 'i = :group')
-            ->where($qb->expr()->in('u.username', $userNames))
+            ->where(
+                $qb->expr()->orX(
+                    $qb->expr()->in('u.username', ':userNames'),
+                    $qb->expr()->in('u.email', ':userNames')
+                )
+            )
             ->andWhere('mg.id IS NULL')
             ->andWhere('og.id IS NULL')
             ->andWhere('ug.id IS NULL')
             ->andWhere('i.id IS NULL')
             ->setParameter(':group', $group)
+            ->setParameter(':userNames', $userNames)
             ->getQuery();
 
         return $query->iterate();
