@@ -58,5 +58,9 @@ class UserManagerTest extends WebTestCase
             "President Barack Obama",
             "Senator Robert Menendez",
         ], $result[0]['representatives']);
+        $this->assertEquals([
+            'United States',
+            'New Jersey',
+        ], $result[0]['districts']);
     }
 }

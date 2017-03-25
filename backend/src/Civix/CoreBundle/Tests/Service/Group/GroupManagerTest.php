@@ -1,6 +1,7 @@
 <?php
 namespace Civix\CoreBundle\Tests\Service\Group;
 
+use Civix\CoreBundle\Entity\Report\UserReport;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Model\Geocode\AddressComponent;
@@ -83,10 +84,14 @@ class GroupManagerTest extends WebTestCase
             ->getRepository(UserGroup::class)
             ->findBy(array('user' => $this->user));
 
-        $groupLocations = array();
-        foreach($groups as $item) {
-            $groupLocations[] = $item->getGroup()->getLocationName();
-        }
-        $this->assertContains('MZ', $groupLocations);
+        $this->assertSame('MZ', $groups[0]->getGroup()->getLocationName());
+        $this->assertSame('Zambezia Province', $groups[1]->getGroup()->getLocationName());
+        $this->assertSame('Chinde', $groups[2]->getGroup()->getLocationName());
+
+        $report = $this->em->getRepository(UserReport::class)
+            ->getUserReport($this->user);
+        $this->assertSame('Mozambique', $report[0]['country']);
+        $this->assertSame('Zambezia Province', $report[0]['state']);
+        $this->assertSame('Chinde', $report[0]['locality']);
     }
 }

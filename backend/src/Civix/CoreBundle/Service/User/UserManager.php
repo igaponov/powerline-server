@@ -55,13 +55,14 @@ class UserManager
         if (!empty($representatives)) {
             $user->getDistricts()->clear();
 
-            $list = [];
+            $representativeList = $districtList = [];
             foreach ($representatives as $representative) {
-                $list[] = $representative->getOfficialTitle().' '.$representative->getFullName();
+                $representativeList[] = $representative->getOfficialTitle().' '.$representative->getFullName();
+                $districtList[] = $representative->getDistrict()->getLabel();
                 $user->addDistrict($representative->getDistrict());
             }
             $this->entityManager->getRepository(UserReport::class)
-                ->upsertUserReport($user, $user->getFollowers()->count(), $list);
+                ->upsertUserReport($user, $user->getFollowers()->count(), $representativeList, null, null, null, array_unique($districtList));
 
             $user->setUpdateProfileAt(new \DateTime());
         }

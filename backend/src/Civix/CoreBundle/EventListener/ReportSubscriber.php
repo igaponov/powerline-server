@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\EventListener;
 
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Report\MembershipReport;
 use Civix\CoreBundle\Entity\Report\PollResponseReport;
 use Civix\CoreBundle\Entity\Report\UserReport;
@@ -32,6 +33,7 @@ class ReportSubscriber implements EventSubscriberInterface
             GroupEvents::USER_INQUIRED => 'createMembershipReport',
             GroupEvents::USER_UNJOIN => 'deleteMembershipReport',
             PollEvents::QUESTION_ANSWER => 'createPollReport',
+            GroupEvents::USER_JOINED => 'updateUserGroupReport',
         ];
     }
 
@@ -77,5 +79,29 @@ class ReportSubscriber implements EventSubscriberInterface
     {
         $this->em->getRepository(PollResponseReport::class)
             ->insertPollResponseReport($event->getAnswer());
+    }
+
+    public function updateUserGroupReport(GroupUserEvent $event)
+    {
+        $group = $event->getGroup();
+        $user = $event->getUser();
+
+        $country = $state = $locality = null;
+        switch ($group->getGroupType()) {
+            case Group::GROUP_TYPE_COUNTRY:
+                $country = $group->getOfficialName();
+                break;
+            case Group::GROUP_TYPE_STATE:
+                $state = $group->getOfficialName();
+                break;
+            case Group::GROUP_TYPE_LOCAL:
+                $locality = $group->getOfficialName();
+                break;
+            default:
+                return;
+        }
+
+        $this->em->getRepository(UserReport::class)
+            ->upsertUserReport($user, null, null, $country, $state, $locality);
     }
 }

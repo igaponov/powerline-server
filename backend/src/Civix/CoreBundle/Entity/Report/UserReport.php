@@ -32,10 +32,42 @@ class UserReport
      */
     private $representatives = [];
 
-    public function __construct(int $user, int $followers = 0, array $representatives = [])
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="country", options={"default" = ""})
+     */
+    private $country;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="state", options={"default" = ""})
+     */
+    private $state;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="locality", options={"default" = ""})
+     */
+    private $locality;
+
+    /**
+     * @var array
+     *
+     * @ORM\Column(type="json_array")
+     */
+    private $districts = [];
+
+    public function __construct(int $user, int $followers = 0, array $representatives = [], $country = '', $state = '', $locality = '', $districts = [])
     {
         $this->user = $user;
         $this->followers = $followers;
         $this->representatives = $representatives;
+        $this->country = $country;
+        $this->state = $state;
+        $this->locality = $locality;
+        $this->districts = $districts;
     }
 }
