@@ -149,17 +149,18 @@ knp_gaufrette:
 
 vich_uploader:
     db_driver: orm
-#    gaufrette: true
     storage: gaufrette
     mappings:
         avatar_image:
             uri_prefix: /avatars
             upload_destination: avatar_image_fs
             namer: vich_uploader.namer_uniqid
+            inject_on_load: true
         avatar_source_image:
             uri_prefix: /avatars/src
             upload_destination: avatar_source_image_fs
             namer: vich_uploader.namer_uniqid
+            inject_on_load: true
         avatar_representative:
             uri_prefix: /avatars/representatives
             upload_destination: avatar_representative_fs
@@ -171,12 +172,14 @@ vich_uploader:
             delete_on_remove: true
             upload_destination: educational_image_fs
             namer: vich_uploader.namer_uniqid
+            inject_on_load: true
         post_image:
             uri_prefix: /posts
             delete_on_update: true
             delete_on_remove: true
             upload_destination: blog_post_fs
             namer: vich_uploader.namer_uniqid
+            inject_on_load: true
 
 old_sound_rabbit_mq:
     connections: '%rabbitmq_connections%'

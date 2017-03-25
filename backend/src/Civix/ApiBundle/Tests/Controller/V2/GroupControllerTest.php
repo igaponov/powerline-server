@@ -173,6 +173,7 @@ class GroupControllerTest extends WebTestCase
         $this->assertSame(3, $data['total_members']);
         $this->assertSame('owner', $data['user_role']);
         $this->assertSame(Group::GROUP_TRANSPARENCY_PRIVATE, $data['transparency']);
+        $this->assertContains('58d5e28b2a8f3.jpeg', $data['avatar_file_path']);
 	}
 
     /**
@@ -284,14 +285,14 @@ class GroupControllerTest extends WebTestCase
             LoadGroupData::class,
         ])->getReferenceRepository();
         /** @var Group $group */
-		$group = $repository->getReference('group_2');
+		$group = $repository->getReference('group_3');
 		$this->assertNull($group->getAvatarFileName());
 		$params = [
             'avatar' => base64_encode(file_get_contents(__DIR__.'/../../data/image2.png'))
 		];
 		$client = $this->client;
         $filePath = $group->getAvatarFilePath();
-		$client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/avatar', [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user2"'], json_encode($params));
+		$client->request('PUT', self::API_ENDPOINT.'/'.$group->getId().'/avatar', [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user3"'], json_encode($params));
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
