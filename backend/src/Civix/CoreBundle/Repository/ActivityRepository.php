@@ -274,10 +274,11 @@ class ActivityRepository extends EntityRepository
                     )
                 )
             )
-            WHERE question_id = :question'
+            WHERE question_id = :question',
+            [':question' => $question->getId()]
         );
 
-        return $query->execute([':question' => $question->getId()]);
+        return $query->execute();
     }
 
     public function updateResponseCountUserPetition(UserPetition $petition)
@@ -301,10 +302,11 @@ class ActivityRepository extends EntityRepository
                     )
                 )
             )
-            WHERE petition_id = :petition'
+            WHERE petition_id = :petition',
+            [':petition' => $petition->getId()]
         );
 
-        return $query->execute([':petition' => $petition->getId()]);
+        return $query->execute();
     }
 
     public function updateResponseCountPost(Post $post)
@@ -328,10 +330,11 @@ class ActivityRepository extends EntityRepository
                     )
                 )
             )
-            WHERE post_id = :post"
+            WHERE post_id = :post",
+            [':post' => $post->getId()]
         );
 
-        return $query->execute([':post' => $post->getId()]);
+        return $query->execute();
     }
 
     public function getActivitiesByGroupId($groupId, $maxResults = 500)
