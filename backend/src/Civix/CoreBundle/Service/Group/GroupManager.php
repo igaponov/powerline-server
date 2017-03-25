@@ -316,10 +316,10 @@ class GroupManager
      * @param User $inviter
      * @param string|array $userNames
      */
-    public function joinUsersByUsername(Group $group, User $inviter, $userNames)
+    public function joinUsersByUsernameOrEmail(Group $group, User $inviter, $userNames)
     {
         $iterator = $this->em->getRepository(User::class)
-            ->findForInviteByGroupUsername($group, $userNames);
+            ->findForInviteByGroupWithUsernameOrEmail($group, $userNames);
         $this->inviteUsersToGroup($group, $inviter, $iterator);
     }
 

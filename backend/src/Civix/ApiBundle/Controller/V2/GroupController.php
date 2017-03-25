@@ -443,7 +443,7 @@ class GroupController extends FOSRestController
 
         if ($form->isValid()) {
             if ($form->get('users')->getData()) {
-                $this->manager->joinUsersByUsername(
+                $this->manager->joinUsersByUsernameOrEmail(
                     $group,
                     $user,
                     $form->get('users')->getData()
