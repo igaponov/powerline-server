@@ -30,7 +30,7 @@ deploy:
     upload-dir: develop
     on:
       branch: develop
-  # deploy master to the staging environment
+  # deploy master to the staging/prod environment
   - provider: s3
     access_key_id: $AWS_ACCESS_KEY_ID
     secret_access_key: $AWS_SECRET_ACCESS_KEY
@@ -43,6 +43,12 @@ deploy:
       branch: master
 
 notifications:
+  webhooks:
+    urls:
+      - http://deploy.powerlinegroups.com:8000/hook/build/success
+    on_failure: never
+    on_cancel: never
+    on_error: never
   slack:
     rooms:
       secure: QlD6Q9pdhChXegmO73BgWqRbSFBXFf+bpD6An9jbAa10g0K7Y1xTqK3IbFZDdtX5pKJPJBM4uy4SUmmiSfMx/NKixjVxVYr2XwRiwita4kXAxSHF4aGjX3FvKuXoPfugSU4FCLgmLJFXVZvhSbJcnEqFk5jew5vwdl49c0nMGVDiGUoe06/3/oUsnF9u9I19lAvexxDsW0x1gxT2acsL861vTqsv5q1gCOZp9ESaLGp1NtsHqWV0kM7J0a38tcMsp01YHjdITodoMd/qqWR0wdU25NacCVRKHCjgZIVub+2VmH5/SzgnSsVuX9j6/5DlJ79QwTyAnW8UWU0i1gizpr9/HFv7Pkco8XokVdT3PwV90J0olF/mI7gr/piTNoAoPaXy3NiltJoINUa+k4QDHJP/Fx+gnP2iF0V+xWcovIJqfQutgKNr+LBVfg7JxnkHom/QgjBBX6rB0he2I13dRvCDXzqtBBzbLBnhViJm8MoDbrOHbHrbA0NOhP7rzfLsFgcR/vy5wumWDsXTed9vj4EuUDzaqKtmgyVdEV6C81Uu7K6FzkLcwkhFWGUiv/4meV9xdSsmYez2RdC4xWFMb1eytvS257lD7c9oG33FiUQXIFDvpIGN/T/byX2pzaW30EVBALa/Nzuwwl26XNCfYfQYw0jniGO1VWJam3D0CbQ=
