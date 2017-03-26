@@ -5,11 +5,14 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <imports>
+        <import resource="services/listener.yml"/>
         <import resource="services/security.xml"/>
         <import resource="services/form.yml"/>
     </imports>
 
     <services>
+        <service id="http.client" class="GuzzleHttp\Client" />
+
         <service id="api.cors" class="Civix\ApiBundle\EventListener\CORSSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -19,11 +22,6 @@
             <argument id="doctrine.orm.entity_manager" type="service"/>
             <argument type="string">%auto_invite_group_name%</argument>
             <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service class="Civix\ApiBundle\EventListener\MetadataListener" id="civix_api.event_listener.petition_metadata_listener">
-            <argument id="civix_core.service.htmlmetadata_parser" type="service"/>
-            <tag name="doctrine.event_listener" event="postPersist" />
         </service>
 
         <service class="Civix\ApiBundle\EventListener\UserPrePersistListener" id="civix_api.event_listener.user_pre_persist_listener">
