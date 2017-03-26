@@ -4,23 +4,23 @@ namespace Civix\CoreBundle\Event\Post;
 use Civix\CoreBundle\Entity\Post\Vote;
 use Symfony\Component\EventDispatcher\Event;
 
-class AnswerEvent extends Event
+class VoteEvent extends Event
 {
     /**
      * @var Vote
      */
-    private $answer;
+    private $vote;
 
-    public function __construct(Vote $answer)
+    public function __construct(Vote $vote)
     {
-        $this->answer = $answer;
+        $this->vote = $vote;
     }
 
     /**
      * @return Vote
      */
-    public function getAnswer()
+    public function getVote(): Vote
     {
-        return $this->answer;
+        return $this->vote;
     }
 }
