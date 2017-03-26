@@ -31,6 +31,8 @@ class ReportSubscriber implements EventSubscriberInterface
             Event\UserEvents::FOLLOW_REQUEST_APPROVE => 'updateUserReport',
             Event\UserEvents::REGISTRATION => 'createUserReport',
             Event\UserEvents::UNFOLLOW => 'updateUserReport',
+            Event\UserPetitionEvents::PETITION_SIGN => 'createPetitionReport',
+            Event\UserPetitionEvents::PETITION_UNSIGN => 'deletePetitionReport',
         ];
     }
 
@@ -112,5 +114,17 @@ class ReportSubscriber implements EventSubscriberInterface
     {
         $this->em->getRepository(PostResponseReport::class)
             ->deletePostResponseReport($event->getVote());
+    }
+
+    public function createPetitionReport(Event\UserPetition\SignatureEvent $event)
+    {
+        $this->em->getRepository(PetitionResponseReport::class)
+            ->insertPetitionResponseReport($event->getSignature());
+    }
+
+    public function deletePetitionReport(Event\UserPetition\SignatureEvent $event)
+    {
+        $this->em->getRepository(PetitionResponseReport::class)
+            ->deletePetitionResponseReport($event->getSignature());
     }
 }
