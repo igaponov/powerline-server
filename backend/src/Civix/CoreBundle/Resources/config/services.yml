@@ -1,0 +1,7 @@
+services:
+    civix_core.tld_extract:
+        class: LayerShifter\TLDExtract\Extract
+        arguments:
+            - ~
+            - ~
+            - !php/const:LayerShifter\TLDExtract\Extract::MODE_ALLOW_ICCAN

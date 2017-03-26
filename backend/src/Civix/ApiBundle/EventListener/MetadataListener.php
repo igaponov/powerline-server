@@ -8,6 +8,7 @@ use Civix\CoreBundle\Service\HTMLMetadataParser;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use LayerShifter\TLDExtract\Extract;
 
 class MetadataListener
 {
@@ -21,11 +22,19 @@ class MetadataListener
      * @var HTMLMetadataParser
      */
     private $parser;
+    /**
+     * @var Extract
+     */
+    private $tldExtract;
 
-    public function __construct(Client $client, HTMLMetadataParser $parser)
-    {
+    public function __construct(
+        Client $client,
+        HTMLMetadataParser $parser,
+        Extract $tldExtract
+    ) {
         $this->client = $client;
         $this->parser = $parser;
+        $this->tldExtract = $tldExtract;
     }
 
     public function postPersist(LifecycleEventArgs $args)
@@ -39,6 +48,10 @@ class MetadataListener
         }
 
         foreach ($matches[0] as $url) {
+            $result = $this->tldExtract->parse($url);
+            if (!$result->isValidDomain()) {
+                continue;
+            }
             try {
                 $response = $this->client->get($url);
             } catch (GuzzleException $e) {

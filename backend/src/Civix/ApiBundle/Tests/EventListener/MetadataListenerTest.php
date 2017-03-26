@@ -16,17 +16,18 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use LayerShifter\TLDExtract\Extract;
 
 class MetadataListenerTest extends \PHPUnit_Framework_TestCase
 {
     public function testPostPersistParsePostBodyWithWrongUrls()
     {
         $entity = new Post();
-        $entity->setBody('Some text with http://url.tld , wrong.urls, https://example.com and another.normal.com:8000/qwerty/890 for parsing.');
+        $entity->setBody('Some text with http://url.com , wrong.urls, https://example.com google.com and another.normal.com:8000/qwerty/890 for parsing.');
         $history = [];
         $client = $this->getClientMock([
             new RequestException('Error Communicating with Server', new Request('GET', 'url.tld')),
-            new ConnectException('cURL error 6: Could not resolve host: wrong.urls (see http://curl.haxx.se/libcurl/c/libcurl-errors.html)', new Request('GET', 'wrong.urls')),
+            new ConnectException('cURL error 6: Could not resolve host: https://example.com (see http://curl.haxx.se/libcurl/c/libcurl-errors.html)', new Request('GET', 'wrong.urls')),
             new Response(200, [], 'third request body'),
             new Response(500, [], ''),
         ], $history);
@@ -37,14 +38,14 @@ class MetadataListenerTest extends \PHPUnit_Framework_TestCase
             ->method('parse')
             ->with('third request body')
             ->willReturn($metadata);
-        /** @var \PHPUnit_Framework_MockObject_MockObject|MetadataListener $listener */
-        $listener = new MetadataListener($client, $parser);
+        $extract = new Extract(null, null, Extract::MODE_ALLOW_ICCAN);
+        $listener = new MetadataListener($client, $parser, $extract);
         $em = $this->getManagerMock();
         $event = new LifecycleEventArgs($entity, $em);
         $listener->postPersist($event);
-        $this->assertEquals('https://example.com', $metadata->getUrl());
+        $this->assertEquals('google.com', $metadata->getUrl());
         $this->assertCount(3, $history);
-        foreach (['http://url.tld', 'wrong.urls', 'https://example.com'] as $key => $uri) {
+        foreach (['http://url.com', 'https://example.com', 'google.com'] as $key => $uri) {
             /** @var Request $request */
             $request = $history[$key]['request'];
             $this->assertEquals($uri, (string)$request->getUri());
@@ -57,7 +58,7 @@ class MetadataListenerTest extends \PHPUnit_Framework_TestCase
      */
     public function testPostPersistParsePostBodyAndSetsMetadataUrl($entity)
     {
-        $entity->setBody('Some text with http://url.tld for parsing.');
+        $entity->setBody('Some text with http://url.com for parsing.');
         $response = new Response(200, [], 'body');
         $history = [];
         $client = $this->getClientMock([$response], $history);
@@ -68,14 +69,15 @@ class MetadataListenerTest extends \PHPUnit_Framework_TestCase
             ->method('parse')
             ->with('body')
             ->will($this->returnValue($metadata));
-        $listener = new MetadataListener($client, $parser);
+        $extract = new Extract(null, null, Extract::MODE_ALLOW_ICCAN);
+        $listener = new MetadataListener($client, $parser, $extract);
         $em = $this->getManagerMock();
         $event = new LifecycleEventArgs($entity, $em);
         $listener->postPersist($event);
-        $this->assertEquals('http://url.tld', $metadata->getUrl());
+        $this->assertEquals('http://url.com', $metadata->getUrl());
         /** @var Request $request */
         $request = $history[0]['request'];
-        $this->assertEquals('http://url.tld', (string)$request->getUri());
+        $this->assertEquals('http://url.com', (string)$request->getUri());
     }
 
     /**
@@ -84,24 +86,24 @@ class MetadataListenerTest extends \PHPUnit_Framework_TestCase
      */
     public function testPostPersistParsePostBodyAndSetsMetadataImage($entity)
     {
-        $entity->setBody('Some text with http://url.tld/image.jpg for parsing.');
+        $entity->setBody('Some text with http://url.com/image.jpg for parsing.');
         $history = [];
         $client = $this->getClientMock([new Response(200, ['content-type' => 'image/jpeg'], 'body')], $history);
         $parser = $this->getParserMock();
         $parser->expects($this->never())
             ->method('parse');
-        /** @var \PHPUnit_Framework_MockObject_MockObject|MetadataListener $listener */
-        $listener = new MetadataListener($client, $parser);
+        $extract = new Extract(null, null, Extract::MODE_ALLOW_ICCAN);
+        $listener = new MetadataListener($client, $parser, $extract);
         $em = $this->getManagerMock();
         $event = new LifecycleEventArgs($entity, $em);
         $listener->postPersist($event);
         $metadata = $entity->getMetadata();
-        $this->assertEquals('http://url.tld/image.jpg', $metadata->getUrl());
-        $this->assertEquals('http://url.tld/image.jpg', $metadata->getImage());
+        $this->assertEquals('http://url.com/image.jpg', $metadata->getUrl());
+        $this->assertEquals('http://url.com/image.jpg', $metadata->getImage());
         $this->assertNull($metadata->getTitle());
         /** @var Request $request */
         $request = $history[0]['request'];
-        $this->assertEquals('http://url.tld/image.jpg', (string)$request->getUri());
+        $this->assertEquals('http://url.com/image.jpg', (string)$request->getUri());
     }
 
     public function getEntities()
