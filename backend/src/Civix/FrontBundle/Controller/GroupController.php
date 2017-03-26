@@ -87,30 +87,14 @@ class GroupController extends Controller
      */
     public function removeAction(Request $request, Group $group)
     {
-        $entityManager = $this->getDoctrine()->getManager();
-
         if ($this->isCsrfTokenValid('remove_group_'.$group->getId(), $request->get('_token'))) {
-            $event = new GroupEvent($group);
             try {
-                $this->get('event_dispatcher')
-                    ->dispatch(GroupEvents::BEFORE_DELETE, $event);
-            } catch (MailgunException $e) {
-                $this->addFlash('error', 'Something went wrong removing the group from mailgun');
-
-                return $this->redirectToRoute('civix_front_groups');
-            }
-
-            try {
-                $entityManager
-                    ->getRepository('CivixCoreBundle:Group')
-                    ->removeGroup($group);
+                $this->get('civix_core.group_manager')->delete($group);
             } catch (\Exception $e) {
                 $this->addFlash('error', $e->getMessage());
 
-                return $this->redirect($this->generateUrl('civix_front_groups'));
+                return $this->redirectToRoute('civix_front_groups');
             }
-
-
             $this->addFlash('notice', 'Group was removed');
         } else {
             $this->addFlash('error', 'Something went wrong');
