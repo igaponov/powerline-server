@@ -382,7 +382,7 @@ class UserPetitionControllerTest extends WebTestCase
             ->willReturn(true);
         $client->getContainer()->set('civix_core.user_petition_manager', $manager);
         /** @var User $user */
-        $user = $repository->getReference('user_3');
+        $user = $repository->getReference('user_2');
         /** @var UserPetition $petition */
         $petition = $repository->getReference('user_petition_2');
         $client->request('POST',

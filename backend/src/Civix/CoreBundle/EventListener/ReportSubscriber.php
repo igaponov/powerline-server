@@ -107,7 +107,7 @@ class ReportSubscriber implements EventSubscriberInterface
     public function createPostReport(Event\Post\VoteEvent $event)
     {
         $this->em->getRepository(PostResponseReport::class)
-            ->insertPostResponseReport($event->getVote());
+            ->upsertPostResponseReport($event->getVote());
     }
 
     public function deletePostReport(Event\Post\VoteEvent $event)

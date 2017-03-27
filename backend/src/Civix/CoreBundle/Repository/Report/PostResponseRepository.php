@@ -24,26 +24,24 @@ class PostResponseRepository extends EntityRepository
             ->getQuery()->getOneOrNullResult();
     }
 
-    public function insertPostResponseReport(Post\Vote $vote)
+    public function upsertPostResponseReport(Post\Vote $vote)
     {
-        $post = $vote->getPost();
-
-        return $this->getEntityManager()->getConnection()
-            ->insert('post_response_report', [
-                'user_id' => $vote->getUser()->getId(),
-                'post_id' => $post->getId(),
-                'vote' => $vote->getOptionTitle(),
-            ]);
+        return $this->getEntityManager()->getConnection()->executeQuery(
+            'REPLACE INTO post_response_reports VALUES (:user, :post, :vote)',
+            [
+                ':user' => $vote->getUser()->getId(),
+                ':post' => $vote->getPost()->getId(),
+                ':vote' => $vote->getOptionTitle(),
+            ]
+        )->execute();
     }
 
     public function deletePostResponseReport(Post\Vote $vote)
     {
-        $post = $vote->getPost();
-
         return $this->getEntityManager()->getConnection()
-            ->delete('post_response_report', [
+            ->delete('post_response_reports', [
                 'user_id' => $vote->getUser()->getId(),
-                'post_id' => $post->getId(),
+                'post_id' => $vote->getPost()->getId(),
             ]);
     }
 }

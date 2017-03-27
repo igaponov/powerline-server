@@ -29,7 +29,7 @@ class PetitionResponseRepository extends EntityRepository
         $petition = $signature->getPetition();
 
         return $this->getEntityManager()->getConnection()
-            ->insert('petition_response_report', [
+            ->insert('petition_response_reports', [
                 'user_id' => $signature->getUser()->getId(),
                 'petition_id' => $petition->getId(),
             ]);
@@ -40,7 +40,7 @@ class PetitionResponseRepository extends EntityRepository
         $petition = $signature->getPetition();
 
         return $this->getEntityManager()->getConnection()
-            ->delete('petition_response_report', [
+            ->delete('petition_response_reports', [
                 'user_id' => $signature->getUser()->getId(),
                 'petition_id' => $petition->getId(),
             ]);
