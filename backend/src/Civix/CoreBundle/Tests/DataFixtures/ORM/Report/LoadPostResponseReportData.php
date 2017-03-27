@@ -13,13 +13,31 @@ class LoadPostResponseReportData extends AbstractFixture implements DependentFix
 {
     public function load(ObjectManager $manager)
     {
-        /** @var Vote $vote */
-        $vote = $this->getReference('post_answer_2');
+        /** @var Vote $vote1 */
+        $vote1 = $this->getReference('post_answer_1');
+        /** @var Vote $vote2 */
+        $vote2 = $this->getReference('post_answer_2');
+        /** @var Vote $vote3 */
+        $vote3 = $this->getReference('post_answer_3');
 
         $report = new PostResponseReport(
-            $vote->getUser()->getId(),
-            $vote->getPost()->getId(),
-            $vote->getOptionTitle()
+            $vote1->getUser()->getId(),
+            $vote1->getPost()->getId(),
+            $vote1->getOptionTitle()
+        );
+        $manager->persist($report);
+
+        $report = new PostResponseReport(
+            $vote2->getUser()->getId(),
+            $vote2->getPost()->getId(),
+            $vote2->getOptionTitle()
+        );
+        $manager->persist($report);
+
+        $report = new PostResponseReport(
+            $vote3->getUser()->getId(),
+            $vote3->getPost()->getId(),
+            $vote3->getOptionTitle()
         );
         $manager->persist($report);
 

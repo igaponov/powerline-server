@@ -15,6 +15,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSpamPostData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadPostResponseReportData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadUserReportData;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Faker\Factory;
@@ -589,12 +590,84 @@ class PostControllerTest extends WebTestCase
         $this->assertEquals(0, $count);
     }
 
+    /**
+     * @param $user
+     * @param $reference
+     * @dataProvider getInvalidPostCredentialsForGetResponsesRequest
+     */
+    public function testGetPostResponsesWithWrongCredentialsThrowsException($user, $reference)
+    {
+        $repository = $this->loadFixtures([
+            LoadPostVoteData::class,
+        ])->getReferenceRepository();
+        $post = $repository->getReference($reference);
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/'.$post->getId().'/responses', [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testGetPostResponsesIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserReportData::class,
+            LoadPostResponseReportData::class,
+        ])->getReferenceRepository();
+        /** @var Post $post */
+        $post = $repository->getReference('post_1');
+        /** @var Post\Vote[] $votes */
+        $votes = [
+            $repository->getReference('post_answer_1'),
+            $repository->getReference('post_answer_2'),
+            $repository->getReference('post_answer_3'),
+        ];
+        /** @var User[] $users */
+        $users = [
+            $repository->getReference('user_1'),
+            $repository->getReference('user_2'),
+            $repository->getReference('user_3'),
+        ];
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/'.$post->getId().'/responses', [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertCount(3, $data);
+        foreach ($users as $k => $user) {
+            $this->assertSame($votes[$k]->getOptionTitle(), $data[$k]['vote']);
+            $this->assertSame($user->getLatitude(), $data[$k]['latitude']);
+            $this->assertSame($user->getLongitude(), $data[$k]['longitude']);
+            if ($user->getUsername() === 'user3') {
+                $this->assertSame('US', $data[$k]['country']);
+                $this->assertSame('NY', $data[$k]['state']);
+                $this->assertSame('New York', $data[$k]['locality']);
+                $this->assertSame(['United States', 'New York'], $data[$k]['districts']);
+                $this->assertNotEmpty($data[$k]['representatives']);
+            } else {
+                $this->assertEmpty($data[$k]['country']);
+                $this->assertEmpty($data[$k]['state']);
+                $this->assertEmpty($data[$k]['locality']);
+                $this->assertEmpty($data[$k]['districts']);
+                $this->assertEmpty($data[$k]['representatives']);
+            }
+        }
+    }
+
     public function getValidPostCredentialsForBoostRequest()
     {
         return [
             'creator' => [[LoadPostData::class], 'user1', 'post_2'],
             'owner' => [[LoadPostData::class], 'user2', 'post_2'],
             'manager' => [[LoadPostData::class, LoadGroupManagerData::class], 'user3', 'post_2'],
+        ];
+    }
+
+    public function getInvalidPostCredentialsForGetResponsesRequest()
+    {
+        return [
+            'manager' => ['user2', 'post_1'],
+            'member' => ['user4', 'post_1'],
+            'outlier' => ['user1', 'post_4'],
         ];
     }
 
