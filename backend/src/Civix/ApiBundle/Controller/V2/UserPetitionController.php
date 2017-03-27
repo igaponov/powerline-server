@@ -6,7 +6,9 @@ use Civix\ApiBundle\Configuration\SecureParam;
 use Civix\ApiBundle\Form\Type\UserPetitionCreateType;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Entity\UserPetition\Signature;
+use Civix\CoreBundle\QueryFunction\PetitionResponsesQuery;
 use Civix\CoreBundle\Service\UserPetitionManager;
+use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -28,6 +30,12 @@ class UserPetitionController extends FOSRestController
      * @DI\Inject("civix_core.user_petition_manager")
      */
     private $manager;
+
+    /**
+     * @var EntityManagerInterface
+     * @DI\Inject("doctrine.orm.default_entity_manager")
+     */
+    private $em;
 
     /**
      * List petitions
@@ -337,5 +345,36 @@ class UserPetitionController extends FOSRestController
     {
         $petition->markAsNotSpam($this->getUser());
         $this->manager->savePetition($petition);
+    }
+
+    /**
+     * List all the responses for a given petition.
+     *
+     * @Route("/{id}/responses")
+     * @Method("GET")
+     *
+     * @SecureParam("petition", permission="edit")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Posts",
+     *     description="List the responses for a given petition.",
+     *     output="array",
+     *     statusCodes={
+     *         403="Access Denied",
+     *         404="Question Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param UserPetition $petition
+     *
+     * @return array
+     */
+    public function getResponsesAction(UserPetition $petition)
+    {
+        $query = new PetitionResponsesQuery($this->em);
+
+        return $query($petition);
     }
 }

@@ -14,6 +14,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadPetitionResponseReportData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadUserReportData;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Faker\Factory;
@@ -517,12 +518,77 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertEquals(0, $count);
     }
 
+    /**
+     * @param $user
+     * @param $reference
+     * @dataProvider getInvalidPetitionCredentialsForGetResponsesRequest
+     */
+    public function testGetPetitionResponsesWithWrongCredentialsThrowsException($user, $reference)
+    {
+        $repository = $this->loadFixtures([
+            LoadUserPetitionSignatureData::class,
+        ])->getReferenceRepository();
+        $petition = $repository->getReference($reference);
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/'.$petition->getId().'/responses', [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testGetPetitionResponsesIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserReportData::class,
+            LoadPetitionResponseReportData::class,
+        ])->getReferenceRepository();
+        /** @var UserPetition $petition */
+        $petition = $repository->getReference('user_petition_1');
+        /** @var User[] $users */
+        $users = [
+            $repository->getReference('user_1'),
+            $repository->getReference('user_2'),
+            $repository->getReference('user_3'),
+        ];
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/'.$petition->getId().'/responses', [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertCount(3, $data);
+        foreach ($users as $k => $user) {
+            $this->assertSame($user->getLatitude(), $data[$k]['latitude']);
+            $this->assertSame($user->getLongitude(), $data[$k]['longitude']);
+            if ($user->getUsername() === 'user3') {
+                $this->assertSame('US', $data[$k]['country']);
+                $this->assertSame('NY', $data[$k]['state']);
+                $this->assertSame('New York', $data[$k]['locality']);
+                $this->assertSame(['United States', 'New York'], $data[$k]['districts']);
+                $this->assertNotEmpty($data[$k]['representatives']);
+            } else {
+                $this->assertEmpty($data[$k]['country']);
+                $this->assertEmpty($data[$k]['state']);
+                $this->assertEmpty($data[$k]['locality']);
+                $this->assertEmpty($data[$k]['districts']);
+                $this->assertEmpty($data[$k]['representatives']);
+            }
+        }
+    }
+
     public function getValidPetitionCredentialsForBoostRequest()
     {
         return [
             'creator' => [[LoadUserPetitionData::class], 'user1', 'user_petition_2'],
             'owner' => [[LoadUserPetitionData::class], 'user2', 'user_petition_2'],
             'manager' => [[LoadUserPetitionData::class, LoadGroupManagerData::class], 'user3', 'user_petition_2'],
+        ];
+    }
+
+    public function getInvalidPetitionCredentialsForGetResponsesRequest()
+    {
+        return [
+            'manager' => ['user2', 'user_petition_1'],
+            'member' => ['user4', 'user_petition_1'],
+            'outlier' => ['user1', 'user_petition_4'],
         ];
     }
 

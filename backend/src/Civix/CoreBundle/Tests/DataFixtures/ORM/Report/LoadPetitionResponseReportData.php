@@ -13,12 +13,28 @@ class LoadPetitionResponseReportData extends AbstractFixture implements Dependen
 {
     public function load(ObjectManager $manager)
     {
-        /** @var Signature $signature */
-        $signature = $this->getReference('petition_answer_2');
+        /** @var Signature $signature1 */
+        $signature1 = $this->getReference('petition_answer_1');
+        /** @var Signature $signature2 */
+        $signature2 = $this->getReference('petition_answer_2');
+        /** @var Signature $signature3 */
+        $signature3 = $this->getReference('petition_answer_3');
 
         $report = new PetitionResponseReport(
-            $signature->getUser()->getId(),
-            $signature->getPetition()->getId()
+            $signature1->getUser()->getId(),
+            $signature1->getPetition()->getId()
+        );
+        $manager->persist($report);
+
+        $report = new PetitionResponseReport(
+            $signature2->getUser()->getId(),
+            $signature2->getPetition()->getId()
+        );
+        $manager->persist($report);
+
+        $report = new PetitionResponseReport(
+            $signature3->getUser()->getId(),
+            $signature3->getPetition()->getId()
         );
         $manager->persist($report);
 
