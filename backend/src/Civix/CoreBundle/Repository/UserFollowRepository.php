@@ -66,15 +66,16 @@ class UserFollowRepository extends EntityRepository
     public function getFindByUserQuery(User $user)
     {
         return $this->createQueryBuilder('uf')
-            ->select('uf, f')
+            ->addSelect('f')
             ->leftJoin('uf.follower', 'f')
             ->where('uf.user = :user AND uf.status = :active')
             ->orWhere('uf.user = :user AND uf.status = :pending AND uf.dateCreate > :pendingStart')
             ->setParameter('active', UserFollow::STATUS_ACTIVE)
             ->setParameter('pending', UserFollow::STATUS_PENDING)
-            ->setParameter('pendingStart', new \DateTime('-6 months'))
+            ->setParameter('pendingStart', new \DateTime('-2 years'))
             ->setParameter('user', $user)
-            ->orderBy('uf.dateCreate', 'DESC')
+            ->orderBy('uf.status', 'ASC')
+            ->addOrderBy('uf.dateCreate', 'DESC')
             ->getQuery()
         ;
     }

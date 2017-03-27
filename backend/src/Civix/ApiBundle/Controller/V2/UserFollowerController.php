@@ -52,7 +52,7 @@ class UserFollowerController extends FOSRestController
      * 
      * @return \Knp\Component\Pager\Pagination\PaginationInterface
      */
-    public function getcAction(ParamFetcher $params)
+    public function getFollowersAction(ParamFetcher $params)
     {
         $query = $this->getDoctrine()->getRepository(UserFollow::class)
             ->getFindByUserQuery($this->getUser());
