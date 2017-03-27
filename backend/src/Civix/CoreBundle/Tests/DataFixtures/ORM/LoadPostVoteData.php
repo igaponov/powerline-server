@@ -27,30 +27,35 @@ class LoadPostVoteData extends AbstractFixture implements DependentFixtureInterf
         $answer->setPost($post1);
         $answer->setOption(Vote::OPTION_UPVOTE);
         $manager->persist($answer);
+        $this->addReference('post_answer_1', $answer);
 
         $answer = new Vote();
         $answer->setUser($user2);
         $answer->setPost($post1);
         $answer->setOption(Vote::OPTION_DOWNVOTE);
         $manager->persist($answer);
+        $this->addReference('post_answer_2', $answer);
 
         $answer = new Vote();
         $answer->setUser($user3);
         $answer->setPost($post1);
         $answer->setOption(Vote::OPTION_IGNORE);
         $manager->persist($answer);
+        $this->addReference('post_answer_3', $answer);
 
         $answer = new Vote();
         $answer->setUser($user1);
         $answer->setPost($post5);
         $answer->setOption(Vote::OPTION_UPVOTE);
         $manager->persist($answer);
+        $this->addReference('post_answer_4', $answer);
 
         $answer = new Vote();
         $answer->setUser($user2);
         $answer->setPost($post5);
         $answer->setOption(Vote::OPTION_UPVOTE);
         $manager->persist($answer);
+        $this->addReference('post_answer_5', $answer);
 
         $answer = new Vote();
         $answer->setUser($user3);
@@ -65,12 +70,6 @@ class LoadPostVoteData extends AbstractFixture implements DependentFixtureInterf
         $manager->persist($answer);
 
         $manager->flush();
-
-        $this->addReference('post_answer_1', $answer);
-        $this->addReference('post_answer_2', $answer);
-        $this->addReference('post_answer_3', $answer);
-        $this->addReference('post_answer_4', $answer);
-        $this->addReference('post_answer_5', $answer);
     }
 
     public function getDependencies()

@@ -7,7 +7,9 @@ use Civix\ApiBundle\Form\Type\PostType;
 use Civix\ApiBundle\Form\Type\VoteType;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\Post\Vote;
+use Civix\CoreBundle\QueryFunction\PostResponsesQuery;
 use Civix\CoreBundle\Service\PostManager;
+use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -29,6 +31,12 @@ class PostController extends FOSRestController
      * @DI\Inject("civix_core.post_manager")
      */
     private $manager;
+
+    /**
+     * @var EntityManagerInterface
+     * @DI\Inject("doctrine.orm.default_entity_manager")
+     */
+    private $em;
 
     /**
      * List posts
@@ -354,5 +362,36 @@ class PostController extends FOSRestController
     {
         $post->markAsNotSpam($this->getUser());
         $this->manager->savePost($post);
+    }
+
+    /**
+     * List all the responses for a given post.
+     *
+     * @Route("/{id}/responses")
+     * @Method("GET")
+     *
+     * @SecureParam("post", permission="edit")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Posts",
+     *     description="List the responses for a given post.",
+     *     output="array",
+     *     statusCodes={
+     *         403="Access Denied",
+     *         404="Question Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Post $post
+     *
+     * @return array
+     */
+    public function getResponsesAction(Post $post)
+    {
+        $query = new PostResponsesQuery($this->em);
+
+        return $query($post);
     }
 }

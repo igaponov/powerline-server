@@ -7,7 +7,7 @@ class PostEvents
     const POST_PRE_CREATE = 'post.pre_create';
     const POST_CREATE = 'post.create';
     const POST_UPDATE = 'post.update';
-    const POST_SIGN = 'post.sign';
-    const POST_UNSIGN = 'post.unsign';
+    const POST_VOTE = 'post.vote';
+    const POST_UNVOTE = 'post.unvote';
     const POST_BOOST = 'post.boost';
 }

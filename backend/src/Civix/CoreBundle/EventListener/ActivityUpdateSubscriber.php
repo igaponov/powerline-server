@@ -34,11 +34,11 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
 
             Event\PostEvents::POST_CREATE => ['publishPostToActivity', -100],
             Event\PostEvents::POST_UPDATE => ['publishPostToActivity', -100],
-            Event\PostEvents::POST_SIGN => [
+            Event\PostEvents::POST_VOTE => [
                 ['updateResponsesPost', -110],
                 ['updatePostAuthorActivity', -100],
             ],
-            Event\PostEvents::POST_UNSIGN => ['updatePostAuthorActivity', -100],
+            Event\PostEvents::POST_UNVOTE => ['updatePostAuthorActivity', -100],
             Event\PostEvents::POST_BOOST => ['publishPostToActivity', -100],
 
             Event\PollEvents::QUESTION_PUBLISHED => ['publishQuestionToActivity', -100],
@@ -63,9 +63,9 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
         $this->activityUpdate->updateResponsesPetition($event->getSignature()->getPetition());
     }
 
-    public function updateResponsesPost(Event\Post\AnswerEvent $event)
+    public function updateResponsesPost(Event\Post\VoteEvent $event)
     {
-        $this->activityUpdate->updateResponsesPost($event->getAnswer()->getPost());
+        $this->activityUpdate->updateResponsesPost($event->getVote()->getPost());
     }
 
     public function updateResponsesQuestion(Event\Poll\AnswerEvent $event)
@@ -79,9 +79,9 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
         $this->activityUpdate->updatePetitionAuthorActivity($answer->getPetition(), $answer->getUser());
     }
 
-    public function updatePostAuthorActivity(Event\Post\AnswerEvent $event)
+    public function updatePostAuthorActivity(Event\Post\VoteEvent $event)
     {
-        $answer = $event->getAnswer();
+        $answer = $event->getVote();
         $this->activityUpdate->updatePostAuthorActivity($answer->getPost(), $answer->getUser());
     }
 

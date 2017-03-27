@@ -1,8 +1,9 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
-use Civix\CoreBundle\Entity\Micropetitions\Petition;
+use Civix\CoreBundle\Entity\Report\PetitionResponseReport;
 use Civix\CoreBundle\Entity\SocialActivity;
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Service\UserPetitionManager;
 use Civix\CoreBundle\Test\SocialActivityTester;
@@ -12,6 +13,8 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionHashTagData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadPetitionResponseReportData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadUserReportData;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Faker\Factory;
@@ -378,6 +381,8 @@ class UserPetitionControllerTest extends WebTestCase
             ->method('checkIfNeedBoost')
             ->willReturn(true);
         $client->getContainer()->set('civix_core.user_petition_manager', $manager);
+        /** @var User $user */
+        $user = $repository->getReference('user_2');
         /** @var UserPetition $petition */
         $petition = $repository->getReference('user_petition_2');
         $client->request('POST',
@@ -401,6 +406,9 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertEquals(2, $queue->count());
         $this->assertEquals(1, $queue->hasMessageWithMethod('sendSocialActivity'));
         $this->assertEquals(1, $queue->hasMessageWithMethod('sendBoostedPetitionPush', [$petition->getGroup()->getId(), $petition->getId()]));
+        $report = $em->getRepository(PetitionResponseReport::class)
+            ->getPetitionResponseReport($user, $petition);
+        $this->assertNotNull($report);
     }
 
     public function testSignUserPetitionWithoutAutomaticBoost()
@@ -432,7 +440,7 @@ class UserPetitionControllerTest extends WebTestCase
             LoadUserPetitionSignatureData::class,
         ])->getReferenceRepository();
         $client = $this->client;
-        /** @var Petition $petition */
+        /** @var UserPetition $petition */
         $petition = $repository->getReference('user_petition_1');
         $client->request('POST',
             self::API_ENDPOINT.'/'.$petition->getId().'/sign', [], [],
@@ -445,11 +453,12 @@ class UserPetitionControllerTest extends WebTestCase
     public function testUnsignUserPetition()
     {
         $repository = $this->loadFixtures([
-            LoadUserPetitionSignatureData::class,
+            LoadPetitionResponseReportData::class,
         ])->getReferenceRepository();
         $client = $this->client;
-        /** @var Petition $petition */
+        /** @var UserPetition $petition */
         $petition = $repository->getReference('user_petition_1');
+        /** @var User $user */
         $user = $repository->getReference('user_2');
         $client->request('DELETE',
             self::API_ENDPOINT.'/'.$petition->getId().'/sign', [], [],
@@ -457,12 +466,16 @@ class UserPetitionControllerTest extends WebTestCase
         );
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
-        /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine')
-            ->getConnection();
+        /** @var EntityManager $em */
+        $em = $client->getContainer()
+            ->get('doctrine')->getManager();
+        $conn = $em->getConnection();
         // check social activity
         $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM user_petition_signatures WHERE petition_id = ? AND user_id = ?', [$petition->getId(), $user->getId()]);
         $this->assertSame(0, $count);
+        $report = $em->getRepository(PetitionResponseReport::class)
+            ->getPetitionResponseReport($user, $petition);
+        $this->assertNull($report);
     }
 
     public function testMarkPetitionAsSpam()
@@ -505,12 +518,77 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertEquals(0, $count);
     }
 
+    /**
+     * @param $user
+     * @param $reference
+     * @dataProvider getInvalidPetitionCredentialsForGetResponsesRequest
+     */
+    public function testGetPetitionResponsesWithWrongCredentialsThrowsException($user, $reference)
+    {
+        $repository = $this->loadFixtures([
+            LoadUserPetitionSignatureData::class,
+        ])->getReferenceRepository();
+        $petition = $repository->getReference($reference);
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/'.$petition->getId().'/responses', [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"']);
+        $response = $client->getResponse();
+        $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
+    }
+
+    public function testGetPetitionResponsesIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserReportData::class,
+            LoadPetitionResponseReportData::class,
+        ])->getReferenceRepository();
+        /** @var UserPetition $petition */
+        $petition = $repository->getReference('user_petition_1');
+        /** @var User[] $users */
+        $users = [
+            $repository->getReference('user_1'),
+            $repository->getReference('user_2'),
+            $repository->getReference('user_3'),
+        ];
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/'.$petition->getId().'/responses', [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertCount(3, $data);
+        foreach ($users as $k => $user) {
+            $this->assertSame($user->getLatitude(), $data[$k]['latitude']);
+            $this->assertSame($user->getLongitude(), $data[$k]['longitude']);
+            if ($user->getUsername() === 'user3') {
+                $this->assertSame('US', $data[$k]['country']);
+                $this->assertSame('NY', $data[$k]['state']);
+                $this->assertSame('New York', $data[$k]['locality']);
+                $this->assertSame(['United States', 'New York'], $data[$k]['districts']);
+                $this->assertNotEmpty($data[$k]['representatives']);
+            } else {
+                $this->assertEmpty($data[$k]['country']);
+                $this->assertEmpty($data[$k]['state']);
+                $this->assertEmpty($data[$k]['locality']);
+                $this->assertEmpty($data[$k]['districts']);
+                $this->assertEmpty($data[$k]['representatives']);
+            }
+        }
+    }
+
     public function getValidPetitionCredentialsForBoostRequest()
     {
         return [
             'creator' => [[LoadUserPetitionData::class], 'user1', 'user_petition_2'],
             'owner' => [[LoadUserPetitionData::class], 'user2', 'user_petition_2'],
             'manager' => [[LoadUserPetitionData::class, LoadGroupManagerData::class], 'user3', 'user_petition_2'],
+        ];
+    }
+
+    public function getInvalidPetitionCredentialsForGetResponsesRequest()
+    {
+        return [
+            'manager' => ['user2', 'user_petition_1'],
+            'member' => ['user4', 'user_petition_1'],
+            'outlier' => ['user1', 'user_petition_4'],
         ];
     }
 

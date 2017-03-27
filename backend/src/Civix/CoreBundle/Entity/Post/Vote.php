@@ -121,6 +121,16 @@ class Vote
     }
 
     /**
+     * Return option's title
+     *
+     * @return string
+     */
+    public function getOptionTitle(): string
+    {
+        return self::getOptionTitles()[$this->getOption()] ?? '';
+    }
+
+    /**
      * Set user.
      *
      * @param User $user

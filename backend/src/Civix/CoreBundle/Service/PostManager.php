@@ -8,7 +8,7 @@ use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\Post\Vote;
 use Civix\CoreBundle\Event\PostEvent;
 use Civix\CoreBundle\Event\PostEvents;
-use Civix\CoreBundle\Event\Post\AnswerEvent;
+use Civix\CoreBundle\Event\Post\VoteEvent;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -44,8 +44,8 @@ class PostManager
         $this->entityManager->persist($answer);
         $this->entityManager->flush();
 
-        $answerEvent = new AnswerEvent($answer);
-        $this->dispatcher->dispatch(PostEvents::POST_SIGN, $answerEvent);
+        $answerEvent = new VoteEvent($answer);
+        $this->dispatcher->dispatch(PostEvents::POST_VOTE, $answerEvent);
 
         //check if need to publish to activity
         $post = $answer->getPost();
@@ -70,8 +70,8 @@ class PostManager
         $this->entityManager->remove($answer);
         $this->entityManager->flush();
 
-        $event = new AnswerEvent($answer);
-        $this->dispatcher->dispatch(PostEvents::POST_UNSIGN, $event);
+        $event = new VoteEvent($answer);
+        $this->dispatcher->dispatch(PostEvents::POST_UNVOTE, $event);
 
         return $answer;
     }
