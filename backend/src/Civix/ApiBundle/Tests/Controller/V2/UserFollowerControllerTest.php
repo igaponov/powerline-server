@@ -7,6 +7,7 @@ use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Issue\PM510;
 use Liip\FunctionalTestBundle\Annotations\QueryCount;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -58,6 +59,26 @@ class UserFollowerControllerTest extends WebTestCase
             $data['payload'][0]['id'],
             $repository->getReference('followertest')->getId()
         );
+    }
+
+    public function testGetFollowersSorting()
+    {
+        $repository = $this->loadFixtures([
+            PM510::class,
+        ])->getReferenceRepository();
+        $user3 = $repository->getReference('user_3');
+        $user4 = $repository->getReference('user_4');
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame(1, $data['page']);
+        $this->assertSame(20, $data['items']);
+        $this->assertSame(2, $data['totalItems']);
+        $this->assertCount(2, $data['payload']);
+        $this->assertSame($user4->getId(), $data['payload'][0]['id']);
+        $this->assertSame($user3->getId(), $data['payload'][1]['id']);
     }
 
     public function testGetFollower()
