@@ -263,14 +263,14 @@ class ActivityRepository extends EntityRepository
                         SELECT COUNT(pa.id)
                         FROM poll_questions pq
                         LEFT JOIN poll_answers pa ON pq.id = pa.question_id
-                        WHERE pq.id = question_id
+                        WHERE pq.id = activities.question_id
                     )
                     +
                     (
                         SELECT COUNT(pc.id)
                         FROM poll_questions pq
                         LEFT JOIN poll_comments pc ON pq.id = pc.question_id
-                        WHERE pq.id = question_id AND pc.pid IS NULL
+                        WHERE pq.id = activities.question_id AND pc.pid IS NULL
                     )
                 )
             )
@@ -291,14 +291,14 @@ class ActivityRepository extends EntityRepository
                         SELECT COUNT(ps.id)
                         FROM user_petitions p
                         LEFT JOIN user_petition_signatures ps ON p.id = ps.petition_id
-                        WHERE p.id = petition_id
+                        WHERE p.id = activities.petition_id
                     )
                     +
                     (
                         SELECT COUNT(pc.id)
                         FROM user_petitions p
                         LEFT JOIN user_petition_comments pc ON p.id = pc.petition_id
-                        WHERE p.id = petition_id AND pc.pid IS NULL
+                        WHERE p.id = activities.petition_id AND pc.pid IS NULL
                     )
                 )
             )
@@ -319,14 +319,14 @@ class ActivityRepository extends EntityRepository
                         SELECT COUNT(pv.id)
                         FROM user_posts p
                         LEFT JOIN post_votes pv ON p.id = pv.post_id
-                        WHERE p.id = post_id
+                        WHERE p.id = activities.post_id
                     )
                     +
                     (
                         SELECT COUNT(pc.id)
                         FROM user_posts p
                         LEFT JOIN post_comments pc ON p.id = pc.post_id
-                        WHERE p.id = post_id AND pc.pid IS NULL
+                        WHERE p.id = activities.post_id AND pc.pid IS NULL
                     )
                 )
             )
