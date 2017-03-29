@@ -21,6 +21,11 @@ services:
         tags:
             - { name: kernel.event_subscriber }
 
+    civix_core.event_listener.karma_subscriber:
+        class: Civix\CoreBundle\EventListener\KarmaSubscriber
+        arguments: ['@doctrine.orm.entity_manager']
+        tags:
+            - { name: kernel.event_subscriber }
     civix_core.event_listener.async_event_listener:
         class: Civix\CoreBundle\EventListener\AsyncEventListener
         arguments: ['@old_sound_rabbit_mq.async_event_producer']

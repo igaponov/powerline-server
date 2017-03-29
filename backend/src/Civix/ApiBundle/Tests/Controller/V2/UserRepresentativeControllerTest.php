@@ -2,6 +2,8 @@
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Karma;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadKarmaData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadStateData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
@@ -43,6 +45,7 @@ class UserRepresentativeControllerTest extends WebTestCase
             LoadRepresentativeData::class,
         ])->getReferenceRepository();
         $representative = $repository->getReference('representative_jb');
+        $user = $repository->getReference('user_1');
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
@@ -51,13 +54,21 @@ class UserRepresentativeControllerTest extends WebTestCase
         $this->assertSame(1, $data['totalItems']);
         $this->assertCount(1, $data['payload']);
         $this->assertSame($representative->getId(), $data['payload'][0]['id']);
+        $result = $client->getContainer()->get('doctrine.dbal.default_connection')
+            ->fetchAssoc('SELECT * FROM karma');
+        $this->assertArraySubset([
+            'user_id' => $user->getId(),
+            'points' => 25,
+            'type' => Karma::TYPE_VIEW_ANNOUNCEMENT,
+        ], $result);
     }
 
     public function testGetRepresentativesIsEmpty()
     {
-        $this->loadFixtures([
-            LoadUserData::class,
-        ]);
+        $repository = $this->loadFixtures([
+            LoadKarmaData::class,
+        ])->getReferenceRepository();
+        $user = $repository->getReference('user_1');
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
@@ -67,6 +78,11 @@ class UserRepresentativeControllerTest extends WebTestCase
         $this->assertSame(50, $data['items']);
         $this->assertSame(0, $data['totalItems']);
         $this->assertCount(0, $data['payload']);
+        $results = $client->getContainer()->get('doctrine.dbal.default_connection')->fetchAll(
+            'SELECT * FROM karma WHERE user_id = ? AND type = ?',
+            [$user->getId(), Karma::TYPE_VIEW_ANNOUNCEMENT]
+        );
+        $this->assertCount(1, $results, "Should add points for representative's view only once");
     }
 
     public function testCreateRepresentativeWithErrors()

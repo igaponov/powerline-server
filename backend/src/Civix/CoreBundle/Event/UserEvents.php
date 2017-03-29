@@ -8,4 +8,5 @@ class UserEvents
     const FOLLOW = 'user.follow';
     const UNFOLLOW = 'user.unfollow';
     const FOLLOW_REQUEST_APPROVE = 'user.follow_request.approve';
+    const VIEW_REPRESENTATIVES = 'user.view_representatives';
 }
