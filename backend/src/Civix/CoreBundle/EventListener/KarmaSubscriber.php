@@ -26,6 +26,7 @@ class KarmaSubscriber implements EventSubscriberInterface
             Event\UserEvents::FOLLOW => 'follow',
             Event\UserEvents::FOLLOW_REQUEST_APPROVE => 'approveFollowRequest',
             Event\GroupEvents::USER_JOINED => 'joinGroup',
+            Event\PostEvents::POST_CREATE => 'createPost',
         ];
     }
 
@@ -80,6 +81,19 @@ class KarmaSubscriber implements EventSubscriberInterface
             ->findOneBy(['user' => $user, 'type' => Karma::TYPE_JOIN_GROUP]);
         if (!$karma) {
             $karma = new Karma($user, Karma::TYPE_JOIN_GROUP, 10, ['group_id' => $group->getId()]);
+            $this->em->persist($karma);
+            $this->em->flush();
+        }
+    }
+
+    public function createPost(Event\PostEvent $event)
+    {
+        $post = $event->getPost();
+        $user = $post->getUser();
+        $karma = $this->repository
+            ->findOneBy(['user' => $user, 'type' => Karma::TYPE_CREATE_POST]);
+        if (!$karma) {
+            $karma = new Karma($user, Karma::TYPE_CREATE_POST, 10, ['post_id' => $post->getId()]);
             $this->em->persist($karma);
             $this->em->flush();
         }

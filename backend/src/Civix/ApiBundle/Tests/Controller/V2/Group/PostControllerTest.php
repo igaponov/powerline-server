@@ -2,16 +2,19 @@
 namespace Civix\ApiBundle\Tests\Controller\V2\Group;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Karma;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Service\PostManager;
 use Civix\CoreBundle\Service\UserPetitionManager;
 use Civix\CoreBundle\Test\SocialActivityTester;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadKarmaData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSpamPostData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
+use Liip\FunctionalTestBundle\Annotations\QueryCount;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class PostControllerTest extends WebTestCase
@@ -68,6 +71,10 @@ class PostControllerTest extends WebTestCase
         }
     }
 
+    /**
+     * @QueryCount(52)
+     * @todo move all events to background
+     */
     public function testCreatePost()
     {
         $repository = $this->loadFixtures([
@@ -131,14 +138,26 @@ class PostControllerTest extends WebTestCase
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
         $this->assertEquals(2, $queue->count());
         $this->assertEquals(2, $queue->hasMessageWithMethod('sendSocialActivity'));
+        $result = $client->getContainer()->get('doctrine.dbal.default_connection')
+            ->fetchAssoc('SELECT * FROM karma');
+        $this->assertArraySubset([
+            'user_id' => $user->getId(),
+            'type' => Karma::TYPE_CREATE_POST,
+            'points' => 10,
+            'metadata' => serialize([
+                'post_id' => $data['id'],
+            ]),
+        ], $result);
     }
 
     public function testGetActivitiesOfDeletedUserPetition()
     {
         $repository = $this->loadFixtures([
             LoadUserGroupData::class,
+            LoadKarmaData::class,
         ])->getReferenceRepository();
         $faker = Factory::create();
+        $user = $repository->getReference('user_1');
         $group = $repository->getReference('group_1');
         $client = $this->client;
         $manager = $this->getPetitionManagerMock([
@@ -173,6 +192,11 @@ class PostControllerTest extends WebTestCase
         // check activity
         $description = $conn->fetchColumn('SELECT description FROM activities WHERE post_id = ?', [$data['id']]);
         $this->assertSame($data['body'], $description);
+        $count = $conn->fetchColumn(
+            'SELECT COUNT(*) FROM karma WHERE user_id = ? AND type = ?',
+            [$user->getId(), Karma::TYPE_CREATE_POST]
+        );
+        $this->assertEquals(1, $count);
         $client->request('DELETE',
             '/api/v2/posts/'.$data['id'], [], [],
             ['HTTP_Authorization'=>'Bearer type="user" token="user1"']

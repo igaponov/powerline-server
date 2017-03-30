@@ -18,7 +18,7 @@ class Karma
 
     const TYPE_JOIN_GROUP = 4;
 
-    const TYPE_CREATE_FIRST_POST = 5;
+    const TYPE_CREATE_POST = 5;
 
     const TYPE_LOAD_TOWN_FILTER = 6;
 
@@ -81,7 +81,7 @@ class Karma
             self::TYPE_FOLLOW,
             self::TYPE_APPROVE_FOLLOW_REQUEST,
             self::TYPE_JOIN_GROUP,
-            self::TYPE_CREATE_FIRST_POST,
+            self::TYPE_CREATE_POST,
             self::TYPE_LOAD_TOWN_FILTER,
             self::TYPE_LOAD_STATE_FILTER,
             self::TYPE_LOAD_COUNTRY_FILTER,
