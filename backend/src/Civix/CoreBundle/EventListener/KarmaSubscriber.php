@@ -21,6 +21,7 @@ class KarmaSubscriber implements EventSubscriberInterface
         return [
             UserEvents::VIEW_REPRESENTATIVES => 'viewRepresentatives',
             UserEvents::FOLLOW => 'follow',
+            UserEvents::FOLLOW_REQUEST_APPROVE => 'approveFollowRequest',
         ];
     }
 
@@ -47,6 +48,19 @@ class KarmaSubscriber implements EventSubscriberInterface
         $karma = $this->em->getRepository(Karma::class)->findOneBy(['user' => $user, 'type' => Karma::TYPE_FOLLOW]);
         if (!$karma) {
             $karma = new Karma($user, Karma::TYPE_FOLLOW, 10, ['following_id' => $userFollow->getUser()->getId()]);
+            $this->em->persist($karma);
+            $this->em->flush();
+        }
+    }
+
+    public function approveFollowRequest(UserFollowEvent $event)
+    {
+        $userFollow = $event->getUserFollow();
+        $user = $userFollow->getUser();
+        $karma = $this->em->getRepository(Karma::class)
+            ->findOneBy(['user' => $user, 'type' => Karma::TYPE_APPROVE_FOLLOW_REQUEST]);
+        if (!$karma) {
+            $karma = new Karma($user, Karma::TYPE_APPROVE_FOLLOW_REQUEST, 10, ['follower_id' => $userFollow->getFollower()->getId()]);
             $this->em->persist($karma);
             $this->em->flush();
         }

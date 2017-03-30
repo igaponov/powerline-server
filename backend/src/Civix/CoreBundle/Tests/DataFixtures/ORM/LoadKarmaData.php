@@ -15,13 +15,18 @@ class LoadKarmaData extends AbstractFixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager)
     {
-        /** @var User $user */
-        $user = $this->getReference('user_1');
+        /** @var User $user1 */
+        $user1 = $this->getReference('user_1');
+        /** @var User $user3 */
+        $user3 = $this->getReference('user_3');
 
-        $karma = new Karma($user, Karma::TYPE_VIEW_ANNOUNCEMENT, 25);
+        $karma = new Karma($user1, Karma::TYPE_VIEW_ANNOUNCEMENT, 25);
         $manager->persist($karma);
 
-        $karma = new Karma($user, Karma::TYPE_FOLLOW, 10, ['follower_id' => 1]);
+        $karma = new Karma($user1, Karma::TYPE_FOLLOW, 10, ['following_id' => 3]);
+        $manager->persist($karma);
+
+        $karma = new Karma($user3, Karma::TYPE_APPROVE_FOLLOW_REQUEST, 10, ['follower_id' => 1]);
         $manager->persist($karma);
 
         $manager->flush();
