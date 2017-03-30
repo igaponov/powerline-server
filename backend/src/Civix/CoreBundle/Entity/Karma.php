@@ -12,7 +12,7 @@ class Karma
 {
     const TYPE_REPRESENTATIVE_SCREEN = 1;
 
-    const TYPE_FOLLOWS = 2;
+    const TYPE_FOLLOW = 2;
 
     const TYPE_APPROVE_FOLLOW_REQUEST = 3;
 
@@ -78,7 +78,7 @@ class Karma
     {
         return [
             self::TYPE_REPRESENTATIVE_SCREEN,
-            self::TYPE_FOLLOWS,
+            self::TYPE_FOLLOW,
             self::TYPE_APPROVE_FOLLOW_REQUEST,
             self::TYPE_JOIN_FIRST_GROUP,
             self::TYPE_CREATE_FIRST_POST,
