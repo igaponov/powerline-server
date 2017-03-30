@@ -35,6 +35,9 @@ class LoadKarmaData extends AbstractFixture implements DependentFixtureInterface
         $karma = new Karma($user1, Karma::TYPE_CREATE_POST, 10, ['post_id' => 1]);
         $manager->persist($karma);
 
+        $karma = new Karma($user1, Karma::TYPE_ANSWER_POLL, 2, ['answer_id' => 1]);
+        $manager->persist($karma);
+
         $manager->flush();
     }
 

@@ -26,7 +26,7 @@ class Karma
 
     const TYPE_LOAD_COUNTRY_FILTER = 8;
 
-    const TYPE_RESPOND_POLL = 9;
+    const TYPE_ANSWER_POLL = 9;
 
     const TYPE_RECEIVE_UPVOTE_ON_POST = 10;
 
@@ -85,7 +85,7 @@ class Karma
             self::TYPE_LOAD_TOWN_FILTER,
             self::TYPE_LOAD_STATE_FILTER,
             self::TYPE_LOAD_COUNTRY_FILTER,
-            self::TYPE_RESPOND_POLL,
+            self::TYPE_ANSWER_POLL,
             self::TYPE_RECEIVE_UPVOTE_ON_POST,
             self::TYPE_RECEIVE_UPVOTE_ON_COMMENT,
             self::TYPE_VIEW_ANNOUNCEMENT,

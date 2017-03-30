@@ -27,6 +27,7 @@ class KarmaSubscriber implements EventSubscriberInterface
             Event\UserEvents::FOLLOW_REQUEST_APPROVE => 'approveFollowRequest',
             Event\GroupEvents::USER_JOINED => 'joinGroup',
             Event\PostEvents::POST_CREATE => 'createPost',
+            Event\PollEvents::QUESTION_ANSWER => 'answerPoll',
         ];
     }
 
@@ -97,5 +98,14 @@ class KarmaSubscriber implements EventSubscriberInterface
             $this->em->persist($karma);
             $this->em->flush();
         }
+    }
+
+    public function answerPoll(Event\Poll\AnswerEvent $event)
+    {
+        $answer = $event->getAnswer();
+        $user = $answer->getUser();
+        $karma = new Karma($user, Karma::TYPE_ANSWER_POLL, 2, ['answer_id' => $answer->getId()]);
+        $this->em->persist($karma);
+        $this->em->flush();
     }
 }

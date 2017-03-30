@@ -2,6 +2,7 @@
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Karma;
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Option;
 use Civix\CoreBundle\Entity\Poll\Question;
@@ -20,6 +21,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData as LoadGroupQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupRepresentativesData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadKarmaData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadStripeCustomerUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
@@ -1027,12 +1029,23 @@ class PollControllerTest extends WebTestCase
         $this->assertEquals($option->getValue(), $result[0]['answer']);
         $this->assertEquals($params['comment'], $result[0]['comment']);
         $this->assertEquals(Answer::PRIVACY_PRIVATE, $result[0]['privacy']);
+        $result = $client->getContainer()->get('doctrine.dbal.default_connection')
+            ->fetchAssoc('SELECT * FROM karma');
+        $this->assertArraySubset([
+            'user_id' => $user->getId(),
+            'type' => Karma::TYPE_ANSWER_POLL,
+            'points' => 2,
+            'metadata' => serialize([
+                'answer_id' => $data['id'],
+            ]),
+        ], $result);
     }
 
     public function testAddRepresentativeAnswerIsOk()
     {
         $repository = $this->loadFixtures([
             LoadRepresentativeQuestionData::class,
+            LoadKarmaData::class,
         ])->getReferenceRepository();
         /** @var User $user */
         $user = $repository->getReference('user_1');
@@ -1078,6 +1091,11 @@ class PollControllerTest extends WebTestCase
         $this->assertEquals($option->getValue(), $result[0]['answer']);
         $this->assertEquals($params['comment'], $result[0]['comment']);
         $this->assertEquals(Answer::PRIVACY_PRIVATE, $result[0]['privacy']);
+        $sum = $conn->fetchColumn(
+            'SELECT SUM(points) FROM karma WHERE user_id = ? AND type = ?',
+            [$user->getId(), Karma::TYPE_ANSWER_POLL]
+        );
+        $this->assertEquals(4, $sum);
     }
 
     public function testAddGroupPaymentAnswerToCrowdfundingRequestIsOk()
