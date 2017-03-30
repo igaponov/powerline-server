@@ -29,6 +29,9 @@ class LoadKarmaData extends AbstractFixture implements DependentFixtureInterface
         $karma = new Karma($user3, Karma::TYPE_APPROVE_FOLLOW_REQUEST, 10, ['follower_id' => 1]);
         $manager->persist($karma);
 
+        $karma = new Karma($user1, Karma::TYPE_JOIN_GROUP, 10, ['group_id' => 1]);
+        $manager->persist($karma);
+
         $manager->flush();
     }
 

@@ -3,9 +3,7 @@
 namespace Civix\CoreBundle\EventListener;
 
 use Civix\CoreBundle\Entity\Karma;
-use Civix\CoreBundle\Event\UserEvents;
-use Civix\CoreBundle\Event\UserFollowEvent;
-use Civix\CoreBundle\Event\UserRepresentativeEvent;
+use Civix\CoreBundle\Event;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -19,9 +17,10 @@ class KarmaSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            UserEvents::VIEW_REPRESENTATIVES => 'viewRepresentatives',
-            UserEvents::FOLLOW => 'follow',
-            UserEvents::FOLLOW_REQUEST_APPROVE => 'approveFollowRequest',
+            Event\UserEvents::VIEW_REPRESENTATIVES => 'viewRepresentatives',
+            Event\UserEvents::FOLLOW => 'follow',
+            Event\UserEvents::FOLLOW_REQUEST_APPROVE => 'approveFollowRequest',
+            Event\GroupEvents::USER_JOINED => 'joinGroup',
         ];
     }
 
@@ -30,7 +29,7 @@ class KarmaSubscriber implements EventSubscriberInterface
         $this->em = $em;
     }
 
-    public function viewRepresentatives(UserRepresentativeEvent $event)
+    public function viewRepresentatives(Event\UserRepresentativeEvent $event)
     {
         $user = $event->getUser();
         $karma = $this->em->getRepository(Karma::class)->findOneBy(['user' => $user, 'type' => Karma::TYPE_VIEW_ANNOUNCEMENT]);
@@ -41,7 +40,7 @@ class KarmaSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function follow(UserFollowEvent $event)
+    public function follow(Event\UserFollowEvent $event)
     {
         $userFollow = $event->getUserFollow();
         $user = $userFollow->getFollower();
@@ -53,7 +52,7 @@ class KarmaSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function approveFollowRequest(UserFollowEvent $event)
+    public function approveFollowRequest(Event\UserFollowEvent $event)
     {
         $userFollow = $event->getUserFollow();
         $user = $userFollow->getUser();
@@ -61,6 +60,19 @@ class KarmaSubscriber implements EventSubscriberInterface
             ->findOneBy(['user' => $user, 'type' => Karma::TYPE_APPROVE_FOLLOW_REQUEST]);
         if (!$karma) {
             $karma = new Karma($user, Karma::TYPE_APPROVE_FOLLOW_REQUEST, 10, ['follower_id' => $userFollow->getFollower()->getId()]);
+            $this->em->persist($karma);
+            $this->em->flush();
+        }
+    }
+
+    public function joinGroup(Event\GroupUserEvent $event)
+    {
+        $user = $event->getUser();
+        $group = $event->getGroup();
+        $karma = $this->em->getRepository(Karma::class)
+            ->findOneBy(['user' => $user, 'type' => Karma::TYPE_JOIN_GROUP]);
+        if (!$karma) {
+            $karma = new Karma($user, Karma::TYPE_JOIN_GROUP, 10, ['group_id' => $group->getId()]);
             $this->em->persist($karma);
             $this->em->flush();
         }

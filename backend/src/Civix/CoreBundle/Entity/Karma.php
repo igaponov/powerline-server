@@ -16,7 +16,7 @@ class Karma
 
     const TYPE_APPROVE_FOLLOW_REQUEST = 3;
 
-    const TYPE_JOIN_FIRST_GROUP = 4;
+    const TYPE_JOIN_GROUP = 4;
 
     const TYPE_CREATE_FIRST_POST = 5;
 
@@ -80,7 +80,7 @@ class Karma
             self::TYPE_REPRESENTATIVE_SCREEN,
             self::TYPE_FOLLOW,
             self::TYPE_APPROVE_FOLLOW_REQUEST,
-            self::TYPE_JOIN_FIRST_GROUP,
+            self::TYPE_JOIN_GROUP,
             self::TYPE_CREATE_FIRST_POST,
             self::TYPE_LOAD_TOWN_FILTER,
             self::TYPE_LOAD_STATE_FILTER,
