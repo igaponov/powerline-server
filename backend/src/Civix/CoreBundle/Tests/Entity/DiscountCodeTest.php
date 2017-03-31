@@ -8,7 +8,7 @@ class DiscountCodeTest extends \PHPUnit_Framework_TestCase
 {
     public function testCodeGeneration()
     {
-        $code = new DiscountCode();
+        $code = new DiscountCode('XXX');
         $this->assertRegExp('/^[A-Z0-9]{12}$/', $code->getCode());
     }
 }

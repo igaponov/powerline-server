@@ -29,7 +29,7 @@ class Coupon
         if ($this->discountCode instanceof DiscountCode) {
             return $this->discountCode->getOriginalCode();
         } else {
-            return (string)$this->discountCode;
+            return $this->discountCode ? (string)$this->discountCode : null;
         }
     }
 
