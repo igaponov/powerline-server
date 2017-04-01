@@ -9,10 +9,18 @@
 
 BUILD_DIR=build/dist/${TRAVIS_BUILD_NUMBER}
 REL_DIR=build/release/${TRAVIS_BUILD_NUMBER}
-ARTIFACT=civix-apiserver_${TRAVIS_BUILD_NUMBER}_all.deb
+
+if [[ ! -z "$TRAVIS_TAG" ]]; then
+    # tagged release for prod
+    ARTIFACT=civix-apiserver_${TRAVIS_TAG}_all.deb
+    PKG_VERSION=$TRAVIS_TAG
+else
+    # dev/staging builds
+    ARTIFACT=civix-apiserver_${TRAVIS_BUILD_NUMBER}_all.deb
+    PKG_VERSION=$TRAVIS_BUILD_NUMBER
+fi
+
 ARTIFACT_HASH=$ARTIFACT.hash
-LATEST=civix-apiserver_latest_all.deb
-LATEST_HASH=$LATEST.hash
 
 mkdir -p $BUILD_DIR
 mkdir -p $REL_DIR
@@ -41,11 +49,14 @@ rsync -qavz \
 #     -v package version
 #     src_dir=tgt_dir
 
-fpm -s dir -t deb -n civix-apiserver -v $TRAVIS_BUILD_NUMBER -a all $BUILD_DIR=/srv/civix-apiserver/
+
+fpm -s dir -t deb -n civix-apiserver -a all -v $PKG_VERSION $BUILD_DIR=/srv/civix-apiserver/
 
 if [[ ! -f $ARTIFACT ]]; then
   echo " ===> I seem to be missing ${ARTIFACT}. "
   echo " ===> Did FPM work correctly?"
+  echo " ===> Here is what is in the build dir: "
+  ls -l $BUILD_DIR
   exit 1
 fi
 
@@ -53,9 +64,3 @@ fi
 # and create hash
 mv $ARTIFACT $REL_DIR
 sha256sum $REL_DIR/$ARTIFACT > $REL_DIR/$ARTIFACT_HASH
-
-# Create the latest build
-# and create hash
-cp $REL_DIR/$ARTIFACT $REL_DIR/$LATEST
-sha256sum $REL_DIR/$LATEST > $REL_DIR/$LATEST_HASH
-
