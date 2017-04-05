@@ -34,7 +34,7 @@ class DiscountCode
     /**
      * @var string
      *
-     * @ORM\Column(name="original_code", type="string", nullable=true)
+     * @ORM\Column(name="original_code", type="string")
      */
     private $originalCode;
 
@@ -62,8 +62,11 @@ class DiscountCode
      */
     private $createdAt;
 
-    public function __construct($originalCode = null, User $owner = null)
+    public function __construct($originalCode, User $owner = null)
     {
+        if (!$originalCode) {
+            throw new \LogicException('Original code can not be blank');
+        }
         $this->code = $this->getRandomCode();
         $this->originalCode = $originalCode;
         $this->owner = $owner;
