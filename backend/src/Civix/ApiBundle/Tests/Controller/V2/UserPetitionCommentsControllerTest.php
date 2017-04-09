@@ -3,6 +3,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\CommentedInterface;
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
@@ -48,6 +49,20 @@ class UserPetitionCommentsControllerTest extends CommentsControllerTest
         /** @var BaseComment $comment */
         $comment = $repository->getReference('petition_comment_3');
         $this->createComment($entity, $comment);
+    }
+
+    public function testCreateRootComment()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserPetitionCommentData::class,
+            LoadGroupManagerData::class,
+            LoadUserPetitionSubscriberData::class,
+        ])->getReferenceRepository();
+        /** @var CommentedInterface $entity */
+        $entity = $repository->getReference('user_petition_1');
+        /** @var User $user */
+        $user = $repository->getReference('user_2');
+        $this->createRootComment($entity, $user);
     }
 
     public function testCreateCommentMentionedContentOwner()

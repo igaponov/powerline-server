@@ -3,6 +3,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\CommentedInterface;
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadPollCommentRateData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
@@ -78,6 +79,20 @@ class PollCommentsControllerTest extends CommentsControllerTest
         /** @var BaseComment $comment */
         $comment = $repository->getReference('question_comment_1');
         $this->createComment($entity, $comment);
+    }
+
+    public function testCreateRootComment()
+    {
+        $repository = $this->loadFixtures([
+            LoadQuestionCommentData::class,
+            LoadGroupManagerData::class,
+            LoadPollSubscriberData::class,
+        ])->getReferenceRepository();
+        /** @var CommentedInterface $entity */
+        $entity = $repository->getReference('group_question_1');
+        /** @var User $user */
+        $user = $repository->getReference('user_2');
+        $this->createRootComment($entity, $user);
     }
 
     public function testCreateCommentMentionedContentOwner()

@@ -325,7 +325,7 @@ class SocialActivityManager
                 'label' => $this->getLabelByPoll($question),
             ];
         }
-        if ($comment->getParentComment()->getUser()) {
+        if ($comment->getParentComment() && $comment->getParentComment()->getUser()) {
             $target['comment_id'] = $comment->getId();
         }
 
