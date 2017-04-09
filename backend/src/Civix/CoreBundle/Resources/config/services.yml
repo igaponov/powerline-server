@@ -5,3 +5,7 @@ services:
             - ~
             - ~
             - !php/const:LayerShifter\TLDExtract\Extract::MODE_ALLOW_ICCAN
+
+    civix_core.rabbit.async_event_consumer:
+        class: Civix\CoreBundle\Service\RabbitMQCallback\AsyncEventConsumer
+        arguments: ['@event_dispatcher', '@logger']

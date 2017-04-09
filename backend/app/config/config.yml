@@ -192,6 +192,9 @@ old_sound_rabbit_mq:
         push:
             connection:         default
             exchange_options:   {name: 'push-sender', type: direct}
+        async_event:
+            connection:         default
+            exchange_options:   {name: 'async-event', type: direct}
 
     # define consumers
     consumers:
@@ -200,6 +203,11 @@ old_sound_rabbit_mq:
             exchange_options:   {name: 'push-queue', type: direct }
             queue_options:      {name: 'push-queue'}
             callback:           civix_core.rabbit.push_queue
+        async_event:
+            connection:         default
+            exchange_options:   {name: 'async-event', type: direct}
+            queue_options:      {name: 'async-event'}
+            callback:           civix_core.rabbit.async_event_consumer
 
 stof_doctrine_extensions:
     default_locale: en_US
