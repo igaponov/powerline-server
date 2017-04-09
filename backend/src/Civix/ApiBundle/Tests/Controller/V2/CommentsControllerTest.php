@@ -101,6 +101,46 @@ abstract class CommentsControllerTest extends WebTestCase
         $this->assertEquals(4, $queue->hasMessageWithMethod('sendSocialActivity'));
     }
 
+    public function createRootComment(CommentedInterface $entity, User $user)
+    {
+        $client = $this->client;
+        $uri = str_replace('{id}', $entity->getId(), $this->getApiEndpoint());
+        $params = [
+            'comment_body' => 'comment text @user2',
+            'privacy' => 'private',
+        ];
+        $client->request('POST', $uri, [], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user3"'],
+            json_encode($params)
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals($params['comment_body'], $data['comment_body']);
+        $this->assertEquals(0, $data['parent_comment']);
+        $this->assertEquals($params['privacy'], $data['privacy']);
+        /** @var Connection $conn */
+        if ($entity instanceof Question) {
+            $ownType = SocialActivity::TYPE_OWN_POLL_COMMENTED;
+            $followType = SocialActivity::TYPE_FOLLOW_POLL_COMMENTED;
+        } elseif ($entity instanceof Post) {
+            $ownType = SocialActivity::TYPE_OWN_POST_COMMENTED;
+            $followType = SocialActivity::TYPE_FOLLOW_POST_COMMENTED;
+        } else {
+            $ownType = SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED;
+            $followType = SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED;
+        }
+        $this->assertRegExp('{comment text <a data-user-id="\d+">@user2</a>}', $data['comment_body_html']);
+        $tester = new SocialActivityTester($client->getContainer()->get('doctrine')->getManager());
+        $tester->assertActivitiesCount(3);
+        $tester->assertActivity(SocialActivity::TYPE_COMMENT_MENTIONED, $user->getId());
+        $tester->assertActivity($ownType, $entity->getUser()->getId());
+        $tester->assertActivity($followType, null, $entity->getComments()->last()->getUser()->getId());
+        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+        $this->assertEquals(3, $queue->count());
+        $this->assertEquals(3, $queue->hasMessageWithMethod('sendSocialActivity'));
+    }
+
     public function createCommentMentionedContentOwner(CommentedInterface $entity, BaseComment $comment)
     {
         $client = $this->client;
