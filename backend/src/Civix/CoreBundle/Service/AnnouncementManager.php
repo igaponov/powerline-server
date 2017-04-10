@@ -6,6 +6,7 @@ use Civix\CoreBundle\Entity\Announcement;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Event\AnnouncementEvent;
 use Civix\CoreBundle\Event\AnnouncementEvents;
+use Civix\CoreBundle\Event\UserAnnouncementsEvent;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -57,6 +58,8 @@ class AnnouncementManager
                 $this->em->persist($announcement);
             }
             $this->em->flush();
+            $event = new UserAnnouncementsEvent($user, ...$announcements);
+            $this->dispatcher->dispatch(AnnouncementEvents::MARK_AS_READ, $event);
         }
 
         return $announcements;

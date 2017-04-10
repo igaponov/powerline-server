@@ -32,6 +32,7 @@ class KarmaSubscriber implements EventSubscriberInterface
             Event\PollEvents::QUESTION_ANSWER => 'answerPoll',
             Event\PostEvents::POST_VOTE => 'receiveUpvoteOnPost',
             Event\CommentEvents::RATE => 'receiveUpvoteOnComment',
+            Event\AnnouncementEvents::MARK_AS_READ => 'viewAnnouncement',
         ];
     }
 
@@ -146,6 +147,19 @@ class KarmaSubscriber implements EventSubscriberInterface
             'rate_id' => $rate->getId(),
         ]);
         $this->em->persist($karma);
+        $this->em->flush();
+    }
+
+    public function viewAnnouncement(Event\UserAnnouncementsEvent $event)
+    {
+        $user = $event->getUser();
+        $announcements = $event->getAnnouncements();
+        foreach ($announcements as $announcement) {
+            $karma = new Karma($user, Karma::TYPE_VIEW_ANNOUNCEMENT, 2, [
+                'announcement_id' => $announcement->getId(),
+            ]);
+            $this->em->persist($karma);
+        }
         $this->em->flush();
     }
 }

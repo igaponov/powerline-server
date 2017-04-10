@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Announcement;
 use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\Karma;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Model\Subscription\PackageLimitState;
 use Civix\CoreBundle\Service\Subscription\PackageHandler;
@@ -583,6 +584,8 @@ class AnnouncementControllerTest extends WebTestCase
         $conn = $client->getContainer()->get('doctrine')->getConnection();
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM announcement_read WHERE user_id = ?', [$user->getId()]);
         $this->assertEquals(2, $count);
+        $sum = $conn->fetchColumn('SELECT SUM(points) FROM karma WHERE user_id = ? AND type = ?', [$user->getId(), Karma::TYPE_VIEW_ANNOUNCEMENT]);
+        $this->assertEquals(4, $sum);
     }
 
     public function testPatchGroupAnnouncementsReadFalseIsOk()
@@ -592,6 +595,7 @@ class AnnouncementControllerTest extends WebTestCase
         ])->getReferenceRepository();
         $announcement1 = $repository->getReference('announcement_group_1');
         $announcement3 = $repository->getReference('announcement_group_3');
+        $user = $repository->getReference('user_1');
         $params = ['announcements' => [$announcement1->getId(), $announcement3->getId()], 'read' => false];
         $client = $this->client;
         $client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
@@ -602,6 +606,10 @@ class AnnouncementControllerTest extends WebTestCase
             $this->assertThat($item['id'], $this->logicalOr($announcement1->getId(), $announcement3->getId()));
             $this->assertFalse($item['is_read']);
         }
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
+        $sum = $conn->fetchColumn('SELECT SUM(points) FROM karma WHERE user_id = ? AND type = ?', [$user->getId(), Karma::TYPE_VIEW_ANNOUNCEMENT]);
+        $this->assertEquals(0, $sum);
     }
 
     private function getPackageHandlerMock($class, $currentValue = 1, $limitValue = 2)
