@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\EventListener;
 
 use Civix\CoreBundle\Entity\Karma;
+use Civix\CoreBundle\Entity\Post\Vote;
 use Civix\CoreBundle\Event;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
@@ -28,6 +29,7 @@ class KarmaSubscriber implements EventSubscriberInterface
             Event\GroupEvents::USER_JOINED => 'joinGroup',
             Event\PostEvents::POST_CREATE => 'createPost',
             Event\PollEvents::QUESTION_ANSWER => 'answerPoll',
+            Event\PostEvents::POST_VOTE => 'receiveUpvoteOnPost',
         ];
     }
 
@@ -105,6 +107,24 @@ class KarmaSubscriber implements EventSubscriberInterface
         $answer = $event->getAnswer();
         $user = $answer->getUser();
         $karma = new Karma($user, Karma::TYPE_ANSWER_POLL, 2, ['answer_id' => $answer->getId()]);
+        $this->em->persist($karma);
+        $this->em->flush();
+    }
+
+    public function receiveUpvoteOnPost(Event\Post\VoteEvent $event)
+    {
+        $vote = $event->getVote();
+
+        if ($vote->getOption() !== Vote::OPTION_UPVOTE) {
+            return;
+        }
+
+        $post = $vote->getPost();
+        $user = $post->getUser();
+        $karma = new Karma($user, Karma::TYPE_RECEIVE_UPVOTE_ON_POST, 2, [
+            'post_id' => $post->getId(),
+            'vote_id' => $vote->getId(),
+        ]);
         $this->em->persist($karma);
         $this->em->flush();
     }
