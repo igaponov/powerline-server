@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\EventListener;
 
+use Civix\CoreBundle\Entity\BaseCommentRate;
 use Civix\CoreBundle\Entity\Karma;
 use Civix\CoreBundle\Entity\Post\Vote;
 use Civix\CoreBundle\Event;
@@ -30,6 +31,7 @@ class KarmaSubscriber implements EventSubscriberInterface
             Event\PostEvents::POST_CREATE => 'createPost',
             Event\PollEvents::QUESTION_ANSWER => 'answerPoll',
             Event\PostEvents::POST_VOTE => 'receiveUpvoteOnPost',
+            Event\CommentEvents::RATE => 'receiveUpvoteOnComment',
         ];
     }
 
@@ -124,6 +126,24 @@ class KarmaSubscriber implements EventSubscriberInterface
         $karma = new Karma($user, Karma::TYPE_RECEIVE_UPVOTE_ON_POST, 2, [
             'post_id' => $post->getId(),
             'vote_id' => $vote->getId(),
+        ]);
+        $this->em->persist($karma);
+        $this->em->flush();
+    }
+
+    public function receiveUpvoteOnComment(Event\RateEvent $event)
+    {
+        $rate = $event->getRate();
+
+        if ($rate->getRateValue() !== BaseCommentRate::RATE_UP) {
+            return;
+        }
+
+        $comment = $rate->getComment();
+        $user = $comment->getUser();
+        $karma = new Karma($user, Karma::TYPE_RECEIVE_UPVOTE_ON_COMMENT, 2, [
+            'comment_id' => $comment->getId(),
+            'rate_id' => $rate->getId(),
         ]);
         $this->em->persist($karma);
         $this->em->flush();

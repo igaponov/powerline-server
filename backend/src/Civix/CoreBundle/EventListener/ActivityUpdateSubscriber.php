@@ -45,6 +45,7 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
             Event\PollEvents::QUESTION_ANSWER => ['updateResponsesQuestion', -110],
 
             Event\CommentEvents::RATE => ['updateEntityRateCount', -100],
+            Event\CommentEvents::UPDATE_RATE => ['updateEntityRateCount', -100],
         ];
     }
 

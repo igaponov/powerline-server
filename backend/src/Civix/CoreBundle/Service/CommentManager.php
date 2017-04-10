@@ -160,11 +160,12 @@ class CommentManager
             $comment->addRate($rate);
         }
 
+        $eventName = $this->em->contains($rate) ? CommentEvents::UPDATE_RATE : CommentEvents::RATE;
         $this->em->persist($rate);
         $this->em->flush($rate);
 
         $event = new RateEvent($rate);
-        $this->dispatcher->dispatch(CommentEvents::RATE, $event);
+        $this->dispatcher->dispatch($eventName, $event);
 
         return $comment;
     }

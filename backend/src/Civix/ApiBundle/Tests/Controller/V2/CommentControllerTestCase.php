@@ -5,6 +5,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\BaseCommentRate;
+use Civix\CoreBundle\Entity\Karma;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -170,6 +171,21 @@ abstract class CommentControllerTestCase extends WebTestCase
             $data['rate_sum']
         );
         $this->assertEquals($rate === BaseCommentRate::RATE_DELETE ? 2 : 3, $data['rates_count']);
+        $result = $client->getContainer()->get('doctrine.dbal.default_connection')
+            ->fetchAssoc('SELECT * FROM karma');
+        if ($rate == BaseCommentRate::RATE_UP) {
+            $this->assertArraySubset([
+                'user_id' => $comment->getUser()->getId(),
+                'type' => Karma::TYPE_RECEIVE_UPVOTE_ON_COMMENT,
+                'points' => 2,
+                'metadata' => serialize([
+                    'comment_id' => $comment->getId(),
+                    'rate_id' => $comment->getRates()->last()->getId(),
+                ]),
+            ], $result);
+        } else {
+            $this->assertFalse((bool) $result);
+        }
     }
 
     protected function updateCommentRate(BaseComment $comment, $rate)
@@ -190,6 +206,9 @@ abstract class CommentControllerTestCase extends WebTestCase
             $data['rate_sum']
         );
         $this->assertEquals($rate === BaseCommentRate::RATE_DELETE ? 0 : 1, $data['rates_count']);
+        $count = $client->getContainer()->get('doctrine.dbal.default_connection')
+            ->fetchColumn('SELECT COUNT(*) FROM karma');
+        $this->assertEquals(0, $count);
     }
 
     public function getRates()
