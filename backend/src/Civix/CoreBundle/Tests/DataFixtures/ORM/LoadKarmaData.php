@@ -38,6 +38,21 @@ class LoadKarmaData extends AbstractFixture implements DependentFixtureInterface
         $karma = new Karma($user1, Karma::TYPE_ANSWER_POLL, 2, ['answer_id' => 1]);
         $manager->persist($karma);
 
+        $karma = new Karma($user1, Karma::TYPE_RECEIVE_UPVOTE_ON_POST, 2, [
+            'post_id' => 1,
+            'vote_id' => 1,
+        ]);
+        $manager->persist($karma);
+
+        $karma = new Karma($user1, Karma::TYPE_RECEIVE_UPVOTE_ON_COMMENT, 2, [
+            'comment_id' => 1,
+            'rate_id' => 1,
+        ]);
+        $manager->persist($karma);
+
+        $karma = new Karma($user1, Karma::TYPE_VIEW_ANNOUNCEMENT, 2, ['announcement_id' => 1]);
+        $manager->persist($karma);
+
         $manager->flush();
     }
 

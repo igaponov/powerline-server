@@ -2625,4 +2625,16 @@ class User implements UserInterface, \Serializable, OfficialInterface, HasAvatar
 
         return $this;
     }
+
+    /**
+     * @return \Civix\CoreBundle\Serializer\Type\Karma
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Type("Karma")
+     * @Serializer\Groups({"user-karma"})
+     */
+    public function getKarma()
+    {
+        return new \Civix\CoreBundle\Serializer\Type\Karma($this);
+    }
 }
