@@ -60,7 +60,14 @@ class UserReport
      */
     private $districts = [];
 
-    public function __construct(int $user, int $followers = 0, array $representatives = [], $country = '', $state = '', $locality = '', $districts = [])
+    /**
+     * @var int
+     *
+     * @ORM\Column(type="integer", options={"default" = 0})
+     */
+    private $karma = 0;
+
+    public function __construct(int $user, int $followers = 0, array $representatives = [], $country = '', $state = '', $locality = '', $districts = [], $karma = 0)
     {
         $this->user = $user;
         $this->followers = $followers;
@@ -69,5 +76,6 @@ class UserReport
         $this->state = $state;
         $this->locality = $locality;
         $this->districts = $districts;
+        $this->karma = $karma;
     }
 }

@@ -33,6 +33,16 @@ class ReportSubscriber implements EventSubscriberInterface
             Event\UserEvents::UNFOLLOW => 'updateUserReport',
             Event\UserPetitionEvents::PETITION_SIGN => 'createPetitionReport',
             Event\UserPetitionEvents::PETITION_UNSIGN => 'deletePetitionReport',
+
+            Event\UserEvents::VIEW_REPRESENTATIVES => 'updateKarmaRepresentativeScreen',
+            Event\UserEvents::FOLLOW => 'updateKarmaFollow',
+            Event\UserEvents::FOLLOW_REQUEST_APPROVE => 'updateKarmaApproveFollowRequest',
+            Event\GroupEvents::USER_JOINED => 'updateKarmaJoinGroup',
+            Event\PostEvents::POST_CREATE => 'updateKarmaCreatePost',
+            Event\PollEvents::QUESTION_ANSWER => 'updateKarmaAnswerPoll',
+            Event\PostEvents::POST_VOTE => 'updateKarmaReceiveUpvoteOnPost',
+            Event\CommentEvents::RATE => 'updateKarmaReceiveUpvoteOnComment',
+            Event\AnnouncementEvents::MARK_AS_READ => 'updateKarmaViewAnnouncement',
         ];
     }
 
@@ -126,5 +136,59 @@ class ReportSubscriber implements EventSubscriberInterface
     {
         $this->em->getRepository(PetitionResponseReport::class)
             ->deletePetitionResponseReport($event->getSignature());
+    }
+
+    public function updateKarmaRepresentativeScreen(Event\UserRepresentativeEvent $event)
+    {
+        $this->em->getRepository(UserReport::class)
+            ->updateUserReportKarma($event->getUser(), 25);
+    }
+
+    public function updateKarmaFollow(Event\UserFollowEvent $event)
+    {
+        $this->em->getRepository(UserReport::class)
+            ->updateUserReportKarma($event->getUserFollow()->getFollower(), 10);
+    }
+
+    public function updateKarmaApproveFollowRequest(Event\UserFollowEvent $event)
+    {
+        $this->em->getRepository(UserReport::class)
+            ->updateUserReportKarma($event->getUserFollow()->getUser(), 10);
+    }
+
+    public function updateKarmaJoinGroup(Event\GroupUserEvent $event)
+    {
+        $this->em->getRepository(UserReport::class)
+            ->updateUserReportKarma($event->getUser(), 10);
+    }
+
+    public function updateKarmaCreatePost(Event\PostEvent $event)
+    {
+        $this->em->getRepository(UserReport::class)
+            ->updateUserReportKarma($event->getPost()->getUser(), 10);
+    }
+
+    public function updateKarmaAnswerPoll(Event\Poll\AnswerEvent $event)
+    {
+        $this->em->getRepository(UserReport::class)
+            ->updateUserReportKarma($event->getAnswer()->getUser(), 2);
+    }
+
+    public function updateKarmaReceiveUpvoteOnPost(Event\Post\VoteEvent $event)
+    {
+        $this->em->getRepository(UserReport::class)
+            ->updateUserReportKarma($event->getVote()->getPost()->getUser(), 2);
+    }
+
+    public function updateKarmaReceiveUpvoteOnComment(Event\RateEvent $event)
+    {
+        $this->em->getRepository(UserReport::class)
+            ->updateUserReportKarma($event->getRate()->getComment()->getUser(), 2);
+    }
+
+    public function updateKarmaViewAnnouncement(Event\UserAnnouncementsEvent $event)
+    {
+        $this->em->getRepository(UserReport::class)
+            ->updateUserReportKarma($event->getUser(), count($event->getAnnouncements()) * 2);
     }
 }

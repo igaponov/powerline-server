@@ -50,4 +50,15 @@ class UserReportRepository extends EntityRepository
             ])
             ->execute();
     }
+
+    public function updateUserReportKarma(User $user, $points)
+    {
+         return $this->getEntityManager()->getConnection()
+            ->executeUpdate(
+                'UPDATE user_report
+                SET karma = karma + :points
+                WHERE user_id = :user',
+                [':user' => $user->getId(), ':points' => $points]
+            );
+    }
 }

@@ -1403,8 +1403,10 @@ class PollControllerTest extends WebTestCase
             }
             if ($user === $user3) { // private
                 $this->assertSame('', $data[$k]['name']);
+                $this->assertSame(20, $data[$k]['karma']);
             } else {
                 $this->assertSame($user->getFullName(), $data[$k]['name']);
+                $this->assertEquals(0, $data[$k]['karma']);
             }
             if ($user === $user4) {
                 $this->assertSame('1', $data[$k]['followers']);
@@ -1441,7 +1443,7 @@ class PollControllerTest extends WebTestCase
         $this->assertSame(
             "name,address,city,state,country,zip_code,email,phone,bio,slogan,facebook,followers,karma,fields,representatives,text,answer,comment\n" .
             "\"user 2\",,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,,,,,\"{$question->getSubject()}\",\"{$answer1->getOption()->getValue()}\",\"{$answer1->getComment()}\"\n" .
-            ",,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,,,\"test-group-field: Test Answer\",\"{$rm->getFullName()}\",\"{$question->getSubject()}\",\"{$answer2->getOption()->getValue()}\",\"{$answer2->getComment()}\"\n" .
+            ",,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,,20,\"test-group-field: Test Answer\",\"{$rm->getFullName()}\",\"{$question->getSubject()}\",\"{$answer2->getOption()->getValue()}\",\"{$answer2->getComment()}\"\n" .
             "\"user 4\",,,,US,,{$user4->getEmail()},{$user4->getPhone()},,,1,1,,\"test-group-field: Second Answer\",\"{$bo->getFullName()}, {$jb->getFullName()}\",\"{$question->getSubject()}\",\"{$answer3->getOption()->getValue()}\",\"{$answer3->getComment()}\"\n",
             $response->getContent()
         );
