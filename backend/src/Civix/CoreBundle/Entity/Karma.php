@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="karma", options={"charset"="utf8mb4", "collate"="utf8mb4_unicode_ci", "row_format"="DYNAMIC"})
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\KarmaRepository")
  */
 class Karma
 {
