@@ -24,7 +24,7 @@ class KarmaSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            Event\UserEvents::VIEW_REPRESENTATIVES => 'viewRepresentatives',
+            Event\UserEvents::VIEW_REPRESENTATIVES => 'representativeScreen',
             Event\UserEvents::FOLLOW => 'follow',
             Event\UserEvents::FOLLOW_REQUEST_APPROVE => 'approveFollowRequest',
             Event\GroupEvents::USER_JOINED => 'joinGroup',
@@ -42,13 +42,13 @@ class KarmaSubscriber implements EventSubscriberInterface
         $this->repository = $repository;
     }
 
-    public function viewRepresentatives(Event\UserRepresentativeEvent $event)
+    public function representativeScreen(Event\UserRepresentativeEvent $event)
     {
         $user = $event->getUser();
         $karma = $this->repository
-            ->findOneBy(['user' => $user, 'type' => Karma::TYPE_VIEW_ANNOUNCEMENT]);
+            ->findOneBy(['user' => $user, 'type' => Karma::TYPE_REPRESENTATIVE_SCREEN]);
         if (!$karma) {
-            $karma = new Karma($user, Karma::TYPE_VIEW_ANNOUNCEMENT, 25);
+            $karma = new Karma($user, Karma::TYPE_REPRESENTATIVE_SCREEN, 25);
             $this->em->persist($karma);
             $this->em->flush();
         }

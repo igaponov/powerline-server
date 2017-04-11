@@ -9,6 +9,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadStateData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
+use Liip\FunctionalTestBundle\Annotations\QueryCount;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class UserRepresentativeControllerTest extends WebTestCase
@@ -39,6 +40,9 @@ class UserRepresentativeControllerTest extends WebTestCase
         parent::tearDown();
     }
 
+    /**
+     * @QueryCount(8)
+     */
     public function testGetRepresentatives()
     {
         $repository = $this->loadFixtures([
@@ -59,10 +63,13 @@ class UserRepresentativeControllerTest extends WebTestCase
         $this->assertArraySubset([
             'user_id' => $user->getId(),
             'points' => 25,
-            'type' => Karma::TYPE_VIEW_ANNOUNCEMENT,
+            'type' => Karma::TYPE_REPRESENTATIVE_SCREEN,
         ], $result);
     }
 
+    /**
+     * @QueryCount(7)
+     */
     public function testGetRepresentativesIsEmpty()
     {
         $repository = $this->loadFixtures([
@@ -80,7 +87,7 @@ class UserRepresentativeControllerTest extends WebTestCase
         $this->assertCount(0, $data['payload']);
         $results = $client->getContainer()->get('doctrine.dbal.default_connection')->fetchAll(
             'SELECT * FROM karma WHERE user_id = ? AND type = ?',
-            [$user->getId(), Karma::TYPE_VIEW_ANNOUNCEMENT]
+            [$user->getId(), Karma::TYPE_REPRESENTATIVE_SCREEN]
         );
         $this->assertCount(1, $results, "Should add points for representative's view only once");
     }
