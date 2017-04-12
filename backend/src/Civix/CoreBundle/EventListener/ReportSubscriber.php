@@ -23,12 +23,27 @@ class ReportSubscriber implements EventSubscriberInterface
     {
         return [
             Event\GroupEvents::USER_INQUIRED => 'createMembershipReport',
-            Event\GroupEvents::USER_JOINED => 'updateUserGroupReport',
+            Event\GroupEvents::USER_JOINED => [
+                ['updateUserGroupReport'],
+                ['updateKarmaJoinGroup', -100],
+            ],
             Event\GroupEvents::USER_UNJOIN => 'deleteMembershipReport',
-            Event\PollEvents::QUESTION_ANSWER => 'createPollReport',
-            Event\PostEvents::POST_VOTE => 'createPostReport',
-            Event\PostEvents::POST_UNVOTE => 'deletePostReport',
-            Event\UserEvents::FOLLOW_REQUEST_APPROVE => 'updateUserReport',
+            Event\PollEvents::QUESTION_ANSWER => [
+                ['createPollReport'],
+                ['updateKarmaAnswerPoll', -100],
+            ],
+            Event\PostEvents::POST_VOTE => [
+                ['createPostReport'],
+                ['updateKarmaReceiveUpvoteOnPost', -100],
+            ],
+            Event\PostEvents::POST_UNVOTE => [
+                ['deletePostReport'],
+                ['updateKarmaReceiveUpvoteOnPost', -100],
+            ],
+            Event\UserEvents::FOLLOW_REQUEST_APPROVE => [
+                ['updateUserReport'],
+                ['updateKarmaApproveFollowRequest', -100],
+            ],
             Event\UserEvents::REGISTRATION => 'createUserReport',
             Event\UserEvents::UNFOLLOW => 'updateUserReport',
             Event\UserPetitionEvents::PETITION_SIGN => 'createPetitionReport',
@@ -36,11 +51,7 @@ class ReportSubscriber implements EventSubscriberInterface
 
             Event\UserEvents::VIEW_REPRESENTATIVES => 'updateKarmaRepresentativeScreen',
             Event\UserEvents::FOLLOW => 'updateKarmaFollow',
-            Event\UserEvents::FOLLOW_REQUEST_APPROVE => 'updateKarmaApproveFollowRequest',
-            Event\GroupEvents::USER_JOINED => 'updateKarmaJoinGroup',
             Event\PostEvents::POST_CREATE => 'updateKarmaCreatePost',
-            Event\PollEvents::QUESTION_ANSWER => 'updateKarmaAnswerPoll',
-            Event\PostEvents::POST_VOTE => 'updateKarmaReceiveUpvoteOnPost',
             Event\CommentEvents::RATE => 'updateKarmaReceiveUpvoteOnComment',
             Event\AnnouncementEvents::MARK_AS_READ => 'updateKarmaViewAnnouncement',
         ];

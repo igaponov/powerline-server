@@ -31,6 +31,7 @@ class KarmaSubscriber implements EventSubscriberInterface
             Event\PostEvents::POST_CREATE => 'createPost',
             Event\PollEvents::QUESTION_ANSWER => 'answerPoll',
             Event\PostEvents::POST_VOTE => 'receiveUpvoteOnPost',
+            Event\PostEvents::POST_PRE_UNVOTE => 'deleteUpvoteOnPost',
             Event\CommentEvents::RATE => 'receiveUpvoteOnComment',
             Event\AnnouncementEvents::MARK_AS_READ => 'viewAnnouncement',
         ];
@@ -130,6 +131,20 @@ class KarmaSubscriber implements EventSubscriberInterface
         ]);
         $this->em->persist($karma);
         $this->em->flush();
+    }
+
+    public function deleteUpvoteOnPost(Event\Post\VoteEvent $event)
+    {
+        $vote = $event->getVote();
+        $post = $vote->getPost();
+        $user = $post->getUser();
+
+        $metadata = [
+            'post_id' => $post->getId(),
+            'vote_id' => $vote->getId(),
+        ];
+        $type = Karma::TYPE_RECEIVE_UPVOTE_ON_POST;
+        $this->repository->deleteByUserAndTypeAndMetadata($user, $type, $metadata);
     }
 
     public function receiveUpvoteOnComment(Event\RateEvent $event)

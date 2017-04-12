@@ -36,19 +36,19 @@ class PostManager
     /**
      * Sign a petition with an answer
      *
-     * @param Vote $answer
+     * @param Vote $vote
      * @return Vote
      */
-    public function signPost(Vote $answer)
+    public function voteOnPost(Vote $vote)
     {
-        $this->entityManager->persist($answer);
+        $this->entityManager->persist($vote);
         $this->entityManager->flush();
 
-        $answerEvent = new VoteEvent($answer);
+        $answerEvent = new VoteEvent($vote);
         $this->dispatcher->dispatch(PostEvents::POST_VOTE, $answerEvent);
 
         //check if need to publish to activity
-        $post = $answer->getPost();
+        $post = $vote->getPost();
         if (!$post->isBoosted()
             && $this->checkIfNeedBoost($post)
             && $post->isAutomaticBoost()
@@ -56,24 +56,26 @@ class PostManager
             $this->boostPost($post);
         }
 
-        return $answer;
+        return $vote;
     }
 
     /**
      * Unsign a petition with an answer
      *
-     * @param Vote $answer
+     * @param Vote $vote
      * @return Vote
      */
-    public function unsignPost(Vote $answer)
+    public function unvotePost(Vote $vote)
     {
-        $this->entityManager->remove($answer);
+        $event = new VoteEvent($vote);
+        $this->dispatcher->dispatch(PostEvents::POST_PRE_UNVOTE, $event);
+
+        $this->entityManager->remove($vote);
         $this->entityManager->flush();
 
-        $event = new VoteEvent($answer);
         $this->dispatcher->dispatch(PostEvents::POST_UNVOTE, $event);
 
-        return $answer;
+        return $vote;
     }
 
     public function boostPost(Post $post)

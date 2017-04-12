@@ -13,6 +13,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostHashTagData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteKarmaData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSpamPostData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadPostResponseReportData;
@@ -390,7 +391,7 @@ class PostControllerTest extends WebTestCase
         }
     }
 
-    public function testSignPost()
+    public function testVoteOnPost()
     {
         $repository = $this->loadFixtures([
             LoadPostData::class,
@@ -446,7 +447,7 @@ class PostControllerTest extends WebTestCase
         ], $result);
     }
 
-    public function testSignPostWithoutAutomaticBoost()
+    public function testVoteOnPostWithoutAutomaticBoost()
     {
         $repository = $this->loadFixtures([
             LoadPostData::class,
@@ -480,7 +481,7 @@ class PostControllerTest extends WebTestCase
      * @param $option
      * @dataProvider getOptions
      */
-    public function testUpdateAnswer($reference, $option)
+    public function testUpdateVote($reference, $option)
     {
         $repository = $this->loadFixtures([
             LoadPostVoteData::class,
@@ -544,7 +545,7 @@ class PostControllerTest extends WebTestCase
         ];
     }
 
-    public function testUpdateAnswerWithErrors()
+    public function testUpdateVoteWithErrors()
     {
         $repository = $this->loadFixtures([
             LoadPostVoteData::class,
@@ -566,10 +567,11 @@ class PostControllerTest extends WebTestCase
         );
     }
 
-    public function testUnsignPost()
+    public function testUnvotePost()
     {
         $repository = $this->loadFixtures([
             LoadPostResponseReportData::class,
+            LoadPostVoteKarmaData::class,
         ])->getReferenceRepository();
         $client = $this->client;
         /** @var Post $post */
@@ -592,6 +594,8 @@ class PostControllerTest extends WebTestCase
         $result = $em->getRepository(PostResponseReport::class)
             ->getPostResponseReport($user, $post);
         $this->assertNull($result);
+        $results = $conn->fetchAll('SELECT * FROM karma');
+        $this->assertCount(0, $results);
     }
 
     public function testMarkPostAsSpam()
