@@ -135,19 +135,22 @@ class KarmaSubscriber implements EventSubscriberInterface
     public function receiveUpvoteOnComment(Event\RateEvent $event)
     {
         $rate = $event->getRate();
-
-        if ($rate->getRateValue() !== BaseCommentRate::RATE_UP) {
-            return;
-        }
-
         $comment = $rate->getComment();
         $user = $comment->getUser();
-        $karma = new Karma($user, Karma::TYPE_RECEIVE_UPVOTE_ON_COMMENT, 2, [
+
+        $metadata = [
+            'type' => $comment->getEntityType(),
             'comment_id' => $comment->getId(),
             'rate_id' => $rate->getId(),
-        ]);
-        $this->em->persist($karma);
-        $this->em->flush();
+        ];
+        $type = Karma::TYPE_RECEIVE_UPVOTE_ON_COMMENT;
+        if ($rate->getRateValue() == BaseCommentRate::RATE_UP) {
+            $karma = new Karma($user, $type, 2, $metadata);
+            $this->em->persist($karma);
+            $this->em->flush();
+        } else {
+            $this->repository->deleteByUserAndTypeAndMetadata($user, $type, $metadata);
+        }
     }
 
     public function viewAnnouncement(Event\UserAnnouncementsEvent $event)

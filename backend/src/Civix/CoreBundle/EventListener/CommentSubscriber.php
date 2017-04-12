@@ -17,7 +17,6 @@ class CommentSubscriber implements EventSubscriberInterface
     {
         return [
             CommentEvents::RATE => 'updateCommentRate',
-            CommentEvents::UPDATE_RATE => 'updateCommentRate',
         ];
     }
 

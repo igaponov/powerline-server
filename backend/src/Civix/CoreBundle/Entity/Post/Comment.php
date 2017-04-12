@@ -64,4 +64,9 @@ class Comment extends BaseComment
     {
         return $this->getPost();
     }
+
+    public function getEntityType(): string
+    {
+        return 'post';
+    }
 }

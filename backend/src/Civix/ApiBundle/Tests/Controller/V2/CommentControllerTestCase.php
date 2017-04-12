@@ -43,6 +43,7 @@ abstract class CommentControllerTestCase extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertEquals($params['comment_body'], $data['comment_body']);
         $this->assertEquals($params['comment_body'], $data['comment_body_html']);
+        /** @var BaseComment $comment */
         $comment = $client->getContainer()->get('doctrine')->getManager()->merge($comment);
         $this->assertEquals($params['comment_body'], $comment->getCommentBodyHtml());
         $this->assertEquals($params['privacy'], $data['privacy']);
@@ -179,6 +180,7 @@ abstract class CommentControllerTestCase extends WebTestCase
                 'type' => Karma::TYPE_RECEIVE_UPVOTE_ON_COMMENT,
                 'points' => 2,
                 'metadata' => serialize([
+                    'type' => $comment->getEntityType(),
                     'comment_id' => $comment->getId(),
                     'rate_id' => $comment->getRates()->last()->getId(),
                 ]),
@@ -201,14 +203,28 @@ abstract class CommentControllerTestCase extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $rate = array_search($rate, BaseCommentRate::getRateValueLabels());
-        $this->assertEquals(
-            $rate,
-            $data['rate_sum']
-        );
-        $this->assertEquals($rate === BaseCommentRate::RATE_DELETE ? 0 : 1, $data['rates_count']);
-        $count = $client->getContainer()->get('doctrine.dbal.default_connection')
-            ->fetchColumn('SELECT COUNT(*) FROM karma');
-        $this->assertEquals(0, $count);
+        $results = $client->getContainer()->get('doctrine.dbal.default_connection')
+            ->fetchAll('SELECT * FROM karma');
+        if ($rate == BaseCommentRate::RATE_UP) {
+            $this->assertCount(1, $results);
+            $this->assertArraySubset([
+                'user_id' => $comment->getUser()->getId(),
+                'type' => Karma::TYPE_RECEIVE_UPVOTE_ON_COMMENT,
+                'points' => 2,
+                'metadata' => serialize([
+                    'type' => $comment->getEntityType(),
+                    'comment_id' => $comment->getId(),
+                    'rate_id' => $comment->getRates()->first()->getId(),
+                ]),
+            ], $results[0]);
+        } else {
+            $this->assertEquals(
+                $rate,
+                $data['rate_sum']
+            );
+            $this->assertEquals($rate === BaseCommentRate::RATE_DELETE ? 0 : 1, $data['rates_count']);
+            $this->assertCount(0, $results);
+        }
     }
 
     public function getRates()

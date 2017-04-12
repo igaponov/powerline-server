@@ -141,54 +141,74 @@ class ReportSubscriber implements EventSubscriberInterface
     public function updateKarmaRepresentativeScreen(Event\UserRepresentativeEvent $event)
     {
         $this->em->getRepository(UserReport::class)
-            ->updateUserReportKarma($event->getUser(), 25);
+            ->updateUserReportKarma($event->getUser());
     }
 
     public function updateKarmaFollow(Event\UserFollowEvent $event)
     {
         $this->em->getRepository(UserReport::class)
-            ->updateUserReportKarma($event->getUserFollow()->getFollower(), 10);
+            ->updateUserReportKarma(
+                $event->getUserFollow()
+                    ->getFollower()
+            );
     }
 
     public function updateKarmaApproveFollowRequest(Event\UserFollowEvent $event)
     {
         $this->em->getRepository(UserReport::class)
-            ->updateUserReportKarma($event->getUserFollow()->getUser(), 10);
+            ->updateUserReportKarma(
+                $event->getUserFollow()
+                    ->getUser()
+            );
     }
 
     public function updateKarmaJoinGroup(Event\GroupUserEvent $event)
     {
         $this->em->getRepository(UserReport::class)
-            ->updateUserReportKarma($event->getUser(), 10);
+            ->updateUserReportKarma($event->getUser());
     }
 
     public function updateKarmaCreatePost(Event\PostEvent $event)
     {
         $this->em->getRepository(UserReport::class)
-            ->updateUserReportKarma($event->getPost()->getUser(), 10);
+            ->updateUserReportKarma(
+                $event->getPost()
+                    ->getUser()
+            );
     }
 
     public function updateKarmaAnswerPoll(Event\Poll\AnswerEvent $event)
     {
         $this->em->getRepository(UserReport::class)
-            ->updateUserReportKarma($event->getAnswer()->getUser(), 2);
+            ->updateUserReportKarma(
+                $event->getAnswer()
+                    ->getUser()
+            );
     }
 
     public function updateKarmaReceiveUpvoteOnPost(Event\Post\VoteEvent $event)
     {
         $this->em->getRepository(UserReport::class)
-            ->updateUserReportKarma($event->getVote()->getPost()->getUser(), 2);
+            ->updateUserReportKarma(
+                $event->getVote()
+                    ->getPost()
+                    ->getUser()
+            );
     }
 
     public function updateKarmaReceiveUpvoteOnComment(Event\RateEvent $event)
     {
         $this->em->getRepository(UserReport::class)
-            ->updateUserReportKarma($event->getRate()->getComment()->getUser(), 2);
+            ->updateUserReportKarma(
+                $event->getRate()
+                    ->getComment()
+                    ->getUser()
+            );
     }
 
     public function updateKarmaViewAnnouncement(Event\UserAnnouncementsEvent $event)
     {
         $this->em->getRepository(UserReport::class)
-            ->updateUserReportKarma($event->getUser(), count($event->getAnnouncements()) * 2);
+            ->updateUserReportKarma($event->getUser());
     }
 }

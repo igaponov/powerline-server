@@ -158,14 +158,22 @@ class CommentManager
     {
         if (!$this->em->contains($rate)) {
             $comment->addRate($rate);
+            $this->em->persist($rate);
+            $changed = true;
+        } else {
+            // check if rate was changed
+            $metadata = $this->em->getClassMetadata(get_class($rate));
+            $uow = $this->em->getUnitOfWork();
+            $uow->recomputeSingleEntityChangeSet($metadata, $rate);
+            $changed = isset($uow->getEntityChangeSet($rate)['rateValue']);
         }
 
-        $eventName = $this->em->contains($rate) ? CommentEvents::UPDATE_RATE : CommentEvents::RATE;
-        $this->em->persist($rate);
-        $this->em->flush($rate);
+        if ($changed) {
+            $this->em->flush($rate);
 
-        $event = new RateEvent($rate);
-        $this->dispatcher->dispatch($eventName, $event);
+            $event = new RateEvent($rate);
+            $this->dispatcher->dispatch(CommentEvents::RATE, $event);
+        }
 
         return $comment;
     }
