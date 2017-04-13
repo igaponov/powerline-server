@@ -83,8 +83,8 @@ class GroupManager
         $event = new GroupEvent($group);
         $this->dispatcher->dispatch(GroupEvents::BEFORE_DELETE, $event);
 
-        $this->entityManager->remove($group);
-        $this->entityManager->flush();
+        $this->em->remove($group);
+        $this->em->flush();
     }
 
     /**
@@ -221,7 +221,7 @@ class GroupManager
 
         $parentCountryGroup = $countryGroup->getParent();
         if (!is_null($parentCountryGroup) &&
-            ($parentCountryGroup->getLocationName() == Group::GROUP_LOCATION_NAME_EROPEAN_UNION
+            ($parentCountryGroup->getLocationName() == Group::GROUP_LOCATION_NAME_EUROPEAN_UNION
                 || $parentCountryGroup->getLocationName() == Group::GROUP_LOCATION_NAME_AFRICAN_UNION)) {
             $this->joinToGroup($user, $parentCountryGroup);
         }
