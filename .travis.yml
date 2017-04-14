@@ -1,23 +1,44 @@
 language: php
+
+cache:
+  directories:
+    # Cache composer directory ...
+    - $HOME/.composer/cache
+
 php:
   - 7.0
+
 addons:
   apt:
     packages:
       - ruby-dev
       - build-essential
+
 before_script:
   - gem install -q fpm
-  - phpenv config-rm xdebug.ini; true
+  # Disable Xdebug ...
+  - phpenv config-rm xdebug.ini
   - echo "memory_limit=4608M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   - cd backend
   - cp app/config/parameters.travis.yml app/config/parameters.yml
-  - composer install --quiet --ignore-platform-reqs --no-interaction --prefer-dist
+  # Composer install ...
+  - travis_retry composer install --quiet --ignore-platform-reqs --no-interaction --prefer-dist
+  # Remove application cache and logs ...
+  - rm -Rf var/cache/*
+  - rm -Rf var/logs/*
+  # Prepare application cache ...
+  - php bin/console cache:warm --env=test
+  # Grant application cache and logs permissions ...
+  - chmod -Rf 777 var/cache/
+  - chmod -Rf 777 var/logs/
   - curl -Lo phpunit.phar https://phar.phpunit.de/phpunit-5.7.phar
+
 script:
   - php ./phpunit.phar -c phpunit.xml.dist
+
 before_deploy:
   - scripts/before-deploy.sh
+
 deploy:
   # deploy develop to the dev environment
   - provider: s3
