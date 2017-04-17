@@ -6,7 +6,6 @@ use Doctrine\ORM\EntityRepository;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\UserGroup;
-use Civix\CoreBundle\Model\Geocode\AddressComponent;
 
 class GroupRepository extends EntityRepository
 {
@@ -200,7 +199,7 @@ class GroupRepository extends EntityRepository
     }
 
     /**
-     * 
+     *
      * @param unknown $id
      * @param unknown $representativeId
      */
@@ -221,20 +220,6 @@ class GroupRepository extends EntityRepository
     }
 
     /**
-     * 
-     */
-    public function cleanIncorrectLocalGroup()
-    {
-        return $this->createQueryBuilder('gr')
-            ->delete()
-            ->where('gr.localDistrict IS NULL')
-            ->andWhere('gr.groupType = :type')
-            ->setParameter('type', Group::GROUP_TYPE_LOCAL)
-            ->getQuery()
-            ->execute();
-    }
-
-    /**
      *
      * @param string $query
      * @param User $user
@@ -250,134 +235,6 @@ class GroupRepository extends EntityRepository
         ;
 
         return $qb->getQuery()->getResult();
-    }
-
-    /**
-     * 
-     */
-    public function cleanCommonGroups()
-    {
-        return $this->getEntityManager()
-            ->createQuery('DELETE FROM CivixCoreBundle:Group gr
-                            WHERE gr.groupType=:type')
-            ->setParameter('type', Group::GROUP_TYPE_COMMON)
-            ->execute();
-    }
-
-    /**
-     *
-     * @param string $country
-     * @return object
-     */
-    public function findCountryGroup($country)
-    {
-        return $this->findOneBy([
-            'locationName' => $country,
-            'groupType' => Group::GROUP_TYPE_COUNTRY,
-        ]);
-    }
-
-    /**
-     *
-     * @param string $state
-     * @param Group $countryGroup
-     * @return object
-     */
-    public function findStateGroup($state, Group $countryGroup = null)
-    {
-        return $this->findOneBy([
-            'locationName' => $state,
-            'parent' => $countryGroup,
-            'groupType' => Group::GROUP_TYPE_STATE,
-        ]);
-    }
-
-    /**
-     *
-     * @param string $location
-     * @param Group $stateGroup
-     * @return object
-     */
-    public function findLocalGroup($location, Group $stateGroup = null)
-    {
-        return $this->findOneBy([
-            'locationName' => $location,
-            'parent' => $stateGroup,
-            'groupType' => Group::GROUP_TYPE_LOCAL,
-        ]);
-    }
-
-    /**
-     * 
-     * @param AddressComponent $addressComponent
-     * @return \Civix\CoreBundle\Entity\Group
-     */
-    public function getCountryGroup(AddressComponent $addressComponent)
-    {
-        $group = $this->findCountryGroup($addressComponent->getShortName());
-        if (!$group) {
-            $group = new Group();
-            $group
-                ->setGroupType(Group::GROUP_TYPE_COUNTRY)
-                ->setOfficialName($addressComponent->getLongName())
-                ->setLocationName($addressComponent->getShortName())
-                ->setAcronym($addressComponent->getShortName())
-            ;
-
-            $this->getEntityManager()->persist($group);
-            $this->getEntityManager()->flush($group);
-        }
-
-        return $group;
-    }
-
-    /**
-     * 
-     * @param AddressComponent $addressComponent
-     * @param Group $countryGroup
-     * @return \Civix\CoreBundle\Entity\Group
-     */
-    public function getStateGroup(AddressComponent $addressComponent, Group $countryGroup = null)
-    {
-        $group = $this->findStateGroup($addressComponent->getShortName(), $countryGroup);
-        if (!$group) {
-            $group = new Group();
-            $group
-                ->setGroupType(Group::GROUP_TYPE_STATE)
-                ->setOfficialName($addressComponent->getLongName())
-                ->setLocationName($addressComponent->getShortName())
-                ->setParent($countryGroup)
-            ;
-
-            $this->getEntityManager()->persist($group);
-            $this->getEntityManager()->flush($group);
-        }
-
-        return $group;
-    }
-    
-    /**
-     * 
-     * @param AddressComponent $addressComponent
-     * @param Group $stateGroup
-     */
-    public function getLocalGroup(AddressComponent $addressComponent, Group $stateGroup = null)
-    {
-        $group = $this->findLocalGroup($addressComponent->getShortName(), $stateGroup);
-        if (!$group) {
-            $group = new Group();
-            $group
-                ->setGroupType(Group::GROUP_TYPE_LOCAL)
-                ->setOfficialName($addressComponent->getLongName())
-                ->setLocationName($addressComponent->getShortName())
-                ->setParent($stateGroup)
-            ;
-
-            $this->getEntityManager()->persist($group);
-            $this->getEntityManager()->flush($group);
-        }
-
-        return $group;
     }
 
     /**
@@ -470,5 +327,25 @@ class GroupRepository extends EntityRepository
         }
 
         return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    /**
+     * @param User $user
+     * @return Group[]
+     */
+    public function getGeoGroupsByUser(User $user)
+    {
+        return $this->createQueryBuilder('g', 'g.id')
+            ->addSelect('ug')
+            ->leftJoin('g.users', 'ug')
+            ->where('ug.user = :user')
+            ->setParameter(':user', $user)
+            ->andWhere('g.groupType IN (:types)')
+            ->setParameter(':types', [
+                Group::GROUP_TYPE_LOCAL,
+                Group::GROUP_TYPE_STATE,
+                Group::GROUP_TYPE_COUNTRY,
+            ])
+            ->getQuery()->getResult();
     }
 }

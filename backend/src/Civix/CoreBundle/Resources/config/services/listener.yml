@@ -17,7 +17,7 @@ services:
 
     civix_core.event_listener.geocoder_subscriber:
         class: Civix\CoreBundle\EventListener\GeocoderSubscriber
-        arguments: ['@geocoder']
+        arguments: ['@geocoder', '@logger']
         tags:
             - { name: kernel.event_subscriber }
 
@@ -26,3 +26,14 @@ services:
         arguments: ['@old_sound_rabbit_mq.async_event_producer']
         tags:
             - { name: kernel.event_listener, event: async_event.dispatch }
+
+    civix_core.event_listener.user_local_group_subscriber:
+            class: Civix\CoreBundle\EventListener\UserLocalGroupSubscriber
+            arguments:
+                - '@geocoder'
+                - '@doctrine.orm.entity_manager'
+                - '@civix_core.repository.group_repository'
+                - '@civix_core.group_manager'
+                - '@logger'
+            tags:
+                - { name: kernel.event_subscriber }

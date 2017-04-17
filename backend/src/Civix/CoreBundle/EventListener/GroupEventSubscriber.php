@@ -2,6 +2,7 @@
 namespace Civix\CoreBundle\EventListener;
 
 use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\Invites\UserToGroup;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Entity\UserGroupManager;
@@ -36,6 +37,7 @@ class GroupEventSubscriber implements EventSubscriberInterface
     {
         return [
             GroupEvents::MEMBERSHIP_CONTROL_CHANGED => 'setApprovedAllUsersInGroup',
+            GroupEvents::USER_JOINED => 'deleteInvite',
             GroupEvents::USER_UNJOIN => 'deleteGroupOwner',
         ];
     }
@@ -66,5 +68,15 @@ class GroupEventSubscriber implements EventSubscriberInterface
 
         $this->em->persist($group);
         $this->em->flush();
+    }
+
+    public function deleteInvite(GroupUserEvent $event)
+    {
+        $this->em->createQueryBuilder()
+            ->delete(UserToGroup::class, 'i')
+            ->where('i.user = :user AND i.group = :group')
+            ->setParameter('user', $event->getUser())
+            ->setParameter('group', $event->getGroup())
+            ->getQuery()->execute();
     }
 }
