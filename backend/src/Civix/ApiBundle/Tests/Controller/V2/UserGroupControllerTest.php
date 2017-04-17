@@ -56,9 +56,13 @@ class UserGroupControllerTest extends WebTestCase
             LoadGroupManagerData::class,
             LoadUserGroupOwnerData::class,
         ])->getReferenceRepository();
+        /** @var Group $group1 */
         $group1 = $repository->getReference('group_1');
+        /** @var Group $group2 */
         $group2 = $repository->getReference('group_2');
+        /** @var Group $group3 */
         $group3 = $repository->getReference('group_3');
+        /** @var Group $group4 */
         $group4 = $repository->getReference('group_4');
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user3"']);
@@ -67,22 +71,15 @@ class UserGroupControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertSame(4, $data['totalItems']);
         $this->assertCount(4, $data['payload']);
-        foreach ($data['payload'] as $item) {
-            $this->assertArrayHasKey('official_name', $item);
-            $this->assertArrayHasKey('join_status', $item);
-            switch ($item['id']) {
-                case $group1->getId():
-                case $group2->getId():
-                    $this->assertSame('manager', $item['user_role']);
-                    break;
-                case $group3->getId():
-                    $this->assertSame('owner', $item['user_role']);
-                    break;
-                case $group4->getId():
-                    $this->assertSame('member', $item['user_role']);
-                    break;
-            }
-        }
+        $payload = $data['payload'];
+        $this->assertEquals($group3->getOfficialName(), $payload[0]['official_name']);
+        $this->assertSame('owner', $payload[0]['user_role']);
+        $this->assertEquals($group1->getOfficialName(), $payload[1]['official_name']);
+        $this->assertSame('manager', $payload[1]['user_role']);
+        $this->assertEquals($group2->getOfficialName(), $payload[2]['official_name']);
+        $this->assertSame('manager', $payload[2]['user_role']);
+        $this->assertEquals($group4->getOfficialName(), $payload[3]['official_name']);
+        $this->assertSame('member', $payload[3]['user_role']);
     }
 
     public function testGetGroupsIsEmpty()
