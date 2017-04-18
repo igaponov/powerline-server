@@ -109,6 +109,7 @@ class Account implements AccountInterface
                 'bank_name' => $bankAccount->bank_name,
                 'country' => $bankAccount->country,
                 'currency' => $bankAccount->currency,
+                'metadata' => $bankAccount->metadata ?? [],
             ];
         }, $bankAccounts);
     }
