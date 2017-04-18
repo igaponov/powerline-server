@@ -11,7 +11,10 @@ class AddAsyncEventDispatcherPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container)
     {
-        $serviceId = (string) $container->getAlias('event_dispatcher');
+        $serviceId = 'event_dispatcher';
+        if ($aliased = $container->hasAlias($serviceId)) {
+            $serviceId = (string)$container->getAlias('event_dispatcher');
+        }
         if ($serviceId === 'debug.event_dispatcher') {
             $serviceId = 'debug.event_dispatcher.parent';
         }
@@ -20,8 +23,10 @@ class AddAsyncEventDispatcherPass implements CompilerPassInterface
             AsyncEventDispatcher::class,
             [$dispatcherDefinition]
         );
-        $newDispatcherDefinition->setPublic(false)
-            ->setDecoratedService($serviceId);
+        $newDispatcherDefinition->setPublic(false);
+        if ($aliased) {
+            $newDispatcherDefinition->setDecoratedService($serviceId);
+        }
         $container->setDefinition('async.event_dispatcher', $newDispatcherDefinition);
     }
 }
