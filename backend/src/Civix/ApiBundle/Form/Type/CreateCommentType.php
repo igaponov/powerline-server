@@ -29,13 +29,13 @@ class CreateCommentType extends AbstractType
                     return $value->getId();
                 }
 
-                return $value;
+                return null;
             }, function ($value) use ($options) {
                 if ($value) {
                     return $options['em']->getRepository($options['data_class'])->find($value);
                 }
 
-                return $value;
+                return null;
             }
         ));
     }
