@@ -56,7 +56,7 @@ class UserReportRepository extends EntityRepository
          return $this->getEntityManager()->getConnection()
             ->executeUpdate(
                 'UPDATE user_report
-                SET karma = (SELECT points FROM karma k WHERE k.user_id = :user)
+                SET karma = (SELECT SUM(points) FROM karma k WHERE k.user_id = :user)
                 WHERE user_id = :user',
                 [':user' => $user->getId()]
             );

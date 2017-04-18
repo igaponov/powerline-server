@@ -95,7 +95,7 @@ class UserRepresentativeControllerTest extends WebTestCase
         );
         $this->assertCount(1, $results, "Should add points for representative's view only once");
         $sum = $conn->fetchColumn('SELECT karma FROM user_report WHERE user_id = ?', [$user->getId()]);
-        $this->assertEquals(45, $sum);
+        $this->assertEquals(35, $sum);
     }
 
     public function testCreateRepresentativeWithErrors()

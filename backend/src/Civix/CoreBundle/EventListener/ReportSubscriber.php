@@ -49,11 +49,11 @@ class ReportSubscriber implements EventSubscriberInterface
             Event\UserPetitionEvents::PETITION_SIGN => 'createPetitionReport',
             Event\UserPetitionEvents::PETITION_UNSIGN => 'deletePetitionReport',
 
-            Event\UserEvents::VIEW_REPRESENTATIVES => 'updateKarmaRepresentativeScreen',
-            Event\UserEvents::FOLLOW => 'updateKarmaFollow',
-            Event\PostEvents::POST_CREATE => 'updateKarmaCreatePost',
-            Event\CommentEvents::RATE => 'updateKarmaReceiveUpvoteOnComment',
-            Event\AnnouncementEvents::MARK_AS_READ => 'updateKarmaViewAnnouncement',
+            Event\UserEvents::VIEW_REPRESENTATIVES => ['updateKarmaRepresentativeScreen', -100],
+            Event\UserEvents::FOLLOW => ['updateKarmaFollow', -100],
+            Event\PostEvents::POST_CREATE => ['updateKarmaCreatePost', -100],
+            Event\CommentEvents::RATE => ['updateKarmaReceiveUpvoteOnComment', -100],
+            Event\AnnouncementEvents::MARK_AS_READ => ['updateKarmaViewAnnouncement', -100],
         ];
     }
 
