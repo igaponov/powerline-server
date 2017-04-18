@@ -5,7 +5,6 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Report\UserReport;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Service\CropImage;
-use Civix\CoreBundle\Service\Group\GroupManager;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
@@ -13,10 +12,14 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Faker\Factory;
+use Geocoder\Exception\NoResult;
 use Geocoder\Geocoder;
 use Geocoder\Model\Address;
 use Geocoder\Model\AddressCollection;
+use Geocoder\Model\AdminLevel;
+use Geocoder\Model\AdminLevelCollection;
 use Geocoder\Model\Coordinates;
+use Geocoder\Model\Country;
 use Liip\FunctionalTestBundle\Annotations\QueryCount;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -161,19 +164,26 @@ class SecureControllerTest extends WebTestCase
                 return file_put_contents($tempFile, file_get_contents(__DIR__.'/../data/image.png'));
             });
 		$client->getContainer()->set('civix_core.crop_image', $service);
-		$service = $this->getMockBuilder(GroupManager::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['autoJoinUser'])
-            ->getMock();
-		$service->expects($this->once())
-            ->method('autoJoinUser');
-		$client->getContainer()->set('civix_core.group_manager', $service);
 		$service = $this->createMock(Geocoder::class);
-		$service->expects($this->once())
+		$service->expects($this->exactly(2))
             ->method('geocode')
             ->with($data['address1'].','.$data['city'].','.$data['state'].','.$data['country'])
             ->willReturn(new AddressCollection([
-                new Address(new Coordinates(12.345, 67.089))
+                new Address(
+                    new Coordinates(37.547242900000001, -99.634290100000001),
+                    null,
+                    null,
+                    null,
+                    '67834',
+                    'Bucklin',
+                    null,
+                    new AdminLevelCollection([
+                        new AdminLevel(1, 'Kansas', 'KS'),
+                        new AdminLevel(2, 'Ford County', 'Ford County'),
+                        new AdminLevel(3, 'Bucklin', 'Bucklin'),
+                    ]),
+                    new Country('United States', 'US')
+                )
             ]));
 		$client->getContainer()->set('bazinga_geocoder.geocoder', $service);
 		$client->request('POST', '/api/secure/registration', [], [], [], json_encode($data));
@@ -204,13 +214,15 @@ class SecureControllerTest extends WebTestCase
         /** @var EntityManager $em */
         $em = $client->getContainer()->get('doctrine.orm.entity_manager');
         $user = $em->getRepository(User::class)->find($user['id']);
-        $this->assertSame(12.345, $user->getLatitude());
-        $this->assertSame(67.089, $user->getLongitude());
+        $this->assertSame(37.547242900000001, $user->getLatitude());
+        $this->assertSame(-99.634290100000001, $user->getLongitude());
         $report = $em->getRepository(UserReport::class)
             ->getUserReport($user);
         $this->assertEquals($user->getId(), $report[0]['user']);
         $this->assertEquals(0, $report[0]['followers']);
         $this->assertEquals([], $report[0]['representatives']);
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM users_groups ug WHERE ug.user_id = ?', [$user->getId()]);
+        $this->assertEquals(3, $count);
 
 		$client->request('POST', '/api/secure/login', ['username' => $data['username'], 'password' => $data['password']]);
 		$response = $client->getResponse();
@@ -269,18 +281,11 @@ class SecureControllerTest extends WebTestCase
             ->getMock();
         $mock->expects($this->any())->method('getFacebookId')->will($this->returnValue('yyy'));
         $client->getContainer()->set($serviceId, $mock);
-        $service = $this->getMockBuilder(GroupManager::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['autoJoinUser'])
-            ->getMock();
-        $service->expects($this->once())
-            ->method('autoJoinUser');
-        $client->getContainer()->set('civix_core.group_manager', $service);
         $service = $this->createMock(Geocoder::class);
-        $service->expects($this->once())
+        $service->expects($this->exactly(2))
             ->method('geocode')
             ->with($data['address1'].','.$data['city'].','.$data['state'].','.$data['country'])
-            ->willReturn(new AddressCollection());
+            ->willThrowException(new NoResult());
         $client->getContainer()->set('bazinga_geocoder.geocoder', $service);
 		$client->request('POST', '/api/secure/registration-facebook', [], [], [], json_encode($data));
 		$response = $client->getResponse();

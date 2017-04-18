@@ -1,0 +1,5 @@
+services:
+    civix_core.repository.group_repository:
+        class: Civix\CoreBundle\Repository\GroupRepository
+        factory: ["@doctrine", "getRepository"]
+        arguments: [Civix\CoreBundle\Entity\Group]

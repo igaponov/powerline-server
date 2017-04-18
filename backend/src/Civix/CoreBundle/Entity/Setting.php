@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="settings")
- * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\GroupRepository")
+ * @ORM\Entity()
  */
 class Setting
 {

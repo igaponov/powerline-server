@@ -225,7 +225,6 @@ class SecureController extends BaseController
             }
 
             //join to global group
-            $this->get('civix_core.group_manager')->autoJoinUser($user);
             $em->persist($user);
 
             $em->flush();

@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Event\UserFollowEvent;
 use Symfony\Component\HttpFoundation\Request;
@@ -299,7 +300,8 @@ class ProfileController extends BaseController
         } else {
             if ($isAddressChanged) {
                 $this->get('civix_core.user_manager')->updateDistrictsIds($user);
-                $this->get('civix_core.group_manager')->autoJoinUser($user);
+                $event = new UserEvent($user);
+                $this->get('event_dispatcher')->dispatch(UserEvents::ADDRESS_CHANGE, $event);
             }
         }
 

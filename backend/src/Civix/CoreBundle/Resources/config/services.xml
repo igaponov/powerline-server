@@ -6,6 +6,7 @@
 
     <imports>
         <import resource="services/listener.yml"/>
+        <import resource="services/repository.yml"/>
     </imports>
 
     <parameters>
@@ -213,7 +214,6 @@
 
         <service id="civix_core.group_manager" class="Civix\CoreBundle\Service\Group\GroupManager">
             <argument type="service" id="doctrine.orm.entity_manager" />
-            <argument type="service" id="civix_core.geocode" />
             <argument type="service" id="event_dispatcher" />
         </service>
 

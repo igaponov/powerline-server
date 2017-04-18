@@ -2,6 +2,8 @@
 
 namespace Civix\CoreBundle\Command;
 
+use Civix\CoreBundle\Event\UserEvent;
+use Civix\CoreBundle\Event\UserEvents;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -29,9 +31,9 @@ class RepresentativeUpdateCommand extends ContainerAwareCommand
     {
         $ciceroService = $this->getContainer()->get('civix_core.cicero_api');
         $userManager = $this->getContainer()->get('civix_core.user_manager');
-        $groupManager = $this->getContainer()->get('civix_core.group_manager');
         /** @var EntityManager $entityManager */
         $entityManager = $this->getContainer()->get('doctrine')->getManager();
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         // update representative by user profile
         if ($input->getOption('by-users')) {
@@ -46,9 +48,12 @@ class RepresentativeUpdateCommand extends ContainerAwareCommand
                     $user->getFirstName().' '.$user->getLastName());
                 $userManager->updateDistrictsIds($user);
                 $output->writeln(' Join to global groups for user '.$user->getFirstName().' '.$user->getLastName());
-                $groupManager->autoJoinUser($user);
 
                 $entityManager->persist($user);
+                $entityManager->flush($user);
+
+                $event = new UserEvent($user);
+                $dispatcher->dispatch(UserEvents::ADDRESS_CHANGE, $event);
             }
         }
 

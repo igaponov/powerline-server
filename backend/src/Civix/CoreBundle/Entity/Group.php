@@ -43,7 +43,7 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
     const GROUP_TYPE_LOCAL = 3;
     const GROUP_TYPE_SPECIAL = 4;
 
-    const GROUP_LOCATION_NAME_EROPEAN_UNION = "EU";
+    const GROUP_LOCATION_NAME_EUROPEAN_UNION = "EU";
     const GROUP_LOCATION_NAME_AFRICAN_UNION = "AFU";
 
     const GROUP_MEMBERSHIP_PUBLIC = 0;
@@ -1941,5 +1941,10 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
     public function getPetitionsRemaining()
     {
         return new ContentRemaining('petition', $this);
+    }
+
+    public function getUserGroups()
+    {
+        return $this->users;
     }
 }
