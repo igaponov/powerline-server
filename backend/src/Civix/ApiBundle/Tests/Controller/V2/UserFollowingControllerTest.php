@@ -2,10 +2,12 @@
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Karma;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Test\SocialActivityTester;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadKarmaData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowData;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -154,6 +156,43 @@ class UserFollowingControllerTest extends WebTestCase
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
         $this->assertEquals(1, $queue->count());
         $this->assertEquals(1, $queue->hasMessageWithMethod('sendSocialActivity'));
+        $result = $client->getContainer()->get('doctrine.dbal.default_connection')
+            ->fetchAssoc('SELECT * FROM karma');
+        $this->assertArraySubset([
+            'user_id' => $userFollow[0]->getFollower()->getId(),
+            'type' => Karma::TYPE_FOLLOW,
+            'points' => 10,
+            'metadata' => serialize([
+                'following_id' => $userFollow[0]->getUser()->getId(),
+            ]),
+        ], $result);
+    }
+
+    public function testFollowSecondUserIsSuccessful()
+    {
+        $repository = $this->loadFixtures([
+            LoadKarmaData::class
+        ])->getReferenceRepository();
+        /** @var UserFollow $userFollow */
+        $user = $repository->getReference('user_2');
+        $follower = $repository->getReference('user_1');
+        $client = $this->client;
+        $client->request('PUT', self::API_ENDPOINT.'/'.$user->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        $this->assertEmpty($response->getContent());
+        /** @var UserFollow[] $userFollow */
+        $userFollow = $this->em->getRepository(UserFollow::class)
+            ->findBy(['user' => $user]);
+        $this->assertCount(1, $userFollow);
+        $this->assertSame($follower->getId(), $userFollow[0]->getFollower()->getId());
+        $this->assertSame(UserFollow::STATUS_PENDING, $userFollow[0]->getStatus());
+        $results = $client->getContainer()->get('doctrine.dbal.default_connection')
+            ->fetchColumn(
+                'SELECT COUNT(*) FROM karma WHERE user_id = ? AND type = ?',
+                [$follower->getId(), Karma::TYPE_FOLLOW]
+            );
+        $this->assertEquals(1, $results);
     }
 
     public function testUnfollowActiveUserIsSuccessful()

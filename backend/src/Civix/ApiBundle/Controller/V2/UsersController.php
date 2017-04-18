@@ -1,15 +1,12 @@
 <?php
 namespace Civix\ApiBundle\Controller\V2;
 
-use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\UserFollow;
-use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
-use FOS\RestBundle\Request\ParamFetcher;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -24,13 +21,15 @@ class UsersController extends FOSRestController
      * @Route("/{id}")
      * @Method("GET")
      *
+     * @ParamConverter("user", options={"mapping" = {"id" = "id", "loggedInUser" = "follower"}, "repository_method" = "findWithFollowerById", "map_method_signature" = true}, converter="doctrine.param_converter")
+     *
      * @ApiDoc(
      *     authentication = true,
      *     resource=true,
      *     section="Users",
      *     output = {
      *          "class" = "Civix\CoreBundle\Entity\User",
-     *          "groups" = {"api-info", "api-full-info"},
+     *          "groups" = {"api-info", "api-full-info", "user-karma"},
      *          "parsers" = {
      *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
      *          }
@@ -41,7 +40,7 @@ class UsersController extends FOSRestController
      *     }
      * )
      *
-     * @View(serializerGroups={"api-info"})
+     * @View(serializerGroups={"api-info", "user-karma"})
      *
      * @param Request $request
      * @param User $user
@@ -50,14 +49,10 @@ class UsersController extends FOSRestController
      */
     public function getAction(Request $request, User $user)
     {
-        $userFollow = $this->getDoctrine()->getRepository(UserFollow::class)->findOneBy([
-            'user' => $user,
-            'follower' => $this->getUser(),
-        ]);
-        if ($userFollow && $userFollow->isActive()) {
+        if ($user->getFollowers()->count() && $user->getFollowers()->first()->isActive()) {
             /** @var View $configuration */
             $configuration = $request->attributes->get('_template');
-            $configuration->setSerializerGroups(['api-full-info']);
+            $configuration->setSerializerGroups(['api-full-info', 'user-karma']);
         }
 
         return $user;

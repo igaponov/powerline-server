@@ -71,9 +71,6 @@ class PollManager
         $question->addAnswer($answer);
         $this->em->persist($answer);
 
-        $event = new AnswerEvent($answer);
-        $this->dispatcher->dispatch(PollEvents::QUESTION_ANSWER, $event);
-
         if ($question instanceof Question\PaymentRequest
             && !$question->getIsCrowdfunding()
             && $answer->getCurrentPaymentAmount()
@@ -81,6 +78,9 @@ class PollManager
             $this->chargeToPaymentRequest($question, $answer);
         }
         $this->em->flush();
+
+        $event = new AnswerEvent($answer);
+        $this->dispatcher->dispatch(PollEvents::QUESTION_ANSWER, $event);
 
         return $answer;
     }

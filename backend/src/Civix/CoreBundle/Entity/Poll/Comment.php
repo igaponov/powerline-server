@@ -65,4 +65,9 @@ class Comment extends BaseComment
     {
         return $this->getQuestion();
     }
+
+    public function getEntityType(): string
+    {
+        return 'poll';
+    }
 }

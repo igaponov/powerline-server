@@ -3,6 +3,8 @@ namespace Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Form\Type\RepresentativeType;
 use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Event\UserEvents;
+use Civix\CoreBundle\Event\UserRepresentativeEvent;
 use Civix\CoreBundle\Service\Representative\RepresentativeManager;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -12,6 +14,7 @@ use JMS\DiExtraBundle\Annotation as DI;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -24,6 +27,12 @@ class UserRepresentativeController extends FOSRestController
      * @DI\Inject("civix_core.representative_manager")
      */
     private $manager;
+
+    /**
+     * @var EventDispatcherInterface
+     * @DI\Inject("event_dispatcher")
+     */
+    private $dispatcher;
 
     /**
      * List the authenticated user's representatives
@@ -59,8 +68,14 @@ class UserRepresentativeController extends FOSRestController
      */
     public function getRepresentativesAction(ParamFetcher $params)
     {
+        $user = $this->getUser();
         $query = $this->getDoctrine()->getRepository(Representative::class)
-            ->getByUserQuery($this->getUser());
+            ->getByUserQuery($user);
+
+        $this->dispatcher->dispatch(
+            UserEvents::VIEW_REPRESENTATIVES,
+            new UserRepresentativeEvent($user)
+        );
 
         return $this->get('knp_paginator')->paginate(
             $query,

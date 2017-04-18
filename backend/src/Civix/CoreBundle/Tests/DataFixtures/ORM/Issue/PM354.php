@@ -3,6 +3,8 @@ namespace Civix\CoreBundle\Tests\DataFixtures\ORM\Issue;
 
 use Civix\CoreBundle\Entity\Activities\LeaderNews;
 use Civix\CoreBundle\Entity\ActivityCondition;
+use Civix\CoreBundle\Entity\Poll\Question\GroupNews;
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupNewsCommentData;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -17,7 +19,9 @@ class PM354 extends AbstractFixture implements DependentFixtureInterface
     public function load(ObjectManager $manager)
     {
         $faker = Factory::create();
+        /** @var User $user */
         $user = $this->getReference('user_1');
+        /** @var GroupNews $news */
         $news = $this->getReference('group_news_1');
 
         $activity = new LeaderNews();

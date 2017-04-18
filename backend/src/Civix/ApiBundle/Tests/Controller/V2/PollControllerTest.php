@@ -2,6 +2,7 @@
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Karma;
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Option;
 use Civix\CoreBundle\Entity\Poll\Question;
@@ -20,6 +21,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData as LoadGroupQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupRepresentativesData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadKarmaData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadStripeCustomerUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
@@ -1027,12 +1029,23 @@ class PollControllerTest extends WebTestCase
         $this->assertEquals($option->getValue(), $result[0]['answer']);
         $this->assertEquals($params['comment'], $result[0]['comment']);
         $this->assertEquals(Answer::PRIVACY_PRIVATE, $result[0]['privacy']);
+        $result = $client->getContainer()->get('doctrine.dbal.default_connection')
+            ->fetchAssoc('SELECT * FROM karma');
+        $this->assertArraySubset([
+            'user_id' => $user->getId(),
+            'type' => Karma::TYPE_ANSWER_POLL,
+            'points' => 2,
+            'metadata' => serialize([
+                'answer_id' => $data['id'],
+            ]),
+        ], $result);
     }
 
     public function testAddRepresentativeAnswerIsOk()
     {
         $repository = $this->loadFixtures([
             LoadRepresentativeQuestionData::class,
+            LoadKarmaData::class,
         ])->getReferenceRepository();
         /** @var User $user */
         $user = $repository->getReference('user_1');
@@ -1078,6 +1091,11 @@ class PollControllerTest extends WebTestCase
         $this->assertEquals($option->getValue(), $result[0]['answer']);
         $this->assertEquals($params['comment'], $result[0]['comment']);
         $this->assertEquals(Answer::PRIVACY_PRIVATE, $result[0]['privacy']);
+        $sum = $conn->fetchColumn(
+            'SELECT SUM(points) FROM karma WHERE user_id = ? AND type = ?',
+            [$user->getId(), Karma::TYPE_ANSWER_POLL]
+        );
+        $this->assertEquals(4, $sum);
     }
 
     public function testAddGroupPaymentAnswerToCrowdfundingRequestIsOk()
@@ -1385,8 +1403,10 @@ class PollControllerTest extends WebTestCase
             }
             if ($user === $user3) { // private
                 $this->assertSame('', $data[$k]['name']);
+                $this->assertSame(20, $data[$k]['karma']);
             } else {
                 $this->assertSame($user->getFullName(), $data[$k]['name']);
+                $this->assertEquals(0, $data[$k]['karma']);
             }
             if ($user === $user4) {
                 $this->assertSame('1', $data[$k]['followers']);
@@ -1423,7 +1443,7 @@ class PollControllerTest extends WebTestCase
         $this->assertSame(
             "name,address,city,state,country,zip_code,email,phone,bio,slogan,facebook,followers,karma,fields,representatives,text,answer,comment\n" .
             "\"user 2\",,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,,,,,\"{$question->getSubject()}\",\"{$answer1->getOption()->getValue()}\",\"{$answer1->getComment()}\"\n" .
-            ",,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,,,\"test-group-field: Test Answer\",\"{$rm->getFullName()}\",\"{$question->getSubject()}\",\"{$answer2->getOption()->getValue()}\",\"{$answer2->getComment()}\"\n" .
+            ",,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,,20,\"test-group-field: Test Answer\",\"{$rm->getFullName()}\",\"{$question->getSubject()}\",\"{$answer2->getOption()->getValue()}\",\"{$answer2->getComment()}\"\n" .
             "\"user 4\",,,,US,,{$user4->getEmail()},{$user4->getPhone()},,,1,1,,\"test-group-field: Second Answer\",\"{$bo->getFullName()}, {$jb->getFullName()}\",\"{$question->getSubject()}\",\"{$answer3->getOption()->getValue()}\",\"{$answer3->getComment()}\"\n",
             $response->getContent()
         );

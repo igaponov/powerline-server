@@ -66,4 +66,9 @@ class Comment extends BaseComment
     {
         return $this->getPetition();
     }
+
+    public function getEntityType(): string
+    {
+        return 'petition';
+    }
 }

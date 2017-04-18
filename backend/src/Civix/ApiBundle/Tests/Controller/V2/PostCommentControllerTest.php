@@ -5,6 +5,7 @@ use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostCommentRateData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostCommentData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostCommentKarmaData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 
 class PostCommentControllerTest extends CommentControllerTestCase
@@ -118,9 +119,9 @@ class PostCommentControllerTest extends CommentControllerTestCase
     public function testUpdateCommentRateIsOk($rate)
     {
         $repository = $this->loadFixtures([
-            LoadPostCommentRateData::class,
             LoadGroupManagerData::class,
             LoadUserGroupData::class,
+            LoadPostCommentKarmaData::class,
         ])->getReferenceRepository();
         /** @var BaseComment $comment */
         $comment = $repository->getReference('post_comment_3');

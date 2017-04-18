@@ -2,12 +2,15 @@
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Karma;
 use Civix\CoreBundle\Entity\Report\UserReport;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserFollow;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadKarmaData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Issue\PM510;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Liip\FunctionalTestBundle\Annotations\QueryCount;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -147,7 +150,7 @@ class UserFollowerControllerTest extends WebTestCase
     }
 
     /**
-     * @QueryCount(7)
+     * @QueryCount(11)
      */
     public function testApproveFollowUserIsSuccessful()
     {
@@ -171,6 +174,49 @@ class UserFollowerControllerTest extends WebTestCase
         $this->assertEquals($user->getId(), $result[0]['user']);
         $this->assertEquals($user->getFollowers()->count(), $result[0]['followers']);
         $this->assertEquals([], $result[0]['representatives']);
+        $result = $client->getContainer()->get('doctrine.dbal.default_connection')
+            ->fetchAssoc('SELECT * FROM karma');
+        $this->assertArraySubset([
+            'user_id' => $userFollow->getUser()->getId(),
+            'type' => Karma::TYPE_APPROVE_FOLLOW_REQUEST,
+            'points' => 10,
+            'metadata' => serialize([
+                'follower_id' => $userFollow->getFollower()->getId(),
+            ]),
+        ], $result);
+    }
+
+    /**
+     * @QueryCount(8)
+     */
+    public function testApproveSecondFollowUserIsSuccessful()
+    {
+        $repository = $this->loadFixtures([
+            LoadKarmaData::class,
+            LoadUserFollowerData::class,
+        ])->getReferenceRepository();
+        /** @var UserFollow $userFollow */
+        $userFollow = $repository->getReference('user_3_user_1');
+        $user = $userFollow->getUser();
+        $follower = $userFollow->getFollower();
+        $client = $this->client;
+        $client->request('PATCH', self::API_ENDPOINT.'/'.$follower->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user3"']);
+        $response = $client->getResponse();
+        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
+        $this->em->refresh($userFollow);
+        $this->assertSame($follower->getId(), $userFollow->getFollower()->getId());
+        $this->assertSame(UserFollow::STATUS_ACTIVE, $userFollow->getStatus());
+        $result = $this->em->getRepository(UserReport::class)
+            ->getUserReport($user);
+        $this->assertEquals($user->getId(), $result[0]['user']);
+        $this->assertEquals($user->getFollowers()->count(), $result[0]['followers']);
+        $this->assertEquals([], $result[0]['representatives']);
+        $count = $client->getContainer()->get('doctrine.dbal.default_connection')
+            ->fetchColumn(
+                'SELECT COUNT(*) FROM karma WHERE user_id = ? AND type = ?',
+                [$user->getId(), Karma::TYPE_APPROVE_FOLLOW_REQUEST]
+            );
+        $this->assertEquals(1, $count);
     }
 
     /**

@@ -277,7 +277,7 @@ class PostController extends FOSRestController
         $form->submit($request->request->all());
 
         if ($form->isValid()) {
-            $this->manager->signPost($vote);
+            $this->manager->voteOnPost($vote);
 
             return $vote;
         }
@@ -310,7 +310,7 @@ class PostController extends FOSRestController
      */
     public function deleteVoteAction(Vote $vote)
     {
-        $this->manager->unsignPost($vote);
+        $this->manager->unvotePost($vote);
     }
 
     /**

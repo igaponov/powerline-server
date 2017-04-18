@@ -143,6 +143,13 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      */
     abstract public function getCommentedEntity();
 
+    /**
+     * Return entity type
+     *
+     * @return string
+     */
+    abstract public function getEntityType(): string;
+
     public function __construct()
     {
         $this->rates = new ArrayCollection();
