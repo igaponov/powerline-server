@@ -60,7 +60,8 @@
         "squizlabs/php_codesniffer": "~2.7",
         "fzaninotto/faker": "~1.6",
         "sebastian/version": "~2.0",
-        "symfony/phpunit-bridge": "~3.2"
+        "symfony/phpunit-bridge": "~3.2",
+        "escapestudios/symfony2-coding-standard": "~2.10"
     },
     "scripts": {
         "symfony-scripts": [
