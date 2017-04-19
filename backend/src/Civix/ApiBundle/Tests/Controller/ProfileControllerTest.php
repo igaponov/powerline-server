@@ -65,13 +65,6 @@ class ProfileControllerTest extends WebTestCase
             'registration' => 'new-registration',
         ];
         $client = $this->client;
-        $service = $this->getServiceMockBuilder('civix_core.group_manager')
-            ->disableOriginalConstructor()
-            ->getMock();
-        $service->expects($this->once())
-            ->method('autoJoinUser')
-            ->with($this->isInstanceOf(User::class));
-        $client->getContainer()->set('civix_core.group_manager', $service);
 		$client->request('POST', self::API_ENDPOINT.'update', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode(array_merge($params, ['avatar_file_name' => $avatar])));
 		$response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -141,13 +134,6 @@ class ProfileControllerTest extends WebTestCase
             'zip' => 'new-zip',
         ];
         $client = $this->client;
-        $service = $this->getServiceMockBuilder('civix_core.group_manager')
-            ->disableOriginalConstructor()
-            ->getMock();
-        $service->expects($this->once())
-            ->method('autoJoinUser')
-            ->with($this->isInstanceOf(User::class));
-        $client->getContainer()->set('civix_core.group_manager', $service);
 		$client->request('POST', self::API_ENDPOINT.'update', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode($params));
 		$response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());

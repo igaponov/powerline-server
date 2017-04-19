@@ -55,4 +55,7 @@ monolog:
 security:
     firewalls:
         superuser_security_area:
-            http_basic: ~
+            http_basic:
+
+bazinga_geocoder:
+    default_provider: array
