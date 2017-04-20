@@ -353,8 +353,6 @@
             <argument type="service" id="civix_core.subscription_manager"/>
         </service>
 
-        <service id="civix_core.geocode" class="Civix\CoreBundle\Service\Google\Geocode"></service>
-
         <service id="civix_core.settings" class="Civix\CoreBundle\Service\Settings">
             <argument type="service" id="doctrine.orm.default_entity_manager" />
         </service>
