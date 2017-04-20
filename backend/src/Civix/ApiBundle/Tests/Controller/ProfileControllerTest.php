@@ -73,8 +73,8 @@ class ProfileControllerTest extends WebTestCase
         $service->expects($this->once())
             ->method('getRepresentativesByLocation');
         $client->getContainer()->set('civix_core.cicero_api', $service);
-		$client->request('POST', self::API_ENDPOINT.'update', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode(array_merge($params, ['avatar_file_name' => $avatar])));
-		$response = $client->getResponse();
+		    $client->request('POST', self::API_ENDPOINT.'update', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode(array_merge($params, ['avatar_file_name' => $avatar])));
+		    $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         foreach (array_keys($params) as $key) {
@@ -149,8 +149,8 @@ class ProfileControllerTest extends WebTestCase
         $service->expects($this->once())
             ->method('getRepresentativesByLocation');
         $client->getContainer()->set('civix_core.cicero_api', $service);
-		$client->request('POST', self::API_ENDPOINT.'update', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode($params));
-		$response = $client->getResponse();
+		    $client->request('POST', self::API_ENDPOINT.'update', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode($params));
+		    $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertSame($params['email'], $data['email']);

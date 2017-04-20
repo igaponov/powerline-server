@@ -1,0 +1,35 @@
+services:
+    civix_core.geocoder.array_provider:
+        class: Civix\Component\Geocoder\Provider\ArrayProvider
+        arguments:
+            - # address collections
+                107 S Main St, Bucklin, KS 67834, USA: #addresses
+                    - # address 1
+                        coordinates:
+                            latitude: 37.549399200000003
+                            longitude: -99.634096999999997
+                        bounds:
+                            south: 37.549399200000003
+                            west: -99.634115799999989
+                            north: 37.549399200000003
+                            east: -99.634096999999997
+                        streetNumber: 107
+                        streetName: 'South Main Street'
+                        locality: 'Bucklin'
+                        postalCode: '67834'
+                        adminLevels:
+                            -
+                                name: 'Kansas'
+                                code: 'KS'
+                            -
+                                name: 'Ford County'
+                                code: 'Ford County'
+                            -
+                                name: 'Bucklin'
+                                code: 'Bucklin'
+                        country:
+                            name: 'United States'
+                            code: 'US'
+        public: false
+        tags:
+            - { name: "bazinga_geocoder.provider" }
