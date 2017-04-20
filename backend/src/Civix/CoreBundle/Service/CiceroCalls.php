@@ -53,6 +53,10 @@ class CiceroCalls extends ServiceApi
             'GET'
         );
 
+        if (!empty($response->response->errors)) {
+            throw new \RuntimeException('Cicero: '.reset($response->response->errors));
+        }
+
         if (!isset($response->response->results->candidates) ||
                 count($response->response->results->candidates) < 1 ||
                 $response->response->results->candidates[0]->count->total == 0
