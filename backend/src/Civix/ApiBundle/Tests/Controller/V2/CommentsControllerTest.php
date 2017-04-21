@@ -2,6 +2,7 @@
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\CommentedInterface;
 use Civix\CoreBundle\Entity\Poll\Question;
@@ -10,6 +11,7 @@ use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Test\SocialActivityTester;
 use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 abstract class CommentsControllerTest extends WebTestCase
@@ -102,7 +104,7 @@ abstract class CommentsControllerTest extends WebTestCase
         $this->assertEquals(4, $queue->hasMessageWithMethod('sendSocialActivity'));
     }
 
-    public function createRootComment(CommentedInterface $entity, User $user)
+    public function createRootComment(CommentedInterface $entity, User $user, Activity $activity)
     {
         $client = $this->client;
         $uri = str_replace('{id}', $entity->getId(), $this->getApiEndpoint());
@@ -132,7 +134,11 @@ abstract class CommentsControllerTest extends WebTestCase
             $followType = SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED;
         }
         $this->assertRegExp('{comment text <a data-user-id="\d+">@user2</a>}', $data['comment_body_html']);
-        $tester = new SocialActivityTester($client->getContainer()->get('doctrine')->getManager());
+        /** @var EntityManager $em */
+        $em = $client->getContainer()
+            ->get('doctrine')
+            ->getManager();
+        $tester = new SocialActivityTester($em);
         $tester->assertActivitiesCount(3);
         $tester->assertActivity(SocialActivity::TYPE_COMMENT_MENTIONED, $user->getId());
         $tester->assertActivity($ownType, $entity->getUser()->getId());
@@ -140,6 +146,8 @@ abstract class CommentsControllerTest extends WebTestCase
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
         $this->assertEquals(3, $queue->count());
         $this->assertEquals(3, $queue->hasMessageWithMethod('sendSocialActivity'));
+        $count = $em->getConnection()->fetchColumn('SELECT responses_count FROM activities WHERE id = ?', [$activity->getId()]);
+        $this->assertGreaterThanOrEqual(2, $count);
     }
 
     public function createCommentMentionedContentOwner(CommentedInterface $entity, BaseComment $comment)

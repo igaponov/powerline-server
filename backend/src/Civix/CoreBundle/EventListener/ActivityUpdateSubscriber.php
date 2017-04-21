@@ -3,7 +3,10 @@ namespace Civix\CoreBundle\EventListener;
 
 use Civix\CoreBundle\Entity\Poll\Comment;
 use Civix\CoreBundle\Entity\Poll\CommentRate;
+use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
+use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Event;
 use Civix\CoreBundle\Service\ActivityUpdate;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -45,6 +48,7 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
             Event\PollEvents::QUESTION_ANSWER => ['updateResponsesQuestion', -110],
 
             Event\CommentEvents::RATE => ['updateEntityRateCount', -100],
+            Event\CommentEvents::CREATE => ['updateResponsesComment', -110],
         ];
     }
 
@@ -71,6 +75,24 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
     public function updateResponsesQuestion(Event\Poll\AnswerEvent $event)
     {
         $this->activityUpdate->updateResponsesQuestion($event->getAnswer()->getQuestion());
+    }
+
+    public function updateResponsesComment(Event\CommentEvent $event)
+    {
+        $comment = $event->getComment();
+
+        if ($comment->getParentComment()) {
+            return;
+        }
+
+        $entity = $comment->getCommentedEntity();
+        if ($entity instanceof Post) {
+            $this->activityUpdate->updateResponsesPost($entity);
+        } elseif ($entity instanceof UserPetition) {
+            $this->activityUpdate->updateResponsesPetition($entity);
+        } elseif ($entity instanceof Question) {
+            $this->activityUpdate->updateResponsesQuestion($entity);
+        }
     }
 
     public function updatePetitionAuthorActivity(Event\UserPetition\SignatureEvent $event)
