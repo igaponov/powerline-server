@@ -270,7 +270,7 @@ class ActivityRepository extends EntityRepository
                         SELECT COUNT(pc.id)
                         FROM poll_questions pq
                         LEFT JOIN poll_comments pc ON pq.id = pc.question_id
-                        WHERE pq.id = activities.question_id AND pc.pid IS NULL
+                        WHERE pq.id = activities.question_id AND pc.pid IS NULL AND pc.user_id IS NOT NULL
                     )
                 )
             )
@@ -298,7 +298,7 @@ class ActivityRepository extends EntityRepository
                         SELECT COUNT(pc.id)
                         FROM user_petitions p
                         LEFT JOIN user_petition_comments pc ON p.id = pc.petition_id
-                        WHERE p.id = activities.petition_id AND pc.pid IS NULL
+                        WHERE p.id = activities.petition_id AND pc.pid IS NULL AND pc.user_id IS NOT NULL
                     )
                 )
             )
@@ -326,7 +326,7 @@ class ActivityRepository extends EntityRepository
                         SELECT COUNT(pc.id)
                         FROM user_posts p
                         LEFT JOIN post_comments pc ON p.id = pc.post_id
-                        WHERE p.id = activities.post_id AND pc.pid IS NULL
+                        WHERE p.id = activities.post_id AND pc.pid IS NULL AND pc.user_id IS NOT NULL
                     )
                 )
             )
