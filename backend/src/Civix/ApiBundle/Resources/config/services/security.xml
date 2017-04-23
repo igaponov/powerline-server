@@ -9,7 +9,7 @@
                  public="false"
                  class="Civix\ApiBundle\Security\Core\ApiUserProvider" >
             <argument type="service" id="doctrine.orm.entity_manager" />
-            <argument type="service" id="civix_core.crop_avatar" />
+            <argument type="service" id="civix_core.user_manager" />
             <argument type="collection">
                 <argument type="string" key="facebook">facebookId</argument>
                 <argument type="string" key="facebook_secret">facebookToken</argument>

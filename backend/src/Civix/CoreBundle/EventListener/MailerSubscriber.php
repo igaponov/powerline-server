@@ -5,6 +5,8 @@ use Civix\CoreBundle\Event\DiscountCodeEvent;
 use Civix\CoreBundle\Event\DiscountCodeEvents;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
+use Civix\CoreBundle\Event\UserEvent;
+use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Service\EmailSender;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -20,6 +22,7 @@ class MailerSubscriber implements EventSubscriberInterface
         return [
             GroupEvents::REGISTERED => 'sendRegistrationSuccessGroup',
             DiscountCodeEvents::CREATE => 'sendRewardCode',
+            UserEvents::REGISTRATION => 'sendRegistrationEmail',
         ];
     }
 
@@ -36,5 +39,10 @@ class MailerSubscriber implements EventSubscriberInterface
     public function sendRewardCode(DiscountCodeEvent $event)
     {
         $this->sender->sendRewardCodeEmail($event->getUser(), $event->getDiscountCode());
+    }
+
+    public function sendRegistrationEmail(UserEvent $event)
+    {
+        $this->sender->sendRegistrationEmail($event->getUser());
     }
 }

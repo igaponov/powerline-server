@@ -47,7 +47,8 @@
         "ocramius/proxy-manager": "2.0.4",
         "oyejorge/less.php": "~1.7",
         "willdurand/geocoder-bundle": "~4.1",
-        "layershifter/tld-extract": "~1.2"
+        "layershifter/tld-extract": "~1.2",
+        "yohang88/letter-avatar": "~1.0"
     },
     "require-dev": {
         "phing/phing": "~2.16",

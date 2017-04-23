@@ -9,3 +9,8 @@ services:
     civix_core.rabbit.async_event_consumer:
         class: Civix\CoreBundle\Service\RabbitMQCallback\AsyncEventConsumer
         arguments: ['@event_dispatcher', '@logger']
+
+    civix_core.image_manager:
+        class: Intervention\Image\ImageManager
+        arguments:
+            - { driver: gd }

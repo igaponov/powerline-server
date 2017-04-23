@@ -2,17 +2,18 @@
 
 namespace Civix\ApiBundle\Controller;
 
-use Civix\CoreBundle\Event\UserEvent;
-use Civix\CoreBundle\Event\UserEvents;
-use Civix\CoreBundle\Model\User\FacebookUserCreator;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Civix\ApiBundle\Form\Type\UserFacebookRegistrationType;
+use Civix\ApiBundle\Form\Type\UserRegistrationType;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\DeferredInvites;
-use Civix\CoreBundle\Model\User\UserCreator;
+use Civix\CoreBundle\Service\User\UserManager;
+use FOS\RestBundle\Controller\Annotations\View;
+use JMS\DiExtraBundle\Annotation as DI;
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Form\Form;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
@@ -20,6 +21,12 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
  */
 class SecureController extends BaseController
 {
+    /**
+     * @var UserManager
+     * @DI\Inject("civix_core.user_manager")
+     */
+    private $manager;
+
     /**
      * Login a entity (User or SuperUser)
      * 
@@ -136,31 +143,20 @@ class SecureController extends BaseController
     }
 
     /**
-     * @Route("/registration", name="api_secure_registration")
+     * @Route("/registration")
      * @Method("POST")
      *
      * @ApiDoc(
      *      resource=true,
      *      section="Security",
      *      description="Registration",
-     *      filters={
-     *         {"name"="username", "dataType"="string"},
-     *         {"name"="first_name", "dataType"="string"},
-     *         {"name"="last_name", "dataType"="string"},
-     *         {"name"="email", "dataType"="string"},
-     *         {"name"="password", "dataType"="string"},
-     *         {"name"="address1", "dataType"="string"},
-     *         {"name"="address2", "dataType"="string"},
-     *         {"name"="city", "dataType"="string"},
-     *         {"name"="state", "dataType"="string"},
-     *         {"name"="zip", "dataType"="integer"},
-     *         {"name"="country", "dataType"="string"},
-     *         {"name"="facebook_id", "dataType"="string"},
-     *         {"name"="facebook_token", "dataType"="string"},
-     *         {"name"="facebook_link", "dataType"="string"},
-     *         {"name"="birth", "dataType"="string"},
-     *         {"name"="sex", "dataType"="string"},
-     *         {"name"="avatar_file_name", "dataType"="string"}
+     *      input="Civix\ApiBundle\Form\Type\UserRegistrationType",
+     *      output={
+     *           "class" = "Civix\CoreBundle\Entity\User",
+     *           "groups" = {"api-session"},
+     *           "parsers" = {
+     *               "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *           }
      *      },
      *      statusCodes={
      *          200="Returns authorization token",
@@ -168,104 +164,40 @@ class SecureController extends BaseController
      *          405="Method Not Allowed"
      *      }
      * )
+     *
+     * @View(serializerGroups={"api-session"})
+     *
      * @param Request $request
-     * @return Response
+     * @return User|Response
      */
     public function registrationAction(Request $request)
     {
-        $response = new Response();
-        $response->headers->set('Content-Type', 'application/json');
+        $form = $this->createForm(UserRegistrationType::class);
+        $form->submit($request->request->all());
 
-        $userCreator = UserCreator::createUserFromRequest($request);
-        $validatorGroups = $userCreator->getValidationGroups();
-        $user = $userCreator->create($request);
-
-        //registration from facebook (from website)
-        if (!$userCreator instanceof FacebookUserCreator) {
-            $user->setIsRegistrationComplete(true);
-        } else {
-            $user->setIsRegistrationComplete(false);
+        if ($form->isValid()) {
+            return $this->manager->register($form->getData());
         }
 
-        if ($request->get('avatar_file_name')) {
-            try {
-                $this->get('civix_core.crop_avatar')
-                    ->saveSquareAvatarFromPath($user, $request->get('avatar_file_name'));
-            } catch (\Exception $e) {
-                $this->get('logger')->addError($e->getMessage());
-            }
-        }
-
-        $errors = $this->getValidator()->validate($user, null, $validatorGroups);
-        if (count($errors) > 0) {
-            $response->setStatusCode(400)->setContent(json_encode(array('errors' => $this->transformErrors($errors))));
-
-            return $response;
-        } else {
-            $em = $this->getDoctrine()->getManager();
-            $encoder = $this->get('security.encoder_factory')->getEncoder($user);
-            $password = $encoder->encodePassword($user->getPassword(), $user->getSalt());
-            $user->setPassword($password);
-            $user->generateToken();
-            $em->persist($user);
-            $em->flush();
-
-            $this->get('civix_core.user_manager')->updateDistrictsIds($user);
-            /** @var DeferredInvites[] $deferredInvites */
-            $deferredInvites = $em->getRepository('CivixCoreBundle:DeferredInvites')
-                    ->checkEmail($user->getEmail());
-
-            if (!empty($deferredInvites)) {
-                foreach ($deferredInvites as $invite) {
-                    $user->addInvite($invite->getGroup());
-                    $invite->setStatus(DeferredInvites::STATUS_INACTIVE);
-                    $em->persist($user);
-                    $em->persist($invite);
-                }
-            }
-
-            //join to global group
-            $em->persist($user);
-
-            $em->flush();
-
-            $response = new Response($this->jmsSerialization($user, array('api-session')));
-            $response->setStatusCode(200);
-
-            $this->get('civix_core.email_sender')
-                ->sendRegistrationEmail($user);
-            $this->get('event_dispatcher')->dispatch(UserEvents::REGISTRATION, new UserEvent($user));
-
-            return $response;
-        }
+        return $this->getBadRequestResponse($form);
     }
 
     /**
      * Deprecated, use `GET /api/v2/security/facebook` instead.
      *
-     * @Route("/registration-facebook", name="api_secure_facebook_register")
+     * @Route("/registration-facebook")
      * @Method("POST")
      * @ApiDoc(
      *     section="Security",
      *     section="Security",
      *     description="Registration from facebook",
-     *     filters={
-     *         {"name"="facebook_token", "dataType"="string"},
-     *         {"name"="facebook_id", "dataType"="string"},
-     *         {"name"="country", "dataType"="string"},
-     *         {"name"="username", "dataType"="string"},
-     *         {"name"="email", "dataType"="string"},
-     *         {"name"="first_name", "dataType"="string"},
-     *         {"name"="last_name", "dataType"="string"},
-     *         {"name"="avatar_file_name", "dataType"="string"},
-     *         {"name"="sex", "dataType"="string"},
-     *         {"name"="facebook_link", "dataType"="string"},
-     *         {"name"="address1", "dataType"="string"},
-     *         {"name"="city", "dataType"="string"},
-     *         {"name"="state", "dataType"="string"},
-     *         {"name"="zip", "dataType"="string"},
-     *         {"name"="birth", "dataType"="string"},
-     *         {"name"="avatar_file_name", "dataType"="string"}
+     *     input="Civix\ApiBundle\Form\Type\UserFacebookRegistrationType",
+     *     output={
+     *          "class" = "Civix\CoreBundle\Entity\User",
+     *          "groups" = {"api-session"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
      *     },
      *     statusCodes={
      *         200="Returns authorization token",
@@ -274,20 +206,22 @@ class SecureController extends BaseController
      *     },
      *     deprecated=true
      * )
+     *
+     * @View(serializerGroups={"api-session"})
+     *
      * @param Request $request
-     * @return Response
+     * @return User|Response
      */
     public function facebookRegistration(Request $request)
     {
-        $isTokenCorrect = $this->get('civix_core.facebook_api')->checkFacebookToken(
-            $request->get('facebook_token'),
-            $request->get('facebook_id')
-        );
-        if (!$isTokenCorrect) {
-            throw new HttpException(400);
+        $form = $this->createForm(UserFacebookRegistrationType::class);
+        $form->submit($request->request->all());
+
+        if ($form->isValid()) {
+            return $this->manager->register($form->getData());
         }
 
-        return $this->registrationAction($request);
+        return $this->getBadRequestResponse($form);
     }
 
     /**
@@ -450,5 +384,32 @@ class SecureController extends BaseController
         }
 
         return $user;
+    }
+
+    /**
+     * @param $form
+     * @return Response
+     */
+    private function getBadRequestResponse(Form $form): Response
+    {
+        $errors = [];
+        foreach ($form as $name => $element) {
+            $error = $element->getErrors()
+                ->current();
+            if ($error) {
+                $errors[] = [
+                    'property' => $name,
+                    'message' => $error->getMessage(),
+                ];
+            }
+        }
+        foreach ($form->getErrors() as $error) {
+            $errors[] = [
+                'property' => null,
+                'message' => $error->getMessage(),
+            ];
+        }
+
+        return new Response(json_encode(['errors' => $errors]), 400);
     }
 }

@@ -2,11 +2,14 @@
 
 namespace Civix\CoreBundle\Service\User;
 
+use Civix\CoreBundle\Entity\DeferredInvites;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\Report\UserReport;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserPetition;
+use Civix\CoreBundle\Event\UserEvent;
+use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Service\CiceroApi;
 use Civix\CoreBundle\Service\CropImage;
 use Civix\CoreBundle\Service\Group\GroupManager;
@@ -110,6 +113,7 @@ class UserManager
             ->setZip($new->getZip())
             ->setEmail($new->getEmail())
             ->setPhone($new->getPhone())
+
             ->setFacebookLink($new->getFacebookLink())
             ->setTwitterLink($new->getTwitterLink())
             ->setUpdateProfileAt(new \DateTime())
@@ -122,6 +126,7 @@ class UserManager
             $user->setPassword($new->getPassword())
                 ->setSalt($new->getSalt());
         }
+
 
         if ($new->getAvatarFileName() && $new->getAvatarFileName() !== $user->getAvatarFileName()) {
             $img = imagecreatefromstring(base64_decode($new->getAvatarFileName()));
@@ -242,5 +247,64 @@ class UserManager
             $this->entityManager->persist($user);
             $this->entityManager->flush();
         }
+    }
+
+    public function register(User $user)
+    {
+        $user->generateToken();
+        $event = new UserEvent($user);
+        $this->dispatcher->dispatch(UserEvents::PRE_REGISTRATION, $event);
+
+        /** @var DeferredInvites[] $deferredInvites */
+        $deferredInvites = $this->entityManager
+            ->getRepository('CivixCoreBundle:DeferredInvites')
+            ->checkEmail($user->getEmail());
+
+        if (!empty($deferredInvites)) {
+            foreach ($deferredInvites as $invite) {
+                $user->addInvite($invite->getGroup());
+                $invite->setStatus(DeferredInvites::STATUS_INACTIVE);
+                $this->entityManager->persist($user);
+                $this->entityManager->persist($invite);
+            }
+        }
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        $this->updateDistrictsIds($user);
+
+        $this->dispatcher->dispatch(UserEvents::REGISTRATION, $event);
+
+        return $user;
+    }
+
+    public function save(User $user)
+    {
+        $user->generateToken();
+        $event = new UserEvent($user);
+        $this->dispatcher->dispatch(UserEvents::PROFILE_UPDATE, $event);
+
+        if (!$this->entityManager->contains($user)) {
+            $this->entityManager->persist($user);
+            $addressIsChanged = true;
+        } else {
+            $uow = $this->entityManager->getUnitOfWork();
+            $metadata = $this->entityManager->getClassMetadata(User::class);
+            $uow->recomputeSingleEntityChangeSet($metadata, $user);
+            $changeSet = $uow->getEntityChangeSet($user);
+            $addressIsChanged = isset($changeSet['address1'])
+                || isset($changeSet['city'])
+                || isset($changeSet['state'])
+                || isset($changeSet['country']);
+        }
+        $this->entityManager->flush();
+
+        if ($addressIsChanged) {
+            $this->updateDistrictsIds($user);
+            $this->dispatcher->dispatch(UserEvents::ADDRESS_CHANGE, $event);
+        }
+
+        return $user;
     }
 }

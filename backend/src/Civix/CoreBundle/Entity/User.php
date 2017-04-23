@@ -4,7 +4,7 @@ namespace Civix\CoreBundle\Entity;
 
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Serializer\Type\Avatar;
-use Civix\CoreBundle\Validator\Constraints\ConstrainsFacebookToken;
+use Civix\CoreBundle\Validator\Constraints\FacebookToken;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -40,6 +40,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  *      groups={"facebook"},
  *      message="This Facebook account is already linked to other Civix account."
  * )
+ * @FacebookToken(groups={"facebook"})
  * @Serializer\ExclusionPolicy("all")
  * @Vich\Uploadable
  */
@@ -89,7 +90,6 @@ class User implements UserInterface, \Serializable, OfficialInterface, HasAvatar
      * @var string
      *
      * @ORM\Column(name="password", type="string", length=255)
-     * @Assert\NotBlank(groups={"registration"})
      */
     private $password;
 
@@ -173,6 +173,14 @@ class User implements UserInterface, \Serializable, OfficialInterface, HasAvatar
      * @Vich\UploadableField(mapping="avatar_image", fileNameProperty="avatarFileName")
      */
     private $avatar;
+
+    /**
+     * Property for avatar uploading
+     * Can be an url or a base64-encoded string
+     *
+     * @var string
+     */
+    private $avatarFile;
 
     /**
      * @var \DateTime
@@ -422,11 +430,8 @@ class User implements UserInterface, \Serializable, OfficialInterface, HasAvatar
     /**
      * @var string
      * @ORM\Column(name="facebook_token", type="string", length=255, nullable=true)
-     * @ConstrainsFacebookToken(groups={"facebook"})
      */
     private $facebookToken;
-
-    private $avatarPath;
 
     /**
      * @var \DateTime
@@ -595,6 +600,7 @@ class User implements UserInterface, \Serializable, OfficialInterface, HasAvatar
      * @Serializer\Expose()
      * @Serializer\Type("string")
      * @Serializer\Groups({"api-change-password"})
+     * @Assert\NotBlank(groups={"registration"})
      */
     private $plainPassword;
 
@@ -1037,13 +1043,6 @@ class User implements UserInterface, \Serializable, OfficialInterface, HasAvatar
     public function getAvatarWithPath($privacy = false)
     {
         return new Avatar($this, $privacy);
-    }
-
-    public function setAvatarPath($path)
-    {
-        $this->avatarPath = $path;
-
-        return $this;
     }
 
     /**
@@ -2636,5 +2635,24 @@ class User implements UserInterface, \Serializable, OfficialInterface, HasAvatar
     public function getKarma()
     {
         return new \Civix\CoreBundle\Serializer\Type\Karma($this);
+    }
+
+    /**
+     * @return string
+     */
+    public function getAvatarFile()
+    {
+        return $this->avatarFile;
+    }
+
+    /**
+     * @param string $avatarFile
+     * @return User
+     */
+    public function setAvatarFile($avatarFile): User
+    {
+        $this->avatarFile = $avatarFile;
+
+        return $this;
     }
 }
