@@ -120,7 +120,11 @@ class UserRepresentativeControllerTest extends WebTestCase
         $this->assertResponseHasErrors($response, $errors);
     }
 
-    public function testCreateRepresentativeIsOk()
+    /**
+     * @param $avatar
+     * @dataProvider getAvatars
+     */
+    public function testCreateRepresentativeIsOk($avatar)
     {
         $this->loadFixtures([
             LoadStateData::class,
@@ -138,7 +142,7 @@ class UserRepresentativeControllerTest extends WebTestCase
         $privateParams = [
             'private_phone' => $faker->phoneNumber,
             'private_email' => $faker->companyEmail,
-            'avatar' => base64_encode(file_get_contents(__DIR__.'/../../data/image.png')),
+            'avatar' => $avatar,
         ];
         $client = $this->client;
         $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode(array_merge($params, $privateParams)));
@@ -154,5 +158,13 @@ class UserRepresentativeControllerTest extends WebTestCase
         $this->assertEquals(1, $count);
         $storage = $client->getContainer()->get('civix_core.storage.array');
         $this->assertCount(1, $storage->getFiles('avatar_representative_fs'));
+    }
+
+    public function getAvatars()
+    {
+        return [
+            [base64_encode(file_get_contents(__DIR__.'/../../data/image.png'))],
+            [null],
+        ];
     }
 }

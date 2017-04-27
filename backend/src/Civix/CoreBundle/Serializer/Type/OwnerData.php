@@ -3,6 +3,9 @@
 namespace Civix\CoreBundle\Serializer\Type;
 
 use Civix\CoreBundle\Entity\HasAvatarInterface;
+use Civix\CoreBundle\Model\Avatar\DefaultAvatar;
+use Civix\CoreBundle\Model\Avatar\DefaultAvatarInterface;
+use Civix\CoreBundle\Model\Avatar\FirstLetterDefaultAvatar;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
@@ -94,14 +97,16 @@ class OwnerData implements HasAvatarInterface
         return $this;
     }
 
-    public function getDefaultAvatar()
+    public function getDefaultAvatar(): DefaultAvatarInterface
     {
         if (!empty($this->data['type'])) {
             $method = 'getDefaultAvatarFor'.$this->data['type'];
             if (method_exists($this, $method)) {
-                return $this->$method();
+                return new DefaultAvatar($this->$method());
             }
         }
+
+        return new FirstLetterDefaultAvatar('@');
     }
 
     private function getDefaultAvatarForAdmin()

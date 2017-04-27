@@ -49,6 +49,9 @@ class RepresentativeControllerTest extends WebTestCase
         $client->request('DELETE', self::API_ENDPOINT.'/'.$representative->getId().'/avatar', [], [], $headers);
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
-        $this->assertCount(0, $storage->getFiles('avatar_representative_fs'));
+        $files = $storage->getFiles('avatar_representative_fs');
+        $this->assertCount(1, $files);
+        $newFile = reset($files);
+        $this->assertNotEquals($file, $newFile);
     }
 }

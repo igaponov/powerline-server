@@ -5,12 +5,11 @@ namespace Civix\CoreBundle\Service;
 use Civix\CoreBundle\Entity\CiceroRepresentative;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\District;
+use Civix\CoreBundle\Event\AvatarEvent;
+use Civix\CoreBundle\Event\AvatarEvents;
 use Civix\CoreBundle\Service\API\ServiceApi;
 use Doctrine\ORM\EntityManager;
-use Symfony\Bridge\Monolog\Logger;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpKernel\KernelInterface;
-use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CiceroApi extends ServiceApi
 {
@@ -19,17 +18,9 @@ class CiceroApi extends ServiceApi
      */
     private $ciceroService;
     /**
-     * @var Logger
-     */
-    private $logger;
-    /**
      * @var EntityManager
      */
     private $entityManager;
-    /**
-     * @var CropImage
-     */
-    private $cropImageService;
     /**
      * @var CongressApi
      */
@@ -39,32 +30,22 @@ class CiceroApi extends ServiceApi
      */
     private $openstatesService;
     /**
-     * @var UploaderHelper
+     * @var EventDispatcherInterface
      */
-    protected $vichService;
-    /**
-     * @var string
-     */
-    protected $rootPath;
+    private $dispatcher;
 
     public function __construct(
         CiceroCalls $ciceroService,
-        Logger $logger,
         EntityManager $entityManager,
-        UploaderHelper $vichUploader,
-        CropImage $cropImage,
-        KernelInterface $kernel,
         CongressApi $congress,
-        OpenstatesApi $openstates
+        OpenstatesApi $openstates,
+        EventDispatcherInterface $dispatcher
     ) {
         $this->ciceroService = $ciceroService;
-        $this->logger = $logger;
         $this->entityManager = $entityManager;
-        $this->setCropImage($cropImage);
-        $this->setVichService($vichUploader);
-        $this->rootPath = $kernel->getRootDir().'/../web';
         $this->congressService = $congress;
         $this->openstatesService = $openstates;
+        $this->dispatcher = $dispatcher;
     }
 
     /**
@@ -110,6 +91,9 @@ class CiceroApi extends ServiceApi
             } else {
                 $representative = $this->createCiceroRepresentative($representative);
             }
+            $event = new AvatarEvent($representative);
+            $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
+
             $this->entityManager->persist($representative);
         }
         $this->entityManager->flush();
@@ -161,6 +145,10 @@ class CiceroApi extends ServiceApi
         foreach ($resultApiCollection as $repr) {
             if ($representative->getId() == $repr->id) {
                 $representative = $this->fillRepresentativeByApiObj($representative, $repr);
+
+                $event = new AvatarEvent($representative);
+                $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
+
                 $this->entityManager->persist($representative);
                 $this->entityManager->flush();
                 return true;
@@ -168,41 +156,6 @@ class CiceroApi extends ServiceApi
         }
 
         return false;
-    }
-
-    public function setEntityManager($entityManager)
-    {
-        $this->entityManager = $entityManager;
-    }
-
-    public function setCropImage($cropImage)
-    {
-        $this->cropImageService = $cropImage;
-    }
-
-    public function setVichService($vichService)
-    {
-        $this->vichService = $vichService;
-    }
-
-    public function setCongressApi($congressService)
-    {
-        $this->congressService = $congressService;
-    }
-
-    public function setOpenstatesApi($openstatesService)
-    {
-        $this->openstatesService = $openstatesService;
-    }
-
-    public function setCiceroCalls($ciceroService)
-    {
-        $this->ciceroService = $ciceroService;
-    }
-
-    public function setLogger($logger)
-    {
-        $this->logger = $logger;
     }
 
     /**
@@ -219,7 +172,7 @@ class CiceroApi extends ServiceApi
         $representative->setFirstName(trim($response->first_name));
         $representative->setLastName(trim($response->last_name));
         $representative->setOfficialTitle(trim($response->office->title));
-        $representative->setAvatarSourceFileName($response->photo_origin_url);
+        $representative->setAvatarFile($response->photo_origin_url);
 
         //create district
         $representativeDistrict = $this->createDistrict($response->office->district);
@@ -258,32 +211,6 @@ class CiceroApi extends ServiceApi
             $socialMethod = 'set'.ucfirst($socialType);
             if (method_exists($representative, $socialMethod)) {
                 $representative->$socialMethod($identificator->identifier_value);
-            }
-        }
-
-        //save photo
-        if (!empty($response->photo_origin_url)) {
-            $fileInfo = explode('.', basename($response->photo_origin_url));
-            $fileExt = array_pop($fileInfo);
-            $representative->setAvatarFileName(uniqid().'.'.$fileExt);
-
-            if (false !== ($header = $this->checkLink($response->photo_origin_url))) {
-                if (strpos($header, 'image') !== false) {
-                    //square avatars
-                    try {
-                        $temp_file = tempnam(sys_get_temp_dir(), 'avatar').'.'.$fileExt;
-                        $this->saveImageFromUrl($representative->getAvatarSourceFileName(), $temp_file);
-                        $this->cropImageService->rebuildImage(
-                            $temp_file,
-                            $temp_file
-                        );
-                        $fileUpload = new UploadedFile($temp_file, $representative->getAvatarFileName());
-                        $representative->setAvatar($fileUpload);
-                    } catch (\Exception $exc) {
-                        $this->logger->addError('Image '.$representative->getAvatarSourceFileName().'. '.$exc->getMessage());
-                        $representative->setAvatarSourceFileName(null);
-                    }
-                }
             }
         }
 

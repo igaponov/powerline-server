@@ -3,6 +3,8 @@
 namespace Civix\CoreBundle\Entity;
 
 use Civix\CoreBundle\Entity\Poll\Question;
+use Civix\CoreBundle\Model\Avatar\DefaultAvatarInterface;
+use Civix\CoreBundle\Model\Avatar\FirstLetterDefaultAvatar;
 use Civix\CoreBundle\Serializer\Type\Avatar;
 use Civix\CoreBundle\Validator\Constraints\FacebookToken;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -10,11 +12,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
  * User.
@@ -42,11 +41,17 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  * )
  * @FacebookToken(groups={"facebook"})
  * @Serializer\ExclusionPolicy("all")
- * @Vich\Uploadable
  */
-class User implements UserInterface, \Serializable, OfficialInterface, HasAvatarInterface, PasswordEncodeInterface, AdvancedUserInterface
+class User implements
+    UserInterface,
+    \Serializable,
+    OfficialInterface,
+    HasAvatarInterface,
+    ChangeableAvatarInterface,
+    PasswordEncodeInterface,
+    AdvancedUserInterface
 {
-    use HasStripeCustomerTrait;
+    use HasStripeCustomerTrait, HasAvatarTrait;
 
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_user.png';
     const SOMEONE_AVATAR = '/bundles/civixfront/img/default_someone.png';
@@ -156,31 +161,6 @@ class User implements UserInterface, \Serializable, OfficialInterface, HasAvatar
      * @Assert\NotBlank(groups={"registration", "profile"})
      */
     private $zip;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="avatar", type="string", length=255, nullable=true)
-     * @Serializer\Expose()
-     * @Serializer\Type("Avatar")
-     * @Serializer\Groups({"api-profile", "api-info", "api-petitions-list", "api-petitions-info", "api-full-info",
-     *      "api-activities", "api-search", "api-comments", "api-invites", "user-list"})
-     * @Serializer\Accessor(getter="getAvatarWithPath")
-     */
-    private $avatarFileName;
-
-    /**
-     * @Vich\UploadableField(mapping="avatar_image", fileNameProperty="avatarFileName")
-     */
-    private $avatar;
-
-    /**
-     * Property for avatar uploading
-     * Can be an url or a base64-encoded string
-     *
-     * @var string
-     */
-    private $avatarFile;
 
     /**
      * @var \DateTime
@@ -1008,38 +988,23 @@ class User implements UserInterface, \Serializable, OfficialInterface, HasAvatar
     }
 
     /**
-     * Set avatar.
-     *
-     * @param File|UploadedFile $avatar
-     * @return User
+     * @inheritdoc
      */
-    public function setAvatar(File $avatar)
+    public function getDefaultAvatar(): DefaultAvatarInterface
     {
-        $this->avatar = $avatar;
-
-        return $this;
+        return new FirstLetterDefaultAvatar($this->firstName);
     }
 
     /**
-     * Get avatar.
+     * @param bool $privacy
+     * @return Avatar
      *
-     * @return string
+     * @Serializer\VirtualProperty()
+     * @Serializer\Type("Avatar")
+     * @Serializer\Groups({"api-profile", "api-info", "api-petitions-list", "api-petitions-info", "api-full-info",
+     *      "api-activities", "api-search", "api-comments", "api-invites", "user-list"})
+     * @Serializer\SerializedName("avatar_file_name")
      */
-    public function getAvatar()
-    {
-        return $this->avatar;
-    }
-
-    /**
-     * Get default avatar.
-     *
-     * @return string
-     */
-    public function getDefaultAvatar()
-    {
-        return self::DEFAULT_AVATAR;
-    }
-
     public function getAvatarWithPath($privacy = false)
     {
         return new Avatar($this, $privacy);
@@ -2303,22 +2268,6 @@ class User implements UserInterface, \Serializable, OfficialInterface, HasAvatar
     }
 
     /**
-     * @param string $avatarFileName
-     */
-    public function setAvatarFileName($avatarFileName)
-    {
-        $this->avatarFileName = $avatarFileName;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAvatarFileName()
-    {
-        return $this->avatarFileName;
-    }
-
-    /**
      * Set resetPasswordAt.
      *
      * @param \DateTime $resetPasswordAt
@@ -2635,24 +2584,5 @@ class User implements UserInterface, \Serializable, OfficialInterface, HasAvatar
     public function getKarma()
     {
         return new \Civix\CoreBundle\Serializer\Type\Karma($this);
-    }
-
-    /**
-     * @return string
-     */
-    public function getAvatarFile()
-    {
-        return $this->avatarFile;
-    }
-
-    /**
-     * @param string $avatarFile
-     * @return User
-     */
-    public function setAvatarFile($avatarFile): User
-    {
-        $this->avatarFile = $avatarFile;
-
-        return $this;
     }
 }

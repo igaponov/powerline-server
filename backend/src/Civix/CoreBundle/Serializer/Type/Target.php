@@ -3,6 +3,8 @@ namespace Civix\CoreBundle\Serializer\Type;
 
 use Civix\CoreBundle\Entity\HasAvatarInterface;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Model\Avatar\DefaultAvatar;
+use Civix\CoreBundle\Model\Avatar\DefaultAvatarInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
@@ -88,8 +90,8 @@ class Target implements HasAvatarInterface
         return $this;
     }
 
-    public function getDefaultAvatar()
+    public function getDefaultAvatar(): DefaultAvatarInterface
     {
-        return User::SOMEONE_AVATAR;
+        return new DefaultAvatar(User::SOMEONE_AVATAR);
     }
 }

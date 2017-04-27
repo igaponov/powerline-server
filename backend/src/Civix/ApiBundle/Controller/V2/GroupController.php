@@ -226,10 +226,7 @@ class GroupController extends FOSRestController
         $form->submit($request->request->all());
 
         if ($form->isValid()) {
-            $this->em->persist($group);
-            $this->em->flush();
-
-            return $group;
+            return $this->manager->save($group);
         }
 
         return $form;

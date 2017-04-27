@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle;
 
 use Civix\CoreBundle\DependencyInjection\Compiler\AddAsyncEventDispatcherPass;
+use Civix\CoreBundle\DependencyInjection\Compiler\SetUploaderFileLocatorDirsPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
@@ -13,5 +14,6 @@ class CivixCoreBundle extends Bundle
         parent::build($container);
 
         $container->addCompilerPass(new AddAsyncEventDispatcherPass());
+        $container->addCompilerPass(new SetUploaderFileLocatorDirsPass());
     }
 }

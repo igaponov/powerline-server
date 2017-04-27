@@ -2,7 +2,6 @@
 
 namespace Civix\ApiBundle\Form\Type;
 
-use Civix\ApiBundle\Form\DataTransformer\Base64EncodedStringToUploadedFileTransformer;
 use Civix\CoreBundle\Entity\Representative;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -52,11 +51,10 @@ class RepresentativeType extends AbstractType
             'description' => 'Private Email',
         ]);
         $builder->add('avatar', Type\TextareaType::class, [
+            'property_path' => 'avatarFile',
             'required' => false,
             'description' => 'Base64-encoded content',
         ]);
-        $transformer = new Base64EncodedStringToUploadedFileTransformer();
-        $builder->get('avatar')->addModelTransformer($transformer);
     }
 
     /**

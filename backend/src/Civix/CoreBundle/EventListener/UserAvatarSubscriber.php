@@ -2,8 +2,11 @@
 
 namespace Civix\CoreBundle\EventListener;
 
-use Civix\CoreBundle\Event\UserEvent;
-use Civix\CoreBundle\Event\UserEvents;
+use Civix\CoreBundle\Event\AvatarEvent;
+use Civix\CoreBundle\Event\AvatarEvents;
+use Civix\CoreBundle\Model\Avatar\DefaultAvatar;
+use Civix\CoreBundle\Model\Avatar\DefaultAvatarInterface;
+use Civix\CoreBundle\Model\Avatar\FirstLetterDefaultAvatar;
 use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
 use Psr\Log\LoggerInterface;
@@ -28,9 +31,7 @@ class UserAvatarSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            UserEvents::PRE_REGISTRATION => 'generateAvatar',
-            UserEvents::PROFILE_UPDATE => 'generateAvatar',
-            UserEvents::AVATAR_CHANGE => 'generateAvatar',
+            AvatarEvents::CHANGE => 'handleAvatar',
         ];
     }
 
@@ -40,26 +41,28 @@ class UserAvatarSubscriber implements EventSubscriberInterface
         $this->logger = $logger;
     }
 
-    public function generateAvatar(UserEvent $event)
+    public function handleAvatar(AvatarEvent $event)
     {
-        $user = $event->getUser();
-        $fileName = $user->getAvatarFile();
+        $entity = $event->getEntity();
+        $file = $entity->getAvatarFile();
 
         try {
             // new avatar
-            if ($fileName) {
-                $image = $this->generateUserAvatar($fileName);
-            // default avatar if a user has no one
-            } elseif (!$user->getAvatarFileName()) {
-                $image = $this->generateDefaultUserAvatar(substr($user->getFirstName(), 0, 1));
+            if ($file) {
+                $image = $this->generateAvatar($file);
+            // default avatar if an entity has no one
+            } elseif (!$entity->getAvatarFileName()) {
+                $image = $this->generateDefaultAvatar($entity->getDefaultAvatar());
             } else {
                 return;
             }
-            $tempFile = tempnam(sys_get_temp_dir(), 'avatar_');
+            $tempFile = tempnam('php://temp', 'avatar_');
             $image->save($tempFile, 100);
-            $image->save(__DIR__.'/img.png');
-            $file = new UploadedFile($tempFile, uniqid('avatar_', true));
-            $user->setAvatar($file);
+            $uploadedFile = new UploadedFile($tempFile, uniqid('avatar_', true));
+            $entity->setAvatar($uploadedFile);
+            // update a field to dispatch doctrine's "update" event
+            // @todo handle image in a custom event listener
+            $entity->setAvatarFileName($uploadedFile->getFilename());
         } catch (\Exception $e) {
             $this->logger->critical('Avatar uploading error.', ['exception' => $e]);
         }
@@ -69,7 +72,7 @@ class UserAvatarSubscriber implements EventSubscriberInterface
      * @param $fileName
      * @return Image
      */
-    private function generateUserAvatar($fileName)
+    private function generateAvatar($fileName)
     {
         $image = $this->manager->make($fileName);
 
@@ -77,13 +80,20 @@ class UserAvatarSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param $userName
+     * @param DefaultAvatarInterface $defaultAvatar
      * @return Image
      */
-    private function generateDefaultUserAvatar($userName)
+    private function generateDefaultAvatar(DefaultAvatarInterface $defaultAvatar)
     {
-        $avatar = new LetterAvatar($userName, 'square', self::AVATAR_WIDTH);
+        if ($defaultAvatar instanceof DefaultAvatar) {
+            $image = $this->generateAvatar($defaultAvatar->getPath());
+        } elseif ($defaultAvatar instanceof FirstLetterDefaultAvatar) {
+            $avatar = new LetterAvatar($defaultAvatar->getLetter(), 'square', self::AVATAR_WIDTH);
+            $image = $avatar->generate();
+        } else {
+            throw new \RuntimeException('Class '.get_class($defaultAvatar).' is not supported');
+        }
 
-        return $avatar->generate();
+        return $image;
     }
 }

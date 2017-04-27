@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "3d81142e59bda715b2435b56e1cb79f0",
+    "content-hash": "03379e461de97c55f1cbb31c162c8c63",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -5881,21 +5881,20 @@
         },
         {
             "name": "vich/uploader-bundle",
-            "version": "1.5.2",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dustin10/VichUploaderBundle.git",
-                "reference": "5e5fc54a0a6826b1c0f1fe3545a8b9e0f2552ae4"
+                "reference": "9fdcc6112ca7b52845604fb5f11b1e9236406a82"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dustin10/VichUploaderBundle/zipball/5e5fc54a0a6826b1c0f1fe3545a8b9e0f2552ae4",
-                "reference": "5e5fc54a0a6826b1c0f1fe3545a8b9e0f2552ae4",
+                "url": "https://api.github.com/repos/dustin10/VichUploaderBundle/zipball/9fdcc6112ca7b52845604fb5f11b1e9236406a82",
+                "reference": "9fdcc6112ca7b52845604fb5f11b1e9236406a82",
                 "shasum": ""
             },
             "require": {
                 "jms/metadata": "^1.6",
-                "ocramius/proxy-manager": "^2.0",
                 "php": "^7.0",
                 "symfony/asset": "^2.8|^3.1",
                 "symfony/dependency-injection": "^2.8|^3.1",
@@ -5910,7 +5909,7 @@
                 "doctrine/mongodb-odm": "^1.1",
                 "doctrine/orm": "^2.5",
                 "ext-sqlite3": "*",
-                "knplabs/knp-gaufrette-bundle": "^0.3",
+                "knplabs/knp-gaufrette-bundle": "^0.4",
                 "matthiasnoback/symfony-dependency-injection-test": "^2.0",
                 "mikey179/vfsstream": "^1.6",
                 "oneup/flysystem-bundle": "^1.7",
@@ -5919,7 +5918,6 @@
                 "symfony/css-selector": "^2.8|^3.1",
                 "symfony/dom-crawler": "^2.8|^3.1",
                 "symfony/form": "^2.8|^3.1",
-                "symfony/proxy-manager-bridge": "^2.8|^3.1",
                 "symfony/twig-bridge": "^2.8.10|^3.1",
                 "symfony/twig-bundle": "^2.8|^3.1",
                 "symfony/validator": "^2.8|^3.1",
@@ -5930,7 +5928,7 @@
                 "doctrine/mongodb-odm-bundle": "*",
                 "doctrine/orm": "^2.5",
                 "doctrine/phpcr-odm": "^1.0",
-                "knplabs/knp-gaufrette-bundle": "^0.3",
+                "knplabs/knp-gaufrette-bundle": "^0.4",
                 "symfony/yaml": "^2.8|^3.1",
                 "willdurand/propel-eventdispatcher-bundle": "^1.2"
             },
@@ -5961,7 +5959,7 @@
                 "file uploads",
                 "upload"
             ],
-            "time": "2017-03-03T15:01:00+00:00"
+            "time": "2017-04-10 07:02:55"
         },
         {
             "name": "willdurand/geocoder",
@@ -8121,7 +8119,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "excelwebzone/recaptcha-bundle": 20
+        "excelwebzone/recaptcha-bundle": 20,
+        "vich/uploader-bundle": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

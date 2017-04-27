@@ -9,6 +9,8 @@ use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Entity\UserGroupManager;
 use Civix\CoreBundle\Entity\UserPetition;
+use Civix\CoreBundle\Event\AvatarEvent;
+use Civix\CoreBundle\Event\AvatarEvents;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
 use Civix\CoreBundle\Event\GroupUserEvent;
@@ -68,6 +70,17 @@ class GroupManager
 
         $event = new GroupEvent($group);
         $this->dispatcher->dispatch(GroupEvents::CREATED, $event);
+    }
+
+    public function save(Group $group)
+    {
+        $event = new AvatarEvent($group);
+        $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
+
+        $this->em->persist($group);
+        $this->em->flush();
+
+        return $group;
     }
 
     public function delete(Group $group)

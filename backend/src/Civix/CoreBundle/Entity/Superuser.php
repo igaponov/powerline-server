@@ -2,6 +2,8 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\CoreBundle\Model\Avatar\DefaultAvatarInterface;
+use Civix\CoreBundle\Model\Avatar\FirstLetterDefaultAvatar;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use JMS\Serializer\Annotation as Serializer;
@@ -251,11 +253,11 @@ class Superuser implements UserInterface, HasAvatarInterface, PasswordEncodeInte
     /**
      * Get default avatar.
      *
-     * @return string
+     * @return DefaultAvatarInterface
      */
-    public function getDefaultAvatar()
+    public function getDefaultAvatar(): DefaultAvatarInterface
     {
-        return self::DEFAULT_AVATAR;
+        return new FirstLetterDefaultAvatar($this->officialTitle);
     }
 
     /**

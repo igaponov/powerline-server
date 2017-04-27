@@ -3,7 +3,8 @@
 namespace Civix\ApiBundle\Controller;
 
 use Civix\ApiBundle\Form\Type\UserUpdateType;
-use Civix\CoreBundle\Event\UserEvent;
+use Civix\CoreBundle\Event\AvatarEvent;
+use Civix\CoreBundle\Event\AvatarEvents;
 use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Event\UserFollowEvent;
 use Civix\CoreBundle\Service\User\UserManager;
@@ -409,8 +410,8 @@ class ProfileController extends BaseController
         if ($request->get('avatar_file_name')) {
             $user->setAvatarFile($request->get('avatar_file_name'));
             try {
-                $event = new UserEvent($user);
-                $this->dispatcher->dispatch(UserEvents::AVATAR_CHANGE, $event);
+                $event = new AvatarEvent($user);
+                $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
             } catch (\Exception $e) {
                 $this->get('logger')->addError($e->getMessage());
             }

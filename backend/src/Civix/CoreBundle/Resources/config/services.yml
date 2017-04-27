@@ -14,3 +14,18 @@ services:
         class: Intervention\Image\ImageManager
         arguments:
             - { driver: gd }
+
+    civix_core.cicero_api:
+        class: Civix\CoreBundle\Service\CiceroApi
+        arguments:
+            - '@civix_core.cicero_calls'
+            - '@doctrine.orm.entity_manager'
+            - '@civix_core.congress_api'
+            - '@civix_core.openstates_api'
+            - '@event_dispatcher'
+
+#    civix_core.uploader.metadata.file_locator:
+#        class: Metadata\Driver\FileLocator
+#        public: false
+#        arguments: [[]]
+#        decorates: vich_uploader.metadata.file_locator
