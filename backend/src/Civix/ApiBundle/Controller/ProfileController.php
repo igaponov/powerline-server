@@ -3,10 +3,12 @@
 namespace Civix\ApiBundle\Controller;
 
 use Civix\ApiBundle\Form\Type\UserUpdateType;
+use Civix\Component\ContentConverter\ConverterInterface;
 use Civix\CoreBundle\Event\AvatarEvent;
 use Civix\CoreBundle\Event\AvatarEvents;
 use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Event\UserFollowEvent;
+use Civix\CoreBundle\Model\TempFile;
 use Civix\CoreBundle\Service\User\UserManager;
 use FOS\RestBundle\Controller\Annotations\View;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -37,6 +39,12 @@ class ProfileController extends BaseController
      * @DI\Inject("civix_core.user_manager")
      */
     private $manager;
+
+    /**
+     * @var ConverterInterface
+     * @DI\Inject("civix_core.content_converter")
+     */
+    private $converter;
 
     /**
      * Deprecated, use `GET /api/v2/user` instead
@@ -408,7 +416,8 @@ class ProfileController extends BaseController
         }
 
         if ($request->get('avatar_file_name')) {
-            $user->setAvatarFile($request->get('avatar_file_name'));
+            $content = $this->converter->convert($request->get('avatar_file_name'));
+            $user->setAvatar(new TempFile($content));
             try {
                 $event = new AvatarEvent($user);
                 $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);

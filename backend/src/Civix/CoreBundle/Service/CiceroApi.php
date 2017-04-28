@@ -2,11 +2,13 @@
 
 namespace Civix\CoreBundle\Service;
 
+use Civix\Component\ContentConverter\ConverterInterface;
 use Civix\CoreBundle\Entity\CiceroRepresentative;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\District;
 use Civix\CoreBundle\Event\AvatarEvent;
 use Civix\CoreBundle\Event\AvatarEvents;
+use Civix\CoreBundle\Model\TempFile;
 use Civix\CoreBundle\Service\API\ServiceApi;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -30,6 +32,10 @@ class CiceroApi extends ServiceApi
      */
     private $openstatesService;
     /**
+     * @var ConverterInterface
+     */
+    private $converter;
+    /**
      * @var EventDispatcherInterface
      */
     private $dispatcher;
@@ -39,12 +45,14 @@ class CiceroApi extends ServiceApi
         EntityManager $entityManager,
         CongressApi $congress,
         OpenstatesApi $openstates,
+        ConverterInterface $converter,
         EventDispatcherInterface $dispatcher
     ) {
         $this->ciceroService = $ciceroService;
         $this->entityManager = $entityManager;
         $this->congressService = $congress;
         $this->openstatesService = $openstates;
+        $this->converter = $converter;
         $this->dispatcher = $dispatcher;
     }
 
@@ -172,7 +180,10 @@ class CiceroApi extends ServiceApi
         $representative->setFirstName(trim($response->first_name));
         $representative->setLastName(trim($response->last_name));
         $representative->setOfficialTitle(trim($response->office->title));
-        $representative->setAvatarFile($response->photo_origin_url);
+        if ($response->photo_origin_url) {
+            $content = $this->converter->convert($response->photo_origin_url);
+            $representative->setAvatar(new TempFile($content));
+        }
 
         //create district
         $representativeDistrict = $this->createDistrict($response->office->district);

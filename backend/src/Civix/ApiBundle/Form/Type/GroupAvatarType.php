@@ -3,7 +3,6 @@ namespace Civix\ApiBundle\Form\Type;
 
 use Civix\CoreBundle\Entity\Group;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -16,8 +15,7 @@ class GroupAvatarType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('avatar', TextareaType::class, [
-            'property_path' => 'avatarFile',
+        $builder->add('avatar', EncodedFileType::class, [
             'required' => false,
             'description' => 'Base64-encoded content',
         ]);

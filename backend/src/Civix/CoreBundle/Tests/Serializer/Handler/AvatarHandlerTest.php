@@ -41,9 +41,6 @@ class AvatarHandlerTest extends HandlerTestCase
     public function testSerializeDefault()
     {
         $user = new User();
-        $this->assertSerialization(
-            'http://'.$this->getContainer()->getParameter('hostname').User::DEFAULT_AVATAR,
-            $user->getAvatarWithPath()
-        );
+        $this->assertSerialization(null, $user->getAvatarWithPath());
     }
 }

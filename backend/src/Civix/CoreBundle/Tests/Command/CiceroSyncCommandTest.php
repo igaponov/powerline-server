@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Tests\Command;
 
+use Civix\Component\ContentConverter\ConverterInterface;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Service\CiceroApi;
 use Civix\ApiBundle\Tests\WebTestCase;
@@ -296,6 +297,7 @@ class CiceroSyncCommandTest extends WebTestCase
             ->getMock();
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $converter = $this->createMock(ConverterInterface::class);
 
         /** @var \PHPUnit_Framework_MockObject_MockObject|CiceroApi $mock */
         $mock = new CiceroApi(
@@ -303,6 +305,7 @@ class CiceroSyncCommandTest extends WebTestCase
             $container->get('doctrine')->getManager(),
             $congressMock,
             $openStateServiceMock,
+            $converter,
             $dispatcher
         );
 

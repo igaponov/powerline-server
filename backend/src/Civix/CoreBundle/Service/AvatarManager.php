@@ -9,6 +9,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AvatarManager
 {
+    const AVATAR_WIDTH = 256;
+    const AVATAR_HEIGHT = 256;
+
     /**
      * @var EntityManager
      */

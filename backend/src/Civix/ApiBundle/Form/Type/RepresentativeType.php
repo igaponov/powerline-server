@@ -50,8 +50,7 @@ class RepresentativeType extends AbstractType
             'property_path' => 'privateEmail',
             'description' => 'Private Email',
         ]);
-        $builder->add('avatar', Type\TextareaType::class, [
-            'property_path' => 'avatarFile',
+        $builder->add('avatar', EncodedFileType::class, [
             'required' => false,
             'description' => 'Base64-encoded content',
         ]);
@@ -71,7 +70,7 @@ class RepresentativeType extends AbstractType
     {
         $resolver->setDefaults(array(
             'data_class' => Representative::class,
-            'validation_groups' => ['registration'],
+            'validation_groups' => ['registration', 'avatar'],
             'csrf_protection' => false,
         ));
     }

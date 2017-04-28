@@ -117,12 +117,7 @@ class UserRepresentativeController extends FOSRestController
     public function postAction(Request $request)
     {
         $representative = new Representative($this->getUser());
-        $form = $this->createForm(
-            RepresentativeType::class,
-            $representative, [
-                'validation_groups' => 'registration',
-            ]
-        );
+        $form = $this->createForm(RepresentativeType::class, $representative);
         $form->submit($request->request->all());
 
         if ($form->isValid()) {

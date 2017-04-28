@@ -12,8 +12,6 @@ trait HasAvatarTrait
      * @var string
      *
      * @ORM\Column(name="avatar_file_name", type="string", length=255, nullable=true)
-     * @Serializer\Expose()
-     * @Serializer\Type("Avatar")
      */
     protected $avatarFileName;
 
@@ -22,18 +20,11 @@ trait HasAvatarTrait
      *
      * @Assert\File(
      *     maxSize="10M",
-     *     mimeTypes={"image/png", "image/jpeg", "image/jpg"}
+     *     mimeTypes={"image/png", "image/jpeg", "image/jpg"},
+     *     groups={"avatar"}
      * )
      */
     protected $avatar;
-
-    /**
-     * Property for avatar uploading
-     * Can be an url or a base64-encoded string
-     *
-     * @var string
-     */
-    protected $avatarFile;
 
     /**
      * @param string $avatarFileName
@@ -75,24 +66,5 @@ trait HasAvatarTrait
     public function getAvatar()
     {
         return $this->avatar;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getAvatarFile()
-    {
-        return $this->avatarFile;
-    }
-
-    /**
-     * @param string|null $avatarFile
-     * @return $this|HasAvatarInterface
-     */
-    public function setAvatarFile(string $avatarFile = null): HasAvatarInterface
-    {
-        $this->avatarFile = $avatarFile;
-
-        return $this;
     }
 }

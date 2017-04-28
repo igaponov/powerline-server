@@ -2,7 +2,9 @@
 
 namespace Civix\ApiBundle\Security\Core;
 
+use Civix\Component\ContentConverter\ConverterInterface;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Model\TempFile;
 use Civix\CoreBundle\Service\User\UserManager;
 use HWI\Bundle\OAuthBundle\OAuth\Response\UserResponseInterface;
 use HWI\Bundle\OAuthBundle\Security\Core\User\OAuthAwareUserProviderInterface;
@@ -29,16 +31,26 @@ class ApiUserProvider implements UserProviderInterface, OAuthAwareUserProviderIn
     protected $properties = array(
         'identifier' => 'id',
     );
+    /**
+     * @var ConverterInterface
+     */
+    private $converter;
 
     /**
      * @param EntityManager $em
      * @param UserManager $userManager
+     * @param ConverterInterface $converter
      * @param array $properties
      */
-    public function __construct(EntityManager $em, UserManager $userManager, array $properties)
-    {
+    public function __construct(
+        EntityManager $em,
+        UserManager $userManager,
+        ConverterInterface $converter,
+        array $properties
+    ) {
         $this->em = $em;
         $this->userManager = $userManager;
+        $this->converter = $converter;
         $this->properties = array_merge($this->properties, $properties);
     }
 
@@ -117,7 +129,10 @@ class ApiUserProvider implements UserProviderInterface, OAuthAwareUserProviderIn
             $user->setPassword(sha1(uniqid('pass', true)));
             $user->{'set'.ucfirst($property)}($username);
             $user->{'set'.ucfirst($propertySecret)}($response->getTokenSecret());
-            $user->setAvatarFile($response->getProfilePicture());
+            if ($response->getProfilePicture()) {
+                $content = $this->converter->convert($response->getProfilePicture());
+                $user->setAvatar(new TempFile($content));
+            }
         }
 
         $this->userManager->register($user);

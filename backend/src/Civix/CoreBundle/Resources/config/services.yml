@@ -22,7 +22,21 @@ services:
             - '@doctrine.orm.entity_manager'
             - '@civix_core.congress_api'
             - '@civix_core.openstates_api'
+            - '@civix_core.content_converter'
             - '@event_dispatcher'
+
+    civix_core.converter_source.base64:
+        class: Civix\Component\ContentConverter\Source\Base64
+
+    civix_core.converter_source.url:
+        class: Civix\Component\ContentConverter\Source\Url
+
+    civix_core.content_converter:
+        class: Civix\Component\ContentConverter\Converter
+        arguments:
+            - "@civix_core.converter_source.base64"
+            - "@civix_core.converter_source.url"
+
 
 #    civix_core.uploader.metadata.file_locator:
 #        class: Metadata\Driver\FileLocator

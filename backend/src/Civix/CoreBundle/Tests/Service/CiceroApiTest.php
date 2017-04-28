@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Tests\Service;
 
+use Civix\Component\ContentConverter\ConverterInterface;
 use Civix\CoreBundle\Event\AvatarEvent;
 use Civix\CoreBundle\Event\AvatarEvents;
 use Civix\CoreBundle\Service\CiceroApi;
@@ -78,6 +79,7 @@ class CiceroApiTest extends WebTestCase
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher->expects($this->never())->method('dispatch');
+        $converter = $this->createMock(ConverterInterface::class);
 
         /** @var \PHPUnit_Framework_MockObject_MockObject|CiceroApi $mock */
         $mock = $this->getMockBuilder('Civix\CoreBundle\Service\CiceroApi')
@@ -87,6 +89,7 @@ class CiceroApiTest extends WebTestCase
                 static::$kernel->getContainer()->get('doctrine')->getManager(),
                 $congressMock,
                 $openstatesApi,
+                $converter,
                 $dispatcher
             ])
             ->getMock();
@@ -147,11 +150,14 @@ class CiceroApiTest extends WebTestCase
             ->method('dispatch')
             ->with(AvatarEvents::CHANGE, $this->isInstanceOf(AvatarEvent::class));
 
+        $converter = $this->createMock(ConverterInterface::class);
+
         $ciceroApi = new CiceroApi(
             $ciceroCallsMock,
             $em,
             $congressMock,
             $openstatesApi,
+            $converter,
             $dispatcher
         );
 

@@ -47,7 +47,7 @@ services:
                 - { name: kernel.event_subscriber }
 
     civix_core.event_listener.user_avatar_subscriber:
-        class: Civix\CoreBundle\EventListener\UserAvatarSubscriber
+        class: Civix\CoreBundle\EventListener\AvatarSubscriber
         arguments: ['@civix_core.image_manager', '@logger']
         tags:
             - { name: kernel.event_subscriber }
