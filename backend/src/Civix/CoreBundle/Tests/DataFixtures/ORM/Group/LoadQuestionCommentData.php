@@ -37,10 +37,13 @@ class LoadQuestionCommentData extends AbstractFixture implements ContainerAwareI
                 $this->getReference('group_question_1')
             )
         );
-        $this->createComment(
-            $this->getReference('user_3'),
-            $this->getReference('group_question_1'),
-            $this->getReference('question_comment_1')
+        $this->addReference(
+            'question_comment_2',
+            $this->createComment(
+                $this->getReference('user_3'),
+                $this->getReference('group_question_1'),
+                $this->getReference('question_comment_1')
+            )
         );
         $this->addReference(
             'question_comment_3',

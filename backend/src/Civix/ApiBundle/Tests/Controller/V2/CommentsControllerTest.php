@@ -32,11 +32,31 @@ abstract class CommentsControllerTest extends WebTestCase
         parent::tearDown();
     }
 
-    public function getComments(CommentedInterface $entity, $count)
+    public function getComments(CommentedInterface $entity, array $comments, array $params = [])
     {
         $client = $this->client;
         $uri = str_replace('{id}', $entity->getId(), $this->getApiEndpoint());
-        $client->request('GET', $uri, [], [],
+        $client->request('GET', $uri, $params, [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame(1, $data['page']);
+        $this->assertSame(20, $data['items']);
+        $this->assertSame(count($comments), $data['totalItems']);
+        $this->assertCount(count($comments), $data['payload']);
+        foreach ($data['payload'] as $k => $item) {
+            $this->assertEquals($comments[$k]->getId(), $item['id']);
+        }
+    }
+
+    public function getChildComments(BaseComment $comment, $count)
+    {
+        $client = $this->client;
+        $entity = $comment->getCommentedEntity();
+        $uri = str_replace('{id}', $entity->getId(), $this->getApiEndpoint());
+        $client->request('GET', $uri, ['parent' => $comment->getId()], [],
             ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
         );
         $response = $client->getResponse();

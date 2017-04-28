@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
+use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\Post\Comment;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -16,7 +17,9 @@ class LoadPostCommentData extends AbstractFixture implements DependentFixtureInt
     {
         $user1 = $this->getReference('user_1');
         $user2 = $this->getReference('user_2');
+        /** @var Post $post1 */
         $post1 = $this->getReference('post_1');
+        /** @var Post $post5 */
         $post5 = $this->getReference('post_5');
 
         $comment1 = new Comment();
@@ -39,6 +42,7 @@ class LoadPostCommentData extends AbstractFixture implements DependentFixtureInt
         $comment3->setCommentBodyHtml("<div>Comment Body HTML 3</div>");
         $comment3->setPost($post5);
         $comment3->setUser($user2);
+        $comment3->setParentComment($comment2);
         $manager->persist($comment3);
 
         $manager->flush();

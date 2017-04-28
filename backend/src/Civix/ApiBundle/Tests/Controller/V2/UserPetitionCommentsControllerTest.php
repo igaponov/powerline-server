@@ -24,7 +24,35 @@ class UserPetitionCommentsControllerTest extends CommentsControllerTest
         ])->getReferenceRepository();
         /** @var CommentedInterface $entity */
         $entity = $repository->getReference('user_petition_5');
-        $this->getComments($entity, 2);
+        $comments = [
+            $repository->getReference('petition_comment_2'),
+            $repository->getReference('petition_comment_3'),
+        ];
+        $this->getComments($entity, $comments);
+    }
+
+    public function testGetFilteredComments()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserPetitionCommentData::class,
+        ])->getReferenceRepository();
+        /** @var CommentedInterface $entity */
+        $entity = $repository->getReference('user_petition_5');
+        $comments = [
+            $repository->getReference('petition_comment_2'),
+            $repository->getReference('petition_comment_3'),
+        ];
+        $this->getComments($entity, $comments, ['sort' => 'createdAt', 'sort_dir' => 'DESC']);
+    }
+
+    public function testGetChildComments()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserPetitionCommentData::class,
+        ])->getReferenceRepository();
+        /** @var BaseComment $entity */
+        $entity = $repository->getReference('petition_comment_2');
+        $this->getChildComments($entity, 1);
     }
 
     public function testGetCommentsWithWrongCredentialsThrowsException()
