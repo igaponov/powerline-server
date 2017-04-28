@@ -15,6 +15,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Route("/user-petitions/{id}/comments")
@@ -38,9 +39,11 @@ class UserPetitionCommentsController extends AbstractCommentsController
      * @Route("", requirements={"id"="\d+"})
      * @Method("GET")
      *
-     * @QueryParam(name="page", requirements="\d+", default="1")
-     * @QueryParam(name="per_page", requirements="(10|20)", default="20")
      * @QueryParam(name="parent", requirements="\d+", description="Returns child comments for given parent")
+     * @QueryParam(name="page", requirements="\d+", default="1")
+     * @QueryParam(name="per_page", requirements=@Assert\Range(min="1", max="20"), default="20")
+     * @QueryParam(name="sort", requirements="(default|createdAt)", default="default")
+     * @QueryParam(name="sort_dir", requirements="(ASC|DESC)", default="ASC")
      *
      * @ParamConverter("entity", class="Civix\CoreBundle\Entity\UserPetition")
      *

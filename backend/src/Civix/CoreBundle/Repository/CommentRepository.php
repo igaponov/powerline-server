@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Repository;
 
+use Civix\CoreBundle\Entity\BaseComment;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -14,7 +15,7 @@ abstract class CommentRepository extends EntityRepository
     {
         $commentEntityField = 'com.'.$this->getCommentEntityField();
         $comments = new ArrayCollection();
-        $commentsObjs = $this->getEntityManager()->createQueryBuilder()
+        $commentsObjects = $this->getEntityManager()->createQueryBuilder()
             ->select('com, u, q, r.rateValue ')
             ->from($this->getEntityName(), 'com')
             ->leftJoin('com.user', 'u')
@@ -27,7 +28,8 @@ abstract class CommentRepository extends EntityRepository
             ->getQuery()
             ->getResult();
 
-        foreach ($commentsObjs as $comment) {
+        foreach ($commentsObjects as $comment) {
+            /** @var BaseComment[] $comment */
             $comment[0]->setRateStatus($comment['rateValue']);
             $comment[0]->setIsOwner($comment[0]->getUser() === $user);
             $comments->add($comment[0]);
@@ -44,10 +46,11 @@ abstract class CommentRepository extends EntityRepository
     /**
      * @param $entity
      * @param $user
+     * @param array $orderBy
      * @param null|integer $parent
      * @return \Doctrine\ORM\Query
      */
-    public function getCommentsByEntityQuery($entity, $user, $parent = null)
+    public function getCommentsByEntityQuery($entity, $user, $orderBy = [], $parent = null)
     {
         $commentEntityField = 'com.'.$this->getCommentEntityField();
         $qb = $this->createQueryBuilder('com')
@@ -56,9 +59,16 @@ abstract class CommentRepository extends EntityRepository
             ->leftJoin($commentEntityField, 'q')
             ->leftJoin('com.rates', 'r', Join::WITH, 'r.user = :user')
             ->where('q = :entity')
-            ->orderBy('parent, com.id', 'ASC')
             ->setParameter('user', $user)
             ->setParameter('entity', $entity);
+        foreach ($orderBy as $sort => $order) {
+            if ($sort === 'default') {
+                $sort = 'parent, com.id';
+            } else {
+                $sort = 'com.'.$sort;
+            }
+            $qb->addOrderBy($sort, $order);
+        }
         if ($parent) {
             $qb->andWhere('com.parentComment = :parent')
                 ->setParameter(':parent', $parent);
