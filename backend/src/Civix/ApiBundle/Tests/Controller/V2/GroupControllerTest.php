@@ -48,7 +48,7 @@ class GroupControllerTest extends WebTestCase
         parent::tearDown();
     }
 
-	public function testgetGroupsRequestIsOk()
+	public function testGetGroupsRequestIsOk()
 	{
         $this->loadFixtures([
             LoadGroupData::class,
@@ -96,7 +96,7 @@ class GroupControllerTest extends WebTestCase
         }
     }
 
-	public function testgetGroupsRequestSortedByPopularityIsOk()
+	public function testGetGroupsRequestSortedByPopularityIsOk()
 	{
         $this->loadFixtures([
             LoadUserGroupData::class,
@@ -108,7 +108,7 @@ class GroupControllerTest extends WebTestCase
         $this->assertSame('group1', $data['payload'][0]['official_name']);
     }
 
-	public function testgetGroupsRequestExcludeOwnedAndSortedByCreatedAtIsOk()
+	public function testGetGroupsRequestExcludeOwnedAndSortedByCreatedAtIsOk()
 	{
         $this->loadFixtures([
             LoadUserGroupOwnerData::class,
@@ -130,7 +130,7 @@ class GroupControllerTest extends WebTestCase
 		}
 	}
 
-	public function testgetGroupsRequestExcludeOwnedAndSortedByPopularityIsOk()
+	public function testGetGroupsRequestExcludeOwnedAndSortedByPopularityIsOk()
 	{
         $this->loadFixtures([
             LoadUserGroupOwnerData::class,
@@ -297,7 +297,7 @@ class GroupControllerTest extends WebTestCase
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
         $storage = $client->getContainer()->get('civix_core.storage.array');
-        $this->assertCount(1, $storage->getFiles('avatar_image_fs'));
+        $this->assertCount(1, $storage->getFiles('avatar_group_fs'));
         $this->assertNotEquals($filePath, $data['avatar_file_path']);
 	}
 
@@ -317,7 +317,7 @@ class GroupControllerTest extends WebTestCase
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
         $storage = $client->getContainer()->get('civix_core.storage.array');
-        $this->assertCount(1, $storage->getFiles('avatar_image_fs'));
+        $this->assertCount(1, $storage->getFiles('avatar_group_fs'));
         $this->assertNotEquals($filePath, $data['avatar_file_path']);
 	}
 
@@ -344,12 +344,15 @@ class GroupControllerTest extends WebTestCase
         $client = $this->client;
         $storage = $client->getContainer()->get('civix_core.storage.array');
         $file = new UploadedFile(__DIR__.'/../../data/image.png', uniqid());
-        $storage->addFile($file, 'avatar_image_fs', $group->getAvatarFileName());
+        $storage->addFile($file, 'avatar_group_fs', $group->getAvatarFileName());
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user1"'];
         $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId().'/avatar', [], [], $headers);
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
-        $this->assertCount(0, $storage->getFiles('avatar_image_fs'));
+        $files = $storage->getFiles('avatar_group_fs');
+        $this->assertCount(1, $files);
+        $newFile = reset($files);
+        $this->assertNotEquals($file, $newFile);
     }
 
 	public function testGetGroupUsersIsEmpty()

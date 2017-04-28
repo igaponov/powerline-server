@@ -105,7 +105,6 @@ class UserFollowerControllerTest extends WebTestCase
         $this->assertEquals($follower->getFirstName(), $data['first_name']);
         $this->assertEquals($follower->getLastName(), $data['last_name']);
         $this->assertEquals($follower->getFullName(), $data['full_name']);
-        $this->assertContains(User::DEFAULT_AVATAR, $data['avatar_file_name']);
         $this->assertEquals($follower->getBirth(), new \DateTime($data['birth']));
         $this->assertEquals($follower->getCity(), $data['city']);
         $this->assertEquals($follower->getState(), $data['state']);
@@ -115,6 +114,7 @@ class UserFollowerControllerTest extends WebTestCase
         $this->assertEquals($follower->getBio(), $data['bio']);
         $this->assertEquals($follower->getSlogan(), $data['slogan']);
         $this->assertEquals($follower->getInterests(), $data['interests']);
+        $this->assertEmpty($data['avatar_file_name']);
         $this->assertArrayHasKey('date_create', $data);
         $this->assertArrayHasKey('date_approval', $data);
     }
@@ -139,12 +139,12 @@ class UserFollowerControllerTest extends WebTestCase
         $this->assertEquals($follower->getUsername(), $data['username']);
         $this->assertEquals($follower->getFirstName(), $data['first_name']);
         $this->assertEquals($follower->getLastName(), $data['last_name']);
-        $this->assertContains(User::DEFAULT_AVATAR, $data['avatar_file_name']);
         $this->assertEquals($follower->getBirth(), new \DateTime($data['birth']));
         $this->assertEquals($follower->getCountry(), $data['country']);
         $this->assertEquals($follower->getBio(), $data['bio']);
         $this->assertEquals($follower->getSlogan(), $data['slogan']);
         $this->assertEquals($follower->getInterests(), $data['interests']);
+        $this->assertEmpty($data['avatar_file_name']);
         $this->assertArrayHasKey('date_create', $data);
         $this->assertArrayHasKey('date_approval', $data);
     }

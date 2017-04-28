@@ -5,7 +5,6 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Report\UserReport;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Service\CiceroApi;
-use Civix\CoreBundle\Service\CropImage;
 use Civix\CoreBundle\Service\FacebookApi;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
@@ -14,7 +13,6 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Faker\Factory;
-use Geocoder\Exception\NoResult;
 use Geocoder\Geocoder;
 use Geocoder\Model\Address;
 use Geocoder\Model\AddressCollection;
@@ -115,11 +113,12 @@ class SecureControllerTest extends WebTestCase
 		$expectedErrors = [
 			'username' => 'This value should not be blank.',
 			'password' => 'This value should not be blank.',
-			'firstName' => 'This value should not be blank.',
-			'lastName' => 'This value should not be blank.',
+			'first_name' => 'This value should not be blank.',
+			'last_name' => 'This value should not be blank.',
 			'zip' => 'This value should not be blank.',
 			'email' => 'This value is not a valid email address.',
 		];
+		$this->assertCount(count($expectedErrors), $errors);
 		foreach ($errors as $error) {
 			$this->assertEquals($expectedErrors[$error['property']], $error['message']);
 		}
@@ -139,7 +138,7 @@ class SecureControllerTest extends WebTestCase
 	public function testRegistrationIsOk()
 	{
 		$faker = Factory::create();
-        $path = 'http://example.com/image.jpg';
+        $path = __DIR__.'/../data/image.png';
         $data = [
 			'username' => 'testUser1',
 			'first_name' => $faker->firstName,
@@ -156,18 +155,7 @@ class SecureControllerTest extends WebTestCase
             'avatar_file_name' => $path,
 		];
 		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
-		$service = $this->getMockBuilder(CropImage::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['rebuildImage'])
-            ->getMock();
-		$service->expects($this->once())
-            ->method('rebuildImage')
-            ->with($this->anything(), $path)
-            ->willReturnCallback(function ($tempFile) {
-                return file_put_contents($tempFile, file_get_contents(__DIR__.'/../data/image.png'));
-            });
         $container = $client->getContainer();
-        $container->set('civix_core.crop_image', $service);
         $service = $this->getMockBuilder(CiceroApi::class)
             ->disableOriginalConstructor()
             ->setMethods(['getRepresentativesByLocation'])
@@ -244,19 +232,28 @@ class SecureControllerTest extends WebTestCase
     public function testFacebookRegistrationWithWrongDataReturnsErrors()
     {
         $client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
-        $client->request('POST', '/api/secure/registration', [], [], [], json_encode(['email' => 'qwerty']));
+        $serviceId = 'civix_core.facebook_api';
+        $mock = $this->getMockBuilder(FacebookApi::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getFacebookId'])
+            ->getMock();
+        $mock->expects($this->any())->method('getFacebookId')->will($this->returnValue('yyy'));
+        $client->getContainer()->set($serviceId, $mock);
+        $client->request('POST', '/api/secure/registration-facebook', [], [], [], json_encode(['email' => 'qwerty']));
         $response = $client->getResponse();
         $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $errors = $data['errors'];
         $expectedErrors = [
+            null => 'Facebook token is not correct.',
+            'facebook_id' => 'This value should not be blank.',
             'username' => 'This value should not be blank.',
-            'password' => 'This value should not be blank.',
-            'firstName' => 'This value should not be blank.',
-            'lastName' => 'This value should not be blank.',
+            'first_name' => 'This value should not be blank.',
+            'last_name' => 'This value should not be blank.',
             'zip' => 'This value should not be blank.',
             'email' => 'This value is not a valid email address.',
         ];
+        $this->assertCount(count($expectedErrors), $errors);
         foreach ($errors as $error) {
             $this->assertEquals($expectedErrors[$error['property']], $error['message']);
         }
@@ -300,17 +297,13 @@ class SecureControllerTest extends WebTestCase
         $service->expects($this->once())
             ->method('getRepresentativesByLocation');
         $client->getContainer()->set('civix_core.cicero_api', $service);
-        $service = $this->createMock(Geocoder::class);
-        $service->expects($this->exactly(2))
-            ->method('geocode')
-            ->with($data['address1'].','.$data['city'].','.$data['state'].','.$data['country'])
-            ->willThrowException(new NoResult());
-        $client->getContainer()->set('bazinga_geocoder.geocoder', $service);
 		$client->request('POST', '/api/secure/registration-facebook', [], [], [], json_encode($data));
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $storage = $client->getContainer()->get('civix_core.storage.array');
+        $this->assertCount(1, $storage->getFiles('avatar_image_fs'));
 
-		$result = json_decode($response->getContent(), true);
+        $result = json_decode($response->getContent(), true);
 		$this->assertSame($data['username'], $result['username']);
 		/** @var Connection $conn */
 		$conn = $client->getContainer()->get('doctrine')->getConnection();

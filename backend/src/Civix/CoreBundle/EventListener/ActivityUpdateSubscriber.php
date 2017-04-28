@@ -23,6 +23,8 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
+            Event\UserEvents::PROFILE_UPDATE => 'updateOwnerData',
+
             Event\UserPetitionEvents::PETITION_CREATE => ['publishUserPetitionToActivity', -100],
             Event\UserPetitionEvents::PETITION_UPDATE => ['publishUserPetitionToActivity', -100],
             Event\UserPetitionEvents::PETITION_SIGN => [
@@ -102,5 +104,10 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
         ) {
             $this->activityUpdate->updateEntityRateCount($rate);
         }
+    }
+
+    public function updateOwnerData(Event\UserEvent $event)
+    {
+        $this->activityUpdate->updateOwnerData($event->getUser());
     }
 }

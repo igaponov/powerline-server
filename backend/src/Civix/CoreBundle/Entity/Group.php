@@ -3,19 +3,18 @@
 namespace Civix\CoreBundle\Entity;
 
 use Civix\CoreBundle\Entity\Group\GroupField;
+use Civix\CoreBundle\Model\Avatar\DefaultAvatar;
+use Civix\CoreBundle\Model\Avatar\DefaultAvatarInterface;
+use Civix\CoreBundle\Model\Avatar\FirstLetterDefaultAvatar;
 use Civix\CoreBundle\Serializer\Type\ContentRemaining;
 use Civix\CoreBundle\Serializer\Type\TotalMembers;
 use Civix\CoreBundle\Serializer\Type\UserRole;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Serializer\Type\Avatar;
-use Civix\CoreBundle\Model\CropAvatarInterface;
 use Civix\CoreBundle\Service\Micropetitions\PetitionManager;
 use Civix\CoreBundle\Serializer\Type\JoinStatus;
 
@@ -28,14 +27,16 @@ use Civix\CoreBundle\Serializer\Type\JoinStatus;
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\GroupRepository")
  * @ORM\HasLifecycleCallbacks()
  * @UniqueEntity(fields={"officialName"}, groups={"registration", "user-registration", "api-registration"})
- * @Vich\Uploadable
  * @Serializer\ExclusionPolicy("all")
  */
-class Group implements \Serializable, CheckingLimits, CropAvatarInterface, LeaderContentRootInterface, OfficialInterface, HasAvatarInterface
+class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface, OfficialInterface, HasAvatarInterface, ChangeableAvatarInterface
 {
-    use HasStripeAccountTrait, HasStripeCustomerTrait;
+    use HasStripeAccountTrait,
+        HasStripeCustomerTrait,
+        HasAvatarTrait;
 
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_group.png';
+    const DEFAULT_MAP_AVATAR = __DIR__.'/../Resources/public/img/pin-map-icon.png';
 
     const GROUP_TYPE_COMMON = 0;
     const GROUP_TYPE_COUNTRY = 1;
@@ -100,57 +101,6 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
      * @Serializer\Until("1")
      */
     private $groupType;
-
-    /**
-     * @Assert\File(
-     *     maxSize="10M",
-     *     mimeTypes={"image/png", "image/jpeg", "image/jpg"},
-     *     groups={"profile", "avatar"}
-     * )
-     * @Vich\UploadableField(mapping="avatar_image", fileNameProperty="avatarFileName")
-     *
-     * @var File
-     */
-    private $avatar;
-
-    /**
-     * @ORM\Column(name="avatar_file_name", type="string", nullable=true)
-     *
-     * @var string
-     */
-    private $avatarFileName;
-
-    /**
-     * @Serializer\Expose()
-     * @Serializer\Groups(
-     *      {"api-activities", "api-poll","api-groups", "api-info", "api-search",
-     *      "api-petitions-list", "api-petitions-info", "api-invites", "api-poll-public"}
-     * )
-     * @Serializer\Type("Avatar")
-     * @Serializer\Accessor(getter="getAvatarSrc")
-     *
-     * @var string
-     */
-    private $avatarFilePath;
-
-    /**
-     * @Assert\File(
-     *     maxSize="10M",
-     *     mimeTypes={"image/png", "image/jpeg", "image/pjpeg"},
-     *     groups={"profile"}
-     * )
-     * @Vich\UploadableField(mapping="avatar_source_image", fileNameProperty="avatarSourceFileName")
-     *
-     * @var File
-     */
-    private $avatarSource;
-
-    /**
-     * @ORM\Column(name="avatar_source_file_name", type="string", nullable=true)
-     *
-     * @var string
-     */
-    private $avatarSourceFileName;
 
     /**
      * @var string
@@ -570,6 +520,15 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
         ];
     }
 
+    public static function getGeoTypes()
+    {
+        return [
+            self::GROUP_TYPE_COUNTRY,
+            self::GROUP_TYPE_STATE,
+            self::GROUP_TYPE_LOCAL,
+        ];
+    }
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -637,9 +596,16 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
     /**
      * Get avatarSrc.
      *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups(
+     *      {"api-activities", "api-poll","api-groups", "api-info", "api-search",
+     *      "api-petitions-list", "api-petitions-info", "api-invites", "api-poll-public"}
+     * )
+     * @Serializer\Type("Avatar")
+     * @Serializer\SerializedName("avatar_file_path")
      * @return Avatar
      */
-    public function getAvatarSrc()
+    public function getAvatarFilePath()
     {
         return new Avatar($this);
     }
@@ -956,132 +922,17 @@ class Group implements \Serializable, CheckingLimits, CropAvatarInterface, Leade
     }
 
     /**
-     * Set avatar.
-     *
-     * @param File|UploadedFile $avatar
-     * @return Group
-     */
-    public function setAvatar(File $avatar)
-    {
-        $this->avatar = $avatar;
-
-        return $this;
-    }
-
-    /**
-     * Get avatar.
-     *
-     * @return string
-     */
-    public function getAvatar()
-    {
-        return $this->avatar;
-    }
-
-    /**
      * Get default avatar.
      *
-     * @return string
+     * @return DefaultAvatarInterface
      */
-    public function getDefaultAvatar()
+    public function getDefaultAvatar(): DefaultAvatarInterface
     {
-        return self::DEFAULT_AVATAR;
-    }
-
-    /**
-     * Set avatarFileName.
-     *
-     * @param string $avatarFileName
-     *
-     * @return Group
-     */
-    public function setAvatarFileName($avatarFileName)
-    {
-        $this->avatarFileName = $avatarFileName;
-
-        return $this;
-    }
-
-    /**
-     * Get avatarFileName.
-     *
-     * @return string
-     */
-    public function getAvatarFileName()
-    {
-        return $this->avatarFileName;
-    }
-
-    /**
-     * Set avatarSource.
-     *
-     * @param string $avatarSource
-     *
-     * @return Group
-     */
-    public function setAvatarSource($avatarSource)
-    {
-        $this->avatarSource = $avatarSource;
-
-        return $this;
-    }
-
-    /**
-     * Get avatarSource.
-     *
-     * @return string
-     */
-    public function getAvatarSource()
-    {
-        return $this->avatarSource;
-    }
-
-    /**
-     * Set avatarSourceFileName.
-     *
-     * @param string $avatarSourceFileName
-     *
-     * @return Group
-     */
-    public function setAvatarSourceFileName($avatarSourceFileName)
-    {
-        $this->avatarSourceFileName = $avatarSourceFileName;
-
-        return $this;
-    }
-
-    /**
-     * Get avatarSourceFileName.
-     *
-     * @return string
-     */
-    public function getAvatarSourceFileName()
-    {
-        return $this->avatarSourceFileName;
-    }
-
-    /**
-     * Set avatarFilePath.
-     *
-     * @param string $avatarFilePath
-     *
-     * @return Group
-     */
-    public function setAvatarFilePath($avatarFilePath)
-    {
-        $this->avatarFilePath = $avatarFilePath;
-
-        return $this;
-    }
-
-    /**
-     * Get avatarFilePath.
-     *
-     * @return string
-     */
-    public function getAvatarFilePath()
-    {
-        return $this->avatarFilePath;
+        if (in_array($this->groupType, [self::getGeoTypes()])) {
+            return new DefaultAvatar(self::DEFAULT_MAP_AVATAR);
+        } else {
+            return new FirstLetterDefaultAvatar($this->officialName);
+        }
     }
 
     /**

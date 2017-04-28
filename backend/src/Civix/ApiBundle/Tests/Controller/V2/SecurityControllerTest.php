@@ -6,11 +6,10 @@ use Buzz\Message\Request;
 use Buzz\Message\Response;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Service\CropAvatar;
+use Civix\CoreBundle\Service\CiceroApi;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Faker\Factory;
 use HWI\Bundle\OAuthBundle\OAuth\ResourceOwnerInterface;
-use JMS\Serializer\Annotation as Serializer;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class SecurityControllerTest extends WebTestCase
@@ -49,11 +48,19 @@ class SecurityControllerTest extends WebTestCase
         /** @var User $user */
         $user = $repository->getReference('user_1');
         $client = $this->client;
+        $container = $client->getContainer();
+        $service = $this->getMockBuilder(CiceroApi::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getRepresentativesByLocation'])
+            ->getMock();
+        $service->expects($this->once())
+            ->method('getRepresentativesByLocation');
+        $container->set('civix_core.cicero_api', $service);
         $httpClient = $this->getMockBuilder(ClientInterface::class)->getMock();
-        $client->getContainer()->set('hwi_oauth.http_client', $httpClient);
+        $container->set('hwi_oauth.http_client', $httpClient);
 
         /** @var ResourceOwnerInterface $resourceOwner */
-        $resourceOwner = $client->getContainer()->get('hwi_oauth.resource_owner.facebook');
+        $resourceOwner = $container->get('hwi_oauth.resource_owner.facebook');
         $token = $this->getOAuth2Token();
         $params = ['code' => uniqid()];
         $userProviderId = $user->getFacebookId();
@@ -65,7 +72,7 @@ class SecurityControllerTest extends WebTestCase
             $this->getUserInformationCallback($resourceOwner, $userProviderId)
         ));
 
-        $client->request('GET', self::API_ENDPOINT.'?'.http_build_query($params));
+        $client->request('GET', self::API_ENDPOINT, $params);
         $response = $client->getResponse();
 
         $this->assertEquals(
@@ -84,10 +91,11 @@ class SecurityControllerTest extends WebTestCase
         $faker = Factory::create();
         $client = $this->client;
         $httpClient = $this->getMockBuilder(ClientInterface::class)->getMock();
-        $client->getContainer()->set('hwi_oauth.http_client', $httpClient);
+        $container = $client->getContainer();
+        $container->set('hwi_oauth.http_client', $httpClient);
 
         /** @var ResourceOwnerInterface $resourceOwner */
-        $resourceOwner = $client->getContainer()->get('hwi_oauth.resource_owner.facebook');
+        $resourceOwner = $container->get('hwi_oauth.resource_owner.facebook');
         $token = $this->getOAuth2Token();
         $params = ['code' => uniqid()];
         $userProviderId = $faker->bothify('?#?#?#?#?#?#?#?#');
@@ -97,16 +105,15 @@ class SecurityControllerTest extends WebTestCase
         $httpClient->expects($this->at(1))->method('send')->will($this->returnCallback(
             $this->getUserInformationCallback($resourceOwner, $userProviderId)
         ));
-        $cropAvatar = $this->getMockBuilder(CropAvatar::class)
-            ->setMethods(['saveSquareAvatarFromPath'])
+        $service = $this->getMockBuilder(CiceroApi::class)
             ->disableOriginalConstructor()
+            ->setMethods(['getRepresentativesByLocation'])
             ->getMock();
-        $cropAvatar->expects($this->once())
-            ->method('saveSquareAvatarFromPath')
-            ->with($this->logicalNot($this->isEmpty()));
-        $client->getContainer()->set('civix_core.crop_avatar', $cropAvatar);
+        $service->expects($this->once())
+            ->method('getRepresentativesByLocation');
+        $container->set('civix_core.cicero_api', $service);
 
-        $client->request('GET', self::API_ENDPOINT.'?'.http_build_query($params));
+        $client->request('GET', self::API_ENDPOINT, $params);
         $response = $client->getResponse();
 
         $this->assertEquals(
@@ -118,7 +125,7 @@ class SecurityControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertNotEmpty($data['token']);
 
-        $user = $client->getContainer()->get('database_connection')->fetchColumn(
+        $user = $container->get('database_connection')->fetchColumn(
             'SELECT COUNT(*) FROM user WHERE facebook_id = ?', [$userProviderId]
         );
         $this->assertEquals(1, $user);
@@ -143,7 +150,7 @@ class SecurityControllerTest extends WebTestCase
             $this->getUserInformationCallback($resourceOwner, $userProviderId, null)
         ));
 
-        $client->request('GET', self::API_ENDPOINT.'?'.http_build_query($params));
+        $client->request('GET', self::API_ENDPOINT, $params);
         $response = $client->getResponse();
         $this->assertEquals(
             \Symfony\Component\HttpFoundation\Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -166,11 +173,19 @@ class SecurityControllerTest extends WebTestCase
         $user = $repository->getReference('user_2');
         $faker = Factory::create();
         $client = $this->client;
+        $container = $client->getContainer();
+        $service = $this->getMockBuilder(CiceroApi::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getRepresentativesByLocation'])
+            ->getMock();
+        $service->expects($this->once())
+            ->method('getRepresentativesByLocation');
+        $container->set('civix_core.cicero_api', $service);
         $httpClient = $this->getMockBuilder(ClientInterface::class)->getMock();
-        $client->getContainer()->set('hwi_oauth.http_client', $httpClient);
+        $container->set('hwi_oauth.http_client', $httpClient);
 
         /** @var ResourceOwnerInterface $resourceOwner */
-        $resourceOwner = $client->getContainer()->get('hwi_oauth.resource_owner.facebook');
+        $resourceOwner = $container->get('hwi_oauth.resource_owner.facebook');
         $token = $this->getOAuth2Token();
         $params = ['code' => uniqid()];
         $userProviderId = $faker->bothify('?#?#?#?#?#?#?#?#');
@@ -186,7 +201,7 @@ class SecurityControllerTest extends WebTestCase
             )
         ));
 
-        $client->request('GET', self::API_ENDPOINT.'?'.http_build_query($params));
+        $client->request('GET', self::API_ENDPOINT, $params);
         $response = $client->getResponse();
 
         $this->assertEquals(

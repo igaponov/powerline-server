@@ -1,9 +1,6 @@
 <?php
 namespace Civix\CoreBundle\Tests\Serializer\Handler;
 
-use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\Superuser;
-use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Serializer\Type\OwnerData;
 
 class OwnerDataHandlerTest extends HandlerTestCase
@@ -30,17 +27,15 @@ class OwnerDataHandlerTest extends HandlerTestCase
     }
 
     /**
-     * @param $avatar
      * @param $type
      * @dataProvider getOwnerTypes
      */
-    public function testSerializeDefault($avatar, $type)
+    public function testSerializeDefault($type)
     {
         $ownerData = new OwnerData(['type' => $type]);
         $this->assertSerialization(
             [
                 'type' => $type,
-                'avatar_file_path' => 'http://'.$this->getContainer()->getParameter('hostname').$avatar,
             ],
             $ownerData
         );
@@ -49,10 +44,10 @@ class OwnerDataHandlerTest extends HandlerTestCase
     public function getOwnerTypes()
     {
         return [
-            'user' => [User::DEFAULT_AVATAR, 'user'],
-            'deleted' => [User::DEFAULT_AVATAR, 'deleted'],
-            'group' => [Group::DEFAULT_AVATAR, 'group'],
-            'superuser' => [Superuser::DEFAULT_AVATAR, 'admin'],
+            'user' => ['user'],
+            'deleted' => ['deleted'],
+            'group' => ['group'],
+            'superuser' => ['admin'],
         ];
     }
 }

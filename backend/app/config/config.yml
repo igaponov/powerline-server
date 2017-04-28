@@ -111,7 +111,7 @@ knp_gaufrette:
                bucket_name: '%amazon_s3.bucket%'
                options:
                    directory: 'avatars'
-        avatar_source_image_adapter:
+        avatar_group_adapter:
             aws_s3:
                 service_id: 'aws_s3.client'
                 bucket_name: '%amazon_s3.bucket%'
@@ -138,8 +138,8 @@ knp_gaufrette:
     filesystems:
         avatar_image_fs:
             adapter: avatar_image_adapter
-        avatar_source_image_fs:
-            adapter: avatar_source_image_adapter
+        avatar_group_fs:
+            adapter: avatar_group_adapter
         avatar_representative_fs:
             adapter: avatar_representative_adapter
         educational_image_fs:
@@ -156,9 +156,9 @@ vich_uploader:
             upload_destination: avatar_image_fs
             namer: vich_uploader.namer_uniqid
             inject_on_load: true
-        avatar_source_image:
+        avatar_group:
             uri_prefix: /avatars/src
-            upload_destination: avatar_source_image_fs
+            upload_destination: avatar_group_fs
             namer: vich_uploader.namer_uniqid
             inject_on_load: true
         avatar_representative:

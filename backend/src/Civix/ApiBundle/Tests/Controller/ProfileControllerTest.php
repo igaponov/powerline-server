@@ -3,6 +3,7 @@ namespace Civix\ApiBundle\Tests\Controller;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Service\FacebookApi;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Issue\PM533;
 use Civix\CoreBundle\Service\CiceroApi;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
@@ -73,8 +74,8 @@ class ProfileControllerTest extends WebTestCase
         $service->expects($this->once())
             ->method('getRepresentativesByLocation');
         $client->getContainer()->set('civix_core.cicero_api', $service);
-		    $client->request('POST', self::API_ENDPOINT.'update', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode(array_merge($params, ['avatar_file_name' => $avatar])));
-		    $response = $client->getResponse();
+        $client->request('POST', self::API_ENDPOINT.'update', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode(array_merge($params, ['avatar_file_name' => $avatar])));
+        $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         foreach (array_keys($params) as $key) {
@@ -95,7 +96,6 @@ class ProfileControllerTest extends WebTestCase
             LoadUserData::class,
         ]);
         $params = [
-            'username' => 'user2',
             'first_name' => '',
             'last_name' => '',
             'email' => 'user2@example.com',
@@ -109,10 +109,10 @@ class ProfileControllerTest extends WebTestCase
         $this->assertCount(4, $data['errors']);
         foreach ($data['errors'] as $error) {
             switch ($error['property']) {
-                case 'firstName':
+                case 'first_name':
                     $message = 'This value should not be blank.';
                     break;
-                case 'lastName':
+                case 'last_name':
                     $message = 'This value should not be blank.';
                     break;
                 case 'zip':
@@ -142,15 +142,8 @@ class ProfileControllerTest extends WebTestCase
             'zip' => 'new-zip',
         ];
         $client = $this->client;
-        $service = $this->getMockBuilder(CiceroApi::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRepresentativesByLocation'])
-            ->getMock();
-        $service->expects($this->once())
-            ->method('getRepresentativesByLocation');
-        $client->getContainer()->set('civix_core.cicero_api', $service);
-		    $client->request('POST', self::API_ENDPOINT.'update', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode($params));
-		    $response = $client->getResponse();
+        $client->request('POST', self::API_ENDPOINT.'update', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode($params));
+        $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertSame($params['email'], $data['email']);
@@ -216,12 +209,12 @@ class ProfileControllerTest extends WebTestCase
             'avatar_file_name' => __DIR__.'/../data/image.png',
         ];
         $client = $this->client;
-        $service = $this->getServiceMockBuilder('civix_core.facebook_api')
+        $service = $this->getMockBuilder(FacebookApi::class)
             ->disableOriginalConstructor()
             ->getMock();
         $service->expects($this->once())
-            ->method('getFacebookId')
-            ->with($params['facebook_token'])
+            ->method('checkFacebookToken')
+            ->with($params['facebook_token'], $params['facebook_id'])
             ->willReturn(true);
         $client->getContainer()->set('civix_core.facebook_api', $service);
 		$client->request('POST', self::API_ENDPOINT.'link-to-facebook', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user2"'], json_encode($params));

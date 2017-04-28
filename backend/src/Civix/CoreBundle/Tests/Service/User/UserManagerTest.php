@@ -39,7 +39,6 @@ class UserManagerTest extends WebTestCase
             $em,
             $cicero,
             $this->getContainer()->get('civix_core.group_manager'),
-            $this->getContainer()->get('civix_core.crop_image'),
             $this->getContainer()->get('event_dispatcher'),
             '/'
         );

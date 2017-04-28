@@ -4,44 +4,42 @@ namespace Civix\CoreBundle\Service\Representative;
 
 use Civix\CoreBundle\Entity\CiceroRepresentative;
 use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Event\AvatarEvent;
+use Civix\CoreBundle\Event\AvatarEvents;
 use Civix\CoreBundle\Service\CiceroApi;
-use Civix\CoreBundle\Service\CiceroCalls;
-use Doctrine\ORM\EntityManager;
-use Symfony\Component\Security\Core\Encoder\EncoderFactory;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class RepresentativeManager
 {
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
     private $entityManager;
-    /**
-     * @var EncoderFactory
-     */
-    private $encoderFactory;
     /**
      * @var CiceroApi
      */
     private $ciceroStorageService;
     /**
-     * @var CiceroCalls
+     * @var EventDispatcherInterface
      */
-    private $ciceroService;
+    private $dispatcher;
 
     public function __construct(
-        EntityManager $entityManager,
-        EncoderFactory $encoder,
+        EntityManagerInterface $entityManager,
         CiceroApi $ciceroStorageService,
-        CiceroCalls $ciceroService
+        EventDispatcherInterface $dispatcher
     ) {
         $this->entityManager = $entityManager;
-        $this->encoderFactory = $encoder;
         $this->ciceroStorageService = $ciceroStorageService;
-        $this->ciceroService = $ciceroService;
+        $this->dispatcher = $dispatcher;
     }
 
     public function save(Representative $representative)
     {
+        $event = new AvatarEvent($representative);
+        $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
+
         $this->entityManager->persist($representative);
         $this->entityManager->flush();
 
@@ -109,7 +107,7 @@ class RepresentativeManager
         }
 
         $this->entityManager->persist($representative);
-        $this->entityManager->flush($representative);
+        $this->entityManager->flush();
 
         return (bool)$ciceroRepresentative;
     }

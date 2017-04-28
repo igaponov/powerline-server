@@ -89,7 +89,6 @@ class UserFollowingControllerTest extends WebTestCase
         $this->assertEquals($user->getFirstName(), $data['first_name']);
         $this->assertEquals($user->getLastName(), $data['last_name']);
         $this->assertEquals($user->getFullName(), $data['full_name']);
-        $this->assertContains(User::DEFAULT_AVATAR, $data['avatar_file_name']);
         $this->assertEquals($user->getBirth(), new \DateTime($data['birth']));
         $this->assertEquals($user->getCity(), $data['city']);
         $this->assertEquals($user->getState(), $data['state']);
@@ -99,6 +98,7 @@ class UserFollowingControllerTest extends WebTestCase
         $this->assertEquals($user->getBio(), $data['bio']);
         $this->assertEquals($user->getSlogan(), $data['slogan']);
         $this->assertEquals($user->getInterests(), $data['interests']);
+        $this->assertEmpty($data['avatar_file_name']);
         $this->assertArrayHasKey('date_create', $data);
         $this->assertArrayHasKey('date_approval', $data);
     }
@@ -123,12 +123,12 @@ class UserFollowingControllerTest extends WebTestCase
         $this->assertEquals($user->getUsername(), $data['username']);
         $this->assertEquals($user->getFirstName(), $data['first_name']);
         $this->assertEquals($user->getLastName(), $data['last_name']);
-        $this->assertContains(User::DEFAULT_AVATAR, $data['avatar_file_name']);
         $this->assertEquals($user->getBirth(), new \DateTime($data['birth']));
         $this->assertEquals($user->getCountry(), $data['country']);
         $this->assertEquals($user->getBio(), $data['bio']);
         $this->assertEquals($user->getSlogan(), $data['slogan']);
         $this->assertEquals($user->getInterests(), $data['interests']);
+        $this->assertEmpty($data['avatar_file_name']);
         $this->assertArrayHasKey('date_create', $data);
         $this->assertArrayHasKey('date_approval', $data);
     }

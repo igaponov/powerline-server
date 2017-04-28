@@ -1,23 +1,23 @@
 <?php
 namespace Civix\CoreBundle\Event;
 
-use Civix\CoreBundle\Entity\HasAvatarInterface;
+use Civix\CoreBundle\Entity\ChangeableAvatarInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 class AvatarEvent extends Event
 {
     /**
-     * @var HasAvatarInterface
+     * @var ChangeableAvatarInterface
      */
     private $entity;
 
-    public function __construct(HasAvatarInterface $entity)
+    public function __construct(ChangeableAvatarInterface $entity)
     {
         $this->entity = $entity;
     }
 
     /**
-     * @return HasAvatarInterface
+     * @return ChangeableAvatarInterface
      */
     public function getEntity()
     {

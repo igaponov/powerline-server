@@ -1,0 +1,4 @@
+Civix\CoreBundle\Entity\User:
+    avatar:
+        mapping: avatar_image
+        filename_property: avatarFileName

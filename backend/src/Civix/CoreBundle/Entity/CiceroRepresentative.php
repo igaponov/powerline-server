@@ -2,12 +2,10 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\CoreBundle\Model\Avatar\DefaultAvatarInterface;
+use Civix\CoreBundle\Model\Avatar\FirstLetterDefaultAvatar;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\Validator\Constraints as Assert;
-use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Civix\CoreBundle\Serializer\Type\Avatar;
 
 /**
@@ -20,11 +18,12 @@ use Civix\CoreBundle\Serializer\Type\Avatar;
  * })
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\CiceroRepresentativeRepository")
  * @ORM\HasLifecycleCallbacks
- * @Vich\Uploadable()
  * @Serializer\ExclusionPolicy("all")
  */
-class CiceroRepresentative implements HasAvatarInterface
+class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterface
 {
+    use HasAvatarTrait;
+
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_representative.png';
 
     /**
@@ -149,30 +148,6 @@ class CiceroRepresentative implements HasAvatarInterface
      * @ORM\Column(name="address3", type="string", length=255, nullable=true)
      */
     private $addressLine3;
-
-    /**
-     * @var string
-     * @ORM\Column(name="avatar_source_file_name", type="string", length=255)
-     */
-    private $avatarSourceFileName;
-
-    /**
-     * @Assert\File(
-     *     maxSize="10M",
-     *     mimeTypes={"image/png", "image/jpeg", "image/jpg"}
-     * )
-     * @Vich\UploadableField(mapping="avatar_representative", fileNameProperty="avatarFileName")
-     *
-     * @var UploadedFile
-     */
-    private $avatar;
-
-    /**
-     * @ORM\Column(name="avatar_file_name", type="string", nullable=true)
-     *
-     * @var string
-     */
-    private $avatarFileName;
 
     /**
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\District", cascade="persist")
@@ -636,73 +611,14 @@ class CiceroRepresentative implements HasAvatarInterface
         return $this->getDistrict()->getDistrictTypeName();
     }
 
-    public function setAvatarSourceFileName($avatarSourceFileName)
-    {
-        $this->avatarSourceFileName = $avatarSourceFileName;
-
-        return $this;
-    }
-
-    public function getAvatarSourceFileName()
-    {
-        return $this->avatarSourceFileName;
-    }
-
-    /**
-     * Set avatar.
-     *
-     * @param File|UploadedFile $avatar
-     * @return CiceroRepresentative
-     */
-    public function setAvatar(File $avatar)
-    {
-        $this->avatar = $avatar;
-
-        return $this;
-    }
-
-    /**
-     * Get avatar.
-     *
-     * @return string
-     */
-    public function getAvatar()
-    {
-        return $this->avatar;
-    }
-
     /**
      * Get default avatar.
      *
-     * @return string
+     * @return DefaultAvatarInterface
      */
-    public function getDefaultAvatar()
+    public function getDefaultAvatar(): DefaultAvatarInterface
     {
-        return self::DEFAULT_AVATAR;
-    }
-
-    /**
-     * Set avatarFileName.
-     *
-     * @param string $avatarFileName
-     *
-     * @return CiceroRepresentative
-     */
-    public function setAvatarFileName($avatarFileName)
-    {
-        $this->avatarFileName = $avatarFileName;
-
-        return $this;
-    }
-
-    /**
-     * Get avatarFileName.
-     *
-     * @return string
-     */
-    public function getAvatarFileName()
-    {
-        return $this->avatarFileName;
+        return new FirstLetterDefaultAvatar($this->firstName);
     }
 
     /**
