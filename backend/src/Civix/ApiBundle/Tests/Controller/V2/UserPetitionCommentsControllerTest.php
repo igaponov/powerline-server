@@ -27,6 +27,16 @@ class UserPetitionCommentsControllerTest extends CommentsControllerTest
         $this->getComments($entity, 2);
     }
 
+    public function testGetChildComments()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserPetitionCommentData::class,
+        ])->getReferenceRepository();
+        /** @var BaseComment $entity */
+        $entity = $repository->getReference('petition_comment_2');
+        $this->getChildComments($entity, 1);
+    }
+
     public function testGetCommentsWithWrongCredentialsThrowsException()
     {
         $repository = $this->loadFixtures([

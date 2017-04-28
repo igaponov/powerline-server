@@ -44,12 +44,13 @@ abstract class CommentRepository extends EntityRepository
     /**
      * @param $entity
      * @param $user
+     * @param null|integer $parent
      * @return \Doctrine\ORM\Query
      */
-    public function getCommentsByEntityQuery($entity, $user)
+    public function getCommentsByEntityQuery($entity, $user, $parent = null)
     {
         $commentEntityField = 'com.'.$this->getCommentEntityField();
-        $query = $this->createQueryBuilder('com')
+        $qb = $this->createQueryBuilder('com')
             ->select('com, u, q, r, IDENTITY(com.parentComment) AS HIDDEN parent')
             ->leftJoin('com.user', 'u')
             ->leftJoin($commentEntityField, 'q')
@@ -57,9 +58,12 @@ abstract class CommentRepository extends EntityRepository
             ->where('q = :entity')
             ->orderBy('parent, com.id', 'ASC')
             ->setParameter('user', $user)
-            ->setParameter('entity', $entity)
-            ->getQuery();
+            ->setParameter('entity', $entity);
+        if ($parent) {
+            $qb->andWhere('com.parentComment = :parent')
+                ->setParameter(':parent', $parent);
+        }
 
-        return $query;
+        return $qb->getQuery();
     }
 }

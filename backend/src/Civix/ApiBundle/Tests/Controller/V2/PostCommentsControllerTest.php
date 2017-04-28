@@ -27,6 +27,16 @@ class PostCommentsControllerTest extends CommentsControllerTest
         $this->getComments($entity, 1);
     }
 
+    public function testGetChildComments()
+    {
+        $repository = $this->loadFixtures([
+            LoadPostCommentData::class,
+        ])->getReferenceRepository();
+        /** @var BaseComment $entity */
+        $entity = $repository->getReference('post_comment_2');
+        $this->getChildComments($entity, 1);
+    }
+
     public function testGetCommentsWithWrongCredentialsThrowsException()
     {
         $repository = $this->loadFixtures([

@@ -28,6 +28,16 @@ class PollCommentsControllerTest extends CommentsControllerTest
         $this->getComments($entity, 3);
     }
 
+    public function testGetChildComments()
+    {
+        $repository = $this->loadFixtures([
+            LoadQuestionCommentData::class,
+        ])->getReferenceRepository();
+        /** @var BaseComment $entity */
+        $entity = $repository->getReference('question_comment_1');
+        $this->getChildComments($entity, 1);
+    }
+
     public function testGetCommentsWithWrongCredentialsThrowsException()
     {
         $repository = $this->loadFixtures([

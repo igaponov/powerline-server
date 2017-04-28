@@ -39,6 +39,7 @@ class LoadPostCommentData extends AbstractFixture implements DependentFixtureInt
         $comment3->setCommentBodyHtml("<div>Comment Body HTML 3</div>");
         $comment3->setPost($post5);
         $comment3->setUser($user2);
+        $comment3->setParentComment($comment2);
         $manager->persist($comment3);
 
         $manager->flush();

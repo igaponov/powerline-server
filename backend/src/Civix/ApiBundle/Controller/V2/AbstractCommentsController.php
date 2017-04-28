@@ -24,7 +24,7 @@ abstract class AbstractCommentsController extends FOSRestController
         $entityManager = $this->getDoctrine()->getManager();
         /** @var CommentRepository $repository */
         $repository = $entityManager->getRepository($entityClass);
-        $query = $repository->getCommentsByEntityQuery($entity, $this->getUser());
+        $query = $repository->getCommentsByEntityQuery($entity, $this->getUser(), $params->get('parent'));
 
         return $this->get('knp_paginator')->paginate(
             $query,

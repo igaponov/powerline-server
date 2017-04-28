@@ -39,6 +39,7 @@ class LoadUserPetitionCommentData extends AbstractFixture implements DependentFi
         $comment3->setCommentBodyHtml("<div>Comment Body HTML 3</div>");
         $comment3->setPetition($petition5);
         $comment3->setUser($user2);
+        $comment3->setParentComment($comment2);
         $manager->persist($comment3);
 
         $manager->flush();

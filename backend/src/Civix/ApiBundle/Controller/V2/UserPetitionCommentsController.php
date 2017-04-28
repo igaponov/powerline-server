@@ -40,6 +40,7 @@ class UserPetitionCommentsController extends AbstractCommentsController
      *
      * @QueryParam(name="page", requirements="\d+", default="1")
      * @QueryParam(name="per_page", requirements="(10|20)", default="20")
+     * @QueryParam(name="parent", requirements="\d+", description="Returns child comments for given parent")
      *
      * @ParamConverter("entity", class="Civix\CoreBundle\Entity\UserPetition")
      *

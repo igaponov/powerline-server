@@ -48,6 +48,23 @@ abstract class CommentsControllerTest extends WebTestCase
         $this->assertCount($count, $data['payload']);
     }
 
+    public function getChildComments(BaseComment $comment, $count)
+    {
+        $client = $this->client;
+        $entity = $comment->getCommentedEntity();
+        $uri = str_replace('{id}', $entity->getId(), $this->getApiEndpoint());
+        $client->request('GET', $uri, ['parent' => $comment->getId()], [],
+            ['HTTP_Authorization'=>'Bearer type="user" token="user1"']
+        );
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame(1, $data['page']);
+        $this->assertSame(20, $data['items']);
+        $this->assertSame($count, $data['totalItems']);
+        $this->assertCount($count, $data['payload']);
+    }
+
     public function getCommentsWithInvalidCredentials(CommentedInterface $entity)
     {
         $client = $this->client;
