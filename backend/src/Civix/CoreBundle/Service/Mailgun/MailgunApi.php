@@ -101,6 +101,10 @@ class MailgunApi
         $listMember = $address;
         try {
             $this->client->delete("lists/$listAddress/members/$listMember");
+        } catch (MissingEndpoint $e) {
+            // if a mailing list doesn't exist - skip removing
+            $this->logger->info($e->getMessage(), ['address' => $listAddress, 'member' => $listMember]);
+            return true;
         } catch (\Exception $e) {
             $this->logError($e, __METHOD__, ['address' => $listAddress, 'member' => $listMember]);
             return false;
