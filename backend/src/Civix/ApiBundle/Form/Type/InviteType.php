@@ -67,8 +67,9 @@ class InviteType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setRequired(['user_model'])
-            ->setAllowedTypes('user_model', User::class)
+            ->setAllowedTypes('user_model', ['null', User::class])
             ->setDefaults([
+                'user_model' => null,
                 'csrf_protection' => false,
             ]);
     }
