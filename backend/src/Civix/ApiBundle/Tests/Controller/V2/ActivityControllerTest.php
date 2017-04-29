@@ -117,6 +117,48 @@ class ActivityControllerTest extends WebTestCase
     /**
      * @QueryCount(7)
      */
+	public function testGetActivitiesFilteredByGroupIsOk()
+	{
+        $repository = $this->loadFixtures([
+            LoadActivityData::class,
+            LoadUserGroupOwnerData::class,
+        ])->getReferenceRepository();
+        $client = $this->client;
+        $group = $repository->getReference('group_1');
+        $client->request('GET', self::API_ENDPOINT, ['group' => $group->getId()], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+		$response = $client->getResponse();
+		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+		$data = json_decode($response->getContent(), true);
+		$this->assertSame(1, $data['page']);
+		$this->assertSame(20, $data['items']);
+		$this->assertSame(8, $data['totalItems']);
+		$this->assertCount(8, $data['payload']);
+	}
+
+    /**
+     * @QueryCount(7)
+     */
+	public function testGetActivitiesFilteredByGroupIsEmpty()
+	{
+        $repository = $this->loadFixtures([
+            LoadActivityData::class,
+            LoadUserGroupOwnerData::class,
+        ])->getReferenceRepository();
+        $client = $this->client;
+        $group = $repository->getReference('group_4');
+        $client->request('GET', self::API_ENDPOINT, ['group' => $group->getId()], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+		$response = $client->getResponse();
+		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+		$data = json_decode($response->getContent(), true);
+		$this->assertSame(1, $data['page']);
+		$this->assertSame(20, $data['items']);
+		$this->assertSame(0, $data['totalItems']);
+		$this->assertCount(0, $data['payload']);
+	}
+
+    /**
+     * @QueryCount(7)
+     */
 	public function testGetActivitiesIsEmpty()
 	{
         $this->loadFixtures([
