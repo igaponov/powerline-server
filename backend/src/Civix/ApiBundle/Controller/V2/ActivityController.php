@@ -33,6 +33,7 @@ class ActivityController extends FOSRestController
      * @QueryParam(name="following", requirements="\d+", description="Following user id")
      * @QueryParam(name="user", requirements="\d+", description="Another user's id")
      * @QueryParam(name="type", requirements="poll|post|petition", description="Activity types (array)", map=true)
+     * @QueryParam(name="group", requirements="\d+", description="Filter by group ID")
      * @QueryParam(name="page", requirements="\d+", default="1")
      * @QueryParam(name="per_page", requirements="(10|15|20)", default="20")
      *
@@ -78,7 +79,7 @@ class ActivityController extends FOSRestController
             } else {
                 $query = $this->getDoctrine()
                     ->getRepository('CivixCoreBundle:Activity')
-                    ->getActivitiesByFollowingQuery($userFollow->getFollower(), $userFollow->getUser(), $start, $activityTypes);
+                    ->getActivitiesByFollowingQuery($userFollow->getFollower(), $userFollow->getUser(), $start, $activityTypes, $params->get('group'));
             }
         } elseif ($params->get('user')) {
             $following = $this->getDoctrine()
@@ -88,11 +89,11 @@ class ActivityController extends FOSRestController
             } else {
                 $query = $this->getDoctrine()
                     ->getRepository('CivixCoreBundle:Activity')
-                    ->getActivitiesByFollowingQuery($user, $following, $start, $activityTypes);
+                    ->getActivitiesByFollowingQuery($user, $following, $start, $activityTypes, $params->get('group'));
             }
         } else {
             $query = $this->getDoctrine()->getRepository('CivixCoreBundle:Activity')
-                ->getActivitiesByUserQuery($user, $start, $activityTypes);
+                ->getActivitiesByUserQuery($user, $start, $activityTypes, $params->get('group'));
         }
 
         $paginator = $this->get('knp_paginator');

@@ -210,28 +210,6 @@ class ActivityRepository extends EntityRepository
     }
 
     /**
-     * return an array of activities that are read.
-     *
-     * @param User      $user
-     * @param \Datetime $start
-     * @param array     $activites
-     *
-     * @return mixed
-     */
-    public function getReadItems(User $user, \Datetime $start, array $activites)
-    {
-        $readItems = $this->getEntityManager()->getRepository(ActivityRead::class)
-            ->findLastIdsByUser($user, $start);
-        foreach ($activities as $activity) {
-            if (in_array($activity->getId(), $readItems)) {
-                $activity->setRead(true);
-            }
-        }
-
-        return $activities;
-    }
-
-    /**
      * Find activities by Following the user.
      *
      * @param User $following
@@ -421,10 +399,11 @@ class ActivityRepository extends EntityRepository
      * @param \DateTime $start
      *
      * @param null $activityTypes
+     * @param null $group
      * @return Query
      */
-    public function getActivitiesByUserQuery(User $user, \DateTime $start = null, $activityTypes = null) {
-        $qb = $this->getActivitiesByUserQueryBuilder($user, $start, $activityTypes);
+    public function getActivitiesByUserQuery(User $user, \DateTime $start = null, $activityTypes = null, $group = null) {
+        $qb = $this->getActivitiesByUserQueryBuilder($user, $start, $activityTypes, $group);
 
         $countQb = clone $qb;
         $countQb->distinct(false)
@@ -437,7 +416,7 @@ class ActivityRepository extends EntityRepository
         return $query;
     }
 
-    public function getActivitiesByUserQueryBuilder(User $user, \DateTime $start = null, $activityTypes = null)
+    public function getActivitiesByUserQueryBuilder(User $user, \DateTime $start = null, $activityTypes = null, $group = null)
     {
         /** @var $em EntityManager */
         $em = $this->getEntityManager();
@@ -453,7 +432,7 @@ class ActivityRepository extends EntityRepository
 
         $userFollowingIds = $user->getFollowingIds();
 
-        return $this->getActivitiesQueryBuilder($user, $start, $activityTypes)
+        return $this->getActivitiesQueryBuilder($user, $start, $activityTypes, $group)
             ->andWhere(
                 $expr->andX(
                     $expr->in('act.group', ':userGroupsIds'),
@@ -481,10 +460,11 @@ class ActivityRepository extends EntityRepository
      * @param User $following
      * @param \DateTime $start
      * @param null $activityTypes
+     * @param null $group
      * @return Query
      * @internal param int $followingId
      */
-    public function getActivitiesByFollowingQuery(User $user, User $following, \DateTime $start = null, $activityTypes = null)
+    public function getActivitiesByFollowingQuery(User $user, User $following, \DateTime $start = null, $activityTypes = null, $group = null)
     {
         $expr = $this->getEntityManager()->getExpressionBuilder();
         $districtsIds = $user->getDistrictsIds();
@@ -492,7 +472,7 @@ class ActivityRepository extends EntityRepository
         $activeGroups = $this->getEntityManager()->getRepository('CivixCoreBundle:UserGroup')
             ->getActiveGroupIds($user);
 
-        $qb = $this->getActivitiesQueryBuilder($following, $start, $activityTypes)
+        $qb = $this->getActivitiesQueryBuilder($following, $start, $activityTypes, $group)
             ->leftJoin('act.activityConditions', 'act_c2')
             ->andWhere(
                 $expr->andX(
@@ -524,7 +504,7 @@ class ActivityRepository extends EntityRepository
         return $query;
     }
 
-    protected function getActivitiesQueryBuilder(User $user, \DateTime $start = null, array $activityTypes = null)
+    protected function getActivitiesQueryBuilder(User $user, \DateTime $start = null, array $activityTypes = null, $group = null)
     {
         $cases = [
             'poll' => '
@@ -601,6 +581,10 @@ class ActivityRepository extends EntityRepository
             ->orderBy('zone', 'ASC') // order by priority zone
             ->addOrderBy('is_followed', 'ASC') // order by followed user
             ->addOrderBy('act.sentAt', 'DESC');
+        if ($group) {
+            $qb->andWhere('g.id = :group')
+                ->setParameter(':group', $group);
+        }
         if (isset($cases['poll'])) {
             $qb->addSelect('q', 'qa', 'qs')
                 ->leftJoin('act.question', 'q')
