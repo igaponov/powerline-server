@@ -23,7 +23,6 @@
         "jms/security-extra-bundle": "~1.6",
         "jms/di-extra-bundle": "~1.8",
 
-        "aws/aws-sdk-php": "~2.8",
         "knplabs/knp-menu-bundle": "~2.1",
         "knplabs/knp-paginator-bundle": "~2.5",
         "mopa/bootstrap-bundle": "~3.1",
@@ -47,7 +46,8 @@
         "ocramius/proxy-manager": "2.0.4",
         "oyejorge/less.php": "v1.7.0.10",
         "willdurand/geocoder-bundle": "~4.1",
-        "layershifter/tld-extract": "~1.2"
+        "layershifter/tld-extract": "~1.2",
+        "aws/aws-sdk-php-symfony": "~1.2"
     },
     "require-dev": {
         "phing/phing": "~2.16",

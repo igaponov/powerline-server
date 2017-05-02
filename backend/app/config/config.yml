@@ -107,31 +107,31 @@ knp_gaufrette:
     adapters:
         avatar_image_adapter:
             aws_s3:
-               service_id: 'aws_s3.client'
+               service_id: 'aws.s3'
                bucket_name: '%amazon_s3.bucket%'
                options:
                    directory: 'avatars'
         avatar_source_image_adapter:
             aws_s3:
-                service_id: 'aws_s3.client'
+                service_id: 'aws.s3'
                 bucket_name: '%amazon_s3.bucket%'
                 options:
                     directory: 'avatars/src'
         avatar_representative_adapter:
             aws_s3:
-                service_id: 'aws_s3.client'
+                service_id: 'aws.s3'
                 bucket_name: '%amazon_s3.bucket%'
                 options:
                     directory: 'avatars/representatives'
         educational_image_adapter:
             aws_s3:
-                service_id: 'aws_s3.client'
+                service_id: 'aws.s3'
                 bucket_name: '%amazon_s3.bucket%'
                 options:
                     directory: 'educational'
         blog_post_adapter:
             aws_s3:
-                service_id: 'aws_s3.client'
+                service_id: 'aws.s3'
                 bucket_name: '%amazon_s3.bucket%'
                 options:
                     directory: 'posts'
@@ -279,3 +279,16 @@ nelmio_api_doc:
 bazinga_geocoder:
     providers:
         google_maps: ~
+
+aws:
+    version: latest
+    region: "%amazon_s3.region%"
+    credentials:
+        key: "%amazon_s3.key%"
+        secret: "%amazon_s3.secret%"
+    S3:
+        version: "2006-03-01"
+    Sqs:
+        version: "2012-11-05"
+    Sns:
+        version: "2010-03-31"
