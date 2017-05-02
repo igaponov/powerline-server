@@ -71,15 +71,13 @@ class Notification
                 'Message is pushed '.str_replace('\\', '', $platformMessage),
                 $endpoint->getContext()
             );
-        } catch (Exception\EndpointDisabledException $e) {
-            $this->logger->debug('Endpoint is disabled and will be removed', $endpoint->getContext());
-            $this->removeEndpoint($endpoint);
-        } catch (Exception\NotFoundException $e) {
-            $this->logger->debug('Endpoint is not found and will be added', $endpoint->getContext());
-            $this->addEndpoint($endpoint);
-            $this->send($title, $message, $type, $entityData, $image, $endpoint);
         } catch (Exception\SnsException $e) {
-            $this->logger->warning($e->getMessage(), $endpoint->getContext());
+            if ($e->getAwsErrorCode() === 'EndpointDisabled') {
+                $this->logger->debug($e->getAwsErrorMessage(), $endpoint->getContext());
+                $this->removeEndpoint($endpoint);
+            } else {
+                $this->logger->critical($e->getAwsErrorMessage(), $endpoint->getContext());
+            }
         }
     }
 
@@ -93,9 +91,9 @@ class Notification
 
     private function removeEndpoint(Model\AbstractEndpoint $endpoint)
     {
-        $this->sns->deleteEndpoint(array(
+        $this->sns->deleteEndpoint([
             'EndpointArn' => $endpoint->getArn(),
-        ));
+        ]);
         $this->em->remove($endpoint);
         $this->em->flush($endpoint);
     }
@@ -108,10 +106,10 @@ class Notification
                 'Token' => $endpoint->getToken(),
                 'CustomUserData' => $endpoint->getUser()->getId(),
             ]);
-        } catch (Exception\InvalidParameterException $e) {
+        } catch (Exception\SnsException $e) {
             if (preg_match(
                 '/Endpoint (.*) already exists/',
-                $e->getResponse()->getMessage(),
+                $e->getAwsErrorMessage(),
                 $matches
             )) {
                 $this->sns->deleteEndpoint(array(
