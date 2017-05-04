@@ -143,7 +143,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="official_name", type="string", length=255, nullable=true, unique=true)
+     * @ORM\Column(name="official_name", type="string", length=255, nullable=true)
      * @Assert\NotBlank(groups={"registration", "user-registration", "api-registration"})
      * @Serializer\Expose()
      * @Serializer\Groups(
