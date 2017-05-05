@@ -47,6 +47,9 @@ class MentionSubscriber implements EventSubscriber
                 $username = $matches[1];
                 if ($username === 'everyone'
                     && $entity instanceof BaseComment
+                    // check if it's not an auto comment (user == null)
+                    // @todo delete this check after getting rid of auto comments
+                    && $entity->getUser()
                     && method_exists($entity->getCommentedEntity(), 'getGroup')
                 ) {
                     /** @var Group $group */
