@@ -1,9 +1,11 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
+use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\CommentedInterface;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityRelationsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
@@ -85,12 +87,15 @@ class PostCommentsControllerTest extends CommentsControllerTest
             LoadPostCommentData::class,
             LoadGroupManagerData::class,
             LoadPostSubscriberData::class,
+            LoadActivityRelationsData::class,
         ])->getReferenceRepository();
         /** @var CommentedInterface $entity */
         $entity = $repository->getReference('post_1');
         /** @var User $user */
         $user = $repository->getReference('user_2');
-        $this->createRootComment($entity, $user);
+        /** @var Activity $activity */
+        $activity = $repository->getReference('activity_post');
+        $this->createRootComment($entity, $user, $activity);
     }
 
     public function testCreateCommentMentionedContentOwner()

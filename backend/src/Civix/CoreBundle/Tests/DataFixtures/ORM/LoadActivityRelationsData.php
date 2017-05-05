@@ -46,6 +46,13 @@ class LoadActivityRelationsData extends AbstractFixture implements DependentFixt
         $pollActivity->setQuestion($poll);
         $manager->persist($pollActivity);
 
+        /** @var Activity $pollActivity */
+        $pollActivity = $this->getReference('activity_leader_news');
+        /** @var Question $poll */
+        $poll = $this->getReference('group_question_1');
+        $pollActivity->setQuestion($poll);
+        $manager->persist($pollActivity);
+
         $manager->flush();
     }
 

@@ -549,4 +549,18 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
 
         return null;
     }
+
+    /**
+     * @deprecated Will be removed in next version
+     * @return bool
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\SerializedName("is_root")
+     * @Serializer\Type("boolean")
+     * @Serializer\Groups({"api-comments"})
+     */
+    public function isRoot()
+    {
+        return !$this->getParentComment();
+    }
 }
