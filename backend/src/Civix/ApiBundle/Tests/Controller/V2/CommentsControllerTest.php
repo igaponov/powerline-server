@@ -68,7 +68,7 @@ abstract class CommentsControllerTest extends WebTestCase
         $this->assertSame(20, $data['items']);
         $this->assertSame($count, $data['totalItems']);
         $this->assertCount($count, $data['payload']);
-        $this->assertTrue($data['payload'][0]['is_root']);
+        $this->assertFalse($data['payload'][0]['is_root']);
     }
 
     public function getCommentsWithInvalidCredentials(CommentedInterface $entity)
