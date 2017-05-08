@@ -42,6 +42,7 @@ class UserPetitionCommentsControllerTest extends CommentsControllerTest
     public function testCreateComment()
     {
         $repository = $this->loadFixtures([
+            LoadActivityRelationsData::class,
             LoadUserPetitionCommentData::class,
             LoadGroupManagerData::class,
             LoadUserPetitionSubscriberData::class,
@@ -50,7 +51,7 @@ class UserPetitionCommentsControllerTest extends CommentsControllerTest
         $entity = $repository->getReference('user_petition_1');
         /** @var BaseComment $comment */
         $comment = $repository->getReference('petition_comment_3');
-        $this->createComment($entity, $comment);
+        $this->createComment($entity, $comment, 2);
     }
 
     public function testCreateRootComment()
