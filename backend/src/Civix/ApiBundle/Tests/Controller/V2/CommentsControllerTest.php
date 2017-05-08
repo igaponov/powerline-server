@@ -82,7 +82,7 @@ abstract class CommentsControllerTest extends WebTestCase
         $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
 
-    public function createComment(CommentedInterface $entity, BaseComment $comment)
+    public function createComment(CommentedInterface $entity, BaseComment $comment, $responseCount)
     {
         $client = $this->client;
         $uri = str_replace('{id}', $entity->getId(), $this->getApiEndpoint());
@@ -105,15 +105,19 @@ abstract class CommentsControllerTest extends WebTestCase
         if ($entity instanceof Question) {
             $ownType = SocialActivity::TYPE_OWN_POLL_COMMENTED;
             $followType = SocialActivity::TYPE_FOLLOW_POLL_COMMENTED;
+            $field = 'question_id';
         } elseif ($entity instanceof Post) {
             $ownType = SocialActivity::TYPE_OWN_POST_COMMENTED;
             $followType = SocialActivity::TYPE_FOLLOW_POST_COMMENTED;
+            $field = 'post_id';
         } else {
             $ownType = SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED;
             $followType = SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED;
+            $field = 'petition_id';
         }
         $this->assertRegExp('{comment text <a data-user-id="\d+">@user2</a>}', $data['comment_body_html']);
-        $tester = new SocialActivityTester($client->getContainer()->get('doctrine')->getManager());
+        $registry = $client->getContainer()->get('doctrine');
+        $tester = new SocialActivityTester($registry->getManager());
         $tester->assertActivitiesCount(4);
         $tester->assertActivity(SocialActivity::TYPE_COMMENT_MENTIONED, $comment->getUser()->getId());
         $tester->assertActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser()->getId());
@@ -122,6 +126,11 @@ abstract class CommentsControllerTest extends WebTestCase
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
         $this->assertEquals(4, $queue->count());
         $this->assertEquals(4, $queue->hasMessageWithMethod('sendSocialActivity'));
+        $count = $registry->getConnection()->fetchColumn(
+            "SELECT responses_count FROM activities WHERE $field = ?",
+            [$entity->getId()]
+        );
+        $this->assertEquals($responseCount, $count);
     }
 
     public function createRootComment(CommentedInterface $entity, User $user, Activity $activity)

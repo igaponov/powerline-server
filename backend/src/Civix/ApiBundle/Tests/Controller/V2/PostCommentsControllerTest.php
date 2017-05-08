@@ -70,6 +70,7 @@ class PostCommentsControllerTest extends CommentsControllerTest
     public function testCreateComment()
     {
         $repository = $this->loadFixtures([
+            LoadActivityRelationsData::class,
             LoadPostCommentData::class,
             LoadGroupManagerData::class,
             LoadPostSubscriberData::class,
@@ -78,7 +79,7 @@ class PostCommentsControllerTest extends CommentsControllerTest
         $entity = $repository->getReference('post_1');
         /** @var BaseComment $comment */
         $comment = $repository->getReference('post_comment_3');
-        $this->createComment($entity, $comment);
+        $this->createComment($entity, $comment, 2);
     }
 
     public function testCreateRootComment()

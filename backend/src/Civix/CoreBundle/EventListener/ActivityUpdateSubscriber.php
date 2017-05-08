@@ -83,10 +83,6 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
     {
         $comment = $event->getComment();
 
-        if ($comment->getParentComment()) {
-            return;
-        }
-
         $entity = $comment->getCommentedEntity();
         if ($entity instanceof Post) {
             $this->activityUpdate->updateResponsesPost($entity);
