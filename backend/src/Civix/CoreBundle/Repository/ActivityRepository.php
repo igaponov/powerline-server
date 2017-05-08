@@ -233,7 +233,7 @@ class ActivityRepository extends EntityRepository
 
     public function updateResponseCountQuestion(Question $question)
     {
-        $query = $this->getEntityManager()->getConnection()->executeQuery(
+        $this->getEntityManager()->getConnection()->executeQuery(
             'UPDATE activities
             SET responses_count = (
                 SELECT (
@@ -248,20 +248,18 @@ class ActivityRepository extends EntityRepository
                         SELECT COUNT(pc.id)
                         FROM poll_questions pq
                         LEFT JOIN poll_comments pc ON pq.id = pc.question_id
-                        WHERE pq.id = activities.question_id AND pc.pid IS NULL AND pc.user_id IS NOT NULL
+                        WHERE pq.id = activities.question_id AND pc.user_id IS NOT NULL
                     )
                 )
             )
             WHERE question_id = :question',
             [':question' => $question->getId()]
         );
-
-        return $query->execute();
     }
 
     public function updateResponseCountUserPetition(UserPetition $petition)
     {
-        $query = $this->getEntityManager()->getConnection()->executeQuery(
+        $this->getEntityManager()->getConnection()->executeQuery(
             'UPDATE activities 
             SET responses_count = (
                 SELECT (
@@ -276,20 +274,18 @@ class ActivityRepository extends EntityRepository
                         SELECT COUNT(pc.id)
                         FROM user_petitions p
                         LEFT JOIN user_petition_comments pc ON p.id = pc.petition_id
-                        WHERE p.id = activities.petition_id AND pc.pid IS NULL AND pc.user_id IS NOT NULL
+                        WHERE p.id = activities.petition_id AND pc.user_id IS NOT NULL
                     )
                 )
             )
             WHERE petition_id = :petition',
             [':petition' => $petition->getId()]
         );
-
-        return $query->execute();
     }
 
     public function updateResponseCountPost(Post $post)
     {
-        $query = $this->getEntityManager()->getConnection()->executeQuery(
+        $this->getEntityManager()->getConnection()->executeQuery(
             "UPDATE activities
             SET responses_count = (
                 SELECT (
@@ -304,15 +300,13 @@ class ActivityRepository extends EntityRepository
                         SELECT COUNT(pc.id)
                         FROM user_posts p
                         LEFT JOIN post_comments pc ON p.id = pc.post_id
-                        WHERE p.id = activities.post_id AND pc.pid IS NULL AND pc.user_id IS NOT NULL
+                        WHERE p.id = activities.post_id AND pc.user_id IS NOT NULL
                     )
                 )
             )
             WHERE post_id = :post",
             [':post' => $post->getId()]
         );
-
-        return $query->execute();
     }
 
     public function getActivitiesByGroupId($groupId, $maxResults = 500)
