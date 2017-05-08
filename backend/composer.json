@@ -5,6 +5,10 @@
         "psr-4": { "": "src/" },
         "classmap": [ "app/AppKernel.php", "app/AppCache.php" ]
     },
+    "autoload-dev": {
+        "psr-4": { "Tests\\": "tests/" },
+        "files": [ "vendor/symfony/symfony/src/Symfony/Component/VarDumper/Resources/functions/dump.php" ]
+    },
     "require": {
         "php": ">=7",
         "symfony/symfony": "~3.2",
@@ -47,7 +51,8 @@
         "oyejorge/less.php": "v1.7.0.10",
         "willdurand/geocoder-bundle": "~4.1",
         "layershifter/tld-extract": "~1.2",
-        "aws/aws-sdk-php-symfony": "~1.2"
+        "aws/aws-sdk-php-symfony": "~1.2",
+        "serendipity_hq/aws-ses-monitor-bundle": "~1.1"
     },
     "require-dev": {
         "phing/phing": "~2.16",

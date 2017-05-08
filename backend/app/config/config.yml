@@ -1,6 +1,7 @@
 imports:
     - { resource: parameters.yml }
     - { resource: security.yml }
+    - { resource: aws_ses_monitor.yml }
 
 framework:
     #esi:             ~
@@ -67,6 +68,13 @@ doctrine:
                 dql:
                     string_functions:
                         GROUP_CONCAT: Civix\CoreBundle\Doctrine\Query\Functions\GroupConcat
+                mappings:
+                    AwsSesMonitorBundle:
+                        mapping: true
+                        type: xml
+                        dir: '%kernel.root_dir%/../app/Resources/config/AwsSesMonitorBundle/doctrine/mappings'
+                        alias: 'AwsSesMonitorBundle'
+                        prefix: 'SerendipityHQ\Bundle\AwsSesMonitorBundle\Model'
         resolve_target_entities:
             Civix\CoreBundle\Entity\Stripe\AccountInterface: \Civix\CoreBundle\Entity\Stripe\Account
             Civix\CoreBundle\Entity\Stripe\CustomerInterface: \Civix\CoreBundle\Entity\Stripe\Customer

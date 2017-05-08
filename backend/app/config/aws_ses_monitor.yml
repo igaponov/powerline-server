@@ -1,0 +1,35 @@
+services:
+
+    aws.message_validator:
+        class: Aws\Sns\MessageValidator
+
+    aws_ses_monitor.notification_handler:
+        class: SerendipityHQ\Bundle\AwsSesMonitorBundle\Service\NotificationHandler
+        public: false
+        arguments:
+            - "@doctrine.orm.entity_manager"
+            - "@aws.message_validator"
+
+    aws_ses_monitor.notification_handler_adapter:
+        class: Civix\Component\AwsSesMonitor\Handler\NotificationHandlerAdapter
+        public: false
+        arguments:
+            - "@aws_ses_monitor.notification_handler"
+
+    notification_handler:
+        alias: aws_ses_monitor.notification_handler_adapter
+
+    aws_ses_monitor.swiftmailer_filter_plugin:
+        class: SerendipityHQ\Bundle\AwsSesMonitorBundle\Plugin\MonitorFilterPlugin
+        arguments:
+            - "@doctrine.orm.entity_manager"
+            -   filter:
+                    enabled: true
+                    soft_as_hard: false
+                    max_bounces: 2
+                    force_send: false
+            -   filter:
+                    enabled: true
+                    force_send: false
+        tags:
+            - { name: swiftmailer.default.plugin }
