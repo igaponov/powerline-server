@@ -6,7 +6,6 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
-use Aws\Ses\SesClient;
 use Aws\Ses\Exception\SesException;
 
 class SesCommand extends ContainerAwareCommand
@@ -30,8 +29,7 @@ class SesCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /* @var $client SesClient */
-        $client = $this->getContainer()->get('aws_ses.client');
+        $client = $this->getContainer()->get('aws.ses');
         $params = array(
             'Source' => $this->getContainer()->getParameter('mailer_from'),
             'Destination' => array(

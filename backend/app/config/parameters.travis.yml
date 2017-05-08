@@ -16,8 +16,8 @@ parameters:
     locale:            en
     secret:            secretsecret
 
-    amazon_s3.key: ~
-    amazon_s3.secret: ~
+    amazon_s3.key: ''
+    amazon_s3.secret: ''
     amazon_s3.region: us-east-1
     amazon_s3.bucket: devpowerline
     amazon_s3.url: /
