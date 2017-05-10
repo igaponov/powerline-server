@@ -52,7 +52,8 @@
         "willdurand/geocoder-bundle": "~4.1",
         "layershifter/tld-extract": "~1.2",
         "aws/aws-sdk-php-symfony": "~1.2",
-        "serendipity_hq/aws-ses-monitor-bundle": "~1.1"
+        "serendipity_hq/aws-ses-monitor-bundle": "~1.1",
+        "aws/aws-sdk-php": "~3.27"
     },
     "require-dev": {
         "phing/phing": "~2.16",
