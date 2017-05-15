@@ -406,4 +406,46 @@ class SecureControllerTest extends WebTestCase
         $this->assertNull($data['reset_password_token']);
         $this->assertNull($data['reset_password_at']);
 	}
+
+    public function testUserTokenHeaderAuthentication()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+        ])->getReferenceRepository();
+        /** @var User $user */
+        $user = $repository->getReference('user_1');
+        $client = $this->client;
+        $server = ['HTTP_Token' => $user->getToken()];
+        $client->request('GET', '/api/v2/user', [], [], $server);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+	}
+
+    public function testUserAuthorizationTypeHeaderAuthentication()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+        ])->getReferenceRepository();
+        /** @var User $user */
+        $user = $repository->getReference('user_1');
+        $client = $this->client;
+        $server = ['HTTP_Authorization' => 'Bearer type="user" token="'.$user->getToken().'"'];
+        $client->request('GET', '/api/v2/user', [], [], $server);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+	}
+
+    public function testUserAuthorizationBearerHeaderAuthentication()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+        ])->getReferenceRepository();
+        /** @var User $user */
+        $user = $repository->getReference('user_1');
+        $client = $this->client;
+        $server = ['HTTP_Authorization' => 'Bearer '.$user->getToken()];
+        $client->request('GET', '/api/v2/user', [], [], $server);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+	}
 }
