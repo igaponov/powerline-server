@@ -1,20 +1,25 @@
 <?php
 
-namespace Civix\ApiBundle\Controller;
+namespace Civix\ApiBundle\Controller\V2;
 
+use Civix\ApiBundle\Form\Type\EndpointType;
 use Civix\CoreBundle\Service\Notification as NotificationService;
+use Doctrine\ORM\EntityManager;
+use FOS\RestBundle\Controller\Annotations\Get;
+use FOS\RestBundle\Controller\Annotations\Post;
+use FOS\RestBundle\Controller\Annotations\View;
+use FOS\RestBundle\Controller\FOSRestController;
 use JMS\DiExtraBundle\Annotation as DI;
+use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Civix\CoreBundle\Entity\Notification;
 
 /**
  * @Route("/endpoints")
  */
-class EndpointController extends BaseController
+class EndpointController extends FOSRestController
 {
     /**
      * @var NotificationService
@@ -23,12 +28,19 @@ class EndpointController extends BaseController
     private $notification;
 
     /**
-     * Deprecated, use `GET /api/v2/endpoints` instead.
+     * @var EntityManager
+     * @DI\Inject("doctrine.orm.entity_manager")
+     */
+    private $em;
+
+    /**
+     * List the authenticated user's endpoints
      *
-     * @Route("/", name="api_endpoints_get")
-     * @Method("GET")
+     * @Get("")
      *
      * @ApiDoc(
+     *     resource=true,
+     *     authentication=true,
      *     section="Users",
      *     description="List of user's endpoints",
      *     output={
@@ -42,37 +54,30 @@ class EndpointController extends BaseController
      *     statusCodes={
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     },
-     *     deprecated=true
+     *     }
      * )
+     *
+     * @View(serializerGroups={"owner-get", "Default"})
+     *
+     * @return Notification\AbstractEndpoint[]
      */
     public function getAction()
     {
-        $endpoints = $this->getDoctrine()->getManager()
+        $endpoints = $this->em
             ->getRepository(Notification\AbstractEndpoint::class)
             ->findBy(['user' => $this->getUser()]);
-        $response = new Response($this->jmsSerialization($endpoints, array('owner-get', 'Default')));
-        $response->headers->set('Content-Type', 'application/json');
 
-        return $response;
+        return $endpoints;
     }
 
     /**
-     * Deprecated, use `POST /api/v2/endpoints` instead.
-     *
-     * @Route("/", name="api_endpoints_create")
-     * @Method("POST")
+     * @Post("")
      *
      * @ApiDoc(
+     *     authentication=true,
      *     section="Users",
-     *     description="Add an endpoint",
-     *     input={
-     *          "class" = "Civix\CoreBundle\Entity\Notification\AbstractEndpoint",
-     *          "groups" = {"owner-create", "Default"},
-     *          "parsers" = {
-     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
-     *          }
-     *     },
+     *     description="Create an endpoint",
+     *     input="Civix\ApiBundle\Form\Type\EndpointType",
      *     statusCodes={
      *         401="Authorization required",
      *         405="Method Not Allowed"
@@ -85,23 +90,28 @@ class EndpointController extends BaseController
      *                  "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
      *              }
      *          }
-     *     },
-     *     deprecated=true
+     *     }
      * )
      *
+     * @View(serializerGroups={"owner-get", "Default"}, statusCode=201)
+     *
      * @param Request $request
-     * @return Response
+     *
+     * @return Notification\AbstractEndpoint|Form
      */
-    public function createAction(Request $request)
+    public function postEndpointAction(Request $request)
     {
-        /* @var Notification\AbstractEndpoint $endpoint */
-        $endpoint = $this->jmsDeserialization($request->getContent(), Notification\AbstractEndpoint::class,
-            array('owner-create'));
-        $endpoint->setUser($this->getUser());
-        $this->notification->handleEndpoint($endpoint);
-        $response = new Response($this->jmsSerialization($endpoint, array('owner-get', 'Default')), 201);
-        $response->headers->set('Content-Type', 'application/json');
+        $form = $this->createForm(EndpointType::class);
+        $form->submit($request->request->all());
 
-        return $response;
+        if ($form->isValid()) {
+            /** @var Notification\AbstractEndpoint $endpoint */
+            $endpoint = $form->getData();
+            $endpoint->setUser($this->getUser());
+
+            return $this->notification->handleEndpoint($endpoint);
+        }
+
+        return $form;
     }
 }

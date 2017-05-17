@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Entity\User;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass = "Civix\CoreBundle\Repository\Notification\EndpointRepository")
@@ -28,6 +29,9 @@ use Civix\CoreBundle\Entity\User;
  */
 abstract class AbstractEndpoint
 {
+    const TYPE_IOS = 'ios';
+    const TYPE_ANDROID = 'android';
+
     /**
      * @var int
      *
@@ -42,9 +46,11 @@ abstract class AbstractEndpoint
     /**
      * @var string
      *
-     * @ORM\Column(name="token", type="string", length=255)
+     * @ORM\Column(name="token", type="string", length=255, unique=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"owner-get", "owner-create"})
+     *
+     * @Assert\NotBlank()
      */
     private $token;
 
@@ -62,6 +68,14 @@ abstract class AbstractEndpoint
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      */
     private $user;
+
+    public static function getTypes()
+    {
+        return [
+            self::TYPE_IOS,
+            self::TYPE_ANDROID,
+        ];
+    }
 
     abstract public function getPlatformMessage($title, $message, $type, $entityData, $image, $badge = null);
 
