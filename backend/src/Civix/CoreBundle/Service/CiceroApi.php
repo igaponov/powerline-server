@@ -93,7 +93,11 @@ class CiceroApi extends ServiceApi
     {
         foreach ($officials as &$representative) {
             $object = $this->entityManager->getRepository(CiceroRepresentative::class)
-                ->find($representative->id);
+                ->findOneBy([
+                    'district' => $representative->office->district->id,
+                    'firstName' => $representative->first_name,
+                    'lastName' => $representative->last_name,
+                ]);
             if ($object) {
                 $representative = $this->fillRepresentativeByApiObj($object, $representative);
             } else {
@@ -151,7 +155,11 @@ class CiceroApi extends ServiceApi
     protected function updateRepresentative($resultApiCollection, CiceroRepresentative $representative)
     {
         foreach ($resultApiCollection as $repr) {
-            if ($representative->getId() == $repr->id) {
+            if (
+                $representative->getDistrict()->getId() == $repr->office->district->id
+                && $representative->getFirstName() == $repr->first_name
+                && $representative->getLastName() == $repr->last_name
+            ) {
                 $representative = $this->fillRepresentativeByApiObj($representative, $repr);
 
                 $event = new AvatarEvent($representative);

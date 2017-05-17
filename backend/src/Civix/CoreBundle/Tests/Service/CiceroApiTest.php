@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Tests\Service;
 
 use Civix\Component\ContentConverter\ConverterInterface;
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Event\AvatarEvent;
 use Civix\CoreBundle\Event\AvatarEvents;
 use Civix\CoreBundle\Service\CiceroApi;
@@ -13,6 +14,7 @@ use Civix\CoreBundle\Service\CiceroCalls;
 use Civix\CoreBundle\Service\CongressApi;
 use Civix\CoreBundle\Service\OpenstatesApi;
 use Civix\CoreBundle\Tests\DataFixtures\ORM as ORM;
+use Doctrine\ORM\EntityManager;
 use Faker\Factory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -117,18 +119,14 @@ class CiceroApiTest extends WebTestCase
     public function testUpdateByRepresentativeInfo()
     {
         $repository = $this->loadFixtures(array(
-            ORM\LoadRepresentativeData::class,
-            ORM\LoadCiceroRepresentativeData::class,
+            ORM\LoadRepresentativeRelationData::class,
         ))->getReferenceRepository();
-        $user = $repository->getReference('user_1');
-        $faker = Factory::create();
+        /** @var EntityManager $em */
         $em = $this->getContainer()
             ->get('doctrine')
             ->getManager();
-        $representativeObj = new Representative($em->merge($user));
-        $representativeObj->setCiceroRepresentative($repository->getReference('cicero_representative_jb'));
-        $representativeObj->setPrivatePhone($faker->phoneNumber);
-        $representativeObj->setPrivateEmail($faker->companyEmail);
+        /** @var Representative $representativeObj */
+        $representativeObj = $repository->getReference('representative_jb');
         /** @var CiceroCalls|\PHPUnit_Framework_MockObject_MockObject $ciceroCallsMock */
         $ciceroCallsMock = $this->getMockBuilder('Civix\CoreBundle\Service\CiceroCalls')
             ->setMethods(array('getResponse'))
@@ -166,7 +164,12 @@ class CiceroApiTest extends WebTestCase
             ->will($this->returnValue($this->responseRepresentative));
 
         $result = $ciceroApi->updateByRepresentativeInfo($representativeObj);
-
         $this->assertTrue($result, 'Should return true');
+        $em->flush();
+        $em->refresh($representativeObj);
+        $this->assertSame(
+            $representativeObj->getCiceroRepresentative()->getId(),
+            $this->responseRepresentative->response->results->officials[0]->id
+        );
     }
 }

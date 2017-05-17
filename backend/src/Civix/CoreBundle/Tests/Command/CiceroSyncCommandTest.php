@@ -66,7 +66,10 @@ class CiceroSyncCommandTest extends WebTestCase
         $representativeUpdated = $container->get('doctrine')->getManager()
             ->getRepository('CivixCoreBundle:Representative')->find($representative->getId());
 
-        $this->assertEquals($cicero->getId(), $representativeUpdated->getCiceroRepresentative()->getId());
+        $this->assertEquals(
+            $this->responseRepresentative->response->results->officials[0]->id,
+            $representativeUpdated->getCiceroRepresentative()->getId()
+        );
         $this->assertEquals($districtId, $representativeUpdated->getDistrict()->getId());
     }
 

@@ -78,7 +78,7 @@
             <argument id="event_dispatcher" type="service"/>
         </service>
 
-        <service id="civix_core.cicero_calls" class="%ciceroapi_class%">
+        <service id="civix_core.cicero_calls" class="%ciceroapi_class%" lazy="true">
             <argument>%ciceroapi_login%</argument>
             <argument>%ciceroapi_password%</argument>
             <argument type="service" id="logger" />
