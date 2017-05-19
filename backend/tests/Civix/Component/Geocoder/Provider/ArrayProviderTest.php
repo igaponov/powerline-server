@@ -1,6 +1,6 @@
 <?php
 
-namespace Civix\Tests\Component\Geocoder\Provider;
+namespace Tests\Civix\Component\Geocoder\Provider;
 
 use Civix\Component\Geocoder\Provider\ArrayProvider;
 use Geocoder\Model\AddressCollection;
