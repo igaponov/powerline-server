@@ -10,7 +10,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Aws\Sns\SnsClient;
 
 class SnsCommand extends ContainerAwareCommand
 {
@@ -52,11 +51,7 @@ class SnsCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->output = $output;
-        $this->client = $client = SnsClient::factory(array(
-            'key' => $this->getContainer()->getParameter('amazon_s3.key'),
-            'secret' => $this->getContainer()->getParameter('amazon_s3.secret'),
-            'region' => $this->getContainer()->getParameter('amazon_s3.region'),
-        ));
+        $this->client = $client = $this->getContainer()->get('aws.sns');
 
         if ($input->getOption('list-android')) {
             $this->showEndpoints(

@@ -279,14 +279,6 @@
             <tag name="validator.constraint_validator" alias="civix_core.validator.package_state_validator"/>
         </service>
 
-        <service id="aws_s3.client" class="Aws\S3\S3Client">
-            <factory class="Aws\S3\S3Client" method="factory" />
-            <argument type="collection">
-                <argument key="key">%amazon_s3.key%</argument>
-                <argument key="secret">%amazon_s3.secret%</argument>
-                <argument key="region">%amazon_s3.region%</argument>
-            </argument>
-        </service>
         <service id="aws_sns.client" class="Aws\Sns\SnsClient">
             <factory class="Aws\Sns\SnsClient" method="factory" />
             <argument type="collection">
@@ -295,17 +287,9 @@
                 <argument key="region">%amazon_s3.region%</argument>
             </argument>
         </service>
-        <service id="aws_ses.client" class="Aws\Ses\SesClient">
-            <factory class="Aws\Ses\SesClient" method="factory" />
-            <argument type="collection">
-                <argument key="key">%amazon_s3.key%</argument>
-                <argument key="secret">%amazon_s3.secret%</argument>
-                <argument key="region">%amazon_s3.region%</argument>
-            </argument>
-        </service>
         <service id="civix_core.notification" class="Civix\CoreBundle\Service\Notification">
             <argument type="service" id="doctrine.orm.entity_manager" />
-            <argument type="service" id="aws_sns.client" />
+            <argument type="service" id="aws.sns" />
             <argument>%amazon_sns.android_arn%</argument>
             <argument>%amazon_sns.ios_arn%</argument>
             <argument type="service" id="monolog.logger.push" />

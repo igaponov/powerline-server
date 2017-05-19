@@ -5,6 +5,10 @@
         "psr-4": { "": "src/" },
         "classmap": [ "app/AppKernel.php", "app/AppCache.php" ]
     },
+    "autoload-dev": {
+        "psr-4": { "Tests\\": "tests/" },
+        "files": [ "vendor/symfony/symfony/src/Symfony/Component/VarDumper/Resources/functions/dump.php" ]
+    },
     "require": {
         "php": ">=7",
         "symfony/symfony": "~3.2",
@@ -23,7 +27,6 @@
         "jms/security-extra-bundle": "~1.6",
         "jms/di-extra-bundle": "~1.8",
 
-        "aws/aws-sdk-php": "~2.8",
         "knplabs/knp-menu-bundle": "~2.1",
         "knplabs/knp-paginator-bundle": "~2.5",
         "mopa/bootstrap-bundle": "~3.1",
@@ -48,6 +51,8 @@
         "oyejorge/less.php": "~1.7",
         "willdurand/geocoder-bundle": "~4.1",
         "layershifter/tld-extract": "~1.2",
+        "aws/aws-sdk-php-symfony": "~1.2",
+        "serendipity_hq/aws-ses-monitor-bundle": "~1.1",
         "yohang88/letter-avatar": "~1.0"
     },
     "require-dev": {

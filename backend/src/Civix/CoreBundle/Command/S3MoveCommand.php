@@ -2,8 +2,10 @@
 
 namespace Civix\CoreBundle\Command;
 
-use Aws\S3\Command\S3Command;
-use Guzzle\Service\Exception\CommandTransferException;
+use Aws\CommandPool;
+use Aws\Exception\AwsException;
+use Aws\Result;
+use GuzzleHttp\Promise\Promise;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -25,12 +27,13 @@ class S3MoveCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $container = $this->getContainer();
-        $s3 = $container->get('aws_s3.client');
+        $s3 = $container->get('aws.s3');
         $bucket = $container->getParameter('amazon_s3.bucket');
         $from = trim($input->getOption('from'), '/');
         $to = trim($input->getOption('to'), '/');
         $keys = $input->getArgument('keys');
         $batch = $objects = [];
+        $style = new SymfonyStyle($input, $output);
         foreach ($keys as $key) {
             $pathTo = "$to/$key";
             $pathFrom = "$from/$key";
@@ -41,48 +44,46 @@ class S3MoveCommand extends ContainerAwareCommand
             ]);
             $objects[] = ['Key' => $pathFrom];
         }
-        $style = new SymfonyStyle($input, $output);
-        try {
-            $successful = $s3->execute($batch);
-            $failed = [];
-        } catch (CommandTransferException $e) {
-            $style->error('Errors during multi transfer');
-            $successful = $e->getSuccessfulCommands();
-            $failed = $e->getFailedCommands();
-        }
-        $closure = function (S3Command $command) {
-            return [
-                'name' => $command->getOperation()->getName(),
-                'key' => $command->get('Key'),
-                'copy' => $command->get('CopySource'),
-                'errors' => implode(
-                    "\n",
-                    array_map(
-                        function ($error) {
-                            return wordwrap($error['reason'] ?? '', 45);
-                        },
-                        $command->getOperation()->getErrorResponses()
-                    )
-                ),
-            ];
-        };
-        $style->title('Successful commands:');
+        $results = [];
+        $pool = new CommandPool($s3, $batch, [
+            'fulfilled' => function (Result $result, int $num, Promise $promise) use (&$results, $bucket, $from, $to) {
+                $results[$num] = [
+                    'key' => substr(strstr($result->get('ObjectURL'), $bucket), strlen($bucket) + 1),
+                    'source' => str_replace($to, $from, strstr($result->get('ObjectURL'), $bucket)),
+                    'message' => '',
+                ];
+
+                return $promise;
+            },
+            'rejected' => function (AwsException $e, int $num, Promise $promise) use (&$results, &$objects) {
+                $results[$num] = [
+                    'key' => $e->getCommand()->offsetGet('Key'),
+                    'source' => $e->getCommand()->offsetGet('CopySource'),
+                    'message' => '<error>'.wordwrap($e->getAwsErrorMessage(), 40).'</error>',
+                ];
+                unset($objects[$num]);
+
+                return $promise;
+            }
+        ]);
+        $pool->promise()->wait();
+        ksort($results);
+        $style->title("Results:");
         $style->table(
-            ['Name', 'Key', 'Copy', 'Errors'],
-            array_map($closure, $successful)
+            ['Key', 'Copy', 'Errors'],
+            $results
         );
-        $style->title('Failed commands:');
-        $style->table(
-            ['Name', 'Key', 'Copy', 'Errors'],
-            array_map($closure, $failed)
-        );
-        try {
-            $s3->deleteObjects([
-                'Bucket' => $bucket,
-                'Objects' => $objects,
-            ]);
-        } catch (\Exception $e) {
-            $style->error($e->getMessage());
+        if (count($objects) > 0) {
+            try {
+                $s3->deleteObjects([
+                    'Bucket' => $bucket,
+                    'Delete' => [
+                        'Objects' => $objects,
+                    ],
+                ]);
+            } catch (\Exception $e) {
+                $style->error($e->getMessage());
+            }
         }
     }
 }

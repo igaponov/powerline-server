@@ -59,7 +59,7 @@ class UploadLocalFilesCommand extends ContainerAwareCommand
          * @var EntityManager $em
          */
         $this->em = $em = $this->getContainer()->get('doctrine.orm.entity_manager');
-        $this->s3 = $this->getContainer()->get('aws_s3.client');
+        $this->s3 = $this->getContainer()->get('aws.s3');
         $this->vichLocalStorage = $this->getContainer()->get('vich_uploader.storage.file_system');
         $this->vichGaufretteStorage = $this->getContainer()->get('vich_uploader.storage.gaufrette');
 

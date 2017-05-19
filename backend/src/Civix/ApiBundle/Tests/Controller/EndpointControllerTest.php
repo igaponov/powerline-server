@@ -63,7 +63,7 @@ class EndpointControllerTest extends WebTestCase
         $service->expects($this->once())
             ->method('createPlatformEndpoint')
             ->willReturn(['EndpointArn' => 'arn:zzz']);
-        $client->getContainer()->set('aws_sns.client', $service);
+        $client->getContainer()->set('aws.sns', $service);
         $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user3"'], json_encode($params));
         $response = $client->getResponse();
         $this->assertEquals(201, $response->getStatusCode(), $response->getContent());
