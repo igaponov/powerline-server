@@ -150,11 +150,6 @@
             <argument type="service" id="session" />
         </service>
 
-        <service id="civix_core.rabbit.push_queue" class="Civix\CoreBundle\Service\RabbitMQCallback\PushQueue">
-            <argument type="service" id="civix_core.push_sender" />
-            <argument type="service" id="civix_core.representative_manager" />
-        </service>
-
         <service id="civix_core.push_sender" class="Civix\CoreBundle\Service\PushSender">
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="civix_core.question_users_push" />

@@ -19,6 +19,7 @@
 
     <testsuites>
         <testsuite name="Project Test Suite">
+            <directory>tests</directory>
             <directory>src/Civix/*Bundle/Tests</directory>
             <directory>tests</directory>
         </testsuite>
