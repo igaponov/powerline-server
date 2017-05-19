@@ -53,6 +53,7 @@
         "layershifter/tld-extract": "~1.2",
         "aws/aws-sdk-php-symfony": "~1.2",
         "serendipity_hq/aws-ses-monitor-bundle": "~1.1",
+        "aws/aws-sdk-php": "~3.27",
         "yohang88/letter-avatar": "~1.0"
     },
     "require-dev": {
