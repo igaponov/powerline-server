@@ -117,6 +117,7 @@ class SecureControllerTest extends WebTestCase
 			'last_name' => 'This value should not be blank.',
 			'zip' => 'This value should not be blank.',
 			'email' => 'This value is not a valid email address.',
+            'email_confirm' => 'The email fields must match.',
 		];
 		$this->assertCount(count($expectedErrors), $errors);
 		foreach ($errors as $error) {
@@ -139,12 +140,16 @@ class SecureControllerTest extends WebTestCase
 	{
 		$faker = Factory::create();
         $path = __DIR__.'/../data/image.png';
+        $password = $faker->password;
+        $email = 'reg.test+powerline@mail.com';
         $data = [
 			'username' => 'testUser1',
 			'first_name' => $faker->firstName,
 			'last_name' => $faker->lastName,
-			'email' => 'reg.test+powerline@mail.com',
-			'password' => $faker->password,
+			'email' => $email,
+			'email_confirm' => $email,
+			'password' => $password,
+			'confirm' => $password,
 			'address1' => 'Bucklin',
 			'address2' => $faker->address,
 			'city' => 'Bucklin',
@@ -252,6 +257,7 @@ class SecureControllerTest extends WebTestCase
             'last_name' => 'This value should not be blank.',
             'zip' => 'This value should not be blank.',
             'email' => 'This value is not a valid email address.',
+            'email_confirm' => 'The email fields must match.',
         ];
         $this->assertCount(count($expectedErrors), $errors);
         foreach ($errors as $error) {
@@ -266,14 +272,16 @@ class SecureControllerTest extends WebTestCase
     public function testFacebookRegistrationIsOk()
 	{
 		$faker = Factory::create();
-		$data = [
+        $email = 'reg.test+powerline@mail.com';
+        $data = [
 		    'facebook_token' => 'xxx',
             'facebook_id' => 'yyy',
+            'facebook_link' => $faker->url,
 			'username' => 'testUser1',
 			'first_name' => $faker->firstName,
 			'last_name' => $faker->lastName,
-			'email' => 'reg.test+powerline@mail.com',
-			'password' => $faker->password,
+			'email' => $email,
+			'email_confirm' => $email,
 			'address1' => 'Bucklin',
 			'address2' => $faker->address,
 			'city' => 'Bucklin',

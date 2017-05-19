@@ -2,9 +2,12 @@
 
 namespace Civix\ApiBundle\Form\Type;
 
+use Civix\CoreBundle\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UserFacebookRegistrationType extends AbstractType
@@ -24,18 +27,28 @@ class UserFacebookRegistrationType extends AbstractType
                 'property_path' => 'facebookLink',
                 'description' => 'Facebook Link',
             ])
+            ->add('username', Type\TextType::class, [
+                'description' => 'Username',
+            ])
             ->add('sex', Type\TextType::class, [
                 'description' => 'Sex',
             ]);
-        $builder->get('password')->setEmptyData(random_bytes(20));
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+            /** @var User $data */
+            $data = $event->getData();
+            $data->setPlainPassword(random_bytes(20));
+        }, 900);
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefault('validation_groups', [
-            'registration',
-            'facebook',
-        ]);
+        $resolver->setDefault(
+            'validation_groups',
+            [
+                'registration',
+                'facebook',
+            ]
+        );
     }
 
     public function getBlockPrefix()
@@ -45,6 +58,6 @@ class UserFacebookRegistrationType extends AbstractType
 
     public function getParent()
     {
-        return UserRegistrationType::class;
+        return BaseUserRegistrationType::class;
     }
 }

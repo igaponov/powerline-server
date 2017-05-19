@@ -4,55 +4,52 @@ namespace Civix\ApiBundle\Form\Type;
 
 use Civix\CoreBundle\Entity\User;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-class UserRegistrationType extends AbstractType
+class BaseUserRegistrationType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('username', Type\TextType::class, [
-                'description' => 'Username',
-            ])
-            ->add('password', Type\PasswordType::class, [
-                'property_path' => 'plainPassword',
-                'description' => 'Password',
-            ])
-            ->add('confirm', Type\TextType::class, [
+            ->add('email_confirm', EmailType::class, [
                 'mapped' => false,
-                'description' => 'Repeat password',
+                'description' => 'Repeat email',
                 'constraints' => [
                     new Callback([
-                        'callback' => [$this, 'validatePasswordConfirm'],
+                        'callback' => [$this, 'validateEmailConfirm'],
                         'groups' => 'registration',
                     ]),
                 ],
             ]);
     }
 
-    public function getBlockPrefix()
+    public function configureOptions(OptionsResolver $resolver)
     {
-        return '';
+        $resolver->setDefaults([
+            'validation_groups' => [
+                'registration',
+            ],
+        ]);
     }
 
     public function getParent()
     {
-        return BaseUserRegistrationType::class;
+        return BaseUserType::class;
     }
 
-    public function validatePasswordConfirm($password, ExecutionContextInterface $context)
+    public function validateEmailConfirm($email, ExecutionContextInterface $context)
     {
         $user = $context->getRoot()->getData();
         if (!$user instanceof User) {
             return;
         }
 
-        if ($user->getPlainPassword() !== $password) {
+        if ($user->getEmail() !== $email) {
             $context
-                ->buildViolation('The password fields must match.')
+                ->buildViolation('The email fields must match.')
                 ->addViolation()
             ;
         }
