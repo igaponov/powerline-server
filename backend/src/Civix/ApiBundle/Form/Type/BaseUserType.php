@@ -50,10 +50,6 @@ class BaseUserType extends AbstractType
                 'empty_data' => '',
                 'description' => 'Phone number',
             ])
-            ->add('password', Type\PasswordType::class, [
-                'property_path' => 'plainPassword',
-                'description' => 'Password',
-            ])
             ->add('avatar_file_name', EncodedFileType::class, [
                 'property_path' => 'avatar',
                 'description' => 'Avatar, can be an url or a base64-encoded string',
