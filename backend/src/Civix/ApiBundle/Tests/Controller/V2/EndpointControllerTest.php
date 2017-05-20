@@ -106,7 +106,7 @@ class EndpointControllerTest extends WebTestCase
         $service->expects($this->once())
             ->method('createPlatformEndpoint')
             ->willReturn(['EndpointArn' => 'arn:zzz']);
-        $client->getContainer()->set('aws_sns.client', $service);
+        $client->getContainer()->set('aws.sns', $service);
         $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer user3'], json_encode($params));
         $response = $client->getResponse();
         $this->assertEquals(201, $response->getStatusCode(), $response->getContent());
@@ -136,7 +136,7 @@ class EndpointControllerTest extends WebTestCase
         $service->expects($this->once())
             ->method('deleteEndpoint')
             ->with(['EndpointArn' => 'arn:aws:sns:us-east-1:863632456175:endpoint/APNS/powerline_ios_staging/cf70b808-444d-390c-bb5b-f05ebe8aacfb']);
-        $client->getContainer()->set('aws_sns.client', $service);
+        $client->getContainer()->set('aws.sns', $service);
         $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer user3'], json_encode($params));
         $response = $client->getResponse();
         $this->assertEquals(201, $response->getStatusCode(), $response->getContent());
