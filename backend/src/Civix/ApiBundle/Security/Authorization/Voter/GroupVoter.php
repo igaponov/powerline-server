@@ -3,6 +3,7 @@
 namespace Civix\ApiBundle\Security\Authorization\Voter;
 
 use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\Subscription\Subscription;
 use Civix\CoreBundle\Entity\UserInterface;
 use Civix\CoreBundle\Repository\RepresentativeRepository;
 use Civix\CoreBundle\Service\Subscription\PackageHandler;
@@ -51,6 +52,11 @@ class GroupVoter implements VoterInterface
     const MICROPETITION_CONFIG = 'micropetition_config';
 
     /**
+     * Group managers (check subscription plan)
+     */
+    const ADVANCED_ATTRIBUTES = 'advanced_attributes';
+
+    /**
      * @var SubscriptionManager
      */
     private $subscriptionManager;
@@ -91,6 +97,7 @@ class GroupVoter implements VoterInterface
             self::MEMBER,
             self::VIEW,
             self::MICROPETITION_CONFIG,
+            self::ADVANCED_ATTRIBUTES,
         ]);
     }
 
@@ -157,13 +164,11 @@ class GroupVoter implements VoterInterface
             return VoterInterface::ACCESS_DENIED;
         }
 
-        $roleHierarchy = new RoleHierarchy([
-            self::EDIT => [self::ASSIGN],
-            self::ASSIGN => [self::MANAGE],
-            self::MANAGE => [self::CONTENT, self::MEMBERSHIP, self::MICROPETITION_CONFIG],
-            self::CONTENT => [self::MEMBER],
-            self::MEMBER => [self::VIEW],
-        ]);
+        if ($attribute === self::ADVANCED_ATTRIBUTES
+            && $this->subscriptionManager->getSubscription($object)->getPackageType() === Subscription::PACKAGE_TYPE_FREE
+        ) {
+            return VoterInterface::ACCESS_DENIED;
+        }
 
         if ($object->isOwner($user)) {
             $userRole = self::EDIT;
@@ -176,6 +181,19 @@ class GroupVoter implements VoterInterface
         } else {
             return VoterInterface::ACCESS_DENIED;
         }
+
+        $roleHierarchy = new RoleHierarchy([
+            self::EDIT => [self::ASSIGN],
+            self::ASSIGN => [self::MANAGE],
+            self::MANAGE => [
+                self::CONTENT,
+                self::MEMBERSHIP,
+                self::MICROPETITION_CONFIG,
+                self::ADVANCED_ATTRIBUTES,
+            ],
+            self::CONTENT => [self::MEMBER],
+            self::MEMBER => [self::VIEW],
+        ]);
 
         /** @var RoleInterface[] $roles */
         $roles = $roleHierarchy->getReachableRoles([new Role($userRole)]);
