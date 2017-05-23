@@ -1,4 +1,10 @@
 services:
+    civix_api.form_extension.disable_csrf_extension:
+        class: Civix\ApiBundle\Form\Extension\DisableCSRFExtension
+        arguments: ['@request_stack']
+        tags:
+            - { name: form.type_extension, extended_type: Symfony\Component\Form\Extension\Core\Type\FormType }
+
     civix_api.form_type.subscription_type:
         class: Civix\ApiBundle\Form\Type\SubscriptionType
         arguments: ['@doctrine.orm.default_entity_manager']
