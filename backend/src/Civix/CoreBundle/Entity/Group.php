@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\CoreBundle\Entity\Group\AdvancedAttributes;
 use Civix\CoreBundle\Entity\Group\GroupField;
 use Civix\CoreBundle\Model\Avatar\DefaultAvatar;
 use Civix\CoreBundle\Model\Avatar\DefaultAvatarInterface;
@@ -444,6 +445,13 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @ORM\Column(name="slug", type="string", unique=true)
      */
     private $slug;
+
+    /**
+     * @var AdvancedAttributes
+     *
+     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\Group\AdvancedAttributes", mappedBy="group")
+     */
+    private $advancedAttributes;
 
     /**
      * @return array
@@ -1797,5 +1805,13 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     public function getUserGroups()
     {
         return $this->users;
+    }
+
+    /**
+     * @return AdvancedAttributes
+     */
+    public function getAdvancedAttributes(): AdvancedAttributes
+    {
+        return $this->advancedAttributes;
     }
 }
