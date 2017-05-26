@@ -33,6 +33,7 @@ class UserFacebookRegistrationType extends AbstractType
             ->add('sex', Type\TextType::class, [
                 'description' => 'Sex',
             ]);
+        $builder->get('zip')->setEmptyData(' ');
         $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
             /** @var User $data */
             $data = $event->getData();
