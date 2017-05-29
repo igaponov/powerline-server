@@ -196,7 +196,8 @@ class SecureControllerTest extends WebTestCase
 
 		$result = json_decode($response->getContent(), true);
 		$this->assertSame($data['username'], $result['username']);
-		/** @var Connection $conn */
+        $this->assertTrue($result['is_registration_complete']);
+        /** @var Connection $conn */
 		$conn = $container->get('doctrine.dbal.default_connection');
 		$user = $conn->fetchAssoc('SELECT * FROM user WHERE username = ?', [$result['username']]);
 		$this->assertSame($data['username'], $user['username']);
@@ -313,6 +314,7 @@ class SecureControllerTest extends WebTestCase
 
         $result = json_decode($response->getContent(), true);
 		$this->assertSame($data['username'], $result['username']);
+		$this->assertFalse($result['is_registration_complete']);
 		/** @var Connection $conn */
 		$conn = $client->getContainer()->get('doctrine')->getConnection();
 		$user = $conn->fetchAssoc('SELECT * FROM user WHERE username = ?', [$result['username']]);

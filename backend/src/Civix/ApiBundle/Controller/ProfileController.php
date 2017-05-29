@@ -299,6 +299,7 @@ class ProfileController extends BaseController
         $form->submit($request->request->all(), false);
 
         if ($form->isValid()) {
+            $user->setIsRegistrationComplete(true);
             return $this->manager->save($user);
         }
 
