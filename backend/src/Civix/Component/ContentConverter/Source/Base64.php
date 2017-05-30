@@ -4,7 +4,7 @@ namespace Civix\Component\ContentConverter\Source;
 
 class Base64 implements ContentSourceInterface
 {
-    public function isSupported($content)
+    public function isSupported(string $content): bool
     {
         if (!is_string($content)) {
             return false;
@@ -13,7 +13,7 @@ class Base64 implements ContentSourceInterface
         return base64_encode(base64_decode($content)) === $content;
     }
 
-    public function convert($content)
+    public function convert(string $content)
     {
         return base64_decode($content);
     }

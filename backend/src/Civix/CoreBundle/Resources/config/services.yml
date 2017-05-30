@@ -36,6 +36,8 @@ services:
 
     civix_core.converter_source.url:
         class: Civix\Component\ContentConverter\Source\Url
+        arguments:
+            - [ '%imgix.domain%' ]
 
     civix_core.content_converter:
         class: Civix\Component\ContentConverter\Converter

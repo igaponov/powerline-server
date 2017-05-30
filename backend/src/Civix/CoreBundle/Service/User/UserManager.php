@@ -191,7 +191,6 @@ class UserManager
 
     public function save(User $user)
     {
-        $user->generateToken();
         $event = new AvatarEvent($user);
         $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
         $event = new UserEvent($user);

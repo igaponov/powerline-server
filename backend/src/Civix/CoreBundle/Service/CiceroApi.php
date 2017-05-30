@@ -189,7 +189,7 @@ class CiceroApi extends ServiceApi
         $representative->setLastName(trim($response->last_name));
         $representative->setOfficialTitle(trim($response->office->title));
         if ($response->photo_origin_url) {
-            $content = $this->converter->convert($response->photo_origin_url);
+            $content = $this->converter->convert((string)$response->photo_origin_url);
             $representative->setAvatar(new TempFile($content));
         }
 

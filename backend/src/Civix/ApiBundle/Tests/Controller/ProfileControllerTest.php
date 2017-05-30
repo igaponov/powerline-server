@@ -129,17 +129,20 @@ class ProfileControllerTest extends WebTestCase
         }
     }
 
-	public function testUpdateWithSameEmail()
+	public function testUpdateWithSameEmailAndAvatar()
 	{
-        $this->loadFixtures([
+        $repository = $this->loadFixtures([
             LoadUserData::class,
             PM533::class,
-        ]);
+        ])->getReferenceRepository();
+        /** @var User $user */
+        $user = $repository->getReference('user_1');
         $params = [
             'email' => 'user1@example.com',
             'first_name' => 'new-firstName',
             'last_name' => 'new-lastName',
             'zip' => 'new-zip',
+            'avatar_file_name' => 'https://powerline-dev.imgix.net/avatars/1.jpg?ixlib=php-1.1.0',
         ];
         $client = $this->client;
         $client->request('POST', self::API_ENDPOINT.'update', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode($params));
@@ -147,6 +150,10 @@ class ProfileControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertSame($params['email'], $data['email']);
+        $this->assertEquals(
+            'https://powerline-dev.imgix.net/avatars/'.$user->getAvatarFileName().'?ixlib=php-1.1.0',
+            $data['avatar_file_name']
+        );
     }
 
 	public function testUpdateSettings()
