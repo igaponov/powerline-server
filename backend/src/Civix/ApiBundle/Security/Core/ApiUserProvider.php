@@ -130,7 +130,7 @@ class ApiUserProvider implements UserProviderInterface, OAuthAwareUserProviderIn
             $user->{'set'.ucfirst($property)}($username);
             $user->{'set'.ucfirst($propertySecret)}($response->getTokenSecret());
             if ($response->getProfilePicture()) {
-                $content = $this->converter->convert($response->getProfilePicture());
+                $content = $this->converter->convert((string)$response->getProfilePicture());
                 $user->setAvatar(new TempFile($content));
             }
         }

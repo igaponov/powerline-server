@@ -52,14 +52,14 @@ class AvatarSubscriber implements EventSubscriberInterface
             // new avatar
             if ($file instanceof UploadedFile) {
                 $image = $this->generateAvatar($file);
+                $image->save($file->getPathname(), 100);
             // default avatar if an entity has no one
             } elseif (!$entity->getAvatarFileName()) {
                 $image = $this->generateDefaultAvatar($entity->getDefaultAvatar());
-                $file = new TempFile();
+                $file = new TempFile($image->encode(null, 100));
             } else {
                 return;
             }
-            $image->save($file->getPathname(), 100);
             $entity->setAvatar($file);
             // update a field to dispatch doctrine's "update" event
             // @todo handle image uploading in a custom event listener

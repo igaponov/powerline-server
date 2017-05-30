@@ -416,7 +416,7 @@ class ProfileController extends BaseController
         }
 
         if ($request->get('avatar_file_name')) {
-            $content = $this->converter->convert($request->get('avatar_file_name'));
+            $content = $this->converter->convert((string)$request->get('avatar_file_name'));
             $user->setAvatar(new TempFile($content));
             try {
                 $event = new AvatarEvent($user);

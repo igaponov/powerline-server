@@ -27,15 +27,14 @@ class EncodedFileType extends AbstractType
     {
         $builder->addEventListener(
             FormEvents::PRE_SUBMIT,
-            function (FormEvent $event) use ($options) {
+            function (FormEvent $event) {
                 $data = $event->getData();
-                $data = $this->converter->convert($data);
+                $data = $this->converter->convert((string)$data);
                 if ($data) {
-                    $file = new TempFile();
-                    file_put_contents($file->getPathname(), $data);
-                    $data = $file;
+                    $event->setData(new TempFile($data));
+                } else {
+                    $event->setData($event->getForm()->getData());
                 }
-                $event->setData($data);
             }
         );
     }
