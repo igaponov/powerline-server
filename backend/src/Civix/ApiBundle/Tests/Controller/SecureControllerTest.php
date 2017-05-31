@@ -255,7 +255,6 @@ class SecureControllerTest extends WebTestCase
             'username' => 'This value should not be blank.',
             'first_name' => 'This value should not be blank.',
             'last_name' => 'This value should not be blank.',
-            'zip' => 'This value should not be blank.',
             'email' => 'This value is not a valid email address.',
             'email_confirm' => 'The email fields must match.',
         ];
@@ -286,7 +285,6 @@ class SecureControllerTest extends WebTestCase
 			'address2' => $faker->address,
 			'city' => 'Bucklin',
 			'state' => 'KS',
-			'zip' => '67834',
 			'country' => 'US',
 			'birth' => $faker->date(),
 		];
@@ -326,7 +324,6 @@ class SecureControllerTest extends WebTestCase
 		$this->assertSame($data['address2'], $user['address2']);
 		$this->assertSame($data['city'], $user['city']);
 		$this->assertSame($data['state'], $user['state']);
-		$this->assertSame($data['zip'], $user['zip']);
 		$this->assertSame($data['country'], $user['country']);
 		$this->assertSame(strtotime($data['birth']), strtotime($user['birth']));
         /** @var EntityManager $em */
