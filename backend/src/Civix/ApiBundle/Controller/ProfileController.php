@@ -296,7 +296,7 @@ class ProfileController extends BaseController
         /** @var User $user */
         $user = $this->get('security.token_storage')->getToken()->getUser();
         $form = $this->createForm(UserUpdateType::class, $user);
-        if ($request->headers->get('content-type') === 'text/plain') {
+        if (strpos($request->headers->get('content-type'), 'text/plain') !== false) {
             $submittedData = json_decode($request->getContent(), true);
         } else {
             $submittedData = $request->request->all();

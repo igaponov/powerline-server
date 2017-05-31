@@ -136,7 +136,7 @@ class ProfileControllerTest extends WebTestCase
         $client->getContainer()->set('civix_core.cicero_api', $service);
         $client->request('POST', self::API_ENDPOINT.'update', [], [], [
             'HTTP_Authorization' => 'Bearer type="user" token="user1"',
-            'CONTENT_TYPE' => 'text/plain',
+            'CONTENT_TYPE' => 'text/plain;charset=UTF-8',
             ], json_encode(array_merge($params, ['avatar_file_name' => $avatar])));
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
