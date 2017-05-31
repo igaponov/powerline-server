@@ -218,7 +218,10 @@ class SecureController extends BaseController
         $form->submit($request->request->all());
 
         if ($form->isValid()) {
-            return $this->manager->register($form->getData());
+            /** @var User $user */
+            $user = $form->getData();
+            $user->setIsRegistrationComplete(false);
+            return $this->manager->register($user);
         }
 
         return $this->getBadRequestResponse($form);
