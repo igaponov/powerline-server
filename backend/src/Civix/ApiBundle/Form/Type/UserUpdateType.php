@@ -102,6 +102,7 @@ class UserUpdateType extends AbstractType
 
                 return $groups;
             },
+            'allow_extra_fields' => true,
         ]);
     }
 
