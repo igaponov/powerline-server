@@ -90,6 +90,69 @@ class ProfileControllerTest extends WebTestCase
         );
     }
 
+	public function testUpdateProfilewithContentTypeTextPlain()
+	{
+        $this->loadFixtures([
+            LoadUserData::class,
+        ]);
+        $avatar = base64_encode(file_get_contents(__DIR__.'/../data/image.png'));
+        $params = [
+            'first_name' => 'new-firstName',
+            'last_name' => 'new-lastName',
+            'email' => 'new@email.com',
+            'zip' => 'new-zip',
+            'birth' => '11/11/2011',
+            'address1' => 'new-address1',
+            'address2' => 'new-address2',
+            'city' => 'new-city',
+            'state' => 'new-state',
+            'country' => 'new-country',
+            'phone' => 'new-phone',
+            'facebook_link' => 'new-facebookLink',
+            'twitter_link' => 'new-twitterLink',
+            'race' => 'new-race',
+            'sex' => 'new-sex',
+            'orientation' => 'new-orientation',
+            'marital_status' => 'new-maritalStatus',
+            'religion' => 'new-religion',
+            'employment_status' => 'new-employmentStatus',
+            'income_level' => 'new-incomeLevel',
+            'education_level' => 'new-educationLevel',
+            'party' => 'new-party',
+            'philosophy' => 'new-philosophy',
+            'donor' => 'new-donor',
+            'bio' => 'new-bio',
+            'slogan' => 'new-slogan',
+            'interests' => ['new-interest1', 'new-interest2'],
+            'registration' => 'new-registration',
+        ];
+        $client = $this->client;
+        $service = $this->getMockBuilder(CiceroApi::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getRepresentativesByLocation'])
+            ->getMock();
+        $service->expects($this->once())
+            ->method('getRepresentativesByLocation');
+        $client->getContainer()->set('civix_core.cicero_api', $service);
+        $client->request('POST', self::API_ENDPOINT.'update', [], [], [
+            'HTTP_Authorization' => 'Bearer type="user" token="user1"',
+            'CONTENT_TYPE' => 'text/plain',
+            ], json_encode(array_merge($params, ['avatar_file_name' => $avatar])));
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        foreach (array_keys($params) as $key) {
+            $this->assertEquals($params[$key], $data[$key], $key);
+        }
+        $storage = $client->getContainer()->get('civix_core.storage.array');
+        $files = $storage->getFiles('avatar_image_fs');
+        $this->assertCount(1, $files);
+        $this->assertEquals(
+            'https://powerline-dev.imgix.net/avatars/'.key($files).'?ixlib=php-1.1.0',
+            $data['avatar_file_name']
+        );
+    }
+
 	public function testUpdateProfileWithErrors()
 	{
         $this->loadFixtures([
