@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class UrlTest extends TestCase
 {
-    public function testIgnore(): void
+    public function testIgnore()
     {
         $url = 'http://imgix.net/example.jpg';
         $source = new Url(['imgix.net']);
@@ -15,13 +15,13 @@ class UrlTest extends TestCase
         $this->assertNull($source->convert($url));
     }
 
-    public function testEmptyUrl(): void
+    public function testEmptyUrl()
     {
         $source = new Url();
         $this->assertNull($source->convert(''));
     }
 
-    public function testInvalidUrl(): void
+    public function testInvalidUrl()
     {
         $source = new Url();
         $this->assertNull($source->convert('qwerty'));
