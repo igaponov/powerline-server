@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use Doctrine\ORM\EntityManager;
 use FOS\RestBundle\Controller\Annotations\View;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,6 +23,7 @@ class ActivityController extends BaseController
      */
     public function indexAction(Request $request)
     {
+        /** @var EntityManager $entityManager */
         $entityManager = $this->getDoctrine()->getManager();
 
         $start = new \DateTime($request->get('start'));

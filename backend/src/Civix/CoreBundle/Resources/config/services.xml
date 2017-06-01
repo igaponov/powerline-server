@@ -65,7 +65,6 @@
         <service id="civix_core.activity_update" class="Civix\CoreBundle\Service\ActivityUpdate">
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="validator" />
-            <argument type="service" id="civix_core.settings" />
             <argument type="service" id="civix_core.comment_manager" />
         </service>
 

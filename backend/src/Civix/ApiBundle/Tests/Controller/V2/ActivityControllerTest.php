@@ -31,25 +31,25 @@ class ActivityControllerTest extends WebTestCase
 	/**
 	 * @var Client
 	 */
-	private $client = null;
+	private $client;
 
-	public function setUp()
-	{
+	public function setUp(): void
+    {
 		// Creates a initial client
 		$this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
 
 		$this->em = $this->getContainer()->get('doctrine')->getManager();
 	}
 
-	public function tearDown()
-	{
+	public function tearDown(): void
+    {
 		$this->client = NULL;
         $this->em = null;
         parent::tearDown();
     }
 
-	public function testGetActivitiesNotAuthorized()
-	{
+	public function testGetActivitiesNotAuthorized(): void
+    {
 		$client = $this->client;
 		$client->request('GET', self::API_ENDPOINT);
 		$response = $client->getResponse();
@@ -60,9 +60,9 @@ class ActivityControllerTest extends WebTestCase
      * @QueryCount(10)
      * @todo cache user's newsfeed
      */
-	public function testGetActivitiesIsOk()
-	{
-        $this->loadFixtures([
+	public function testGetActivitiesIsOk(): void
+    {
+        $repository = $this->loadFixtures([
             LoadUserFollowerData::class,
             LoadActivityRelationsData::class,
             LoadUserPetitionSubscriberData::class,
@@ -71,32 +71,41 @@ class ActivityControllerTest extends WebTestCase
             LoadEducationalContextData::class,
             LoadActivityReadAuthorData::class,
             LoadUserGroupOwnerData::class,
-        ]);
+        ])->getReferenceRepository();
 		$client = $this->client;
-		$client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+		$client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer user1']);
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-		$data = json_decode($response->getContent(), true);
-		$this->assertSame(1, $data['page']);
-		$this->assertSame(20, $data['items']);
-		$this->assertSame(8, $data['totalItems']);
-		$this->assertCount(8, $data['payload']);
-        foreach ($data['payload'] as $item) {
+		$data = $this->deserializePagination($response->getContent(), 1, 8, 20);
+        $activities = array_map(function($name) use ($repository) {
+            return $repository->getReference($name)->getId();
+        }, [
+            'activity_leader_news',
+            'activity_crowdfunding_payment_request',
+            'activity_user_petition',
+            'activity_post',
+            'activity_petition',
+            'activity_question',
+            'activity_leader_event',
+            'activity_payment_request',
+        ]);
+		foreach ($data->getItems() as $key => $item) {
+		    $this->assertThat($item['id'], $this->logicalOr(...$activities));
             $this->assertNotEmpty($item['user']);
             $this->assertArrayHasKey('group', $item);
-            if ($item['entity']['type'] == 'user-petition') {
+            if ($item['entity']['type'] === 'user-petition') {
                 $this->assertTrue($item['user_petition']['is_subscribed']);
-            } elseif ($item['entity']['type'] == 'post') {
+            } elseif ($item['entity']['type'] === 'post') {
                 $this->assertTrue($item['post']['is_subscribed']);
-            } elseif ($item['entity']['type'] == 'question') {
+            } elseif ($item['entity']['type'] === 'question') {
                 $this->assertTrue($item['poll']['is_subscribed']);
                 $this->assertArrayHasKey('educational_context', $item['poll']);
                 $this->assertCount(2, $item['poll']['educational_context']);
-            } elseif ($item['entity']['type'] == 'petition') {
+            } elseif ($item['entity']['type'] === 'petition') {
                 $this->assertNotEmpty($item['group']['avatar_file_path']);
                 $this->assertFalse($item['poll']['is_subscribed']);
             }
-            if ($item['entity']['type'] == 'micro-petition') {
+            if ($item['entity']['type'] === 'micro-petition') {
                 $this->assertArrayHasKey('comments_count', $item);
                 $this->assertArrayHasKey('answers', $item);
                 $this->assertInternalType('array', $item['answers']);
@@ -104,7 +113,125 @@ class ActivityControllerTest extends WebTestCase
 
             if ($item['expire_at'] && strtotime($item['expire_at']) < time()) {
                 $this->assertSame('expired', $item['zone']);
-            } elseif (in_array($item['entity']['type'], ['user-petition', 'post'])) {
+            } elseif (in_array($item['entity']['type'], ['user-petition', 'post'], true)) {
+                $this->assertSame('non_prioritized', $item['zone']);
+            } else {
+                $this->assertSame('prioritized', $item['zone']);
+            }
+
+            $this->assertArrayHasKey('description_html', $item);
+        }
+	}
+
+	public function testGetActivitiesByFollowedIsOk(): void
+    {
+        $repository = $this->loadFixtures([
+            LoadUserFollowerData::class,
+            LoadActivityRelationsData::class,
+            LoadUserPetitionSubscriberData::class,
+            LoadPostSubscriberData::class,
+            LoadPollSubscriberData::class,
+            LoadEducationalContextData::class,
+            LoadActivityReadAuthorData::class,
+            LoadUserGroupOwnerData::class,
+        ])->getReferenceRepository();
+		$client = $this->client;
+		$client->request('GET', self::API_ENDPOINT, ['followed' => true], [], ['HTTP_Authorization'=>'Bearer user1']);
+		$response = $client->getResponse();
+		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+		$data = $this->deserializePagination($response->getContent(), 1, 4, 20);
+        $activities = array_map(function($name) use ($repository) {
+            return $repository->getReference($name)->getId();
+        }, [
+            'activity_petition',
+            'activity_question',
+            'activity_leader_event',
+            'activity_payment_request',
+        ]);
+        foreach ($data->getItems() as $item) {
+            $this->assertThat($item['id'], $this->logicalOr(...$activities));
+            $this->assertNotEmpty($item['user']);
+            $this->assertArrayHasKey('group', $item);
+            if ($item['entity']['type'] === 'user-petition') {
+                $this->assertTrue($item['user_petition']['is_subscribed']);
+            } elseif ($item['entity']['type'] === 'post') {
+                $this->assertTrue($item['post']['is_subscribed']);
+            } elseif ($item['entity']['type'] === 'question') {
+                $this->assertTrue($item['poll']['is_subscribed']);
+                $this->assertArrayHasKey('educational_context', $item['poll']);
+                $this->assertCount(2, $item['poll']['educational_context']);
+            } elseif ($item['entity']['type'] === 'petition') {
+                $this->assertNotEmpty($item['group']['avatar_file_path']);
+                $this->assertFalse($item['poll']['is_subscribed']);
+            }
+            if ($item['entity']['type'] === 'micro-petition') {
+                $this->assertArrayHasKey('comments_count', $item);
+                $this->assertArrayHasKey('answers', $item);
+                $this->assertInternalType('array', $item['answers']);
+            }
+
+            if ($item['expire_at'] && strtotime($item['expire_at']) < time()) {
+                $this->assertSame('expired', $item['zone']);
+            } elseif (in_array($item['entity']['type'], ['user-petition', 'post'], true)) {
+                $this->assertSame('non_prioritized', $item['zone']);
+            } else {
+                $this->assertSame('prioritized', $item['zone']);
+            }
+
+            $this->assertArrayHasKey('description_html', $item);
+        }
+	}
+
+	public function testGetActivitiesByNonFollowedIsOk(): void
+    {
+        $repository = $this->loadFixtures([
+            LoadUserFollowerData::class,
+            LoadActivityRelationsData::class,
+            LoadUserPetitionSubscriberData::class,
+            LoadPostSubscriberData::class,
+            LoadPollSubscriberData::class,
+            LoadEducationalContextData::class,
+            LoadActivityReadAuthorData::class,
+            LoadUserGroupOwnerData::class,
+        ])->getReferenceRepository();
+		$client = $this->client;
+		$client->request('GET', self::API_ENDPOINT, ['non_followed' => true], [], ['HTTP_Authorization'=>'Bearer user1']);
+		$response = $client->getResponse();
+		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+		$data = $this->deserializePagination($response->getContent(), 1, 4, 20);
+        $activities = array_map(function($name) use ($repository) {
+            return $repository->getReference($name)->getId();
+        }, [
+            'activity_leader_news',
+            'activity_crowdfunding_payment_request',
+            'activity_user_petition',
+            'activity_post',
+        ]);
+        foreach ($data->getItems() as $item) {
+            $this->assertThat($item['id'], $this->logicalOr(...$activities));
+            $this->assertNotEmpty($item['user']);
+            $this->assertArrayHasKey('group', $item);
+            if ($item['entity']['type'] === 'user-petition') {
+                $this->assertTrue($item['user_petition']['is_subscribed']);
+            } elseif ($item['entity']['type'] === 'post') {
+                $this->assertTrue($item['post']['is_subscribed']);
+            } elseif ($item['entity']['type'] === 'question') {
+                $this->assertTrue($item['poll']['is_subscribed']);
+                $this->assertArrayHasKey('educational_context', $item['poll']);
+                $this->assertCount(2, $item['poll']['educational_context']);
+            } elseif ($item['entity']['type'] === 'petition') {
+                $this->assertNotEmpty($item['group']['avatar_file_path']);
+                $this->assertFalse($item['poll']['is_subscribed']);
+            }
+            if ($item['entity']['type'] === 'micro-petition') {
+                $this->assertArrayHasKey('comments_count', $item);
+                $this->assertArrayHasKey('answers', $item);
+                $this->assertInternalType('array', $item['answers']);
+            }
+
+            if ($item['expire_at'] && strtotime($item['expire_at']) < time()) {
+                $this->assertSame('expired', $item['zone']);
+            } elseif (in_array($item['entity']['type'], ['user-petition', 'post'], true)) {
                 $this->assertSame('non_prioritized', $item['zone']);
             } else {
                 $this->assertSame('prioritized', $item['zone']);
@@ -117,15 +244,15 @@ class ActivityControllerTest extends WebTestCase
     /**
      * @QueryCount(7)
      */
-	public function testGetActivitiesFilteredByGroupIsOk()
-	{
+	public function testGetActivitiesFilteredByGroupIsOk(): void
+    {
         $repository = $this->loadFixtures([
             LoadActivityData::class,
             LoadUserGroupOwnerData::class,
         ])->getReferenceRepository();
         $client = $this->client;
         $group = $repository->getReference('group_1');
-        $client->request('GET', self::API_ENDPOINT, ['group' => $group->getId()], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $client->request('GET', self::API_ENDPOINT, ['group' => $group->getId()], [], ['HTTP_Authorization'=>'Bearer user1']);
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
@@ -138,15 +265,15 @@ class ActivityControllerTest extends WebTestCase
     /**
      * @QueryCount(7)
      */
-	public function testGetActivitiesFilteredByGroupIsEmpty()
-	{
+	public function testGetActivitiesFilteredByGroupIsEmpty(): void
+    {
         $repository = $this->loadFixtures([
             LoadActivityData::class,
             LoadUserGroupOwnerData::class,
         ])->getReferenceRepository();
         $client = $this->client;
         $group = $repository->getReference('group_4');
-        $client->request('GET', self::API_ENDPOINT, ['group' => $group->getId()], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $client->request('GET', self::API_ENDPOINT, ['group' => $group->getId()], [], ['HTTP_Authorization'=>'Bearer user1']);
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
@@ -159,13 +286,13 @@ class ActivityControllerTest extends WebTestCase
     /**
      * @QueryCount(7)
      */
-	public function testGetActivitiesIsEmpty()
-	{
+	public function testGetActivitiesIsEmpty(): void
+    {
         $this->loadFixtures([
             LoadUserData::class,
         ]);
 		$client = $this->client;
-		$client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user4"']);
+		$client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer user4']);
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
@@ -178,8 +305,8 @@ class ActivityControllerTest extends WebTestCase
     /**
      * @QueryCount(7)
      */
-	public function testGetActivitiesByFollowingIsOk()
-	{
+	public function testGetActivitiesByFollowingIsOk(): void
+    {
         $repository = $this->loadFixtures([
             LoadUserGroupOwnerData::class,
             LoadUserFollowerData::class,
@@ -188,15 +315,11 @@ class ActivityControllerTest extends WebTestCase
 		/** @var User $user */
 		$user = $repository->getReference('user_2');
 		$client = $this->client;
-		$client->request('GET', self::API_ENDPOINT, ['following' => $user->getId()], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+		$client->request('GET', self::API_ENDPOINT, ['following' => $user->getId()], [], ['HTTP_Authorization'=>'Bearer user1']);
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-		$data = json_decode($response->getContent(), true);
-		$this->assertSame(1, $data['page']);
-		$this->assertSame(20, $data['items']);
-		$this->assertSame(2, $data['totalItems']);
-		$this->assertCount(2, $data['payload']);
-		foreach ($data['payload'] as $next) {
+		$data = $this->deserializePagination($response->getContent(), 1, 2, 20);
+		foreach ($data->getItems() as $next) {
 		    if ($next['entity']['type'] === 'question') {
                 $this->assertSame('expired', $next['zone']);
             } else {
@@ -208,8 +331,8 @@ class ActivityControllerTest extends WebTestCase
     /**
      * @QueryCount(7)
      */
-	public function testGetActivitiesByFollowingIsEmpty()
-	{
+	public function testGetActivitiesByFollowingIsEmpty(): void
+    {
         $repository = $this->loadFixtures([
             LoadUserFollowerData::class,
             LoadActivityData::class,
@@ -217,7 +340,7 @@ class ActivityControllerTest extends WebTestCase
 		/** @var User $user */
 		$user = $repository->getReference('user_2');
 		$client = $this->client;
-		$client->request('GET', self::API_ENDPOINT, ['following' => $user->getId()], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+		$client->request('GET', self::API_ENDPOINT, ['following' => $user->getId()], [], ['HTTP_Authorization'=>'Bearer user1']);
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
@@ -230,8 +353,8 @@ class ActivityControllerTest extends WebTestCase
     /**
      * @QueryCount(7)
      */
-	public function testGetActivitiesByAnotherUserIsOk()
-	{
+	public function testGetActivitiesByAnotherUserIsOk(): void
+    {
         $repository = $this->loadFixtures([
             LoadActivityData::class,
             LoadUserGroupData::class,
@@ -241,47 +364,40 @@ class ActivityControllerTest extends WebTestCase
 		/** @var User $user */
 		$user = $repository->getReference('user_1');
 		$client = $this->client;
-		$client->request('GET', self::API_ENDPOINT, ['user' => $user->getId(), 'type' => ['post', 'petition']], [], ['HTTP_Authorization'=>'Bearer type="user" token="user2"']);
+		$client->request('GET', self::API_ENDPOINT, ['user' => $user->getId(), 'type' => ['post', 'petition']], [], ['HTTP_Authorization'=>'Bearer user2']);
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-		$data = json_decode($response->getContent(), true);
-		$this->assertSame(1, $data['page']);
-		$this->assertSame(20, $data['items']);
-		$this->assertSame(2, $data['totalItems']);
-		$this->assertCount(2, $data['payload']);
-        foreach ($data['payload'] as $item) {
-            $this->assertThat(
-                $item['entity']['type'],
-                $this->logicalOr('post', 'user-petition')
-            );
+		$data = $this->deserializePagination($response->getContent(), 1, 2, 20);
+        foreach ($data->getItems() as $item) {
+            $this->assertThat($item['entity']['type'], $this->logicalOr('post', 'user-petition'));
 		}
 	}
 
-	public function testPatchActivitiesWithEmptyArray()
-	{
+	public function testPatchActivitiesWithEmptyArray(): void
+    {
 		$data = ['activities' => []];
 		$client = $this->client;
-		$client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($data));
+		$client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer user1'], json_encode($data));
 		$response = $client->getResponse();
 		$this->assertEquals(400, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
-		$this->assertContains("This value should not be blank.", $data['errors']['errors']);
+		$this->assertContains('This value should not be blank.', $data['errors']['errors']);
 	}
 
-	public function testPatchActivitiesWithEmptyId()
-	{
+	public function testPatchActivitiesWithEmptyId(): void
+    {
 		$data = ['activities' => [['id' => '']]];
 		$client = $this->client;
-		$client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($data));
+		$client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer user1'], json_encode($data));
 		$response = $client->getResponse();
 		$this->assertEquals(400, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
 		$this->assertContains(
-			"This value should not be blank.",
+			'This value should not be blank.',
 			$data['errors']['children']['activities']['children'][0]['children']['id']['errors']
 		);
 		$this->assertContains(
-			"This value should not be blank.",
+			'This value should not be blank.',
 			$data['errors']['children']['activities']['children'][0]['children']['read']['errors']
 		);
 	}
@@ -289,8 +405,8 @@ class ActivityControllerTest extends WebTestCase
     /**
      * @QueryCount(7)
      */
-	public function testPatchActivities()
-	{
+	public function testPatchActivities(): void
+    {
         $repository = $this->loadFixtures([
             LoadActivityData::class,
         ])->getReferenceRepository();
@@ -305,12 +421,13 @@ class ActivityControllerTest extends WebTestCase
 			],
 		];
 		$client = $this->client;
-		$client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
+		$client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer user1'], json_encode($params));
         $response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
 		$this->assertCount(3, $data);
-		foreach ($data as $activity) {
+        /** @var array $data */
+        foreach ($data as $activity) {
 			$this->assertThat(
 				$activity['id'],
 				$this->logicalOr($leaderNews->getId(), $paymentRequest->getId(), $question->getId())
@@ -329,7 +446,7 @@ class ActivityControllerTest extends WebTestCase
 		sort($arr);
 		$this->assertEquals($arr, array_map('intval', array_column($ids, 'activity_id')));
         // the same request does nothing
-        $client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
+        $client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer user1'], json_encode($params));
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $this->assertEquals($data, json_decode($response->getContent(), true));

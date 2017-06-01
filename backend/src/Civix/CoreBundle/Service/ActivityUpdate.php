@@ -35,10 +35,6 @@ class ActivityUpdate
      */
     protected $validator;
     /**
-     * @var Settings
-     */
-    private $settings;
-    /**
      * @var CommentManager
      */
     private $cm;
@@ -46,13 +42,11 @@ class ActivityUpdate
     public function __construct(
         EntityManager $entityManager,
         ValidatorInterface $validator,
-        Settings $settings,
         CommentManager $cm
     )
     {
         $this->entityManager = $entityManager;
         $this->validator = $validator;
-        $this->settings = $settings;
         $this->cm = $cm;
     }
 
@@ -106,12 +100,13 @@ class ActivityUpdate
                 $this->cm->addPollRootComment($question, $activity->getDescription());
             }
             $this->createActivityConditionsForQuestion($activity, $question);
+            $this->createUserActivityConditions($activity, $activity->getUser());
         }
 
         return $activity;
     }
 
-    public function publishUserPetitionToActivity(UserPetition $petition, $isPublic = false)
+    public function publishUserPetitionToActivity(UserPetition $petition, $isPublic = false): void
     {
         $activity = $this->entityManager->getRepository(Activity::class)
             ->findOneBy(['petition' => $petition]);
@@ -134,13 +129,12 @@ class ActivityUpdate
         $this->entityManager->flush();
 
         if ($isNew) {
-            $this->createActivityConditionsForUserPetition($activity, $petition);
+            $this->createGroupActivityConditions($activity);
+            $this->createUserActivityConditions($activity, $activity->getUser());
         }
-
-        return true;
     }
 
-    public function publishPostToActivity(Post $post, $isPublic = false)
+    public function publishPostToActivity(Post $post, $isPublic = false): void
     {
         $activity = $this->entityManager->getRepository(Activity::class)
             ->findOneBy(['post' => $post]);
@@ -163,29 +157,28 @@ class ActivityUpdate
         $this->entityManager->flush();
 
         if ($isNew) {
-            $this->createActivityConditionsForPost($activity, $post);
+            $this->createGroupActivityConditions($activity);
+            $this->createUserActivityConditions($activity, $activity->getUser());
         }
-
-        return true;
     }
 
-    public function updateResponsesQuestion(Question $question)
+    public function updateResponsesQuestion(Question $question): void
     {
         $this->entityManager->getRepository('CivixCoreBundle:Poll\Question')->updateAnswersCount($question);
         $this->entityManager->getRepository('CivixCoreBundle:Activity')->updateResponseCountQuestion($question);
     }
 
-    public function updateResponsesPetition(UserPetition $petition)
+    public function updateResponsesPetition(UserPetition $petition): void
     {
         $this->entityManager->getRepository('CivixCoreBundle:Activity')->updateResponseCountUserPetition($petition);
     }
 
-    public function updateResponsesPost(Post $post)
+    public function updateResponsesPost(Post $post): void
     {
         $this->entityManager->getRepository('CivixCoreBundle:Activity')->updateResponseCountPost($post);
     }
 
-    public function updatePetitionAuthorActivity(UserPetition $petition, User $answerer)
+    public function updatePetitionAuthorActivity(UserPetition $petition, User $answerer): void
     {
         if ($petition->getUser()->getIsNotifOwnPostChanged() && $petition->getSubscribers()->contains($petition->getUser())) {
             $socialActivity = new SocialActivity(
@@ -206,7 +199,7 @@ class ActivityUpdate
         }
     }
 
-    public function updatePostAuthorActivity(Post $post, User $answerer)
+    public function updatePostAuthorActivity(Post $post, User $answerer): void
     {
         if ($post->getUser()->getIsNotifOwnPostChanged() && $post->getSubscribers()->contains($post->getUser())) {
             $socialActivity = new SocialActivity(
@@ -227,12 +220,12 @@ class ActivityUpdate
         }
     }
 
-    public function updateOwnerData(UserInterface $owner)
+    public function updateOwnerData(UserInterface $owner): void
     {
         $this->entityManager->getRepository('CivixCoreBundle:Activity')->{'updateOwner'.$owner->getType()}($owner);
     }
 
-    public function updateEntityRateCount(CommentRate $rate)
+    public function updateEntityRateCount(CommentRate $rate): void
     {
         $comment = $rate->getComment();
         $user = $rate->getUser();
@@ -267,7 +260,7 @@ class ActivityUpdate
         return $activity;
     }
 
-    private function createActivityConditionsForQuestion(Activity $activity, Question $question)
+    private function createActivityConditionsForQuestion(Activity $activity, Question $question): void
     {
         if ($activity->getRepresentative() && $activity->getRepresentative()->getDistrict()) {
             $this->createRepresentativeActivityConditions($activity);
@@ -279,28 +272,10 @@ class ActivityUpdate
             } else {
                 $this->createGroupActivityConditions($activity);
             }
-        } elseif ($activity->getSuperuser()) {
-            $this->createSuperuserActivityConditions($activity);
         }
     }
 
-    private function createActivityConditionsForUserPetition(Activity $activity, UserPetition $petition)
-    {
-        $this->createGroupActivityConditions($activity);
-        if ($petition->isOutsidersSign() || !$petition->isBoosted()) {
-            $this->createUserActivityConditions($activity, $petition->getUser());
-        }
-    }
-
-    private function createActivityConditionsForPost(Activity $activity, Post $post)
-    {
-        $this->createGroupActivityConditions($activity);
-        if (!$post->isBoosted()) {
-            $this->createUserActivityConditions($activity, $post->getUser());
-        }
-    }
-
-    private function createRepresentativeActivityConditions(Activity $activity)
+    private function createRepresentativeActivityConditions(Activity $activity): void
     {
         $condition = new ActivityCondition($activity);
         $condition->setDistrict($activity->getRepresentative()->getDistrict());
@@ -308,7 +283,7 @@ class ActivityUpdate
         $this->entityManager->flush($condition);
     }
 
-    private function createGroupActivityConditions(Activity $activity)
+    private function createGroupActivityConditions(Activity $activity): void
     {
         $condition = new ActivityCondition($activity);
         $condition->setGroup($activity->getGroup());
@@ -316,7 +291,7 @@ class ActivityUpdate
         $this->entityManager->flush($condition);
     }
 
-    private function createGroupSectionActivityConditions(Activity $activity, GroupSection $section)
+    private function createGroupSectionActivityConditions(Activity $activity, GroupSection $section): void
     {
         $condition = new ActivityCondition($activity);
         $condition->setGroupSection($section);
@@ -324,18 +299,10 @@ class ActivityUpdate
         $this->entityManager->flush($condition);
     }
 
-    private function createUserActivityConditions(Activity $activity, User $user)
+    private function createUserActivityConditions(Activity $activity, User $user): void
     {
         $condition = new ActivityCondition($activity);
         $condition->setUser($user);
-        $this->entityManager->persist($condition);
-        $this->entityManager->flush($condition);
-    }
-
-    private function createSuperuserActivityConditions(Activity $activity)
-    {
-        $condition = new ActivityCondition($activity);
-        $condition->setIsSuperuser(true);
         $this->entityManager->persist($condition);
         $this->entityManager->flush($condition);
     }
