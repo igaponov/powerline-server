@@ -23,7 +23,7 @@ use Faker\Factory;
  */
 class LoadActivityData extends AbstractFixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         /** @var Group $group */
         $group = $this->getReference('group_1');
@@ -34,9 +34,8 @@ class LoadActivityData extends AbstractFixture implements DependentFixtureInterf
         $crowdfundingPaymentRequest = $this->generateActivity(
             new CrowdfundingPaymentRequest(),
             $user1,
-            $group,
-            new \DateTime('-1 hour')
-        );
+            $group
+        )->setExpireAt(new \DateTime('-1 hour'));
         $manager->persist($crowdfundingPaymentRequest);
         $this->addReference('activity_crowdfunding_payment_request', $crowdfundingPaymentRequest);
         $userPetition = $this->generateActivity(new UserPetition(), $user1, $group);
@@ -49,11 +48,13 @@ class LoadActivityData extends AbstractFixture implements DependentFixtureInterf
         $petition = $this->generateActivity(new Petition(), $user2, $group);
         $manager->persist($petition);
         $this->addReference('activity_petition', $petition);
-        $question = $this->generateActivity(new Question(), $user2, $group, new \DateTime('-1 day'));
+        $question = $this->generateActivity(new Question(), $user2, $group)
+            ->setExpireAt(new \DateTime('-1 day'));
         $manager->persist($question);
         $this->addReference('activity_question', $question);
         $user3 = $this->getReference('user_3');
-        $leaderEvent = $this->generateActivity(new LeaderEvent(), $user3, $group, new \DateTime('-1 month'));
+        $leaderEvent = $this->generateActivity(new LeaderEvent(), $user3, $group)
+            ->setExpireAt(new \DateTime('-1 month'));
         $manager->persist($leaderEvent);
         $this->addReference('activity_leader_event', $leaderEvent);
         $paymentRequest = $this->generateActivity(new PaymentRequest(), $user3, $group);
@@ -66,18 +67,16 @@ class LoadActivityData extends AbstractFixture implements DependentFixtureInterf
         $manager->flush();
     }
 
-    private function generateActivity(Activity $activity, $user, Group $group, $expired = null)
+    private function generateActivity(Activity $activity, $user, Group $group): Activity
     {
         $faker = Factory::create();
         $activity->setTitle($faker->word);
         $activity->setDescription($faker->text);
         $activity->setSentAt($faker->dateTimeBetween('-10 days', '-1 minute'));
-        $activity->setExpireAt($expired);
         $activity->setOwner([]);
         $activity->setUser($user);
         $activityCondition = new ActivityCondition();
         $activityCondition->setUser($user);
-        $activityCondition->addUsers($user);
         if ($group) {
             $activity->setGroup($group);
             $activityCondition->setGroup($group);
@@ -87,7 +86,7 @@ class LoadActivityData extends AbstractFixture implements DependentFixtureInterf
         return $activity;
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [LoadUserData::class, LoadGroupData::class];
     }

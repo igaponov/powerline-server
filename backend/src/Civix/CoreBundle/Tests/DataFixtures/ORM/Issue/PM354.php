@@ -16,7 +16,7 @@ use Faker\Factory;
  */
 class PM354 extends AbstractFixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $faker = Factory::create();
         /** @var User $user */
@@ -34,7 +34,6 @@ class PM354 extends AbstractFixture implements DependentFixtureInterface
         $activity->setQuestion($news);
         $activityCondition = new ActivityCondition();
         $activityCondition->setUser($user);
-        $activityCondition->addUsers($user);
         $activity->addActivityCondition($activityCondition);
         $this->addReference('activity_pm354', $activity);
 
@@ -42,7 +41,7 @@ class PM354 extends AbstractFixture implements DependentFixtureInterface
         $manager->flush();
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [LoadGroupNewsCommentData::class];
     }

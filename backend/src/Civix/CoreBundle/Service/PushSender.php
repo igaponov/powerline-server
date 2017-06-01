@@ -2,17 +2,16 @@
 
 namespace Civix\CoreBundle\Service;
 
-use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\Announcement\GroupAnnouncement;
 use Civix\CoreBundle\Entity\Announcement\RepresentativeAnnouncement;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\Representative;
-use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Notification\AbstractEndpoint;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\UserPetition;
+use Civix\CoreBundle\QueryFunction\CountPriorityActivities;
 use Civix\CoreBundle\Service\Poll\QuestionUserPush;
 use Doctrine\ORM\EntityManager;
 use Imgix\UrlBuilder;
@@ -462,7 +461,7 @@ class PushSender
 
     private function getBadge(User $user)
     {
-        return $this->entityManager->getRepository(Activity::class)
-            ->countPriorityActivitiesByUser($user, new \DateTime('-30 days'));
+        $queryBuilder = new CountPriorityActivities($this->entityManager);
+        return $queryBuilder($user, new \DateTime('-30 days'));
     }
 }
