@@ -24,12 +24,12 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
     /** @var  ObjectManager */
     private $manager;
 
-    public function setContainer(ContainerInterface $container = null)
+    public function setContainer(ContainerInterface $container = null): void
     {
         $this->container = $container;
     }
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $this->manager = $manager;
 
@@ -37,7 +37,7 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
         $user->setUsername('user1')
             ->setFirstName('User')
             ->setLastName('One')
-            ->setEmail("user1@example.com")
+            ->setEmail('user1@example.com')
             ->setPlainPassword('user1')
             ->setBirth(new \DateTime('-30 years'))
             ->setDoNotDisturb(false)
@@ -46,7 +46,6 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
             ->setIsRegistrationComplete(true)
             ->setPhone('+1234567890')
             ->setIsNotifOwnPostChanged(true)
-            ->setSalt(base_convert(sha1(uniqid(mt_rand(), true)), 16, 36))
             ->setToken('user1')
             ->setResetPasswordToken('x-reset-token')
             ->setResetPasswordAt(new \DateTime('-1 day'))
@@ -54,7 +53,7 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
             ->setBio('User 1 Bio')
             ->setFacebookId('xXxXxXxXxXx')
             ->setFacebookToken('yYyYyYyYyYy')
-            ->setAvatarFileName(uniqid().'.jpg');
+            ->setAvatarFileName(uniqid('', true).'.jpg');
         foreach (['district_la', 'district_sd', 'district_us'] as $item) {
             $user->addDistrict($this->getDistrict($item));
         }
@@ -65,25 +64,37 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
         $manager->flush();
 
         $this->addReference('user_2', $this->generateUser('user2'));
-        $this->addReference('user_3', $this->generateUser('user3', null, ['district_sd', 'district_us', 'district_nj'], false, ['lat' => 40.781, 'lng' => -73.982]));
+
+        $user3 = $this->generateUser(
+            'user3',
+            null,
+            ['district_sd', 'district_us', 'district_nj']
+        )
+            ->setLatitude(40.781)
+            ->setLongitude(-73.982);
+        $this->addReference('user_3', $user3);
+
         $this->addReference('user_4', $this->generateUser('user4'));
 
         $this->addReference('followertest', $this->generateUser('followertest', null, ['district_la', 'district_sf', 'district_us']));
-        $this->addReference('userfollowtest1', $this->generateUser('userfollowtest1', null, 'district_sd', true));
+        $userFollowerTest1 = $this->generateUser('userfollowtest1', null, 'district_sd')
+            ->setIsNotifOwnPostChanged(true);
+
+        $this->addReference('userfollowtest1', $userFollowerTest1);
         $this->addReference('userfollowtest2', $this->generateUser('userfollowtest2'));
         $this->addReference('userfollowtest3', $this->generateUser('userfollowtest3'));
         $this->addReference('testuserbookmark1', $this->generateUser('testuserbookmark1'));
+
+        $manager->flush();
     }
 
     /**
      * @param $username
-     * @param null $birthDate
-     * @param null $district
-     * @param bool $isNotifOwnPostChanged
-     * @param array $coordinates
+     * @param \DateTime|null $birthDate
+     * @param array|null|string $district
      * @return User
      */
-    private function generateUser($username, $birthDate = null, $district = null, $isNotifOwnPostChanged = false, $coordinates = [])
+    private function generateUser($username, $birthDate = null, $district = null): User
     {
         $birthDate = $birthDate ?: new \DateTime();
 
@@ -91,7 +102,7 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
         $user = new User();
         $user->setUsername($username)
             ->setFirstName($names[0])
-            ->setLastName(isset($names[1]) ? $names[1] : '')
+            ->setLastName($names[1] ?? '')
             ->setEmail("$username@example.com")
             ->setPlainPassword($username)
             ->setBirth($birthDate)
@@ -99,33 +110,26 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
             ->setIsNotifDiscussions(false)
             ->setIsNotifMessages(false)
             ->setIsRegistrationComplete(true)
+            ->setIsNotifOwnPostChanged(false)
             ->setPhone('+'.mt_rand())
-            ->setIsNotifOwnPostChanged($isNotifOwnPostChanged)
-            ->setSalt(base_convert(sha1(uniqid(mt_rand(), true)), 16, 36))
             ->setToken($username)
             ->setFacebookId('fb_'.$username);
-        
-        if (is_array($district)) {
-            foreach ($district as $item) {
+
+        $district = (array)$district;
+        foreach ($district as $item) {
+            if ($district !== null) {
                 $user->addDistrict($this->getDistrict($item));
             }
-        } elseif ($district !== null) {
-            $user->addDistrict($this->getDistrict($district));
-        }
-        if ($coordinates) {
-            $user->setLatitude($coordinates['lat'])
-                ->setLongitude($coordinates['lng']);
         }
 
         $this->encodePassword($user);
 
         $this->manager->persist($user);
-        $this->manager->flush();
 
         return $user;
     }
 
-    private function encodePassword(User $user)
+    private function encodePassword(User $user): void
     {
         /** @var PasswordEncoderInterface $encoder */
         $encoder = $this->container->get('security.encoder_factory')->getEncoder($user);
@@ -135,14 +139,14 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
 
     /**
      * @param string $reference
-     * @return District|object
+     * @return District|mixed
      */
     private function getDistrict($reference)
     {
         return $this->getReference($reference);
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [LoadDistrictData::class];
     }

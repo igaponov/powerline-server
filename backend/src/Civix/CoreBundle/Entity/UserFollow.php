@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
@@ -17,7 +18,6 @@ use JMS\Serializer\Annotation as Serializer;
  *      }
  * )
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\UserFollowRepository")
- * @ORM\HasLifecycleCallbacks()
  * @Serializer\ExclusionPolicy("all")
  */
 class UserFollow
@@ -38,7 +38,7 @@ class UserFollow
     private $id;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="date_create", type="datetime")
      * @Gedmo\Timestampable()
@@ -48,7 +48,7 @@ class UserFollow
     private $dateCreate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="date_approval", type="datetime", nullable=true)
      * @Serializer\Expose()
@@ -84,7 +84,16 @@ class UserFollow
      */
     private $status;
 
-    public static function getStatusLabels()
+    /**
+     * @var bool
+     *
+     * @ORM\Column(type="boolean", options={"default" = true})
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-followers", "api-following", "api-follow"})
+     */
+    private $notifying = true;
+
+    public static function getStatusLabels(): array
     {
         return [
             self::STATUS_PENDING => 'pending',
@@ -97,7 +106,7 @@ class UserFollow
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
@@ -109,7 +118,7 @@ class UserFollow
      *
      * @return UserFollow
      */
-    public function setStatus($status)
+    public function setStatus(int $status): UserFollow
     {
         $this->status = $status;
 
@@ -121,7 +130,7 @@ class UserFollow
      *
      * @return int
      */
-    public function getStatus()
+    public function getStatus(): int
     {
         return $this->status;
     }
@@ -135,24 +144,24 @@ class UserFollow
      * @Serializer\Type("string")
      * @Serializer\Groups({"api-info", "api-follow"})
      */
-    public function getStatusLabel()
+    public function getStatusLabel(): ?string
     {
-        $labels = $this->getStatusLabels();
+        $labels = static::getStatusLabels();
         if (isset($labels[$this->status])) {
             return $labels[$this->status];
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     /**
      * Set date create.
      *
-     * @param \DateTime $date
+     * @param DateTime $date
      *
      * @return UserFollow
      */
-    public function setDateCreate(\DateTime $date)
+    public function setDateCreate(DateTime $date): UserFollow
     {
         $this->dateCreate = $date;
 
@@ -162,9 +171,9 @@ class UserFollow
     /**
      * Get date create.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getDateCreate()
+    public function getDateCreate(): DateTime
     {
         return $this->dateCreate;
     }
@@ -172,11 +181,11 @@ class UserFollow
     /**
      * Set date approval.
      *
-     * @param \DateTime $date
+     * @param DateTime $date
      *
      * @return UserFollow
      */
-    public function setDateApproval(\DateTime $date)
+    public function setDateApproval(DateTime $date): UserFollow
     {
         $this->dateApproval = $date;
 
@@ -186,9 +195,9 @@ class UserFollow
     /**
      * Get date approval.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getDateApproval()
+    public function getDateApproval(): ?DateTime
     {
         return $this->dateApproval;
     }
@@ -200,7 +209,7 @@ class UserFollow
      *
      * @return UserFollow
      */
-    public function setUser(User $user)
+    public function setUser(User $user): UserFollow
     {
         $this->user = $user;
 
@@ -212,7 +221,7 @@ class UserFollow
      *
      * @return User
      */
-    public function getUser()
+    public function getUser(): User
     {
         return $this->user;
     }
@@ -224,7 +233,7 @@ class UserFollow
      *
      * @return UserFollow
      */
-    public function setFollower(User $follower)
+    public function setFollower(User $follower): UserFollow
     {
         $this->follower = $follower;
 
@@ -236,7 +245,7 @@ class UserFollow
      *
      * @return User
      */
-    public function getFollower()
+    public function getFollower(): User
     {
         return $this->follower;
     }
@@ -246,10 +255,10 @@ class UserFollow
      * 
      * @return $this
      */
-    public function approve()
+    public function approve(): UserFollow
     {
         $this->status = self::STATUS_ACTIVE;
-        $this->dateApproval = new \DateTime();
+        $this->dateApproval = new DateTime();
         
         return $this;
     }
@@ -257,9 +266,9 @@ class UserFollow
     /**
      * @return bool
      */
-    public function isActive()
+    public function isActive(): bool
     {
-        return $this->getStatus() == self::STATUS_ACTIVE;
+        return $this->getStatus() === self::STATUS_ACTIVE;
     }
 
     /**
@@ -271,7 +280,7 @@ class UserFollow
      *
      * @return User
      */
-    public function getInlineUser()
+    public function getInlineUser(): User
     {
         return $this->user;
     }
@@ -285,8 +294,27 @@ class UserFollow
      *
      * @return User
      */
-    public function getInlineFollower()
+    public function getInlineFollower(): User
     {
         return $this->follower;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isNotifying(): bool
+    {
+        return $this->notifying;
+    }
+
+    /**
+     * @param bool $notifying
+     * @return UserFollow
+     */
+    public function setNotifying(bool $notifying): UserFollow
+    {
+        $this->notifying = $notifying;
+
+        return $this;
     }
 }

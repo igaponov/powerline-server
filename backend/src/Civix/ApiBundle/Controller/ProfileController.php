@@ -336,8 +336,8 @@ class ProfileController extends BaseController
         $user = $this->get('security.token_storage')->getToken()->getUser();
         $userSetting = $this->jmsDeserialization(
             $request->getContent(),
-            'Civix\CoreBundle\Entity\User',
-            array('api-settings')
+            User::class,
+            ['api-settings']
         );
 
         $this->get('civix_core.user_manager')->updateSettings($user, $userSetting);

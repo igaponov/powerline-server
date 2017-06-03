@@ -2,13 +2,17 @@
 
 namespace Civix\ApiBundle\Controller\V2;
 
+use Civix\ApiBundle\Form\Type\UserFollowType;
 use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Service\FollowerManager;
+use Doctrine\ORM\EntityManagerInterface;
+use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\DiExtraBundle\Annotation as DI;
+use Knp\Component\Pager\Pagination\PaginationInterface;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -25,6 +29,12 @@ class UserFollowerController extends FOSRestController
      * @DI\Inject("civix_core.service.follower_manager")
      */
     private $manager;
+
+    /**
+     * @var EntityManagerInterface
+     * @DI\Inject("doctrine.orm.entity_manager")
+     */
+    private $em;
 
     /**
      * List followers of a user
@@ -50,11 +60,11 @@ class UserFollowerController extends FOSRestController
      *
      * @param ParamFetcher $params
      * 
-     * @return \Knp\Component\Pager\Pagination\PaginationInterface
+     * @return PaginationInterface
      */
-    public function getFollowersAction(ParamFetcher $params)
+    public function getFollowersAction(ParamFetcher $params): PaginationInterface
     {
-        $query = $this->getDoctrine()->getRepository(UserFollow::class)
+        $query = $this->em->getRepository(UserFollow::class)
             ->getFindByUserQuery($this->getUser());
 
         return $this->get('knp_paginator')->paginate(
@@ -77,8 +87,8 @@ class UserFollowerController extends FOSRestController
      *     section="Followers",
      *     description="Follower's profile",
      *     output = {
-     *          "class" = "Civix\CoreBundle\Entity\User",
-     *          "groups" = {"api-info", "api-followers", "api-full-info"},
+     *          "class" = "Civix\CoreBundle\Entity\UserFollow",
+     *          "groups" = {"api-info", "api-followers"},
      *          "parsers" = {
      *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
      *          }
@@ -96,7 +106,7 @@ class UserFollowerController extends FOSRestController
      *
      * @return UserFollow
      */
-    public function getAction(Request $request, UserFollow $userFollow)
+    public function getAction(Request $request, UserFollow $userFollow): UserFollow
     {
         if ($userFollow && $userFollow->isActive()) {
             /** @var View $configuration */
@@ -138,9 +148,59 @@ class UserFollowerController extends FOSRestController
      *
      * @param UserFollow $userFollow
      */
-    public function patchAction(UserFollow $userFollow)
+    public function patchAction(UserFollow $userFollow): void
     {
         $this->manager->approve($userFollow);
+    }
+
+    /**
+     * Edit a follow request
+     *
+     * @REST\Put("/{id}", requirements={"id"="\d+"})
+     *
+     * @ParamConverter("userFollow", options={"mapping" = {"loggedInUser" = "user", "id" = "follower"}}, converter="doctrine.param_converter")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Followers",
+     *     requirements={
+     *         {
+     *             "name"="id",
+     *             "dataType"="integer",
+     *             "requirement"="\d+",
+     *             "description"="User id"
+     *         }
+     *     },
+     *     input="Civix\ApiBundle\Form\Type\UserFollowType",
+     *     output={
+     *          "class" = "Civix\CoreBundle\Entity\UserFollow",
+     *          "groups" = {"api-info", "api-followers"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
+     *     },
+     *     statusCodes={
+     *         404="Follow Request Not Found"
+     *     }
+     * )
+     *
+     * @View(serializerGroups={"api-info", "api-followers"})
+     *
+     * @param Request $request
+     * @param UserFollow $userFollow
+     *
+     * @return UserFollow|\Symfony\Component\Form\Form
+     */
+    public function putAction(Request $request, UserFollow $userFollow)
+    {
+        $form = $this->createForm(UserFollowType::class, $userFollow);
+        $form->submit($request->request->all());
+
+        if ($form->isValid()) {
+            return $this->manager->save($userFollow);
+        }
+
+        return $form;
     }
 
     /**
@@ -171,7 +231,7 @@ class UserFollowerController extends FOSRestController
      *
      * @param UserFollow $userFollow
      */
-    public function deleteAction(UserFollow $userFollow)
+    public function deleteAction(UserFollow $userFollow): void
     {
         $this->manager->unfollow($userFollow);
     }
