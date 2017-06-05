@@ -51,7 +51,7 @@ trait HasAvatarTrait
      * @param File $avatar
      * @return $this
      */
-    public function setAvatar(File $avatar)
+    public function setAvatar(File $avatar = null)
     {
         $this->avatar = $avatar;
 
