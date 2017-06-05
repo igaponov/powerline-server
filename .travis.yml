@@ -22,7 +22,7 @@ before_script:
   - cd backend
   - cp app/config/parameters.travis.yml app/config/parameters.yml
   # Composer install ...
-  - travis_retry composer install --quiet --ignore-platform-reqs --no-interaction --prefer-dist
+  - travis_retry composer install --quiet --no-interaction --prefer-dist --classmap-authoritative
   # Remove application cache and logs ...
   - rm -Rf var/cache/*
   - rm -Rf var/logs/*

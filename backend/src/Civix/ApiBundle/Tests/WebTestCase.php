@@ -2,13 +2,27 @@
 namespace Civix\ApiBundle\Tests;
 
 use Civix\CoreBundle\Entity\User;
+use Doctrine\Common\Cache\CacheProvider;
+use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
+use Doctrine\Common\DataFixtures\Loader;
+use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
+use Doctrine\Common\DataFixtures\Purger\ORMPurger;
+use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Tools\SchemaTool;
 use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializationContext;
 use Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination;
+use Liip\FunctionalTestBundle\Test\WebTestCase as BaseWebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-abstract class WebTestCase extends \Liip\FunctionalTestBundle\Test\WebTestCase
+abstract class WebTestCase extends BaseWebTestCase
 {
+    /**
+     * @var array
+     */
+    private static $cachedMetadatas = array();
+
     protected function onNotSuccessfulTest($e): void
     {
         $this->containers = [];
@@ -114,7 +128,7 @@ abstract class WebTestCase extends \Liip\FunctionalTestBundle\Test\WebTestCase
      * @param $class
      * @param $groups
      * @param string $type
-     * @return array|mixed|object
+     * @return array|mixed
      */
     protected function jmsDeserialization($content, $class, $groups, $type = 'json')
     {
@@ -152,5 +166,87 @@ abstract class WebTestCase extends \Liip\FunctionalTestBundle\Test\WebTestCase
         }
 
         return $pagination;
+    }
+
+    protected function loadFixtures(array $classNames, $omName = null, $registryName = 'doctrine', $purgeMode = null)
+    {
+        $container = $this->getContainer();
+        /** @var EntityManager $em */
+        $em = $container->get('doctrine.orm.entity_manager');
+
+        $referenceRepository = new ProxyReferenceRepository($em);
+        $purger = new ORMPurger();
+        if (null !== $purgeMode) {
+            $purger->setPurgeMode($purgeMode);
+        }
+        $executor = new ORMExecutor($em, $purger);
+        $executor->setReferenceRepository($referenceRepository);
+        /** @var CacheProvider $cacheDriver */
+        $cacheDriver = $em->getMetadataFactory()->getCacheDriver();
+
+        if ($cacheDriver) {
+            $cacheDriver->deleteAll();
+        }
+
+        $connection = $em->getConnection();
+        if ($connection->getDriver() instanceof AbstractSQLiteDriver) {
+            $params = $connection->getParams();
+            if (isset($params['master'])) {
+                $params = $params['master'];
+            }
+
+            $name = $params['path'] ?? $params['dbname'] ?? false;
+            if (!$name) {
+                throw new \InvalidArgumentException("Connection does not contain a 'path' or 'dbname' parameter and cannot be dropped.");
+            }
+
+            if (!isset(self::$cachedMetadatas[$omName])) {
+                self::$cachedMetadatas[$omName] = $em->getMetadataFactory()->getAllMetadata();
+                usort(self::$cachedMetadatas[$omName], function ($a, $b) {
+                    return strcmp($a->name, $b->name);
+                });
+            }
+            $metadatas = self::$cachedMetadatas[$omName];
+
+            $backup = $container->getParameter('kernel.cache_dir').'/test_'.md5(serialize($metadatas)).'.db';
+            $cacheSqliteDb = $container->getParameter('liip_functional_test.cache_sqlite_db');
+            if ($cacheSqliteDb
+                && file_exists($backup) && file_exists($backup.'.ser')
+            ) {
+                $em->flush();
+                $em->clear();
+
+                $this->preFixtureRestore($em, $referenceRepository);
+
+                copy($backup, $name);
+
+                $referenceRepository->load($backup);
+
+                $this->postFixtureRestore();
+            } else {
+                $schemaTool = new SchemaTool($em);
+                $schemaTool->dropDatabase();
+                if (!empty($metadatas)) {
+                    $schemaTool->createSchema($metadatas);
+                }
+                $this->postFixtureSetup();
+
+                if ($cacheSqliteDb) {
+                    $this->preReferenceSave($em, $executor, $backup);
+                    $referenceRepository->save($backup);
+                    copy($name, $backup);
+                    $this->postReferenceSave($em, $executor, $backup);
+                }
+            }
+        } else {
+            $executor->purge();
+        }
+
+        /** @var Loader $loader */
+        $loader = $this->getFixtureLoader($container, $classNames);
+
+        $executor->execute($loader->getFixtures(), true);
+
+        return $executor;
     }
 }
