@@ -8,6 +8,7 @@ use Civix\CoreBundle\Model\Avatar\DefaultAvatar;
 use Civix\CoreBundle\Model\Avatar\DefaultAvatarInterface;
 use Civix\CoreBundle\Model\Avatar\FirstLetterDefaultAvatar;
 use Civix\CoreBundle\Model\TempFile;
+use Intervention\Image\Exception\ImageException;
 use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
 use Psr\Log\LoggerInterface;
@@ -47,25 +48,39 @@ class AvatarSubscriber implements EventSubscriberInterface
     {
         $entity = $event->getEntity();
         $file = $entity->getAvatar();
+        $image = null;
 
         try {
             // new avatar
             if ($file instanceof UploadedFile) {
-                $image = $this->generateAvatar($file);
-                $image->save($file->getPathname(), 100);
-            // default avatar if an entity has no one
-            } elseif (!$entity->getAvatarFileName()) {
+                try {
+                    $image = $this->generateAvatar($file);
+                    $image->save($file->getPathname(), 100);
+                } catch (ImageException $e) {
+                    $image = $file = null;
+                    $this->logger->critical('Uploading file error.', [
+                        'exception' => $e,
+                        'file' => $file,
+                    ]);
+                }
+            }
+            // default avatar if an entity has no one and file uploading is failed
+            if (!$image && !$entity->getAvatarFileName()) {
                 $image = $this->generateDefaultAvatar($entity->getDefaultAvatar());
                 $file = new TempFile($image->encode(null, 100));
-            } else {
-                return;
             }
+
             $entity->setAvatar($file);
-            // update a field to dispatch doctrine's "update" event
-            // @todo handle image uploading in a custom event listener
-            $entity->setAvatarFileName($file->getFilename());
+            if ($file instanceof UploadedFile) {
+                // update a field to dispatch doctrine's "update" event
+                // @todo handle image uploading in a custom event listener
+                $entity->setAvatarFileName($file->getFilename());
+            }
         } catch (\Exception $e) {
-            $this->logger->critical('Avatar resizing error.', ['exception' => $e]);
+            $this->logger->critical('Avatar resizing error.', [
+                'exception' => $e,
+                'file' => $file,
+            ]);
         }
     }
 
