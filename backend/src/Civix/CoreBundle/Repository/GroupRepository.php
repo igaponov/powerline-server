@@ -18,7 +18,7 @@ class GroupRepository extends EntityRepository
         $qb = $this->getEntityManager()->createQueryBuilder();
 
         return $qb
-            ->select('ug, g, gm, CASE WHEN g.owner = :user THEN 0 WHEN gm.user IS NOT NULL THEN 1 ELSE 2 AS HIDDEN sortCondition')
+            ->select('ug, g, gm, CASE WHEN g.owner = :user THEN 0 WHEN gm.user IS NOT NULL THEN 1 ELSE 2 END AS HIDDEN sortCondition')
             ->from(UserGroup::class, 'ug')
             ->leftJoin('ug.group', 'g')
             ->leftJoin('g.managers', 'gm', 'WITH', 'gm.user = :user')

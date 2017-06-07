@@ -27,7 +27,7 @@ class FollowerManager
         $this->dispatcher = $dispatcher;
     }
 
-    public function follow(User $user, User $follower)
+    public function follow(User $user, User $follower): void
     {
         /* @var UserFollow $userFollow */
         $userFollow = $this->em->getRepository(UserFollow::class)
@@ -49,7 +49,7 @@ class FollowerManager
         $this->dispatcher->dispatch(UserEvents::FOLLOW, $event);
     }
 
-    public function unfollow(UserFollow $userFollow)
+    public function unfollow(UserFollow $userFollow): void
     {
         $this->em->remove($userFollow);
         $this->em->flush();
@@ -58,7 +58,7 @@ class FollowerManager
         $this->dispatcher->dispatch(UserEvents::UNFOLLOW, $event);
     }
 
-    public function approve(UserFollow $userFollow)
+    public function approve(UserFollow $userFollow): void
     {
         if (!$userFollow->getDateApproval()) {
             $userFollow->approve();
@@ -68,5 +68,13 @@ class FollowerManager
             $event = new UserFollowEvent($userFollow);
             $this->dispatcher->dispatch(UserEvents::FOLLOW_REQUEST_APPROVE, $event);
         }
+    }
+
+    public function save(UserFollow $userFollow): UserFollow
+    {
+        $this->em->persist($userFollow);
+        $this->em->flush();
+
+        return $userFollow;
     }
 }

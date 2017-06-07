@@ -231,7 +231,11 @@ class UserRepository extends EntityRepository
                 ->getResult();
     }
 
-    public function getUsersByFollowingForPush(User $user)
+    /**
+     * @param User $user
+     * @return User[]
+     */
+    public function getUsersByFollowingForPush(User $user): array
     {
         $query = $this->getEntityManager()->createQueryBuilder();
         $expr = $query->expr();
@@ -246,9 +250,12 @@ class UserRepository extends EntityRepository
         return $query
             ->andWhere('f.user = :user')
             ->andWhere('u.isNotifMicroFollowing = true')
+            ->andWhere('f.notifying = true')
             ->andWhere('f.status = :status')
+            ->andWhere('u.followedDoNotDisturbTill < :date')
             ->setParameter(':user', $user)
-            ->setParameter('status', UserFollow::STATUS_ACTIVE)
+            ->setParameter(':status', UserFollow::STATUS_ACTIVE)
+            ->setParameter(':date', new \DateTime())
             ->getQuery()
             ->getResult();
     }
