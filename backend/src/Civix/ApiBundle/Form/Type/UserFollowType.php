@@ -21,4 +21,9 @@ class UserFollowType extends AbstractType
     {
         $resolver->setDefault('data_class', UserFollow::class);
     }
+
+    public function getBlockPrefix(): string
+    {
+        return '';
+    }
 }

@@ -44,6 +44,7 @@ class PM590 extends AbstractFixture implements DependentFixtureInterface
             ->setStatus(UserFollow::STATUS_ACTIVE)
             ->setNotifying(false);
         $manager->persist($userFollow);
+        $this->addReference('pm590_user_1_follower_4', $userFollow);
 
         $userFollow = new UserFollow();
         $userFollow->setUser($user2)

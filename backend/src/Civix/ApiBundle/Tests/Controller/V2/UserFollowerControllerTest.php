@@ -13,6 +13,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Issue\PM510;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Liip\FunctionalTestBundle\Annotations\QueryCount;
 use Symfony\Bundle\FrameworkBundle\Client;
+use Tests\Civix\CoreBundle\DataFixtures\ORM\Issue\PM590;
 
 class UserFollowerControllerTest extends WebTestCase
 {
@@ -176,7 +177,7 @@ class UserFollowerControllerTest extends WebTestCase
         $this->assertEquals($user->getId(), $result[0]['user']);
         $this->assertEquals($user->getFollowers()->count(), $result[0]['followers']);
         $this->assertEquals([], $result[0]['representatives']);
-        $result = $client->getContainer()->get('doctrine.dbal.default_connection')
+        $result = $client->getContainer()->get('database_connection')
             ->fetchAssoc('SELECT * FROM karma');
         $this->assertArraySubset([
             'user_id' => $userFollow->getUser()->getId(),
@@ -213,7 +214,7 @@ class UserFollowerControllerTest extends WebTestCase
         $this->assertEquals($user->getId(), $result[0]['user']);
         $this->assertEquals($user->getFollowers()->count(), $result[0]['followers']);
         $this->assertEquals([], $result[0]['representatives']);
-        $count = $client->getContainer()->get('doctrine.dbal.default_connection')
+        $count = $client->getContainer()->get('database_connection')
             ->fetchColumn(
                 'SELECT COUNT(*) FROM karma WHERE user_id = ? AND type = ?',
                 [$user->getId(), Karma::TYPE_APPROVE_FOLLOW_REQUEST]
@@ -268,10 +269,10 @@ class UserFollowerControllerTest extends WebTestCase
     public function testUpdateFollowerIsOk(): void
     {
         $repository = $this->loadFixtures([
-            LoadUserFollowerData::class,
+            PM590::class,
         ])->getReferenceRepository();
         /** @var UserFollow $userFollow */
-        $userFollow = $repository->getReference('user_2_user_1');
+        $userFollow = $repository->getReference('pm590_user_1_follower_4');
         $user = $userFollow->getUser();
         $follower = $userFollow->getFollower();
         $client = $this->client;
