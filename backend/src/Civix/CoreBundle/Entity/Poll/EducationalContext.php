@@ -214,7 +214,14 @@ class EducationalContext implements ContentInterface
         return $this->type === $this::IMAGE_TYPE || $this->type === $this::VIDEO_TYPE;
     }
 
-    public function getPreviewSrc()
+    /**
+     * @return null|string
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"api-poll", "activity-list"})
+     * @Serializer\SerializedName("preview")
+     */
+    public function getPreviewSrc(): ?string
     {
         if ($this->type === $this::IMAGE_TYPE) {
             return $this->text;

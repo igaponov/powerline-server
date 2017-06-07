@@ -2,6 +2,7 @@
 namespace Civix\ApiBundle\Tests\Controller\Leader;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Poll\EducationalContext;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityReadAuthorData;
@@ -90,36 +91,7 @@ class ActivityControllerTest extends WebTestCase
             'activity_payment_request',
         ]);
 		foreach ($data->getItems() as $key => $item) {
-		    $this->assertThat($item['id'], $this->logicalOr(...$activities));
-            $this->assertNotEmpty($item['user']);
-            $this->assertArrayHasKey('group', $item);
-            if ($item['entity']['type'] === 'user-petition') {
-                $this->assertTrue($item['user_petition']['is_subscribed']);
-            } elseif ($item['entity']['type'] === 'post') {
-                $this->assertTrue($item['post']['is_subscribed']);
-            } elseif ($item['entity']['type'] === 'question') {
-                $this->assertTrue($item['poll']['is_subscribed']);
-                $this->assertArrayHasKey('educational_context', $item['poll']);
-                $this->assertCount(2, $item['poll']['educational_context']);
-            } elseif ($item['entity']['type'] === 'petition') {
-                $this->assertNotEmpty($item['group']['avatar_file_path']);
-                $this->assertFalse($item['poll']['is_subscribed']);
-            }
-            if ($item['entity']['type'] === 'micro-petition') {
-                $this->assertArrayHasKey('comments_count', $item);
-                $this->assertArrayHasKey('answers', $item);
-                $this->assertInternalType('array', $item['answers']);
-            }
-
-            if ($item['expire_at'] && strtotime($item['expire_at']) < time()) {
-                $this->assertSame('expired', $item['zone']);
-            } elseif (in_array($item['entity']['type'], ['user-petition', 'post'], true)) {
-                $this->assertSame('non_prioritized', $item['zone']);
-            } else {
-                $this->assertSame('prioritized', $item['zone']);
-            }
-
-            $this->assertArrayHasKey('description_html', $item);
+            $this->assertActivity($item, $activities);
         }
 	}
 
@@ -149,36 +121,7 @@ class ActivityControllerTest extends WebTestCase
             'activity_payment_request',
         ]);
         foreach ($data->getItems() as $item) {
-            $this->assertThat($item['id'], $this->logicalOr(...$activities));
-            $this->assertNotEmpty($item['user']);
-            $this->assertArrayHasKey('group', $item);
-            if ($item['entity']['type'] === 'user-petition') {
-                $this->assertTrue($item['user_petition']['is_subscribed']);
-            } elseif ($item['entity']['type'] === 'post') {
-                $this->assertTrue($item['post']['is_subscribed']);
-            } elseif ($item['entity']['type'] === 'question') {
-                $this->assertTrue($item['poll']['is_subscribed']);
-                $this->assertArrayHasKey('educational_context', $item['poll']);
-                $this->assertCount(2, $item['poll']['educational_context']);
-            } elseif ($item['entity']['type'] === 'petition') {
-                $this->assertNotEmpty($item['group']['avatar_file_path']);
-                $this->assertFalse($item['poll']['is_subscribed']);
-            }
-            if ($item['entity']['type'] === 'micro-petition') {
-                $this->assertArrayHasKey('comments_count', $item);
-                $this->assertArrayHasKey('answers', $item);
-                $this->assertInternalType('array', $item['answers']);
-            }
-
-            if ($item['expire_at'] && strtotime($item['expire_at']) < time()) {
-                $this->assertSame('expired', $item['zone']);
-            } elseif (in_array($item['entity']['type'], ['user-petition', 'post'], true)) {
-                $this->assertSame('non_prioritized', $item['zone']);
-            } else {
-                $this->assertSame('prioritized', $item['zone']);
-            }
-
-            $this->assertArrayHasKey('description_html', $item);
+            $this->assertActivity($item, $activities);
         }
 	}
 
@@ -208,36 +151,7 @@ class ActivityControllerTest extends WebTestCase
             'activity_post',
         ]);
         foreach ($data->getItems() as $item) {
-            $this->assertThat($item['id'], $this->logicalOr(...$activities));
-            $this->assertNotEmpty($item['user']);
-            $this->assertArrayHasKey('group', $item);
-            if ($item['entity']['type'] === 'user-petition') {
-                $this->assertTrue($item['user_petition']['is_subscribed']);
-            } elseif ($item['entity']['type'] === 'post') {
-                $this->assertTrue($item['post']['is_subscribed']);
-            } elseif ($item['entity']['type'] === 'question') {
-                $this->assertTrue($item['poll']['is_subscribed']);
-                $this->assertArrayHasKey('educational_context', $item['poll']);
-                $this->assertCount(2, $item['poll']['educational_context']);
-            } elseif ($item['entity']['type'] === 'petition') {
-                $this->assertNotEmpty($item['group']['avatar_file_path']);
-                $this->assertFalse($item['poll']['is_subscribed']);
-            }
-            if ($item['entity']['type'] === 'micro-petition') {
-                $this->assertArrayHasKey('comments_count', $item);
-                $this->assertArrayHasKey('answers', $item);
-                $this->assertInternalType('array', $item['answers']);
-            }
-
-            if ($item['expire_at'] && strtotime($item['expire_at']) < time()) {
-                $this->assertSame('expired', $item['zone']);
-            } elseif (in_array($item['entity']['type'], ['user-petition', 'post'], true)) {
-                $this->assertSame('non_prioritized', $item['zone']);
-            } else {
-                $this->assertSame('prioritized', $item['zone']);
-            }
-
-            $this->assertArrayHasKey('description_html', $item);
+            $this->assertActivity($item, $activities);
         }
 	}
 
@@ -450,5 +364,48 @@ class ActivityControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $this->assertEquals($data, json_decode($response->getContent(), true));
+    }
+
+    /**
+     * @param $item
+     * @param $activities
+     */
+    private function assertActivity($item, $activities): void
+    {
+        $this->assertThat($item['id'], $this->logicalOr(...$activities));
+        $this->assertNotEmpty($item['user']);
+        $this->assertArrayHasKey('group', $item);
+        if ($item['entity']['type'] === 'user-petition') {
+            $this->assertTrue($item['user_petition']['is_subscribed']);
+        } elseif ($item['entity']['type'] === 'post') {
+            $this->assertTrue($item['post']['is_subscribed']);
+        } elseif ($item['entity']['type'] === 'question') {
+            $this->assertTrue($item['poll']['is_subscribed']);
+            $this->assertArrayHasKey('educational_context', $item['poll']);
+            /** @var array $educationalContexts */
+            $educationalContexts = $item['poll']['educational_context'];
+            $this->assertCount(2, $educationalContexts);
+            foreach ($educationalContexts as $educationalContext) {
+                if ($educationalContext['type'] !== EducationalContext::TEXT_TYPE) {
+                    $this->assertNotEmpty($educationalContext['preview']);
+                }
+            }
+        } elseif ($item['entity']['type'] === 'petition') {
+            $this->assertNotEmpty($item['group']['avatar_file_path']);
+            $this->assertFalse($item['poll']['is_subscribed']);
+        }
+        if ($item['entity']['type'] === 'micro-petition') {
+            $this->assertArrayHasKey('comments_count', $item);
+            $this->assertArrayHasKey('answers', $item);
+            $this->assertInternalType('array', $item['answers']);
+        }
+        if ($item['expire_at'] && strtotime($item['expire_at']) < time()) {
+            $this->assertSame('expired', $item['zone']);
+        } elseif (in_array($item['entity']['type'], ['user-petition', 'post'], true)) {
+            $this->assertSame('non_prioritized', $item['zone']);
+        } else {
+            $this->assertSame('prioritized', $item['zone']);
+        }
+        $this->assertArrayHasKey('description_html', $item);
     }
 }
