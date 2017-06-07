@@ -208,9 +208,7 @@
         <service id="civix_core.user_manager" class="Civix\CoreBundle\Service\User\UserManager">
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="civix_core.cicero_api" />
-            <argument type="service" id="civix_core.group_manager" />
             <argument type="service" id="event_dispatcher" />
-            <argument>%kernel.root_dir%</argument>
         </service>
 
         <service id="civix_core.account_manager" class="Civix\CoreBundle\Service\AccountManager">

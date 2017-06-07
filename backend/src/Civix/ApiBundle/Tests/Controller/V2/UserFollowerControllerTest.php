@@ -26,23 +26,23 @@ class UserFollowerControllerTest extends WebTestCase
     /**
      * @var Client
      */
-    private $client = null;
+    private $client;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
 
         $this->em = $this->getContainer()->get('doctrine')->getManager();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->client = NULL;
         $this->em = null;
         parent::tearDown();
     }
 
-    public function testGetFollowers()
+    public function testGetFollowers(): void
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
@@ -64,7 +64,7 @@ class UserFollowerControllerTest extends WebTestCase
         );
     }
 
-    public function testGetFollowersSorting()
+    public function testGetFollowersSorting(): void
     {
         $repository = $this->loadFixtures([
             PM510::class,
@@ -84,7 +84,7 @@ class UserFollowerControllerTest extends WebTestCase
         $this->assertSame($user3->getId(), $data['payload'][1]['id']);
     }
 
-    public function testGetFollower()
+    public function testGetFollower(): void
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
@@ -97,7 +97,7 @@ class UserFollowerControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertCount(20, $data);
+        $this->assertCount(21, $data);
         $this->assertEquals('active', $data['status']);
         $this->assertEquals($follower->getId(), $data['id']);
         $this->assertEquals($follower->getType(), $data['type']);
@@ -114,12 +114,13 @@ class UserFollowerControllerTest extends WebTestCase
         $this->assertEquals($follower->getBio(), $data['bio']);
         $this->assertEquals($follower->getSlogan(), $data['slogan']);
         $this->assertEquals($follower->getInterests(), $data['interests']);
+        $this->assertTrue($data['notifying']);
         $this->assertEmpty($data['avatar_file_name']);
         $this->assertArrayHasKey('date_create', $data);
         $this->assertArrayHasKey('date_approval', $data);
     }
 
-    public function testGetPendingFollower()
+    public function testGetPendingFollower(): void
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
@@ -132,7 +133,7 @@ class UserFollowerControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertCount(15, $data);
+        $this->assertCount(16, $data);
         $this->assertEquals('pending', $data['status']);
         $this->assertEquals($follower->getId(), $data['id']);
         $this->assertEquals($follower->getFullName(), $data['full_name']);
@@ -144,6 +145,7 @@ class UserFollowerControllerTest extends WebTestCase
         $this->assertEquals($follower->getBio(), $data['bio']);
         $this->assertEquals($follower->getSlogan(), $data['slogan']);
         $this->assertEquals($follower->getInterests(), $data['interests']);
+        $this->assertTrue($data['notifying']);
         $this->assertEmpty($data['avatar_file_name']);
         $this->assertArrayHasKey('date_create', $data);
         $this->assertArrayHasKey('date_approval', $data);
@@ -152,7 +154,7 @@ class UserFollowerControllerTest extends WebTestCase
     /**
      * @QueryCount(11)
      */
-    public function testApproveFollowUserIsSuccessful()
+    public function testApproveFollowUserIsSuccessful(): void
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
@@ -189,7 +191,7 @@ class UserFollowerControllerTest extends WebTestCase
     /**
      * @QueryCount(8)
      */
-    public function testApproveSecondFollowUserIsSuccessful()
+    public function testApproveSecondFollowUserIsSuccessful(): void
     {
         $repository = $this->loadFixtures([
             LoadKarmaData::class,
@@ -222,7 +224,7 @@ class UserFollowerControllerTest extends WebTestCase
     /**
      * @QueryCount(7)
      */
-    public function testUnapproveActiveUserIsSuccessful()
+    public function testUnapproveActiveUserIsSuccessful(): void
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
@@ -245,7 +247,7 @@ class UserFollowerControllerTest extends WebTestCase
         $this->assertEquals([], $result[0]['representatives']);
     }
 
-    public function testUnapprovePendingUserIsSuccessful()
+    public function testUnapprovePendingUserIsSuccessful(): void
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
@@ -261,5 +263,22 @@ class UserFollowerControllerTest extends WebTestCase
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         $followers = $this->em->getRepository(UserFollow::class)->findBy(['user' => $user]);
         $this->assertCount(0, $followers);
+    }
+
+    public function testUpdateFollowerIsOk(): void
+    {
+        $repository = $this->loadFixtures([
+            LoadUserFollowerData::class,
+        ])->getReferenceRepository();
+        /** @var UserFollow $userFollow */
+        $userFollow = $repository->getReference('user_2_user_1');
+        $user = $userFollow->getUser();
+        $follower = $userFollow->getFollower();
+        $client = $this->client;
+        $client->request('PUT', self::API_ENDPOINT.'/'.$follower->getId(), [], [], ['HTTP_Authorization' => 'Bearer '.$user->getToken()], json_encode(['notifying' => true]));
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertTrue($data['notifying']);
     }
 }

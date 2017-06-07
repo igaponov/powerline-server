@@ -556,8 +556,8 @@ class UserPetitionControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertCount(3, $data);
         foreach ($users as $k => $user) {
-            $this->assertSame($user->getLatitude(), $data[$k]['latitude']);
-            $this->assertSame($user->getLongitude(), $data[$k]['longitude']);
+            $this->assertEquals($user->getLatitude(), $data[$k]['latitude']);
+            $this->assertEquals($user->getLongitude(), $data[$k]['longitude']);
             if ($user->getUsername() === 'user3') {
                 $this->assertSame('US', $data[$k]['country']);
                 $this->assertSame('NY', $data[$k]['state']);

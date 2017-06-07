@@ -17,21 +17,21 @@ class ProfileControllerTest extends WebTestCase
     /**
      * @var Client
      */
-	private $client = null;
+	private $client;
 
-	public function setUp()
-	{
+	public function setUp(): void
+    {
 		$this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
     }
 
-	public function tearDown()
-	{
+	public function tearDown(): void
+    {
 		$this->client = NULL;
         parent::tearDown();
     }
 	
-	public function testUpdateProfile()
-	{
+	public function testUpdateProfile(): void
+    {
         $this->loadFixtures([
             LoadUserData::class,
         ]);
@@ -90,8 +90,8 @@ class ProfileControllerTest extends WebTestCase
         );
     }
 
-	public function testUpdateProfilewithContentTypeTextPlain()
-	{
+	public function testUpdateProfileWithContentTypeTextPlain(): void
+    {
         $this->loadFixtures([
             LoadUserData::class,
         ]);
@@ -153,8 +153,8 @@ class ProfileControllerTest extends WebTestCase
         );
     }
 
-	public function testUpdateProfileWithErrors()
-	{
+	public function testUpdateProfileWithErrors(): void
+    {
         $this->loadFixtures([
             LoadUserData::class,
         ]);
@@ -169,8 +169,10 @@ class ProfileControllerTest extends WebTestCase
 		$response = $client->getResponse();
         $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertCount(4, $data['errors']);
-        foreach ($data['errors'] as $error) {
+        /** @var array $errors */
+        $errors = $data['errors'];
+        $this->assertCount(4, $errors);
+        foreach ($errors as $error) {
             switch ($error['property']) {
                 case 'first_name':
                     $message = 'This value should not be blank.';
@@ -192,8 +194,8 @@ class ProfileControllerTest extends WebTestCase
         }
     }
 
-	public function testUpdateWithSameEmailAndAvatar()
-	{
+	public function testUpdateWithSameEmailAndAvatar(): void
+    {
         $repository = $this->loadFixtures([
             LoadUserData::class,
             PM533::class,
@@ -219,8 +221,8 @@ class ProfileControllerTest extends WebTestCase
         );
     }
 
-	public function testUpdateSettings()
-	{
+	public function testUpdateSettings(): void
+    {
         $this->loadFixtures([
             LoadUserData::class,
         ]);
@@ -233,11 +235,12 @@ class ProfileControllerTest extends WebTestCase
             'is_notif_micro_group' => false,
             'is_notif_scheduled' => false,
             'is_notif_own_post_changed' => false,
+            'followed_do_not_disturb_till' => '2016-10-15T15:33:50+0000',
             'scheduled_from' => 'Tue, 18 Oct 2016 15:33:50 +0000',
             'scheduled_to' => 'Fri, 21 Oct 2016 15:33:50 +0000',
         ];
         $client = $this->client;
-		$client->request('POST', self::API_ENDPOINT.'settings', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode($params));
+		$client->request('POST', self::API_ENDPOINT.'settings', [], [], ['HTTP_Authorization' => 'Bearer user1'], json_encode($params));
 		$response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
@@ -246,8 +249,8 @@ class ProfileControllerTest extends WebTestCase
         }
     }
 
-	public function testGetMyFacebookFriends()
-	{
+	public function testGetMyFacebookFriends(): void
+    {
         $this->loadFixtures([
             LoadUserFollowerData::class,
         ]);
@@ -256,6 +259,7 @@ class ProfileControllerTest extends WebTestCase
 		$client->request('POST', self::API_ENDPOINT.'facebook-friends', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode($params));
 		$response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        /** @var array $data */
         $data = json_decode($response->getContent(), true);
         $this->assertCount(2, $data);
         foreach ($data as $item) {
@@ -266,8 +270,8 @@ class ProfileControllerTest extends WebTestCase
         }
     }
 
-	public function testLinkToFacebook()
-	{
+	public function testLinkToFacebook(): void
+    {
         $repository = $this->loadFixtures([
             LoadUserData::class,
         ])->getReferenceRepository();

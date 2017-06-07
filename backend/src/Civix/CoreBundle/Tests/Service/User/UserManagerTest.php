@@ -38,9 +38,7 @@ class UserManagerTest extends WebTestCase
         $manager = new UserManager(
             $em,
             $cicero,
-            $this->getContainer()->get('civix_core.group_manager'),
-            $this->getContainer()->get('event_dispatcher'),
-            '/'
+            $this->getContainer()->get('event_dispatcher')
         );
         /** @var User $user */
         $user = $repository->getReference('user_2');

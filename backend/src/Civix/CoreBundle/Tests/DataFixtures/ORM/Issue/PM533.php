@@ -11,13 +11,13 @@ use Doctrine\Common\Persistence\ObjectManager;
  */
 class PM533 extends AbstractFixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $user = new User();
         $user->setUsername('user1_dup')
             ->setFirstName('User')
             ->setLastName('Duplicate')
-            ->setEmail("user1@example.com")
+            ->setEmail('user1@example.com')
             ->setPassword('pass')
             ->setPlainPassword('user1')
             ->setBirth(new \DateTime('-30 years'))
@@ -27,7 +27,6 @@ class PM533 extends AbstractFixture
             ->setIsRegistrationComplete(true)
             ->setPhone('+1234567890')
             ->setIsNotifOwnPostChanged(true)
-            ->setSalt(base_convert(sha1(uniqid(mt_rand(), true)), 16, 36))
             ->setToken('user1_dup')
             ->setResetPasswordToken('x-reset-token')
             ->setResetPasswordAt(new \DateTime('-1 day'))
@@ -35,7 +34,7 @@ class PM533 extends AbstractFixture
             ->setBio('User 1 Bio')
             ->setFacebookId('xXxXxXxXxXxX')
             ->setFacebookToken('yYyYyYyYyYyY')
-            ->setAvatarFileName(uniqid().'.jpg');
+            ->setAvatarFileName(uniqid('', true).'.jpg');
 
         $this->addReference('user_1_dup', $user);
         $manager->persist($user);
