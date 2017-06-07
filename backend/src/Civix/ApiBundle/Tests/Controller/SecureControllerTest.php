@@ -125,6 +125,34 @@ class SecureControllerTest extends WebTestCase
 		}
 	}
 
+	public function testRegistrationWithDuplicateDataReturnsErrors(): void
+    {
+		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
+		$client->request('POST', '/api/secure/registration', [], [], [], json_encode([
+		    'username' => 'user1',
+		    'email' => 'user1@example.com',
+            'email_confirm' => 'user1@example.com',
+            'password' => 'pass',
+            'confirm' => 'pass',
+            'first_name' => 'First',
+            'last_name' => 'Last',
+            'zip' => '12345',
+        ]));
+		$response = $client->getResponse();
+		$this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+		$data = json_decode($response->getContent(), true);
+		/** @var array $errors */
+		$errors = $data['errors'];
+		$expectedErrors = [
+			'username' => 'This value is already used.',
+			'email' => 'This value is already used.',
+		];
+		$this->assertCount(count($expectedErrors), $errors, json_encode($errors));
+		foreach ($errors as $error) {
+			$this->assertEquals($expectedErrors[$error['property']], $error['message']);
+		}
+	}
+
     /**
      * @QueryCount(11)
      * 1. Check username is free
