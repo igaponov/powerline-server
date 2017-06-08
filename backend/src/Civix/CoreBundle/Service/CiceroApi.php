@@ -89,15 +89,19 @@ class CiceroApi extends ServiceApi
         return $this->handleOfficialResponse($representatives);
     }
 
-    protected function handleOfficialResponse($officials)
+    protected function handleOfficialResponse(array $officials): array
     {
-        foreach ($officials as &$representative) {
-            $object = $this->entityManager->getRepository(CiceroRepresentative::class)
-                ->findOneBy([
+        $representatives = [];
+        foreach ($officials as $representative) {
+            $repository = $this->entityManager->getRepository(CiceroRepresentative::class);
+            $object = $repository->find($representative->id);
+            if (!$object) {
+                $object = $repository->findOneBy([
                     'district' => $representative->office->district->id,
                     'firstName' => $representative->first_name,
                     'lastName' => $representative->last_name,
                 ]);
+            }
             if ($object) {
                 $representative = $this->fillRepresentativeByApiObj($object, $representative);
             } else {
@@ -107,10 +111,11 @@ class CiceroApi extends ServiceApi
             $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
 
             $this->entityManager->persist($representative);
+            $representatives[] = $representative;
         }
         $this->entityManager->flush();
 
-        return $officials;
+        return $representatives;
     }
 
     /**
@@ -144,31 +149,40 @@ class CiceroApi extends ServiceApi
     }
 
     /**
-     * Save representative from api in representative storage. 
+     * Save representative from api in representative storage.
      * Set link between representative and representative storage.
-     * 
-     * @param array $resultApiCollection Object from Cicero API
+     *
+     * @param array $apiCollection Object from Cicero API
      * @param CiceroRepresentative $representative CiceroRepresentative object
      *
      * @return bool
+     *
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Doctrine\ORM\ORMInvalidArgumentException
+     * @throws \Doctrine\ORM\ORMException
      */
-    protected function updateRepresentative($resultApiCollection, CiceroRepresentative $representative)
+    protected function updateRepresentative($apiCollection, CiceroRepresentative $representative): bool
     {
-        foreach ($resultApiCollection as $repr) {
-            if (
-                $representative->getDistrict()->getId() == $repr->office->district->id
-                && $representative->getFirstName() == $repr->first_name
-                && $representative->getLastName() == $repr->last_name
-            ) {
-                $representative = $this->fillRepresentativeByApiObj($representative, $repr);
+        $collection = array_filter($apiCollection, function($repr) use ($representative) {
+            return $representative->getId() === $repr->id;
+        });
+        if (!$collection) {
+            $collection = array_filter($apiCollection, function ($repr) use ($representative) {
+                return $representative->getDistrict()->getId() === $repr->office->district->id
+                    && $representative->getFirstName() === $repr->first_name
+                    && $representative->getLastName() === $repr->last_name;
+            });
+        }
+        if ($collection) {
+            $representative = $this->fillRepresentativeByApiObj($representative, reset($collection));
 
-                $event = new AvatarEvent($representative);
-                $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
+            $event = new AvatarEvent($representative);
+            $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
 
-                $this->entityManager->persist($representative);
-                $this->entityManager->flush();
-                return true;
-            }
+            $this->entityManager->persist($representative);
+            $this->entityManager->flush();
+
+            return true;
         }
 
         return false;
