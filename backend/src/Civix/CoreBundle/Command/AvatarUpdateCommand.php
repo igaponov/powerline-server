@@ -5,7 +5,7 @@ namespace Civix\CoreBundle\Command;
 use Civix\CoreBundle\Entity\ChangeableAvatarInterface;
 use Civix\CoreBundle\Event\AvatarEvent;
 use Civix\CoreBundle\Event\AvatarEvents;
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -23,11 +23,12 @@ class AvatarUpdateCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $entityName = $input->getArgument('entity');
-        /** @var EntityManagerInterface $em */
+        /** @var EntityManager $em */
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
         $metadata = $em->getClassMetadata($entityName);
-        if (!in_array(ChangeableAvatarInterface::class, class_implements($metadata->getName()))) {
-            throw new \RuntimeException('Invalid entity');
+        $interface = ChangeableAvatarInterface::class;
+        if (!in_array($interface, class_implements($metadata->getName()), true)) {
+            throw new \RuntimeException('Invalid entity '.$entityName);
         }
         $dispatcher = $this->getContainer()->get('event_dispatcher');
         /** @var EntityRepository $repository */
@@ -40,7 +41,7 @@ class AvatarUpdateCommand extends ContainerAwareCommand
             $entity = $item[0];
             $event = new AvatarEvent($entity);
             $dispatcher->dispatch(AvatarEvents::CHANGE, $event);
-            $em->flush();
+            $em->flush($entity);
             $em->detach($entity);
         }
     }

@@ -4,6 +4,19 @@ namespace Civix\CoreBundle\Model\Avatar;
 
 class FirstLetterDefaultAvatar implements DefaultAvatarInterface
 {
+    const NUM_TO_LETTER = [
+        0 => 'Z',
+        1 => 'O',
+        2 => 'T',
+        3 => 'T',
+        4 => 'F',
+        5 => 'F',
+        6 => 'S',
+        7 => 'S',
+        8 => 'E',
+        9 => 'N',
+    ];
+
     /**
      * @var string
      */
@@ -11,10 +24,13 @@ class FirstLetterDefaultAvatar implements DefaultAvatarInterface
 
     public function __construct(string $firstName)
     {
-        if (mb_strlen($firstName) === 0) {
+        if ($firstName === '') {
             throw new \LogicException('The first name for avatar should have at least one letter.');
         }
-        $this->letter = substr($firstName, 0, 1);
+        $this->letter = mb_strtoupper($firstName[0]);
+        if (is_numeric($this->letter)) {
+            $this->letter = self::NUM_TO_LETTER[$this->letter];
+        }
     }
 
     /**
