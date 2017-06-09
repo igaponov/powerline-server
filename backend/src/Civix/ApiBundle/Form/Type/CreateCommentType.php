@@ -5,6 +5,7 @@ use Civix\CoreBundle\Entity\BaseComment;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -21,6 +22,12 @@ class CreateCommentType extends AbstractType
         $builder
             ->add('parent_comment', IntegerType::class, [
                 'property_path' => 'parentComment',
+            ])
+            // @todo delete "is_root" field after release of RN app
+            ->add('is_root', CheckboxType::class, [
+                'mapped' => false,
+                'required' => false,
+                'description' => 'Hack to fix https://github.com/PowerlineApp/powerline-mobile/issues/608, don\'t use this attribute!',
             ]);
 
         $builder->get('parent_comment')->addModelTransformer(new CallbackTransformer(
