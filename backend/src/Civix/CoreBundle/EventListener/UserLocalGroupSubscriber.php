@@ -124,7 +124,7 @@ class UserLocalGroupSubscriber implements EventSubscriberInterface
      */
     private $logger;
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             UserEvents::REGISTRATION => 'joinLocalGroups',
@@ -146,7 +146,7 @@ class UserLocalGroupSubscriber implements EventSubscriberInterface
         $this->logger = $logger;
     }
 
-    public function joinLocalGroups(UserEvent $event)
+    public function joinLocalGroups(UserEvent $event): void
     {
         $user = $event->getUser();
         $oldGroups = $this->groupRepository->getGeoGroupsByUser($user);
@@ -167,11 +167,11 @@ class UserLocalGroupSubscriber implements EventSubscriberInterface
         $adminLevel = $address->getAdminLevels()->first();
         $locality = $address->getLocality() ? : $address->getSubLocality();
         $groupConfig = [];
-        if (($country && in_array($country->getCode(), self::EU_CODES))
-            || in_array($user->getCountry(), self::EU_CODES)) {
+        if (($country && in_array($country->getCode(), self::EU_CODES, true))
+            || in_array($user->getCountry(), self::EU_CODES, true)) {
             $groupConfig[] = [null, Group::GROUP_TYPE_COUNTRY, Group::GROUP_LOCATION_NAME_EUROPEAN_UNION, 'European Union'];
-        } elseif (($country && in_array($country->getCode(), self::AU_CODES))
-            || in_array($user->getCountry(), self::AU_CODES)) {
+        } elseif (($country && in_array($country->getCode(), self::AU_CODES, true))
+            || in_array($user->getCountry(), self::AU_CODES, true)) {
             $groupConfig[] = [null, Group::GROUP_TYPE_COUNTRY, Group::GROUP_LOCATION_NAME_AFRICAN_UNION, 'African Union'];
         }
         if ($country) {
@@ -206,7 +206,7 @@ class UserLocalGroupSubscriber implements EventSubscriberInterface
      * @param Group|null $parentGroup
      * @return Group
      */
-    private function createLocalGroup(int $type, string $longName, string $shortName, Group $parentGroup = null): Group
+    private function createLocalGroup(int $type, string $longName, string $shortName, ?Group $parentGroup): Group
     {
         $group = new Group();
         $group
@@ -225,12 +225,11 @@ class UserLocalGroupSubscriber implements EventSubscriberInterface
      * @param $groupConfig
      * @return array
      */
-    private function getNewGroups($groupConfig): array
+    private function getNewGroups(array $groupConfig): array
     {
         $newGroups = [];
         $parent = null;
-        foreach ($groupConfig as $config) {
-            list($fallback, $type, $shortName, $longName) = $config;
+        foreach ($groupConfig as [$fallback, $type, $shortName, $longName]) {
             if ($shortName) {
                 $localGroup = $this->groupRepository->findOneBy(
                     [

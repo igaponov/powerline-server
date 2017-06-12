@@ -1662,7 +1662,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     /**
      * @return Group
      */
-    public function getParent(): Group
+    public function getParent(): ?Group
     {
         return $this->parent;
     }
@@ -1672,7 +1672,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return $this
      */
-    public function setParent(Group $parent): Group
+    public function setParent(?Group $parent): Group
     {
         $this->parent = $parent;
 
