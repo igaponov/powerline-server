@@ -4,7 +4,7 @@ namespace Civix\CoreBundle\Entity;
 
 interface CheckingLimits
 {
-    public function getQuestionLimit();
+    public function getQuestionLimit(): ?int;
 
-    public function setQuestionLimit($limit);
+    public function setQuestionLimit(?int $limit);
 }

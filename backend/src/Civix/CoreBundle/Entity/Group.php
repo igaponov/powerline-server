@@ -4,12 +4,15 @@ namespace Civix\CoreBundle\Entity;
 
 use Civix\CoreBundle\Entity\Group\AdvancedAttributes;
 use Civix\CoreBundle\Entity\Group\GroupField;
+use Civix\CoreBundle\Entity\Group\Link;
 use Civix\CoreBundle\Model\Avatar\DefaultAvatar;
 use Civix\CoreBundle\Model\Avatar\DefaultAvatarInterface;
 use Civix\CoreBundle\Model\Avatar\FirstLetterDefaultAvatar;
 use Civix\CoreBundle\Serializer\Type\ContentRemaining;
 use Civix\CoreBundle\Serializer\Type\TotalMembers;
 use Civix\CoreBundle\Serializer\Type\UserRole;
+use DateTime;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -45,8 +48,8 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     const GROUP_TYPE_LOCAL = 3;
     const GROUP_TYPE_SPECIAL = 4;
 
-    const GROUP_LOCATION_NAME_EUROPEAN_UNION = "EU";
-    const GROUP_LOCATION_NAME_AFRICAN_UNION = "AFU";
+    const GROUP_LOCATION_NAME_EUROPEAN_UNION = 'EU';
+    const GROUP_LOCATION_NAME_AFRICAN_UNION = 'AFU';
 
     const GROUP_MEMBERSHIP_PUBLIC = 0;
     const GROUP_MEMBERSHIP_APPROVAL = 1;
@@ -54,10 +57,10 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
 
     const COUNT_PETITION_PER_MONTH = 30;
 
-    const GROUP_TRANSPARENCY_PUBLIC = "public";
-    const GROUP_TRANSPARENCY_PRIVATE = "private";
-    const GROUP_TRANSPARENCY_SECRET = "secret";
-    const GROUP_TRANSPARENCY_TOP_SECRET = "top-secret";
+    const GROUP_TRANSPARENCY_PUBLIC = 'public';
+    const GROUP_TRANSPARENCY_PRIVATE = 'private';
+    const GROUP_TRANSPARENCY_SECRET = 'secret';
+    const GROUP_TRANSPARENCY_TOP_SECRET = 'top-secret';
 
     const PERMISSIONS_NAME = 'permissions_name';
     const PERMISSIONS_ADDRESS = 'permissions_address';
@@ -84,13 +87,6 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     private $id;
 
     /**
-     * @Serializer\Expose()
-     * @Serializer\ReadOnly()
-     * @Serializer\Groups({"api-activities", "api-poll", "api-search", "api-invites", "api-poll-public"})
-     */
-    private $type = 'group';
-
-    /**
      * @var int
      * 
      * @ORM\Column(name="group_type", type="smallint")
@@ -101,7 +97,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * )
      * @Serializer\Until("1")
      */
-    private $groupType;
+    private $groupType = self::GROUP_TYPE_COMMON;
 
     /**
      * @var string
@@ -240,14 +236,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     private $owner;
 
     /**
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-groups"})
-     * @Serializer\Accessor(getter="getPicture")
-     */
-    protected $picture;
-
-    /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      * @Serializer\Expose()
@@ -308,7 +297,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @Assert\NotBlank(groups={"membership-control"})
      * @Assert\Choice(callback="getMembershipControlTypes", groups={"membership-control"}, strict=true)
      */
-    private $membershipControl;
+    private $membershipControl = self::GROUP_MEMBERSHIP_PUBLIC;
 
     /**
      * @ORM\Column(name="membership_passcode", type="string", nullable=true)
@@ -392,10 +381,14 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @Serializer\Accessor(getter="serializeRequiredPermissions")
      * @ORM\Column(name="required_permissions", type="array", nullable=true)
      */
-    private $requiredPermissions = [];
+    private $requiredPermissions = [
+        self::PERMISSIONS_NAME,
+        self::PERMISSIONS_COUNTRY,
+        self::PERMISSIONS_RESPONSES,
+    ];
 
     /**
-     * @var \DateTime
+     * @var DateTime
      * @Serializer\Expose()
      * @Serializer\Groups({"permission-settings"})
      * @Serializer\Type("DateTime<'D, d M Y H:i:s'>")
@@ -437,7 +430,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @Assert\NotBlank(groups={"Default", "user-registration"})
      * @Assert\Choice(callback="getTransparencyStates", groups={"Default", "user-registration"}, strict=true)
      */
-    private $transparency;
+    private $transparency = self::GROUP_TRANSPARENCY_PUBLIC;
 
     /**
      * @var string
@@ -454,9 +447,16 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     private $advancedAttributes;
 
     /**
+     * @var Link[]|ArrayCollection
+     *
+     * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\Group\Link", mappedBy="group", fetch="EXTRA_LAZY", cascade={"persist"}, orphanRemoval=true)
+     */
+    private $links;
+
+    /**
      * @return array
      */
-    public static function getOfficialTypes()
+    public static function getOfficialTypes(): array
     {
         return [
             'Educational' => 'Educational',
@@ -468,7 +468,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
         ];
     }
 
-    public static function getGroupTypes()
+    public static function getGroupTypes(): array
     {
         return [
             self::GROUP_TYPE_COMMON => 'common',
@@ -482,7 +482,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     /**
      * @return array
      */
-    public static function getMembershipControlTypes()
+    public static function getMembershipControlTypes(): array
     {
         return [
             self::GROUP_MEMBERSHIP_PUBLIC,
@@ -494,7 +494,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     /**
      * @return array
      */
-    public static function getMembershipControlChoices()
+    public static function getMembershipControlChoices(): array
     {
         return [
             self::GROUP_MEMBERSHIP_PUBLIC => 'public',
@@ -503,7 +503,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
         ];
     }
 
-    public static function getTransparencyStates()
+    public static function getTransparencyStates(): array
     {
         return [
             self::GROUP_TRANSPARENCY_PUBLIC,
@@ -513,7 +513,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
         ];
     }
 
-    public static function getPermissions()
+    public static function getPermissions(): array
     {
         return [
             self::PERMISSIONS_NAME => 'Name',
@@ -528,7 +528,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
         ];
     }
 
-    public static function getGeoTypes()
+    public static function getGeoTypes(): array
     {
         return [
             self::GROUP_TYPE_COUNTRY,
@@ -546,15 +546,8 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
         $this->fields = new ArrayCollection();
         $this->groupSections = new ArrayCollection();
         $this->children = new ArrayCollection();
-        $this->groupType = self::GROUP_TYPE_COMMON;
-        $this->membershipControl = self::GROUP_MEMBERSHIP_PUBLIC;
-        $this->petitionPerMonth = self::COUNT_PETITION_PER_MONTH;
-        $this->transparency = self::GROUP_TRANSPARENCY_PUBLIC;
-        $this->requiredPermissions = [
-            self::PERMISSIONS_NAME,
-            self::PERMISSIONS_COUNTRY,
-            self::PERMISSIONS_RESPONSES,
-        ];
+        $this->links = new ArrayCollection();
+        $this->createdAt = new DateTime();
     }
 
     /**
@@ -564,7 +557,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function addInvite(User $user)
+    public function addInvite(User $user): Group
     {
         $this->invites[] = $user;
 
@@ -576,7 +569,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @param User $user
      */
-    public function removeInvite(User $user)
+    public function removeInvite(User $user): void
     {
         $this->invites->removeElement($user);
     }
@@ -584,9 +577,9 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     /**
      * Get invites.
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return Collection
      */
-    public function getInvites()
+    public function getInvites(): Collection
     {
         return $this->invites;
     }
@@ -595,10 +588,13 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * Get type.
      *
      * @return string
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"api-activities", "api-poll", "api-search", "api-invites", "api-poll-public"})
      */
-    public function getType()
+    public function getType(): string
     {
-        return $this->type;
+        return 'group';
     }
 
     /**
@@ -613,7 +609,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @Serializer\SerializedName("avatar_file_path")
      * @return Avatar
      */
-    public function getAvatarFilePath()
+    public function getAvatarFilePath(): Avatar
     {
         return new Avatar($this);
     }
@@ -623,7 +619,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return int
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -633,7 +629,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @Serializer\Type("TotalMembers")
      * @Serializer\Groups({"api-full-info"})
      */
-    public function getTotalMembers()
+    public function getTotalMembers(): TotalMembers
     {
         return new TotalMembers($this);
     }
@@ -643,9 +639,9 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return bool
      */
-    public function isEqualTo(Group $group)
+    public function isEqualTo(Group $group): bool
     {
-        return $this->getId() == $group->getId();
+        return $this->getId() === $group->getId();
     }
 
     /**
@@ -653,11 +649,11 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return string
      */
-    public function serialize()
+    public function serialize(): string
     {
-        return serialize(array(
-                $this->id,
-            ));
+        return serialize([
+            $this->id,
+        ]);
     }
 
     /**
@@ -665,10 +661,9 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @param string $serialized
      */
-    public function unserialize($serialized)
+    public function unserialize($serialized): void
     {
-        list(
-            $this->id) = unserialize($serialized);
+        [$this->id] = unserialize($serialized, ['allowed_classes' => false]);
     }
 
     /**
@@ -686,7 +681,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function setManagerFirstName($managerFirstName)
+    public function setManagerFirstName($managerFirstName): Group
     {
         $this->managerFirstName = $managerFirstName;
 
@@ -698,7 +693,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return string
      */
-    public function getManagerFirstName()
+    public function getManagerFirstName(): ?string
     {
         return $this->managerFirstName;
     }
@@ -710,7 +705,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function setManagerLastName($managerLastName)
+    public function setManagerLastName(?string $managerLastName): Group
     {
         $this->managerLastName = $managerLastName;
 
@@ -722,7 +717,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return string
      */
-    public function getManagerLastName()
+    public function getManagerLastName(): ?string
     {
         return $this->managerLastName;
     }
@@ -734,7 +729,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function setManagerEmail($managerEmail)
+    public function setManagerEmail(?string $managerEmail): Group
     {
         $this->managerEmail = $managerEmail;
 
@@ -746,7 +741,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * 
      * @return string
      */
-    public function getManagerFullName()
+    public function getManagerFullName(): string
     {
         return $this->getManagerFirstName().' '.$this->getManagerLastName();
     }
@@ -756,7 +751,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return string
      */
-    public function getManagerEmail()
+    public function getManagerEmail(): ?string
     {
         return $this->managerEmail;
     }
@@ -768,7 +763,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function setManagerPhone($managerPhone)
+    public function setManagerPhone(?string $managerPhone): Group
     {
         $this->managerPhone = $managerPhone;
 
@@ -780,7 +775,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return string
      */
-    public function getManagerPhone()
+    public function getManagerPhone(): ?string
     {
         return $this->managerPhone;
     }
@@ -792,7 +787,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function setOfficialName($officialName)
+    public function setOfficialName(?string $officialName): Group
     {
         $this->officialName = $officialName;
 
@@ -804,7 +799,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return string
      */
-    public function getOfficialName()
+    public function getOfficialName(): ?string
     {
         return $this->officialName;
     }
@@ -816,7 +811,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function setOfficialDescription($officialDescription)
+    public function setOfficialDescription(?string $officialDescription): Group
     {
         $this->officialDescription = $officialDescription;
 
@@ -828,7 +823,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return string
      */
-    public function getOfficialDescription()
+    public function getOfficialDescription(): ?string
     {
         return $this->officialDescription;
     }
@@ -840,7 +835,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function setOfficialType($officialType)
+    public function setOfficialType(?string $officialType): Group
     {
         $this->officialType = $officialType;
 
@@ -852,7 +847,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return string
      */
-    public function getOfficialType()
+    public function getOfficialType(): ?string
     {
         return $this->officialType;
     }
@@ -864,7 +859,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function setOfficialAddress($officialAddress)
+    public function setOfficialAddress(?string $officialAddress): Group
     {
         $this->officialAddress = $officialAddress;
 
@@ -876,7 +871,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return string
      */
-    public function getOfficialAddress()
+    public function getOfficialAddress(): ?string
     {
         return $this->officialAddress;
     }
@@ -888,7 +883,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function setOfficialCity($officialCity)
+    public function setOfficialCity(?string $officialCity): Group
     {
         $this->officialCity = $officialCity;
 
@@ -900,7 +895,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return string
      */
-    public function getOfficialCity()
+    public function getOfficialCity(): ?string
     {
         return $this->officialCity;
     }
@@ -912,7 +907,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function setOfficialState($officialState)
+    public function setOfficialState(?string $officialState): Group
     {
         $this->officialState = $officialState;
 
@@ -924,7 +919,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return string
      */
-    public function getOfficialState()
+    public function getOfficialState(): ?string
     {
         return $this->officialState;
     }
@@ -936,11 +931,11 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      */
     public function getDefaultAvatar(): DefaultAvatarInterface
     {
-        if (in_array($this->groupType, [self::getGeoTypes()])) {
+        if (in_array($this->groupType, self::getGeoTypes(), true)) {
             return new DefaultAvatar(self::DEFAULT_MAP_AVATAR);
-        } else {
-            return new FirstLetterDefaultAvatar($this->officialName);
         }
+
+        return new FirstLetterDefaultAvatar($this->officialName);
     }
 
     /**
@@ -950,7 +945,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @Serializer\Type("JoinStatus")
      * @Serializer\SerializedName("joined")
      */
-    public function getJoinStatus()
+    public function getJoinStatus(): JoinStatus
     {
         return new JoinStatus($this);
     }
@@ -961,7 +956,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @param User $user
      * @return int
      */
-    public function getJoined(User $user)
+    public function getJoined(User $user): int
     {
         return $user->getGroups()->contains($this) ? 1 : 0;
     }
@@ -972,10 +967,10 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @param UserInterface $user
      * @return bool
      */
-    public function isMember(UserInterface $user)
+    public function isMember(UserInterface $user): bool
     {
-        return $this->users->filter(function (UserGroup $usergroup) use ($user) {
-            return $usergroup->isActive() && $usergroup->getUser()->isEqualTo($user);
+        return $this->users->filter(function (UserGroup $userGroup) use ($user) {
+            return $userGroup->isActive() && $userGroup->getUser()->isEqualTo($user);
         })->count() > 0;
     }
 
@@ -985,21 +980,9 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @param UserInterface $user
      * @return bool
      */
-    public function isManager(UserInterface $user)
+    public function isManager(UserInterface $user): bool
     {
     	return $this->getManagers()->contains($user);
-    }
-
-    public function getPicture()
-    {
-        return $this->picture;
-    }
-
-    public function setPicture($picture)
-    {
-        $this->picture = $picture;
-
-        return $this;
     }
 
     /**
@@ -1009,7 +992,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function addUser(UserGroup $user)
+    public function addUser(UserGroup $user): Group
     {
         $this->users[] = $user;
 
@@ -1021,7 +1004,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @param UserGroup $user
      */
-    public function removeUser(UserGroup $user)
+    public function removeUser(UserGroup $user): void
     {
         $this->users->removeElement($user);
     }
@@ -1029,13 +1012,13 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     /**
      * Get users.
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return Collection
      */
-    public function getUsers()
+    public function getUsers(): Collection
     {
         return new ArrayCollection(array_map(
-            function (UserGroup $usergroup) {
-                return $usergroup->getUser();
+            function (UserGroup $userGroup) {
+                return $userGroup->getUser();
             },
             $this->users->toArray()
         ));
@@ -1048,7 +1031,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function addManager(UserGroupManager $manager)
+    public function addManager(UserGroupManager $manager): Group
     {
     	$this->managers[] = $manager;
     
@@ -1060,7 +1043,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @param \Civix\CoreBundle\Entity\UserGroupManager $manager
      */
-    public function removeManager(UserGroupManager $manager)
+    public function removeManager(UserGroupManager $manager): void
     {
     	$this->managers->removeElement($manager);
     }
@@ -1068,9 +1051,9 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     /**
      * Get users.
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return Collection
      */
-    public function getManagers()
+    public function getManagers(): Collection
     {
     	return new ArrayCollection(array_map(
     			function (UserGroupManager $userGroupManager) {
@@ -1084,19 +1067,19 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * Check if a User give is really the group owner for a 
      * group
      * 
-     * @param UserInterface $user
+     * @param User $user
      * 
      * @return boolean
      */
-    public function isOwner(UserInterface $user)
+    public function isOwner(User $user): bool
     {
-    	return !empty($this->getOwner()) && $this->getOwner()->getId() === $user->getId();
+    	return $this->getOwner() ? $user->isEqualTo($this->getOwner()) : false;
     }
     
     /**
      * @return User
      */
-    public function getOwner()
+    public function getOwner(): ?User
     {
         return $this->owner;
     }
@@ -1106,7 +1089,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return $this
      */
-    public function setOwner(User $owner = null)
+    public function setOwner(?User $owner)
     {
         $this->owner = $owner;
 
@@ -1116,27 +1099,19 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     /**
      * @return User
      */
-    public function getUser()
+    public function getUser(): ?User
     {
         return $this->owner;
     }
 
     /**
-     * @ORM\PrePersist()
-     */
-    public function setCreatedDate()
-    {
-        $this->setCreatedAt(new \DateTime());
-    }
-
-    /**
      * Set createdAt.
      *
-     * @param \DateTime $createdAt
+     * @param DateTime $createdAt
      *
      * @return $this
      */
-    public function setCreatedAt($createdAt)
+    public function setCreatedAt(?DateTime $createdAt)
     {
         $this->createdAt = $createdAt;
 
@@ -1146,9 +1121,9 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     /**
      * Get createdAt.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getCreatedAt()
+    public function getCreatedAt(): ?DateTime
     {
         return $this->createdAt;
     }
@@ -1158,7 +1133,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return int
      */
-    public function getQuestionLimit()
+    public function getQuestionLimit(): ?int
     {
         return $this->questionLimit;
     }
@@ -1169,7 +1144,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @param int $limit
      * @return Group
      */
-    public function setQuestionLimit($limit)
+    public function setQuestionLimit(?int $limit): Group
     {
         $this->questionLimit = $limit;
 
@@ -1181,7 +1156,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return int
      */
-    public function getPetitionPercent()
+    public function getPetitionPercent(): ?int
     {
         return empty($this->petitionPercent) ?
             PetitionManager::PERCENT_IN_GROUP : $this->petitionPercent;
@@ -1193,7 +1168,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @param $percent
      * @return Group
      */
-    public function setPetitionPercent($percent)
+    public function setPetitionPercent(?int $percent): Group
     {
         $this->petitionPercent = $percent;
 
@@ -1205,7 +1180,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return int
      */
-    public function getPetitionDuration()
+    public function getPetitionDuration(): ?int
     {
         return empty($this->petitionDuration) ?
             PetitionManager::EXPIRE_INTERVAL : $this->petitionDuration;
@@ -1217,14 +1192,14 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @param $duration
      * @return Group
      */
-    public function setPetitionDuration($duration)
+    public function setPetitionDuration(?int $duration): Group
     {
         $this->petitionDuration = $duration;
 
         return $this;
     }
 
-    public function getGroupType()
+    public function getGroupType(): ?int
     {
         return $this->groupType;
     }
@@ -1239,7 +1214,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * )
      * @Serializer\Since("2")
      */
-    public function getGroupTypeLabel()
+    public function getGroupTypeLabel(): ?string
     {
         $groupTypes = self::getGroupTypes();
         if (isset($groupTypes[$this->groupType])) {
@@ -1249,7 +1224,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
         return null;
     }
 
-    public function setGroupType($type)
+    public function setGroupType(?int $type): Group
     {
         $this->groupType = $type;
 
@@ -1263,7 +1238,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function setLocalState(State $localState = null)
+    public function setLocalState(?State $localState): Group
     {
         $this->localState = $localState;
 
@@ -1275,7 +1250,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return State
      */
-    public function getLocalState()
+    public function getLocalState(): ?State
     {
         return $this->localState;
     }
@@ -1285,9 +1260,11 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return int
      */
-    public function getLocalDistrictId()
+    public function getLocalDistrictId(): ?int
     {
-        return $this->getLocalDistrict()->getId();
+        $district = $this->getLocalDistrict();
+
+        return $district ? $district->getId() : null;
     }
 
     /**
@@ -1297,7 +1274,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function addLocalRepresentative(Representative $localRepresentative)
+    public function addLocalRepresentative(Representative $localRepresentative): Group
     {
         $localRepresentative->setLocalGroup($this);
         $this->localRepresentatives[] = $localRepresentative;
@@ -1310,18 +1287,18 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @param Representative $localRepresentative
      */
-    public function removeLocalRepresentative(Representative $localRepresentative)
+    public function removeLocalRepresentative(Representative $localRepresentative): void
     {
-        $localRepresentative->setLocalGroup(null);
+        $localRepresentative->setLocalGroup();
         $this->localRepresentatives->removeElement($localRepresentative);
     }
 
     /**
      * Get localRepresentatives.
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return Collection
      */
-    public function getLocalRepresentatives()
+    public function getLocalRepresentatives(): Collection
     {
         return $this->localRepresentatives;
     }
@@ -1333,7 +1310,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function setLocalDistrict(District $localDistrict = null)
+    public function setLocalDistrict(?District $localDistrict): Group
     {
         $this->localDistrict = $localDistrict;
 
@@ -1345,7 +1322,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return District
      */
-    public function getLocalDistrict()
+    public function getLocalDistrict(): ?District
     {
         return $this->localDistrict;
     }
@@ -1357,7 +1334,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function setMembershipControl($membershipControl)
+    public function setMembershipControl(?int $membershipControl): Group
     {
         $this->membershipControl = $membershipControl;
 
@@ -1369,7 +1346,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return int
      */
-    public function getMembershipControl()
+    public function getMembershipControl(): ?int
     {
         return $this->membershipControl;
     }
@@ -1377,7 +1354,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     /**
      * @return string|null
      */
-    public function getMembershipControlTitle()
+    public function getMembershipControlTitle(): ?string
     {
         $choices = self::getMembershipControlChoices();
         $membershipControl = $this->getMembershipControl();
@@ -1395,7 +1372,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function setMembershipPasscode($membershipPasscode)
+    public function setMembershipPasscode(?string $membershipPasscode): Group
     {
         $this->membershipPasscode = $membershipPasscode;
 
@@ -1407,7 +1384,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return string
      */
-    public function getMembershipPasscode()
+    public function getMembershipPasscode(): ?string
     {
         return $this->membershipPasscode;
     }
@@ -1419,7 +1396,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function addField(Group\GroupField $field)
+    public function addField(Group\GroupField $field): Group
     {
         $this->fields[] = $field;
         $field->setGroup($this);
@@ -1432,7 +1409,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @param Group\GroupField $fields
      */
-    public function removeField(Group\GroupField $fields)
+    public function removeField(Group\GroupField $fields): void
     {
         $this->fields->removeElement($fields);
     }
@@ -1440,9 +1417,9 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     /**
      * Get fields.
      *
-     * @return \Doctrine\Common\Collections\Collection|GroupField[]
+     * @return Collection|GroupField[]
      */
-    public function getFields()
+    public function getFields(): Collection
     {
         return $this->fields;
     }
@@ -1454,7 +1431,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function setFillFieldsRequired($fillFieldsRequired)
+    public function setFillFieldsRequired(?bool $fillFieldsRequired): Group
     {
         $this->fillFieldsRequired = $fillFieldsRequired;
 
@@ -1466,7 +1443,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return bool
      */
-    public function getFillFieldsRequired()
+    public function getFillFieldsRequired(): ?bool
     {
         return $this->fillFieldsRequired;
     }
@@ -1475,12 +1452,12 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @ORM\PrePersist()
      * @ORM\PreUpdate()
      */
-    public function updateFillFieldsRequired()
+    public function updateFillFieldsRequired(): void
     {
         $this->fillFieldsRequired = (boolean) $this->fields->count();
     }
 
-    public function getFieldsIds()
+    public function getFieldsIds(): array
     {
         return $this->fields->count() > 0 ? $this->fields->map(function (GroupField $groupField) {
                 return $groupField->getId();
@@ -1494,7 +1471,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function setPetitionPerMonth($petitionPerMonth)
+    public function setPetitionPerMonth(?int $petitionPerMonth): Group
     {
         $this->petitionPerMonth = $petitionPerMonth;
 
@@ -1506,9 +1483,9 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return int
      */
-    public function getPetitionPerMonth()
+    public function getPetitionPerMonth(): int
     {
-        return $this->petitionPerMonth === null ? self::COUNT_PETITION_PER_MONTH : $this->petitionPerMonth;
+        return $this->petitionPerMonth ?? self::COUNT_PETITION_PER_MONTH;
     }
 
     /**
@@ -1518,7 +1495,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return Group
      */
-    public function setAcronym($acronym)
+    public function setAcronym(?string $acronym): Group
     {
         $this->acronym = $acronym;
 
@@ -1530,21 +1507,22 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return string
      */
-    public function getAcronym()
+    public function getAcronym(): ?string
     {
         return $this->acronym ?: $this->getDefaultAcronym();
     }
 
-    public function getDefaultAcronym()
+    public function getDefaultAcronym(): ?string
     {
-        if (self::GROUP_TYPE_COUNTRY === $this->getGroupType() || self::GROUP_TYPE_STATE === $this->getGroupType()) {
+        $type = $this->getGroupType();
+        if (in_array($type, [self::GROUP_TYPE_COUNTRY, self::GROUP_TYPE_STATE], true)) {
             return $this->getLocationName();
         }
         
         return null;
     }
 
-    public function getAddressArray()
+    public function getAddressArray(): array
     {
         return [
             'city' => $this->getOfficialCity(),
@@ -1556,22 +1534,22 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
         ];
     }
 
-    public function isCommercial()
+    public function isCommercial(): bool
     {
         return $this->getOfficialType() === 'Business';
     }
 
-    public function getEmail()
+    public function getEmail(): ?string
     {
         return $this->getManagerEmail();
     }
 
-    public function getRequiredPermissions()
+    public function getRequiredPermissions(): array
     {
         return $this->requiredPermissions;
     }
 
-    public function serializeRequiredPermissions()
+    public function serializeRequiredPermissions(): array
     {
         if (is_array($this->requiredPermissions)) {
             return array_values($this->requiredPermissions);
@@ -1580,36 +1558,36 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
         return [];
     }
 
-    public function setRequiredPermissions($permissions)
+    public function setRequiredPermissions(array $permissions): Group
     {
         $this->requiredPermissions = $permissions;
 
         return $this;
     }
 
-    public function hasRequiredPermissions($key)
+    public function hasRequiredPermissions($key): bool
     {
-        return in_array($key, $this->requiredPermissions);
+        return in_array($key, $this->requiredPermissions, true);
     }
 
-    public function setPermissionsChangedAt($date)
+    public function setPermissionsChangedAt(?DateTime $date): Group
     {
         $this->permissionsChangedAt = $date;
 
         return $this;
     }
 
-    public function getPermissionsChangedAt()
+    public function getPermissionsChangedAt(): ?DateTime
     {
         return $this->permissionsChangedAt;
     }
 
-    public function getGroupSections()
+    public function getGroupSections(): Collection
     {
         return $this->groupSections;
     }
 
-    public function addGroupSection(GroupSection $groupSection)
+    public function addGroupSection(GroupSection $groupSection): Group
     {
         $this->groupSections[] = $groupSection;
         $groupSection->setGroup($this);
@@ -1617,14 +1595,14 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
         return $this;
     }
 
-    public function removeGroupSection(GroupSection $groupSection)
+    public function removeGroupSection(GroupSection $groupSection): Group
     {
         $this->groupSections->removeElement($groupSection);
 
         return $this;
     }
 
-    public function setGroupSections($groupSection)
+    public function setGroupSections(Collection $groupSection)
     {
         $this->groupSections = $groupSection;
 
@@ -1634,7 +1612,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     /**
      * @return string
      */
-    public function getLocationName()
+    public function getLocationName(): ?string
     {
         return $this->locationName;
     }
@@ -1644,7 +1622,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return $this
      */
-    public function setLocationName($locationName)
+    public function setLocationName(?string $locationName): Group
     {
         $this->locationName = $locationName;
 
@@ -1652,17 +1630,17 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     }
 
     /**
-     * @return ArrayCollection
+     * @return Collection
      */
-    public function getChildren()
+    public function getChildren(): Collection
     {
         return $this->children;
     }
 
     /**
-     * @return ArrayCollection
+     * @return Collection
      */
-    public function getLocalChildren()
+    public function getLocalChildren(): Collection
     {
         return $this->children->filter(function(Group $group) {
             return $group->isLocalGroup();
@@ -1674,7 +1652,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return $this
      */
-    public function setChildren($children)
+    public function setChildren(Group $children): Group
     {
         $this->children = $children;
 
@@ -1684,7 +1662,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     /**
      * @return Group
      */
-    public function getParent()
+    public function getParent(): Group
     {
         return $this->parent;
     }
@@ -1694,24 +1672,24 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return $this
      */
-    public function setParent($parent)
+    public function setParent(Group $parent): Group
     {
         $this->parent = $parent;
 
         return $this;
     }
 
-    public function isLocalGroup()
+    public function isLocalGroup(): bool
     {
         return $this->groupType === self::GROUP_TYPE_LOCAL;
     }
 
-    public function isCountryGroup()
+    public function isCountryGroup(): bool
     {
         return $this->groupType === self::GROUP_TYPE_COUNTRY;
     }
 
-    public function isStateGroup()
+    public function isStateGroup(): bool
     {
         return $this->groupType === self::GROUP_TYPE_STATE;
     }
@@ -1722,7 +1700,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @param string $transparency
      * @return Group
      */
-    public function setTransparency($transparency)
+    public function setTransparency(?string $transparency): Group
     {
         $this->transparency = $transparency;
     
@@ -1734,7 +1712,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      *
      * @return string 
      */
-    public function getTransparency()
+    public function getTransparency(): ?string
     {
         return $this->transparency;
     }
@@ -1742,7 +1720,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     /**
      * @return string
      */
-    public function getSlug()
+    public function getSlug(): ?string
     {
         return $this->slug;
     }
@@ -1751,7 +1729,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @param string $slug
      * @return Group
      */
-    public function setSlug($slug)
+    public function setSlug(?string $slug): Group
     {
         $this->slug = $slug;
 
@@ -1766,7 +1744,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @Serializer\SerializedName("user_role")
      * @Serializer\Type("UserRole")
      */
-    public function getUserRole()
+    public function getUserRole(): ?UserRole
     {
         if ($this->users->count()) {
             return new UserRole($this->users->first());
@@ -1775,7 +1753,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
         return null;
     }
 
-    public function getOfficialTitle()
+    public function getOfficialTitle(): ?string
     {
         return $this->getOfficialName();
     }
@@ -1786,7 +1764,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @Serializer\Type("ContentRemaining")
      * @return ContentRemaining
      */
-    public function getPostsRemaining()
+    public function getPostsRemaining(): ContentRemaining
     {
         return new ContentRemaining('post', $this);
     }
@@ -1797,12 +1775,12 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @Serializer\Type("ContentRemaining")
      * @return ContentRemaining
      */
-    public function getPetitionsRemaining()
+    public function getPetitionsRemaining(): ContentRemaining
     {
         return new ContentRemaining('petition', $this);
     }
 
-    public function getUserGroups()
+    public function getUserGroups(): Collection
     {
         return $this->users;
     }
@@ -1813,5 +1791,25 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     public function getAdvancedAttributes(): AdvancedAttributes
     {
         return $this->advancedAttributes;
+    }
+
+    public function getLinks(): Collection
+    {
+        return $this->links;
+    }
+
+    public function addLink(Link $link): Group
+    {
+        $this->links[] = $link;
+        $link->setGroup($this);
+
+        return $this;
+    }
+
+    public function removeLink(Link $link): Group
+    {
+        $this->links->removeElement($link);
+
+        return $this;
     }
 }

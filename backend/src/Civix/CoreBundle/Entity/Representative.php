@@ -564,7 +564,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return int
      */
-    public function getQuestionLimit()
+    public function getQuestionLimit(): ?int
     {
         return $this->questionLimit;
     }
@@ -575,7 +575,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      * @param $limit
      * @return Representative
      */
-    public function setQuestionLimit($limit)
+    public function setQuestionLimit(?int $limit)
     {
         $this->questionLimit = $limit;
 
