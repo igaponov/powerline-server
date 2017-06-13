@@ -34,7 +34,7 @@ before_script:
   - curl -Lo phpunit.phar https://phar.phpunit.de/phpunit-5.7.phar
 
 script:
-  - php ./phpunit.phar -c phpunit.xml.dist
+  - php ./phpunit.phar -c phpunit.xml.dist --colors=always --printer=\\Civix\\CoreBundle\\Test\\TimePrinter
 
 before_deploy:
   - scripts/before-deploy.sh
