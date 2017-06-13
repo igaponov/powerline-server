@@ -34,7 +34,10 @@ before_script:
   - curl -Lo phpunit.phar https://phar.phpunit.de/phpunit-5.7.phar
 
 script:
-  - php ./phpunit.phar -c phpunit.xml.dist --colors=always --printer=\\Civix\\CoreBundle\\Test\\TimePrinter
+  - php ./phpunit.phar -c phpunit.xml.dist --colors=always --printer=\\Civix\\CoreBundle\\Test\\TimePrinter --testsuite=tests
+  - php ./phpunit.phar -c phpunit.xml.dist --colors=always --printer=\\Civix\\CoreBundle\\Test\\TimePrinter --testsuite=ApiBundle
+  - php ./phpunit.phar -c phpunit.xml.dist --colors=always --printer=\\Civix\\CoreBundle\\Test\\TimePrinter --testsuite=CoreBundle
+  - php ./phpunit.phar -c phpunit.xml.dist --colors=always --printer=\\Civix\\CoreBundle\\Test\\TimePrinter --testsuite=FrontBundle
 
 before_deploy:
   - scripts/before-deploy.sh
