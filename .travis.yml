@@ -35,7 +35,8 @@ before_script:
 
 script:
   - php ./phpunit.phar -c phpunit.xml.dist --colors=always --printer=\\Civix\\CoreBundle\\Test\\TimePrinter --testsuite=tests
-  - php ./phpunit.phar -c phpunit.xml.dist --colors=always --printer=\\Civix\\CoreBundle\\Test\\TimePrinter --testsuite=ApiBundle
+  - php ./phpunit.phar -c phpunit.xml.dist --colors=always --printer=\\Civix\\CoreBundle\\Test\\TimePrinter --testsuite=ApiBundleV1
+  - php ./phpunit.phar -c phpunit.xml.dist --colors=always --printer=\\Civix\\CoreBundle\\Test\\TimePrinter --testsuite=ApiBundleV2
   - php ./phpunit.phar -c phpunit.xml.dist --colors=always --printer=\\Civix\\CoreBundle\\Test\\TimePrinter --testsuite=CoreBundle
   - php ./phpunit.phar -c phpunit.xml.dist --colors=always --printer=\\Civix\\CoreBundle\\Test\\TimePrinter --testsuite=FrontBundle
 

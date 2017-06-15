@@ -25,8 +25,12 @@
         <testsuite name="tests">
             <directory>tests</directory>
         </testsuite>
-        <testsuite name="ApiBundle">
+        <testsuite name="ApiBundleV1">
             <directory>src/Civix/ApiBundle/Tests</directory>
+            <exclude>src/Civix/ApiBundle/Tests/Controller/V2</exclude>
+        </testsuite>
+        <testsuite name="ApiBundleV2">
+            <directory>src/Civix/ApiBundle/Tests/Controller/V2</directory>
         </testsuite>
         <testsuite name="CoreBundle">
             <directory>src/Civix/CoreBundle/Tests</directory>
