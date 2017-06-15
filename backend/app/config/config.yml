@@ -308,3 +308,6 @@ aws:
         version: "2012-11-05"
     Sns:
         version: "2010-03-31"
+
+jms_di_extra:
+    doctrine_integration: false
