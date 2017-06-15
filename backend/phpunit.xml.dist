@@ -31,6 +31,12 @@
         </testsuite>
         <testsuite name="ApiBundleV2">
             <directory>src/Civix/ApiBundle/Tests/Controller/V2</directory>
+            <exclude>src/Civix/ApiBundle/Tests/Controller/V2/Group</exclude>
+            <exclude>src/Civix/ApiBundle/Tests/Controller/V2/Representative</exclude>
+        </testsuite>
+        <testsuite name="ApiBundleV3">
+            <directory>src/Civix/ApiBundle/Tests/Controller/V2/Group</directory>
+            <directory>src/Civix/ApiBundle/Tests/Controller/V2/Representative</directory>
         </testsuite>
         <testsuite name="CoreBundle">
             <directory>src/Civix/CoreBundle/Tests</directory>
