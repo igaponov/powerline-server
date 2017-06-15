@@ -5,8 +5,8 @@ use Civix\CoreBundle\Entity\User;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Loader;
-use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
+use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -146,7 +146,7 @@ abstract class WebTestCase extends BaseWebTestCase
      * @param int $total
      * @return SlidingPagination
      */
-    protected function deserializePagination($content, int $page, int $count, int $total)
+    protected function deserializePagination($content, int $page, int $count, int $total): SlidingPagination
     {
         /** @var SlidingPagination $pagination */
         $pagination = $this->getContainer()->get('serializer')->deserialize(
@@ -174,7 +174,7 @@ abstract class WebTestCase extends BaseWebTestCase
         /** @var EntityManager $em */
         $em = $container->get('doctrine.orm.entity_manager');
 
-        $referenceRepository = new ProxyReferenceRepository($em);
+        $referenceRepository = new ReferenceRepository($em);
         $purger = new ORMPurger();
         if (null !== $purgeMode) {
             $purger->setPurgeMode($purgeMode);
@@ -216,11 +216,7 @@ abstract class WebTestCase extends BaseWebTestCase
                 $em->flush();
                 $em->clear();
 
-                $this->preFixtureRestore($em, $referenceRepository);
-
                 copy($backup, $name);
-
-                $referenceRepository->load($backup);
 
                 $this->postFixtureRestore();
             } else {
@@ -233,7 +229,6 @@ abstract class WebTestCase extends BaseWebTestCase
 
                 if ($cacheSqliteDb) {
                     $this->preReferenceSave($em, $executor, $backup);
-                    $referenceRepository->save($backup);
                     copy($name, $backup);
                     $this->postReferenceSave($em, $executor, $backup);
                 }
