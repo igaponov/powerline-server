@@ -8,6 +8,7 @@
         <import resource="services/listener.yml"/>
         <import resource="services/security.xml"/>
         <import resource="services/form.yml"/>
+        <import resource="services/controller.yml"/>
     </imports>
 
     <services>

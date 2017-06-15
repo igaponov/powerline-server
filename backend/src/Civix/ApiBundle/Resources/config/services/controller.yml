@@ -1,0 +1,8 @@
+services:
+    Civix\ApiBundle\Controller\V2\Group\LinkController:
+        class: Civix\ApiBundle\Controller\V2\Group\LinkController
+        arguments: ['@doctrine.orm.entity_manager', '@form.factory']
+
+    Civix\ApiBundle\Controller\V2\GroupLinksController:
+        class: Civix\ApiBundle\Controller\V2\GroupLinksController
+        arguments: ['@doctrine.orm.entity_manager', '@form.factory']

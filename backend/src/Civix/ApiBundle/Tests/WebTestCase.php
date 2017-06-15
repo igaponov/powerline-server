@@ -168,7 +168,14 @@ abstract class WebTestCase extends BaseWebTestCase
         return $pagination;
     }
 
-    protected function loadFixtures(array $classNames, $omName = null, $registryName = 'doctrine', $purgeMode = null)
+    /**
+     * @param array $classNames
+     * @param null $omName
+     * @param string $registryName
+     * @param null $purgeMode
+     * @return ORMExecutor
+     */
+    protected function loadFixtures(array $classNames, $omName = null, $registryName = 'doctrine', $purgeMode = null): ORMExecutor
     {
         $container = $this->getContainer();
         /** @var EntityManager $em */
