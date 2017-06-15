@@ -2,17 +2,20 @@
 
 namespace Civix\CoreBundle\Service\User;
 
+use Civix\CoreBundle\Entity\DeferredInvites;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\Report\UserReport;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserPetition;
+use Civix\CoreBundle\Event\AvatarEvent;
+use Civix\CoreBundle\Event\AvatarEvents;
+use Civix\CoreBundle\Event\UserEvent;
+use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Service\CiceroApi;
-use Civix\CoreBundle\Service\CropImage;
 use Civix\CoreBundle\Service\Group\GroupManager;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class UserManager
 {
@@ -21,7 +24,6 @@ class UserManager
     private $entityManager;
     private $ciceroApi;
     private $groupManager;
-    private $cropImageService;
     private $kernelRootDir;
     /**
      * @var EventDispatcherInterface
@@ -32,14 +34,12 @@ class UserManager
         EntityManager $entityManager,
         CiceroApi $ciceroApi,
         GroupManager $groupManager,
-        CropImage $cropImageService,
         EventDispatcherInterface $dispatcher,
         $kernelRootDir
     ) {
         $this->entityManager = $entityManager;
         $this->ciceroApi = $ciceroApi;
         $this->groupManager = $groupManager;
-        $this->cropImageService = $cropImageService;
         $this->dispatcher = $dispatcher;
         $this->kernelRootDir = $kernelRootDir;
     }
@@ -83,92 +83,6 @@ class UserManager
             $getMethod = 'get'.$setting;
             $user->$setMethod($userWithSettings->$getMethod());
         }
-
-        return $user;
-    }
-
-    public function updateProfileFull(User $user, User $new)
-    {
-        $this->updateProfileCommon($user, $new);
-        $this->updateProfileDemographics($user, $new);
-        $this->updateProfilePolitical($user, $new);
-
-        return $user;
-    }
-
-    public function updateProfileCommon(User $user, User $new)
-    {
-        $user
-            ->setFirstName($new->getFirstName())
-            ->setLastName($new->getLastName())
-            ->setBirth($new->getBirth())
-            ->setAddress1($new->getAddress1())
-            ->setAddress2($new->getAddress2())
-            ->setCity($new->getCity())
-            ->setState($new->getState())
-            ->setCountry($new->getCountry())
-            ->setZip($new->getZip())
-            ->setEmail($new->getEmail())
-            ->setPhone($new->getPhone())
-            ->setFacebookLink($new->getFacebookLink())
-            ->setTwitterLink($new->getTwitterLink())
-            ->setUpdateProfileAt(new \DateTime())
-            ->setBio($new->getBio())
-            ->setSlogan($new->getSlogan())
-            ->setInterests($new->getInterests())
-        ;
-
-        if ($new->getPassword()) {
-            $user->setPassword($new->getPassword())
-                ->setSalt($new->getSalt());
-        }
-
-        if ($new->getAvatarFileName() && $new->getAvatarFileName() !== $user->getAvatarFileName()) {
-            $img = imagecreatefromstring(base64_decode($new->getAvatarFileName()));
-
-            if ($img != false) {
-                $filename = $user->getId().'_'.uniqid().'.jpeg';
-                $temp_file = tempnam(sys_get_temp_dir(), 'avatar');
-                if (imagejpeg($img, $temp_file)) {
-
-                    //square avatars
-                    try {
-                        $this->cropImageService->rebuildImage(
-                            $temp_file,
-                            $temp_file);
-                    } catch (\Exception $exc) {
-                    }
-
-                    $fileUpload = new UploadedFile($temp_file, $filename);
-                    $user->setAvatar($fileUpload);
-                }
-            }
-        }
-
-        $user->setIsRegistrationComplete(true);
-    }
-
-    public function updateProfileDemographics(User $user, User $new)
-    {
-        $user->setSex($new->getSex());
-        $user->setOrientation($new->getOrientation());
-        $user->setRace($new->getRace());
-        $user->setBirth($new->getBirth());
-        $user->setIncomeLevel($new->getIncomeLevel());
-        $user->setEmploymentStatus($new->getEmploymentStatus());
-        $user->setEducationLevel($new->getEducationLevel());
-        $user->setMaritalStatus($new->getMaritalStatus());
-        $user->setReligion($new->getReligion());
-
-        return $user;
-    }
-
-    public function updateProfilePolitical(User $user, User $new)
-    {
-        $user->setParty($new->getParty());
-        $user->setPhilosophy($new->getPhilosophy());
-        $user->setDonor($new->getDonor());
-        $user->setRegistration($new->getRegistration());
 
         return $user;
     }
@@ -242,5 +156,66 @@ class UserManager
             $this->entityManager->persist($user);
             $this->entityManager->flush();
         }
+    }
+
+    public function register(User $user)
+    {
+        $user->generateToken();
+        $event = new AvatarEvent($user);
+        $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
+
+        /** @var DeferredInvites[] $deferredInvites */
+        $deferredInvites = $this->entityManager
+            ->getRepository('CivixCoreBundle:DeferredInvites')
+            ->checkEmail($user->getEmail());
+
+        if (!empty($deferredInvites)) {
+            foreach ($deferredInvites as $invite) {
+                $user->addInvite($invite->getGroup());
+                $invite->setStatus(DeferredInvites::STATUS_INACTIVE);
+                $this->entityManager->persist($user);
+                $this->entityManager->persist($invite);
+            }
+        }
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        $this->updateDistrictsIds($user);
+
+        $event = new UserEvent($user);
+        $this->dispatcher->dispatch(UserEvents::REGISTRATION, $event);
+
+        return $user;
+    }
+
+    public function save(User $user)
+    {
+        $event = new AvatarEvent($user);
+        $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
+        $event = new UserEvent($user);
+        $this->dispatcher->dispatch(UserEvents::PROFILE_UPDATE, $event);
+
+        if (!$this->entityManager->contains($user)) {
+            $this->entityManager->persist($user);
+            $addressIsChanged = true;
+        } else {
+            $uow = $this->entityManager->getUnitOfWork();
+            $metadata = $this->entityManager->getClassMetadata(User::class);
+            $uow->recomputeSingleEntityChangeSet($metadata, $user);
+            $changeSet = $uow->getEntityChangeSet($user);
+            $addressIsChanged = isset($changeSet['address1'])
+                || isset($changeSet['city'])
+                || isset($changeSet['state'])
+                || isset($changeSet['country']);
+        }
+        $this->entityManager->flush();
+
+        if ($addressIsChanged) {
+            $this->updateDistrictsIds($user);
+            $this->dispatcher->dispatch(UserEvents::ADDRESS_CHANGE, $event);
+        }
+
+        return $user;
     }
 }

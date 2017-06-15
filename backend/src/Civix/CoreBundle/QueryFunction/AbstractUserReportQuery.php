@@ -52,7 +52,7 @@ class AbstractUserReportQuery
             u.slogan, 
             CASE WHEN u.facebookId IS NOT NULL THEN 1 ELSE 0 END AS facebook, 
             COALESCE(ur.followers, 0) AS followers, 
-            0 AS karma, 
+            ur.karma, 
             mr.fields, 
             ur.representatives
         ');

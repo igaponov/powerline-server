@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -37,6 +38,7 @@ class SearchController extends BaseController
     {
         $response = new Response();
         $response->headers->set('Content-Type', 'application/json');
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = $this->getDoctrine()->getManager();
         $query = $request->get('query');
 

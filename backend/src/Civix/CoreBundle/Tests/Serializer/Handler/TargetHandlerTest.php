@@ -1,7 +1,6 @@
 <?php
 namespace Civix\CoreBundle\Tests\Serializer\Handler;
 
-use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Serializer\Type\Target;
 
 class TargetHandlerTest extends HandlerTestCase
@@ -30,9 +29,7 @@ class TargetHandlerTest extends HandlerTestCase
     {
         $target = new Target();
         $this->assertSerialization(
-            [
-                'image' => 'http://'.$this->getContainer()->getParameter('hostname').User::SOMEONE_AVATAR,
-            ],
+            [],
             $target
         );
     }

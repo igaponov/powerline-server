@@ -54,8 +54,13 @@
 
     <target name="phpcs" description="Find coding style violations">
         <exec executable="bin/phpcs" passthru="true">
-            <arg value="--report=checkstyle"/> 
-            <arg value="--report-file=build/logs/phpcs.xml"/> 
+            <arg value="--config-set"/>
+            <arg value="installed_paths"/>
+            <arg value="vendor/escapestudios/symfony2-coding-standard"/>
+        </exec>
+        <exec executable="bin/phpcs" passthru="true">
+            <arg value="--report=checkstyle"/>
+            <arg value="--report-file=build/logs/phpcs.xml"/>
             <arg value="--standard=phpcs.xml"/>
             <arg path="src"/>
         </exec>

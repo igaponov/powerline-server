@@ -23,11 +23,12 @@ class EndpointController extends BaseController
     private $notification;
 
     /**
+     * Deprecated, use `GET /api/v2/endpoints` instead.
+     *
      * @Route("/", name="api_endpoints_get")
      * @Method("GET")
      *
      * @ApiDoc(
-     *     resource=true,
      *     section="Users",
      *     description="List of user's endpoints",
      *     output={
@@ -41,7 +42,8 @@ class EndpointController extends BaseController
      *     statusCodes={
      *         401="Authorization required",
      *         405="Method Not Allowed"
-     *     }
+     *     },
+     *     deprecated=true
      * )
      */
     public function getAction()
@@ -56,6 +58,8 @@ class EndpointController extends BaseController
     }
 
     /**
+     * Deprecated, use `POST /api/v2/endpoints` instead.
+     *
      * @Route("/", name="api_endpoints_create")
      * @Method("POST")
      *
@@ -81,7 +85,8 @@ class EndpointController extends BaseController
      *                  "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
      *              }
      *          }
-     *     }
+     *     },
+     *     deprecated=true
      * )
      *
      * @param Request $request

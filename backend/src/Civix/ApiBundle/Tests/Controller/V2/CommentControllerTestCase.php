@@ -5,6 +5,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\BaseCommentRate;
+use Civix\CoreBundle\Entity\Karma;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -42,6 +43,7 @@ abstract class CommentControllerTestCase extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertEquals($params['comment_body'], $data['comment_body']);
         $this->assertEquals($params['comment_body'], $data['comment_body_html']);
+        /** @var BaseComment $comment */
         $comment = $client->getContainer()->get('doctrine')->getManager()->merge($comment);
         $this->assertEquals($params['comment_body'], $comment->getCommentBodyHtml());
         $this->assertEquals($params['privacy'], $data['privacy']);
@@ -170,6 +172,22 @@ abstract class CommentControllerTestCase extends WebTestCase
             $data['rate_sum']
         );
         $this->assertEquals($rate === BaseCommentRate::RATE_DELETE ? 2 : 3, $data['rates_count']);
+        $result = $client->getContainer()->get('doctrine.dbal.default_connection')
+            ->fetchAssoc('SELECT * FROM karma');
+        if ($rate == BaseCommentRate::RATE_UP) {
+            $this->assertArraySubset([
+                'user_id' => $comment->getUser()->getId(),
+                'type' => Karma::TYPE_RECEIVE_UPVOTE_ON_COMMENT,
+                'points' => 2,
+                'metadata' => serialize([
+                    'type' => $comment->getEntityType(),
+                    'comment_id' => $comment->getId(),
+                    'rate_id' => $comment->getRates()->last()->getId(),
+                ]),
+            ], $result);
+        } else {
+            $this->assertFalse((bool) $result);
+        }
     }
 
     protected function updateCommentRate(BaseComment $comment, $rate)
@@ -185,11 +203,28 @@ abstract class CommentControllerTestCase extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $rate = array_search($rate, BaseCommentRate::getRateValueLabels());
-        $this->assertEquals(
-            $rate,
-            $data['rate_sum']
-        );
-        $this->assertEquals($rate === BaseCommentRate::RATE_DELETE ? 0 : 1, $data['rates_count']);
+        $results = $client->getContainer()->get('doctrine.dbal.default_connection')
+            ->fetchAll('SELECT * FROM karma');
+        if ($rate == BaseCommentRate::RATE_UP) {
+            $this->assertCount(1, $results);
+            $this->assertArraySubset([
+                'user_id' => $comment->getUser()->getId(),
+                'type' => Karma::TYPE_RECEIVE_UPVOTE_ON_COMMENT,
+                'points' => 2,
+                'metadata' => serialize([
+                    'type' => $comment->getEntityType(),
+                    'comment_id' => $comment->getId(),
+                    'rate_id' => $comment->getRates()->first()->getId(),
+                ]),
+            ], $results[0]);
+        } else {
+            $this->assertEquals(
+                $rate,
+                $data['rate_sum']
+            );
+            $this->assertEquals($rate === BaseCommentRate::RATE_DELETE ? 0 : 1, $data['rates_count']);
+            $this->assertCount(0, $results);
+        }
     }
 
     public function getRates()

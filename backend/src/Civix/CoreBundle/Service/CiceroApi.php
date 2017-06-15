@@ -2,15 +2,16 @@
 
 namespace Civix\CoreBundle\Service;
 
+use Civix\Component\ContentConverter\ConverterInterface;
 use Civix\CoreBundle\Entity\CiceroRepresentative;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\District;
+use Civix\CoreBundle\Event\AvatarEvent;
+use Civix\CoreBundle\Event\AvatarEvents;
+use Civix\CoreBundle\Model\TempFile;
 use Civix\CoreBundle\Service\API\ServiceApi;
 use Doctrine\ORM\EntityManager;
-use Symfony\Bridge\Monolog\Logger;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpKernel\KernelInterface;
-use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CiceroApi extends ServiceApi
 {
@@ -19,17 +20,9 @@ class CiceroApi extends ServiceApi
      */
     private $ciceroService;
     /**
-     * @var Logger
-     */
-    private $logger;
-    /**
      * @var EntityManager
      */
     private $entityManager;
-    /**
-     * @var CropImage
-     */
-    private $cropImageService;
     /**
      * @var CongressApi
      */
@@ -39,32 +32,28 @@ class CiceroApi extends ServiceApi
      */
     private $openstatesService;
     /**
-     * @var UploaderHelper
+     * @var ConverterInterface
      */
-    protected $vichService;
+    private $converter;
     /**
-     * @var string
+     * @var EventDispatcherInterface
      */
-    protected $rootPath;
+    private $dispatcher;
 
     public function __construct(
         CiceroCalls $ciceroService,
-        Logger $logger,
         EntityManager $entityManager,
-        UploaderHelper $vichUploader,
-        CropImage $cropImage,
-        KernelInterface $kernel,
         CongressApi $congress,
-        OpenstatesApi $openstates
+        OpenstatesApi $openstates,
+        ConverterInterface $converter,
+        EventDispatcherInterface $dispatcher
     ) {
         $this->ciceroService = $ciceroService;
-        $this->logger = $logger;
         $this->entityManager = $entityManager;
-        $this->setCropImage($cropImage);
-        $this->setVichService($vichUploader);
-        $this->rootPath = $kernel->getRootDir().'/../web';
         $this->congressService = $congress;
         $this->openstatesService = $openstates;
+        $this->converter = $converter;
+        $this->dispatcher = $dispatcher;
     }
 
     /**
@@ -100,21 +89,33 @@ class CiceroApi extends ServiceApi
         return $this->handleOfficialResponse($representatives);
     }
 
-    protected function handleOfficialResponse($officials)
+    protected function handleOfficialResponse(array $officials): array
     {
-        foreach ($officials as &$representative) {
-            $object = $this->entityManager->getRepository(CiceroRepresentative::class)
-                ->find($representative->id);
+        $representatives = [];
+        foreach ($officials as $representative) {
+            $repository = $this->entityManager->getRepository(CiceroRepresentative::class);
+            $object = $repository->find($representative->id);
+            if (!$object) {
+                $object = $repository->findOneBy([
+                    'district' => $representative->office->district->id,
+                    'firstName' => $representative->first_name,
+                    'lastName' => $representative->last_name,
+                ]);
+            }
             if ($object) {
                 $representative = $this->fillRepresentativeByApiObj($object, $representative);
             } else {
                 $representative = $this->createCiceroRepresentative($representative);
             }
+            $event = new AvatarEvent($representative);
+            $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
+
             $this->entityManager->persist($representative);
+            $representatives[] = $representative;
         }
         $this->entityManager->flush();
 
-        return $officials;
+        return $representatives;
     }
 
     /**
@@ -148,61 +149,43 @@ class CiceroApi extends ServiceApi
     }
 
     /**
-     * Save representative from api in representative storage. 
+     * Save representative from api in representative storage.
      * Set link between representative and representative storage.
-     * 
-     * @param array $resultApiCollection Object from Cicero API
+     *
+     * @param array $apiCollection Object from Cicero API
      * @param CiceroRepresentative $representative CiceroRepresentative object
      *
      * @return bool
+     *
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Doctrine\ORM\ORMInvalidArgumentException
+     * @throws \Doctrine\ORM\ORMException
      */
-    protected function updateRepresentative($resultApiCollection, CiceroRepresentative $representative)
+    protected function updateRepresentative($apiCollection, CiceroRepresentative $representative): bool
     {
-        foreach ($resultApiCollection as $repr) {
-            if ($representative->getId() == $repr->id) {
-                $representative = $this->fillRepresentativeByApiObj($representative, $repr);
-                $this->entityManager->persist($representative);
-                $this->entityManager->flush();
-                return true;
-            }
+        $collection = array_filter($apiCollection, function($repr) use ($representative) {
+            return $representative->getId() === $repr->id;
+        });
+        if (!$collection) {
+            $collection = array_filter($apiCollection, function ($repr) use ($representative) {
+                return $representative->getDistrict()->getId() === $repr->office->district->id
+                    && $representative->getFirstName() === $repr->first_name
+                    && $representative->getLastName() === $repr->last_name;
+            });
+        }
+        if ($collection) {
+            $representative = $this->fillRepresentativeByApiObj($representative, reset($collection));
+
+            $event = new AvatarEvent($representative);
+            $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
+
+            $this->entityManager->persist($representative);
+            $this->entityManager->flush();
+
+            return true;
         }
 
         return false;
-    }
-
-    public function setEntityManager($entityManager)
-    {
-        $this->entityManager = $entityManager;
-    }
-
-    public function setCropImage($cropImage)
-    {
-        $this->cropImageService = $cropImage;
-    }
-
-    public function setVichService($vichService)
-    {
-        $this->vichService = $vichService;
-    }
-
-    public function setCongressApi($congressService)
-    {
-        $this->congressService = $congressService;
-    }
-
-    public function setOpenstatesApi($openstatesService)
-    {
-        $this->openstatesService = $openstatesService;
-    }
-
-    public function setCiceroCalls($ciceroService)
-    {
-        $this->ciceroService = $ciceroService;
-    }
-
-    public function setLogger($logger)
-    {
-        $this->logger = $logger;
     }
 
     /**
@@ -219,7 +202,10 @@ class CiceroApi extends ServiceApi
         $representative->setFirstName(trim($response->first_name));
         $representative->setLastName(trim($response->last_name));
         $representative->setOfficialTitle(trim($response->office->title));
-        $representative->setAvatarSourceFileName($response->photo_origin_url);
+        if ($response->photo_origin_url) {
+            $content = $this->converter->convert((string)$response->photo_origin_url);
+            $representative->setAvatar(new TempFile($content));
+        }
 
         //create district
         $representativeDistrict = $this->createDistrict($response->office->district);
@@ -258,32 +244,6 @@ class CiceroApi extends ServiceApi
             $socialMethod = 'set'.ucfirst($socialType);
             if (method_exists($representative, $socialMethod)) {
                 $representative->$socialMethod($identificator->identifier_value);
-            }
-        }
-
-        //save photo
-        if (!empty($response->photo_origin_url)) {
-            $fileInfo = explode('.', basename($response->photo_origin_url));
-            $fileExt = array_pop($fileInfo);
-            $representative->setAvatarFileName(uniqid().'.'.$fileExt);
-
-            if (false !== ($header = $this->checkLink($response->photo_origin_url))) {
-                if (strpos($header, 'image') !== false) {
-                    //square avatars
-                    try {
-                        $temp_file = tempnam(sys_get_temp_dir(), 'avatar').'.'.$fileExt;
-                        $this->saveImageFromUrl($representative->getAvatarSourceFileName(), $temp_file);
-                        $this->cropImageService->rebuildImage(
-                            $temp_file,
-                            $temp_file
-                        );
-                        $fileUpload = new UploadedFile($temp_file, $representative->getAvatarFileName());
-                        $representative->setAvatar($fileUpload);
-                    } catch (\Exception $exc) {
-                        $this->logger->addError('Image '.$representative->getAvatarSourceFileName().'. '.$exc->getMessage());
-                        $representative->setAvatarSourceFileName(null);
-                    }
-                }
             }
         }
 

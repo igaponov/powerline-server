@@ -4,6 +4,7 @@ namespace Civix\CoreBundle\Repository;
 
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\GroupSection;
+use Civix\CoreBundle\Entity\Karma;
 use Civix\CoreBundle\Entity\LeaderContentInterface;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
@@ -701,5 +702,26 @@ class UserRepository extends EntityRepository
             ->groupBy('u.id')
             ->getQuery()
             ->getResult(Query::HYDRATE_ARRAY);
+    }
+
+    public function getUserKarma(User $user)
+    {
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('SUM(k.points)')
+            ->from(Karma::class, 'k')
+            ->where('k.user = :user')
+            ->setParameter(':user', $user)
+            ->getQuery()->getSingleScalarResult();
+    }
+
+    public function findWithFollowerById($id, User $follower)
+    {
+        return $this->createQueryBuilder('u')
+            ->addSelect('f')
+            ->leftJoin('u.followers', 'f', 'WITH', 'f.follower = :follower')
+            ->setParameter(':follower', $follower)
+            ->where('u.id = :id')
+            ->setParameter(':id', $id)
+            ->getQuery()->getOneOrNullResult();
     }
 }

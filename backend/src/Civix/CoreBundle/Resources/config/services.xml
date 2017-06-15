@@ -6,6 +6,7 @@
 
     <imports>
         <import resource="services/listener.yml"/>
+        <import resource="services/repository.yml"/>
     </imports>
 
     <parameters>
@@ -45,8 +46,6 @@
             <factory service="doctrine.orm.entity_manager" method="getRepository" />
             <argument type="string">Civix\CoreBundle\Entity\Representative</argument>
         </service>
-        <service id="civix_core.crop_image" class="Civix\CoreBundle\Service\CropImage">
-        </service>
         <service class="Mailgun\Mailgun" id="mailgun.basic_client" public="false">
             <argument>%mailgun_private%</argument>
             <argument>%mailgun_endpoint%</argument>
@@ -61,10 +60,6 @@
         <service id="civix_core.mailgun" class="Civix\CoreBundle\Service\Mailgun\MailgunApi">
             <argument type="service" id="mailgun.client" />
             <argument type="service" id="mailgun.public_client" />
-            <argument type="service" id="logger" />
-        </service>
-        <service id="civix_core.crop_avatar" class="Civix\CoreBundle\Service\CropAvatar">
-            <argument type="service" id="civix_core.crop_image" />
             <argument type="service" id="logger" />
         </service>
         <service id="civix_core.activity_update" class="Civix\CoreBundle\Service\ActivityUpdate">
@@ -83,21 +78,10 @@
             <argument id="event_dispatcher" type="service"/>
         </service>
 
-        <service id="civix_core.cicero_calls" class="%ciceroapi_class%">
+        <service id="civix_core.cicero_calls" class="%ciceroapi_class%" lazy="true">
             <argument>%ciceroapi_login%</argument>
             <argument>%ciceroapi_password%</argument>
             <argument type="service" id="logger" />
-        </service>
-
-        <service id="civix_core.cicero_api" class="Civix\CoreBundle\Service\CiceroApi">
-            <argument type="service" id="civix_core.cicero_calls" />
-            <argument type="service" id="logger" />
-            <argument type="service" id="doctrine.orm.entity_manager" />
-            <argument type="service" id="vich_uploader.templating.helper.uploader_helper" />
-            <argument type="service" id="civix_core.crop_image" />
-            <argument type="service" id="kernel" />
-            <argument type="service" id="civix_core.congress_api" />
-            <argument type="service" id="civix_core.openstates_api" />
         </service>
 
         <!-- Avatar Serializer Handler -->
@@ -156,6 +140,11 @@
             <tag name="jms_serializer.subscribing_handler" />
         </service>
 
+        <service class="Civix\CoreBundle\Serializer\Handler\KarmaHandler" id="civix_core.serializer_handler.karma_handler">
+            <argument type="service" id="civix_core.repository.user_repository" />
+            <tag name="jms_serializer.subscribing_handler" />
+        </service>
+
         <service id="civix_core.question_limit" class="Civix\CoreBundle\Service\QuestionLimit">
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="session" />
@@ -208,22 +197,19 @@
 
         <service id="civix_core.group_manager" class="Civix\CoreBundle\Service\Group\GroupManager">
             <argument type="service" id="doctrine.orm.entity_manager" />
-            <argument type="service" id="civix_core.geocode" />
             <argument type="service" id="event_dispatcher" />
         </service>
 
         <service id="civix_core.representative_manager" class="Civix\CoreBundle\Service\Representative\RepresentativeManager">
             <argument type="service" id="doctrine.orm.entity_manager" />
-            <argument type="service" id="security.encoder_factory" />
             <argument type="service" id="civix_core.cicero_api" />
-            <argument type="service" id="civix_core.cicero_calls" />
+            <argument type="service" id="event_dispatcher" />
         </service>
 
         <service id="civix_core.user_manager" class="Civix\CoreBundle\Service\User\UserManager">
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="civix_core.cicero_api" />
             <argument type="service" id="civix_core.group_manager" />
-            <argument type="service" id="civix_core.crop_image" />
             <argument type="service" id="event_dispatcher" />
             <argument>%kernel.root_dir%</argument>
         </service>
@@ -266,7 +252,7 @@
         <service id="civix_core.facebook_api" class="Civix\CoreBundle\Service\FacebookApi">
         </service>
 
-        <service id="civix_core.validator.facebook_token" class="Civix\CoreBundle\Validator\Constraints\ConstrainsFacebookTokenValidator">
+        <service id="civix_core.validator.facebook_token" class="Civix\CoreBundle\Validator\Constraints\FacebookTokenValidator">
             <argument type="service" id="civix_core.facebook_api" />
             <tag name="validator.constraint_validator" alias="civix_core.validator.facebook_token" />
         </service>
@@ -326,8 +312,6 @@
             <argument type="service" id="doctrine.orm.entity_manager"/>
             <argument type="service" id="civix_core.subscription_manager"/>
         </service>
-
-        <service id="civix_core.geocode" class="Civix\CoreBundle\Service\Google\Geocode"></service>
 
         <service id="civix_core.settings" class="Civix\CoreBundle\Service\Settings">
             <argument type="service" id="doctrine.orm.default_entity_manager" />

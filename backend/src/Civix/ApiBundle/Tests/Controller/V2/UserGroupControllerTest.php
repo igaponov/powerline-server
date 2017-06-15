@@ -3,7 +3,9 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\Karma;
 use Civix\CoreBundle\Entity\Report\MembershipReport;
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Model\Subscription\PackageLimitState;
 use Civix\CoreBundle\Service\Stripe;
@@ -11,6 +13,7 @@ use Civix\CoreBundle\Service\Subscription\PackageHandler;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFieldsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadKarmaData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
@@ -56,9 +59,13 @@ class UserGroupControllerTest extends WebTestCase
             LoadGroupManagerData::class,
             LoadUserGroupOwnerData::class,
         ])->getReferenceRepository();
+        /** @var Group $group1 */
         $group1 = $repository->getReference('group_1');
+        /** @var Group $group2 */
         $group2 = $repository->getReference('group_2');
+        /** @var Group $group3 */
         $group3 = $repository->getReference('group_3');
+        /** @var Group $group4 */
         $group4 = $repository->getReference('group_4');
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user3"']);
@@ -67,22 +74,15 @@ class UserGroupControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertSame(4, $data['totalItems']);
         $this->assertCount(4, $data['payload']);
-        foreach ($data['payload'] as $item) {
-            $this->assertArrayHasKey('official_name', $item);
-            $this->assertArrayHasKey('join_status', $item);
-            switch ($item['id']) {
-                case $group1->getId():
-                case $group2->getId():
-                    $this->assertSame('manager', $item['user_role']);
-                    break;
-                case $group3->getId():
-                    $this->assertSame('owner', $item['user_role']);
-                    break;
-                case $group4->getId():
-                    $this->assertSame('member', $item['user_role']);
-                    break;
-            }
-        }
+        $payload = $data['payload'];
+        $this->assertEquals($group3->getOfficialName(), $payload[0]['official_name']);
+        $this->assertSame('owner', $payload[0]['user_role']);
+        $this->assertEquals($group1->getOfficialName(), $payload[1]['official_name']);
+        $this->assertSame('manager', $payload[1]['user_role']);
+        $this->assertEquals($group2->getOfficialName(), $payload[2]['official_name']);
+        $this->assertSame('manager', $payload[2]['user_role']);
+        $this->assertEquals($group4->getOfficialName(), $payload[3]['official_name']);
+        $this->assertSame('member', $payload[3]['user_role']);
     }
 
     public function testGetGroupsIsEmpty()
@@ -170,42 +170,78 @@ class UserGroupControllerTest extends WebTestCase
     }
 
     /**
-     * @QueryCount(14)
+     * @QueryCount(19)
      * @todo see testJoinGroupWithFieldsIsOk
-     * @param $reference
-     * @param $status
-     * @dataProvider getJoinedGroupStatuses
      */
-    public function testJoinGroupIsOk($reference, $status)
+    public function testJoinPublicGroupIsOk()
     {
         $repository = $this->loadFixtures([
-            LoadUserData::class,
             LoadGroupData::class,
         ])->getReferenceRepository();
+        /** @var User $user */
+        $user = $repository->getReference('user_4');
         /** @var Group $group */
-        $group = $repository->getReference($reference);
+        $group = $repository->getReference('group_1');
         $client = $this->client;
         $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user4"']);
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals($status == UserGroup::STATUS_ACTIVE ? 'active' : 'pending', $data['join_status']);
+        $this->assertEquals('active', $data['join_status']);
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine')->getConnection();
         $currentStatus = $conn->fetchColumn('SELECT status FROM users_groups WHERE group_id = ?', [$group->getId()]);
-        $this->assertEquals($status, $currentStatus);
+        $this->assertEquals(UserGroup::STATUS_ACTIVE, $currentStatus);
         $result = $this->em->getRepository(MembershipReport::class)
             ->getMembershipReport($group);
         $this->assertEquals($group->getId(), $result[0]['group']);
         $this->assertEquals([], $result[0]['fields']);
+        $result = $client->getContainer()->get('doctrine.dbal.default_connection')
+            ->fetchAssoc('SELECT * FROM karma');
+        $this->assertArraySubset([
+            'user_id' => $user->getId(),
+            'type' => Karma::TYPE_JOIN_GROUP,
+            'points' => 10,
+            'metadata' => serialize([
+                'group_id' => $group->getId(),
+            ]),
+        ], $result);
     }
 
-    public function getJoinedGroupStatuses()
+    /**
+     * @QueryCount(16)
+     * @todo see testJoinGroupWithFieldsIsOk
+     */
+    public function testJoinPrivateGroupIsOk()
     {
-        return [
-            'public' => ['group_1', UserGroup::STATUS_ACTIVE],
-            'private' => ['group_2', UserGroup::STATUS_PENDING],
-        ];
+        $repository = $this->loadFixtures([
+            LoadGroupData::class,
+            LoadKarmaData::class,
+        ])->getReferenceRepository();
+        /** @var User $user */
+        $user = $repository->getReference('user_1');
+        /** @var Group $group */
+        $group = $repository->getReference('group_2');
+        $client = $this->client;
+        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals('pending', $data['join_status']);
+        /** @var Connection $conn */
+        $conn = $client->getContainer()->get('doctrine')->getConnection();
+        $currentStatus = $conn->fetchColumn('SELECT status FROM users_groups WHERE group_id = ?', [$group->getId()]);
+        $this->assertEquals(UserGroup::STATUS_PENDING, $currentStatus);
+        $result = $this->em->getRepository(MembershipReport::class)
+            ->getMembershipReport($group);
+        $this->assertEquals($group->getId(), $result[0]['group']);
+        $this->assertEquals([], $result[0]['fields']);
+        $count = $client->getContainer()->get('doctrine.dbal.default_connection')
+            ->fetchColumn(
+                'SELECT COUNT(*) FROM karma WHERE user_id = ? AND type = ?',
+                [$user->getId(), Karma::TYPE_JOIN_GROUP]
+            );
+        $this->assertEquals(1, $count);
     }
 
     /**

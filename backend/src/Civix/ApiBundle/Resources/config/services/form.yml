@@ -4,3 +4,9 @@ services:
         arguments: ['@doctrine.orm.default_entity_manager']
         tags:
             - { name: form.type, alias: Civix\ApiBundle\Form\Type\SubscriptionType }
+
+    civix_api.form_type.avatar_type:
+        class: Civix\ApiBundle\Form\Type\EncodedFileType
+        arguments: ['@civix_core.content_converter']
+        tags:
+            - { name: form.type, alias: Civix\ApiBundle\Form\Type\EncodedFileType }

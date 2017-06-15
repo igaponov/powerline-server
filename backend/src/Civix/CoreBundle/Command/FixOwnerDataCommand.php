@@ -21,12 +21,16 @@ class FixOwnerDataCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /* @var $em EntityManager */
-        $em = $this->getContainer()->get('doctrine')->getManager();
+        $em = $this->getContainer()->get('doctrine.orm.entity_manager');
 
-        $activities = $em->getRepository(Activity::class)->findAll();
+        $iterator = $em->getRepository(Activity::class)
+            ->createQueryBuilder('a')
+            ->getQuery()->iterate();
 
-        /* @var $activity Activity */
-        foreach ($activities as $activity) {
+        $count = 0;
+        foreach ($iterator as $item) {
+            /* @var $activity Activity */
+            $activity = $item[0];
             if ($activity->getSuperuser()) {
                 $activity->setSuperuser($activity->getSuperuser());
             }
@@ -39,8 +43,10 @@ class FixOwnerDataCommand extends ContainerAwareCommand
             if ($activity->getUser()) {
                 $activity->setUser($activity->getUser());
             }
-            $output->writeln(json_encode($activity->getOwner()));
+            $em->flush($activity);
+            $em->detach($activity);
+            $count++;
         }
-        $em->flush();
+        $output->writeln(sprintf('<comment>%d activities updated</comment>', $count));
     }
 }

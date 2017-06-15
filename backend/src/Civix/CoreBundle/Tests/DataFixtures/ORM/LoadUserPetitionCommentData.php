@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
+use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Entity\UserPetition\Comment;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -16,7 +17,9 @@ class LoadUserPetitionCommentData extends AbstractFixture implements DependentFi
     {
         $user1 = $this->getReference('user_1');
         $user2 = $this->getReference('user_2');
+        /** @var UserPetition $petition1 */
         $petition1 = $this->getReference('user_petition_1');
+        /** @var UserPetition $petition5 */
         $petition5 = $this->getReference('user_petition_5');
 
         $comment1 = new Comment();
@@ -39,6 +42,7 @@ class LoadUserPetitionCommentData extends AbstractFixture implements DependentFi
         $comment3->setCommentBodyHtml("<div>Comment Body HTML 3</div>");
         $comment3->setPetition($petition5);
         $comment3->setUser($user2);
+        $comment3->setParentComment($comment2);
         $manager->persist($comment3);
 
         $manager->flush();

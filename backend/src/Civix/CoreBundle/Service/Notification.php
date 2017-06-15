@@ -56,6 +56,8 @@ class Notification
         $this->removeEndpoints($endpoints);
 
         $this->addEndpoint($newEndpoint);
+
+        return $newEndpoint;
     }
 
     public function send($title, $message, $type, $entityData, $image, Model\AbstractEndpoint $endpoint, $badge = null)

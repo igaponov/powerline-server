@@ -74,6 +74,9 @@ class UserControllerTest extends WebTestCase
         $client->request('DELETE', self::API_ENDPOINT.'/avatar', [], [], $headers);
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
-        $this->assertCount(0, $storage->getFiles('avatar_image_fs'));
+        $files = $storage->getFiles('avatar_image_fs');
+        $this->assertCount(1, $files);
+        $newFile = reset($files);
+        $this->assertNotEquals($file->getFilename(), $newFile->getFilename());
     }
 }

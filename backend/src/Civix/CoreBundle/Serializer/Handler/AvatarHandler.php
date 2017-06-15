@@ -60,13 +60,11 @@ class AvatarHandler implements SubscribingHandlerInterface
             if ($entity->getAvatar()) {
                 return $this->imageHandler->serialize($visitor, $avatar, $type, $context);
             } else {
-                $url = $scheme.$this->hostname.$entity->getDefaultAvatar();
+                return $visitor->visitNull($entity->getAvatar(), $type, $context);
             }
         } else {
-            $url = $scheme.$this->hostname.User::SOMEONE_AVATAR;
+            return $visitor->visitString($scheme.$this->hostname.User::SOMEONE_AVATAR, $type, $context);
         }
-
-        return $visitor->visitString($url, $type, $context);
     }
 
     /**

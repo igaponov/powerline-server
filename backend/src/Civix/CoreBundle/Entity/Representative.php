@@ -2,13 +2,12 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\CoreBundle\Model\Avatar\DefaultAvatarInterface;
+use Civix\CoreBundle\Model\Avatar\FirstLetterDefaultAvatar;
 use Civix\CoreBundle\Serializer\Type\Avatar;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
-use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
  * Representative.
@@ -22,12 +21,12 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  *     uniqueConstraints={@ORM\UniqueConstraint(columns={"user_id", "local_group"})}
  * )
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\RepresentativeRepository")
- * @Vich\Uploadable()
  * @Serializer\ExclusionPolicy("all")
  */
-class Representative implements CheckingLimits, LeaderContentRootInterface, HasAvatarInterface
+class Representative implements CheckingLimits, LeaderContentRootInterface, HasAvatarInterface, ChangeableAvatarInterface
 {
-    use HasStripeAccountTrait;
+    use HasStripeAccountTrait,
+        HasAvatarTrait;
 
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_representative.png';
 
@@ -62,42 +61,6 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      * @Assert\NotBlank(groups={"approve"})
      */
     private $localGroup;
-
-    /**
-     * @Assert\File(
-     *     maxSize="10M",
-     *     mimeTypes={"image/png", "image/jpeg", "image/jpg"},
-     *     groups={"profile", "registration"}
-     * )
-     * @Vich\UploadableField(mapping="avatar_representative", fileNameProperty="avatarFileName")
-     *
-     * @var UploadedFile $avatar
-     */
-    private $avatar;
-
-    /**
-     * @ORM\Column(name="avatar_file_name", type="string", nullable=true)
-     * @var string $avatarFileName
-     */
-    private $avatarFileName;
-
-    /**
-     * @Assert\File(
-     *     maxSize="10M",
-     *     mimeTypes={"image/png", "image/jpeg", "image/jpg"},
-     *     groups={"profile"}
-     * )
-     * @Vich\UploadableField(mapping="avatar_source_image", fileNameProperty="avatarSourceFileName")
-     *
-     * @var UploadedFile $avatarSource
-     */
-    private $avatarSource;
-
-    /**
-     * @ORM\Column(name="avatar_source_file_name", type="string", nullable=true)
-     * @var string $avatarSourceFileName
-     */
-    private $avatarSourceFileName;
 
     /**
      * @var string
@@ -293,104 +256,13 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
     }
 
     /**
-     * Set avatar
-     *
-     * @param File|UploadedFile $avatar
-     * @return Representative
-     */
-    public function setAvatar(File $avatar)
-    {
-        $this->avatar = $avatar;
-        return $this;
-    }
-
-    /**
-     * Get avatar
-     *
-     * @return string
-     */
-    public function getAvatar()
-    {
-        return $this->avatar;
-    }
-
-    /**
      * Get default avatar
      *
-     * @return string
+     * @return DefaultAvatarInterface
      */
-    public function getDefaultAvatar()
+    public function getDefaultAvatar(): DefaultAvatarInterface
     {
-        return self::DEFAULT_AVATAR;
-    }
-
-    /**
-     * Set avatarFileName
-     *
-     * @param string $avatarFileName
-     *
-     * @return Representative
-     */
-    public function setAvatarFileName($avatarFileName)
-    {
-        $this->avatarFileName = $avatarFileName;
-        return $this;
-    }
-
-    /**
-     * Get avatarFileName
-     *
-     * @return string
-     */
-    public function getAvatarFileName()
-    {
-        return $this->avatarFileName;
-    }
-
-    /**
-     * Set avatarSourceFileName
-     *
-     * @param string $avatarSourceFileName
-     *
-     * @return Representative
-     */
-    public function setAvatarSourceFileName($avatarSourceFileName)
-    {
-        $this->avatarSourceFileName = $avatarSourceFileName;
-        return $this;
-    }
-
-    /**
-     * Get avatarSourceFileName
-     *
-     * @return string
-     */
-    public function getAvatarSourceFileName()
-    {
-        return $this->avatarSourceFileName;
-    }
-
-    /**
-     * Set avatarSource
-     *
-     * @param string $avatarSource
-     *
-     * @return Representative
-     */
-    public function setAvatarSource($avatarSource)
-    {
-        $this->avatarSource = $avatarSource;
-        return $this;
-    }
-
-    /**
-     * Get avatarSource
-     *
-     * @return string
-     */
-    public function getAvatarSource()
-    {
-        return $this->avatarSource;
+        return new FirstLetterDefaultAvatar($this->getFirstName());
     }
 
     /**

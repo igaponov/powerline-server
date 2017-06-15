@@ -119,7 +119,7 @@ knp_gaufrette:
                bucket_name: '%amazon_s3.bucket%'
                options:
                    directory: 'avatars'
-        avatar_source_image_adapter:
+        avatar_group_adapter:
             aws_s3:
                 service_id: 'aws.s3'
                 bucket_name: '%amazon_s3.bucket%'
@@ -146,8 +146,8 @@ knp_gaufrette:
     filesystems:
         avatar_image_fs:
             adapter: avatar_image_adapter
-        avatar_source_image_fs:
-            adapter: avatar_source_image_adapter
+        avatar_group_fs:
+            adapter: avatar_group_adapter
         avatar_representative_fs:
             adapter: avatar_representative_adapter
         educational_image_fs:
@@ -164,9 +164,9 @@ vich_uploader:
             upload_destination: avatar_image_fs
             namer: vich_uploader.namer_uniqid
             inject_on_load: true
-        avatar_source_image:
+        avatar_group:
             uri_prefix: /avatars/src
-            upload_destination: avatar_source_image_fs
+            upload_destination: avatar_group_fs
             namer: vich_uploader.namer_uniqid
             inject_on_load: true
         avatar_representative:
@@ -200,6 +200,9 @@ old_sound_rabbit_mq:
         push:
             connection:         default
             exchange_options:   {name: 'push-sender', type: direct}
+        async_event:
+            connection:         default
+            exchange_options:   {name: 'async-event', type: direct}
 
     # define consumers
     consumers:
@@ -208,6 +211,11 @@ old_sound_rabbit_mq:
             exchange_options:   {name: 'push-queue', type: direct }
             queue_options:      {name: 'push-queue'}
             callback:           civix_core.rabbit.push_queue
+        async_event:
+            connection:         default
+            exchange_options:   {name: 'async-event', type: direct}
+            queue_options:      {name: 'async-event'}
+            callback:           civix_core.rabbit.async_event_consumer
 
 stof_doctrine_extensions:
     default_locale: en_US

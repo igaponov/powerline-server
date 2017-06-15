@@ -2,13 +2,18 @@
 
 namespace Civix\CoreBundle\Tests\Command;
 
+use Civix\Component\ContentConverter\ConverterInterface;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Service\CiceroApi;
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Service\CongressApi;
+use Civix\CoreBundle\Service\OpenstatesApi;
+use Civix\CoreBundle\Tests\Mock\Service\CiceroCalls;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Civix\CoreBundle\Command\CiceroSyncCommand;
 use Civix\CoreBundle\Tests\DataFixtures\ORM as ORM;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CiceroSyncCommandTest extends WebTestCase
 {
@@ -61,7 +66,10 @@ class CiceroSyncCommandTest extends WebTestCase
         $representativeUpdated = $container->get('doctrine')->getManager()
             ->getRepository('CivixCoreBundle:Representative')->find($representative->getId());
 
-        $this->assertEquals($cicero->getId(), $representativeUpdated->getCiceroRepresentative()->getId());
+        $this->assertEquals(
+            $this->responseRepresentative->response->results->officials[0]->id,
+            $representativeUpdated->getCiceroRepresentative()->getId()
+        );
         $this->assertEquals($districtId, $representativeUpdated->getDistrict()->getId());
     }
 
@@ -272,7 +280,7 @@ class CiceroSyncCommandTest extends WebTestCase
         static::$kernel = static::createKernel();
         static::$kernel->boot();
         $container = static::$kernel->getContainer();
-
+        /** @var CiceroCalls|\PHPUnit_Framework_MockObject_MockObject $ciceroMock */
         $ciceroMock = $this->getMockBuilder('Civix\CoreBundle\Service\CiceroCalls')
             ->setMethods(array('getResponse'))
             ->disableOriginalConstructor()
@@ -280,27 +288,29 @@ class CiceroSyncCommandTest extends WebTestCase
         $ciceroMock->expects($this->any())
            ->method('getResponse')
            ->will($this->returnValue($ciceroReturnResult));
-
-        $openstateServiceMock = $this->getMockBuilder('Civix\CoreBundle\Service\OpenstatesApi')
+        /** @var OpenstatesApi|\PHPUnit_Framework_MockObject_MockObject $openStateServiceMock */
+        $openStateServiceMock = $this->getMockBuilder('Civix\CoreBundle\Service\OpenstatesApi')
             ->setMethods(array('updateRepresentativeProfile'))
             ->disableOriginalConstructor()
             ->getMock();
-
+        /** @var CongressApi|\PHPUnit_Framework_MockObject_MockObject $congressMock */
         $congressMock = $this->getMockBuilder('Civix\CoreBundle\Service\CongressApi')
             ->setMethods(array('updateRepresentativeProfile'))
             ->disableOriginalConstructor()
             ->getMock();
 
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $converter = $this->createMock(ConverterInterface::class);
+
         /** @var \PHPUnit_Framework_MockObject_MockObject|CiceroApi $mock */
-        $mock = $this->getMockBuilder('Civix\CoreBundle\Service\CiceroApi')
-            ->setMethods(array('checkLink'))
-            ->disableOriginalConstructor()
-            ->getMock();
-        $mock->expects($this->any())->method('checkLink')->willReturn(false);
-        $mock->setEntityManager($container->get('doctrine')->getManager());
-        $mock->setCongressApi($congressMock);
-        $mock->setOpenstatesApi($openstateServiceMock);
-        $mock->setCiceroCalls($ciceroMock);
+        $mock = new CiceroApi(
+            $ciceroMock,
+            $container->get('doctrine')->getManager(),
+            $congressMock,
+            $openStateServiceMock,
+            $converter,
+            $dispatcher
+        );
 
         $fileSystem = $this->getMockBuilder('Knp\Bundle\GaufretteBundle\FilesystemMap')
             ->disableOriginalConstructor()
@@ -310,7 +320,7 @@ class CiceroSyncCommandTest extends WebTestCase
             ->getMock();
 
         $container->set('civix_core.cicero_calls', $ciceroMock);
-        $container->set('civix_core.openstates_api', $openstateServiceMock);
+        $container->set('civix_core.openstates_api', $openStateServiceMock);
         $container->set('civix_core.congress_api', $congressMock);
         $container->set('knp_gaufrette.filesystem_map', $fileSystem);
         $container->set('vich_uploader.storage.gaufrette', $storage);

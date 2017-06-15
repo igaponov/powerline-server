@@ -21,6 +21,7 @@ class LoadGroupNewsCommentData extends AbstractFixture implements DependentFixtu
         $root->setQuestion($news);
         $root->setCommentBody($news->getSubject());
         $root->setCommentBodyHtml($news->getSubjectParsed());
+        $root->setUser($news->getUser());
         $manager->persist($root);
         $this->addReference('group_news_1_comment_1', $root);
 

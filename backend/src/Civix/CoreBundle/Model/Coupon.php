@@ -24,7 +24,7 @@ class Coupon
         return $this->discountCode;
     }
 
-    public function getCode(): string
+    public function getCode()
     {
         if ($this->discountCode instanceof DiscountCode) {
             return $this->discountCode->getOriginalCode();

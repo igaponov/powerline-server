@@ -158,6 +158,30 @@ class SubscriptionControllerTest extends WebTestCase
 		$this->assertSame($type, $data['package_type']);
 	}
 
+	public function testUpdateSubscriptionWithoutCouponIsOk()
+	{
+        $repository = $this->loadFixtures([
+            LoadSubscriptionData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('group_1');
+		$this->stripe->expects($this->once())
+			->method('handleSubscription')
+            ->with($this->callback(function (Subscription $subscription) {
+                $this->assertNull($subscription->getCoupon()->getCode());
+
+                return true;
+            }))
+			->will($this->returnArgument(0));
+		$client = $this->client;
+		$type = 'silver';
+        $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
+        $client->request('PUT', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode(['package_type' => $type, 'coupon' => '']));
+		$response = $client->getResponse();
+		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+		$data = json_decode($response->getContent(), true);
+		$this->assertSame($type, $data['package_type']);
+	}
+
 	public function testUpdateSubscriptionWithStripeCouponIsOk()
 	{
         $repository = $this->loadFixtures([

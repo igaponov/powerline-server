@@ -48,7 +48,7 @@ class GroupControllerTest extends WebTestCase
         parent::tearDown();
     }
 
-	public function testgetGroupsRequestIsOk()
+	public function testGetGroupsRequestIsOk()
 	{
         $this->loadFixtures([
             LoadGroupData::class,
@@ -96,7 +96,7 @@ class GroupControllerTest extends WebTestCase
         }
     }
 
-	public function testgetGroupsRequestSortedByPopularityIsOk()
+	public function testGetGroupsRequestSortedByPopularityIsOk()
 	{
         $this->loadFixtures([
             LoadUserGroupData::class,
@@ -108,7 +108,7 @@ class GroupControllerTest extends WebTestCase
         $this->assertSame('group1', $data['payload'][0]['official_name']);
     }
 
-	public function testgetGroupsRequestExcludeOwnedAndSortedByCreatedAtIsOk()
+	public function testGetGroupsRequestExcludeOwnedAndSortedByCreatedAtIsOk()
 	{
         $this->loadFixtures([
             LoadUserGroupOwnerData::class,
@@ -130,7 +130,7 @@ class GroupControllerTest extends WebTestCase
 		}
 	}
 
-	public function testgetGroupsRequestExcludeOwnedAndSortedByPopularityIsOk()
+	public function testGetGroupsRequestExcludeOwnedAndSortedByPopularityIsOk()
 	{
         $this->loadFixtures([
             LoadUserGroupOwnerData::class,
@@ -297,7 +297,7 @@ class GroupControllerTest extends WebTestCase
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
         $storage = $client->getContainer()->get('civix_core.storage.array');
-        $this->assertCount(1, $storage->getFiles('avatar_image_fs'));
+        $this->assertCount(1, $storage->getFiles('avatar_group_fs'));
         $this->assertNotEquals($filePath, $data['avatar_file_path']);
 	}
 
@@ -317,7 +317,7 @@ class GroupControllerTest extends WebTestCase
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
         $storage = $client->getContainer()->get('civix_core.storage.array');
-        $this->assertCount(1, $storage->getFiles('avatar_image_fs'));
+        $this->assertCount(1, $storage->getFiles('avatar_group_fs'));
         $this->assertNotEquals($filePath, $data['avatar_file_path']);
 	}
 
@@ -344,12 +344,15 @@ class GroupControllerTest extends WebTestCase
         $client = $this->client;
         $storage = $client->getContainer()->get('civix_core.storage.array');
         $file = new UploadedFile(__DIR__.'/../../data/image.png', uniqid());
-        $storage->addFile($file, 'avatar_image_fs', $group->getAvatarFileName());
+        $storage->addFile($file, 'avatar_group_fs', $group->getAvatarFileName());
         $headers = ['HTTP_Authorization' => 'Bearer type="user" token="user1"'];
         $client->request('DELETE', self::API_ENDPOINT.'/'.$group->getId().'/avatar', [], [], $headers);
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
-        $this->assertCount(0, $storage->getFiles('avatar_image_fs'));
+        $files = $storage->getFiles('avatar_group_fs');
+        $this->assertCount(1, $files);
+        $newFile = reset($files);
+        $this->assertNotEquals($file, $newFile);
     }
 
 	public function testGetGroupUsersIsEmpty()
@@ -930,11 +933,13 @@ class GroupControllerTest extends WebTestCase
         $this->assertSame($user3->getEmail(), $data[0]['email']);
         $this->assertSame($user3->getPhone(), $data[0]['phone']);
         $this->assertSame('0', $data[0]['followers']);
+        $this->assertSame(20, $data[0]['karma']);
         $this->assertSame([$field->getFieldName() => 'Test Answer'], $data[0]['fields']);
         $this->assertSame([$rm->getFullName()], $data[0]['representatives']);
         $this->assertSame($user4->getEmail(), $data[1]['email']);
         $this->assertSame($user4->getPhone(), $data[1]['phone']);
         $this->assertSame('1', $data[1]['followers']);
+        $this->assertSame(0, $data[1]['karma']);
         $this->assertSame([$field->getFieldName() => 'Second Answer'], $data[1]['fields']);
         $this->assertSame([$bo->getFullName(), $jb->getFullName()], $data[1]['representatives']);
     }
@@ -960,7 +965,7 @@ class GroupControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $this->assertSame(
             "name,address,city,state,country,zip_code,email,phone,bio,slogan,facebook,followers,karma,fields,representatives\n" .
-            "\"user 3\",,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,,,\"test-group-field: Test Answer\",\"{$rm->getFullName()}\"\n" .
+            "\"user 3\",,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,,20,\"test-group-field: Test Answer\",\"{$rm->getFullName()}\"\n" .
             "\"user 4\",,,,US,,{$user4->getEmail()},{$user4->getPhone()},,,1,1,,\"test-group-field: Second Answer\",\"{$bo->getFullName()}, {$jb->getFullName()}\"\n",
             $response->getContent()
         );
@@ -1052,7 +1057,6 @@ class GroupControllerTest extends WebTestCase
             $this->assertSame($user->getCountry(), $data[$k]['country']);
             $this->assertSame($user->getZip(), $data[$k]['zip_code']);
             $this->assertSame($user->getBio(), $data[$k]['bio']);
-            $this->assertArrayHasKey('karma', $data[$k]);
             $this->assertEquals('1', $data[$k]['facebook']);
             if ($user === $user2) {
                 $this->assertEmpty($data[$k]['representatives']);
@@ -1061,8 +1065,10 @@ class GroupControllerTest extends WebTestCase
             }
             if ($user === $user3) { // private
                 $this->assertSame([$question->getSubject() => 'Anonymous'], $data[$k]['polls']);
+                $this->assertEquals(20, $data[$k]['karma']);
             } else {
                 $this->assertSame([$question->getSubject() => $answers[$k]->getOption()->getValue()], $data[$k]['polls']);
+                $this->assertEquals(0, $data[$k]['karma']);
             }
             if ($user === $user4) {
                 $this->assertSame('1', $data[$k]['followers']);
@@ -1099,7 +1105,7 @@ class GroupControllerTest extends WebTestCase
         $this->assertSame(
             "name,address,city,state,country,zip_code,email,phone,bio,slogan,facebook,followers,karma,fields,representatives,polls\n" .
             "\"user 2\",,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,,,,,\"{$question->getSubject()}: {$answer1->getOption()->getValue()}\"\n" .
-            "\"user 3\",,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,,,\"test-group-field: Test Answer\",\"{$rm->getFullName()}\",\"{$question->getSubject()}: Anonymous\"\n" .
+            "\"user 3\",,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,,20,\"test-group-field: Test Answer\",\"{$rm->getFullName()}\",\"{$question->getSubject()}: Anonymous\"\n" .
             "\"user 4\",,,,US,,{$user4->getEmail()},{$user4->getPhone()},,,1,1,,\"test-group-field: Second Answer\",\"{$bo->getFullName()}, {$jb->getFullName()}\",\"{$question->getSubject()}: {$answer3->getOption()->getValue()}\"\n",
             $response->getContent()
         );

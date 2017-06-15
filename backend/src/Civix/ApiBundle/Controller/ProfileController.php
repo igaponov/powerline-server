@@ -2,8 +2,18 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use Civix\ApiBundle\Form\Type\UserUpdateType;
+use Civix\Component\ContentConverter\ConverterInterface;
+use Civix\CoreBundle\Event\AvatarEvent;
+use Civix\CoreBundle\Event\AvatarEvents;
 use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Event\UserFollowEvent;
+use Civix\CoreBundle\Model\TempFile;
+use Civix\CoreBundle\Service\User\UserManager;
+use FOS\RestBundle\Controller\Annotations\View;
+use JMS\DiExtraBundle\Annotation as DI;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -18,6 +28,24 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
  */
 class ProfileController extends BaseController
 {
+    /**
+     * @var EventDispatcherInterface
+     * @DI\Inject("event_dispatcher")
+     */
+    private $dispatcher;
+
+    /**
+     * @var UserManager
+     * @DI\Inject("civix_core.user_manager")
+     */
+    private $manager;
+
+    /**
+     * @var ConverterInterface
+     * @DI\Inject("civix_core.content_converter")
+     */
+    private $converter;
+
     /**
      * Deprecated, use `GET /api/v2/user` instead
      *
@@ -257,62 +285,30 @@ class ProfileController extends BaseController
      *         405="Method Not Allowed"
      *     }
      * )
+     *
+     * @View(serializerGroups={"api-profile"})
+     *
      * @param Request $request
-     * @return Response
+     * @return User|Response
      */
     public function updateAction(Request $request)
     {
         /** @var User $user */
         $user = $this->get('security.token_storage')->getToken()->getUser();
-        $entityManager = $this->getDoctrine()->getManager();
-        $user->setAvatarPath($request->getScheme().'://'.$request->getHttpHost().'/images/avatars/');
-
-        $response = new Response();
-        $response->headers->set('Content-Type', 'application/json');
-
-        /** @var User $new */
-        $new = $this->jmsDeserialization($request->getContent(), 'Civix\CoreBundle\Entity\User',
-            array('api-profile', 'api-change-password'));
-        if ($new->getPlainPassword()) {
-            $encoder = $this->get('security.encoder_factory')->getEncoder($user);
-            $new->setSalt(base_convert(sha1(uniqid(mt_rand(), true)), 16, 36));
-            $password = $encoder->encodePassword($new->getPlainPassword(), $new->getSalt());
-            $new->setPassword($password);
-        }
-
-        $avatarFileName = $user->getAvatarFileName();
-        $isAddressChanged = $new->getAddressQuery() !== $user->getAddressQuery();
-        $validationGroups = ['profile'];
-        if ($new->getEmail() !== $user->getEmail()) {
-            $validationGroups[] = 'profile-email';
-        }
-
-        $this->get('civix_core.user_manager')
-            ->updateProfileFull($user, $new);
-
-        $errors = $this->getValidator()->validate($user, null, $validationGroups);
-
-        if (count($errors) > 0) {
-            $response->setStatusCode(400)->setContent(json_encode(array('errors' => $this->transformErrors($errors))));
-
-            return $response;
+        $form = $this->createForm(UserUpdateType::class, $user);
+        if (strpos($request->headers->get('content-type'), 'text/plain') !== false) {
+            $submittedData = json_decode($request->getContent(), true);
         } else {
-            if ($isAddressChanged) {
-                $this->get('civix_core.user_manager')->updateDistrictsIds($user);
-                $this->get('civix_core.group_manager')->autoJoinUser($user);
-            }
+            $submittedData = $request->request->all();
+        }
+        $form->submit($submittedData, false);
+
+        if ($form->isValid()) {
+            $user->setIsRegistrationComplete(true);
+            return $this->manager->save($user);
         }
 
-        $entityManager->persist($user);
-        $entityManager->flush();
-
-        if ($avatarFileName !== $user->getAvatarFileName()) {
-            $this->get('civix_core.activity_update')->updateOwnerData($user);
-        }
-
-        $response->setContent($this->jmsSerialization($user, array('api-profile')));
-
-        return $response;
+        return $this->getBadRequestResponse($form);
     }
 
     /**
@@ -425,10 +421,12 @@ class ProfileController extends BaseController
             $user->setBirth(new \DateTime($request->get('birth')));
         }
 
-        if ($request->get('avatar_file_name') && !$user->getAvatarFileName()) {
+        if ($request->get('avatar_file_name')) {
+            $content = $this->converter->convert((string)$request->get('avatar_file_name'));
+            $user->setAvatar(new TempFile($content));
             try {
-                $this->get('civix_core.crop_avatar')
-                    ->saveSquareAvatarFromPath($user, $request->get('avatar_file_name'));
+                $event = new AvatarEvent($user);
+                $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
             } catch (\Exception $e) {
                 $this->get('logger')->addError($e->getMessage());
             }
@@ -460,5 +458,32 @@ class ProfileController extends BaseController
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
+    }
+
+    /**
+     * @param $form
+     * @return Response
+     */
+    private function getBadRequestResponse(Form $form): Response
+    {
+        $errors = [];
+        foreach ($form as $name => $element) {
+            $error = $element->getErrors()
+                ->current();
+            if ($error) {
+                $errors[] = [
+                    'property' => $name,
+                    'message' => $error->getMessage(),
+                ];
+            }
+        }
+        foreach ($form->getErrors() as $error) {
+            $errors[] = [
+                'property' => null,
+                'message' => $error->getMessage(),
+            ];
+        }
+
+        return new Response(json_encode(['errors' => $errors]), 400);
     }
 }

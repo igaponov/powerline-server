@@ -1,0 +1,10 @@
+services:
+    civix_core.repository.group_repository:
+        class: Civix\CoreBundle\Repository\GroupRepository
+        factory: ["@doctrine", "getRepository"]
+        arguments: [Civix\CoreBundle\Entity\Group]
+
+    civix_core.karma_repository:
+        class: Doctrine\ORM\EntityRepository
+        factory: ["@doctrine", "getRepository"]
+        arguments: [Civix\CoreBundle\Entity\Karma]

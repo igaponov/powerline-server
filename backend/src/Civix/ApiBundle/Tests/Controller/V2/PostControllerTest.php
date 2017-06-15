@@ -1,6 +1,7 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
+use Civix\CoreBundle\Entity\Karma;
 use Civix\CoreBundle\Entity\Report\PostResponseReport;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\Post;
@@ -12,6 +13,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostHashTagData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteKarmaData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSpamPostData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadPostResponseReportData;
@@ -389,7 +391,7 @@ class PostControllerTest extends WebTestCase
         }
     }
 
-    public function testSignPost()
+    public function testVoteOnPost()
     {
         $repository = $this->loadFixtures([
             LoadPostData::class,
@@ -432,9 +434,20 @@ class PostControllerTest extends WebTestCase
             ->getRepository(PostResponseReport::class)
             ->getPostResponseReport($user, $post);
         $this->assertSame($option, $report->getVote());
+        $result = $client->getContainer()->get('doctrine.dbal.default_connection')
+            ->fetchAssoc('SELECT * FROM karma');
+        $this->assertArraySubset([
+            'user_id' => $post->getUser()->getId(),
+            'type' => Karma::TYPE_RECEIVE_UPVOTE_ON_POST,
+            'points' => 2,
+            'metadata' => serialize([
+                'post_id' => $post->getId(),
+                'vote_id' => $data['id'],
+            ]),
+        ], $result);
     }
 
-    public function testSignPostWithoutAutomaticBoost()
+    public function testVoteOnPostWithoutAutomaticBoost()
     {
         $repository = $this->loadFixtures([
             LoadPostData::class,
@@ -450,17 +463,25 @@ class PostControllerTest extends WebTestCase
         $client->request('POST',
             self::API_ENDPOINT.'/'.$post->getId().'/vote', [], [],
             ['HTTP_Authorization'=>'Bearer type="user" token="user1"'],
-            json_encode(['option' => 'upvote'])
+            json_encode(['option' => 'downvote'])
         );
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertSame(Post\Vote::OPTION_UPVOTE, $data['option']);
+        $this->assertSame(Post\Vote::OPTION_DOWNVOTE, $data['option']);
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
         $this->assertEquals(0, $queue->count());
+        $count = $client->getContainer()->get('doctrine.dbal.default_connection')
+            ->fetchColumn('SELECT COUNT(*) FROM karma');
+        $this->assertEquals(0, $count);
     }
 
-    public function testUpdateAnswer()
+    /**
+     * @param $reference
+     * @param $option
+     * @dataProvider getOptions
+     */
+    public function testUpdateVote($reference, $option)
     {
         $repository = $this->loadFixtures([
             LoadPostVoteData::class,
@@ -474,18 +495,20 @@ class PostControllerTest extends WebTestCase
         /** @var Post $post */
         $post = $repository->getReference('post_1');
         /** @var User $user */
-        $user = $repository->getReference('user_3');
+        $user = $repository->getReference($reference);
         $answer = $conn->fetchAssoc('SELECT id, `option` FROM post_votes WHERE post_id = ? AND user_id = ?', [$post->getId(), $user->getId()]);
-        $option = 'downvote';
         $client->request('POST',
             self::API_ENDPOINT.'/'.$post->getId().'/vote', [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user3"'],
+            ['HTTP_Authorization'=>'Bearer type="user" token="'.$user->getUsername().'"'],
             json_encode(['option' => $option])
         );
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertSame(Post\Vote::OPTION_DOWNVOTE, $data['option']);
+        $this->assertSame(
+            array_search($option, Post\Vote::getOptionTitles()),
+            $data['option']
+        );
         $this->assertEquals($answer['id'], $data['id']);
         $this->assertNotEquals($answer['option'], $data['option']);
         // check social activity
@@ -498,9 +521,31 @@ class PostControllerTest extends WebTestCase
         $report = $em->getRepository(PostResponseReport::class)
             ->getPostResponseReport($user, $post);
         $this->assertSame($option, $report->getVote());
+        $result = $conn->fetchAssoc('SELECT * FROM karma');
+        if ($option === 'upvote') {
+            $this->assertArraySubset([
+                'user_id' => $post->getUser()->getId(),
+                'type' => Karma::TYPE_RECEIVE_UPVOTE_ON_POST,
+                'points' => 2,
+                'metadata' => serialize([
+                    'post_id' => $post->getId(),
+                    'vote_id' => $data['id'],
+                ]),
+            ], $result);
+        } else {
+            $this->assertFalse((bool)$result);
+        }
     }
 
-    public function testUpdateAnswerWithErrors()
+    public function getOptions()
+    {
+        return [
+            ['user_3', 'downvote'],
+            ['user_3', 'upvote'],
+        ];
+    }
+
+    public function testUpdateVoteWithErrors()
     {
         $repository = $this->loadFixtures([
             LoadPostVoteData::class,
@@ -522,10 +567,11 @@ class PostControllerTest extends WebTestCase
         );
     }
 
-    public function testUnsignPost()
+    public function testUnvotePost()
     {
         $repository = $this->loadFixtures([
             LoadPostResponseReportData::class,
+            LoadPostVoteKarmaData::class,
         ])->getReferenceRepository();
         $client = $this->client;
         /** @var Post $post */
@@ -548,6 +594,8 @@ class PostControllerTest extends WebTestCase
         $result = $em->getRepository(PostResponseReport::class)
             ->getPostResponseReport($user, $post);
         $this->assertNull($result);
+        $results = $conn->fetchAll('SELECT * FROM karma');
+        $this->assertCount(0, $results);
     }
 
     public function testMarkPostAsSpam()

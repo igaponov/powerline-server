@@ -6,6 +6,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadPollCommentRateData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Issue\PM354;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPollCommentKarmaData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Doctrine\DBAL\Connection;
 
@@ -120,9 +121,8 @@ class PollCommentControllerTest extends CommentControllerTestCase
     public function testUpdateCommentRateIsOk($rate)
     {
         $repository = $this->loadFixtures([
-            LoadPollCommentRateData::class,
             LoadGroupManagerData::class,
-            LoadUserGroupData::class,
+            LoadPollCommentKarmaData::class,
         ])->getReferenceRepository();
         /** @var BaseComment $comment */
         $comment = $repository->getReference('question_comment_3');

@@ -3,6 +3,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPetitionCommentKarmaData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionCommentRateData;
@@ -118,9 +119,9 @@ class UserPetitionCommentControllerTest extends CommentControllerTestCase
     public function testUpdateCommentRateIsOk($rate)
     {
         $repository = $this->loadFixtures([
-            LoadUserPetitionCommentRateData::class,
             LoadGroupManagerData::class,
             LoadUserGroupData::class,
+            LoadPetitionCommentKarmaData::class,
         ])->getReferenceRepository();
         /** @var BaseComment $comment */
         $comment = $repository->getReference('petition_comment_3');

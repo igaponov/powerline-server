@@ -25,8 +25,36 @@ class PostCommentsControllerTest extends CommentsControllerTest
             LoadPostCommentData::class,
         ])->getReferenceRepository();
         /** @var CommentedInterface $entity */
-        $entity = $repository->getReference('post_1');
-        $this->getComments($entity, 1);
+        $entity = $repository->getReference('post_5');
+        $comments = [
+            $repository->getReference('post_comment_2'),
+            $repository->getReference('post_comment_3'),
+        ];
+        $this->getComments($entity, $comments);
+    }
+
+    public function testGetFilteredComments()
+    {
+        $repository = $this->loadFixtures([
+            LoadPostCommentData::class,
+        ])->getReferenceRepository();
+        /** @var CommentedInterface $entity */
+        $entity = $repository->getReference('post_5');
+        $comments = [
+            $repository->getReference('post_comment_2'),
+            $repository->getReference('post_comment_3'),
+        ];
+        $this->getComments($entity, $comments, ['sort' => 'createdAt', 'sort_dir' => 'DESC']);
+    }
+
+    public function testGetChildComments()
+    {
+        $repository = $this->loadFixtures([
+            LoadPostCommentData::class,
+        ])->getReferenceRepository();
+        /** @var BaseComment $entity */
+        $entity = $repository->getReference('post_comment_2');
+        $this->getChildComments($entity, 1);
     }
 
     public function testGetCommentsWithWrongCredentialsThrowsException()

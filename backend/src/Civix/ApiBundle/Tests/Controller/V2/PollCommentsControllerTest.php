@@ -27,7 +27,37 @@ class PollCommentsControllerTest extends CommentsControllerTest
         ])->getReferenceRepository();
         /** @var CommentedInterface $entity */
         $entity = $repository->getReference('group_question_1');
-        $this->getComments($entity, 3);
+        $comments = [
+            $repository->getReference('question_comment_1'),
+            $repository->getReference('question_comment_3'),
+            $repository->getReference('question_comment_2'),
+        ];
+        $this->getComments($entity, $comments);
+    }
+
+    public function testGetFilteredComments()
+    {
+        $repository = $this->loadFixtures([
+            LoadQuestionCommentData::class,
+        ])->getReferenceRepository();
+        /** @var CommentedInterface $entity */
+        $entity = $repository->getReference('group_question_1');
+        $comments = [
+            $repository->getReference('question_comment_1'),
+            $repository->getReference('question_comment_2'),
+            $repository->getReference('question_comment_3'),
+        ];
+        $this->getComments($entity, $comments, ['sort' => 'createdAt', 'sort_dir' => 'DESC']);
+    }
+
+    public function testGetChildComments()
+    {
+        $repository = $this->loadFixtures([
+            LoadQuestionCommentData::class,
+        ])->getReferenceRepository();
+        /** @var BaseComment $entity */
+        $entity = $repository->getReference('question_comment_1');
+        $this->getChildComments($entity, 1);
     }
 
     public function testGetCommentsWithWrongCredentialsThrowsException()

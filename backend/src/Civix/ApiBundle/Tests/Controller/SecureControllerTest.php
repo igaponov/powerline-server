@@ -4,8 +4,8 @@ namespace Civix\ApiBundle\Tests\Controller;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Report\UserReport;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Service\CropImage;
-use Civix\CoreBundle\Service\Group\GroupManager;
+use Civix\CoreBundle\Service\CiceroApi;
+use Civix\CoreBundle\Service\FacebookApi;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
@@ -16,7 +16,10 @@ use Faker\Factory;
 use Geocoder\Geocoder;
 use Geocoder\Model\Address;
 use Geocoder\Model\AddressCollection;
+use Geocoder\Model\AdminLevel;
+use Geocoder\Model\AdminLevelCollection;
 use Geocoder\Model\Coordinates;
+use Geocoder\Model\Country;
 use Liip\FunctionalTestBundle\Annotations\QueryCount;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -110,11 +113,13 @@ class SecureControllerTest extends WebTestCase
 		$expectedErrors = [
 			'username' => 'This value should not be blank.',
 			'password' => 'This value should not be blank.',
-			'firstName' => 'This value should not be blank.',
-			'lastName' => 'This value should not be blank.',
+			'first_name' => 'This value should not be blank.',
+			'last_name' => 'This value should not be blank.',
 			'zip' => 'This value should not be blank.',
 			'email' => 'This value is not a valid email address.',
+            'email_confirm' => 'The email fields must match.',
 		];
+		$this->assertCount(count($expectedErrors), $errors);
 		foreach ($errors as $error) {
 			$this->assertEquals($expectedErrors[$error['property']], $error['message']);
 		}
@@ -134,13 +139,17 @@ class SecureControllerTest extends WebTestCase
 	public function testRegistrationIsOk()
 	{
 		$faker = Factory::create();
-        $path = 'http://example.com/image.jpg';
+        $path = __DIR__.'/../data/image.png';
+        $password = $faker->password;
+        $email = 'reg.test+powerline@mail.com';
         $data = [
 			'username' => 'testUser1',
 			'first_name' => $faker->firstName,
 			'last_name' => $faker->lastName,
-			'email' => 'reg.test+powerline@mail.com',
-			'password' => $faker->password,
+			'email' => $email,
+			'email_confirm' => $email,
+			'password' => $password,
+			'confirm' => $password,
 			'address1' => 'Bucklin',
 			'address2' => $faker->address,
 			'city' => 'Bucklin',
@@ -151,29 +160,34 @@ class SecureControllerTest extends WebTestCase
             'avatar_file_name' => $path,
 		];
 		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
-		$service = $this->getMockBuilder(CropImage::class)
-            ->setMethods(['rebuildImage'])
-            ->getMock();
-		$service->expects($this->once())
-            ->method('rebuildImage')
-            ->with($this->anything(), $path)
-            ->willReturnCallback(function ($tempFile) {
-                return file_put_contents($tempFile, file_get_contents(__DIR__.'/../data/image.png'));
-            });
-		$client->getContainer()->set('civix_core.crop_image', $service);
-		$service = $this->getMockBuilder(GroupManager::class)
+        $container = $client->getContainer();
+        $service = $this->getMockBuilder(CiceroApi::class)
             ->disableOriginalConstructor()
-            ->setMethods(['autoJoinUser'])
+            ->setMethods(['getRepresentativesByLocation'])
             ->getMock();
-		$service->expects($this->once())
-            ->method('autoJoinUser');
-		$client->getContainer()->set('civix_core.group_manager', $service);
+        $service->expects($this->once())
+            ->method('getRepresentativesByLocation');
+        $client->getContainer()->set('civix_core.cicero_api', $service);
 		$service = $this->createMock(Geocoder::class);
-		$service->expects($this->once())
+		$service->expects($this->exactly(2))
             ->method('geocode')
             ->with($data['address1'].','.$data['city'].','.$data['state'].','.$data['country'])
             ->willReturn(new AddressCollection([
-                new Address(new Coordinates(12.345, 67.089))
+                new Address(
+                    new Coordinates(37.547242900000001, -99.634290100000001),
+                    null,
+                    null,
+                    null,
+                    '67834',
+                    'Bucklin',
+                    null,
+                    new AdminLevelCollection([
+                        new AdminLevel(1, 'Kansas', 'KS'),
+                        new AdminLevel(2, 'Ford County', 'Ford County'),
+                        new AdminLevel(3, 'Bucklin', 'Bucklin'),
+                    ]),
+                    new Country('United States', 'US')
+                )
             ]));
 		$client->getContainer()->set('bazinga_geocoder.geocoder', $service);
 		$client->request('POST', '/api/secure/registration', [], [], [], json_encode($data));
@@ -182,8 +196,9 @@ class SecureControllerTest extends WebTestCase
 
 		$result = json_decode($response->getContent(), true);
 		$this->assertSame($data['username'], $result['username']);
-		/** @var Connection $conn */
-		$conn = $client->getContainer()->get('doctrine.dbal.default_connection');
+        $this->assertTrue($result['is_registration_complete']);
+        /** @var Connection $conn */
+		$conn = $container->get('doctrine.dbal.default_connection');
 		$user = $conn->fetchAssoc('SELECT * FROM user WHERE username = ?', [$result['username']]);
 		$this->assertSame($data['username'], $user['username']);
 		$this->assertSame($data['first_name'], $user['firstName']);
@@ -196,7 +211,7 @@ class SecureControllerTest extends WebTestCase
 		$this->assertSame($data['zip'], $user['zip']);
 		$this->assertSame($data['country'], $user['country']);
 		$this->assertSame(strtotime($data['birth']), strtotime($user['birth']));
-        $storage = $client->getContainer()->get('civix_core.storage.array');
+        $storage = $container->get('civix_core.storage.array');
         $this->assertCount(1, $storage->getFiles('avatar_image_fs'));
         $code = $conn->fetchAssoc('SELECT * FROM discount_codes WHERE owner_id = ?', [$user['id']]);
         $this->assertNotEmpty($code['code']);
@@ -204,13 +219,15 @@ class SecureControllerTest extends WebTestCase
         /** @var EntityManager $em */
         $em = $client->getContainer()->get('doctrine.orm.entity_manager');
         $user = $em->getRepository(User::class)->find($user['id']);
-        $this->assertSame(12.345, $user->getLatitude());
-        $this->assertSame(67.089, $user->getLongitude());
+        $this->assertSame(37.547242900000001, $user->getLatitude());
+        $this->assertSame(-99.634290100000001, $user->getLongitude());
         $report = $em->getRepository(UserReport::class)
             ->getUserReport($user);
         $this->assertEquals($user->getId(), $report[0]['user']);
         $this->assertEquals(0, $report[0]['followers']);
         $this->assertEquals([], $report[0]['representatives']);
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM users_groups ug WHERE ug.user_id = ?', [$user->getId()]);
+        $this->assertEquals(3, $count);
 
 		$client->request('POST', '/api/secure/login', ['username' => $data['username'], 'password' => $data['password']]);
 		$response = $client->getResponse();
@@ -221,19 +238,28 @@ class SecureControllerTest extends WebTestCase
     public function testFacebookRegistrationWithWrongDataReturnsErrors()
     {
         $client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
-        $client->request('POST', '/api/secure/registration', [], [], [], json_encode(['email' => 'qwerty']));
+        $serviceId = 'civix_core.facebook_api';
+        $mock = $this->getMockBuilder(FacebookApi::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getFacebookId'])
+            ->getMock();
+        $mock->expects($this->any())->method('getFacebookId')->will($this->returnValue('yyy'));
+        $client->getContainer()->set($serviceId, $mock);
+        $client->request('POST', '/api/secure/registration-facebook', [], [], [], json_encode(['email' => 'qwerty']));
         $response = $client->getResponse();
         $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $errors = $data['errors'];
         $expectedErrors = [
+            null => 'Facebook token is not correct.',
+            'facebook_id' => 'This value should not be blank.',
             'username' => 'This value should not be blank.',
-            'password' => 'This value should not be blank.',
-            'firstName' => 'This value should not be blank.',
-            'lastName' => 'This value should not be blank.',
-            'zip' => 'This value should not be blank.',
+            'first_name' => 'This value should not be blank.',
+            'last_name' => 'This value should not be blank.',
             'email' => 'This value is not a valid email address.',
+            'email_confirm' => 'The email fields must match.',
         ];
+        $this->assertCount(count($expectedErrors), $errors);
         foreach ($errors as $error) {
             $this->assertEquals($expectedErrors[$error['property']], $error['message']);
         }
@@ -246,48 +272,47 @@ class SecureControllerTest extends WebTestCase
     public function testFacebookRegistrationIsOk()
 	{
 		$faker = Factory::create();
-		$data = [
+        $email = 'reg.test+powerline@mail.com';
+        $data = [
 		    'facebook_token' => 'xxx',
             'facebook_id' => 'yyy',
+            'facebook_link' => $faker->url,
 			'username' => 'testUser1',
 			'first_name' => $faker->firstName,
 			'last_name' => $faker->lastName,
-			'email' => 'reg.test+powerline@mail.com',
-			'password' => $faker->password,
+			'email' => $email,
+			'email_confirm' => $email,
 			'address1' => 'Bucklin',
 			'address2' => $faker->address,
 			'city' => 'Bucklin',
 			'state' => 'KS',
-			'zip' => '67834',
 			'country' => 'US',
 			'birth' => $faker->date(),
 		];
 		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
         $serviceId = 'civix_core.facebook_api';
-        $mock = $this->getServiceMockBuilder($serviceId)
+        $mock = $this->getMockBuilder(FacebookApi::class)
+            ->disableOriginalConstructor()
             ->setMethods(['getFacebookId'])
             ->getMock();
         $mock->expects($this->any())->method('getFacebookId')->will($this->returnValue('yyy'));
         $client->getContainer()->set($serviceId, $mock);
-        $service = $this->getMockBuilder(GroupManager::class)
+        $service = $this->getMockBuilder(CiceroApi::class)
             ->disableOriginalConstructor()
-            ->setMethods(['autoJoinUser'])
+            ->setMethods(['getRepresentativesByLocation'])
             ->getMock();
         $service->expects($this->once())
-            ->method('autoJoinUser');
-        $client->getContainer()->set('civix_core.group_manager', $service);
-        $service = $this->createMock(Geocoder::class);
-        $service->expects($this->once())
-            ->method('geocode')
-            ->with($data['address1'].','.$data['city'].','.$data['state'].','.$data['country'])
-            ->willReturn(new AddressCollection());
-        $client->getContainer()->set('bazinga_geocoder.geocoder', $service);
+            ->method('getRepresentativesByLocation');
+        $client->getContainer()->set('civix_core.cicero_api', $service);
 		$client->request('POST', '/api/secure/registration-facebook', [], [], [], json_encode($data));
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $storage = $client->getContainer()->get('civix_core.storage.array');
+        $this->assertCount(1, $storage->getFiles('avatar_image_fs'));
 
-		$result = json_decode($response->getContent(), true);
+        $result = json_decode($response->getContent(), true);
 		$this->assertSame($data['username'], $result['username']);
+		$this->assertFalse($result['is_registration_complete']);
 		/** @var Connection $conn */
 		$conn = $client->getContainer()->get('doctrine')->getConnection();
 		$user = $conn->fetchAssoc('SELECT * FROM user WHERE username = ?', [$result['username']]);
@@ -301,7 +326,6 @@ class SecureControllerTest extends WebTestCase
 		$this->assertSame($data['address2'], $user['address2']);
 		$this->assertSame($data['city'], $user['city']);
 		$this->assertSame($data['state'], $user['state']);
-		$this->assertSame($data['zip'], $user['zip']);
 		$this->assertSame($data['country'], $user['country']);
 		$this->assertSame(strtotime($data['birth']), strtotime($user['birth']));
         /** @var EntityManager $em */
@@ -388,5 +412,47 @@ class SecureControllerTest extends WebTestCase
         $this->assertNotEquals($user->getPassword(), $data['password']);
         $this->assertNull($data['reset_password_token']);
         $this->assertNull($data['reset_password_at']);
+	}
+
+    public function testUserTokenHeaderAuthentication()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+        ])->getReferenceRepository();
+        /** @var User $user */
+        $user = $repository->getReference('user_1');
+        $client = $this->client;
+        $server = ['HTTP_Token' => $user->getToken()];
+        $client->request('GET', '/api/v2/user', [], [], $server);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+	}
+
+    public function testUserAuthorizationTypeHeaderAuthentication()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+        ])->getReferenceRepository();
+        /** @var User $user */
+        $user = $repository->getReference('user_1');
+        $client = $this->client;
+        $server = ['HTTP_Authorization' => 'Bearer type="user" token="'.$user->getToken().'"'];
+        $client->request('GET', '/api/v2/user', [], [], $server);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+	}
+
+    public function testUserAuthorizationBearerHeaderAuthentication()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+        ])->getReferenceRepository();
+        /** @var User $user */
+        $user = $repository->getReference('user_1');
+        $client = $this->client;
+        $server = ['HTTP_Authorization' => 'Bearer '.$user->getToken()];
+        $client->request('GET', '/api/v2/user', [], [], $server);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 	}
 }

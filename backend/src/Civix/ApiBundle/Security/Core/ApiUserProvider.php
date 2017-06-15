@@ -2,8 +2,10 @@
 
 namespace Civix\ApiBundle\Security\Core;
 
+use Civix\Component\ContentConverter\ConverterInterface;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Service\CropAvatar;
+use Civix\CoreBundle\Model\TempFile;
+use Civix\CoreBundle\Service\User\UserManager;
 use HWI\Bundle\OAuthBundle\OAuth\Response\UserResponseInterface;
 use HWI\Bundle\OAuthBundle\Security\Core\User\OAuthAwareUserProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -20,25 +22,35 @@ class ApiUserProvider implements UserProviderInterface, OAuthAwareUserProviderIn
      */
     private $em;
     /**
-     * @var CropAvatar
+     * @var UserManager
      */
-    private $cropAvatar;
+    private $userManager;
     /**
      * @var array
      */
     protected $properties = array(
         'identifier' => 'id',
     );
+    /**
+     * @var ConverterInterface
+     */
+    private $converter;
 
     /**
      * @param EntityManager $em
-     * @param CropAvatar $cropAvatar
+     * @param UserManager $userManager
+     * @param ConverterInterface $converter
      * @param array $properties
      */
-    public function __construct(EntityManager $em, CropAvatar $cropAvatar, array $properties)
-    {
+    public function __construct(
+        EntityManager $em,
+        UserManager $userManager,
+        ConverterInterface $converter,
+        array $properties
+    ) {
         $this->em = $em;
-        $this->cropAvatar = $cropAvatar;
+        $this->userManager = $userManager;
+        $this->converter = $converter;
         $this->properties = array_merge($this->properties, $properties);
     }
 
@@ -117,11 +129,13 @@ class ApiUserProvider implements UserProviderInterface, OAuthAwareUserProviderIn
             $user->setPassword(sha1(uniqid('pass', true)));
             $user->{'set'.ucfirst($property)}($username);
             $user->{'set'.ucfirst($propertySecret)}($response->getTokenSecret());
-            $this->cropAvatar->saveSquareAvatarFromPath($user, $response->getProfilePicture());
+            if ($response->getProfilePicture()) {
+                $content = $this->converter->convert((string)$response->getProfilePicture());
+                $user->setAvatar(new TempFile($content));
+            }
         }
-        $user->generateToken();
-        $this->em->persist($user);
-        $this->em->flush();
+
+        $this->userManager->register($user);
 
         return $user;
     }

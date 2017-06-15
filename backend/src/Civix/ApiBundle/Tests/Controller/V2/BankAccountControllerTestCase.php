@@ -95,6 +95,9 @@ abstract class BankAccountControllerTestCase extends WebTestCase
             'bank_name' => 'Bank Name',
             'country' => 'US',
             'currency' => 'USD',
+            'metadata' => [
+                'label' => 'Plant a Tree Fund',
+            ],
         ];
 	    $service->expects($this->once())
             ->method('getBankAccounts')
@@ -133,6 +136,9 @@ abstract class BankAccountControllerTestCase extends WebTestCase
             'bank_name' => 'US Bank Name',
             'country' => 'US',
             'currency' => 'usd',
+            'metadata' => [
+                'label' => 'Org X',
+            ],
         ];
 	    $service->expects($this->once())
             ->method('getBankAccounts')
@@ -182,6 +188,9 @@ abstract class BankAccountControllerTestCase extends WebTestCase
             'bank_name' => 'US Bank Name',
             'country' => 'US',
             'currency' => 'usd',
+            'metadata' => [
+                'label' => 'Org X',
+            ],
         ];
         $service->expects($this->once())
             ->method('getBankAccounts')

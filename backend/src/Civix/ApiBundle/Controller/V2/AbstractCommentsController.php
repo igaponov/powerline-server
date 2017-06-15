@@ -9,7 +9,6 @@ use Civix\CoreBundle\Repository\CommentRepository;
 use Doctrine\ORM\EntityManager;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
-use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\HttpFoundation\Request;
 
 abstract class AbstractCommentsController extends FOSRestController
@@ -24,7 +23,12 @@ abstract class AbstractCommentsController extends FOSRestController
         $entityManager = $this->getDoctrine()->getManager();
         /** @var CommentRepository $repository */
         $repository = $entityManager->getRepository($entityClass);
-        $query = $repository->getCommentsByEntityQuery($entity, $this->getUser());
+        $query = $repository->getCommentsByEntityQuery(
+            $entity,
+            $this->getUser(),
+            [$params->get('sort') => $params->get('sort_dir')],
+            $params->get('parent')
+        );
 
         return $this->get('knp_paginator')->paginate(
             $query,

@@ -1,6 +1,7 @@
 <?php
 namespace Civix\CoreBundle\Entity;
 
+use Civix\CoreBundle\Model\Avatar\DefaultAvatarInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -22,9 +23,9 @@ interface HasAvatarInterface
     /**
      * Get default avatar.
      *
-     * @return string
+     * @return DefaultAvatarInterface
      */
-    public function getDefaultAvatar();
+    public function getDefaultAvatar(): DefaultAvatarInterface;
 
     /**
      * @param string $avatarFileName

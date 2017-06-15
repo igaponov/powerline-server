@@ -9,6 +9,8 @@ use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Entity\UserGroupManager;
 use Civix\CoreBundle\Entity\UserPetition;
+use Civix\CoreBundle\Event\AvatarEvent;
+use Civix\CoreBundle\Event\AvatarEvents;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
 use Civix\CoreBundle\Event\GroupUserEvent;
@@ -16,7 +18,6 @@ use Civix\CoreBundle\Event\InquiryEvent;
 use Civix\CoreBundle\Event\InviteEvent;
 use Civix\CoreBundle\Event\InviteEvents;
 use Civix\CoreBundle\Model\Group\Worksheet;
-use Civix\CoreBundle\Service\Google\Geocode;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -26,11 +27,6 @@ class GroupManager
      * @var EntityManager
      */
     private $em;
-
-    /**
-     * @var Geocode
-     */
-    private $geocode;
 
     /**
      * @var EventDispatcherInterface
@@ -51,12 +47,10 @@ class GroupManager
 
     public function __construct(
         EntityManager $em,
-        Geocode $geocode,
         EventDispatcherInterface $dispatcher
     )
     {
         $this->em = $em;
-        $this->geocode = $geocode;
         $this->dispatcher = $dispatcher;
     }
 
@@ -78,13 +72,24 @@ class GroupManager
         $this->dispatcher->dispatch(GroupEvents::CREATED, $event);
     }
 
+    public function save(Group $group)
+    {
+        $event = new AvatarEvent($group);
+        $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
+
+        $this->em->persist($group);
+        $this->em->flush();
+
+        return $group;
+    }
+
     public function delete(Group $group)
     {
         $event = new GroupEvent($group);
         $this->dispatcher->dispatch(GroupEvents::BEFORE_DELETE, $event);
 
-        $this->entityManager->remove($group);
-        $this->entityManager->flush();
+        $this->em->remove($group);
+        $this->em->flush();
     }
 
     /**
@@ -119,10 +124,13 @@ class GroupManager
 
     public function joinToGroup(User $user, Group $group)
     {
-        //current status Group
-        $userGroup = $this->em
-            ->getRepository('CivixCoreBundle:UserGroup')
-            ->isJoinedUser($group, $user);
+        if ($group->getId()) {
+            //current status Group
+            $userGroup = $this->em->getRepository('CivixCoreBundle:UserGroup')
+                ->isJoinedUser($group, $user);
+        } else {
+            $userGroup = null;
+        }
 
         //check if user is joined yet and want to join
         if ($userGroup) {
@@ -135,12 +143,7 @@ class GroupManager
             $user->removeInvite($group);
         }
         $userGroup->setPermissionsByGroup($group);
-        $this->em->createQueryBuilder()
-            ->delete(UserToGroup::class, 'i')
-            ->where('i.user = :user AND i.group = :group')
-            ->setParameter('user', $user)
-            ->setParameter('group', $group)
-            ->getQuery()->execute();
+
         $this->em->persist($userGroup);
         $this->em->flush($userGroup);
 
@@ -194,63 +197,6 @@ class GroupManager
         ;
     }
 
-    /**
-     * @author Habibillah <habibillah@gmail.com>
-     * @param User $user
-     * @return User
-     */
-    public function autoJoinUser(User $user)
-    {
-        $this->resetGeoGroups($user);
-
-        $query = $user->getAddressQuery();
-        $repository = $this->em->getRepository('CivixCoreBundle:Group');
-
-        $country = $this->geocode->getCountry($query);
-        if ($country) {
-            $countryGroup = $repository->getCountryGroup($country);
-        } else {
-            $countryGroup = $repository->findCountryGroup($user->getCountry());
-        }
-
-        if (!$countryGroup) {
-            return $user;
-        }
-
-        $this->joinToGroup($user, $countryGroup);
-
-        $parentCountryGroup = $countryGroup->getParent();
-        if (!is_null($parentCountryGroup) &&
-            ($parentCountryGroup->getLocationName() == Group::GROUP_LOCATION_NAME_EROPEAN_UNION
-                || $parentCountryGroup->getLocationName() == Group::GROUP_LOCATION_NAME_AFRICAN_UNION)) {
-            $this->joinToGroup($user, $parentCountryGroup);
-        }
-
-        $state = $this->geocode->getState($query);
-        if ($state) {
-            $stateGroup = $repository->getStateGroup($state, $countryGroup);
-        } else {
-            $stateGroup = $repository->findStateGroup($user->getState(), $countryGroup);
-        }
-
-        if ($stateGroup) {
-            $this->joinToGroup($user, $stateGroup);
-        }
-
-        $locality = $this->geocode->getLocality($query);
-        if ($locality) {
-            $localityGroup = $repository->getLocalGroup($locality, $stateGroup ? $stateGroup : $countryGroup);
-        } else {
-            $localityGroup = $repository->findLocalGroup($user->getCity(), $stateGroup ? $stateGroup : $countryGroup);
-        }
-
-        if ($localityGroup) {
-            $this->joinToGroup($user, $localityGroup);
-        }
-
-        return $user;
-    }
-
     public function isMorePermissions($previousPermissions, $newPermissions)
     {
         $oldSumPriorityValue = 0;
@@ -266,20 +212,6 @@ class GroupManager
         }
 
         return $oldSumPriorityValue < $newSumPriorityValue;
-    }
-
-    public function resetGeoGroups(User $user)
-    {
-        $userGroups = $this->em->getRepository(UserGroup::class)->getGeoUserGroups($user);
-        if (!empty($userGroups)) {
-            $this->em->createQueryBuilder()
-                ->delete(UserGroup::class, 'ug')
-                ->where('ug.id IN (:ids)')
-                ->setParameter('ids', array_map(function (UserGroup $userGroup) {
-                    return $userGroup->getId();
-                }, $userGroups))
-                ->getQuery()->execute();
-        }
     }
 
     private function calcPriorityValue($permissions, $key, $priority)
