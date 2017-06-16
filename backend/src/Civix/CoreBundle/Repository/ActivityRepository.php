@@ -265,9 +265,23 @@ class ActivityRepository extends EntityRepository
                         WHERE p.id = activities.post_id AND pc.user_id IS NOT NULL
                     )
                 )
+            ),
+            upvotes_count = (
+                SELECT COUNT(pv.id)
+                FROM post_votes pv
+                WHERE pv.`option` = :up AND pv.post_id = activities.post_id
+            ),
+            downvotes_count = (
+                SELECT COUNT(pv.id)
+                FROM post_votes pv
+                WHERE pv.`option` = :down AND pv.post_id = activities.post_id
             )
             WHERE post_id = :post',
-            [':post' => $post->getId()]
+            [
+                ':post' => $post->getId(),
+                ':up' => Post\Vote::OPTION_UPVOTE,
+                ':down' => Post\Vote::OPTION_DOWNVOTE,
+            ]
         );
     }
 

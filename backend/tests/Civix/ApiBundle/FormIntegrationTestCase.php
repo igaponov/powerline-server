@@ -19,23 +19,27 @@ abstract class FormIntegrationTestCase extends TestCase
      */
     protected $factory;
 
-    public function assertErrors(array $errors, FormInterface $form): void
+    public function assertErrors(array $expectedErrors, FormInterface $form): void
     {
-        $this->assertFalse($form->isValid(), 'Form must be invalid');
-        $allErrors = $form->getErrors(true);
-        $this->assertCount($allErrors->count(), $errors, (string)$allErrors);
-        foreach ($errors as $name => $expectedMessages) {
-            if (!$name) {
-                $iterator = $form->getErrors();
-            } else {
-                $iterator = $form->get($name)->getErrors();
-            }
-            $messages = array_map(function (FormError $error) {
-                return $error->getMessage();
-            }, iterator_to_array($iterator));
+        $errors = $form->getErrors();
+        $expectedMessages = array_filter($expectedErrors, function ($message, $key) {
+            return is_string($message) && is_int($key);
+        }, ARRAY_FILTER_USE_BOTH);
+        $this->assertCount($errors->count(), $expectedMessages);
+        if ($expectedMessages) {
+            $this->assertFalse($form->isValid(), 'Form must be invalid');
+            $messages = array_map(
+                function (FormError $error) {
+                    return $error->getMessage();
+                },
+                iterator_to_array($errors)
+            );
             sort($messages);
             sort($expectedMessages);
-            $this->assertSame($expectedMessages, $messages, (string)$form->getErrors());
+            $this->assertSame($expectedMessages, $messages, (string)$errors);
+        }
+        foreach ($form as $name => $element) {
+            $this->assertErrors($expectedErrors[$name] ?? [], $element);
         }
     }
 

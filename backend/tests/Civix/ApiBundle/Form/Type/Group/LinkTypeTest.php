@@ -111,7 +111,7 @@ class LinkTypeTest extends FormIntegrationTestCase
         $form->submit($formData);
         $this->assertTrue($form->isSynchronized());
         $this->assertFalse($form->isValid());
-        $this->assertErrors([null => ['Group should contain 5 links or less.']], $form);
+        $this->assertErrors(['Group should contain 5 links or less.'], $form);
         $this->assertInstanceOf(Group\Link::class, $form->getData());
     }
 }
