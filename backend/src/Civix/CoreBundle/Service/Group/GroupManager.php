@@ -54,17 +54,11 @@ class GroupManager
         $this->dispatcher = $dispatcher;
     }
 
-    public function register(Group $group)
-    {
-        $this->em->persist($group);
-        $this->em->flush();
-
-        $event = new GroupEvent($group);
-        $this->dispatcher->dispatch(GroupEvents::REGISTERED, $event);
-    }
-
     public function create(Group $group)
     {
+        $event = new AvatarEvent($group);
+        $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
+
         $this->em->persist($group);
         $this->em->flush();
 
