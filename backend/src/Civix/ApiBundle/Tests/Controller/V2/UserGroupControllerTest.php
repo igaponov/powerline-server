@@ -149,7 +149,8 @@ class UserGroupControllerTest extends WebTestCase
         $service->expects($this->once())
             ->method('createAccount')
             ->with($this->isInstanceOf(Group::class));
-        $client->getContainer()->set('civix_core.stripe', $service);
+        $container = $client->getContainer();
+        $container->set('civix_core.stripe', $service);
         $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode($params));
         $response = $client->getResponse();
         $this->assertEquals(201, $response->getStatusCode(), $response->getContent());
@@ -158,15 +159,18 @@ class UserGroupControllerTest extends WebTestCase
             $this->assertSame($value, $data[$property]);
         }
         $this->assertSame(Group::GROUP_TRANSPARENCY_PUBLIC, $data['transparency']);
+        $this->assertNotEmpty($data['avatar_file_path']);
         $this->assertSame([
             Group::PERMISSIONS_NAME,
             Group::PERMISSIONS_COUNTRY,
             Group::PERMISSIONS_RESPONSES,
         ], $data['required_permissions']);
         /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine')->getConnection();
+        $conn = $container->get('doctrine')->getConnection();
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM users_groups WHERE group_id = ? and user_id = ?', [$data['id'], $user->getId()]);
         $this->assertEquals(1, $count);
+        $storage = $container->get('civix_core.storage.array');
+        $this->assertCount(1, $storage->getFiles('avatar_group_fs'));
     }
 
     /**
