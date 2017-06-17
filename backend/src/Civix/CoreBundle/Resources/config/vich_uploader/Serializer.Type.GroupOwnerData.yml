@@ -1,0 +1,4 @@
+Civix\CoreBundle\Serializer\Type\GroupOwnerData:
+    avatar:
+        mapping: avatar_group
+        filename_property: avatarFileName

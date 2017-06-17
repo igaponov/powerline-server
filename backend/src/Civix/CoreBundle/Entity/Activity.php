@@ -2,6 +2,9 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\CoreBundle\Serializer\Type\GroupOwnerData;
+use Civix\CoreBundle\Serializer\Type\RepresentativeOwnerData;
+use Civix\CoreBundle\Serializer\Type\UserOwnerData;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\InheritanceType;
@@ -480,7 +483,7 @@ abstract class Activity implements HtmlBodyInterface
             'official_title' => $representative->getOfficialTitle(),
             'first_name' => $representative->getUser()->getFirstName(),
             'last_name' => $representative->getUser()->getLastName(),
-            'avatar_file_path' => $representative->getCiceroRepresentative() ? $representative->getCiceroRepresentative()->getAvatarFileName() : '',
+            'avatar_file_path' => $representative->getCiceroRepresentative() ? $representative->getCiceroRepresentative()->getAvatarFileName() : $representative->getAvatarFileName(),
         ];
         if ($representative->getCiceroRepresentative()) {
             $data['cicero_id'] = $representative->getCiceroRepresentative();
@@ -526,7 +529,16 @@ abstract class Activity implements HtmlBodyInterface
 
     public function getOwnerData()
     {
-        return new OwnerData($this->owner);
+        switch ($this->owner['type'] ?? '') {
+            case 'user':
+                return new UserOwnerData($this->owner);
+            case 'group':
+                return new GroupOwnerData($this->owner);
+            case 'representative':
+                return new RepresentativeOwnerData($this->owner);
+            default:
+                return new OwnerData($this->owner);
+        }
     }
 
     public function getPicture()
