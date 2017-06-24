@@ -125,6 +125,81 @@ class SocialActivity
         self::TYPE_OWN_USER_PETITION_COMMENTED,
     ];
 
+    public static function createFollowRequest(): SocialActivity
+    {
+        return new self(self::TYPE_FOLLOW_REQUEST);
+    }
+
+    public static function createJoinToGroupApproved(Group $group): SocialActivity
+    {
+        return new self(self::TYPE_JOIN_TO_GROUP_APPROVED, null, $group);
+    }
+
+    public static function createFollowUserPetitionCreated(User $following, Group $group): self
+    {
+        return new self(self::TYPE_FOLLOW_USER_PETITION_CREATED, $following, $group);
+    }
+
+    public static function createFollowPostCreated(User $following, Group $group): self
+    {
+        return new self(self::TYPE_FOLLOW_POST_CREATED, $following, $group);
+    }
+
+    public static function createOwnPollAnswered(Group $group): self
+    {
+        return new self(self::TYPE_OWN_POLL_ANSWERED, null, $group);
+    }
+
+    public static function createFollowPollCommented(User $following, Group $group): self
+    {
+        return new self(self::TYPE_FOLLOW_POLL_COMMENTED, $following, $group);
+    }
+
+    public static function createCommentReplied(Group $group): self
+    {
+        return new self(self::TYPE_COMMENT_REPLIED, null, $group);
+    }
+
+    public static function createOwnPollCommented(Group $group): self
+    {
+        return new self(self::TYPE_OWN_POLL_COMMENTED, null, $group);
+    }
+
+    public static function createFollowUserPetitionCommented(User $following, Group $group): self
+    {
+        return new self(self::TYPE_FOLLOW_USER_PETITION_COMMENTED, $following, $group);
+    }
+
+    public static function createOwnUserPetitionCommented(Group $group): self
+    {
+        return new self(self::TYPE_OWN_USER_PETITION_COMMENTED, null, $group);
+    }
+
+    public static function createFollowPostCommented(User $following, Group $group): self
+    {
+        return new self(self::TYPE_FOLLOW_POST_COMMENTED, $following, $group);
+    }
+
+    public static function createOwnPostCommented(Group $group): self
+    {
+        return new self(self::TYPE_OWN_POST_COMMENTED, null, $group);
+    }
+
+    public static function createGroupPermissionsChanged(Group $group): self
+    {
+        return new self(self::TYPE_GROUP_PERMISSIONS_CHANGED, null, $group);
+    }
+
+    public static function createCommentMentioned(Group $group): self
+    {
+        return new self(self::TYPE_COMMENT_MENTIONED, null, $group);
+    }
+
+    public static function createPostMentioned(Group $group): self
+    {
+        return new self(self::TYPE_POST_MENTIONED, null, $group);
+    }
+
     public function __construct($type = null, User $following = null, Group $group = null)
     {
         $this->type = $type;

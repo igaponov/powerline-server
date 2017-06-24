@@ -249,7 +249,7 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
     abstract public function getType();
 
     /**
-     * @return LeaderContentRootInterface
+     * @return LeaderContentRootInterface|Group|Representative
      */
     abstract public function getOwner();
 
