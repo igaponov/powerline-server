@@ -13,16 +13,10 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Superuser;
 use Civix\CoreBundle\Entity\User;
 
-/**
- * @Vich\Uploadable
- */
 class OwnerData implements HasAvatarInterface
 {
     private $data;
 
-    /**
-     * @Vich\UploadableField(mapping="avatar_image", fileNameProperty="avatarFileName")
-     */
     private $avatar;
 
     private $avatarFileName;
@@ -106,7 +100,7 @@ class OwnerData implements HasAvatarInterface
             }
         }
 
-        return new FirstLetterDefaultAvatar('@');
+        return new FirstLetterDefaultAvatar('X');
     }
 
     private function getDefaultAvatarForAdmin()

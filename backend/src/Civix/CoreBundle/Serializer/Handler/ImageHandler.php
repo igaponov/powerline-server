@@ -6,8 +6,8 @@ use Imgix\UrlBuilder;
 use JMS\Serializer\Context;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\GraphNavigator;
-use JMS\Serializer\JsonSerializationVisitor;
 use Civix\CoreBundle\Serializer\Type\Image;
+use JMS\Serializer\VisitorInterface;
 use Vich\UploaderBundle\Storage\StorageInterface;
 
 class ImageHandler implements SubscribingHandlerInterface
@@ -42,7 +42,7 @@ class ImageHandler implements SubscribingHandlerInterface
         $this->urlBuilder = $urlBuilder;
     }
 
-    public function serialize(JsonSerializationVisitor $visitor, Image $image, array $type, Context $context)
+    public function serialize(VisitorInterface $visitor, Image $image, array $type, Context $context)
     {
         if (!$image->isAvailable()) {
             return null;

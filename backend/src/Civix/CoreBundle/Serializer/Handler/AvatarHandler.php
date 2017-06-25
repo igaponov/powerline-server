@@ -7,9 +7,9 @@ use Civix\CoreBundle\Entity\User;
 use JMS\Serializer\Context;
 use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
-use JMS\Serializer\JsonSerializationVisitor;
 use JMS\Serializer\JsonDeserializationVisitor;
 use Civix\CoreBundle\Serializer\Type\Avatar;
+use JMS\Serializer\VisitorInterface;
 
 class AvatarHandler implements SubscribingHandlerInterface
 {
@@ -51,7 +51,7 @@ class AvatarHandler implements SubscribingHandlerInterface
         $this->scheme = $scheme;
     }
 
-    public function serialize(JsonSerializationVisitor $visitor, Avatar $avatar, array $type, Context $context)
+    public function serialize(VisitorInterface $visitor, Avatar $avatar, array $type, Context $context)
     {
         $scheme = $this->scheme ? $this->scheme.'://' : null;
         if (!$avatar->isPrivacy()) {

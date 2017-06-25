@@ -1,0 +1,4 @@
+Civix\CoreBundle\Serializer\Type\RepresentativeOwnerData:
+    avatar:
+        mapping: avatar_representative
+        filename_property: avatarFileName

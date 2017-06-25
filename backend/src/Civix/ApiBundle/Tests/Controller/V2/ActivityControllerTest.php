@@ -82,6 +82,15 @@ class ActivityControllerTest extends WebTestCase
 		$this->assertSame(8, $data['totalItems']);
 		$this->assertCount(8, $data['payload']);
         foreach ($data['payload'] as $item) {
+            if ($item['owner']['type'] === 'user') {
+                $this->assertNotContains('src', $item['owner']['avatar_file_path']);
+            } elseif ($item['owner']['type'] === 'group') {
+                $this->assertContains('src', $item['owner']['avatar_file_path']);
+            } elseif ($item['owner']['type'] === 'representative') {
+                $this->assertContains('representative', $item['owner']['avatar_file_path']);
+            } else {
+                $this->fail('Unexpected owner data type '.$item['owner']['type']);
+            }
             $this->assertNotEmpty($item['user']);
             $this->assertArrayHasKey('group', $item);
             if ($item['entity']['type'] == 'user-petition') {
