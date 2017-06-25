@@ -399,6 +399,28 @@ class PostController extends FOSRestController
     /**
      * List analytics data for a given post.
      *
+     * **Output format**
+     *
+     *     {
+     *         total: {
+     *             upvotes: 20,
+     *             downvotes: 10
+     *         },
+     *         representatives: [
+     *             {
+     *                 id: 1,
+     *                 first_name: 'John',
+     *                 last_name: 'Dow',
+     *                 official_title: 'Vice President',
+     *                 upvotes: 10,
+     *                 downvotes: 7,
+     *                 user: true,
+     *                 author: false
+     *             },
+     *             //...
+     *         ]
+     *     }
+     *
      * @Route("/{id}/analytics")
      * @Method("GET")
      *
