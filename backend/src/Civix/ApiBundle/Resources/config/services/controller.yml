@@ -13,3 +13,7 @@ services:
             - '@civix_core.group_manager'
             - '@civix_core.service.avatar_manager'
             - '@form.factory'
+
+    Civix\ApiBundle\Controller\V2\Group\TagController:
+        class: Civix\ApiBundle\Controller\V2\Group\TagController
+        arguments: ['@civix_core.group_manager']
