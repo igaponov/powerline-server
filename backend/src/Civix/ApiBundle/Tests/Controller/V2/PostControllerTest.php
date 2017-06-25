@@ -1,6 +1,7 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
+use Civix\CoreBundle\Entity\CiceroRepresentative;
 use Civix\CoreBundle\Entity\Karma;
 use Civix\CoreBundle\Entity\Report\PostResponseReport;
 use Civix\CoreBundle\Entity\SocialActivity;
@@ -8,6 +9,7 @@ use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Service\PostManager;
 use Civix\CoreBundle\Test\SocialActivityTester;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadCiceroRepresentativeData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostHashTagData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
@@ -698,6 +700,72 @@ class PostControllerTest extends WebTestCase
                 $this->assertEmpty($data[$k]['districts']);
                 $this->assertEmpty($data[$k]['representatives']);
             }
+        }
+    }
+
+    public function testGetPostAnalyticsIsOk()
+    {
+        $repository = $this->loadFixtures([
+            LoadPostVoteData::class,
+            LoadCiceroRepresentativeData::class,
+            LoadGroupManagerData::class,
+        ])->getReferenceRepository();
+        /** @var Post $post */
+        $post = $repository->getReference('post_1');
+        $vote1 = [
+            'upvotes' => '1',
+            'downvotes' => '0',
+            'user' => '0',
+            'author' => '1',
+        ];
+        $vote2 = [
+            'upvotes' => '0',
+            'downvotes' => '1',
+            'user' => '1',
+            'author' => '0',
+        ];
+        $results = [
+            array_merge([
+                'representative' => $repository->getReference('cicero_representative_jb'),
+
+            ], $vote1),
+            array_merge([
+                'representative' => $repository->getReference('cicero_representative_kg'),
+
+            ], $vote2),
+            array_merge([
+                'representative' => $repository->getReference('cicero_representative_eh'),
+
+            ], $vote2),
+            array_merge([
+                'representative' => $repository->getReference('cicero_representative_rm'),
+
+            ], $vote2),
+            array_merge([
+                'representative' => $repository->getReference('cicero_representative_bo'),
+
+            ], $vote1),
+        ];
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/'.$post->getId().'/analytics', [], [], ['HTTP_Authorization'=>'Bearer user2']);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame(['upvotes' => '1', 'downvotes' => '1'], $data['total']);
+        /** @var array $representatives */
+        $representatives = $data['representatives'];
+        $this->assertCount(5, $representatives);
+        foreach ($representatives as $key => $item) {
+            /** @var CiceroRepresentative $representative */
+            $representative = $results[$key]['representative'];
+            $this->assertEquals($representative->getId(), $item['id']);
+            $this->assertSame($representative->getFirstName(), $item['first_name']);
+            $this->assertSame($representative->getLastName(), $item['last_name']);
+            $this->assertSame($representative->getOfficialTitle(), $item['official_title']);
+            $this->assertSame($results[$key]['upvotes'], $item['upvotes']);
+            $this->assertSame($results[$key]['downvotes'], $item['downvotes']);
+            $this->assertSame($results[$key]['user'], $item['user']);
+            $this->assertSame($results[$key]['author'], $item['author']);
         }
     }
 
