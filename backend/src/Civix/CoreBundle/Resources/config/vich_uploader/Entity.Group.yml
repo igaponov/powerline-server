@@ -2,3 +2,6 @@ Civix\CoreBundle\Entity\Group:
     avatar:
         mapping: avatar_group
         filename_property: avatarFileName
+    banner.file:
+        mapping: banner_group
+        filename_property: banner.name

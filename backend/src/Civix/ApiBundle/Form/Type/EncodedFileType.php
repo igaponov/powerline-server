@@ -23,23 +23,27 @@ class EncodedFileType extends AbstractType
         $this->converter = $converter;
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->addEventListener(
             FormEvents::PRE_SUBMIT,
-            function (FormEvent $event) {
+            function (FormEvent $event) use ($options) {
                 $data = $event->getData();
                 $data = $this->converter->convert((string)$data);
                 if ($data) {
-                    $event->setData(new TempFile($data));
+                    $data = new TempFile($data);
+                    if ($options['data_class'] === \Civix\CoreBundle\Entity\File::class) {
+                        $data = new \Civix\CoreBundle\Entity\File($data);
+                    }
                 } else {
-                    $event->setData($event->getForm()->getData());
+                    $data = $event->getForm()->getData();
                 }
+                $event->setData($data);
             }
         );
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => File::class,
@@ -48,7 +52,7 @@ class EncodedFileType extends AbstractType
         ]);
     }
 
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'encoded_file';
     }

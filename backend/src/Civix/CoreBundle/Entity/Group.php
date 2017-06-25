@@ -9,6 +9,7 @@ use Civix\CoreBundle\Model\Avatar\DefaultAvatar;
 use Civix\CoreBundle\Model\Avatar\DefaultAvatarInterface;
 use Civix\CoreBundle\Model\Avatar\FirstLetterDefaultAvatar;
 use Civix\CoreBundle\Serializer\Type\ContentRemaining;
+use Civix\CoreBundle\Serializer\Type\Image;
 use Civix\CoreBundle\Serializer\Type\TotalMembers;
 use Civix\CoreBundle\Serializer\Type\UserRole;
 use DateTime;
@@ -454,6 +455,13 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     private $links;
 
     /**
+     * @var File
+     *
+     * @ORM\Embedded(class="Civix\CoreBundle\Entity\File", columnPrefix="")
+     */
+    protected $banner;
+
+    /**
      * @return array
      */
     public static function getOfficialTypes(): array
@@ -548,6 +556,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
         $this->children = new ArrayCollection();
         $this->links = new ArrayCollection();
         $this->createdAt = new DateTime();
+        $this->banner = new File();
     }
 
     /**
@@ -612,6 +621,23 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     public function getAvatarFilePath(): Avatar
     {
         return new Avatar($this);
+    }
+
+    /**
+     * Get banner image
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups(
+     *      {"api-activities", "api-poll","api-groups", "api-info", "api-search",
+     *      "api-petitions-list", "api-petitions-info", "api-invites", "api-poll-public"}
+     * )
+     * @Serializer\Type("Image")
+     * @Serializer\SerializedName("banner")
+     * @return Image
+     */
+    public function getBannerImage(): Image
+    {
+        return new Image($this, 'banner.file', null, false);
     }
 
     /**
@@ -1809,6 +1835,25 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     public function removeLink(Link $link): Group
     {
         $this->links->removeElement($link);
+
+        return $this;
+    }
+
+    /**
+     * @return File
+     */
+    public function getBanner(): File
+    {
+        return $this->banner;
+    }
+
+    /**
+     * @param File $banner
+     * @return Group
+     */
+    public function setBanner(File $banner): Group
+    {
+        $this->banner = $banner;
 
         return $this;
     }
