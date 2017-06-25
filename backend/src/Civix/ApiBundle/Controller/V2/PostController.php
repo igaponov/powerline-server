@@ -8,6 +8,7 @@ use Civix\ApiBundle\Form\Type\VoteType;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\Post\Vote;
 use Civix\CoreBundle\QueryFunction\PostResponsesQuery;
+use Civix\CoreBundle\QueryFunction\PostVoteAnalyticsQuery;
 use Civix\CoreBundle\Service\PostManager;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
@@ -393,5 +394,36 @@ class PostController extends FOSRestController
         $query = new PostResponsesQuery($this->em);
 
         return $query($post);
+    }
+
+    /**
+     * List analytics data for a given post.
+     *
+     * @Route("/{id}/analytics")
+     * @Method("GET")
+     *
+     * @SecureParam("post", permission="view")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Posts",
+     *     description="List the analytics for a given post.",
+     *     output="array",
+     *     statusCodes={
+     *         403="Access Denied",
+     *         404="Question Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Post $post
+     *
+     * @return array
+     */
+    public function getVotesAnalyticsAction(Post $post)
+    {
+        $query = new PostVoteAnalyticsQuery($this->em->getConnection());
+
+        return $query($post, $this->getUser());
     }
 }
