@@ -6,3 +6,10 @@ services:
     Civix\ApiBundle\Controller\V2\GroupLinksController:
         class: Civix\ApiBundle\Controller\V2\GroupLinksController
         arguments: ['@doctrine.orm.entity_manager', '@form.factory']
+
+    Civix\ApiBundle\Controller\V2\Group\BannerController:
+        class: Civix\ApiBundle\Controller\V2\Group\BannerController
+        arguments:
+            - '@civix_core.group_manager'
+            - '@civix_core.service.avatar_manager'
+            - '@form.factory'
