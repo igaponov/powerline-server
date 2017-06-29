@@ -5,6 +5,7 @@ namespace Civix\CoreBundle\Entity;
 use Civix\CoreBundle\Entity\Group\AdvancedAttributes;
 use Civix\CoreBundle\Entity\Group\GroupField;
 use Civix\CoreBundle\Entity\Group\Link;
+use Civix\CoreBundle\Entity\Group\Tag;
 use Civix\CoreBundle\Model\Avatar\DefaultAvatar;
 use Civix\CoreBundle\Model\Avatar\DefaultAvatarInterface;
 use Civix\CoreBundle\Model\Avatar\FirstLetterDefaultAvatar;
@@ -460,6 +461,13 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @ORM\Embedded(class="Civix\CoreBundle\Entity\File", columnPrefix="")
      */
     protected $banner;
+
+    /**
+     * @var Tag[]|ArrayCollection
+     *
+     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\Group\Tag", cascade={"persist"})
+     */
+    private $tags;
 
     /**
      * @return array
@@ -1854,6 +1862,25 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     public function setBanner(File $banner): Group
     {
         $this->banner = $banner;
+
+        return $this;
+    }
+
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(Tag $tag): Group
+    {
+        $this->tags[] = $tag;
+
+        return $this;
+    }
+
+    public function removeTag(Tag $tag): Group
+    {
+        $this->tags->removeElement($tag);
 
         return $this;
     }
