@@ -4,6 +4,8 @@ namespace Tests\Civix\ApiBundle;
 
 use Nelmio\ApiDocBundle\Form\Extension\DescriptionFormTypeExtension;
 use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Validator\ConstraintValidatorFactory;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -58,9 +60,25 @@ abstract class FormIntegrationTestCase extends TestCase
 
     protected function getValidator(): ValidatorInterface
     {
-        return Validation::createValidatorBuilder()
-            ->enableAnnotationMapping()
-            ->getValidator();
+        $validatorBuilder = Validation::createValidatorBuilder()->enableAnnotationMapping();
+        $constraints = $this->getConstraints();
+        if (!empty($constraints)) {
+            $container = new Container();
+            $validators = [];
+            foreach ($constraints as $key => $constraint) {
+                $container->set($key, $constraint);
+                $validators[$key] = $key;
+            }
+            $validatorFactory = new ConstraintValidatorFactory($container, $validators);
+            $validatorBuilder->setConstraintValidatorFactory($validatorFactory);
+        }
+
+        return $validatorBuilder->getValidator();
+    }
+
+    protected function getConstraints(): array
+    {
+        return [];
     }
 
     protected function getExtensions(): array

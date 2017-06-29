@@ -17,3 +17,7 @@ services:
     Civix\ApiBundle\Controller\V2\Group\TagController:
         class: Civix\ApiBundle\Controller\V2\Group\TagController
         arguments: ['@civix_core.group_manager']
+
+    Civix\ApiBundle\Controller\V2\GroupTagsController:
+        class: Civix\ApiBundle\Controller\V2\GroupTagsController
+        arguments: ['@doctrine.orm.entity_manager', '@form.factory']

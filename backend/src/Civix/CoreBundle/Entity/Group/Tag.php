@@ -4,11 +4,17 @@ namespace Civix\CoreBundle\Entity\Group;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Table(name="group_tags", options={"charset"="utf8mb4", "collate"="utf8mb4_unicode_ci", "row_format"="DYNAMIC"})
- * @ORM\Entity()
+ * @ORM\Table(
+ *     name="group_tags",
+ *     options={"charset"="utf8mb4", "collate"="utf8mb4_unicode_ci", "row_format"="DYNAMIC"},
+ *     uniqueConstraints={@ORM\UniqueConstraint(columns={"name"})}
+ * )
+ * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\Group\TagRepository")
+ * @UniqueEntity(fields={"name"})
  * @Serializer\ExclusionPolicy("ALL")
  */
 class Tag
