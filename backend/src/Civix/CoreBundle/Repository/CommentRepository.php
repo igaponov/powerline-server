@@ -76,4 +76,14 @@ abstract class CommentRepository extends EntityRepository
 
         return $qb->getQuery();
     }
+
+    public function findOneForRate($id)
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.id = :id')
+            ->setParameter(':id', $id)
+            ->andWhere('c.user IS NOT NULL')
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }
