@@ -1,10 +1,9 @@
 <?php
 
-namespace Civix\CoreBundle\Tests\EventListener;
+namespace Tests\Civix\CoreBundle\Service;
 
-use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Event\UserEvent;
+use Civix\CoreBundle\Service\UserLocalGroupManager;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadLocalGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserLocalGroupData;
@@ -14,48 +13,53 @@ use Geocoder\Model\AddressCollection;
 use Geocoder\Model\AdminLevel;
 use Geocoder\Model\AdminLevelCollection;
 use Geocoder\Model\Country;
+use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Psr\Log\LoggerInterface;
 
-class UserLocalGroupSubscriberTest extends WebTestCase
+class UserLocalGroupManagerTest extends WebTestCase
 {
-    public function testCreateAllNewGroups()
+    public function testCreateAllNewGroups(): void
     {
         $repository = $this->loadFixtures([LoadUserData::class])->getReferenceRepository();
         /** @var User $user */
         $user = $repository->getReference('user_1');
-        $groups = $this->handleEvent($this->getUSAddressCollection(), $user);
+        $this->join($this->getUSAddressCollection(), $user);
+        $groups = $user->getGroups();
         $this->assertCount(3, $groups);
-        $this->assertEquals('US', $groups[1]->getAcronym());
-        $this->assertEquals('KS', $groups[2]->getAcronym());
-        $this->assertEquals('Bucklin', $groups[3]->getOfficialName());
+        $this->assertEquals('US', $groups[0]->getAcronym());
+        $this->assertEquals('KS', $groups[1]->getAcronym());
+        $this->assertEquals('Bucklin', $groups[2]->getOfficialName());
     }
 
-    public function testCreateAllNewGroupsWithEU()
+    public function testCreateAllNewGroupsWithEU(): void
     {
         $repository = $this->loadFixtures([LoadUserData::class])->getReferenceRepository();
         /** @var User $user */
         $user = $repository->getReference('user_1');
-        $groups = $this->handleEvent($this->getEUAddressCollection(), $user);
+        $this->join($this->getEUAddressCollection(), $user);
+        $groups = $user->getGroups();
         $this->assertCount(4, $groups);
-        $this->assertEquals('EU', $groups[1]->getAcronym());
-        $this->assertEquals('ES', $groups[2]->getAcronym());
-        $this->assertEquals('Comunidad de Madrid', $groups[3]->getAcronym());
-        $this->assertEquals('Madrid', $groups[4]->getOfficialName());
+        $this->assertEquals('EU', $groups[0]->getAcronym());
+        $this->assertEquals('ES', $groups[1]->getAcronym());
+        $this->assertEquals('Comunidad de Madrid', $groups[2]->getAcronym());
+        $this->assertEquals('Madrid', $groups[3]->getOfficialName());
     }
 
-    public function testCreateAllNewGroupsWithAU()
+    public function testCreateAllNewGroupsWithAU(): void
     {
         $repository = $this->loadFixtures([LoadUserData::class])->getReferenceRepository();
         /** @var User $user */
         $user = $repository->getReference('user_1');
-        $groups = $this->handleEvent($this->getAUAddressCollection(), $user);
+        $this->join($this->getAUAddressCollection(), $user);
+        $groups = $user->getGroups();
         $this->assertCount(4, $groups);
-        $this->assertEquals('AFU', $groups[1]->getAcronym());
-        $this->assertEquals('EG', $groups[2]->getAcronym());
-        $this->assertEquals('Cairo Governorate', $groups[3]->getAcronym());
-        $this->assertEquals('Cairo', $groups[4]->getOfficialName());
+        $this->assertEquals('AFU', $groups[0]->getAcronym());
+        $this->assertEquals('EG', $groups[1]->getAcronym());
+        $this->assertEquals('Cairo Governorate', $groups[2]->getAcronym());
+        $this->assertEquals('Cairo', $groups[3]->getOfficialName());
     }
 
-    public function testCreateExistentGroups()
+    public function testCreateExistentGroups(): void
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
@@ -66,14 +70,15 @@ class UserLocalGroupSubscriberTest extends WebTestCase
         $us = $repository->getReference('local_group_us');
         $ks = $repository->getReference('local_group_ks');
         $bu = $repository->getReference('local_group_bu');
-        $groups = $this->handleEvent($this->getUSAddressCollection(), $user);
+        $this->join($this->getUSAddressCollection(), $user);
+        $groups = $user->getGroups();
         $this->assertCount(3, $groups);
-        $this->assertEquals($us->getId(), $groups[1]->getId());
-        $this->assertEquals($ks->getId(), $groups[2]->getId());
-        $this->assertEquals($bu->getId(), $groups[3]->getId());
+        $this->assertEquals($us->getId(), $groups[0]->getId());
+        $this->assertEquals($ks->getId(), $groups[1]->getId());
+        $this->assertEquals($bu->getId(), $groups[2]->getId());
     }
 
-    public function testUpdateExistentGroups()
+    public function testUpdateExistentGroups(): void
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
@@ -84,14 +89,15 @@ class UserLocalGroupSubscriberTest extends WebTestCase
         $us = $repository->getReference('local_group_us');
         $ks = $repository->getReference('local_group_ks');
         $bu = $repository->getReference('local_group_bu');
-        $groups = $this->handleEvent($this->getUSAddressCollection(), $user);
+        $this->join($this->getUSAddressCollection(), $user);
+        $groups = $user->getGroups();
         $this->assertCount(3, $groups);
-        $this->assertEquals($us->getId(), $groups[1]->getId());
-        $this->assertEquals($ks->getId(), $groups[2]->getId());
-        $this->assertEquals($bu->getId(), $groups[3]->getId());
+        $this->assertEquals($us->getId(), $groups[0]->getId());
+        $this->assertEquals($ks->getId(), $groups[1]->getId());
+        $this->assertEquals($bu->getId(), $groups[2]->getId());
     }
 
-    public function testUpdateExistentGroupsWithEUEmptyLocality()
+    public function testUpdateExistentGroupsWithEUEmptyLocality(): void
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
@@ -102,7 +108,7 @@ class UserLocalGroupSubscriberTest extends WebTestCase
         $eu = $repository->getReference('local_group_eu');
         $es = $repository->getReference('local_group_es');
         $cm = $repository->getReference('local_group_cm');
-        $groups = $this->handleEvent(new AddressCollection(
+        $this->join(new AddressCollection(
             [
                 new Address(
                     null, null, null, null, null, null, null, new AdminLevelCollection(
@@ -115,13 +121,14 @@ class UserLocalGroupSubscriberTest extends WebTestCase
                 new Address(),
             ]
         ), $user);
+        $groups = $user->getGroups();
         $this->assertCount(3, $groups);
-        $this->assertEquals($eu->getId(), $groups[4]->getId());
-        $this->assertEquals($es->getId(), $groups[5]->getId());
-        $this->assertEquals($cm->getId(), $groups[6]->getId());
+        $this->assertEquals($eu->getId(), $groups[0]->getId());
+        $this->assertEquals($es->getId(), $groups[1]->getId());
+        $this->assertEquals($cm->getId(), $groups[2]->getId());
     }
 
-    public function testUpdateExistentGroupsWithAUChangedLocality()
+    public function testUpdateExistentGroupsWithAUChangedLocality(): void
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
@@ -145,34 +152,34 @@ class UserLocalGroupSubscriberTest extends WebTestCase
                 new Address(),
             ]
         );
-        $groups = $this->handleEvent($collection, $user);
+        $this->join($collection, $user);
+        $groups = $user->getGroups();
         $this->assertCount(4, $groups);
-        $this->assertEquals($au->getId(), $groups[8]->getId());
-        $this->assertEquals($eg->getId(), $groups[9]->getId());
-        $this->assertEquals($cg->getId(), $groups[10]->getId());
-        $this->assertEquals($sh->getId(), $groups[12]->getId());
+        $this->assertEquals($au->getId(), $groups[0]->getId());
+        $this->assertEquals($eg->getId(), $groups[1]->getId());
+        $this->assertEquals($cg->getId(), $groups[2]->getId());
+        $this->assertEquals($sh->getId(), $groups[3]->getId());
     }
 
     /**
      * @param AddressCollection $collection
      * @param User $user
-     * @return \Civix\CoreBundle\Entity\Group[]
      */
-    private function handleEvent(AddressCollection $collection, User $user)
+    private function join(AddressCollection $collection, User $user): void
     {
         $geocoder = $this->createMock(Geocoder::class);
         $geocoder->expects($this->once())
             ->method('geocode')
             ->willReturn($collection);
         $container = $this->getContainer();
-        $container->set('bazinga_geocoder.geocoder', $geocoder);
-        $event = new UserEvent($user);
-        $container
-            ->get('civix_core.event_listener.user_local_group_subscriber')
-            ->joinLocalGroups($event);
-        return $container
-            ->get('civix_core.repository.group_repository')
-            ->getGeoGroupsByUser($user);
+        $logger = $this->createMock(LoggerInterface::class);
+        $manager = new UserLocalGroupManager(
+            $geocoder,
+            $container->get('doctrine.orm.entity_manager'),
+            $container->get('civix_core.repository.group_repository'),
+            $logger
+        );
+        $manager->joinLocalGroups($user);
     }
 
     /**
@@ -184,12 +191,12 @@ class UserLocalGroupSubscriberTest extends WebTestCase
             [
                 new Address(
                     null, null, null, null, '67834', 'Bucklin', null, new AdminLevelCollection(
-                        [
-                            new AdminLevel(1, 'Kansas', 'KS'),
-                            new AdminLevel(2, 'Ford County', 'Ford County'),
-                            new AdminLevel(3, 'Bucklin', 'Bucklin'),
-                        ]
-                    ), new Country('United States', 'US')
+                    [
+                        new AdminLevel(1, 'Kansas', 'KS'),
+                        new AdminLevel(2, 'Ford County', 'Ford County'),
+                        new AdminLevel(3, 'Bucklin', 'Bucklin'),
+                    ]
+                ), new Country('United States', 'US')
                 ),
                 new Address(),
             ]
@@ -205,11 +212,11 @@ class UserLocalGroupSubscriberTest extends WebTestCase
             [
                 new Address(
                     null, null, null, null, '28071', 'Madrid', null, new AdminLevelCollection(
-                        [
-                            new AdminLevel(1, 'Comunidad de Madrid', 'Comunidad de Madrid'),
-                            new AdminLevel(2, 'Madrid', 'M'),
-                        ]
-                    ), new Country('Spain', 'ES')
+                    [
+                        new AdminLevel(1, 'Comunidad de Madrid', 'Comunidad de Madrid'),
+                        new AdminLevel(2, 'Madrid', 'M'),
+                    ]
+                ), new Country('Spain', 'ES')
                 ),
                 new Address(),
             ]
@@ -225,10 +232,10 @@ class UserLocalGroupSubscriberTest extends WebTestCase
             [
                 new Address(
                     null, null, null, null, null, 'Cairo', null, new AdminLevelCollection(
-                        [
-                            new AdminLevel(1, 'Cairo Governorate', 'Cairo Governorate'),
-                        ]
-                    ), new Country('Egypt', 'EG')
+                    [
+                        new AdminLevel(1, 'Cairo Governorate', 'Cairo Governorate'),
+                    ]
+                ), new Country('Egypt', 'EG')
                 ),
                 new Address(),
             ]

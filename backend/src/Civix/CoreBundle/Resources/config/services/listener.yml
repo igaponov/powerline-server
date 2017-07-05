@@ -38,11 +38,7 @@ services:
     civix_core.event_listener.user_local_group_subscriber:
             class: Civix\CoreBundle\EventListener\UserLocalGroupSubscriber
             arguments:
-                - '@geocoder'
-                - '@doctrine.orm.entity_manager'
-                - '@civix_core.repository.group_repository'
-                - '@civix_core.group_manager'
-                - '@logger'
+                - '@civix_core.service.user_local_group_manager'
             tags:
                 - { name: kernel.event_subscriber }
 

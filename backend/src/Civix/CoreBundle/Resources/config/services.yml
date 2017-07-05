@@ -45,6 +45,19 @@ services:
             - "@civix_core.converter_source.base64"
             - "@civix_core.converter_source.url"
 
+    civix_core.data_collector.rabbit_mqdata_collector:
+        class: Civix\CoreBundle\DataCollector\RabbitMQDataCollector
+        arguments: ['@old_sound_rabbit_mq.async_event_producer']
+        tags:
+            - { name: data_collector, id: rabbit_mq }
+
+    civix_core.service.user_local_group_manager:
+        class: Civix\CoreBundle\Service\UserLocalGroupManager
+        arguments:
+            - '@geocoder'
+            - '@doctrine.orm.entity_manager'
+            - '@civix_core.repository.group_repository'
+            - '@logger'
 
 #    civix_core.uploader.metadata.file_locator:
 #        class: Metadata\Driver\FileLocator
