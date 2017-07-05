@@ -27,12 +27,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  * })
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\UserRepository")
  * @UniqueEntity(
- *      fields={"username"},
- *      groups={"registration", "profile"}
- * )
- * @UniqueEntity(
- *      fields={"email"},
- *      groups={"registration", "profile-email"}
+ *      fields={"username", "email"},
+ *      groups={"registration", "profile"},
+ *      repositoryMethod="findByUsernameOrEmail"
  * )
  * @UniqueEntity(
  *      fields={"facebookId"},
@@ -1504,7 +1501,7 @@ class User implements
     /**
      * Return joined to user groups.
      *
-     * @return Collection
+     * @return Group[]|Collection
      */
     public function getGroups(): Collection
     {
