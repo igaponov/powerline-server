@@ -18,7 +18,7 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service class="Civix\ApiBundle\EventListener\UserEventSubscriber" id="civix_api.event_listener.user_event_subscriber">
+        <service class="Civix\CoreBundle\EventListener\UserEventSubscriber" id="civix_core.event_listener.user_event_subscriber">
             <argument id="civix_core.email_sender" type="service"/>
             <argument id="doctrine.orm.entity_manager" type="service"/>
             <argument type="string">%auto_invite_group_name%</argument>

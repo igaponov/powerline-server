@@ -20,7 +20,7 @@ class GeocoderSubscriber implements EventSubscriberInterface
      */
     private $logger;
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             UserEvents::REGISTRATION => 'setCoordinates',
@@ -33,7 +33,7 @@ class GeocoderSubscriber implements EventSubscriberInterface
         $this->logger = $logger;
     }
 
-    public function setCoordinates(UserEvent $event)
+    public function setCoordinates(UserEvent $event): void
     {
         $user = $event->getUser();
         $query = $user->getAddressQuery();
@@ -42,8 +42,8 @@ class GeocoderSubscriber implements EventSubscriberInterface
             $collection = $this->geocoder->geocode($query);
         } catch (Exception $e) {
             $this->logger->critical('Geocoder error has occurred.', [
-                'exception' => $e,
                 'query' => $query,
+                'exception' => $e,
             ]);
             return;
         }

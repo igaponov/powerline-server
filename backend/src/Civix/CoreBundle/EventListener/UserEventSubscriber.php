@@ -1,10 +1,11 @@
 <?php
-namespace Civix\ApiBundle\EventListener;
+namespace Civix\CoreBundle\EventListener;
 
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Service\EmailSender;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class UserEventSubscriber implements EventSubscriberInterface
@@ -14,7 +15,7 @@ class UserEventSubscriber implements EventSubscriberInterface
      */
     private $emailSender;
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
     private $entityManager;
     /**
@@ -24,7 +25,7 @@ class UserEventSubscriber implements EventSubscriberInterface
 
     public function __construct(
         EmailSender $emailSender,
-        EntityManager $entityManager,
+        EntityManagerInterface $entityManager,
         $groupName
     )
     {
@@ -33,18 +34,18 @@ class UserEventSubscriber implements EventSubscriberInterface
         $this->groupName = $groupName;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             UserEvents::REGISTRATION => 'sendInviteFromGroup',
         ];
     }
 
-    public function sendInviteFromGroup(UserEvent $event)
+    public function sendInviteFromGroup(UserEvent $event): void
     {
         $user = $event->getUser();
         $group = $this->entityManager
-            ->getRepository('CivixCoreBundle:Group')
+            ->getRepository(Group::class)
             ->findOneBy(['officialName' => $this->groupName]);
         if ($group) {
             $this->emailSender->sendInviteFromGroup($user->getEmail(), $group);
