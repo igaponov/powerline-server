@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  *      @ORM\UniqueConstraint(name="unique_group", columns={"group_id", "email"})
  *   }
  * )
- * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\DeferredInvitesRepository")
+ * @ORM\Entity()
  * @ORM\HasLifecycleCallbacks()
  */
 class DeferredInvites
