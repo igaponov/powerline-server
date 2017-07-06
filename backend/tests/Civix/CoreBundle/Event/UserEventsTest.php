@@ -4,6 +4,7 @@ namespace Tests\Civix\CoreBundle\Event;
 
 use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
+use Civix\CoreBundle\EventListener\CiceroSubscriber;
 use Civix\CoreBundle\EventListener\DiscountCodeSubscriber;
 use Civix\CoreBundle\EventListener\GeocoderSubscriber;
 use Civix\CoreBundle\EventListener\MailerSubscriber;
@@ -20,9 +21,10 @@ class UserEventsTest extends EventsTestCase
             [ReportSubscriber::class, 'createUserReport'],
             [GeocoderSubscriber::class, 'setCoordinates'],
             [UserLocalGroupSubscriber::class, 'joinLocalGroups'],
+            [CiceroSubscriber::class, 'updateDistrictsIds'],
             [MailerSubscriber::class, 'sendRegistrationEmail'],
             [UserEventSubscriber::class, 'sendInviteFromGroup'],
         ];
-        $this->assertListeners(UserEvents::REGISTRATION, $expectedListeners, UserEvent::class);
+        $this->assertListeners(UserEvents::REGISTRATION, UserEvent::class, $expectedListeners);
     }
 }

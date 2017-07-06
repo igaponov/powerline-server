@@ -115,14 +115,14 @@ class SecureControllerTest extends WebTestCase
         return [
             [
                 array_replace($defaultParams, ['username' => 'user1']),
-                ['username' => 'This value is already used.'],
+                ['email' => 'This value is already used.'],
             ],
             [
                 array_replace($defaultParams, [
                     'email' => 'user1@example.com',
                     'email_confirm' => 'user1@example.com',
                 ]),
-                ['username' => 'This value is already used.'],
+                ['email' => 'This value is already used.'],
             ],
             [
                 ['email' => 'qwerty'],
@@ -167,6 +167,7 @@ class SecureControllerTest extends WebTestCase
             'avatar_file_name' => $path,
 		];
 		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
+		$client->enableProfiler();
         $container = $client->getContainer();
 		$client->request('POST', '/api/secure/registration', [], [], [], json_encode($params));
 		$response = $client->getResponse();
@@ -263,6 +264,7 @@ class SecureControllerTest extends WebTestCase
 			'birth' => $faker->date(),
 		];
 		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
+        $client->enableProfiler();
         $serviceId = 'civix_core.facebook_api';
         $mock = $this->getMockBuilder(FacebookApi::class)
             ->disableOriginalConstructor()

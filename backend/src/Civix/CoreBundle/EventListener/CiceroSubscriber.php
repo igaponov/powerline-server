@@ -3,12 +3,15 @@
 namespace Civix\CoreBundle\EventListener;
 
 use Civix\CoreBundle\Entity\Report\UserReport;
+use Civix\CoreBundle\Event\RepresentativeEvent;
+use Civix\CoreBundle\Event\RepresentativeEvents;
 use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Service\CiceroApi;
 use Civix\CoreBundle\Service\User\UserManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\GenericEvent;
 
 class CiceroSubscriber implements EventSubscriberInterface
 {
@@ -25,6 +28,8 @@ class CiceroSubscriber implements EventSubscriberInterface
     {
         return [
             UserEvents::REGISTRATION => 'updateDistrictsIds',
+            RepresentativeEvents::APPROVE => 'synchronizeRepresentative',
+            RepresentativeEvents::SYNCHRONIZE => 'synchronizeByStateCode',
         ];
     }
 
@@ -56,5 +61,15 @@ class CiceroSubscriber implements EventSubscriberInterface
                 ->upsertUserReport($user, $user->getFollowers()->count(), $representativeList, null, null, null, array_unique($districtList));
             $user->setUpdateProfileAt(new \DateTime());
         }
+    }
+
+    public function synchronizeRepresentative(RepresentativeEvent $event): void
+    {
+        $this->ciceroApi->synchronizeRepresentative($event->getRepresentative());
+    }
+
+    public function synchronizeByStateCode(GenericEvent $event): void
+    {
+        $this->ciceroApi->synchronizeByStateCode($event->getSubject());
     }
 }

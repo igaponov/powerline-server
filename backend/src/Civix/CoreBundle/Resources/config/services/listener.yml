@@ -47,3 +47,23 @@ services:
         arguments: ['@civix_core.image_manager', '@logger']
         tags:
             - { name: kernel.event_subscriber }
+
+    civix_core.event_listener.openstates_subscriber:
+        class: Civix\CoreBundle\EventListener\OpenstatesSubscriber
+        arguments: ['@civix_core.openstates_api']
+        tags:
+            - { name: kernel.event_subscriber }
+
+    civix_core.event_listener.congress_subscriber:
+        class: Civix\CoreBundle\EventListener\CongressSubscriber
+        arguments: ['@civix_core.congress_api']
+        tags:
+            - { name: kernel.event_subscriber }
+
+    civix_core.event_listener.cicero_subscriber:
+        class: Civix\CoreBundle\EventListener\CiceroSubscriber
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - '@civix_core.cicero_api'
+        tags:
+            - { name: kernel.event_subscriber }

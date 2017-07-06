@@ -4,7 +4,7 @@ namespace Civix\FrontBundle\Tests\Controller;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Representative;
-use Civix\CoreBundle\Service\Representative\RepresentativeManager;
+use Civix\CoreBundle\Service\CiceroApi;
 use Civix\FrontBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\FrontBundle\Tests\DataFixtures\ORM\LoadRepresentativeData;
 use Civix\FrontBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
@@ -85,7 +85,7 @@ class RepresentativeControllerTest extends WebTestCase
             LoadRepresentativeData::class,
         ])->getReferenceRepository();
         $representative = $repository->getReference('representative_1');
-        $service = $this->getMockBuilder(RepresentativeManager::class)
+        $service = $this->getMockBuilder(CiceroApi::class)
             ->disableOriginalConstructor()
             ->setMethods(['synchronizeRepresentative'])
             ->getMock();
@@ -95,7 +95,7 @@ class RepresentativeControllerTest extends WebTestCase
         $crawler = $client->request('GET', '/admin/representatives/approvals');
         $form = $crawler->selectButton('Approve')->form();
         $client->disableReboot();
-        $client->getContainer()->set('civix_core.representative_manager', $service);
+        $client->getContainer()->set('civix_core.cicero_api', $service);
         $client->submit($form);
         $response = $client->getResponse();
         $this->assertEquals(302, $response->getStatusCode(), $response->getContent());

@@ -28,8 +28,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\UserRepository")
  * @UniqueEntity(
  *      fields={"username", "email"},
- *      groups={"registration", "profile"},
- *      repositoryMethod="findByUsernameOrEmail"
+ *      groups={"registration", "profile-email"},
+ *      repositoryMethod="findByUsernameOrEmail",
+ *      errorPath="email"
  * )
  * @UniqueEntity(
  *      fields={"facebookId"},

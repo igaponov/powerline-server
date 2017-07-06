@@ -8,7 +8,9 @@ class EventsTestCase extends KernelTestCase
 {
     public function assertListeners($eventName, $eventClass, $expectedListeners): void
     {
-        $container = self::createKernel()->getContainer();
+        $kernel = self::createKernel();
+        $kernel->boot();
+        $container = $kernel->getContainer();
         $dispatcher = $container->get('event_dispatcher');
         $listeners = $dispatcher->getListeners($eventName);
         $this->assertCount(count($expectedListeners), $listeners);
