@@ -77,7 +77,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
     /**
      * @var User
      * @ORM\ManyToOne(targetEntity="\Civix\CoreBundle\Entity\User")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-comments-add"})
      */

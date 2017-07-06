@@ -121,9 +121,6 @@ class PostControllerTest extends WebTestCase
         $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM hash_tags');
         $this->assertCount($count, $hashTags);
         $this->assertCount($count, $data['cached_hash_tags']);
-        // check root comment
-        $body = $conn->fetchColumn('SELECT comment_body FROM post_comments WHERE post_id = ?', [$data['id']]);
-        $this->assertSame($data['body'], $body);
         // check activity
         $description = $conn->fetchColumn('SELECT description FROM activities WHERE post_id = ?', [$data['id']]);
         $this->assertSame($data['body'], $description);
