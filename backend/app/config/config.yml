@@ -303,6 +303,9 @@ nelmio_api_doc:
     name: Civix API documentation
     motd:
         template: CivixApiBundle::motd.html.twig
+    sandbox:
+        request_format:
+            method: accept_header
 
 bazinga_geocoder:
     providers:
