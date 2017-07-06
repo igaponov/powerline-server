@@ -55,6 +55,7 @@ class CreateCommentType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setRequired('em')
-            ->setAllowedTypes('em', EntityManager::class);
+            ->setAllowedTypes('em', [EntityManager::class, 'null'])
+            ->setDefault('em', null);
     }
 }
