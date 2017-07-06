@@ -7,10 +7,6 @@ use Civix\CoreBundle\Entity\BaseCommentRate;
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Comment;
 use Civix\CoreBundle\Entity\Poll\CommentRate;
-use Civix\CoreBundle\Entity\Poll\Question;
-use Civix\CoreBundle\Entity\Post;
-use Civix\CoreBundle\Entity\UserPetition;
-use Civix\CoreBundle\Entity\UserPetition\Comment as MicropetitionComment;
 use Civix\CoreBundle\Event\CommentEvent;
 use Civix\CoreBundle\Event\CommentEvents;
 use Civix\CoreBundle\Event\RateEvent;
@@ -94,35 +90,6 @@ class CommentManager
 
             return $this->saveComment($comment);
         }
-    }
-
-    public function addUserPetitionRootComment(UserPetition $petition)
-    {
-        $comment = new MicropetitionComment();
-        $comment->setPetition($petition);
-        $comment->setCommentBody($petition->getBody());
-
-        return $this->saveComment($comment);
-    }
-
-    public function addPostRootComment(Post $post)
-    {
-        $comment = new Post\Comment();
-        $comment->setPost($post);
-        $comment->setCommentBody($post->getBody());
-
-        return $this->saveComment($comment);
-    }
-
-    public function addPollRootComment(Question $question, $message = '')
-    {
-        $comment = new Comment();
-        $comment
-            ->setQuestion($question)
-            ->setCommentBody($message)
-        ;
-
-        return $this->saveComment($comment);
     }
 
     public function addComment(BaseComment $comment)

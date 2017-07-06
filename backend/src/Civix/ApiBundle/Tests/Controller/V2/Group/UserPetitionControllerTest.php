@@ -113,9 +113,6 @@ class UserPetitionControllerTest extends WebTestCase
         $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM hash_tags_petitions');
         $this->assertCount($count, $hashTags);
         $this->assertCount($count, $data['cached_hash_tags']);
-        // check root comment
-        $body = $conn->fetchColumn('SELECT comment_body FROM user_petition_comments WHERE petition_id = ?', [$data['id']]);
-        $this->assertSame($data['body'], $body);
         // check activity
         $description = $conn->fetchColumn('SELECT description FROM activities WHERE petition_id = ?', [$data['id']]);
         $this->assertSame($data['body'], $description);

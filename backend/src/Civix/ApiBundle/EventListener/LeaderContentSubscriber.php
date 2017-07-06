@@ -1,7 +1,6 @@
 <?php
 namespace Civix\ApiBundle\EventListener;
 
-use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
 use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
 use Civix\CoreBundle\Event\Poll\AnswerEvent;
 use Civix\CoreBundle\Event\Poll\QuestionEvent;
@@ -41,7 +40,6 @@ class LeaderContentSubscriber implements EventSubscriberInterface
             // petition
             UserPetitionEvents::PETITION_CREATE => [
                 ['addPetitionHashTags'],
-                ['addPetitionRootComment'],
                 ['subscribePetitionAuthor'],
             ],
             UserPetitionEvents::PETITION_UPDATE => 'addPetitionHashTags',
@@ -49,7 +47,6 @@ class LeaderContentSubscriber implements EventSubscriberInterface
             PostEvents::POST_PRE_CREATE => 'setPostExpire',
             PostEvents::POST_CREATE => [
                 ['addPostHashTags'],
-                ['addPostRootComment'],
                 ['subscribePostAuthor'],
             ],
             PostEvents::POST_UPDATE => 'addPostHashTags',
@@ -112,16 +109,6 @@ class LeaderContentSubscriber implements EventSubscriberInterface
     {
         $this->em->getRepository('CivixCoreBundle:HashTag')
             ->addForTaggableEntity($event->getQuestion());
-    }
-
-    public function addPetitionRootComment(UserPetitionEvent $event)
-    {
-        $this->commentManager->addUserPetitionRootComment($event->getPetition());
-    }
-
-    public function addPostRootComment(PostEvent $event)
-    {
-        $this->commentManager->addPostRootComment($event->getPost());
     }
 
     public function subscribePetitionAuthor(UserPetitionEvent $event)
