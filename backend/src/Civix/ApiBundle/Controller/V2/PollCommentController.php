@@ -102,7 +102,7 @@ class PollCommentController extends AbstractCommentController
      * @Route("/rate", requirements={"id"="\d+"})
      * @Method("POST")
      *
-     * @ParamConverter("comment", class="Civix\CoreBundle\Entity\Poll\Comment")
+     * @ParamConverter("comment", class="Civix\CoreBundle\Entity\Poll\Comment", options={"repository_method" = "findOneForRate"})
      * @ParamConverter("rate",
      *     class="Civix\CoreBundle\Entity\Poll\CommentRate",
      *     options={"mapping" = {"comment" = "comment", "loggedInUser" = "user"}},

@@ -102,7 +102,7 @@ class UserPetitionCommentController extends AbstractCommentController
      * @Route("/rate", requirements={"id"="\d+"})
      * @Method("POST")
      *
-     * @ParamConverter("comment", class="Civix\CoreBundle\Entity\UserPetition\Comment")
+     * @ParamConverter("comment", class="Civix\CoreBundle\Entity\UserPetition\Comment", options={"repository_method" = "findOneForRate"})
      * @ParamConverter("rate",
      *     class="Civix\CoreBundle\Entity\UserPetition\CommentRate",
      *     options={"mapping" = {"comment" = "comment", "loggedInUser" = "user"}},
