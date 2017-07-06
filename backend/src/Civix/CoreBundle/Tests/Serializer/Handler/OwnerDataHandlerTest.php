@@ -1,53 +1,68 @@
 <?php
 namespace Civix\CoreBundle\Tests\Serializer\Handler;
 
+use Civix\CoreBundle\Serializer\Handler\AvatarHandler;
+use Civix\CoreBundle\Serializer\Handler\OwnerDataHandler;
+use Civix\CoreBundle\Serializer\Type\GroupOwnerData;
 use Civix\CoreBundle\Serializer\Type\OwnerData;
+use Civix\CoreBundle\Serializer\Type\RepresentativeOwnerData;
+use Civix\CoreBundle\Serializer\Type\UserOwnerData;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\VisitorInterface;
+use PHPUnit\Framework\TestCase;
 
-class OwnerDataHandlerTest extends HandlerTestCase
+class OwnerDataHandlerTest extends TestCase
 {
-    protected function getHandler()
+    /**
+     * @param $ownerData
+     * @dataProvider getOwnerData
+     */
+    public function testSerialize(OwnerData $ownerData)
     {
-        return [
-            $this->getContainer()->get('civix_core.serializer.handler.owner_data_handler'),
-            'serialize'
-        ];
+        $url = 'avatars/'.$ownerData->getAvatarFileName();
+        $avatarHandler = $this->getAvatarHandlerMock();
+        $handler = new OwnerDataHandler($avatarHandler);
+        $context = new SerializationContext();
+        $visitor = $this->getVisitorMock();
+        $visitor->expects($this->once())
+            ->method('visitArray')
+            ->willReturnArgument(0);
+        $avatarHandler->expects($this->once())
+            ->method('serialize')
+            ->willReturn($url);
+        $json = $handler->serialize($visitor, $ownerData, [], $context);
+        $this->assertSame(
+            array_replace($ownerData->getData(), ['avatar_file_path' => $url]),
+            $json
+        );
     }
 
-    public function testSerialize()
+    public function getOwnerData(): array
     {
         $avatar = 'avatar1.jpeg';
-        $ownerData = new OwnerData(['type' => 'user', 'avatar_file_path' => $avatar]);
-        $this->assertSerialization(
-            [
-                'type' => 'user',
-                'avatar_file_path' => "https://powerline-dev.imgix.net/avatars/$avatar?ixlib=php-1.1.0",
-            ],
-            $ownerData
-        );
+        return [
+            'default' => [new OwnerData(['type' => 'deleted', 'avatar_file_path' => $avatar])],
+            'user' => [new UserOwnerData(['type' => 'user', 'avatar_file_path' => $avatar])],
+            'group' => [new GroupOwnerData(['type' => 'group', 'avatar_file_path' => $avatar])],
+            'representative' => [new RepresentativeOwnerData(['type' => 'representative', 'avatar_file_path' => $avatar])],
+        ];
     }
 
     /**
-     * @param $type
-     * @dataProvider getOwnerTypes
+     * @return VisitorInterface|\PHPUnit_Framework_MockObject_MockObject
      */
-    public function testSerializeDefault($type)
+    private function getVisitorMock()
     {
-        $ownerData = new OwnerData(['type' => $type]);
-        $this->assertSerialization(
-            [
-                'type' => $type,
-            ],
-            $ownerData
-        );
+        return $this->createMock(VisitorInterface::class);
     }
 
-    public function getOwnerTypes()
+    /**
+     * @return AvatarHandler|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private function getAvatarHandlerMock()
     {
-        return [
-            'user' => ['user'],
-            'deleted' => ['deleted'],
-            'group' => ['group'],
-            'superuser' => ['admin'],
-        ];
+        return $this->getMockBuilder(AvatarHandler::class)
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 }

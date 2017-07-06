@@ -13,6 +13,8 @@ use Civix\CoreBundle\Entity\Activities\Question;
 use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\ActivityCondition;
 use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\User;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -27,6 +29,7 @@ class LoadActivityData extends AbstractFixture implements DependentFixtureInterf
     {
         /** @var Group $group */
         $group = $this->getReference('group_1');
+        /** @var User $user1 */
         $user1 = $this->getReference('user_1');
         $leaderNews = $this->generateActivity(new LeaderNews(), $user1, $group);
         $manager->persist($leaderNews);
@@ -39,6 +42,7 @@ class LoadActivityData extends AbstractFixture implements DependentFixtureInterf
         $manager->persist($crowdfundingPaymentRequest);
         $this->addReference('activity_crowdfunding_payment_request', $crowdfundingPaymentRequest);
         $userPetition = $this->generateActivity(new UserPetition(), $user1, $group);
+        $userPetition->setUser($user1);
         $manager->persist($userPetition);
         $this->addReference('activity_user_petition', $userPetition);
         $post = $this->generateActivity(new Post(), $user1, $group);
@@ -58,6 +62,9 @@ class LoadActivityData extends AbstractFixture implements DependentFixtureInterf
         $manager->persist($leaderEvent);
         $this->addReference('activity_leader_event', $leaderEvent);
         $paymentRequest = $this->generateActivity(new PaymentRequest(), $user3, $group);
+        /** @var Representative $representative */
+        $representative = $this->getReference('representative_jb');
+        $paymentRequest->setRepresentative($representative);
         $manager->persist($paymentRequest);
         $this->addReference('activity_payment_request', $paymentRequest);
         $petition = $this->generateActivity(new Petition(), $user3, $group);
@@ -88,6 +95,6 @@ class LoadActivityData extends AbstractFixture implements DependentFixtureInterf
 
     public function getDependencies(): array
     {
-        return [LoadUserData::class, LoadGroupData::class];
+        return [LoadUserData::class, LoadGroupData::class, LoadRepresentativeData::class];
     }
 }

@@ -45,7 +45,7 @@ class GroupManager
      * @var EventDispatcherInterface
      */
     private $dispatcher;
-    
+
     public function __construct(
         EntityManager $em,
         EventDispatcherInterface $dispatcher
@@ -57,6 +57,9 @@ class GroupManager
 
     public function create(Group $group): void
     {
+        $event = new AvatarEvent($group);
+        $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
+
         $this->em->persist($group);
         $this->em->flush();
 

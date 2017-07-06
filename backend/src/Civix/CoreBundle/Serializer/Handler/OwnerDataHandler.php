@@ -6,8 +6,8 @@ use Civix\CoreBundle\Serializer\Type\Avatar;
 use JMS\Serializer\Context;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\GraphNavigator;
-use JMS\Serializer\JsonSerializationVisitor;
 use Civix\CoreBundle\Serializer\Type\OwnerData;
+use JMS\Serializer\VisitorInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class OwnerDataHandler implements SubscribingHandlerInterface
@@ -34,7 +34,7 @@ class OwnerDataHandler implements SubscribingHandlerInterface
         ];
     }
 
-    public function serialize(JsonSerializationVisitor $visitor, OwnerData $owner, array $type, Context $context)
+    public function serialize(VisitorInterface $visitor, OwnerData $owner, array $type, Context $context)
     {
         $data = $owner->getData();
         if (!empty($data['avatar_file_path'])) {

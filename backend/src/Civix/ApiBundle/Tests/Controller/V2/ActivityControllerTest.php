@@ -22,7 +22,7 @@ use Symfony\Bundle\FrameworkBundle\Client;
 class ActivityControllerTest extends WebTestCase
 {
 	const API_ENDPOINT = '/api/v2/activities';
-	
+
 	/**
 	 * @var Client
 	 */
@@ -56,17 +56,24 @@ class ActivityControllerTest extends WebTestCase
             LoadActivityReadAuthorData::class,
             LoadUserGroupOwnerData::class,
         ])->getReferenceRepository();
-        $client = $this->client;
-        foreach ($this->getSets() as $set) {
-            $client->request('GET', self::API_ENDPOINT, $set[0], [], ['HTTP_Authorization'=>'Bearer user1']);
-            $response = $client->getResponse();
-            $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-            $data = $this->deserializePagination($response->getContent(), 1, count($set[1]), 20);
-            $activities = array_map(function($name) use ($repository) {
-                return $repository->getReference($name)->getId();
+		$client = $this->client;
+		foreach ($this->getSets() as $set) {$client->request('GET', self::API_ENDPOINT, $set[0], [], ['HTTP_Authorization'=>'Bearer user1']);
+		$response = $client->getResponse();
+		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+		$data = $this->deserializePagination($response->getContent(), 1, count($set[1]),20);
+		$activities = array_map(function($name) use ($repository){
+		return $repository->getReference($name)->getId();
             }, $set[1]);
-            foreach ($data->getItems() as $key => $item) {
-                $this->assertActivity($item, $activities);
+        foreach ($data->getItems() as $key => $item) {
+            if ($item['owner']['type'] === 'user') {
+                $this->assertNotContains('src', $item['owner']['avatar_file_path']);
+            } elseif ($item['owner']['type'] === 'group') {
+                $this->assertContains('src', $item['owner']['avatar_file_path']);
+            } elseif ($item['owner']['type'] === 'representative') {
+                $this->assertContains('representative', $item['owner']['avatar_file_path']);
+            } else {
+                $this->fail('Unexpected owner data type '.$item['owner']['type']);
+            }$this->assertActivity($item, $activities);
             }
         }
 	}

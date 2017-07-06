@@ -90,6 +90,7 @@ abstract class CommentsControllerTest extends WebTestCase
             'comment_body' => 'comment text @user2',
             'parent_comment' => $comment->getId(),
             'privacy' => 'private',
+            'is_root' => true,
         ];
         $client->request('POST', $uri, [], [],
             ['HTTP_Authorization'=>'Bearer type="user" token="user3"'],

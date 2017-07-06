@@ -16,7 +16,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use YoHang88\LetterAvatar\LetterAvatar;
 
-
 class AvatarSubscriber implements EventSubscriberInterface
 {
     const AVATAR_WIDTH = 250;
@@ -31,7 +30,7 @@ class AvatarSubscriber implements EventSubscriberInterface
      */
     private $logger;
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             AvatarEvents::CHANGE => 'handleAvatar',
@@ -88,7 +87,7 @@ class AvatarSubscriber implements EventSubscriberInterface
      * @param $fileName
      * @return Image
      */
-    private function generateAvatar($fileName)
+    private function generateAvatar($fileName): Image
     {
         $image = $this->manager->make($fileName);
 
@@ -98,8 +97,9 @@ class AvatarSubscriber implements EventSubscriberInterface
     /**
      * @param DefaultAvatarInterface $defaultAvatar
      * @return Image
+     * @throws \RuntimeException
      */
-    private function generateDefaultAvatar(DefaultAvatarInterface $defaultAvatar)
+    private function generateDefaultAvatar(DefaultAvatarInterface $defaultAvatar): Image
     {
         if ($defaultAvatar instanceof DefaultAvatar) {
             $image = $this->generateAvatar($defaultAvatar->getPath());
