@@ -34,20 +34,14 @@ class ActivityUpdate
      * @var ValidatorInterface
      */
     protected $validator;
-    /**
-     * @var CommentManager
-     */
-    private $cm;
 
     public function __construct(
         EntityManager $entityManager,
-        ValidatorInterface $validator,
-        CommentManager $cm
+        ValidatorInterface $validator
     )
     {
         $this->entityManager = $entityManager;
         $this->validator = $validator;
-        $this->cm = $cm;
     }
 
     public function publishQuestionToActivity(Question $question)
@@ -92,13 +86,6 @@ class ActivityUpdate
         $this->entityManager->flush();
 
         if ($isNew) {
-            if ($question instanceof PaymentRequest) {
-                $this->cm->addPollRootComment($question, $question->getTitle());
-            } elseif ($question instanceof LeaderEvent) {
-                $this->cm->addPollRootComment($question, $question->getSubject());
-            } else {
-                $this->cm->addPollRootComment($question, $activity->getDescription());
-            }
             $this->createActivityConditionsForQuestion($activity, $question);
             $this->createUserActivityConditions($activity, $activity->getUser());
         }
