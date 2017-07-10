@@ -46,7 +46,7 @@ class ProfileControllerTest extends WebTestCase
             'address2' => 'new-address2',
             'city' => 'new-city',
             'state' => 'new-state',
-            'country' => 'new-country',
+            'country' => 'DZ',
             'phone' => 'new-phone',
             'facebook_link' => 'new-facebookLink',
             'twitter_link' => 'new-twitterLink',
@@ -106,7 +106,7 @@ class ProfileControllerTest extends WebTestCase
             'address2' => 'new-address2',
             'city' => 'new-city',
             'state' => 'new-state',
-            'country' => 'new-country',
+            'country' => 'AO',
             'phone' => 'new-phone',
             'facebook_link' => 'new-facebookLink',
             'twitter_link' => 'new-twitterLink',
@@ -163,6 +163,7 @@ class ProfileControllerTest extends WebTestCase
             'last_name' => '',
             'email' => 'user2@example.com',
             'zip' => '',
+            'country' => 'United States',
         ];
         $client = $this->client;
 		$client->request('POST', self::API_ENDPOINT.'update', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode($params));
@@ -171,7 +172,7 @@ class ProfileControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         /** @var array $errors */
         $errors = $data['errors'];
-        $this->assertCount(4, $errors);
+        $this->assertCount(5, $errors);
         foreach ($errors as $error) {
             switch ($error['property']) {
                 case 'first_name':
@@ -185,6 +186,9 @@ class ProfileControllerTest extends WebTestCase
                     break;
                 case 'email':
                     $message = 'This value is already used.';
+                    break;
+                case 'country':
+                    $message = 'This value is not a valid country.';
                     break;
                 default:
                     $this->fail("Property {$error['property']} should not have an error");
