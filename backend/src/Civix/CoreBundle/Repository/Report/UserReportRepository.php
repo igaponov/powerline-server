@@ -48,7 +48,7 @@ class UserReportRepository extends EntityRepository
                     ':locality' => $locality,
                     ':districts' => $districts ? json_encode($districts) : null,
             ])
-            ->execute();
+            ->rowCount();
     }
 
     public function updateUserReportKarma(User $user)

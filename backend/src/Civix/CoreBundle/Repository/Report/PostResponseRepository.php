@@ -33,7 +33,7 @@ class PostResponseRepository extends EntityRepository
                 ':post' => $vote->getPost()->getId(),
                 ':vote' => $vote->getOptionTitle(),
             ]
-        )->execute();
+        )->rowCount();
     }
 
     public function deletePostResponseReport(Post\Vote $vote)
