@@ -32,13 +32,15 @@ class MembershipReportRepository extends EntityRepository
                 ':group' => $group->getId(),
                 ':fields' => $groupFields ? json_encode($groupFields) : null,
             ])
-            ->execute();
+            ->rowCount();
     }
 
     public function deleteMembershipReport(User $user, Group $group)
     {
         return $this->getEntityManager()->getConnection()
-            ->executeQuery('DELETE FROM membership_report WHERE user_id = ? AND group_id = ?')
-            ->execute([$user->getId(), $group->getId()]);
+            ->delete('membership_report', [
+                'user_id' => $user->getId(),
+                'group_id' => $group->getId(),
+            ]);
     }
 }
