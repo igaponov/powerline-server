@@ -2,7 +2,6 @@
 
 namespace Civix\CoreBundle\Service\User;
 
-use Civix\CoreBundle\Entity\DeferredInvites;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\Report\UserReport;
@@ -153,26 +152,11 @@ class UserManager
         $event = new AvatarEvent($user);
         $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
 
-        /** @var DeferredInvites[] $deferredInvites */
-        $deferredInvites = $this->entityManager
-            ->getRepository('CivixCoreBundle:DeferredInvites')
-            ->checkEmail($user->getEmail());
-
-        if (!empty($deferredInvites)) {
-            foreach ($deferredInvites as $invite) {
-                $user->addInvite($invite->getGroup());
-                $invite->setStatus(DeferredInvites::STATUS_INACTIVE);
-                $this->entityManager->persist($invite);
-            }
-        }
-
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        $this->updateDistrictsIds($user);
-
         $event = new UserEvent($user);
-        $this->dispatcher->dispatch(UserEvents::REGISTRATION, $event);
+        $this->dispatcher->dispatch('async.'.UserEvents::REGISTRATION, $event);
 
         return $user;
     }

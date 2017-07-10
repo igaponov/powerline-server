@@ -278,7 +278,7 @@ class MicropetitionController extends BaseController
             $results[] = $invite;
         }
 
-        $this->container->get('civix_core.invite_sender')->sendUserInvites($results);
+        $this->container->get('civix_core.invite_sender')->sendUserToGroupInvites($results);
         $response = new Response($this->jmsSerialization($results, ['api-invites']), 200);
         $response->headers->set('Content-Type', 'application/json');
 

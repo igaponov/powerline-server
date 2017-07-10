@@ -6,7 +6,6 @@ use Buzz\Message\Request;
 use Buzz\Message\Response;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Service\CiceroApi;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Faker\Factory;
 use HWI\Bundle\OAuthBundle\OAuth\ResourceOwnerInterface;
@@ -49,20 +48,13 @@ class SecurityControllerTest extends WebTestCase
         $user = $repository->getReference('user_1');
         $client = $this->client;
         $container = $client->getContainer();
-        $service = $this->getMockBuilder(CiceroApi::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRepresentativesByLocation'])
-            ->getMock();
-        $service->expects($this->once())
-            ->method('getRepresentativesByLocation');
-        $container->set('civix_core.cicero_api', $service);
         $httpClient = $this->getMockBuilder(ClientInterface::class)->getMock();
         $container->set('hwi_oauth.http_client', $httpClient);
 
         /** @var ResourceOwnerInterface $resourceOwner */
         $resourceOwner = $container->get('hwi_oauth.resource_owner.facebook');
         $token = $this->getOAuth2Token();
-        $params = ['code' => uniqid()];
+        $params = ['code' => uniqid('', true)];
         $userProviderId = $user->getFacebookId();
 
         $httpClient->expects($this->at(0))->method('send')->will($this->returnCallback(
@@ -97,7 +89,7 @@ class SecurityControllerTest extends WebTestCase
         /** @var ResourceOwnerInterface $resourceOwner */
         $resourceOwner = $container->get('hwi_oauth.resource_owner.facebook');
         $token = $this->getOAuth2Token();
-        $params = ['code' => uniqid()];
+        $params = ['code' => uniqid('', true)];
         $userProviderId = $faker->bothify('?#?#?#?#?#?#?#?#');
         $httpClient->expects($this->at(0))->method('send')->will($this->returnCallback(
             $this->getAccessTokenCallback($resourceOwner, $token)
@@ -105,13 +97,6 @@ class SecurityControllerTest extends WebTestCase
         $httpClient->expects($this->at(1))->method('send')->will($this->returnCallback(
             $this->getUserInformationCallback($resourceOwner, $userProviderId)
         ));
-        $service = $this->getMockBuilder(CiceroApi::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRepresentativesByLocation'])
-            ->getMock();
-        $service->expects($this->once())
-            ->method('getRepresentativesByLocation');
-        $container->set('civix_core.cicero_api', $service);
 
         $client->request('GET', self::API_ENDPOINT, $params);
         $response = $client->getResponse();
@@ -141,7 +126,7 @@ class SecurityControllerTest extends WebTestCase
         /** @var ResourceOwnerInterface $resourceOwner */
         $resourceOwner = $client->getContainer()->get('hwi_oauth.resource_owner.facebook');
         $token = $this->getOAuth2Token();
-        $params = ['code' => uniqid()];
+        $params = ['code' => uniqid('', true)];
         $userProviderId = $faker->bothify('?#?#?#?#?#?#?#?#');
         $httpClient->expects($this->at(0))->method('send')->will($this->returnCallback(
             $this->getAccessTokenCallback($resourceOwner, $token)
@@ -174,20 +159,13 @@ class SecurityControllerTest extends WebTestCase
         $faker = Factory::create();
         $client = $this->client;
         $container = $client->getContainer();
-        $service = $this->getMockBuilder(CiceroApi::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRepresentativesByLocation'])
-            ->getMock();
-        $service->expects($this->once())
-            ->method('getRepresentativesByLocation');
-        $container->set('civix_core.cicero_api', $service);
         $httpClient = $this->getMockBuilder(ClientInterface::class)->getMock();
         $container->set('hwi_oauth.http_client', $httpClient);
 
         /** @var ResourceOwnerInterface $resourceOwner */
         $resourceOwner = $container->get('hwi_oauth.resource_owner.facebook');
         $token = $this->getOAuth2Token();
-        $params = ['code' => uniqid()];
+        $params = ['code' => uniqid('', true)];
         $userProviderId = $faker->bothify('?#?#?#?#?#?#?#?#');
 
         $httpClient->expects($this->at(0))->method('send')->will($this->returnCallback(

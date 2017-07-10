@@ -162,11 +162,7 @@
         </service>
 
         <service id="civix_core.invite_sender" class="Civix\CoreBundle\Service\InviteSender">
-            <argument type="service" id="civix_core.email_sender"/>
             <argument type="service" id="civix_core.push_task"/>
-            <argument type="service" id="doctrine.orm.entity_manager" />
-            <argument type="service" id="civix_core.mailgun"/>
-            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="civix_core.comment_manager" class="Civix\CoreBundle\Service\CommentManager">
@@ -200,7 +196,6 @@
 
         <service id="civix_core.representative_manager" class="Civix\CoreBundle\Service\Representative\RepresentativeManager">
             <argument type="service" id="doctrine.orm.entity_manager" />
-            <argument type="service" id="civix_core.cicero_api" />
             <argument type="service" id="event_dispatcher" />
         </service>
 

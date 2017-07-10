@@ -3,6 +3,7 @@
 namespace Civix\FrontBundle\Controller;
 
 use Civix\CoreBundle\Entity\State;
+use Civix\CoreBundle\Event\RepresentativeEvents;
 use Civix\FrontBundle\Form\Model\CoreSettings;
 use Civix\FrontBundle\Form\Type\SettingsType;
 use Doctrine\ORM\EntityManager;
@@ -11,6 +12,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -73,12 +75,7 @@ class SettingsController extends Controller
         if ($this->isCsrfTokenValid(
             'state_repr_update_'.$state->getCode(), $request->get('_token')
         )) {
-            $this->get('civix_core.queue_task')
-                ->addToQueue(
-                    'Civix\CoreBundle\Service\Representative\RepresentativeManager',
-                    'synchronizeByStateCode',
-                    array($state->getCode())
-                );
+            $this->get('event_dispatcher')->dispatch('async.'.RepresentativeEvents::SYNCHRONIZE, new GenericEvent($state->getCode()));
             $this->addFlash('notice', 'The representatives of the State will be updated.');
         } else {
             $this->addFlash('error', 'State is not found');

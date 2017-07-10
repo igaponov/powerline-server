@@ -50,7 +50,7 @@ class CiceroSyncCommand extends ContainerAwareCommand
                 'Checking '.$representative->getUser()->getFirstName().' '.$representative->getUser()->getLastName()
             );
 
-            $isUpdated = $this->getContainer()->get('civix_core.representative_manager')
+            $isUpdated = $this->getContainer()->get('civix_core.cicero_api')
                 ->synchronizeRepresentative($representative);
 
             if (!$isUpdated) {

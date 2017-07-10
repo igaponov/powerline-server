@@ -1,25 +1,16 @@
 <?php
-namespace Civix\ApiBundle\Tests\Controller;
+namespace Tests\Civix\ApiBundle\Controller;
 
 use Civix\ApiBundle\Tests\WebTestCase;
-use Civix\CoreBundle\Entity\Report\UserReport;
+use Civix\CoreBundle\DataCollector\RabbitMQDataCollector;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Service\CiceroApi;
+use Civix\CoreBundle\Event\UserEvent;
+use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Service\FacebookApi;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadDisabledUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupFollowerTestData;
 use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManager;
 use Faker\Factory;
-use Geocoder\Geocoder;
-use Geocoder\Model\Address;
-use Geocoder\Model\AddressCollection;
-use Geocoder\Model\AdminLevel;
-use Geocoder\Model\AdminLevelCollection;
-use Geocoder\Model\Coordinates;
-use Geocoder\Model\Country;
 use Liip\FunctionalTestBundle\Annotations\QueryCount;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -30,51 +21,53 @@ class SecureControllerTest extends WebTestCase
 	/**
 	 * @var null|Client
 	 */
-	private $client = null;
+	private $client;
 	
-	public function setUp()
-	{
+	public function setUp(): void
+    {
 		// Creates a initial client
 		$this->client = static::createClient();
-		
-		$this->loadFixtures([
-            LoadUserData::class,
-            LoadGroupFollowerTestData::class,
-            LoadUserGroupFollowerTestData::class,
-            LoadSuperuserData::class
-		]);
 	}
 
-	public function tearDown()
-	{
+	public function tearDown(): void
+    {
 		$this->client = NULL;
         parent::tearDown();
     }
-	
-	public function testUserLoginWithoutCredentials()
-	{
-		$this->client->request('POST', self::API_LOGIN_ENDPOINT);
-        $response = $this->client->getResponse();
-        $this->assertEquals(401, $response->getStatusCode(), $response->getContent());
-	}
 
-    public function testUserLoginWithWrongCredentials()
+    /**
+     * @QueryCount(1)
+     */
+    public function testUserLoginWithWrongCredentials(): void
     {
-        $parameters = ['username' => 'user2', 'password' => 'user1'];
+        $this->loadFixtures([LoadDisabledUserData::class]);
         $content = ['application/x-www-form-urlencoded'];
-
-        $this->client->request('POST', self::API_LOGIN_ENDPOINT, $parameters, [], [], $content);
-        $response = $this->client->getResponse();
-        $this->assertEquals(401, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertSame('Authentication failed.', $data['message']);
+        foreach ($this->getCredentials() as $parameters) {
+            $this->client->request('POST', self::API_LOGIN_ENDPOINT, $parameters, [], [], $content);
+            $response = $this->client->getResponse();
+            $this->assertEquals(401, $response->getStatusCode(), $response->getContent());
+            $data = json_decode($response->getContent(), true);
+            $this->assertSame('Authentication failed.', $data['message']);
+        }
     }
-	
-	public function testUserLoginWithCredentials()
-	{
+
+    public function getCredentials(): array
+    {
+        return [
+            'empty' => [[]],
+            'invalid' => [['username' => 'user2', 'password' => 'user1']],
+            'disabled' => [['username' => 'userD', 'password' => 'userD']]
+        ];
+    }
+
+    /**
+     * @QueryCount(1)
+     */
+	public function testUserLoginWithCredentials(): void
+    {
+        $this->loadFixtures([LoadUserData::class]);
 		$parameters = ['username' => 'user1', 'password' => 'user1'];
 		$content = ['application/x-www-form-urlencoded'];
-	
 		$this->client->request('POST', self::API_LOGIN_ENDPOINT, $parameters, [], [], $content);
 		$response = $this->client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -86,91 +79,77 @@ class SecureControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 	}
 
-	public function testDisabledUserLoginFails()
-	{
-	    $em = $this->client->getContainer()->get('doctrine')->getManager();
-	    /** @var User $user */
-	    $user = $em->getRepository(User::class)->findOneBy(['username' => 'user1']);
-	    $user->disable();
-	    $em->persist($user);
-	    $em->flush();
-		$parameters = ['username' => 'user1', 'password' => 'user1'];
-		$content = ['application/x-www-form-urlencoded'];
-
-		$this->client->request('POST', self::API_LOGIN_ENDPOINT, $parameters, [], [], $content);
-		$response = $this->client->getResponse();
-		$this->assertEquals(401, $response->getStatusCode(), $response->getContent());
-	}
-
-	public function testRegistrationWithWrongDataReturnsErrors()
-	{
-		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
-		$client->request('POST', '/api/secure/registration', [], [], [], json_encode(['email' => 'qwerty']));
-		$response = $client->getResponse();
-		$this->assertEquals(400, $response->getStatusCode(), $response->getContent());
-		$data = json_decode($response->getContent(), true);
-		$errors = $data['errors'];
-		$expectedErrors = [
-			'username' => 'This value should not be blank.',
-			'password' => 'This value should not be blank.',
-			'first_name' => 'This value should not be blank.',
-			'last_name' => 'This value should not be blank.',
-			'zip' => 'This value should not be blank.',
-			'email' => 'This value is not a valid email address.',
-            'email_confirm' => 'The email fields must match.',
-		];
-		$this->assertCount(count($expectedErrors), $errors);
-		foreach ($errors as $error) {
-			$this->assertEquals($expectedErrors[$error['property']], $error['message']);
-		}
-	}
-
+    /**
+     * @QueryCount(1)
+     */
 	public function testRegistrationWithDuplicateDataReturnsErrors(): void
     {
-		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
-		$client->request('POST', '/api/secure/registration', [], [], [], json_encode([
-		    'username' => 'user1',
-		    'email' => 'user1@example.com',
-            'email_confirm' => 'user1@example.com',
+        $parameters = $this->getParameters();
+        $client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
+        foreach ($parameters as [$params, $expectedErrors]) {
+            $client->request('POST', '/api/secure/registration', [], [], [], json_encode($params));
+            $response = $client->getResponse();
+            $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+            $data = json_decode($response->getContent(), true);
+            /** @var array $errors */
+            $errors = $data['errors'];
+            $this->assertCount(count($expectedErrors), $errors, json_encode($errors));
+            foreach ($errors as $error) {
+                $this->assertEquals($expectedErrors[$error['property']], $error['message']);
+            }
+        }
+	}
+
+    public function getParameters(): array
+    {
+        $defaultParams = [
+            'username' => 'userX',
+            'email' => 'userX@example.com',
+            'email_confirm' => 'userX@example.com',
             'password' => 'pass',
             'confirm' => 'pass',
             'first_name' => 'First',
             'last_name' => 'Last',
             'zip' => '12345',
-        ]));
-		$response = $client->getResponse();
-		$this->assertEquals(400, $response->getStatusCode(), $response->getContent());
-		$data = json_decode($response->getContent(), true);
-		/** @var array $errors */
-		$errors = $data['errors'];
-		$expectedErrors = [
-			'username' => 'This value is already used.',
-			'email' => 'This value is already used.',
-		];
-		$this->assertCount(count($expectedErrors), $errors, json_encode($errors));
-		foreach ($errors as $error) {
-			$this->assertEquals($expectedErrors[$error['property']], $error['message']);
-		}
+        ];
+        return [
+            [
+                array_replace($defaultParams, ['username' => 'user1']),
+                ['email' => 'This value is already used.'],
+            ],
+            [
+                array_replace($defaultParams, [
+                    'email' => 'user1@example.com',
+                    'email_confirm' => 'user1@example.com',
+                ]),
+                ['email' => 'This value is already used.'],
+            ],
+            [
+                ['email' => 'qwerty'],
+                [
+                    'username' => 'This value should not be blank.',
+                    'password' => 'This value should not be blank.',
+                    'first_name' => 'This value should not be blank.',
+                    'last_name' => 'This value should not be blank.',
+                    'zip' => 'This value should not be blank.',
+                    'email' => 'This value is not a valid email address.',
+                    'email_confirm' => 'The email fields must match.',
+                ],
+            ]
+        ];
 	}
 
     /**
-     * @QueryCount(11)
-     * 1. Check username is free
-     * 2. Check email is free
-     * 3-5. Insert user in transaction
-     * 6. Select deferred_invites
-     * 7-9. Add discount code in transaction
-     * 10. Add user report
-     * 11. Check "Powerline Powerusers" group to join
-     * @todo move all updates to one transaction
+     * @QueryCount(4)
      */
-	public function testRegistrationIsOk()
-	{
+	public function testRegistrationIsOk(): void
+    {
+        $this->loadFixtures([]);
 		$faker = Factory::create();
         $path = __DIR__.'/../data/image.png';
         $password = $faker->password;
         $email = 'reg.test+powerline@mail.com';
-        $data = [
+        $params = [
 			'username' => 'testUser1',
 			'first_name' => $faker->firstName,
 			'last_name' => $faker->lastName,
@@ -188,82 +167,48 @@ class SecureControllerTest extends WebTestCase
             'avatar_file_name' => $path,
 		];
 		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
+		$client->enableProfiler();
         $container = $client->getContainer();
-        $service = $this->getMockBuilder(CiceroApi::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRepresentativesByLocation'])
-            ->getMock();
-        $service->expects($this->once())
-            ->method('getRepresentativesByLocation');
-        $client->getContainer()->set('civix_core.cicero_api', $service);
-		$service = $this->createMock(Geocoder::class);
-		$service->expects($this->exactly(2))
-            ->method('geocode')
-            ->with($data['address1'].','.$data['city'].','.$data['state'].','.$data['country'])
-            ->willReturn(new AddressCollection([
-                new Address(
-                    new Coordinates(37.547242900000001, -99.634290100000001),
-                    null,
-                    null,
-                    null,
-                    '67834',
-                    'Bucklin',
-                    null,
-                    new AdminLevelCollection([
-                        new AdminLevel(1, 'Kansas', 'KS'),
-                        new AdminLevel(2, 'Ford County', 'Ford County'),
-                        new AdminLevel(3, 'Bucklin', 'Bucklin'),
-                    ]),
-                    new Country('United States', 'US')
-                )
-            ]));
-		$client->getContainer()->set('bazinga_geocoder.geocoder', $service);
-		$client->request('POST', '/api/secure/registration', [], [], [], json_encode($data));
+		$client->request('POST', '/api/secure/registration', [], [], [], json_encode($params));
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-
 		$result = json_decode($response->getContent(), true);
-		$this->assertSame($data['username'], $result['username']);
+		$this->assertSame($params['username'], $result['username']);
         $this->assertTrue($result['is_registration_complete']);
         /** @var Connection $conn */
 		$conn = $container->get('doctrine.dbal.default_connection');
 		$user = $conn->fetchAssoc('SELECT * FROM user WHERE username = ?', [$result['username']]);
-		$this->assertSame($data['username'], $user['username']);
-		$this->assertSame($data['first_name'], $user['firstName']);
-		$this->assertSame($data['last_name'], $user['lastName']);
+		$this->assertSame($params['username'], $user['username']);
+		$this->assertSame($params['first_name'], $user['firstName']);
+		$this->assertSame($params['last_name'], $user['lastName']);
 		$this->assertSame('regtest@mail.com', $user['email']);
-		$this->assertSame($data['address1'], $user['address1']);
-		$this->assertSame($data['address2'], $user['address2']);
-		$this->assertSame($data['city'], $user['city']);
-		$this->assertSame($data['state'], $user['state']);
-		$this->assertSame($data['zip'], $user['zip']);
-		$this->assertSame($data['country'], $user['country']);
-		$this->assertSame(strtotime($data['birth']), strtotime($user['birth']));
+		$this->assertSame($params['address1'], $user['address1']);
+		$this->assertSame($params['address2'], $user['address2']);
+		$this->assertSame($params['city'], $user['city']);
+		$this->assertSame($params['state'], $user['state']);
+		$this->assertSame($params['zip'], $user['zip']);
+		$this->assertSame($params['country'], $user['country']);
+		$this->assertSame(strtotime($params['birth']), strtotime($user['birth']));
+        /** @var RabbitMQDataCollector $collector */
+        $collector = $client->getProfile()->getCollector('rabbit_mq');
+        $data = $collector->getData();
+        $this->assertCount(1, $data);
+        $msg = unserialize($data[0]['msg']);
+        $this->assertSame(UserEvents::REGISTRATION, $msg->getEventName());
+        $this->assertInstanceOf(UserEvent::class, $msg->getEvent());
         $storage = $container->get('civix_core.storage.array');
         $this->assertCount(1, $storage->getFiles('avatar_image_fs'));
-        $code = $conn->fetchAssoc('SELECT * FROM discount_codes WHERE owner_id = ?', [$user['id']]);
-        $this->assertNotEmpty($code['code']);
-        $this->assertSame($client->getContainer()->getParameter('stripe_referral_code'), $code['original_code']);
-        /** @var EntityManager $em */
-        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository(User::class)->find($user['id']);
-        $this->assertSame(37.547242900000001, $user->getLatitude());
-        $this->assertSame(-99.634290100000001, $user->getLongitude());
-        $report = $em->getRepository(UserReport::class)
-            ->getUserReport($user);
-        $this->assertEquals($user->getId(), $report[0]['user']);
-        $this->assertEquals(0, $report[0]['followers']);
-        $this->assertEquals([], $report[0]['representatives']);
-        $count = $conn->fetchColumn('SELECT COUNT(*) FROM users_groups ug WHERE ug.user_id = ?', [$user->getId()]);
-        $this->assertEquals(3, $count);
 
-		$client->request('POST', '/api/secure/login', ['username' => $data['username'], 'password' => $data['password']]);
-		$response = $client->getResponse();
-		$data = json_decode($response->getContent(), true);
-		$this->assertNotEmpty($data['token']);
+		$client->request('POST', '/api/secure/login', ['username' => $params['username'], 'password' => $params['password']]);
+        $response = $client->getResponse();
+		$params = json_decode($response->getContent(), true);
+		$this->assertNotEmpty($params['token']);
 	}
 
-    public function testFacebookRegistrationWithWrongDataReturnsErrors()
+    /**
+     * @QueryCount(0)
+     */
+    public function testFacebookRegistrationWithWrongDataReturnsErrors(): void
     {
         $client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
         $serviceId = 'civix_core.facebook_api';
@@ -277,6 +222,7 @@ class SecureControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
+        /** @var array $errors */
         $errors = $data['errors'];
         $expectedErrors = [
             null => 'Facebook token is not correct.',
@@ -294,11 +240,11 @@ class SecureControllerTest extends WebTestCase
     }
 
     /**
-     * @QueryCount(12)
-     * @todo see testRegistrationIsOk
+     * @QueryCount(5)
      */
-    public function testFacebookRegistrationIsOk()
-	{
+    public function testFacebookRegistrationIsOk(): void
+    {
+	    $this->loadFixtures([]);
 		$faker = Factory::create();
         $email = 'reg.test+powerline@mail.com';
         $data = [
@@ -318,6 +264,7 @@ class SecureControllerTest extends WebTestCase
 			'birth' => $faker->date(),
 		];
 		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
+        $client->enableProfiler();
         $serviceId = 'civix_core.facebook_api';
         $mock = $this->getMockBuilder(FacebookApi::class)
             ->disableOriginalConstructor()
@@ -325,19 +272,11 @@ class SecureControllerTest extends WebTestCase
             ->getMock();
         $mock->expects($this->any())->method('getFacebookId')->will($this->returnValue('yyy'));
         $client->getContainer()->set($serviceId, $mock);
-        $service = $this->getMockBuilder(CiceroApi::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getRepresentativesByLocation'])
-            ->getMock();
-        $service->expects($this->once())
-            ->method('getRepresentativesByLocation');
-        $client->getContainer()->set('civix_core.cicero_api', $service);
 		$client->request('POST', '/api/secure/registration-facebook', [], [], [], json_encode($data));
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $storage = $client->getContainer()->get('civix_core.storage.array');
         $this->assertCount(1, $storage->getFiles('avatar_image_fs'));
-
         $result = json_decode($response->getContent(), true);
 		$this->assertSame($data['username'], $result['username']);
 		$this->assertFalse($result['is_registration_complete']);
@@ -356,29 +295,29 @@ class SecureControllerTest extends WebTestCase
 		$this->assertSame($data['state'], $user['state']);
 		$this->assertSame($data['country'], $user['country']);
 		$this->assertSame(strtotime($data['birth']), strtotime($user['birth']));
-        /** @var EntityManager $em */
-        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
-        $user = $em->getRepository(User::class)->find($user['id']);
-        $this->assertNull($user->getLatitude());
-        $this->assertNull($user->getLongitude());
-        $report = $em->getRepository(UserReport::class)
-            ->getUserReport($user);
-        $this->assertEquals($user->getId(), $report[0]['user']);
-        $this->assertEquals(0, $report[0]['followers']);
-        $this->assertEquals([], $report[0]['representatives']);
+        /** @var RabbitMQDataCollector $collector */
+        $collector = $client->getProfile()->getCollector('rabbit_mq');
+        $messages = $collector->getData();
+        $this->assertCount(1, $messages);
+        $msg = unserialize($messages[0]['msg']);
+        $this->assertSame(UserEvents::REGISTRATION, $msg->getEventName());
+        $this->assertInstanceOf(UserEvent::class, $msg->getEvent());
 
         $client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
         $client->getContainer()->set($serviceId, $mock);
         $client->request('POST', '/api/secure/facebook/login', [
 		    'facebook_token' => $data['facebook_token'],
-            'facebook_id' => $data['facebook_id']
+            'facebook_id' => $data['facebook_id'],
         ]);
 		$response = $client->getResponse();
 		$data = json_decode($response->getContent(), true);
 		$this->assertNotEmpty($data['token']);
 	}
 
-    public function testForgotPassword()
+    /**
+     * @QueryCount(4)
+     */
+    public function testForgotPassword(): void
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
@@ -408,7 +347,10 @@ class SecureControllerTest extends WebTestCase
         $this->assertEquals('ok', $data['status']);
 	}
 
-    public function testCheckResetToken()
+    /**
+     * @QueryCount(1)
+     */
+    public function testCheckResetToken(): void
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
@@ -422,7 +364,10 @@ class SecureControllerTest extends WebTestCase
         $this->assertEquals('ok', $data['status']);
 	}
 
-    public function testSaveNewPassword()
+    /**
+     * @QueryCount(4)
+     */
+    public function testSaveNewPassword(): void
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
@@ -442,7 +387,10 @@ class SecureControllerTest extends WebTestCase
         $this->assertNull($data['reset_password_at']);
 	}
 
-    public function testUserTokenHeaderAuthentication()
+    /**
+     * @QueryCount(1)
+     */
+    public function testUserTokenHeaderAuthentication(): void
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
@@ -456,7 +404,10 @@ class SecureControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 	}
 
-    public function testUserAuthorizationTypeHeaderAuthentication()
+    /**
+     * @QueryCount(1)
+     */
+    public function testUserAuthorizationTypeHeaderAuthentication(): void
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
@@ -470,7 +421,10 @@ class SecureControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 	}
 
-    public function testUserAuthorizationBearerHeaderAuthentication()
+    /**
+     * @QueryCount(1)
+     */
+    public function testUserAuthorizationBearerHeaderAuthentication(): void
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,

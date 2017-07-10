@@ -9,6 +9,7 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Service\CongressApi;
 use Civix\CoreBundle\Service\OpenstatesApi;
 use Civix\CoreBundle\Tests\Mock\Service\CiceroCalls;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Civix\CoreBundle\Command\CiceroSyncCommand;
@@ -54,7 +55,7 @@ class CiceroSyncCommandTest extends WebTestCase
         ));
         /** @var Representative $representative */
         $representative = $executor->getReferenceRepository()->getReference('representative_jb');
-        $cicero = $representative->getCiceroRepresentative();
+        $representative->getCiceroRepresentative();
         $districtId = $representative->getDistrict()->getId();
 
         $container = $this->getContainerForCheck($this->responseRepresentative);
@@ -301,13 +302,13 @@ class CiceroSyncCommandTest extends WebTestCase
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $converter = $this->createMock(ConverterInterface::class);
+        /** @var EntityManager $entityManager */
+        $entityManager = $container->get('doctrine')->getManager();
 
         /** @var \PHPUnit_Framework_MockObject_MockObject|CiceroApi $mock */
         $mock = new CiceroApi(
             $ciceroMock,
-            $container->get('doctrine')->getManager(),
-            $congressMock,
-            $openStateServiceMock,
+            $entityManager,
             $converter,
             $dispatcher
         );

@@ -731,4 +731,17 @@ class UserRepository extends EntityRepository
             ->setParameter(':id', $id)
             ->getQuery()->getOneOrNullResult();
     }
+
+    public function findByUsernameOrEmail(array $criteria): array
+    {
+        $qb = $this->createQueryBuilder('u');
+        $expr = $this->getEntityManager()->getExpressionBuilder();
+        foreach ($criteria as $property => $value) {
+            $key = ':'.$property;
+            $qb->orWhere($expr->eq('u.'.$property, $key))
+                ->setParameter($key, $value);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

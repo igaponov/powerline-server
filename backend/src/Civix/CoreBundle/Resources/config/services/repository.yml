@@ -5,6 +5,6 @@ services:
         arguments: [Civix\CoreBundle\Entity\Group]
 
     civix_core.karma_repository:
-        class: Doctrine\ORM\EntityRepository
+        class: Civix\CoreBundle\Repository\KarmaRepository
         factory: ["@doctrine", "getRepository"]
         arguments: [Civix\CoreBundle\Entity\Karma]
