@@ -84,6 +84,7 @@ class SecureControllerTest extends WebTestCase
      */
 	public function testRegistrationWithDuplicateDataReturnsErrors(): void
     {
+        $this->loadFixtures([LoadUserData::class]);
         $parameters = $this->getParameters();
         $client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
         foreach ($parameters as [$params, $expectedErrors]) {
@@ -125,7 +126,10 @@ class SecureControllerTest extends WebTestCase
                 ['email' => 'This value is already used.'],
             ],
             [
-                ['email' => 'qwerty'],
+                [
+                    'email' => 'qwerty',
+                    'country' => 'United States',
+                ],
                 [
                     'username' => 'This value should not be blank.',
                     'password' => 'This value should not be blank.',
@@ -134,6 +138,7 @@ class SecureControllerTest extends WebTestCase
                     'zip' => 'This value should not be blank.',
                     'email' => 'This value is not a valid email address.',
                     'email_confirm' => 'The email fields must match.',
+                    'country' => 'This value is not a valid country.',
                 ],
             ]
         ];

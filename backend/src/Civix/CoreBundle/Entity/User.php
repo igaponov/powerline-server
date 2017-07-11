@@ -205,6 +205,7 @@ class User implements
      * @ORM\Column(name="country", type="string", length=255, nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-profile", "api-info", "api-full-info", "api-leader-answers"})
+     * @Assert\Country(groups={"registration", "profile"})
      */
     private $country;
 
