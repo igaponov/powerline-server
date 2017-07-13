@@ -128,6 +128,7 @@ class Signature
      * @Serializer\Groups({"api-answers-list", "api-leader-answers", "api-petitions-answers", "api-activities"})
      *
      * @return mixed
+     * @deprecated for consistency with old api, don't user this attribute
      */
     public function getOptionId()
     {

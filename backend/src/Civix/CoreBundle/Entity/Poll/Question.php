@@ -113,6 +113,8 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
      *      cascade={"remove", "persist"},
      *      orphanRemoval=true
      * )
+     * @Serializer\Expose()
+     * @Serializer\Groups({"activity-list"})
      */
     protected $answers;
 
