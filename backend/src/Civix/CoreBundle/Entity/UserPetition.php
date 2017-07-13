@@ -112,7 +112,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
     /**
      * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\UserPetition\Signature", mappedBy="petition", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-petitions-answers"})
+     * @Serializer\Groups({"api-petitions-answers", "activity-list"})
      */
     private $signatures;
 

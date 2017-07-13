@@ -3,6 +3,7 @@ namespace Civix\ApiBundle\Tests\Controller\Leader;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Poll\EducationalContext;
+use Civix\CoreBundle\Entity\Post\Vote;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityReadAuthorData;
@@ -11,9 +12,11 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadEducationalContextData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPollSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSubscriberData;
 use Doctrine\DBAL\Connection;
 use Liip\FunctionalTestBundle\Annotations\QueryCount;
@@ -55,6 +58,8 @@ class ActivityControllerTest extends WebTestCase
             LoadEducationalContextData::class,
             LoadActivityReadAuthorData::class,
             LoadUserGroupOwnerData::class,
+            LoadPostVoteData::class,
+            LoadUserPetitionSignatureData::class,
         ])->getReferenceRepository();
 		$client = $this->client;
 		foreach ($this->getSets() as $set) {$client->request('GET', self::API_ENDPOINT, $set[0], [], ['HTTP_Authorization'=>'Bearer user1']);
@@ -246,14 +251,20 @@ class ActivityControllerTest extends WebTestCase
         $this->assertNotEmpty($item['user']);
         $this->assertArrayHasKey('group', $item);
         if ($item['entity']['type'] === 'user-petition') {
-            $this->assertTrue($item['user_petition']['is_subscribed']);
+            $userPetition = $item['user_petition'];
+            $this->assertTrue($userPetition['is_subscribed']);
+            $this->assertCount(1, $userPetition['signatures']);
         } elseif ($item['entity']['type'] === 'post') {
-            $this->assertTrue($item['post']['is_subscribed']);
+            $post = $item['post'];
+            $this->assertTrue($post['is_subscribed']);
             $this->assertArrayHasKey('upvotes_count', $item);
             $this->assertArrayHasKey('downvotes_count', $item);
+            $this->assertCount(1, $post['votes']);
+            $this->assertSame(Vote::OPTION_UPVOTE, $post['votes'][0]['option']);
         } elseif ($item['entity']['type'] === 'question') {
             $this->assertTrue($item['poll']['is_subscribed']);
             $this->assertArrayHasKey('educational_context', $item['poll']);
+            $this->assertCount(0, $item['poll']['answers']);
             /** @var array $educationalContexts */
             $educationalContexts = $item['poll']['educational_context'];
             $this->assertCount(2, $educationalContexts);

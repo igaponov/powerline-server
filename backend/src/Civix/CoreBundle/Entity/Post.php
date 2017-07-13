@@ -105,7 +105,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
     /**
      * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\Post\Vote", mappedBy="post", cascade={"remove"}, fetch="EXTRA_LAZY")
      * @Serializer\Expose()
-     * @Serializer\Groups({"post-votes"})
+     * @Serializer\Groups({"post-votes", "activity-list"})
      */
     private $votes;
 
