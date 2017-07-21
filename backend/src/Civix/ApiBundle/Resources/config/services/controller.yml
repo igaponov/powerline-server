@@ -21,3 +21,10 @@ services:
     Civix\ApiBundle\Controller\V2\GroupTagsController:
         class: Civix\ApiBundle\Controller\V2\GroupTagsController
         arguments: ['@doctrine.orm.entity_manager', '@form.factory']
+
+    Civix\ApiBundle\Controller\V2\DeviceController:
+        class: Civix\ApiBundle\Controller\V2\DeviceController
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - '@form.factory'
+            - '@security.token_storage'
