@@ -28,3 +28,11 @@ services:
             - '@doctrine.orm.entity_manager'
             - '@form.factory'
             - '@security.token_storage'
+
+    Civix\ApiBundle\Controller\V2_2\PostCommentsController:
+        class: Civix\ApiBundle\Controller\V2_2\PostCommentsController
+        arguments: ['@doctrine.orm.entity_manager', '@security.token_storage']
+
+    Civix\ApiBundle\Controller\V2_2\PostCommentController:
+        class: Civix\ApiBundle\Controller\V2_2\PostCommentController
+        arguments: ['@doctrine.orm.entity_manager', '@security.token_storage']

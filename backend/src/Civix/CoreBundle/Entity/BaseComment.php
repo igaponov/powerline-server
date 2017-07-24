@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
@@ -28,6 +29,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-comments", "api-comments-parent", "api-comments-add"})
+     * @Serializer\Type("integer")
      */
     protected $id;
 
@@ -45,6 +47,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * @ORM\Column(name="comment_body_html", type="text")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-comments", "api-comments-add"})
+     * @Serializer\Type("string")
      */
     protected $commentBodyHtml;
 
@@ -63,9 +66,9 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * @var BaseComment
      *
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-comments", "api-comments-add"})
+     * @Serializer\Groups({"api-comments-add"})
      * @Serializer\Type("integer")
-     * @Serializer\Accessor(getter="getParentId")
+     * @Serializer\Until("1")
      */
     protected $parentComment;
 
@@ -92,6 +95,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * @ORM\Column(name="rate_sum", type="integer")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-comments"})
+     * @Serializer\Type("integer")
      */
     protected $rateSum = 0;
 
@@ -99,6 +103,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * @ORM\Column(name="rates_count", type="integer", nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-comments"})
+     * @Serializer\Until("2")
      */
     protected $ratesCount = 0;
 
@@ -121,6 +126,11 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * @Serializer\Until("1")
      */
     protected $privacy = self::PRIVACY_PUBLIC;
+
+    /**
+     * @var int
+     */
+    protected $childCount = 0;
 
     public static function getPrivacyTypes()
     {
@@ -310,13 +320,17 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
         return '';
     }
 
-    public function getParentId()
+    /**
+     * @return int|null
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"api-comments", "api-comments-add"})
+     * @Serializer\Type("integer")
+     * @Serializer\SerializedName("parent_comment")
+     */
+    public function getParentId(): ?int
     {
-        if (isset($this->parentComment)) {
-            return $this->parentComment->getId();
-        }
-
-        return 0;
+        return $this->parentComment ? $this->parentComment->getId() : null;
     }
 
     /**
@@ -341,6 +355,14 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
     public function getPrivacy()
     {
         return $this->privacy;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPrivate(): bool
+    {
+        return $this->privacy === self::PRIVACY_PRIVATE;
     }
 
     /**
@@ -398,6 +420,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * @Serializer\VirtualProperty
      * @Serializer\Groups({"api-comments"})
      * @Serializer\SerializedName("user")
+     * @Serializer\Type("Civix\CoreBundle\Entity\User")
      */
     public function getUserInfo()
     {
@@ -511,6 +534,21 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
         return $this->ratesCount;
     }
 
+    /**
+     * Renamed ratesCount
+     *
+     * @return int
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Since("2.2")
+     * @Serializer\Type("integer")
+     * @Serializer\Groups({"api-comments"})
+     */
+    public function getRateCount(): int
+    {
+        return $this->ratesCount;
+    }
+
     public function getRateUp()
     {
         return $this->ratesCount ? ($this->ratesCount + $this->rateSum) / 2 : 0;
@@ -558,9 +596,54 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * @Serializer\SerializedName("is_root")
      * @Serializer\Type("boolean")
      * @Serializer\Groups({"api-comments"})
+     * @Serializer\Until("2")
      */
     public function isRoot()
     {
         return !$this->getParentComment();
+    }
+
+    /**
+     * @return int
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Since("2.2")
+     * @Serializer\Type("integer")
+     */
+    public function getChildCount(): int
+    {
+        if (!$this->childCount) {
+            $this->childCount = $this->getChildrenComments()->count();
+        }
+
+        return $this->childCount;
+    }
+
+    /**
+     * @param int $childCount
+     * @return BaseComment
+     */
+    public function setChildCount(int $childCount): BaseComment
+    {
+        $this->childCount = $childCount;
+
+        return $this;
+    }
+
+    /**
+     * Returns children only for a root comment.
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"api-comments"})
+     * @Serializer\Type("array<Civix\CoreBundle\Entity\BaseComment>")
+     * @Serializer\Since("2.2")
+     *
+     * @internal use only for serialization
+     *
+     * @return BaseComment[]|Collection
+     */
+    public function getChildren(): Collection
+    {
+        return $this->getParentId() ? new ArrayCollection() : $this->childrenComments;
     }
 }
