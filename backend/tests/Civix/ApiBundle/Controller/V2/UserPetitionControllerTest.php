@@ -1,5 +1,5 @@
 <?php
-namespace Civix\ApiBundle\Tests\Controller\V2;
+namespace Tests\Civix\ApiBundle\Controller\V2;
 
 use Civix\CoreBundle\Entity\Report\PetitionResponseReport;
 use Civix\CoreBundle\Entity\SocialActivity;
@@ -28,7 +28,7 @@ class UserPetitionControllerTest extends WebTestCase
     /**
      * @var null|Client
      */
-    private $client = null;
+    private $client;
 
     public function setUp()
     {
@@ -59,9 +59,11 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertSame(6, $data['totalItems']);
-        $this->assertCount(6, $data['payload']);
-        foreach ($data['payload'] as $item) {
-            if ($petition->getId() == $item['id']) {
+        /** @var array $payload */
+        $payload = $data['payload'];
+        $this->assertCount(6, $payload);
+        foreach ($payload as $item) {
+            if ($petition->getId() === $item['id']) {
                 $this->assertCount(1, $item['answers']);
                 $this->assertEquals($signature->getOptionId(), $item['answers'][0]['option_id']);
                 $this->assertArrayHasKey('html_body', $item);
@@ -596,7 +598,7 @@ class UserPetitionControllerTest extends WebTestCase
      * @param array $methods
      * @return \PHPUnit_Framework_MockObject_MockObject|UserPetitionManager
      */
-    private function getPetitionManagerMock($methods = [])
+    private function getPetitionManagerMock(array $methods = [])
     {
         $container = $this->client->getContainer();
         return $this->getMockBuilder(UserPetitionManager::class)

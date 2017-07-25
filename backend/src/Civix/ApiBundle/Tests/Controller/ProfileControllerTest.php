@@ -284,7 +284,7 @@ class ProfileControllerTest extends WebTestCase
         $params = [
             'facebook_id' => 'id_00001',
             'facebook_token' => 'xxx_token',
-            'avatar_file_name' => __DIR__.'/../data/image.png',
+            'avatar_file_name' => base64_encode(file_get_contents(__DIR__.'/../data/image.png')),
         ];
         $client = $this->client;
         $service = $this->getMockBuilder(FacebookApi::class)
