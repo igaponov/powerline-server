@@ -278,6 +278,9 @@ fos_rest:
 jms_serializer:
     metadata:
         directories:
+            CivixComponent:
+                namespace_prefix: Civix\Component
+                path: '%kernel.root_dir%/config/serializer/CivixComponent'
             KnpPaginatorBundle:
                 namespace_prefix: Knp\Bundle\PaginatorBundle
                 path: '%kernel.root_dir%/config/serializer/KnpPaginatorBundle'

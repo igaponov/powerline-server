@@ -109,13 +109,15 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service class="Civix\ApiBundle\View\ConstraintViolationListHandler" id="civix_api.constraint_violation_list_handler"/>
+        <service class="Civix\ApiBundle\View\JsonHandler" id="civix_api.json_handler">
+            <argument id="router" type="service"/>
+        </service>
 
         <service parent="fos_rest.view_handler.default" id="civix_api.view_handler">
             <call method="registerHandler">
                 <argument type="string">json</argument>
                 <argument type="collection">
-                    <argument type="service" id="civix_api.constraint_violation_list_handler"/>
+                    <argument type="service" id="civix_api.json_handler"/>
                     <argument type="string">createResponse</argument>
                 </argument>
             </call>

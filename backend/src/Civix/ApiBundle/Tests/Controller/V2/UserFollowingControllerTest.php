@@ -99,7 +99,7 @@ class UserFollowingControllerTest extends WebTestCase
         $this->assertEquals($user->getSlogan(), $data['slogan']);
         $this->assertEquals($user->getInterests(), $data['interests']);
         $this->assertTrue($data['notifying']);
-        $this->assertEmpty($data['avatar_file_name']);
+        $this->assertContains($user->getAvatarFileName(), $data['avatar_file_name']);
         $this->assertArrayHasKey('date_create', $data);
         $this->assertArrayHasKey('date_approval', $data);
     }
@@ -130,7 +130,7 @@ class UserFollowingControllerTest extends WebTestCase
         $this->assertEquals($user->getSlogan(), $data['slogan']);
         $this->assertEquals($user->getInterests(), $data['interests']);
         $this->assertTrue($data['notifying']);
-        $this->assertEmpty($data['avatar_file_name']);
+        $this->assertContains($user->getAvatarFileName(), $data['avatar_file_name']);
         $this->assertArrayHasKey('date_create', $data);
         $this->assertArrayHasKey('date_approval', $data);
     }

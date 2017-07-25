@@ -113,7 +113,8 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
             ->setIsNotifOwnPostChanged(false)
             ->setPhone('+'.mt_rand())
             ->setToken($username)
-            ->setFacebookId('fb_'.$username);
+            ->setFacebookId('fb_'.$username)
+            ->setAvatarFileName(uniqid('', true).'.jpg');
 
         $district = (array)$district;
         foreach ($district as $item) {

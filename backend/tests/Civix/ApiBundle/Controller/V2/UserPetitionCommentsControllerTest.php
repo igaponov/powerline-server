@@ -1,6 +1,7 @@
 <?php
-namespace Civix\ApiBundle\Tests\Controller\V2;
+namespace Tests\Civix\ApiBundle\Controller\V2;
 
+use Civix\ApiBundle\Tests\Controller\V2\CommentsControllerTest;
 use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\CommentedInterface;
