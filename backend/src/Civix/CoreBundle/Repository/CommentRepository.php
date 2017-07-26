@@ -89,7 +89,7 @@ abstract class CommentRepository extends EntityRepository
             ->getOneOrNullResult();
     }
 
-    public function findOneWithPostAndGroup($id)
+    public function findOneWithCommentedEntityAndGroup($id)
     {
         return $this->createQueryBuilder('c')
             ->addSelect('e', 'g')

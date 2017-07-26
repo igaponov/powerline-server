@@ -2,7 +2,7 @@
 namespace Civix\ApiBundle\Controller\V2_2;
 
 use Civix\Component\Doctrine\ORM\Cursor;
-use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\UserPetition;
 use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -13,9 +13,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @Route("/posts/{id}/comments", requirements={"id"="\d+"})
+ * @Route("/user-petitions/{id}/comments", requirements={"id"="\d+"})
  */
-class PostCommentsController extends AbstractCommentsController
+class UserPetitionCommentsController extends AbstractCommentsController
 {
     /**
      * Get root comments.
@@ -29,11 +29,11 @@ class PostCommentsController extends AbstractCommentsController
      *
      * @ApiDoc(
      *     authentication=true,
-     *     section="Posts",
+     *     section="User Petitions",
      *     description="Get comments",
      *     output={
-     *          "class" = "array<Civix\CoreBundle\Entity\Post\Comment>",
-     *          "groups" = {"api-comments", "api-comments-parent", "comments-rate"},
+     *          "class" = "array<Civix\CoreBundle\Entity\UserPetition\Comment>",
+     *          "groups" = {"api-comments", "api-comments-parent", "comments-rate", "comment-root"},
      *          "parsers" = {
      *              "Nelmio\ApiDocBundle\Parser\CollectionParser",
      *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
@@ -41,7 +41,7 @@ class PostCommentsController extends AbstractCommentsController
      *     },
      *     statusCodes={
      *         403="Access Denied",
-     *         404="Post Not Found",
+     *         404="User Petition Not Found",
      *         405="Method Not Allowed"
      *     }
      * )
@@ -49,11 +49,11 @@ class PostCommentsController extends AbstractCommentsController
      * @View(serializerGroups={"api-comments", "api-comments-parent", "comments-rate"})
      *
      * @param ParamFetcher $params
-     * @param Post $entity
+     * @param UserPetition $entity
      *
      * @return Cursor
      */
-    public function getCommentsAction(ParamFetcher $params, Post $entity): Cursor
+    public function getCommentsAction(ParamFetcher $params, UserPetition $entity): Cursor
     {
         return $this->getComments($params, $entity);
     }

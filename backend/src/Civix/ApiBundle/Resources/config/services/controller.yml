@@ -36,3 +36,19 @@ services:
     Civix\ApiBundle\Controller\V2_2\PostCommentController:
         class: Civix\ApiBundle\Controller\V2_2\PostCommentController
         arguments: ['@doctrine.orm.entity_manager', '@security.token_storage']
+
+    Civix\ApiBundle\Controller\V2_2\UserPetitionCommentsController:
+        class: Civix\ApiBundle\Controller\V2_2\UserPetitionCommentsController
+        arguments: ['@doctrine.orm.entity_manager', '@security.token_storage']
+
+    Civix\ApiBundle\Controller\V2_2\UserPetitionCommentController:
+        class: Civix\ApiBundle\Controller\V2_2\UserPetitionCommentController
+        arguments: ['@doctrine.orm.entity_manager', '@security.token_storage']
+
+    Civix\ApiBundle\Controller\V2_2\PollCommentsController:
+        class: Civix\ApiBundle\Controller\V2_2\PollCommentsController
+        arguments: ['@doctrine.orm.entity_manager', '@security.token_storage']
+
+    Civix\ApiBundle\Controller\V2_2\PollCommentController:
+        class: Civix\ApiBundle\Controller\V2_2\PollCommentController
+        arguments: ['@doctrine.orm.entity_manager', '@security.token_storage']
