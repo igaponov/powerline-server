@@ -7,7 +7,6 @@ use Civix\Component\Cursor\Event\ItemsEvent;
 use Civix\Component\Doctrine\ORM\Cursor;
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\CommentedInterface;
-use Civix\CoreBundle\Entity\Post\Comment;
 use Civix\CoreBundle\Entity\User;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query;
@@ -103,7 +102,7 @@ class RootCommentsByEntityQuery
     private function getChildCommentsQuery(string $class, array $data, User $user): Query
     {
         $expr = $this->em->getExpressionBuilder();
-        $ids = array_map(function (Comment $comment) {
+        $ids = array_map(function (BaseComment $comment) {
             return $comment->getId();
         }, $data);
 

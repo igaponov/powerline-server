@@ -2,7 +2,7 @@
 namespace Civix\ApiBundle\Controller\V2_2;
 
 use Civix\Component\Doctrine\ORM\Cursor;
-use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\Poll\Question;
 use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -13,9 +13,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @Route("/posts/{id}/comments", requirements={"id"="\d+"})
+ * @Route("/polls/{id}/comments", requirements={"id"="\d+"})
  */
-class PostCommentsController extends AbstractCommentsController
+class PollCommentsController extends AbstractCommentsController
 {
     /**
      * Get root comments.
@@ -29,10 +29,10 @@ class PostCommentsController extends AbstractCommentsController
      *
      * @ApiDoc(
      *     authentication=true,
-     *     section="Posts",
+     *     section="Polls",
      *     description="Get comments",
      *     output={
-     *          "class" = "array<Civix\CoreBundle\Entity\Post\Comment>",
+     *          "class" = "array<Civix\CoreBundle\Entity\Poll\Comment>",
      *          "groups" = {"api-comments", "api-comments-parent", "comments-rate"},
      *          "parsers" = {
      *              "Nelmio\ApiDocBundle\Parser\CollectionParser",
@@ -41,7 +41,7 @@ class PostCommentsController extends AbstractCommentsController
      *     },
      *     statusCodes={
      *         403="Access Denied",
-     *         404="Post Not Found",
+     *         404="Poll Not Found",
      *         405="Method Not Allowed"
      *     }
      * )
@@ -49,11 +49,11 @@ class PostCommentsController extends AbstractCommentsController
      * @View(serializerGroups={"api-comments", "api-comments-parent", "comments-rate"})
      *
      * @param ParamFetcher $params
-     * @param Post $entity
+     * @param Question $entity
      *
      * @return Cursor
      */
-    public function getCommentsAction(ParamFetcher $params, Post $entity): Cursor
+    public function getCommentsAction(ParamFetcher $params, Question $entity): Cursor
     {
         return $this->getComments($params, $entity);
     }

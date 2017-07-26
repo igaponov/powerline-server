@@ -3,18 +3,18 @@
 namespace Tests\Civix\ApiBundle\Controller\V2_2;
 
 use Civix\CoreBundle\Entity\BaseComment;
-use Civix\CoreBundle\Entity\Post\Comment;
+use Civix\CoreBundle\Entity\Poll\Comment;
 use Civix\CoreBundle\Entity\User;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Liip\FunctionalTestBundle\Annotations\QueryCount;
-use Tests\Civix\CoreBundle\DataFixtures\ORM\LoadPostCommentData;
-use Tests\Civix\CoreBundle\DataFixtures\ORM\LoadPostCommentRateData;
+use Tests\Civix\CoreBundle\DataFixtures\ORM\LoadPollCommentData;
+use Tests\Civix\CoreBundle\DataFixtures\ORM\LoadPollCommentRateData;
 
-class PostCommentControllerTest extends CommentControllerTestCase
+class PollCommentControllerTest extends CommentControllerTestCase
 {
     protected function getEndpoint()
     {
-        return '/api/v2.2/post-comments/{id}';
+        return '/api/v2.2/poll-comments/{id}';
     }
 
     /**
@@ -23,18 +23,18 @@ class PostCommentControllerTest extends CommentControllerTestCase
     public function testGetChildComments(): ReferenceRepository
     {
         $repository = $this->loadFixtures([
-            LoadPostCommentData::class,
-            LoadPostCommentRateData::class,
+            LoadPollCommentData::class,
+            LoadPollCommentRateData::class,
         ])->getReferenceRepository();
         /** @var Comment $comment */
-        $comment = $repository->getReference('post_comment_1');
+        $comment = $repository->getReference('poll_comment_1');
         /** @var User $user */
         $user = $repository->getReference('user_1');
         /** @var BaseComment[] $comments */
         $comments = [
-            $repository->getReference('post_comment_4'),
-            $repository->getReference('post_comment_5'),
-            $repository->getReference('post_comment_6'),
+            $repository->getReference('poll_comment_4'),
+            $repository->getReference('poll_comment_5'),
+            $repository->getReference('poll_comment_6'),
         ];
         $this->getChildComments($comment, $user, $comments);
 
@@ -49,13 +49,13 @@ class PostCommentControllerTest extends CommentControllerTestCase
     public function testGetChildCommentsWithCursor(ReferenceRepository $repository): void
     {
         /** @var Comment $parent */
-        $parent = $repository->getReference('post_comment_1');
+        $parent = $repository->getReference('poll_comment_1');
         /** @var User $user */
         $user = $repository->getReference('user_1');
         /** @var BaseComment $comment */
-        $comment = $repository->getReference('post_comment_5');
+        $comment = $repository->getReference('poll_comment_5');
         /** @var BaseComment $cursor */
-        $cursor = $repository->getReference('post_comment_6');
+        $cursor = $repository->getReference('poll_comment_6');
         $this->getChildCommentsWithCursor($parent, $user, $comment, $cursor);
     }
 }

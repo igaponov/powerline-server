@@ -2,37 +2,42 @@
 namespace Civix\ApiBundle\Controller\V2_2;
 
 use Civix\Component\Doctrine\ORM\Cursor;
-use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\Poll\Comment;
 use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Request\ParamFetcher;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @Route("/posts/{id}/comments", requirements={"id"="\d+"})
+ * @Route("/poll-comments/{id}", requirements={"id"="\d+"})
  */
-class PostCommentsController extends AbstractCommentsController
+class PollCommentController extends AbstractCommentController
 {
     /**
-     * Get root comments.
+     * Get child comments.
      *
-     * @REST\Get("")
+     * @REST\Get("/comments")
+     *
+     * @ParamConverter(name="comment", options={
+     *     "repository_method" = "findOneWithCommentedEntityAndGroup"
+     * })
      *
      * @QueryParam(name="cursor", requirements="\d+", default="0")
      * @QueryParam(name="limit", requirements=@Assert\Range(min="1", max="20"), default="20")
      *
-     * @Security(expression="is_granted('view', entity)")
+     * @Security(expression="is_granted('view', comment)")
      *
      * @ApiDoc(
      *     authentication=true,
-     *     section="Posts",
+     *     section="Polls",
      *     description="Get comments",
      *     output={
-     *          "class" = "array<Civix\CoreBundle\Entity\Post\Comment>",
+     *          "class" = "array<Civix\CoreBundle\Entity\Poll\Comment>",
      *          "groups" = {"api-comments", "api-comments-parent", "comments-rate"},
      *          "parsers" = {
      *              "Nelmio\ApiDocBundle\Parser\CollectionParser",
@@ -41,7 +46,7 @@ class PostCommentsController extends AbstractCommentsController
      *     },
      *     statusCodes={
      *         403="Access Denied",
-     *         404="Post Not Found",
+     *         404="Poll Not Found",
      *         405="Method Not Allowed"
      *     }
      * )
@@ -49,12 +54,12 @@ class PostCommentsController extends AbstractCommentsController
      * @View(serializerGroups={"api-comments", "api-comments-parent", "comments-rate"})
      *
      * @param ParamFetcher $params
-     * @param Post $entity
+     * @param Comment $comment
      *
      * @return Cursor
      */
-    public function getCommentsAction(ParamFetcher $params, Post $entity): Cursor
+    public function getCommentsAction(ParamFetcher $params, Comment $comment): Cursor
     {
-        return $this->getComments($params, $entity);
+        return $this->getComments($params, $comment);
     }
 }

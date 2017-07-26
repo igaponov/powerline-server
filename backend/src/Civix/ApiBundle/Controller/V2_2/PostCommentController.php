@@ -3,11 +3,11 @@ namespace Civix\ApiBundle\Controller\V2_2;
 
 use Civix\Component\Doctrine\ORM\Cursor;
 use Civix\CoreBundle\Entity\Post\Comment;
+use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Request\ParamFetcher;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -21,12 +21,11 @@ class PostCommentController extends AbstractCommentController
     /**
      * Get child comments.
      *
-     * @Route("/comments")
-     * @Method("GET")
+     * @REST\Get("/comments")
      *
      * @ParamConverter(name="comment", options={
-     *     "repository_method" = "findOneWithPostAndGroup"
-     * }, converter="doctrine.orm")
+     *     "repository_method" = "findOneWithCommentedEntityAndGroup"
+     * })
      *
      * @QueryParam(name="cursor", requirements="\d+", default="0")
      * @QueryParam(name="limit", requirements=@Assert\Range(min="1", max="20"), default="20")
