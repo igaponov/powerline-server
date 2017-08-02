@@ -54,7 +54,8 @@
         "aws/aws-sdk-php-symfony": "~1.2",
         "serendipity_hq/aws-ses-monitor-bundle": "~1.1",
         "aws/aws-sdk-php": "~3.27",
-        "yohang88/letter-avatar": "~1.0"
+        "yohang88/letter-avatar": "~1.0",
+        "norkunas/onesignal-php-api": "1.0.0-rc2"
     },
     "require-dev": {
         "phing/phing": "~2.16",
@@ -88,7 +89,7 @@
     },
     "config": {
         "platform": {
-            "php": "7.0"
+            "php": "7.1"
         },
         "bin-dir": "bin"
     },
