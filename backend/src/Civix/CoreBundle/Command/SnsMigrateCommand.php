@@ -2,11 +2,12 @@
 
 namespace Civix\CoreBundle\Command;
 
+use Civix\Component\Notification\Model\AndroidEndpoint;
+use Civix\Component\Notification\Model\IOSEndpoint;
+use Civix\CoreBundle\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Civix\CoreBundle\Entity\Notification;
-use Civix\CoreBundle\Entity\User;
 
 class SnsMigrateCommand extends ContainerAwareCommand
 {
@@ -19,8 +20,8 @@ class SnsMigrateCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /* @var $notification \Civix\CoreBundle\Service\Notification */
-        $notification = $this->getContainer()->get('civix_core.notification');
+        /* @var $notification \Civix\Component\Notification\Adapter\AWSAdapter */
+        $notification = $this->getContainer()->get('aws_');
         /* @var $em \Doctrine\ORM\EntityManager */
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
 
@@ -28,7 +29,7 @@ class SnsMigrateCommand extends ContainerAwareCommand
         /* @var $user \Civix\CoreBundle\Entity\User */
         foreach ($users as $user) {
             if ($user->getAndroidDevice()) {
-                $endpoint = new Notification\AndroidEndpoint();
+                $endpoint = new AndroidEndpoint();
                 $endpoint->setToken($user->getAndroidDevice())
                     ->setUser($user)
                 ;
@@ -36,7 +37,7 @@ class SnsMigrateCommand extends ContainerAwareCommand
                 $output->writeln("<comment>Added android endpoint for user:</comment> {$user->getUsername()}");
             }
             if ($user->getIosDevice()) {
-                $endpoint = new Notification\IOSEndpoint();
+                $endpoint = new IOSEndpoint();
                 $endpoint->setToken($user->getIosDevice())
                     ->setUser($user)
                 ;

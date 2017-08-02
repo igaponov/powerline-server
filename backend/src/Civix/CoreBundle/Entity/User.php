@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\Component\Notification\Model\RecipientInterface;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Model\Avatar\DefaultAvatarInterface;
 use Civix\CoreBundle\Model\Avatar\FirstLetterDefaultAvatar;
@@ -47,7 +48,8 @@ class User implements
     HasAvatarInterface,
     ChangeableAvatarInterface,
     PasswordEncodeInterface,
-    AdvancedUserInterface
+    AdvancedUserInterface,
+    RecipientInterface
 {
     use HasStripeCustomerTrait, HasAvatarTrait;
 

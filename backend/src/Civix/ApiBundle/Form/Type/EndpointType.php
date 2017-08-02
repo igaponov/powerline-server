@@ -2,9 +2,9 @@
 
 namespace Civix\ApiBundle\Form\Type;
 
-use Civix\CoreBundle\Entity\Notification\AbstractEndpoint;
-use Civix\CoreBundle\Entity\Notification\AndroidEndpoint;
-use Civix\CoreBundle\Entity\Notification\IOSEndpoint;
+use Civix\Component\Notification\Model\AbstractEndpoint;
+use Civix\Component\Notification\Model\AndroidEndpoint;
+use Civix\Component\Notification\Model\IOSEndpoint;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -15,7 +15,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class EndpointType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $choices = AbstractEndpoint::getTypes();
         $builder
@@ -43,7 +43,7 @@ class EndpointType extends AbstractType
         });
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => AbstractEndpoint::class,
@@ -51,7 +51,7 @@ class EndpointType extends AbstractType
         ]);
     }
 
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return '';
     }

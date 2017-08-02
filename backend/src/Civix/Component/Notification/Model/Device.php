@@ -1,8 +1,7 @@
 <?php
 
-namespace Civix\CoreBundle\Entity\Notification;
+namespace Civix\Component\Notification\Model;
 
-use Civix\CoreBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -13,7 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity()
  * @ORM\Table(name="notification_devices")
  */
-class Device
+class Device implements ModelInterface
 {
     const TYPE_IOS = 0;
     const TYPE_ANDROID = 1;
@@ -84,9 +83,9 @@ class Device
     private $createdAt;
 
     /**
-     * @var User
+     * @var RecipientInterface
      *
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\User")
+     * @ORM\ManyToOne(targetEntity="Civix\Component\Notification\Model\RecipientInterface")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $user;
@@ -107,7 +106,7 @@ class Device
         ];
     }
 
-    public function __construct(User $user)
+    public function __construct(RecipientInterface $user)
     {
         $this->user = $user;
         $this->createdAt = new \DateTimeImmutable();
@@ -271,9 +270,9 @@ class Device
     }
 
     /**
-     * @return User
+     * @return RecipientInterface
      */
-    public function getUser(): User
+    public function getUser(): RecipientInterface
     {
         return $this->user;
     }

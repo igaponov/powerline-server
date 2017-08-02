@@ -151,10 +151,8 @@
         <service id="civix_core.push_sender" class="Civix\CoreBundle\Service\PushSender">
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="civix_core.question_users_push" />
-            <argument type="service" id="civix_core.notification" />
+            <argument type="service" id="civix.notification.sender" />
             <argument type="service" id="monolog.logger.push" />
-            <argument type="service" id="imgix.url_builder" />
-            <argument type="string">%hostname%</argument>
         </service>
 
         <service id="civix_core.question_users_push" class="Civix\CoreBundle\Service\Poll\QuestionUserPush">
@@ -278,7 +276,6 @@
             <argument type="service" id="aws.sns" />
             <argument>%amazon_sns.android_arn%</argument>
             <argument>%amazon_sns.ios_arn%</argument>
-            <argument type="service" id="monolog.logger.push" />
         </service>
 
         <service id="civix_core.email_sender" class="Civix\CoreBundle\Service\EmailSender">

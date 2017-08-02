@@ -1,13 +1,12 @@
 <?php
 
-namespace Civix\CoreBundle\Entity\Notification;
+namespace Civix\Component\Notification\Model;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
+use Doctrine\ORM\Mapping\InheritanceType;
 use JMS\Serializer\Annotation as Serializer;
-use Civix\CoreBundle\Entity\User;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -18,16 +17,16 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @InheritanceType("SINGLE_TABLE")
  * @DiscriminatorColumn(name="type", type="string")
  * @DiscriminatorMap({
- *      "ios" = "Civix\CoreBundle\Entity\Notification\IOSEndpoint",
- *      "android" = "Civix\CoreBundle\Entity\Notification\AndroidEndpoint"
+ *      "ios": "Civix\Component\Notification\Model\IOSEndpoint",
+ *      "android": "Civix\Component\Notification\Model\AndroidEndpoint"
  * })
  * @Serializer\ExclusionPolicy("all")
  * @Serializer\Discriminator(field = "type", map = {
- *      "ios": "Civix\CoreBundle\Entity\Notification\IOSEndpoint",
- *      "android": "Civix\CoreBundle\Entity\Notification\AndroidEndpoint",
+ *      "ios": "Civix\Component\Notification\Model\IOSEndpoint",
+ *      "android": "Civix\Component\Notification\Model\AndroidEndpoint"
  * })
  */
-abstract class AbstractEndpoint
+abstract class AbstractEndpoint implements ModelInterface
 {
     const TYPE_IOS = 'ios';
     const TYPE_ANDROID = 'android';
@@ -62,14 +61,14 @@ abstract class AbstractEndpoint
     private $arn;
 
     /**
-     * @var User
+     * @var RecipientInterface
      *
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\User")
+     * @ORM\ManyToOne(targetEntity="Civix\Component\Notification\Model\RecipientInterface")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      */
     private $user;
 
-    public static function getTypes()
+    public static function getTypes(): array
     {
         return [
             self::TYPE_IOS,
@@ -77,14 +76,12 @@ abstract class AbstractEndpoint
         ];
     }
 
-    abstract public function getPlatformMessage($title, $message, $type, $entityData, $image, $badge = null);
-
     /**
      * @param string $arn
      *
      * @return self
      */
-    public function setArn($arn)
+    public function setArn($arn): AbstractEndpoint
     {
         $this->arn = $arn;
 
@@ -94,7 +91,7 @@ abstract class AbstractEndpoint
     /**
      * @return string
      */
-    public function getArn()
+    public function getArn(): ?string
     {
         return $this->arn;
     }
@@ -104,7 +101,7 @@ abstract class AbstractEndpoint
      *
      * @return self
      */
-    public function setId($id)
+    public function setId($id): AbstractEndpoint
     {
         $this->id = $id;
 
@@ -114,7 +111,7 @@ abstract class AbstractEndpoint
     /**
      * @return int
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -124,7 +121,7 @@ abstract class AbstractEndpoint
      *
      * @return self
      */
-    public function setToken($token)
+    public function setToken($token): AbstractEndpoint
     {
         $this->token = $token;
 
@@ -134,17 +131,17 @@ abstract class AbstractEndpoint
     /**
      * @return string
      */
-    public function getToken()
+    public function getToken(): ?string
     {
         return $this->token;
     }
 
     /**
-     * @param User $user
+     * @param RecipientInterface $user
      *
      * @return self
      */
-    public function setUser(User $user)
+    public function setUser(RecipientInterface $user): AbstractEndpoint
     {
         $this->user = $user;
 
@@ -152,21 +149,21 @@ abstract class AbstractEndpoint
     }
 
     /**
-     * @return User
+     * @return RecipientInterface
      */
-    public function getUser()
+    public function getUser(): ?RecipientInterface
     {
         return $this->user;
     }
 
-    public function getContext()
+    public function getContext(): array
     {
         return [
             'token' => $this->getToken(),
             'arn' => $this->getArn(),
             'user' => [
-                'id' => $this->getUser()->getId(),
-                'username' => $this->getUser()->getUsername(),
+                'id' => $this->getUser() ? $this->getUser()->getId() : null,
+                'username' => $this->getUser() ? $this->getUser()->getUsername() : null,
             ],
         ];
     }

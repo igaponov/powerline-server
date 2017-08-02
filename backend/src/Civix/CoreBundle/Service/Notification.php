@@ -2,11 +2,12 @@
 
 namespace Civix\CoreBundle\Service;
 
-use Doctrine\ORM\EntityManager;
-use Aws\Sns\SnsClient;
 use Aws\Sns\Exception;
-use Civix\CoreBundle\Entity\Notification as Model;
-use Psr\Log\LoggerInterface;
+use Aws\Sns\SnsClient;
+use Civix\Component\Notification\Model\AbstractEndpoint;
+use Civix\Component\Notification\Model\AndroidEndpoint;
+use Civix\Component\Notification\Model\IOSEndpoint;
+use Doctrine\ORM\EntityManager;
 
 class Notification
 {
@@ -29,21 +30,16 @@ class Notification
      * @var string
      */
     private $iosArn;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
 
-    public function __construct(EntityManager $em, SnsClient $sns, $androidArn, $iosArn, LoggerInterface $logger)
+    public function __construct(EntityManager $em, SnsClient $sns, $androidArn, $iosArn)
     {
         $this->em = $em;
         $this->sns = $sns;
         $this->androidArn = $androidArn;
         $this->iosArn = $iosArn;
-        $this->logger = $logger;
     }
 
-    public function handleEndpoint(Model\AbstractEndpoint $newEndpoint)
+    public function handleEndpoint(AbstractEndpoint $newEndpoint): AbstractEndpoint
     {
         $endpoints = $this->em->getRepository(get_class($newEndpoint))->createQueryBuilder('e')
             ->where('e.token = :token OR e.user = :user')
@@ -60,38 +56,17 @@ class Notification
         return $newEndpoint;
     }
 
-    public function send($title, $message, $type, $entityData, $image, Model\AbstractEndpoint $endpoint, $badge = null)
+    /**
+     * @param AbstractEndpoint[] $endpoints
+     */
+    private function removeEndpoints(array $endpoints): void
     {
-        try {
-            $platformMessage = $endpoint->getPlatformMessage($title, $message, $type, $entityData, $image, $badge);
-            $this->sns->publish(array(
-                'TargetArn' => $endpoint->getArn(),
-                'MessageStructure' => 'json',
-                'Message' => $platformMessage
-            ));
-            $this->logger->debug(
-                'Message is pushed '.str_replace('\\', '', $platformMessage),
-                $endpoint->getContext()
-            );
-        } catch (Exception\SnsException $e) {
-            if ($e->getAwsErrorCode() === 'EndpointDisabled') {
-                $this->logger->debug($e->getAwsErrorMessage(), $endpoint->getContext());
-                $this->removeEndpoint($endpoint);
-            } else {
-                $this->logger->critical($e->getAwsErrorMessage(), $endpoint->getContext());
-            }
-        }
-    }
-
-    private function removeEndpoints($endpoints)
-    {
-        /* @var $endpoint Model\AbstractEndpoint */
         foreach ($endpoints as $endpoint) {
             $this->removeEndpoint($endpoint);
         }
     }
 
-    private function removeEndpoint(Model\AbstractEndpoint $endpoint)
+    private function removeEndpoint(AbstractEndpoint $endpoint): void
     {
         $this->sns->deleteEndpoint([
             'EndpointArn' => $endpoint->getArn(),
@@ -100,13 +75,13 @@ class Notification
         $this->em->flush($endpoint);
     }
 
-    private function addEndpoint(Model\AbstractEndpoint $endpoint)
+    private function addEndpoint(AbstractEndpoint $endpoint): void
     {
         try {
             $result = $this->sns->createPlatformEndpoint([
                 'PlatformApplicationArn' => $this->getPlatformArn($endpoint),
                 'Token' => $endpoint->getToken(),
-                'CustomUserData' => $endpoint->getUser()->getId(),
+                'CustomUserData' => $endpoint->getUser() ? $endpoint->getUser()->getId() : null,
             ]);
         } catch (Exception\SnsException $e) {
             if (preg_match(
@@ -133,12 +108,12 @@ class Notification
         $this->em->flush($endpoint);
     }
 
-    private function getPlatformArn(Model\AbstractEndpoint $endpoint)
+    private function getPlatformArn(AbstractEndpoint $endpoint): string
     {
-        if ($endpoint instanceof Model\AndroidEndpoint) {
+        if ($endpoint instanceof AndroidEndpoint) {
             return $this->androidArn;
         }
-        if ($endpoint instanceof Model\IOSEndpoint) {
+        if ($endpoint instanceof IOSEndpoint) {
             return $this->iosArn;
         }
         throw new \InvalidArgumentException(
