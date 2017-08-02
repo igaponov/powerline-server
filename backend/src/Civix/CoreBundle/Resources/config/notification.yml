@@ -1,0 +1,90 @@
+services:
+    one_signal.http_client:
+        class: Http\Adapter\Guzzle6\Client
+        public: false
+
+    one_signal.message_factory:
+        class: Http\Message\MessageFactory\GuzzleMessageFactory
+        public: false
+
+    one_signal.client:
+        class: Http\Client\Common\HttpMethodsClient
+        public: false
+        arguments:
+            - '@one_signal.http_client'
+            - '@one_signal.message_factory'
+
+    one_signal.config:
+        class: OneSignal\Config
+        public: false
+        calls:
+            - ['setApplicationId', ['%one_signal.app_id%']]
+            - ['setApplicationAuthKey', ['%one_signal.app_auth_key%']]
+            - ['setUserAuthKey', ['%one_signal.user_auth_key%']]
+
+    one_signal.api:
+        class: OneSignal\OneSignal
+        public: false
+        arguments:
+            - '@one_signal.config'
+            - '@one_signal.client'
+
+    one_signal.notifications:
+        class: OneSignal\Notifications
+        public: false
+        arguments: ['@one_signal.api']
+
+    civix.notification.object_device_retriever:
+        class: Civix\Component\Notification\Retriever\ObjectDeviceRetriever
+        public: false
+        arguments: ['@doctrine.orm.entity_manager']
+
+    civix.notification.object_endpoint_retriever:
+        class: Civix\Component\Notification\Retriever\ObjectEndpointRetriever
+        public: false
+        arguments: ['@doctrine.orm.entity_manager']
+
+    civix.notification.aws_data_factory:
+        class: Civix\Component\Notification\DataFactory\AWSDataFactory
+        public: false
+
+    civix.notification.one_signal_data_factory:
+        class: Civix\Component\Notification\DataFactory\OneSignalDataFactory
+        public: false
+
+    civix.notification.aws_adapter:
+        class: Civix\Component\Notification\Adapter\AWSAdapter
+        public: false
+        arguments:
+            - '@civix.notification.object_endpoint_retriever'
+            - '@aws.sns'
+            - '@civix.notification.aws_data_factory'
+
+    civix.notification.one_signal_adapter:
+        class: Civix\Component\Notification\Adapter\OneSignalAdapter
+        public: false
+        arguments:
+            - '@civix.notification.object_device_retriever'
+            - '@one_signal.notifications'
+            - '@civix.notification.one_signal_data_factory'
+
+    civix.notification.multi_adapter:
+        class: Civix\Component\Notification\Adapter\MultiAdapter
+        public: false
+        arguments:
+            - '@civix.notification.one_signal_adapter'
+            - '@civix.notification.aws_adapter'
+
+    civix.notification.handler:
+        class: Civix\Component\Notification\Handler\Handler
+        public: false
+        arguments:
+            - '@event_dispatcher'
+            - '@logger'
+
+    civix.notification.sender:
+        class: Civix\Component\Notification\Sender
+        arguments:
+            - '@civix.notification.multi_adapter'
+            - '@civix.notification.handler'
+            - '@event_dispatcher'
