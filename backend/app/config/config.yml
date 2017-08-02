@@ -75,9 +75,17 @@ doctrine:
                         dir: '%kernel.root_dir%/../app/Resources/config/AwsSesMonitorBundle/doctrine/mappings'
                         alias: 'AwsSesMonitorBundle'
                         prefix: 'SerendipityHQ\Bundle\AwsSesMonitorBundle\Model'
+                    Notification:
+                        mapping: true
+                        type: annotation
+                        dir: '%kernel.root_dir%/../src/Civix/Component/Notification/Model'
+                        alias: 'Notification'
+                        prefix: 'Civix\Component\Notification\Model'
+                        is_bundle: false
         resolve_target_entities:
             Civix\CoreBundle\Entity\Stripe\AccountInterface: \Civix\CoreBundle\Entity\Stripe\Account
             Civix\CoreBundle\Entity\Stripe\CustomerInterface: \Civix\CoreBundle\Entity\Stripe\Customer
+            Civix\Component\Notification\Model\RecipientInterface: \Civix\CoreBundle\Entity\User
 
 # Swiftmailer Configuration
 swiftmailer:

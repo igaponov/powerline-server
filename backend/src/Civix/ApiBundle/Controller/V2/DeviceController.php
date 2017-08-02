@@ -3,7 +3,7 @@
 namespace Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Form\Type\DeviceType;
-use Civix\CoreBundle\Entity\Notification\Device;
+use Civix\Component\Notification\Model\Device;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Controller\Annotations\Post;

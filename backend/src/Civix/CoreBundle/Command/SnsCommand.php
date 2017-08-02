@@ -3,7 +3,8 @@
 namespace Civix\CoreBundle\Command;
 
 use Aws\Sns\Exception\SnsException;
-use Civix\CoreBundle\Entity\Notification\AbstractEndpoint;
+use Civix\Component\Notification\Model\AbstractEndpoint;
+use Civix\Component\Notification\PushMessage;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -22,7 +23,7 @@ class SnsCommand extends ContainerAwareCommand
      */
     private $output;
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('sns')
@@ -80,17 +81,18 @@ class SnsCommand extends ContainerAwareCommand
                     return;
                 }
                 $testMessage = 'Test notification';
-                $service = $this->getContainer()->get('civix_core.notification');
+                $service = $this->getContainer()->get('civix.notification.sender');
                 try {
-                    $service->send(
+                    $message = new PushMessage(
+                        $endpoint->getUser(),
                         'Test title',
                         $testMessage,
                         'test-message',
                         ['property' => 'value'],
-                        null,
-                        $endpoint,
-                        5
+                        null
                     );
+                    $message->setBadge(5);
+                    $service->send($message);
                 } catch (SnsException $e) {
                     $output->writeln("<error>{$e->getMessage()}</error>");
                 }

@@ -3,7 +3,7 @@
 namespace Civix\ApiBundle\Form\Type;
 
 use Civix\ApiBundle\Form\KeyToValueTransformer;
-use Civix\CoreBundle\Entity\Notification\Device;
+use Civix\Component\Notification\Model\Device;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Form\FormBuilderInterface;

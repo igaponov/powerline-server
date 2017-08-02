@@ -67,3 +67,12 @@ services:
             - '@civix_core.cicero_api'
         tags:
             - { name: kernel.event_subscriber }
+
+    civix_core.event_listener.push_subscriber:
+        class: Civix\CoreBundle\EventListener\PushSubscriber
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - '@imgix.url_builder'
+            - '%hostname%'
+        tags:
+            - { name: kernel.event_subscriber }

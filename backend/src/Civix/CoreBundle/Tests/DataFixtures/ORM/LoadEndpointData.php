@@ -2,8 +2,8 @@
 
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
-use Civix\CoreBundle\Entity\Notification\AndroidEndpoint;
-use Civix\CoreBundle\Entity\Notification\IOSEndpoint;
+use Civix\Component\Notification\Model\AndroidEndpoint;
+use Civix\Component\Notification\Model\IOSEndpoint;
 use Civix\CoreBundle\Entity\User;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;

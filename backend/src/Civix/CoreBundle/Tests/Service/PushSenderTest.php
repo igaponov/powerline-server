@@ -2,16 +2,15 @@
 namespace Civix\CoreBundle\Tests\Service;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Poll\Comment;
-use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Service\Notification;
+use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Service\PushSender;
 use Civix\CoreBundle\Service\SocialActivityManager;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadAnnouncementGroupSectionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionGroupSectionData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadEndpointData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupAnnouncementData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupSectionUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPollSubscriberData;
@@ -30,6 +29,7 @@ class PushSenderTest extends WebTestCase
             LoadGroupQuestionData::class,
             LoadUserGroupOwnerData::class,
         ])->getReferenceRepository();
+        /** @var Question $poll */
         $poll = $repository->getReference('group_question_1');
         $user = $repository->getReference('user_1');
         $sender = $this->getPushSenderMock();
@@ -46,10 +46,11 @@ class PushSenderTest extends WebTestCase
                         'type' => 'poll-published',
                     ],
                 ],
-                $this->anything()
+                $poll->getGroup()->getAvatarFileName()
             );
         $sender->sendPushPublishQuestion($poll->getId(), 'Test title', 'test msg');
     }
+
     public function testSendPushPublishQuestionToGroupSectionUsers()
     {
         $repository = $this->loadFixtures([
@@ -57,6 +58,7 @@ class PushSenderTest extends WebTestCase
             LoadGroupSectionUserData::class,
             LoadQuestionGroupSectionData::class,
         ])->getReferenceRepository();
+        /** @var Question $poll */
         $poll = $repository->getReference('group_question_3');
         $user = $repository->getReference('user_1');
         $sender = $this->getPushSenderMock();
@@ -73,7 +75,7 @@ class PushSenderTest extends WebTestCase
                         'type' => 'poll-published',
                     ],
                 ],
-                $this->anything()
+                $poll->getGroup()->getAvatarFileName()
             )
         ;
         $sender->sendPushPublishQuestion($poll->getId(), 'Test title', 'test msg');
@@ -85,6 +87,7 @@ class PushSenderTest extends WebTestCase
             LoadGroupAnnouncementData::class,
             LoadUserGroupOwnerData::class,
         ])->getReferenceRepository();
+        /** @var Group $group */
         $group = $repository->getReference('group_1');
         $announcement = $repository->getReference('announcement_group_1');
         $user = $repository->getReference('user_1');
@@ -102,10 +105,11 @@ class PushSenderTest extends WebTestCase
                         'type' => 'announcement-published',
                     ],
                 ],
-                $this->anything()
+                $group->getAvatarFileName()
             );
         $sender->sendPublishedGroupAnnouncementPush($group->getId(), $announcement->getId());
     }
+
     public function testSendPublishedGroupAnnouncementPushToGroupSectionUsers()
     {
         $repository = $this->loadFixtures([
@@ -113,6 +117,7 @@ class PushSenderTest extends WebTestCase
             LoadGroupSectionUserData::class,
             LoadAnnouncementGroupSectionData::class,
         ])->getReferenceRepository();
+        /** @var Group $group */
         $group = $repository->getReference('group_1');
         $announcement = $repository->getReference('announcement_group_3');
         $user = $repository->getReference('user_1');
@@ -130,7 +135,7 @@ class PushSenderTest extends WebTestCase
                         'type' => 'announcement-published',
                     ],
                 ],
-                $this->anything()
+                $group->getAvatarFileName()
             )
         ;
         $sender->sendPublishedGroupAnnouncementPush($group->getId(), $announcement->getId());
@@ -151,7 +156,7 @@ class PushSenderTest extends WebTestCase
         $manager->noticeUserPetitionCommented($comment);
         $id = $conn->fetchColumn('SELECT id FROM social_activities');
         $sender = $this->getPushSenderMock();
-        $sender->expects($this->exactly(1))->method('send');
+        $sender->expects($this->once())->method('send');
         $sender->sendSocialActivity($id);
     }
 
@@ -170,7 +175,7 @@ class PushSenderTest extends WebTestCase
         $manager->noticePostCommented($comment);
         $id = $conn->fetchColumn('SELECT id FROM social_activities');
         $sender = $this->getPushSenderMock();
-        $sender->expects($this->exactly(1))->method('send');
+        $sender->expects($this->once())->method('send');
         $sender->sendSocialActivity($id);
     }
 
@@ -193,43 +198,6 @@ class PushSenderTest extends WebTestCase
         $sender->sendSocialActivity($id);
     }
 
-    public function testGetBadgeIsCalled()
-    {
-        $repository = $this->loadFixtures([
-            LoadEndpointData::class,
-        ])->getReferenceRepository();
-        /** @var User $user */
-        $user = $repository->getReference('user_1');
-        /** @var \PHPUnit_Framework_MockObject_MockObject|Notification $notification */
-        $notification = $this->getMockBuilder(Notification::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $notification->expects($this->exactly(2))
-            ->method('send')
-            ->with(
-                $this->anything(),
-                $this->anything(),
-                $this->anything(),
-                $this->anything(),
-                $this->anything(),
-                $this->anything(),
-                0
-            );
-        $sender = new PushSender(
-                $this->getContainer()
-                    ->get('doctrine')->getManager(),
-                $this->getContainer()
-                    ->get('civix_core.question_users_push'),
-                $notification,
-                $this->getContainer()
-                    ->get('logger'),
-                $this->getContainer()
-                    ->get('imgix.url_builder'),
-                'powerli.ne'
-            );
-        $sender->send($user, 'title', 'message', 'type', null, null);
-    }
-
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|PushSender
      */
@@ -243,7 +211,7 @@ class PushSenderTest extends WebTestCase
                     $this->getContainer()
                         ->get('civix_core.question_users_push'),
                     $this->getContainer()
-                        ->get('civix_core.notification'),
+                        ->get('civix.notification.sender'),
                     $this->getContainer()
                         ->get('logger'),
                     $this->getContainer()
