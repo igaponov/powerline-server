@@ -444,7 +444,8 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     /**
      * @var AdvancedAttributes
      *
-     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\Group\AdvancedAttributes", mappedBy="group")
+     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\Group\AdvancedAttributes", inversedBy="group")
+     * @ORM\JoinColumn(name="id", referencedColumnName="id")
      */
     private $advancedAttributes;
 
