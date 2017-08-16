@@ -1,7 +1,7 @@
 <?php
 namespace Civix\ApiBundle\View;
 
-use Civix\Component\Doctrine\ORM\Cursor;
+use Civix\Component\Cursor\CursorInterface;
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\View\ViewHandler;
 use Symfony\Component\HttpFoundation\Request;
@@ -60,13 +60,17 @@ class JsonHandler
             }
             $view->setStatusCode($code);
             $view->setData($data);
-        } elseif ($data instanceof Cursor) {
+        } elseif ($data instanceof CursorInterface) {
             $view->setData($data->getIterator()->getArrayCopy());
-            $url = $this->router->generate($request->attributes->get('_route'), array_merge(
-                $request->attributes->get('_route_params'),
-                $request->query->all(),
-                ['cursor' => $data->getNextCursor()]
-            ), UrlGeneratorInterface::ABSOLUTE_URL);
+            $url = $data->getNextCursor() ? $this->router->generate(
+                $request->attributes->get('_route'),
+                array_merge(
+                    $request->attributes->get('_route_params'),
+                    $request->query->all(),
+                    ['cursor' => $data->getNextCursor()]
+                ),
+                UrlGeneratorInterface::ABSOLUTE_URL
+            ) : null;
             $view->getResponse()->headers->set('X-Cursor-Next', $url);
         }
 

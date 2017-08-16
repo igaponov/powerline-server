@@ -2,6 +2,7 @@
 
 namespace Civix\Component\Doctrine\ORM;
 
+use Civix\Component\Cursor\CursorInterface;
 use Civix\Component\Cursor\Event\CursorEvents;
 use Civix\Component\Cursor\Event\ItemsEvent;
 use Civix\Component\Doctrine\ORM\Query\WhereWalker;
@@ -10,7 +11,7 @@ use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class Cursor implements \IteratorAggregate
+class Cursor implements CursorInterface
 {
     /**
      * @var QueryBuilder
