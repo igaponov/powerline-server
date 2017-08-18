@@ -17,7 +17,7 @@ trait CommentControllerTestTrait
     protected function assertComment(BaseComment $comment, User $owner, array $commentData): void
     {
         /** @var TestCase $this */
-        $this->assertCount(13, $commentData);
+        $this->assertCount(14, $commentData);
         $this->assertSame($comment->getPrivacyLabel(), $commentData['privacy']);
         $this->assertSame($comment->getId(), $commentData['id']);
         $this->assertSame($comment->getCommentBody(), $commentData['comment_body']);
@@ -55,5 +55,6 @@ trait CommentControllerTestTrait
         foreach ($children as $key => $child) {
             $this->assertComment($child, $owner, $commentData['children'][$key]);
         }
+        $this->assertSame($comment->getChildren()->count(), $commentData['child_count']);
     }
 }

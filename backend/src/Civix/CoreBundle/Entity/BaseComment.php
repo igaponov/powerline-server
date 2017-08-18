@@ -607,11 +607,15 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * @return int
      *
      * @Serializer\VirtualProperty()
-     * @Serializer\Since("2.2")
+     * @Serializer\Groups({"api-comments"})
      * @Serializer\Type("integer")
+     * @Serializer\Since("2.2")
      */
     public function getChildCount(): int
     {
+        if ($this->getParentId()) {
+            return 0;
+        }
         if (!$this->childCount) {
             $this->childCount = $this->getChildrenComments()->count();
         }
