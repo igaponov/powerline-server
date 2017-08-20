@@ -2,7 +2,11 @@
 
 namespace Civix\CoreBundle\QueryFunction;
 
+use Civix\CoreBundle\Entity\Activity;
+use Civix\CoreBundle\Entity\Poll\Question;
+use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserPetition;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
@@ -13,7 +17,7 @@ final class ActivitiesQuery
     /**
      * @var EntityManagerInterface
      */
-    protected $em;
+    private $em;
 
     public function __construct(EntityManagerInterface $em)
     {
@@ -118,9 +122,37 @@ final class ActivitiesQuery
         return $query;
     }
 
+    public function runPostQueries(array $activities): void
+    {
+        $postIds = $pollIds = $petitionIds = [];
+        /** @var Activity[] $activities */
+        foreach ($activities as $activity) {
+            if ($activity->getPost()) {
+                $postIds[] = $activity->getPost()->getId();
+            }
+            if ($activity->getPetition()) {
+                $petitionIds[] = $activity->getPetition()->getId();
+            }
+            if ($activity->getQuestion()) {
+                $pollIds[] = $activity->getQuestion()->getId();
+            }
+        }
+        if ($postIds) {
+            $this->selectComments(Post::class, $postIds);
+        }
+        if ($petitionIds) {
+            $this->selectComments(UserPetition::class, $petitionIds);
+        }
+        if ($pollIds) {
+            $this->selectComments(Question::class, $pollIds);
+            $this->selectEducationalContexts($pollIds);
+        }
+    }
+
     /**
      * @param $originalQueryBuilder
      * @return int
+     * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
     private function getCount(QueryBuilder $originalQueryBuilder): int
@@ -132,5 +164,41 @@ final class ActivitiesQuery
             ->setParameters(clone $originalQueryBuilder->getParameters());
 
         return (int)$qb->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * Select entity's comments by multi-step hydration
+     *
+     * @param string $class
+     * @param array $ids
+     */
+    private function selectComments(string $class, array $ids): void
+    {
+        $this->em->createQueryBuilder()
+            ->select('PARTIAL e.{id}', 'c', 'u')
+            ->from($class, 'e')
+            ->leftJoin('e.comments', 'c')
+            ->leftJoin('c.user', 'u')
+            ->where('e.id IN (:ids)')
+            ->setParameter(':ids', $ids)
+            ->orderBy('c.id')
+            ->groupBy('e.id')
+            ->getQuery()->execute();
+    }
+
+    /**
+     * Select entity's educational contexts by multi-step hydration
+     *
+     * @param array $ids
+     */
+    private function selectEducationalContexts(array $ids): void
+    {
+        $this->em->createQueryBuilder()
+            ->select('PARTIAL p.{id}', 'c')
+            ->from(Question::class, 'p')
+            ->leftJoin('p.educationalContext', 'c')
+            ->where('p.id IN (:ids)')
+            ->setParameter(':ids', $ids)
+            ->getQuery()->execute();
     }
 }

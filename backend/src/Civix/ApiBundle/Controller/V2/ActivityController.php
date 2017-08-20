@@ -5,6 +5,7 @@ namespace Civix\ApiBundle\Controller\V2;
 use Civix\ApiBundle\Form\Type\ActivitiesType;
 use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\ActivityRead;
+use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\QueryFunction\ActivitiesQuery;
@@ -75,7 +76,7 @@ class ActivityController extends FOSRestController
      *     }
      * )
      *
-     * @View(serializerGroups={"paginator", "api-activities", "activity-list"})
+     * @View(serializerGroups={"paginator", "api-activities", "activity-list", "api-comments", "api-comments-add"})
      *
      * @param ParamFetcher $params
      *
@@ -159,7 +160,7 @@ class ActivityController extends FOSRestController
         }
 
         $paginator = $this->get('knp_paginator');
-        $paginator->connect('knp_pager.after', function (AfterEvent $event) use ($user) {
+        $paginator->connect('knp_pager.after', function (AfterEvent $event) use ($user, $queryBuilder) {
             $filter = function (ActivityRead $activityRead) use ($user) {
                 return $activityRead->getUser()->getId() === $user->getId();
             };
@@ -178,6 +179,7 @@ class ActivityController extends FOSRestController
                 }
                 $activities[] = $activity;
             }
+            $queryBuilder->runPostQueries($activities);
             $pagination->setItems($activities);
         });
 

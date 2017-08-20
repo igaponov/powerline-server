@@ -118,6 +118,10 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
 
     /**
      * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\UserPetition\Comment", mappedBy="petition", cascade={"remove","persist"}, fetch="EXTRA_LAZY")
+     *
+     * @Serializer\Expose()
+     * @Serializer\Groups({"activity-list"})
+     * @Serializer\Since("2")
      */
     private $comments;
 
