@@ -35,7 +35,7 @@ class UserGroupControllerTest extends WebTestCase
     /**
      * @var Client
      */
-    private $client = null;
+    private $client;
 
     public function setUp()
     {
@@ -74,6 +74,7 @@ class UserGroupControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertSame(4, $data['totalItems']);
         $this->assertCount(4, $data['payload']);
+        /** @var array $payload */
         $payload = $data['payload'];
         $this->assertEquals($group3->getOfficialName(), $payload[0]['official_name']);
         $this->assertSame('owner', $payload[0]['user_role']);
@@ -83,6 +84,9 @@ class UserGroupControllerTest extends WebTestCase
         $this->assertSame('manager', $payload[2]['user_role']);
         $this->assertEquals($group4->getOfficialName(), $payload[3]['official_name']);
         $this->assertSame('member', $payload[3]['user_role']);
+        foreach ($payload as $item) {
+            $this->assertNotEmpty($item['conversation_view_limit']);
+        }
     }
 
     public function testGetGroupsIsEmpty()
@@ -99,26 +103,6 @@ class UserGroupControllerTest extends WebTestCase
         $this->assertSame(50, $data['items']);
         $this->assertSame(0, $data['totalItems']);
         $this->assertCount(0, $data['payload']);
-    }
-
-    public function testCreateGroupWithErrors()
-    {
-        $this->loadFixtures([
-            LoadUserData::class,
-        ]);
-        $errors = [
-            'official_name' => 'This value should not be blank.',
-            'official_type' => 'This value should not be blank.',
-            'transparency' => 'This value should not be blank.',
-        ];
-        $client = $this->client;
-        $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode([
-            'official_name' => '',
-            'official_type' => '',
-            'transparency' => '',
-        ]));
-        $response = $client->getResponse();
-        $this->assertResponseHasErrors($response, $errors);
     }
 
     public function testCreateGroupIsOk()
@@ -140,6 +124,7 @@ class UserGroupControllerTest extends WebTestCase
             'official_address' => $faker->address,
             'official_city' => $faker->city,
             'official_state' => strtoupper($faker->randomLetter.$faker->randomLetter),
+            'conversation_view_limit' => 111,
         ];
         $client = $this->client;
         $service = $this->getMockBuilder(Stripe::class)

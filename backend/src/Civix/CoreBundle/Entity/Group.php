@@ -74,6 +74,8 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     const PERMISSIONS_PHONE = 'permissions_phone';
     const PERMISSIONS_RESPONSES = 'permissions_responses';
 
+    const CONVERSATION_VIEW_LIMIT = 10;
+
     /**
      * @var int
      *
@@ -469,6 +471,17 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\Group\Tag", cascade={"persist"})
      */
     private $tags;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(type="integer", options={"default" = 10})
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-full-info", "api-info", "group-list"})
+     * @Assert\NotBlank(groups={"Default", "user-registration"})
+     * @Assert\GreaterThanOrEqual(value="1", groups={"Default", "user-registration"})
+     */
+    private $conversationViewLimit = self::CONVERSATION_VIEW_LIMIT;
 
     /**
      * @return array
@@ -1882,6 +1895,25 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     public function removeTag(Tag $tag): Group
     {
         $this->tags->removeElement($tag);
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getConversationViewLimit(): int
+    {
+        return $this->conversationViewLimit;
+    }
+
+    /**
+     * @param int $conversationViewLimit
+     * @return Group
+     */
+    public function setConversationViewLimit(int $conversationViewLimit): Group
+    {
+        $this->conversationViewLimit = $conversationViewLimit;
 
         return $this;
     }

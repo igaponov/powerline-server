@@ -9,12 +9,12 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class GroupType extends AbstractType
 {
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return '';
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('manager_first_name', Type\TextType::class, [
             'property_path' => 'managerFirstName',
@@ -34,7 +34,7 @@ class GroupType extends AbstractType
         ]);
         $builder->add('official_type', Type\TextType::class, [
             'property_path' => 'officialType',
-            'description' => 'Official type, can be one of '.join(', ', Group::getOfficialTypes()),
+            'description' => 'Official type, can be one of '.implode(', ', Group::getOfficialTypes()),
         ]);
         $builder->add('official_name', Type\TextType::class, [
             'property_path' => 'officialName',
@@ -60,11 +60,17 @@ class GroupType extends AbstractType
         ]);
         $builder->add('transparency', Type\TextType::class, [
             'required' => false,
-            'description' => 'Transparency, can be one of '.join(', ', Group::getTransparencyStates()),
+            'description' => 'Transparency, can be one of '.implode(', ', Group::getTransparencyStates()),
+        ]);
+        $builder->add('conversation_view_limit', Type\IntegerType::class, [
+            'property_path' => 'conversationViewLimit',
+            'required' => true,
+            'description' => 'The member limit to use group\'s conversation view',
+            'empty_data' => (string)Group::CONVERSATION_VIEW_LIMIT,
         ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(array(
             'data_class' => Group::class,
