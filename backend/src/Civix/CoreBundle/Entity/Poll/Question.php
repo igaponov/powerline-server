@@ -181,6 +181,10 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
 
     /**
      * @ORM\OneToMany(targetEntity="Comment", mappedBy="question", cascade={"remove","persist"})
+     *
+     * @Serializer\Expose()
+     * @Serializer\Groups({"activity-list"})
+     * @Serializer\Since("2")
      */
     protected $comments;
 

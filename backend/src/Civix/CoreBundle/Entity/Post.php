@@ -111,6 +111,10 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
 
     /**
      * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\Post\Comment", mappedBy="post", cascade={"remove","persist"}, fetch="EXTRA_LAZY")
+     *
+     * @Serializer\Expose()
+     * @Serializer\Groups({"activity-list"})
+     * @Serializer\Since("2")
      */
     private $comments;
 

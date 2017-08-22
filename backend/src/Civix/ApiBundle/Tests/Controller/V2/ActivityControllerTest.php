@@ -2,24 +2,29 @@
 namespace Civix\ApiBundle\Tests\Controller\Leader;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\Poll\EducationalContext;
 use Civix\CoreBundle\Entity\Post\Vote;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityReadAuthorData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityRelationsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadEducationalContextData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPollSubscriberData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSubscriberData;
 use Doctrine\DBAL\Connection;
 use Liip\FunctionalTestBundle\Annotations\QueryCount;
+use Symfony\Bridge\Doctrine\DataCollector\DoctrineDataCollector;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class ActivityControllerTest extends WebTestCase
@@ -44,7 +49,6 @@ class ActivityControllerTest extends WebTestCase
     }
 
     /**
-     * @QueryCount(10)
      * @todo cache user's newsfeed
      */
 	public function testGetActivitiesIsOk(): void
@@ -60,26 +64,35 @@ class ActivityControllerTest extends WebTestCase
             LoadUserGroupOwnerData::class,
             LoadPostVoteData::class,
             LoadUserPetitionSignatureData::class,
+            LoadPostCommentData::class,
+            LoadQuestionCommentData::class,
+            LoadUserPetitionCommentData::class,
         ])->getReferenceRepository();
 		$client = $this->client;
-		foreach ($this->getSets() as $set) {$client->request('GET', self::API_ENDPOINT, $set[0], [], ['HTTP_Authorization'=>'Bearer user1']);
-		$response = $client->getResponse();
-		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-		$data = $this->deserializePagination($response->getContent(), 1, count($set[1]),20);
-		$activities = array_map(function($name) use ($repository){
-		return $repository->getReference($name)->getId();
-            }, $set[1]);
-        foreach ($data->getItems() as $key => $item) {
-            if ($item['owner']['type'] === 'user') {
-                $this->assertNotContains('src', $item['owner']['avatar_file_path']);
-            } elseif ($item['owner']['type'] === 'group') {
-                $this->assertContains('src', $item['owner']['avatar_file_path']);
-            } elseif ($item['owner']['type'] === 'representative') {
-                $this->assertContains('representative', $item['owner']['avatar_file_path']);
-            } else {
-                $this->fail('Unexpected owner data type '.$item['owner']['type']);
-            }$this->assertActivity($item, $activities);
+        foreach ($this->getSets() as $set) {
+            /** @noinspection DisconnectedForeachInstructionInspection */
+            $client->enableProfiler();
+            $client->request('GET', self::API_ENDPOINT, $set[0], [], ['HTTP_Authorization'=>'Bearer user1']);
+            $response = $client->getResponse();
+            $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+            $data = $this->deserializePagination($response->getContent(), 1, count($set[1]),20);
+            foreach ($data->getItems() as $key => $item) {
+                if ($item['owner']['type'] === 'user') {
+                    $this->assertNotContains('src', $item['owner']['avatar_file_path']);
+                } elseif ($item['owner']['type'] === 'group') {
+                    $this->assertContains('src', $item['owner']['avatar_file_path']);
+                } elseif ($item['owner']['type'] === 'representative') {
+                    $this->assertContains('representative', $item['owner']['avatar_file_path']);
+                } else {
+                    $this->fail('Unexpected owner data type '.$item['owner']['type']);
+                }
+                /** @var Activity $activity */
+                $activity = $repository->getReference($set[1][$key]);
+                $this->assertActivity($item, $activity);
             }
+            /** @var DoctrineDataCollector $dataCollector */
+            $dataCollector = $client->getProfile()->getCollector('db');
+            $this->assertSame($set[2], $dataCollector->getQueryCount());
         }
 	}
 
@@ -90,38 +103,41 @@ class ActivityControllerTest extends WebTestCase
                 [],
                 [
                     'activity_leader_news',
-                    'activity_crowdfunding_payment_request',
+                    'activity_payment_request',
+                    'activity_petition',
                     'activity_user_petition',
                     'activity_post',
-                    'activity_petition',
+                    'activity_crowdfunding_payment_request',
                     'activity_question',
                     'activity_leader_event',
-                    'activity_payment_request',
-                ]
+                ],
+                10
             ],
             'followed' => [
                 ['followed' => true],
                 [
+                    'activity_payment_request',
                     'activity_petition',
                     'activity_question',
                     'activity_leader_event',
-                    'activity_payment_request',
-                ]
+                ],
+                9
             ],
             'non-followed' => [
                 ['non_followed' => true],
                 [
                     'activity_leader_news',
-                    'activity_crowdfunding_payment_request',
                     'activity_user_petition',
                     'activity_post',
-                ]
+                    'activity_crowdfunding_payment_request',
+                ],
+                11
             ]
         ];
 	}
 
     /**
-     * @QueryCount(7)
+     * @QueryCount(6)
      */
 	public function testGetActivitiesFilteredByGroupIsOk(): void
     {
@@ -243,39 +259,71 @@ class ActivityControllerTest extends WebTestCase
 
     /**
      * @param $item
-     * @param $activities
+     * @param Activity $activity
+     *
+     * Group by selects first row from joined table in MySQL and last one in SQLite.
+     * We check getComments()->last() here but in prod (MySQL) it'll be first one.
      */
-    private function assertActivity($item, $activities): void
+    private function assertActivity($item, Activity $activity): void
     {
-        $this->assertThat($item['id'], $this->logicalOr(...$activities));
+        $this->assertEquals($item['id'], $activity->getId());
         $this->assertNotEmpty($item['user']);
         $this->assertArrayHasKey('group', $item);
         if ($item['entity']['type'] === 'user-petition') {
             $userPetition = $item['user_petition'];
             $this->assertTrue($userPetition['is_subscribed']);
             $this->assertCount(1, $userPetition['signatures']);
+            $this->assertArrayHasKey('comments', $userPetition);
+            $petition = $activity->getPetition();
+            if ($petition->getComments()->count()) {
+                $this->assertCount(1, $userPetition['comments']);
+                $this->assertSame(
+                    $petition->getComments()->last()->getId(),
+                    $userPetition['comments'][0]['id']
+                );
+            }
         } elseif ($item['entity']['type'] === 'post') {
-            $post = $item['post'];
-            $this->assertTrue($post['is_subscribed']);
+            $postData = $item['post'];
+            $this->assertTrue($postData['is_subscribed']);
             $this->assertArrayHasKey('upvotes_count', $item);
             $this->assertArrayHasKey('downvotes_count', $item);
-            $this->assertCount(1, $post['votes']);
-            $this->assertSame(Vote::OPTION_UPVOTE, $post['votes'][0]['option']);
-        } elseif ($item['entity']['type'] === 'question') {
-            $this->assertTrue($item['poll']['is_subscribed']);
-            $this->assertArrayHasKey('educational_context', $item['poll']);
-            $this->assertCount(0, $item['poll']['answers']);
-            /** @var array $educationalContexts */
-            $educationalContexts = $item['poll']['educational_context'];
-            $this->assertCount(2, $educationalContexts);
-            foreach ($educationalContexts as $educationalContext) {
-                if ($educationalContext['type'] !== EducationalContext::TEXT_TYPE) {
-                    $this->assertNotEmpty($educationalContext['preview']);
-                }
+            $this->assertCount(1, $postData['votes']);
+            $this->assertSame(Vote::OPTION_UPVOTE, $postData['votes'][0]['option']);
+            $this->assertArrayHasKey('comments', $postData);
+            $post = $activity->getPost();
+            if ($post->getComments()->count()) {
+                $this->assertCount(1, $postData['comments']);
+                $this->assertSame(
+                    $post->getComments()->last()->getId(),
+                    $postData['comments'][0]['id']
+                );
             }
-        } elseif ($item['entity']['type'] === 'petition') {
+        } elseif (in_array($item['entity']['type'], ['question', 'petition'], true)) {
             $this->assertNotEmpty($item['group']['avatar_file_path']);
-            $this->assertFalse($item['poll']['is_subscribed']);
+            $pollData = $item['poll'];
+            $this->assertCount(0, $pollData['answers']);
+            $this->assertArrayHasKey('educational_context', $pollData);
+            if ($item['entity']['type'] === 'question') {
+                $this->assertTrue($pollData['is_subscribed']);
+                /** @var array $educationalContexts */
+                $educationalContexts = $pollData['educational_context'];
+                $this->assertCount(2, $educationalContexts);
+                foreach ($educationalContexts as $educationalContext) {
+                    if ($educationalContext['type'] !== EducationalContext::TEXT_TYPE) {
+                        $this->assertNotEmpty($educationalContext['preview']);
+                    }
+                }
+            } else {
+                $this->assertFalse($item['poll']['is_subscribed']);
+            }
+            $poll = $activity->getQuestion();
+            if ($poll->getComments()->count()) {
+                $this->assertCount(1, $pollData['comments']);
+                $this->assertSame(
+                    $poll->getComments()->last()->getId(),
+                    $pollData['comments'][0]['id']
+                );
+            }
         }
         if ($item['entity']['type'] === 'micro-petition') {
             $this->assertArrayHasKey('comments_count', $item);

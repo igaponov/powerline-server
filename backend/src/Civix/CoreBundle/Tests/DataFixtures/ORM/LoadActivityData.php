@@ -31,7 +31,8 @@ class LoadActivityData extends AbstractFixture implements DependentFixtureInterf
         $group = $this->getReference('group_1');
         /** @var User $user1 */
         $user1 = $this->getReference('user_1');
-        $leaderNews = $this->generateActivity(new LeaderNews(), $user1, $group);
+        $leaderNews = $this->generateActivity(new LeaderNews(), $user1, $group)
+            ->setSentAt(new \DateTime('-20 minute'));
         $manager->persist($leaderNews);
         $this->addReference('activity_leader_news', $leaderNews);
         $crowdfundingPaymentRequest = $this->generateActivity(
@@ -41,34 +42,40 @@ class LoadActivityData extends AbstractFixture implements DependentFixtureInterf
         )->setExpireAt(new \DateTime('-1 hour'));
         $manager->persist($crowdfundingPaymentRequest);
         $this->addReference('activity_crowdfunding_payment_request', $crowdfundingPaymentRequest);
-        $userPetition = $this->generateActivity(new UserPetition(), $user1, $group);
-        $userPetition->setUser($user1);
+        $userPetition = $this->generateActivity(new UserPetition(), $user1, $group)
+            ->setSentAt(new \DateTime('-1 minute'))
+            ->setUser($user1);
         $manager->persist($userPetition);
         $this->addReference('activity_user_petition', $userPetition);
-        $post = $this->generateActivity(new Post(), $user1, $group);
+        $post = $this->generateActivity(new Post(), $user1, $group)
+            ->setSentAt(new \DateTime('-5 minutes'));
         $manager->persist($post);
         $this->addReference('activity_post', $post);
         $user2 = $this->getReference('user_2');
-        $petition = $this->generateActivity(new Petition(), $user2, $group);
+        $petition = $this->generateActivity(new Petition(), $user2, $group)
+            ->setSentAt(new \DateTime('-10 minutes'));
         $manager->persist($petition);
         $this->addReference('activity_petition', $petition);
         $question = $this->generateActivity(new Question(), $user2, $group)
-            ->setExpireAt(new \DateTime('-1 day'));
+            ->setExpireAt(new \DateTime('-1 day'))
+            ->setSentAt(new \DateTime('-1 hour'));
         $manager->persist($question);
         $this->addReference('activity_question', $question);
         $user3 = $this->getReference('user_3');
         $leaderEvent = $this->generateActivity(new LeaderEvent(), $user3, $group)
-            ->setExpireAt(new \DateTime('-1 month'));
+            ->setExpireAt(new \DateTime('-1 month'))
+            ->setSentAt(new \DateTime('-1 week'));
         $manager->persist($leaderEvent);
         $this->addReference('activity_leader_event', $leaderEvent);
-        $paymentRequest = $this->generateActivity(new PaymentRequest(), $user3, $group);
+        $paymentRequest = $this->generateActivity(new PaymentRequest(), $user3, $group)
+            ->setSentAt(new \DateTime('-3 minutes'));
         /** @var Representative $representative */
         $representative = $this->getReference('representative_jb');
         $paymentRequest->setRepresentative($representative);
         $manager->persist($paymentRequest);
         $this->addReference('activity_payment_request', $paymentRequest);
-        $petition = $this->generateActivity(new Petition(), $user3, $group);
-        $petition->setSentAt(new \DateTime('-2 months'));
+        $petition = $this->generateActivity(new Petition(), $user3, $group)
+            ->setSentAt(new \DateTime('-2 months'));
         $manager->persist($petition);
         $this->addReference('activity_petition2', $petition);
         $manager->flush();
