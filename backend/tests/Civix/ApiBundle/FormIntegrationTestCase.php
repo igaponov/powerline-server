@@ -27,7 +27,13 @@ abstract class FormIntegrationTestCase extends TestCase
         $expectedMessages = array_filter($expectedErrors, function ($message, $key) {
             return is_string($message) && is_int($key);
         }, ARRAY_FILTER_USE_BOTH);
-        $this->assertCount($errors->count(), $expectedMessages);
+        $this->assertCount($errors->count(), $expectedMessages, sprintf(
+            '%s has %d errors, expected: %d (%s)',
+            $form->getName(),
+            $errors->count(),
+            count($expectedMessages),
+            $errors
+        ));
         if ($expectedMessages) {
             $this->assertFalse($form->isValid(), 'Form must be invalid');
             $messages = array_map(
