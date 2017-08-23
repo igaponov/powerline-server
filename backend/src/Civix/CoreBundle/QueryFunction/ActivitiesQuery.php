@@ -75,6 +75,30 @@ final class ActivitiesQuery
         };
     }
 
+    public static function getFilterByPostId($id): \Closure
+    {
+        return function (QueryBuilder $qb) use ($id) {
+            $qb->andWhere('act.post = :post')
+                ->setParameter(':post', $id);
+        };
+    }
+
+    public static function getFilterByPollId($id): \Closure
+    {
+        return function (QueryBuilder $qb) use ($id) {
+            $qb->andWhere('act.question = :poll')
+                ->setParameter(':poll', $id);
+        };
+    }
+
+    public static function getFilterByPetitionId($id): \Closure
+    {
+        return function (QueryBuilder $qb) use ($id) {
+            $qb->andWhere('act.petition = :petition')
+                ->setParameter(':petition', $id);
+        };
+    }
+
     public function __invoke(User $user, ?array $types, array $filters): Query
     {
         $builder = new ActivitiesQueryBuilder($this->em);

@@ -5,7 +5,6 @@ namespace Civix\ApiBundle\Controller\V2;
 use Civix\ApiBundle\Form\Type\ActivitiesType;
 use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\ActivityRead;
-use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\QueryFunction\ActivitiesQuery;
@@ -55,6 +54,9 @@ class ActivityController extends FOSRestController
      * @QueryParam(name="group", requirements="\d+", description="Filter by group ID")
      * @QueryParam(name="followed", requirements="0|1", description="Filter by followed users")
      * @QueryParam(name="non_followed", requirements="0|1", description="Filter by non-followed users")
+     * @QueryParam(name="post_id", requirements="\d+", description="Filter by post id")
+     * @QueryParam(name="poll_id", requirements="\d+", description="Filter by poll id")
+     * @QueryParam(name="petition_id", requirements="\d+", description="Filter by petition id")
      * @QueryParam(name="page", requirements="\d+", default="1")
      * @QueryParam(name="per_page", requirements="(10|15|20)", default="20")
      *
@@ -81,8 +83,6 @@ class ActivityController extends FOSRestController
      * @param ParamFetcher $params
      *
      * @return PaginationInterface
-     *
-     * @throws \LogicException
      */
     public function getActivitiesAction(ParamFetcher $params): PaginationInterface
     {
@@ -146,6 +146,33 @@ class ActivityController extends FOSRestController
                     $queryBuilder::getFilterByNonFollowed($user),
                     $queryBuilder::getFilterByGroup($params->get('group')),
                     $queryBuilder::getFilterByStartAt($start)
+                ]
+            );
+        } elseif ($params->get('post_id')) {
+            $query = $queryBuilder(
+                $user,
+                $activityTypes,
+                [
+                    $queryBuilder::getFilterByStartAt($start),
+                    $queryBuilder::getFilterByPostId($params->get('post_id')),
+                ]
+            );
+        } elseif ($params->get('poll_id')) {
+            $query = $queryBuilder(
+                $user,
+                $activityTypes,
+                [
+                    $queryBuilder::getFilterByStartAt($start),
+                    $queryBuilder::getFilterByPollId($params->get('poll_id')),
+                ]
+            );
+        } elseif ($params->get('petition_id')) {
+            $query = $queryBuilder(
+                $user,
+                $activityTypes,
+                [
+                    $queryBuilder::getFilterByStartAt($start),
+                    $queryBuilder::getFilterByPetitionId($params->get('petition_id')),
                 ]
             );
         } else {
