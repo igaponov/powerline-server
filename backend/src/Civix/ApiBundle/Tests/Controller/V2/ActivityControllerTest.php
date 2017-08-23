@@ -158,6 +158,36 @@ class ActivityControllerTest extends WebTestCase
 	}
 
     /**
+     * @QueryCount(6)
+     */
+	public function testGetActivitiesFilteredByContentIdIsOk(): void
+    {
+        $repository = $this->loadFixtures([
+            LoadActivityRelationsData::class,
+            LoadUserGroupOwnerData::class,
+        ])->getReferenceRepository();
+        $pairs = [
+            'post' => [$repository->getReference('activity_post'), $repository->getReference('post_1')],
+            'petition' => [$repository->getReference('activity_user_petition'), $repository->getReference('user_petition_1')],
+            'poll' => [$repository->getReference('activity_question'), $repository->getReference('group_question_3')],
+        ];
+        $client = $this->client;
+        foreach ($pairs as $key => [$activity, $entity]) {
+            /** @var Activity $activity */
+            $params = [$key.'_id' => $entity->getId()];
+            $client->request('GET', self::API_ENDPOINT, $params, [], ['HTTP_Authorization'=>'Bearer user1']);
+            $response = $client->getResponse();
+            $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+            $data = json_decode($response->getContent(), true);
+            $this->assertSame(1, $data['page']);
+            $this->assertSame(20, $data['items']);
+            $this->assertSame(1, $data['totalItems']);
+            $this->assertCount(1, $data['payload']);
+            $this->assertSame($activity->getId(), $data['payload'][0]['id']);
+        }
+	}
+
+    /**
      * @QueryCount(7)
      */
 	public function testGetActivitiesByFollowingIsOk(): void
