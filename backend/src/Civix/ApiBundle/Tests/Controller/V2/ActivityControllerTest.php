@@ -7,6 +7,7 @@ use Civix\CoreBundle\Entity\Poll\EducationalContext;
 use Civix\CoreBundle\Entity\Post\Vote;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Issue\LoadLocalGroupActivityData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityReadAuthorData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityRelationsData;
@@ -67,6 +68,7 @@ class ActivityControllerTest extends WebTestCase
             LoadPostCommentData::class,
             LoadQuestionCommentData::class,
             LoadUserPetitionCommentData::class,
+            LoadLocalGroupActivityData::class,
         ])->getReferenceRepository();
 		$client = $this->client;
         foreach ($this->getSets() as $set) {
@@ -118,6 +120,7 @@ class ActivityControllerTest extends WebTestCase
                 [
                     'activity_payment_request',
                     'activity_petition',
+                    'activity_petition3',
                     'activity_question',
                     'activity_leader_event',
                 ],
@@ -328,7 +331,7 @@ class ActivityControllerTest extends WebTestCase
                     $postData['comments'][0]['id']
                 );
             }
-        } elseif (in_array($item['entity']['type'], ['question', 'petition'], true)) {
+        } elseif ($item['group']['group_type_label'] !== 'country' && in_array($item['entity']['type'], ['question', 'petition'], true)) {
             $this->assertNotEmpty($item['group']['avatar_file_path']);
             $pollData = $item['poll'];
             $this->assertCount(0, $pollData['answers']);

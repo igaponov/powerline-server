@@ -136,7 +136,8 @@ class ActivityController extends FOSRestController
                     $queryBuilder::getFilterByFollowed($user),
                     $queryBuilder::getFilterByGroup($params->get('group')),
                     $queryBuilder::getFilterByStartAt($start)
-                ]
+                ],
+                true
             );
         } elseif ($params->get('non_followed')) {
             $query = $queryBuilder(

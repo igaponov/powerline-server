@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\QueryFunction;
 
 use Civix\CoreBundle\Entity\Activity;
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,7 +22,7 @@ final class ActivitiesQueryBuilder
         $this->em = $em;
     }
 
-    public function __invoke(User $user, ?array $types): QueryBuilder
+    public function __invoke(User $user, ?array $types, bool $addPublicGroups = false): QueryBuilder
     {
         $expr = $this->em->getExpressionBuilder();
 
@@ -29,6 +30,14 @@ final class ActivitiesQueryBuilder
         $groupSectionIds = $user->getGroupSectionsIds();
         $groupIds = $this->em->getRepository(UserGroup::class)->getActiveGroupIds($user);
 
+        $conditions = [
+            $expr->in('act_c.district', ':districtIds'),
+            $expr->in('act_c.group', ':groupIds'),
+            $expr->in('act_c.groupSection', ':groupSectionIds')
+        ];
+        if ($addPublicGroups) {
+            $conditions[] = $expr->in('g.groupType', Group::getLocalTypes());
+        }
         $qb = $this->em->getRepository(Activity::class)->createQueryBuilder('act')
             ->distinct(true)
             ->leftJoin('act.user', 'u')
@@ -36,17 +45,11 @@ final class ActivitiesQueryBuilder
             ->leftJoin('act.activityRead', 'act_r', Query\Expr\Join::WITH, 'act_r.user = :user')
             ->setParameter(':user', $user)
             ->leftJoin('act.group', 'g')
-            ->andWhere(
-                $expr->orX(
-                    $expr->in('act_c.district', ':districtIds'),
-                    $expr->in('act_c.group', ':groupIds'),
-                    $expr->in('act_c.groupSection', ':groupSectionIds')
-                )
-            )
+            ->andWhere($expr->orX(...$conditions))
             ->setParameter('districtIds', $districtIds)
             ->setParameter('groupIds', $groupIds)
             ->setParameter('groupSectionIds', $groupSectionIds);
-
+;
         $cases = $this->getTypeCases();
         if ($types) {
             $cases = array_intersect_key($cases, array_flip($types));
