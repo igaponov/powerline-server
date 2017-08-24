@@ -475,7 +475,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     /**
      * @var int
      *
-     * @ORM\Column(type="integer", options={"default" = 10})
+     * @ORM\Column(type="integer", name="conversation_view_limit", options={"default" = 10})
      * @Serializer\Expose()
      * @Serializer\Groups({"api-full-info", "api-info", "group-list"})
      * @Assert\NotBlank(groups={"Default", "user-registration"})
