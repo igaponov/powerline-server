@@ -35,7 +35,8 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Serializer\Expose()
-     * @Serializer\Groups({"Default", "api-petitions-info", "api-petitions-list", "api-leader-micropetition"})
+     * @Serializer\Groups({"Default", "api-petitions-info", "api-petitions-list", "api-leader-micropetition",
+     * "post"})
      */
     private $id;
 
@@ -43,19 +44,22 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      * @ORM\Column(type="text")
      * @Assert\NotBlank(groups={"Default", "create", "update"})
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "post"})
      */
-    private $body;
+    private $body = '';
 
     /**
      * @ORM\Column(name="html_body", type="text")
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "post"})
      */
-    private $htmlBody;
+    private $htmlBody = '';
 
     /**
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Group")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default"})
      */
     private $group;
 
@@ -66,6 +70,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      * @Gedmo\Timestampable()
      * @Serializer\Expose()
      * @Serializer\Type("DateTime<'D, d M Y H:i:s O'>")
+     * @Serializer\Groups({"Default", "post"})
      */
     private $createdAt;
 
@@ -75,6 +80,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      * @ORM\Column(name="expired_at", type="datetime")
      * @Serializer\Expose()
      * @Serializer\Type("DateTime<'D, d M Y H:i:s O'>")
+     * @Serializer\Groups({"Default", "post"})
      */
     private $expiredAt;
 
@@ -82,6 +88,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      * @ORM\Column(name="user_expire_interval", type="integer")
      * @Assert\NotBlank(groups={"Default", "update"})
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "post"})
      *
      * @var int
      */
@@ -91,12 +98,14 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      * @ORM\ManyToOne(targetEntity="\Civix\CoreBundle\Entity\User")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default"})
      */
     private $user;
 
     /**
      * @ORM\Column(type="boolean", options={"default" = false})
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "post"})
      *
      * @var bool
      */
@@ -132,6 +141,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      *
      * @ORM\Column(type="boolean", options={"default" = false})
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "post"})
      * @Serializer\Type("boolean")
      */
     private $supportersWereInvited = false;
@@ -141,6 +151,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      *
      * @ORM\Column("automatic_boost", type="boolean", options={"default" = true}, nullable=false)
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "post"})
      * @Serializer\Type("boolean")
      */
     private $automaticBoost = true;
@@ -171,7 +182,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      *
      * @return Post
      */
-    public function setBody($body)
+    public function setBody(string $body): Post
     {
         $this->body = $body;
 
@@ -183,7 +194,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      *
      * @return string
      */
-    public function getBody()
+    public function getBody(): string
     {
         return $this->body;
     }
@@ -191,7 +202,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
     /**
      * @return mixed
      */
-    public function getHtmlBody()
+    public function getHtmlBody(): string
     {
         return $this->htmlBody;
     }
@@ -200,7 +211,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      * @param mixed $htmlBody
      * @return Post
      */
-    public function setHtmlBody($htmlBody)
+    public function setHtmlBody(string $htmlBody): Post
     {
         $this->htmlBody = $htmlBody;
 
@@ -326,7 +337,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
         }
 
         return round((
-                $this->getGroup()->getUsers()->count() * $currentPercent) / 100
+                $this->getGroup()->getUserGroups()->count() * $currentPercent) / 100
         );
     }
 

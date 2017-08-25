@@ -213,7 +213,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      *
      * @return string
      */
-    public function getBody()
+    public function getBody(): ?string
     {
         return $this->body;
     }
@@ -230,7 +230,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      * @param mixed $htmlBody
      * @return UserPetition
      */
-    public function setHtmlBody($htmlBody)
+    public function setHtmlBody(string $htmlBody): UserPetition
     {
         $this->htmlBody = $htmlBody;
 

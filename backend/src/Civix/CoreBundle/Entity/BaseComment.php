@@ -559,14 +559,16 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
         return $this->ratesCount ? ($this->ratesCount - $this->rateSum) / 2 : 0;
     }
 
-    public function getBody()
+    public function getBody(): ?string
     {
         return $this->getCommentBody();
     }
 
-    public function setHtmlBody($html)
+    public function setHtmlBody(string $html): BaseComment
     {
         $this->setCommentBodyHtml($html);
+
+        return $this;
     }
 
     /**

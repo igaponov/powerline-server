@@ -983,9 +983,11 @@ abstract class Activity implements HtmlBodyInterface
         return $this->getDescription();
     }
 
-    public function setHtmlBody($html)
+    public function setHtmlBody(string $html): Activity
     {
         $this->setDescriptionHtml($html);
+
+        return $this;
     }
 
     /**
