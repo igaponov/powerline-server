@@ -29,7 +29,8 @@ class PM590 extends AbstractFixture implements DependentFixtureInterface
         $userFollow = new UserFollow();
         $userFollow->setUser($user1)
             ->setFollower($user2)
-            ->setStatus(UserFollow::STATUS_ACTIVE);
+            ->setStatus(UserFollow::STATUS_ACTIVE)
+            ->setDoNotDisturbTill(new \DateTime('-2 hours'));
         $manager->persist($userFollow);
 
         $userFollow = new UserFollow();
@@ -42,7 +43,8 @@ class PM590 extends AbstractFixture implements DependentFixtureInterface
         $userFollow->setUser($user1)
             ->setFollower($user4)
             ->setStatus(UserFollow::STATUS_ACTIVE)
-            ->setNotifying(false);
+            ->setNotifying(false)
+            ->setDoNotDisturbTill(new \DateTime('-2 days'));
         $manager->persist($userFollow);
         $this->addReference('pm590_user_1_follower_4', $userFollow);
 

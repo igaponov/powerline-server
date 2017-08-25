@@ -98,7 +98,7 @@ class UserFollowerControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertCount(21, $data);
+        $this->assertCount(22, $data);
         $this->assertEquals('active', $data['status']);
         $this->assertEquals($follower->getId(), $data['id']);
         $this->assertEquals($follower->getType(), $data['type']);
@@ -116,6 +116,7 @@ class UserFollowerControllerTest extends WebTestCase
         $this->assertEquals($follower->getSlogan(), $data['slogan']);
         $this->assertEquals($follower->getInterests(), $data['interests']);
         $this->assertTrue($data['notifying']);
+        $this->assertNotEmpty($data['do_not_disturb_till']);
         $this->assertContains($follower->getAvatarFileName(), $data['avatar_file_name']);
         $this->assertArrayHasKey('date_create', $data);
         $this->assertArrayHasKey('date_approval', $data);
@@ -134,7 +135,7 @@ class UserFollowerControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertCount(16, $data);
+        $this->assertCount(17, $data);
         $this->assertEquals('pending', $data['status']);
         $this->assertEquals($follower->getId(), $data['id']);
         $this->assertEquals($follower->getFullName(), $data['full_name']);
@@ -147,6 +148,7 @@ class UserFollowerControllerTest extends WebTestCase
         $this->assertEquals($follower->getSlogan(), $data['slogan']);
         $this->assertEquals($follower->getInterests(), $data['interests']);
         $this->assertTrue($data['notifying']);
+        $this->assertNotEmpty($data['do_not_disturb_till']);
         $this->assertContains($follower->getAvatarFileName(), $data['avatar_file_name']);
         $this->assertArrayHasKey('date_create', $data);
         $this->assertArrayHasKey('date_approval', $data);
@@ -276,10 +278,15 @@ class UserFollowerControllerTest extends WebTestCase
         $user = $userFollow->getUser();
         $follower = $userFollow->getFollower();
         $client = $this->client;
-        $client->request('PUT', self::API_ENDPOINT.'/'.$follower->getId(), [], [], ['HTTP_Authorization' => 'Bearer '.$user->getToken()], json_encode(['notifying' => true]));
+        $params = [
+            'notifying' => true,
+            'do_not_disturb_till' => (new \DateTime('+2 days'))->format(DATE_ISO8601),
+        ];
+        $client->request('PUT', self::API_ENDPOINT.'/'.$follower->getId(), [], [], ['HTTP_Authorization' => 'Bearer '.$user->getToken()], json_encode($params));
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertTrue($data['notifying']);
+        $this->assertSame($params['do_not_disturb_till'], $data['do_not_disturb_till']);
     }
 }
