@@ -13,7 +13,6 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Issue\PM510;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Liip\FunctionalTestBundle\Annotations\QueryCount;
 use Symfony\Bundle\FrameworkBundle\Client;
-use Tests\Civix\CoreBundle\DataFixtures\ORM\Issue\PM590;
 
 class UserFollowerControllerTest extends WebTestCase
 {
@@ -266,27 +265,5 @@ class UserFollowerControllerTest extends WebTestCase
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         $followers = $this->em->getRepository(UserFollow::class)->findBy(['user' => $user]);
         $this->assertCount(0, $followers);
-    }
-
-    public function testUpdateFollowerIsOk(): void
-    {
-        $repository = $this->loadFixtures([
-            PM590::class,
-        ])->getReferenceRepository();
-        /** @var UserFollow $userFollow */
-        $userFollow = $repository->getReference('pm590_user_1_follower_4');
-        $user = $userFollow->getUser();
-        $follower = $userFollow->getFollower();
-        $client = $this->client;
-        $params = [
-            'notifying' => true,
-            'do_not_disturb_till' => (new \DateTime('+2 days'))->format(DATE_ISO8601),
-        ];
-        $client->request('PUT', self::API_ENDPOINT.'/'.$follower->getId(), [], [], ['HTTP_Authorization' => 'Bearer '.$user->getToken()], json_encode($params));
-        $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertTrue($data['notifying']);
-        $this->assertSame($params['do_not_disturb_till'], $data['do_not_disturb_till']);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle\Controller\V2;
 
+use Civix\ApiBundle\Form\Type\UserFollowType;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Service\FollowerManager;
@@ -110,17 +111,15 @@ class UserFollowingController extends FOSRestController
     }
 
     /**
-     * Follow a user
+     * Follow a user and edit follow settings
      *
      * @Route("/{id}", requirements={"id"="\d+"})
      * @Method("PUT")
-     * 
-     * @ParamConverter("user")
-     * 
+     *
      * @ApiDoc(
      *     authentication=true,
      *     section="Followers",
-     *     description="Follow a user",
+     *     description="Follow a user and edit follow settings",
      *     requirements={
      *         {
      *             "name"="id",
@@ -129,18 +128,38 @@ class UserFollowingController extends FOSRestController
      *             "description"="User id"
      *         }
      *     },
+     *     input="Civix\ApiBundle\Form\Type\UserFollowType",
+     *     output={
+     *          "class" = "Civix\CoreBundle\Entity\UserFollow",
+     *          "groups" = {"api-info", "api-followers"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
+     *     },
      *     statusCodes={
-     *         204="Success",
      *         404="User Not Found",
      *         405="Method Not Allowed"
      *     }
      * )
      *
+     * @View(serializerGroups={"api-info", "api-following"})
+     *
+     * @param Request $request
      * @param User $user
+     *
+     * @return UserFollow|\Symfony\Component\Form\Form
      */
-    public function putAction(User $user)
+    public function putAction(Request $request, User $user)
     {
-        $this->manager->follow($user, $this->getUser());
+        $userFollow = $this->manager->follow($user, $this->getUser());
+        $form = $this->createForm(UserFollowType::class, $userFollow);
+        $form->submit($request->request->all(), false);
+
+        if ($form->isValid()) {
+            return $this->manager->save($userFollow);
+        }
+
+        return $form;
     }
 
     /**

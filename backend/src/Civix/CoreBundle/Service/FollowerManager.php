@@ -27,7 +27,7 @@ class FollowerManager
         $this->dispatcher = $dispatcher;
     }
 
-    public function follow(User $user, User $follower): void
+    public function follow(User $user, User $follower): UserFollow
     {
         /* @var UserFollow $userFollow */
         $userFollow = $this->em->getRepository(UserFollow::class)
@@ -40,13 +40,14 @@ class FollowerManager
             $userFollow->setFollower($follower)
                 ->setStatus(UserFollow::STATUS_PENDING)
                 ->setUser($user);
+            $this->em->persist($userFollow);
+            $this->em->flush();
+
+            $event = new UserFollowEvent($userFollow);
+            $this->dispatcher->dispatch(UserEvents::FOLLOW, $event);
         }
 
-        $this->em->persist($userFollow);
-        $this->em->flush();
-
-        $event = new UserFollowEvent($userFollow);
-        $this->dispatcher->dispatch(UserEvents::FOLLOW, $event);
+        return $userFollow;
     }
 
     public function unfollow(UserFollow $userFollow): void
