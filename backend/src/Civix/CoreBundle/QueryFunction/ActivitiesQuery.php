@@ -99,7 +99,7 @@ final class ActivitiesQuery
         };
     }
 
-    public function __invoke(User $user, ?array $types, array $filters): Query
+    public function __invoke(User $user, ?array $types, array $filters, bool $addPublicGroups = false): Query
     {
         $builder = new ActivitiesQueryBuilder($this->em);
         $cases = $builder->getTypeCases();
@@ -107,7 +107,7 @@ final class ActivitiesQuery
             $cases = array_intersect_key($cases, array_flip($types));
         }
 
-        $qb = $builder($user, $types)
+        $qb = $builder($user, $types, $addPublicGroups)
             ->select('act', 'act_r', 'g', 'u')
             // 0 = Prioritized Zone (unread, unanswered)
             // 2 = Expired Zone (expired)

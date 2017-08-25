@@ -509,6 +509,15 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
         ];
     }
 
+    public static function getLocalTypes(): array
+    {
+        return [
+            self::GROUP_TYPE_COUNTRY,
+            self::GROUP_TYPE_STATE,
+            self::GROUP_TYPE_LOCAL,
+        ];
+    }
+
     /**
      * @return array
      */
