@@ -93,6 +93,15 @@ class UserFollow
      */
     private $notifying = true;
 
+    /**
+     * @var DateTime
+     *
+     * @ORM\Column(type="datetime", name="do_not_disturb_till", options={"default" = "CURRENT_TIMESTAMP"})
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-followers", "api-following", "api-follow", "api-follow-create"})
+     */
+    private $doNotDisturbTill;
+
     public static function getStatusLabels(): array
     {
         return [
@@ -100,7 +109,12 @@ class UserFollow
             self::STATUS_ACTIVE => 'active',
         ];
     }
-    
+
+    public function __construct()
+    {
+        $this->doNotDisturbTill = new DateTime();
+    }
+
     /**
      * Get id.
      *
@@ -314,6 +328,25 @@ class UserFollow
     public function setNotifying(bool $notifying): UserFollow
     {
         $this->notifying = $notifying;
+
+        return $this;
+    }
+
+    /**
+     * @return DateTime
+     */
+    public function getDoNotDisturbTill(): DateTime
+    {
+        return $this->doNotDisturbTill;
+    }
+
+    /**
+     * @param DateTime $doNotDisturbTill
+     * @return UserFollow
+     */
+    public function setDoNotDisturbTill(DateTime $doNotDisturbTill): UserFollow
+    {
+        $this->doNotDisturbTill = $doNotDisturbTill;
 
         return $this;
     }

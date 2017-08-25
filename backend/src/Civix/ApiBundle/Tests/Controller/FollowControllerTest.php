@@ -83,10 +83,11 @@ class FollowControllerTest extends WebTestCase
     public function testPostAction()
     {
         $client = static::createClient();
-        $client->setServerParameter("HTTP_Token", $this->followerToken);
+        $client->setServerParameter('HTTP_Token', $this->followerToken);
 
-        $follow = new UserFollow();
-        $follow->setUser($this->user1);
+        $follow = (new UserFollow())
+            ->setUser($this->user1)
+            ->setDoNotDisturbTill(new \DateTime('+2 hours'));
         $content = $this->jmsSerialization($follow, ['api-follow-create']);
 
         $client->request('POST', '/api/follow/', [], [], [], $content);
@@ -94,7 +95,7 @@ class FollowControllerTest extends WebTestCase
         $response = $client->getResponse();
         $result = json_decode($response->getContent());
 
-        $this->assertSame(201, $response->getStatusCode());
+        $this->assertSame(201, $response->getStatusCode(), $response->getContent());
         $this->assertJson($response->getContent());
         $this->assertEquals($this->follower->getId(), $result->follower->id);
         $this->assertEquals($this->user1->getId(), $result->user->id);

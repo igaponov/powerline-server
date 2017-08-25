@@ -253,6 +253,7 @@ class UserRepository extends EntityRepository
             ->andWhere('f.notifying = true')
             ->andWhere('f.status = :status')
             ->andWhere('u.followedDoNotDisturbTill < :date')
+            ->andWhere('f.doNotDisturbTill < :date')
             ->setParameter(':user', $user)
             ->setParameter(':status', UserFollow::STATUS_ACTIVE)
             ->setParameter(':date', new \DateTime())
