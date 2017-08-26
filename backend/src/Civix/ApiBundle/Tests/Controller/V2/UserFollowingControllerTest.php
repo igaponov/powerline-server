@@ -11,6 +11,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadKarmaData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowData;
 use Symfony\Bundle\FrameworkBundle\Client;
+use Tests\Civix\CoreBundle\DataFixtures\ORM\Issue\PM590;
 
 class UserFollowingControllerTest extends WebTestCase
 {
@@ -143,11 +144,17 @@ class UserFollowingControllerTest extends WebTestCase
         /** @var UserFollow $userFollow */
         $user = $repository->getReference('userfollowtest1');
         $follower = $repository->getReference('followertest');
+        $params = [
+            'notifying' => true,
+            'do_not_disturb_till' => (new \DateTime('+2 days'))->format(DATE_ISO8601),
+        ];
         $client = $this->client;
-        $client->request('PUT', self::API_ENDPOINT.'/'.$user->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']);
+        $client->request('PUT', self::API_ENDPOINT.'/'.$user->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode($params));
         $response = $client->getResponse();
-        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
-        $this->assertEmpty($response->getContent());
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertTrue($data['notifying']);
+        $this->assertSame($params['do_not_disturb_till'], $data['do_not_disturb_till']);
         /** @var UserFollow[] $userFollow */
         $userFollow = $this->em->getRepository(UserFollow::class)
             ->findBy(['user' => $user]);
@@ -172,6 +179,31 @@ class UserFollowingControllerTest extends WebTestCase
         ], $result);
     }
 
+    public function testUpdateFollowerIsOk(): void
+    {
+        $repository = $this->loadFixtures([
+            PM590::class,
+        ])->getReferenceRepository();
+        /** @var UserFollow $userFollow */
+        $userFollow = $repository->getReference('pm590_user_1_follower_4');
+        $user = $userFollow->getUser();
+        $follower = $userFollow->getFollower();
+        $client = $this->client;
+        $params = [
+            'notifying' => true,
+            'do_not_disturb_till' => (new \DateTime('+2 days'))->format(DATE_ISO8601),
+        ];
+        $client->request('PUT', self::API_ENDPOINT.'/'.$user->getId(), [], [], ['HTTP_Authorization' => 'Bearer '.$follower->getToken()], json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertCount(17, $data);
+        $this->assertTrue($data['notifying']);
+        $this->assertSame($params['do_not_disturb_till'], $data['do_not_disturb_till']);
+        $this->assertNotEmpty($data['user']);
+        $this->assertArrayNotHasKey('follower', $data);
+    }
+
     public function testFollowSecondUserIsSuccessful()
     {
         $repository = $this->loadFixtures([
@@ -183,8 +215,10 @@ class UserFollowingControllerTest extends WebTestCase
         $client = $this->client;
         $client->request('PUT', self::API_ENDPOINT.'/'.$user->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
-        $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
-        $this->assertEmpty($response->getContent());
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertTrue($data['notifying']);
+        $this->assertLessThanOrEqual(new \DateTime(), new \DateTime($data['do_not_disturb_till']));
         /** @var UserFollow[] $userFollow */
         $userFollow = $this->em->getRepository(UserFollow::class)
             ->findBy(['user' => $user]);
