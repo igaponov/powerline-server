@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Entity\Post;
 
 use Civix\CoreBundle\Entity\BaseComment;
+use Civix\CoreBundle\Entity\CommentedInterface;
 use Civix\CoreBundle\Entity\Post;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
@@ -15,26 +16,10 @@ use JMS\Serializer\Annotation as Serializer;
 class Comment extends BaseComment
 {
     /**
-     * @ORM\ManyToOne(targetEntity="Comment", inversedBy="childrenComments")
-     * @ORM\JoinColumn(name="pid", referencedColumnName="id", onDelete="CASCADE")
-     */
-    protected $parentComment;
-
-    /**
-     * @ORM\OneToMany(targetEntity="Comment", mappedBy="parentComment")
-     */
-    protected $childrenComments;
-
-    /**
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Post", inversedBy="comments")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $post;
-
-    /**
-     * @ORM\OneToMany(targetEntity="\Civix\CoreBundle\Entity\Post\CommentRate", mappedBy="comment", fetch="EXTRA_LAZY")
-     */
-    protected $rates;
 
     /**
      * Set a post.
@@ -43,7 +28,7 @@ class Comment extends BaseComment
      * 
      * @return Comment
      */
-    public function setPost(Post $post)
+    public function setPost(Post $post): Comment
     {
         $this->post = $post;
 
@@ -55,12 +40,12 @@ class Comment extends BaseComment
      *
      * @return Post
      */
-    public function getPost()
+    public function getPost(): Post
     {
         return $this->post;
     }
 
-    public function getCommentedEntity()
+    public function getCommentedEntity(): CommentedInterface
     {
         return $this->getPost();
     }

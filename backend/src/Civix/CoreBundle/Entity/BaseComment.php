@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\CoreBundle\Serializer\Type\Avatar;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -41,7 +42,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * @Assert\NotBlank()
      * @Assert\Length(max=500)
      */
-    protected $commentBody;
+    protected $commentBody = '';
 
     /**
      * @ORM\Column(name="comment_body_html", type="text")
@@ -49,7 +50,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * @Serializer\Groups({"api-comments", "api-comments-add"})
      * @Serializer\Type("string")
      */
-    protected $commentBodyHtml;
+    protected $commentBodyHtml = '';
 
     /**
      * @var \DateTime
@@ -114,7 +115,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      */
     protected $rateStatus;
 
-    protected $isOwner;
+    protected $isOwner = false;
 
     /**
      * @var int
@@ -151,7 +152,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
     /**
      * @return CommentedInterface
      */
-    abstract public function getCommentedEntity();
+    abstract public function getCommentedEntity(): CommentedInterface;
 
     /**
      * Return entity type
@@ -172,7 +173,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      *
      * @return int
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -184,7 +185,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * 
      * @return BaseComment
      */
-    public function setCommentBody($commentBody)
+    public function setCommentBody(string $commentBody): BaseComment
     {
         $this->commentBody = $commentBody;
 
@@ -196,7 +197,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      *
      * @return string
      */
-    public function getCommentBody()
+    public function getCommentBody(): string
     {
         return $this->commentBody;
     }
@@ -205,11 +206,14 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * Set parentComment.
      *
      * @param BaseComment $parentComment
-     * 
      * @return BaseComment
+     * @throws \DomainException
      */
-    public function setParentComment(BaseComment $parentComment = null)
+    public function setParentComment(BaseComment $parentComment = null): self
     {
+        if (!$parentComment instanceof static) {
+            throw new \DomainException('Parent comment should be instance of ' . static::class);
+        }
         $this->parentComment = $parentComment;
 
         return $this;
@@ -220,7 +224,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      *
      * @return BaseComment
      */
-    public function getParentComment()
+    public function getParentComment(): ?BaseComment
     {
         return $this->parentComment;
     }
@@ -232,7 +236,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * 
      * @return BaseComment
      */
-    public function setUser(User $user = null)
+    public function setUser(User $user = null): BaseComment
     {
         $this->user = $user;
 
@@ -244,7 +248,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      *
      * @return User
      */
-    public function getUser()
+    public function getUser(): User
     {
         return $this->user;
     }
@@ -254,7 +258,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      *
      * @return \DateTime
      */
-    public function getCreatedAt()
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }
@@ -266,7 +270,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      *
      * @return BaseComment
      */
-    public function setRateSum($rateSum)
+    public function setRateSum(int $rateSum): BaseComment
     {
         $this->rateSum = $rateSum;
 
@@ -278,7 +282,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      *
      * @return int
      */
-    public function getRateSum()
+    public function getRateSum(): int
     {
         return $this->rateSum;
     }
@@ -340,7 +344,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      *
      * @return BaseComment
      */
-    public function setPrivacy($privacy)
+    public function setPrivacy(int $privacy): BaseComment
     {
         $this->privacy = $privacy === self::PRIVACY_PRIVATE ? self::PRIVACY_PRIVATE : self::PRIVACY_PUBLIC;
 
@@ -352,7 +356,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      *
      * @return int
      */
-    public function getPrivacy()
+    public function getPrivacy(): int
     {
         return $this->privacy;
     }
@@ -370,7 +374,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * @param $status
      * @return $this
      */
-    public function setIsOwner($status)
+    public function setIsOwner(bool $status)
     {
         $this->isOwner = $status;
 
@@ -384,7 +388,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * @Serializer\SerializedName("is_owner")
      * @Serializer\Until("1")
      */
-    public function getIsOwner()
+    public function getIsOwner(): bool
     {
         return $this->isOwner;
     }
@@ -397,7 +401,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * @Serializer\Groups({"api-comments"})
      * @Serializer\SerializedName("is_owner")
      */
-    public function getIsUserOwner()
+    public function getIsUserOwner(): User
     {
         return $this->user;
     }
@@ -408,7 +412,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * @Serializer\Type("Avatar")
      * @Serializer\SerializedName("author_picture")
      */
-    public function getCommentPicture()
+    public function getCommentPicture(): Avatar
     {
         return $this->privacy === self::PRIVACY_PUBLIC ?
             ($this->user instanceof User ? $this->user->getAvatarWithPath() : null):
@@ -422,7 +426,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * @Serializer\SerializedName("user")
      * @Serializer\Type("Civix\CoreBundle\Entity\User")
      */
-    public function getUserInfo()
+    public function getUserInfo(): ?User
     {
         return $this->privacy === self::PRIVACY_PUBLIC ? $this->user : null;
     }
@@ -434,7 +438,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      *
      * @return BaseComment
      */
-    public function addChildrenComment(BaseComment $childrenComments)
+    public function addChildrenComment(BaseComment $childrenComments): BaseComment
     {
         $this->childrenComments[] = $childrenComments;
 
@@ -446,7 +450,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      *
      * @param BaseComment $childrenComments
      */
-    public function removeChildrenComment(BaseComment $childrenComments)
+    public function removeChildrenComment(BaseComment $childrenComments): void
     {
         $this->childrenComments->removeElement($childrenComments);
     }
@@ -454,17 +458,17 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
     /**
      * Get childrenComments.
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return BaseComment[]|Collection
      */
-    public function getChildrenComments()
+    public function getChildrenComments(): Collection
     {
         return $this->childrenComments;
     }
 
     /**
-     * @return BaseCommentRate[]|ArrayCollection
+     * @return BaseCommentRate[]|Collection
      */
-    public function getRates()
+    public function getRates(): Collection
     {
         return $this->rates;
     }
@@ -476,7 +480,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      *
      * @return BaseComment
      */
-    public function addRate(BaseCommentRate $rate)
+    public function addRate(BaseCommentRate $rate): BaseComment
     {
         $this->rates[] = $rate;
         $rate->setComment($this);
@@ -489,17 +493,17 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      *
      * @param BaseCommentRate $rate
      */
-    public function removeRate(BaseCommentRate $rate)
+    public function removeRate(BaseCommentRate $rate): void
     {
         $this->rates->removeElement($rate);
     }
 
     /**
-     * @param mixed $ratesCount
+     * @param int $ratesCount
      *
      * @return $this
      */
-    public function setRatesCount($ratesCount)
+    public function setRatesCount(int $ratesCount): BaseComment
     {
         $this->ratesCount = $ratesCount;
 
@@ -507,19 +511,19 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getCommentBodyHtml()
+    public function getCommentBodyHtml(): string
     {
         return $this->commentBodyHtml;
     }
 
     /**
-     * @param mixed $commentBodyHtml
+     * @param string $commentBodyHtml
      *
      * @return $this
      */
-    public function setCommentBodyHtml($commentBodyHtml)
+    public function setCommentBodyHtml(string $commentBodyHtml)
     {
         $this->commentBodyHtml = $commentBodyHtml;
 
@@ -527,9 +531,9 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
     }
 
     /**
-     * @return mixed
+     * @return int
      */
-    public function getRatesCount()
+    public function getRatesCount(): int
     {
         return $this->ratesCount;
     }
@@ -537,6 +541,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
     /**
      * Renamed ratesCount
      *
+     * @internal Use only for serialization
      * @return int
      *
      * @Serializer\VirtualProperty()
@@ -549,12 +554,12 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
         return $this->ratesCount;
     }
 
-    public function getRateUp()
+    public function getRateUp(): float
     {
         return $this->ratesCount ? ($this->ratesCount + $this->rateSum) / 2 : 0;
     }
 
-    public function getRateDown()
+    public function getRateDown(): float
     {
         return $this->ratesCount ? ($this->ratesCount - $this->rateSum) / 2 : 0;
     }
@@ -580,14 +585,9 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * @Serializer\Type("string")
      * @Serializer\Groups({"api-comments", "api-comments-add", "api-comments-update"})
      */
-    public function getPrivacyLabel()
+    public function getPrivacyLabel(): string
     {
-        $labels = self::getPrivacyLabels();
-        if (isset($labels[$this->privacy])) {
-            return $labels[$this->privacy];
-        }
-
-        return null;
+        return self::getPrivacyLabels()[$this->privacy];
     }
 
     /**
@@ -600,7 +600,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * @Serializer\Groups({"api-comments"})
      * @Serializer\Until("2")
      */
-    public function isRoot()
+    public function isRoot(): bool
     {
         return !$this->getParentComment();
     }
