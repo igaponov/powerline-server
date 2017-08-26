@@ -38,8 +38,10 @@ class PostManager
      *
      * @param Vote $vote
      * @return Vote
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Doctrine\ORM\ORMInvalidArgumentException
      */
-    public function voteOnPost(Vote $vote)
+    public function voteOnPost(Vote $vote): Vote
     {
         $this->entityManager->persist($vote);
         $this->entityManager->flush();
@@ -64,8 +66,10 @@ class PostManager
      *
      * @param Vote $vote
      * @return Vote
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Doctrine\ORM\ORMInvalidArgumentException
      */
-    public function unvotePost(Vote $vote)
+    public function unvotePost(Vote $vote): Vote
     {
         $event = new VoteEvent($vote);
         $this->dispatcher->dispatch(PostEvents::POST_PRE_UNVOTE, $event);
@@ -78,10 +82,9 @@ class PostManager
         return $vote;
     }
 
-    public function boostPost(Post $post)
+    public function boostPost(Post $post): void
     {
         $post->boost();
-        $this->entityManager->persist($post);
         $this->entityManager->flush();
 
         $petitionEvent = new PostEvent($post);
@@ -96,7 +99,7 @@ class PostManager
      *
      * @return bool
      */
-    public function checkPostLimitPerMonth(User $user, Group $group)
+    public function checkPostLimitPerMonth(User $user, Group $group): bool
     {
         $currentPetitionCount = $this->entityManager
             ->getRepository(Post::class)
@@ -113,7 +116,7 @@ class PostManager
      *
      * @return bool
      */
-    public function checkIfNeedBoost(Post $post)
+    public function checkIfNeedBoost(Post $post): bool
     {
         $groupAnswers = $this->entityManager->getRepository(Vote::class)
             ->getCountVoterFromGroup($post);
@@ -124,20 +127,22 @@ class PostManager
     /**
      * @param Post $post
      * @return Post
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Doctrine\ORM\ORMInvalidArgumentException
      */
-    public function savePost(Post $post)
+    public function savePost(Post $post): Post
     {
         $isNew = !$post->getId();
         $event = new PostEvent($post);
         if ($isNew) {
             $this->dispatcher->dispatch(PostEvents::POST_PRE_CREATE, $event);
+            $this->entityManager->persist($post);
         }
 
-        $this->entityManager->persist($post);
         $this->entityManager->flush();
 
         $eventName = $isNew ? PostEvents::POST_CREATE : PostEvents::POST_UPDATE;
-        $this->dispatcher->dispatch($eventName, $event);
+        $this->dispatcher->dispatch('async.'.$eventName, $event);
 
         return $post;
     }

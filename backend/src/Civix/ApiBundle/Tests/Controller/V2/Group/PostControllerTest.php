@@ -2,11 +2,12 @@
 namespace Civix\ApiBundle\Tests\Controller\V2\Group;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\DataCollector\RabbitMQDataCollector;
 use Civix\CoreBundle\Entity\Karma;
-use Civix\CoreBundle\Entity\SocialActivity;
+use Civix\CoreBundle\Event\PostEvent;
+use Civix\CoreBundle\Event\PostEvents;
 use Civix\CoreBundle\Service\PostManager;
 use Civix\CoreBundle\Service\UserPetitionManager;
-use Civix\CoreBundle\Test\SocialActivityTester;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadKarmaData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostData;
@@ -72,7 +73,7 @@ class PostControllerTest extends WebTestCase
     }
 
     /**
-     * @QueryCount(52)
+     * @QueryCount(18)
      * @todo move all events to background
      */
     public function testCreatePost()
@@ -80,17 +81,9 @@ class PostControllerTest extends WebTestCase
         $repository = $this->loadFixtures([
             LoadUserGroupData::class,
         ])->getReferenceRepository();
-        $user = $repository->getReference('user_1');
         $mentioned = $repository->getReference('user_4');
         $group = $repository->getReference('group_1');
         $client = $this->client;
-        $manager = $this->getPetitionManagerMock([
-            'checkPostLimitPerMonth',
-        ]);
-        $manager->expects($this->once())
-            ->method('checkPostLimitPerMonth')
-            ->will($this->returnValue(true));
-        $client->getContainer()->set('civix_core.post_manager', $manager);
         $settings = $client->getContainer()->get('civix_core.settings');
         $settings->set('micropetition_expire_interval_0', 100);
         $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
@@ -99,52 +92,28 @@ class PostControllerTest extends WebTestCase
             '#powerlineHashTag',
         ];
         $params = [
-            'body' => sprintf("post text @%s %s",
+            'body' => sprintf(
+                'post text @%s %s',
                 $mentioned->getUsername(),
                 implode(' ', $hashTags)
             ),
         ];
         $client->request('POST',
-            $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'],
+            $uri, [], [], ['HTTP_Authorization'=>'Bearer user1'],
             json_encode($params)
         );
         $response = $client->getResponse();
         $this->assertEquals(201, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertSame($params['body'], $data['body']);
-        $this->assertRegExp('{post text <a data-user-id="\d+">@user4</a> #testHashTag #powerlineHashTag}', $data['html_body']);
         $this->assertFalse($data['boosted']);
-        // check addHashTags event listener
-        /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine')
-            ->getConnection();
-        $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM hash_tags');
-        $this->assertCount($count, $hashTags);
-        $this->assertCount($count, $data['cached_hash_tags']);
-        // check activity
-        $description = $conn->fetchColumn('SELECT description FROM activities WHERE post_id = ?', [$data['id']]);
-        $this->assertSame($data['body'], $description);
-        // check author subscription
-        $count = $conn->fetchColumn('SELECT COUNT(*) FROM post_subscribers WHERE post_id = ?', [$data['id']]);
-        $this->assertEquals(1, $count);
-        // check social activity
-        $tester = new SocialActivityTester($client->getContainer()->get('doctrine')->getManager());
-        $tester->assertActivitiesCount(2);
-        $tester->assertActivity(SocialActivity::TYPE_FOLLOW_POST_CREATED, null, $user->getId());
-        $tester->assertActivity(SocialActivity::TYPE_POST_MENTIONED, $mentioned->getId());
-        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
-        $this->assertEquals(2, $queue->count());
-        $this->assertEquals(2, $queue->hasMessageWithMethod('sendSocialActivity'));
-        $result = $client->getContainer()->get('doctrine.dbal.default_connection')
-            ->fetchAssoc('SELECT * FROM karma');
-        $this->assertArraySubset([
-            'user_id' => $user->getId(),
-            'type' => Karma::TYPE_CREATE_POST,
-            'points' => 10,
-            'metadata' => serialize([
-                'post_id' => $data['id'],
-            ]),
-        ], $result);
+        /** @var RabbitMQDataCollector $collector */
+        $collector = $client->getProfile()->getCollector('rabbit_mq');
+        $data = $collector->getData();
+        $this->assertCount(1, $data);
+        $msg = unserialize($data[0]['msg']);
+        $this->assertSame(PostEvents::POST_CREATE, $msg->getEventName());
+        $this->assertInstanceOf(PostEvent::class, $msg->getEvent());
     }
 
     public function testGetActivitiesOfDeletedUserPetition()
