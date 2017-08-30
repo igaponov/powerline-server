@@ -39,7 +39,8 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
 {
     use HasStripeAccountTrait,
         HasStripeCustomerTrait,
-        HasAvatarTrait;
+        HasAvatarTrait,
+        GroupSerializableTrait;
 
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_group.png';
     const DEFAULT_MAP_AVATAR = __DIR__.'/../Resources/public/img/pin-map-icon.png';
