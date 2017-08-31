@@ -11,6 +11,7 @@ trait GroupSerializableTrait
      *
      * @Serializer\Expose()
      * @Serializer\Groups({"group-list"})
+     * @Serializer\Type("integer")
      */
     private $priorityItemCount = 0;
 

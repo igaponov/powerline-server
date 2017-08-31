@@ -304,14 +304,15 @@ class UserGroup implements GroupContentInterface
     }
 
     /**
-     * @return User
+     * @return Group
      *
      * @Serializer\VirtualProperty()
      * @Serializer\Since("2")
      * @Serializer\Inline()
      * @Serializer\Groups({"api-info", "api-groups"})
+     * @Serializer\Type("Civix\CoreBundle\Entity\Group")
      */
-    public function getGroupInline()
+    public function getGroupInline(): Group
     {
         return $this->group;
     }
