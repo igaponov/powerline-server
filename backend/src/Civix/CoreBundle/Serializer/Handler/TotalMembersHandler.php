@@ -10,17 +10,7 @@ use JMS\Serializer\JsonSerializationVisitor;
 
 class TotalMembersHandler implements SubscribingHandlerInterface
 {
-    /**
-     * @var UserGroupRepository
-     */
-    private $repository;
-
-    public function __construct(UserGroupRepository $repository)
-    {
-        $this->repository = $repository;
-    }
-
-    public static function getSubscribingMethods()
+    public static function getSubscribingMethods(): array
     {
         return [
             [
@@ -35,8 +25,8 @@ class TotalMembersHandler implements SubscribingHandlerInterface
     public function serialize(JsonSerializationVisitor $visitor, TotalMembers $totalMembers, array $type, Context $context)
     {
         $group = $totalMembers->getGroup();
-        $totalMembers = $this->repository->getTotalMembers($group);
+        $totalMemberCount = $group->getUserGroups()->count();
 
-        return $visitor->visitInteger($totalMembers, $type, $context);
+        return $visitor->visitInteger($totalMemberCount, $type, $context);
     }
 }

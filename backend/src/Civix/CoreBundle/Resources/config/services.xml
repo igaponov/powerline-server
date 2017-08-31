@@ -124,7 +124,6 @@
         </service>
 
         <service class="Civix\CoreBundle\Serializer\Handler\TotalMembersHandler" id="civix_core.serializer_handler.total_members_handler">
-            <argument type="service" id="civix_core.repository.user_group_repository"/>
             <tag name="jms_serializer.subscribing_handler" />
         </service>
 
