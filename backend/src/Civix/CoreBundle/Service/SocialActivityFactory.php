@@ -133,9 +133,11 @@ class SocialActivityFactory
 
     public static function createPollCommentRepliedActivity(Poll\Comment $comment)
     {
+        $parentComment = $comment->getParentComment();
+
         return SocialActivity::createCommentReplied($comment->getQuestion()->getOwner())
             ->setTarget(self::getPollCommentedTarget($comment))
-            ->setRecipient($comment->getParentComment()->getUser());
+            ->setRecipient($parentComment->getUser());
     }
 
     public static function createOwnPollCommentedActivity(Poll\Comment $comment)
@@ -176,10 +178,11 @@ class SocialActivityFactory
     public static function createUserPetitionCommentRepliedActivity(UserPetition\Comment $comment)
     {
         $petition = $comment->getPetition();
+        $parentComment = $comment->getParentComment();
 
         return SocialActivity::createCommentReplied($petition->getGroup())
             ->setTarget(self::getUserPetitionCommentedTarget($comment))
-            ->setRecipient($comment->getParentComment()->getUser());
+            ->setRecipient($parentComment->getUser());
     }
 
     public static function createOwnUserPetitionCommentedActivity(UserPetition\Comment $comment)
@@ -217,9 +220,11 @@ class SocialActivityFactory
 
     public static function createPostCommentRepliedActivity(Post\Comment $comment)
     {
+        $parentComment = $comment->getParentComment();
+
         return SocialActivity::createCommentReplied($comment->getPost()->getGroup())
             ->setTarget(self::getPostCommentedTarget($comment))
-            ->setRecipient($comment->getParentComment()->getUser());
+            ->setRecipient($parentComment->getUser());
     }
 
     public static function createOwnPostCommentedActivity(Post\Comment $comment)
@@ -280,7 +285,8 @@ class SocialActivityFactory
                 'label' => self::getLabelByPoll($question),
             ];
         }
-        if ($comment->getParentComment() && $comment->getParentComment()->getUser()) {
+        $parentComment = $comment->getParentComment();
+        if ($parentComment && $parentComment->getUser()) {
             $target['comment_id'] = $comment->getId();
         }
 
@@ -314,7 +320,7 @@ class SocialActivityFactory
         ];
     }
 
-    private static function preparePreview($text = ''): string
+    private static function preparePreview(string $text = ''): string
     {
         if (mb_strlen($text) > self::PREVIEW_LENGTH) {
             return mb_substr($text, 0, 20, 'utf8').'...';
