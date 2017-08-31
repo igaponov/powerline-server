@@ -10,13 +10,16 @@ use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Model\Subscription\PackageLimitState;
 use Civix\CoreBundle\Service\Stripe;
 use Civix\CoreBundle\Service\Subscription\PackageHandler;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityRelationsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFieldsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadKarmaData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadMembershipReportData;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
@@ -54,10 +57,12 @@ class UserGroupControllerTest extends WebTestCase
     public function testGetGroups()
     {
         $repository = $this->loadFixtures([
-            LoadGroupData::class,
             LoadUserGroupData::class,
             LoadGroupManagerData::class,
             LoadUserGroupOwnerData::class,
+            LoadActivityRelationsData::class,
+            LoadPostVoteData::class,
+            LoadUserPetitionSignatureData::class,
         ])->getReferenceRepository();
         /** @var Group $group1 */
         $group1 = $repository->getReference('group_1');
@@ -84,6 +89,7 @@ class UserGroupControllerTest extends WebTestCase
         $this->assertSame('manager', $payload[2]['user_role']);
         $this->assertEquals($group4->getOfficialName(), $payload[3]['official_name']);
         $this->assertSame('member', $payload[3]['user_role']);
+        $this->assertSame(7, $payload[1]['priority_item_count']);
         foreach ($payload as $item) {
             $this->assertNotEmpty($item['conversation_view_limit']);
         }

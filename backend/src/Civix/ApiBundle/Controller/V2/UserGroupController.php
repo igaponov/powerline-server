@@ -6,12 +6,17 @@ use Civix\ApiBundle\Form\Type\WorksheetType;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Model\Group\Worksheet;
+use Civix\CoreBundle\QueryFunction\UserGroupsQuery;
 use Civix\CoreBundle\Service\Group\GroupManager;
+use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\DiExtraBundle\Annotation as DI;
+use Knp\Component\Pager\Event\AfterEvent;
+use Knp\Component\Pager\Pagination\AbstractPagination;
+use Knp\Component\Pager\Pagination\PaginationInterface;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -30,6 +35,12 @@ class UserGroupController extends FOSRestController
     private $manager;
 
     /**
+     * @var EntityManagerInterface
+     * @DI\Inject("doctrine.orm.entity_manager")
+     */
+    private $em;
+
+    /**
      * List the authenticated user's groups
      *
      * @Route("")
@@ -43,7 +54,13 @@ class UserGroupController extends FOSRestController
      *     resource=true,
      *     section="Groups",
      *     description="List groups of a user",
-     *     output = "Knp\Bundle\PaginatorBundle\Pagination\SlidingPagination",
+     *     output = {
+     *          "class" = "array<Civix\CoreBundle\Entity\UserGroup> as paginator",
+     *          "groups" = {"api-groups", "group-list"},
+     *          "parsers" = {
+     *              "Civix\ApiBundle\Parser\PaginatorParser"
+     *          }
+     *     },
      *     description="Return user's groups",
      *     statusCodes={
      *          405="Method Not Allowed"
@@ -54,15 +71,23 @@ class UserGroupController extends FOSRestController
      *
      * @param ParamFetcher $params
      *
-     * @return \Knp\Component\Pager\Pagination\PaginationInterface
+     * @return PaginationInterface
      */
-    public function getGroupsAction(ParamFetcher $params)
+    public function getGroupsAction(ParamFetcher $params): PaginationInterface
     {
-        $query = $this->getDoctrine()->getRepository(Group::class)
-            ->getByUserQuery($this->getUser());
+        $user = $this->getUser();
+        $query = new UserGroupsQuery($this->em);
+        $paginator = $this->get('knp_paginator');
+        $paginator->connect('knp_pager.after', function (AfterEvent $event) use ($query, $user) {
+            $pagination = $event->getPaginationView();
+            if (!$pagination instanceof AbstractPagination) {
+                return;
+            }
+            $query->runPostQueries($user, ...$pagination->getItems());
+        });
 
-        return $this->get('knp_paginator')->paginate(
-            $query,
+        return $paginator->paginate(
+            $query($user),
             $params->get('page'),
             $params->get('per_page')
         );
