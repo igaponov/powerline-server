@@ -35,23 +35,9 @@ class HashTag
      *
      * @return int
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
-    }
-
-    /**
-     * Set name.
-     *
-     * @param string $name
-     *
-     * @return HashTag
-     */
-    public function setName($name)
-    {
-        $this->name = mb_strtolower($name);
-
-        return $this;
     }
 
     /**
@@ -59,17 +45,16 @@ class HashTag
      *
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
     /**
-     * Constructor.
-     * @param null|string $name
+     * @param string $name
      */
-    public function __construct($name = null)
+    public function __construct(string $name)
     {
-        $this->setName($name);
+        $this->name = $name;
     }
 }
