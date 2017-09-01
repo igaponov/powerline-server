@@ -15,10 +15,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Serializer\ExclusionPolicy("all")
  */
-abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterface
+abstract class BaseComment implements HtmlBodyInterface
 {
-    use UserMentionableTrait;
-
     const PRIVACY_PUBLIC = 0;
     const PRIVACY_PRIVATE = 1;
 
@@ -290,27 +288,6 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
     public function getRateSum(): int
     {
         return $this->rateSum;
-    }
-
-    /**
-     * @deprecated
-     * @param $userStatus
-     * @return $this
-     */
-    public function setRateStatus($userStatus)
-    {
-        $this->rateStatus = $userStatus;
-
-        return $this;
-    }
-
-    /**
-     * @deprecated
-     * @return mixed
-     */
-    public function getRateStatus()
-    {
-        return $this->rateStatus;
     }
 
     /**

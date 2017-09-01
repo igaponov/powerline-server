@@ -32,65 +32,56 @@ class CommentManager
         $this->dispatcher = $dispatcher;
     }
 
-    public function updateRateToComment(BaseComment $comment, $user, $rateValue)
+    /**
+     * @param Comment $comment
+     * @param $user
+     * @param $rateValue
+     * @return CommentRate|null|object
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Doctrine\ORM\ORMInvalidArgumentException
+     * @deprecated Delete in next version
+     */
+    public function updateRateToComment(Comment $comment, $user, $rateValue)
     {
         $rateCommentObj = $this->em
             ->getRepository('CivixCoreBundle:Poll\CommentRate')
             ->findOneBy(array('user' => $user, 'comment' => $comment));
 
         if (!$rateCommentObj) {
-            $rateComment = new CommentRate();
-            $rateComment->setRateValue($rateValue);
-            $rateCommentObj = $this->em
-                ->getRepository('CivixCoreBundle:Poll\CommentRate')
-                ->addRateToComment($comment, $user, $rateComment);
+            $rateCommentObj = new CommentRate();
+            $rateCommentObj->setRateValue($rateValue);
+            $rateCommentObj->setComment($comment);
+            $rateCommentObj->setUser($user);
+            $this->em->persist($rateCommentObj);
         } else {
             $rateCommentObj->setRateValue($rateValue);
         }
 
-        $this->em->persist($rateCommentObj);
-        $this->em->flush();
+        $rateStatistics = $this->em
+            ->getRepository('CivixCoreBundle:Poll\CommentRate')
+            ->getRateStatistics($comment);
+        $comment->setRateSum($rateStatistics['rateSum']);
+        $comment->setRatesCount($rateStatistics['rateCount']);
 
-        $comment = $this->updateRateSumForComment($comment);
-        $comment->setRateStatus($rateValue);
+        $this->em->flush();
 
         return $rateCommentObj;
     }
 
-    public function updateRateSumForComment(BaseComment $comment)
+    public function addCommentByQuestionAnswer(Answer $answer): void
     {
-        $rateSumArr = $this->em
-            ->getRepository('CivixCoreBundle:Poll\CommentRate')
-            ->calcRateCommentSum($comment);
-
-        $comment->setRateSum($rateSumArr['rateSum']);
-        $comment->setRatesCount($comment->getRates()->count());
-        $this->em->persist($comment);
-        $this->em->flush();
-
-        return $comment;
-    }
-
-    public function addCommentByQuestionAnswer(Answer $answer)
-    {
-        $parent = $this->em->getRepository('CivixCoreBundle:Poll\Comment')
-            ->findOneBy(array(
-                'question' => $answer->getQuestion(),
-                'parentComment' => null,
-            ));
-
         if ($answer->getComment()) {
-            $comment = new Comment($answer->getUser(), $parent);
+            $comment = new Comment($answer->getUser());
             $comment->setQuestion($answer->getQuestion())
                 ->setCommentBody($answer->getComment())
-                ->setPrivacy($answer->getPrivacy())
-            ;
-
-            return $this->saveComment($comment);
+                ->setPrivacy($answer->getPrivacy());
+            $this->saveComment($comment);
         }
     }
 
-    public function addComment(BaseComment $comment)
+    public function addComment(BaseComment $comment): BaseComment
     {
         $this->em->persist($comment);
         $this->em->flush($comment);
@@ -101,7 +92,7 @@ class CommentManager
         return $comment;
     }
 
-    public function saveComment(BaseComment $comment)
+    public function saveComment(BaseComment $comment): BaseComment
     {
         $this->em->persist($comment);
         $this->em->flush($comment);
@@ -109,7 +100,7 @@ class CommentManager
         return $comment;
     }
 
-    public function deleteComment(BaseComment $comment)
+    public function deleteComment(BaseComment $comment): BaseComment
     {
         $comment->setCommentBody(self::DELETED_COMMENT_BODY);
         $comment->setCommentBodyHtml(self::DELETED_COMMENT_BODY);
@@ -119,7 +110,7 @@ class CommentManager
         return $comment;
     }
 
-    public function rateComment(BaseComment $comment, BaseCommentRate $rate)
+    public function rateComment(BaseComment $comment, BaseCommentRate $rate): BaseComment
     {
         if (!$this->em->contains($rate)) {
             $comment->addRate($rate);
