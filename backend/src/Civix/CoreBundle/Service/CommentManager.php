@@ -80,12 +80,10 @@ class CommentManager
             ));
 
         if ($answer->getComment()) {
-            $comment = new Comment();
-            $comment->setUser($answer->getUser())
+            $comment = new Comment($answer->getUser(), $parent);
+            $comment->setQuestion($answer->getQuestion())
                 ->setCommentBody($answer->getComment())
-                ->setQuestion($answer->getQuestion())
                 ->setPrivacy($answer->getPrivacy())
-                ->setParentComment($parent)
             ;
 
             return $this->saveComment($comment);

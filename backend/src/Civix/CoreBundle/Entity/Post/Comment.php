@@ -5,6 +5,7 @@ namespace Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\CommentedInterface;
 use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
@@ -20,6 +21,11 @@ class Comment extends BaseComment
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $post;
+
+    public function __construct(User $user, Comment $parentComment = null)
+    {
+        parent::__construct($user, $parentComment);
+    }
 
     /**
      * Set a post.

@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Entity\Poll;
 
 use Civix\CoreBundle\Entity\CommentedInterface;
+use Civix\CoreBundle\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Entity\BaseComment;
@@ -21,6 +22,11 @@ class Comment extends BaseComment
      * @ORM\JoinColumn(nullable=false, name="question_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $question;
+
+    public function __construct(User $user, Comment $parentComment = null)
+    {
+        parent::__construct($user, $parentComment);
+    }
 
     /**
      * Set question.

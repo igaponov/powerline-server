@@ -399,7 +399,7 @@
         </service>
 
         <service class="Civix\CoreBundle\EventListener\MentionSubscriber" id="civix_core.event_listener.html_body_subscriber">
-            <argument id="doctrine.orm.entity_manager" type="service"/>
+            <tag name="doctrine.event_subscriber"/>
         </service>
 
         <service class="Civix\CoreBundle\EventListener\CommentSubscriber" id="civix_core.event_listener.comment_subscriber">

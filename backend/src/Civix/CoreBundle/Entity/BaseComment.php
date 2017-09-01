@@ -80,6 +80,7 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
 
     /**
      * @var User
+     *
      * @ORM\ManyToOne(targetEntity="\Civix\CoreBundle\Entity\User")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      * @Serializer\Expose()
@@ -161,8 +162,10 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      */
     abstract public function getEntityType(): string;
 
-    public function __construct()
+    public function __construct(User $user, BaseComment $parentComment = null)
     {
+        $this->user = $user;
+        $this->parentComment = $parentComment;
         $this->rates = new ArrayCollection();
         $this->childrenComments = new ArrayCollection();
         $this->createdAt = new \DateTime();
@@ -208,8 +211,9 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * @param BaseComment $parentComment
      * @return BaseComment
      * @throws \DomainException
+     * @deprecated Use __construct to set parent comment
      */
-    public function setParentComment(BaseComment $parentComment = null): self
+    public function setParentComment(BaseComment $parentComment): self
     {
         if (!$parentComment instanceof static) {
             throw new \DomainException('Parent comment should be instance of ' . static::class);
@@ -235,8 +239,9 @@ abstract class BaseComment implements HtmlBodyInterface, UserMentionableInterfac
      * @param User $user
      * 
      * @return BaseComment
+     * @deprecated Use __construct to set user attribute
      */
-    public function setUser(User $user = null): BaseComment
+    public function setUser(User $user): BaseComment
     {
         $this->user = $user;
 

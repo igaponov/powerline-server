@@ -23,6 +23,7 @@ class CommentType extends AbstractType
                 'property_path' => 'commentBody',
             ])
             ->add('privacy', Type\TextType::class, [
+                'empty_data' => BaseComment::PRIVACY_PUBLIC,
                 'description' => 'Privacy, one of: '.implode(', ', $choices),
         ]);
         $builder->get('privacy')->addModelTransformer(new KeyToValueTransformer($choices));
