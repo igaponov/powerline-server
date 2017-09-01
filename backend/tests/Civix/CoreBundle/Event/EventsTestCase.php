@@ -24,9 +24,8 @@ class EventsTestCase extends KernelTestCase
             } elseif ($expectedListener instanceof \Closure || is_string($expectedListener)) {
                 $function = new \ReflectionFunction($expectedListener);
             } else {
-                throw new \PHPUnit_Framework_AssertionFailedError(
-                    'Invalid listener: '.serialize($expectedListener)
-                );
+                $this->fail('Invalid listener: '.serialize($expectedListener));
+                return;
             }
             $parameter = $function->getParameters()[0];
             $this->assertSame($eventClass, $parameter->getClass()->getName());
