@@ -12,6 +12,7 @@ use Civix\CoreBundle\Entity\SubscriptionInterface;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Internal\Hydration\IterableResult;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Civix\CoreBundle\Entity\User;
@@ -31,7 +32,7 @@ class UserRepository extends EntityRepository
      *
      * @return User[]
      */
-    public function getAllUsersWithAddressProfile()
+    public function getAllUsersWithAddressProfile(): array
     {
         return $this->createQueryBuilder('u')
                 ->where('u.state IS NOT NULL')
@@ -41,13 +42,14 @@ class UserRepository extends EntityRepository
                 ->getResult();
     }
 
-    public function getQueryUserOrderedById()
+    public function getQueryUserOrderedById(): Query
     {
-        return $this->getEntityManager()
-                ->createQuery('SELECT u FROM CivixCoreBundle:User u ORDER BY u.id DESC');
+        return $this->createQueryBuilder('u')
+            ->orderBy('u.id', 'DESC')
+            ->getQuery();
     }
 
-    public function removeUser(User $user)
+    public function removeUser(User $user): void
     {
         $this->getEntityManager()
             ->createQueryBuilder()
@@ -68,7 +70,7 @@ class UserRepository extends EntityRepository
             ->execute();
 
         $this->getEntityManager()->getConnection()
-                ->delete('users_groups', array('user_id' => $user->getId()));
+                ->delete('users_groups', ['user_id' => $user->getId()]);
 
         $this->getEntityManager()
             ->createQueryBuilder()
@@ -79,89 +81,7 @@ class UserRepository extends EntityRepository
             ->execute();
     }
 
-    /**
-     * @deprecated
-     */
-    public function follow(User $follower, User $user)
-    {
-        if (!$this->isFollower($user, $follower)) {
-            $userFollow = $this->createUserFollow($user, $follower);
-            $this->getEntityManager()->persist($userFollow);
-
-            return $userFollow;
-        }
-
-        return false;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function unfollow(User $follower, User $user)
-    {
-        $userFollow = $this->isFollower($user, $follower);
-        if ($userFollow) {
-            $user->removeFollower($userFollow);
-            $this->getEntityManager()->remove($userFollow);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function active(User $user, User $follower)
-    {
-        $userFollow = $this->isFollower($user, $follower);
-
-        if ($userFollow && $userFollow->getStatus() != \Civix\CoreBundle\Entity\UserFollow::STATUS_ACTIVE) {
-            $userFollow->setStatus(\Civix\CoreBundle\Entity\UserFollow::STATUS_ACTIVE)
-                    ->setDateApproval(new \DateTime());
-
-            $this->getEntityManager()->persist($userFollow);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function reject(User $user, User $follower)
-    {
-        $userFollow = $this->isFollower($user, $follower);
-        if ($userFollow) {
-            $user->removeFollowing($userFollow);
-            $this->getEntityManager()->remove($userFollow);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function isFollower(User $user, User $follower)
-    {
-        return $this->getEntityManager()->createQueryBuilder()
-                ->select('f')
-                ->from('CivixCoreBundle:UserFollow', 'f')
-                ->where('f.user = :user')
-                ->andWhere('f.follower = :follower')
-                ->setParameter('user', $user)
-                ->setParameter('follower', $follower)
-                ->getQuery()
-                ->getOneOrNullResult();
-    }
-
-    public function getUserByUsername(User $user, $username)
+    public function getUserByUsername(User $user, $username): array
     {
         $followingIds = $user->getFollowingIds();
 
@@ -176,7 +96,7 @@ class UserRepository extends EntityRepository
                 ->getResult();
     }
 
-    public function getUsersByDistrictForPush($district, $type, $startId = 0, $limit = null)
+    public function getUsersByDistrictForPush($district, $type, $startId = 0, $limit = null): array
     {
         /** @var $query \Doctrine\ORM\QueryBuilder */
         $query = $this->createQueryBuilder('u');
@@ -213,7 +133,14 @@ class UserRepository extends EntityRepository
         return $query->getQuery()->getResult();
     }
 
-    public function getAllUsersForPush($startId, $limit)
+    /**
+     * @param $startId
+     * @param $limit
+     * @return array
+     *
+     * @deprecated
+     */
+    public function getAllUsersForPush($startId, $limit): array
     {
         /** @var $query \Doctrine\ORM\QueryBuilder */
         $query = $this->createQueryBuilder('u');
@@ -261,7 +188,7 @@ class UserRepository extends EntityRepository
             ->getResult();
     }
 
-    public function getUsersByGroupForPush($groupId, $type, $startId = 0, $limit = null)
+    public function getUsersByGroupForPush($groupId, $type, $startId = 0, $limit = null): array
     {
         /** @var $query \Doctrine\ORM\QueryBuilder */
         $query = $this->createQueryBuilder('u');
@@ -296,7 +223,7 @@ class UserRepository extends EntityRepository
         return $query->getQuery()->getResult();
     }
 
-    public function getUsersBySectionsForPush($sectionsIds, $type, $startId = 0, $limit = null)
+    public function getUsersBySectionsForPush($sectionsIds, $type, $startId = 0, $limit = null): array
     {
         /** @var $query \Doctrine\ORM\QueryBuilder */
         $query = $this->createQueryBuilder('u');
@@ -330,7 +257,7 @@ class UserRepository extends EntityRepository
         return $query->getQuery()->getResult();
     }
 
-    public function getUserForPush($userId)
+    public function getUserForPush($userId): ?User
     {
         /** @var $query \Doctrine\ORM\QueryBuilder */
         $query = $this->createQueryBuilder('u');
@@ -346,42 +273,7 @@ class UserRepository extends EntityRepository
                 ->getOneOrNullResult();
     }
 
-    public function getUsersByEmails($emails)
-    {
-        return empty($emails) ?  array() : $this->createQueryBuilder('u')
-                ->where('u.email in (:emails)')
-                ->setParameter('emails', $emails)
-                ->getQuery()
-                ->getResult();
-    }
-
-    /**
-     * @deprecated Use Notification\AndroidEndpoint instead (Amazon SNS integration)
-     */
-    public function removeDeviceTokens(User $user)
-    {
-        if (!$user->getIosDevice() && !$user->getAndroidDevice()) {
-            return;
-        }
-
-        $qb = $this->getEntityManager()
-            ->createQueryBuilder();
-        $qb->update('CivixCoreBundle:User', 'u');
-
-        if ($user->getIosDevice()) {
-            $qb->set('u.iosDevice', 'NULL')
-                ->where('u.iosDevice = :token')
-                ->setParameter('token', $user->getIosDevice());
-        } elseif ($user->getAndroidDevice()) {
-            $qb->set('u.androidDevice', 'NULL')
-                ->where('u.androidDevice = :token')
-                ->setParameter('token', $user->getAndroidDevice());
-        }
-
-        return $qb->getQuery()->execute();
-    }
-
-    public function findByQueryForFollow($query, User $user)
+    public function findByQueryForFollow($query, User $user): array
     {
         $qb = $this->createQueryBuilder('u');
         $this->addQueryFilter($qb, $query);
@@ -393,7 +285,7 @@ class UserRepository extends EntityRepository
         ;
     }
 
-    public function getUserByFacebookId($facebookId)
+    public function getUserByFacebookId($facebookId): ?User
     {
         return $this->createQueryBuilder('u')
             ->where('u.facebookId = :facebookId')
@@ -402,25 +294,35 @@ class UserRepository extends EntityRepository
             ->getOneOrNullResult();
     }
 
-    public function getFacebookUsers(array $facebookIds, $exludeIds)
+    public function getFacebookUsers(array $facebookIds, $excludeIds): array
     {
         return $this->createQueryBuilder('u')
             ->where('u.facebookId IN (:facebookIds)')
             ->andWhere('u.id NOT IN (:following)')
             ->setParameter('facebookIds', empty($facebookIds) ? array(-1) : $facebookIds)
-            ->setParameter('following', empty($exludeIds) ? array(0) : $exludeIds)
+            ->setParameter('following', empty($excludeIds) ? array(0) : $excludeIds)
             ->getQuery()
             ->getResult();
     }
 
-    public function findByParams($params, array $orderBy = null, $limit = null, $offset = null, User $user = null)
+
+    /** @noinspection MoreThanThreeArgumentsInspection
+     * @param $params
+     * @param array|null $orderBy
+     * @param null $limit
+     * @param null $offset
+     * @param User|null $user
+     * @return array
+     * @deprecated
+     */
+    public function findByParams($params, array $orderBy = null, $limit = null, $offset = null, User $user = null): array
     {
         $qb = $this->createQueryBuilder('u');
         if (!empty($params['query'])) {
             $this->addQueryFilter($qb, $params['query']);
         }
 
-        if (isset($params['unfollowing']) && $params['unfollowing'] && $user) {
+        if ($user && isset($params['unfollowing']) && $params['unfollowing']) {
             $this->addUnfollowingFilter($qb, $user);
         }
 
@@ -435,7 +337,7 @@ class UserRepository extends EntityRepository
         ;
     }
 
-    public function getUsersByGroup($groupId, $page, $limit)
+    public function getUsersByGroup($groupId, $page, $limit): array
     {
         $query = $this->createQueryBuilder('u');
 
@@ -452,7 +354,7 @@ class UserRepository extends EntityRepository
         return $query->getQuery()->getResult();
     }
 
-    private function addUnfollowingFilter(QueryBuilder $qb, User $user)
+    private function addUnfollowingFilter(QueryBuilder $qb, User $user): QueryBuilder
     {
         $excludedIds = array_merge(array($user->getId()), $user->getFollowingIds());
         $qb->andWhere('u.id NOT IN (:excluded_ids)')->setParameter('excluded_ids', $excludedIds);
@@ -460,7 +362,7 @@ class UserRepository extends EntityRepository
         return $qb;
     }
 
-    private function addQueryFilter(QueryBuilder $qb, $query)
+    private function addQueryFilter(QueryBuilder $qb, $query): QueryBuilder
     {
         $qb->andWhere($qb->expr()->orX(
             $qb->expr()->like('u.username', $qb->expr()->literal('%'.$query.'%')),
@@ -471,22 +373,9 @@ class UserRepository extends EntityRepository
         return $qb;
     }
 
-    private function createUserFollow(User $user, User $follower)
+    private function setCommonFilterForPush(QueryBuilder $qb, Query\Expr $expr): QueryBuilder
     {
-        $followEntity = new \Civix\CoreBundle\Entity\UserFollow();
-        $followEntity->setStatus(\Civix\CoreBundle\Entity\UserFollow::STATUS_PENDING)
-            ->setDateCreate(new \DateTime())
-            ->setFollower($follower)
-            ->setUser($user);
-
-        return $followEntity;
-    }
-
-    private function setCommonFilterForPush(QueryBuilder $query, Query\Expr $expr)
-    {
-        $curDate = new \DateTime();
-
-        $query
+        $qb
             ->andWhere(
                 $expr->orX(
                     'u.doNotDisturb = false',
@@ -502,19 +391,28 @@ class UserRepository extends EntityRepository
                         )
                     )
                 ))
-            ->setParameter('currentTime', $curDate->format('H:i:s'));
+            ->setParameter('currentTime', date('H:i:s'));
 
-        return $query;
+        return $qb;
     }
 
+    /** @noinspection MoreThanThreeArgumentsInspection
+     * @param array $emailHashes
+     * @param array $phoneHashes
+     * @param $exclude
+     * @param $page
+     * @param $limit
+     * @return array
+     * @throws \InvalidArgumentException
+     * @deprecated
+     */
     public function getUsersByEmailAndPhoneHashes(
         array $emailHashes, 
         array $phoneHashes, 
         $exclude, 
         $page, 
         $limit
-    )
-    {
+    ): array {
         $query = $this->createQueryBuilder('u');
 
         $query->orderBy('u.id', 'ASC');
@@ -548,7 +446,7 @@ class UserRepository extends EntityRepository
      * @param $groupId
      * @return User[]
      */
-    public function getUsersEmailsByGroup($groupId)
+    public function getUsersEmailsByGroup($groupId): array
     {
         $query = $this->createQueryBuilder('u');
         $query
@@ -561,7 +459,7 @@ class UserRepository extends EntityRepository
         return $query->getQuery()->getResult(Query::HYDRATE_OBJECT);
     }
 
-    public function findForInviteByGroupWithUsernameOrEmail(Group $group, $userNames)
+    public function findForInviteByGroupWithUsernameOrEmail(Group $group, $userNames): IterableResult
     {
         $qb = $this->createQueryBuilder('u');
         $query = $qb
@@ -587,7 +485,7 @@ class UserRepository extends EntityRepository
         return $query->iterate();
     }
 
-    public function findForInviteByPostUpvotes(Group $group, Post $post)
+    public function findForInviteByPostUpvotes(Group $group, Post $post): IterableResult
     {
         $qb = $this->createQueryBuilder('u');
         $query = $qb
@@ -611,7 +509,7 @@ class UserRepository extends EntityRepository
         return $query->iterate();
     }
 
-    public function findForInviteByUserPetitionSignatures(Group $group, UserPetition $petition)
+    public function findForInviteByUserPetitionSignatures(Group $group, UserPetition $petition): IterableResult
     {
         $qb = $this->createQueryBuilder('u');
         $query = $qb
@@ -636,7 +534,7 @@ class UserRepository extends EntityRepository
     /**
      * @return User[]
      */
-    public function findWithDuplicateEmails()
+    public function findWithDuplicateEmails(): array
     {
         return $this->createQueryBuilder('u')
             ->leftJoin(User::class, 'u2', Query\Expr\Join::WITH, 'u2.email = u.email')
@@ -645,10 +543,10 @@ class UserRepository extends EntityRepository
             ->getResult();
     }
 
-    public function getSubscribersIterator(SubscriptionInterface $subscription)
+    public function getSubscribersIterator(SubscriptionInterface $subscription): IterableResult
     {
         $qb = $this->createQueryBuilder('u')
-            ->distinct(true);
+            ->distinct();
         if ($subscription instanceof UserPetition) {
             $qb->leftJoin('u.petitionSubscriptions', 's');
         } elseif ($subscription instanceof Post) {
@@ -666,7 +564,7 @@ class UserRepository extends EntityRepository
             ->iterate();
     }
 
-    public function getFindByGroupSectionQuery(GroupSection $section)
+    public function getFindByGroupSectionQuery(GroupSection $section): Query
     {
         return $this->createQueryBuilder('u')
             ->leftJoin('u.groupSections', 's')
@@ -682,13 +580,13 @@ class UserRepository extends EntityRepository
      * @param null $limit
      * @return User[]
      */
-    public function getUsersByGroupForLeaderContentPush(LeaderContentInterface $content, $type, $startId = 0, $limit = null)
+    public function getUsersByGroupForLeaderContentPush(LeaderContentInterface $content, $type, $startId = 0, $limit = null): array
     {
         if (($content instanceof GroupSectionInterface) && $content->getGroupSections()->count() > 0) {
             return $this->getUsersBySectionsForPush($content->getGroupSectionIds(), $type, $startId, $limit);
-        } else {
-            return $this->getUsersByGroupForPush($content->getGroup()->getId(), $type, $startId, $limit);
         }
+
+        return $this->getUsersByGroupForPush($content->getRoot()->getId(), $type, $startId, $limit);
     }
 
     /**
@@ -696,7 +594,7 @@ class UserRepository extends EntityRepository
      * @param Group $group
      * @return array
      */
-    public function findAllMemberIdsByGroup(Group $group)
+    public function findAllMemberIdsByGroup(Group $group): array
     {
         return $this->createQueryBuilder('u')
             ->select('u.id')
@@ -712,9 +610,9 @@ class UserRepository extends EntityRepository
             ->getResult(Query::HYDRATE_ARRAY);
     }
 
-    public function getUserKarma(User $user)
+    public function getUserKarma(User $user): int
     {
-        return $this->getEntityManager()->createQueryBuilder()
+        return (int)$this->getEntityManager()->createQueryBuilder()
             ->select('SUM(k.points)')
             ->from(Karma::class, 'k')
             ->where('k.user = :user')
@@ -722,7 +620,7 @@ class UserRepository extends EntityRepository
             ->getQuery()->getSingleScalarResult();
     }
 
-    public function findWithFollowerById($id, User $follower)
+    public function findWithFollowerById($id, User $follower): ?User
     {
         return $this->createQueryBuilder('u')
             ->addSelect('f')
