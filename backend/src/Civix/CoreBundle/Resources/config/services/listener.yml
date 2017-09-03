@@ -76,3 +76,11 @@ services:
             - '%hostname%'
         tags:
             - { name: kernel.event_subscriber }
+
+    civix_core.event_listener.mention_subscriber:
+        class: Civix\CoreBundle\EventListener\MentionSubscriber
+        arguments:
+            - '@civix_core.repository.user_repository'
+            - '@civix_core.social_activity_manager'
+        tags:
+            - { name: kernel.event_subscriber }
