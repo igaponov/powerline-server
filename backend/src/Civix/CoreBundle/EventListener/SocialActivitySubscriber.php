@@ -20,7 +20,7 @@ class SocialActivitySubscriber implements EventSubscriberInterface
         $this->manager = $manager;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             Event\UserEvents::FOLLOW => ['sendUserFollowRequest', -100],
@@ -28,11 +28,9 @@ class SocialActivitySubscriber implements EventSubscriberInterface
             Event\UserPetitionEvents::PETITION_CREATE => ['noticeUserPetitionCreated', -100],
             Event\PostEvents::POST_CREATE => [
                 ['noticePostCreated', -100],
-                ['noticePostMentioned', -100],
             ],
             Event\CommentEvents::CREATE => [
                 ['noticeEntityCommented', -100],
-                ['noticeCommentMentioned', -100],
             ],
             Event\PollEvents::QUESTION_ANSWER => ['noticeAnsweredToQuestion', -100],
             Event\GroupEvents::USER_JOINED => ['noticeGroupJoiningApproved', -100],
@@ -71,21 +69,9 @@ class SocialActivitySubscriber implements EventSubscriberInterface
         }
     }
 
-    public function noticeCommentMentioned(Event\CommentEvent $event)
-    {
-        $comment = $event->getComment();
-        $this->manager->noticeCommentMentioned($comment);
-    }
-
-    public function noticePostMentioned(Event\PostEvent $event)
-    {
-        $post = $event->getPost();
-        $this->manager->noticePostMentioned($post);
-    }
-
     public function noticeAnsweredToQuestion(Event\Poll\AnswerEvent $event)
     {
-        $answer =  $event->getAnswer();
+        $answer = $event->getAnswer();
         $this->manager->noticeAnsweredToQuestion($answer);
     }
 
