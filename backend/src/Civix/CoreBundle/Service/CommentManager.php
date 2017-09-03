@@ -83,11 +83,13 @@ class CommentManager
 
     public function addComment(BaseComment $comment): BaseComment
     {
+        $event = new CommentEvent($comment);
+        $this->dispatcher->dispatch(CommentEvents::PRE_CREATE, $event);
+
         $this->em->persist($comment);
         $this->em->flush($comment);
 
-        $event = new CommentEvent($comment);
-        $this->dispatcher->dispatch(CommentEvents::CREATE, $event);
+        $this->dispatcher->dispatch('async.'.CommentEvents::CREATE, $event);
 
         return $comment;
     }
