@@ -16,14 +16,14 @@ class SocialActivityFactory
 {
     const PREVIEW_LENGTH = 20;
 
-    public static function createFollowRequestActivity(UserFollow $userFollow): SocialActivity
+    public function createFollowRequestActivity(UserFollow $userFollow): SocialActivity
     {
         return SocialActivity::createFollowRequest()
-            ->setTarget(self::getFollowRequestTarget($userFollow))
+            ->setTarget($this->getFollowRequestTarget($userFollow))
             ->setRecipient($userFollow->getUser());
     }
 
-    public static function getFollowRequestTarget(UserFollow $userFollow): array
+    public function getFollowRequestTarget(UserFollow $userFollow): array
     {
         return [
             'id' => $userFollow->getFollower()->getId(),
@@ -33,14 +33,14 @@ class SocialActivityFactory
         ];
     }
 
-    public static function createJoinToGroupApproved(User $user, Group $group)
+    public function createJoinToGroupApproved(User $user, Group $group)
     {
         return SocialActivity::createJoinToGroupApproved($group)
-            ->setTarget(self::getJoinToGroupApprovedTarget($user, $group))
+            ->setTarget($this->getJoinToGroupApprovedTarget($user, $group))
             ->setRecipient($user);
     }
 
-    public static function getJoinToGroupApprovedTarget(User $user, Group $group): array
+    public function getJoinToGroupApprovedTarget(User $user, Group $group): array
     {
         return [
             'type' => 'group',
@@ -49,13 +49,13 @@ class SocialActivityFactory
         ];
     }
 
-    public static function createFollowUserPetitionCreated(UserPetition $petition)
+    public function createFollowUserPetitionCreated(UserPetition $petition)
     {
         return SocialActivity::createFollowUserPetitionCreated($petition->getUser(), $petition->getGroup())
-            ->setTarget(self::getFollowedUserPetitionTarget($petition));
+            ->setTarget($this->getFollowedUserPetitionTarget($petition));
     }
 
-    public static function getFollowedUserPetitionTarget(UserPetition $petition): array
+    public function getFollowedUserPetitionTarget(UserPetition $petition): array
     {
         return [
             'id' => $petition->getId(),
@@ -67,13 +67,13 @@ class SocialActivityFactory
         ];
     }
 
-    public static function createFollowPostCreatedActivity(Post $post)
+    public function createFollowPostCreatedActivity(Post $post)
     {
         return SocialActivity::createFollowPostCreated($post->getUser(), $post->getGroup())
-            ->setTarget(self::getFollowPostCreatedTarget($post));
+            ->setTarget($this->getFollowPostCreatedTarget($post));
     }
 
-    public static function getFollowPostCreatedTarget(Post $post): array
+    public function getFollowPostCreatedTarget(Post $post): array
     {
         return [
             'id' => $post->getId(),
@@ -84,36 +84,36 @@ class SocialActivityFactory
         ];
     }
 
-    public static function createOwnPollAnsweredActivity(Poll\Answer $answer)
+    public function createOwnPollAnsweredActivity(Poll\Answer $answer)
     {
         $question = $answer->getQuestion();
 
         return SocialActivity::createOwnPollAnswered($question->getOwner())
-            ->setTarget(self::getOwnPollAnsweredTarget($answer))
+            ->setTarget($this->getOwnPollAnsweredTarget($answer))
             ->setRecipient($question->getUser());
     }
 
-    public static function getOwnPollAnsweredTarget(Poll\Answer $answer): array
+    public function getOwnPollAnsweredTarget(Poll\Answer $answer): array
     {
         $question = $answer->getQuestion();
 
         return [
             'id' => $question->getId(),
             'type' => $question->getType(),
-            'label' => self::getLabelByPoll($question),
-            'preview' => self::getPreviewByPoll($question),
+            'label' => $this->getLabelByPoll($question),
+            'preview' => $this->getPreviewByPoll($question),
             'full_name' => $answer->getUser()->getFullName(),
             'image' => $answer->getUser()->getAvatarFileName(),
         ];
     }
 
-    public static function createFollowPollCommentedActivity(Poll\Comment $comment)
+    public function createFollowPollCommentedActivity(Poll\Comment $comment)
     {
         return SocialActivity::createFollowPollCommented($comment->getUser(), $comment->getQuestion()->getOwner())
-            ->setTarget(self::getPollCommentedTarget($comment));
+            ->setTarget($this->getPollCommentedTarget($comment));
     }
 
-    public static function getPollCommentedTarget(Poll\Comment $comment): array
+    public function getPollCommentedTarget(Poll\Comment $comment): array
     {
         $question = $comment->getQuestion();
         $target = [
@@ -121,7 +121,7 @@ class SocialActivityFactory
             'type' => $question->getType(),
             'full_name' => $comment->getUser()->getFullName(),
             'image' => $comment->getUser()->getAvatarFileName(),
-            'label' => self::getLabelByPoll($question),
+            'label' => $this->getLabelByPoll($question),
             'preview' => $comment->getCommentBody(),
         ];
         if ($comment->getParentComment()) {
@@ -131,33 +131,33 @@ class SocialActivityFactory
         return $target;
     }
 
-    public static function createPollCommentRepliedActivity(Poll\Comment $comment)
+    public function createPollCommentRepliedActivity(Poll\Comment $comment)
     {
         $parentComment = $comment->getParentComment();
 
         return SocialActivity::createCommentReplied($comment->getQuestion()->getOwner())
-            ->setTarget(self::getPollCommentedTarget($comment))
+            ->setTarget($this->getPollCommentedTarget($comment))
             ->setRecipient($parentComment->getUser());
     }
 
-    public static function createOwnPollCommentedActivity(Poll\Comment $comment)
+    public function createOwnPollCommentedActivity(Poll\Comment $comment)
     {
         $question = $comment->getQuestion();
 
         return SocialActivity::createOwnPollCommented($question->getGroup())
-            ->setTarget(self::getPollCommentedTarget($comment))
+            ->setTarget($this->getPollCommentedTarget($comment))
             ->setRecipient($question->getUser());
     }
 
-    public static function createFollowUserPetitionCommentedActivity(UserPetition\Comment $comment)
+    public function createFollowUserPetitionCommentedActivity(UserPetition\Comment $comment)
     {
         $petition = $comment->getPetition();
 
         return SocialActivity::createFollowUserPetitionCommented($comment->getUser(), $petition->getGroup())
-            ->setTarget(self::getUserPetitionCommentedTarget($comment));
+            ->setTarget($this->getUserPetitionCommentedTarget($comment));
     }
 
-    public static function getUserPetitionCommentedTarget(UserPetition\Comment $comment): array
+    public function getUserPetitionCommentedTarget(UserPetition\Comment $comment): array
     {
         $petition = $comment->getPetition();
         $target = [
@@ -175,32 +175,32 @@ class SocialActivityFactory
         return $target;
     }
 
-    public static function createUserPetitionCommentRepliedActivity(UserPetition\Comment $comment)
+    public function createUserPetitionCommentRepliedActivity(UserPetition\Comment $comment)
     {
         $petition = $comment->getPetition();
         $parentComment = $comment->getParentComment();
 
         return SocialActivity::createCommentReplied($petition->getGroup())
-            ->setTarget(self::getUserPetitionCommentedTarget($comment))
+            ->setTarget($this->getUserPetitionCommentedTarget($comment))
             ->setRecipient($parentComment->getUser());
     }
 
-    public static function createOwnUserPetitionCommentedActivity(UserPetition\Comment $comment)
+    public function createOwnUserPetitionCommentedActivity(UserPetition\Comment $comment)
     {
         $petition = $comment->getPetition();
 
         return SocialActivity::createOwnUserPetitionCommented($petition->getGroup())
-            ->setTarget(self::getUserPetitionCommentedTarget($comment))
+            ->setTarget($this->getUserPetitionCommentedTarget($comment))
             ->setRecipient($petition->getUser());
     }
 
-    public static function createFollowPostCommentedActivity(Post\Comment $comment)
+    public function createFollowPostCommentedActivity(Post\Comment $comment)
     {
         return SocialActivity::createFollowPostCommented($comment->getUser(), $comment->getPost()->getGroup())
-            ->setTarget(self::getPostCommentedTarget($comment));
+            ->setTarget($this->getPostCommentedTarget($comment));
     }
 
-    public static function getPostCommentedTarget(Post\Comment $comment): array
+    public function getPostCommentedTarget(Post\Comment $comment): array
     {
         $post = $comment->getPost();
         $target = [
@@ -218,32 +218,32 @@ class SocialActivityFactory
         return $target;
     }
 
-    public static function createPostCommentRepliedActivity(Post\Comment $comment)
+    public function createPostCommentRepliedActivity(Post\Comment $comment)
     {
         $parentComment = $comment->getParentComment();
 
         return SocialActivity::createCommentReplied($comment->getPost()->getGroup())
-            ->setTarget(self::getPostCommentedTarget($comment))
+            ->setTarget($this->getPostCommentedTarget($comment))
             ->setRecipient($parentComment->getUser());
     }
 
-    public static function createOwnPostCommentedActivity(Post\Comment $comment)
+    public function createOwnPostCommentedActivity(Post\Comment $comment)
     {
         $post = $comment->getPost();
 
         return SocialActivity::createOwnPostCommented($post->getGroup())
-            ->setTarget(self::getPostCommentedTarget($comment))
+            ->setTarget($this->getPostCommentedTarget($comment))
             ->setRecipient($post->getUser());
     }
 
-    public static function createGroupPermissionsChangedActivity(Group $group, User $user)
+    public function createGroupPermissionsChangedActivity(Group $group, User $user)
     {
         return SocialActivity::createGroupPermissionsChanged($group)
-            ->setTarget(self::getGroupPermissionsChangedTarget($group))
+            ->setTarget($this->getGroupPermissionsChangedTarget($group))
             ->setRecipient($user);
     }
 
-    public static function getGroupPermissionsChangedTarget(Group $group): array
+    public function getGroupPermissionsChangedTarget(Group $group): array
     {
         return [
             'id' => $group->getId(),
@@ -251,20 +251,20 @@ class SocialActivityFactory
         ];
     }
 
-    public static function createCommentMentionedActivity(BaseComment $comment, Group $group, User $user)
+    public function createCommentMentionedActivity(BaseComment $comment, Group $group, User $user)
     {
         return SocialActivity::createCommentMentioned($group)
-            ->setTarget(self::getCommentMentionedTarget($comment))
+            ->setTarget($this->getCommentMentionedTarget($comment))
             ->setRecipient($user);
     }
 
-    public static function getCommentMentionedTarget(BaseComment $comment): array
+    public function getCommentMentionedTarget(BaseComment $comment): array
     {
         if ($comment instanceof UserPetition\Comment) {
             $petition = $comment->getPetition();
             $target = [
                 'id' => $petition->getId(),
-                'preview' => self::preparePreview($comment->getCommentBody()),
+                'preview' => $this->preparePreview($comment->getCommentBody()),
                 'type' => 'user-petition',
                 'label' => 'petition',
             ];
@@ -272,7 +272,7 @@ class SocialActivityFactory
             $post = $comment->getPost();
             $target = [
                 'id' => $post->getId(),
-                'preview' => self::preparePreview($comment->getCommentBody()),
+                'preview' => $this->preparePreview($comment->getCommentBody()),
                 'type' => 'post',
                 'label' => 'post',
             ];
@@ -280,9 +280,9 @@ class SocialActivityFactory
             $question = $comment->getQuestion();
             $target = [
                 'id' => $question->getId(),
-                'preview' => self::preparePreview($comment->getCommentBody()),
+                'preview' => $this->preparePreview($comment->getCommentBody()),
                 'type' => $question->getType(),
-                'label' => self::getLabelByPoll($question),
+                'label' => $this->getLabelByPoll($question),
             ];
         }
         $parentComment = $comment->getParentComment();
@@ -298,20 +298,20 @@ class SocialActivityFactory
         return $target;
     }
 
-    public static function createPostMentionedActivity(Post $post, Group $group, User $user)
+    public function createPostMentionedActivity(Post $post, Group $group, User $user)
     {
         return SocialActivity::createPostMentioned($group)
-            ->setTarget(self::getPostMentionedTarget($post))
+            ->setTarget($this->getPostMentionedTarget($post))
             ->setRecipient($user);
     }
 
-    public static function getPostMentionedTarget(Post $post): array
+    public function getPostMentionedTarget(Post $post): array
     {
         $user = $post->getUser();
 
         return [
             'id' => $post->getId(),
-            'preview' => self::preparePreview($post->getBody()),
+            'preview' => $this->preparePreview($post->getBody()),
             'type' => 'post',
             'label' => 'post',
             'user_id' => $user->getId(),
@@ -320,7 +320,7 @@ class SocialActivityFactory
         ];
     }
 
-    private static function preparePreview(string $text = ''): string
+    private function preparePreview(string $text = ''): string
     {
         if (mb_strlen($text) > self::PREVIEW_LENGTH) {
             return mb_substr($text, 0, 20, 'utf8').'...';
@@ -329,22 +329,22 @@ class SocialActivityFactory
         return $text;
     }
 
-    private static function getPreviewByPoll(Question $question): string
+    private function getPreviewByPoll(Question $question): string
     {
         if ($question instanceof Question\Petition) {
-            return self::preparePreview($question->getPetitionTitle());
+            return $this->preparePreview($question->getPetitionTitle());
         }
         if ($question instanceof Question\PaymentRequest) {
-            return self::preparePreview($question->getTitle());
+            return $this->preparePreview($question->getTitle());
         }
         if ($question instanceof Question\LeaderEvent) {
-            return self::preparePreview($question->getTitle());
+            return $this->preparePreview($question->getTitle());
         }
 
-        return self::preparePreview($question->getSubject());
+        return $this->preparePreview($question->getSubject());
     }
 
-    private static function getLabelByPoll(Question $question): string
+    private function getLabelByPoll(Question $question): string
     {
         if ($question instanceof Question\Petition) {
             return 'petition';
