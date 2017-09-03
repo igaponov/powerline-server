@@ -90,7 +90,7 @@ class LeaderContentSubscriber implements EventSubscriberInterface
 
     public function addPetitionHashTags(UserPetitionEvent $event)
     {
-        $this->em->getRepository('CivixCoreBundle:HashTag')
+        $this->em->getRepository(HashTag::class)
             ->addForTaggableEntity($event->getPetition());
     }
 
@@ -102,7 +102,7 @@ class LeaderContentSubscriber implements EventSubscriberInterface
 
     public function addQuestionHashTags(QuestionEvent $event)
     {
-        $this->em->getRepository('CivixCoreBundle:HashTag')
+        $this->em->getRepository(HashTag::class)
             ->addForTaggableEntity($event->getQuestion());
     }
 
