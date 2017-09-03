@@ -1,6 +1,7 @@
 <?php
 namespace Civix\ApiBundle\Tests;
 
+use Civix\Component\Doctrine\Common\DataFixtures\FixtureLoader;
 use Civix\CoreBundle\Entity\User;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
@@ -22,6 +23,16 @@ abstract class WebTestCase extends BaseWebTestCase
      * @var array
      */
     private static $cachedMetadatas = array();
+    /**
+     * @var FixtureLoader
+     */
+    private static $fixtureLoader;
+
+    protected static function bootFixtureLoader(array $options = [])
+    {
+        self::bootKernel($options);
+        self::$fixtureLoader = new FixtureLoader(self::$kernel->getContainer());
+    }
 
     protected function onNotSuccessfulTest($e): void
     {
@@ -250,5 +261,13 @@ abstract class WebTestCase extends BaseWebTestCase
         $executor->execute($loader->getFixtures(), true);
 
         return $executor;
+    }
+
+    public static function tearDownAfterClass()
+    {
+        parent::tearDownAfterClass();
+        if (self::$fixtureLoader) {
+            self::$fixtureLoader->clear();
+        }
     }
 }
