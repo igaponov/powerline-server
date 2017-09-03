@@ -2,20 +2,20 @@
 
 namespace Civix\ApiBundle\Controller\V2\Group;
 
-use Civix\ApiBundle\Configuration\SecureParam;
 use Civix\ApiBundle\Form\Type\PostType;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Service\PostManager;
+use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\DiExtraBundle\Annotation as DI;
+use Knp\Component\Pager\Pagination\PaginationInterface;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -33,10 +33,7 @@ class PostController extends FOSRestController
     /**
      * Create a user's post in a group
      *
-     * @Route("")
-     * @Method("POST")
-     *
-     * @ParamConverter("group")
+     * @REST\Post("")
      *
      * @ApiDoc(
      *     authentication=true,
@@ -92,10 +89,9 @@ class PostController extends FOSRestController
     /**
      * List all the posts from the group.
      *
-     * @Route("")
-     * @Method("GET")
+     * @REST\Get("")
      *
-     * @SecureParam("group", permission="view")
+     * @Security("is_granted('view', group)")
      *
      * @QueryParam(name="marked_as_spam", requirements="true|false", description="Filter by spam marks", default=false)
      * @QueryParam(name="user", requirements="\d+", description="Filter by user ID")
@@ -116,7 +112,6 @@ class PostController extends FOSRestController
      *          }
      *     },
      *     statusCodes={
-     *         200="Returns list",
      *         403="Access Denied",
      *         404="Group Not Found",
      *         405="Method Not Allowed"
@@ -128,9 +123,9 @@ class PostController extends FOSRestController
      * @param ParamFetcher $params
      * @param Group $group
      *
-     * @return \Knp\Component\Pager\Pagination\PaginationInterface
+     * @return PaginationInterface
      */
-    public function getPostsAction(ParamFetcher $params, Group $group)
+    public function getPostsAction(ParamFetcher $params, Group $group): PaginationInterface
     {
         $query = $this->getDoctrine()->getRepository(Post::class)
             ->getFindByGroupQuery(
