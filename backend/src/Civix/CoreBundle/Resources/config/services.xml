@@ -70,6 +70,8 @@
 
         <service id="civix_core.social_activity_manager" class="Civix\CoreBundle\Service\SocialActivityManager">
             <argument type="service" id="doctrine.orm.entity_manager" />
+            <argument type="service" id="civix_core.repository.user_repository" />
+            <argument type="service" id="civix_core.social_activity_factory" />
         </service>
 
         <service class="Civix\CoreBundle\Service\AnnouncementManager" id="civix_core.announcement_manager">
