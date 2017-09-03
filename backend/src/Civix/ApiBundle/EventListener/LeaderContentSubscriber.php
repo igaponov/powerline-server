@@ -75,8 +75,9 @@ class LeaderContentSubscriber implements EventSubscriberInterface
     public function setPostExpire(PostEvent $event)
     {
         $post = $event->getPost();
-        $key = 'micropetition_expire_interval_'.$post->getGroup()->getGroupType();
-        $interval = $this->settings->get($key)->getValue();
+        $group = $post->getGroup();
+        $key = 'micropetition_expire_interval_'.$group->getGroupType();
+        $interval = (int)$this->settings->get($key)->getValue();
         $post->setExpiredAt(new \DateTime("+$interval days"));
         $post->setUserExpireInterval($interval);
     }
