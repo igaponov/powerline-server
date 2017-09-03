@@ -9,6 +9,7 @@ use Civix\CoreBundle\Entity\LeaderContentInterface;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\SubscriptionInterface;
+use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 use Doctrine\ORM\EntityRepository;
@@ -590,24 +591,45 @@ class UserRepository extends EntityRepository
     }
 
     /**
-     * Return ids of group's members
+     * Return group's members (only references instead of entities)
      * @param Group $group
+     * @param User[] $exclude Exclude users from result
      * @return array
+     * @throws \Doctrine\ORM\ORMException
      */
-    public function findAllMemberIdsByGroup(Group $group): array
+    public function findAllMembersByGroup(Group $group, User ...$exclude): array
     {
-        return $this->createQueryBuilder('u')
+        $em = $this->getEntityManager();
+        $conn = $em->getConnection();
+        $userQuery = $conn->createQueryBuilder()
             ->select('u.id')
-            ->leftJoin('u.groups', 'ug')
-            ->leftJoin('u.managedGroups', 'mg')
-            ->leftJoin('u.ownedGroups', 'og')
-            ->where('ug.group = :group')
-            ->orWhere('mg.group = :group')
-            ->orWhere('og = :group')
-            ->setParameter(':group', $group)
-            ->groupBy('u.id')
-            ->getQuery()
-            ->getResult(Query::HYDRATE_ARRAY);
+            ->from('user', 'u')
+            ->leftJoin('u', 'users_groups', 'ug', 'ug.user_id = u.id')
+            ->where('ug.group_id = :group');
+        $managerQuery = $conn->createQueryBuilder()
+            ->select('u.id')
+            ->from('user', 'u')
+            ->leftJoin('u', 'users_groups_managers', 'mg', 'mg.user_id = u.id')
+            ->where('mg.group_id = :group');
+
+        $conn->setFetchMode(\PDO::FETCH_COLUMN);
+        $ids = $conn->fetchAll(
+            sprintf('(%s) UNION DISTINCT (%s)', $userQuery->getSQL(), $managerQuery->getSQL()),
+            [':group' => $group->getId()]
+        );
+        $owner = $group->getOwner();
+        if ($owner && !in_array($owner->getId(), $ids, false)) {
+            $ids[] = $owner->getId();
+        }
+        foreach ($exclude as $item) {
+            if (($key = array_search($item->getId(), $ids, false)) !== false) {
+                unset($ids[$key]);
+            }
+        }
+
+        return array_map(function ($id) use ($em) {
+            return $em->getReference($this->getClassName(), $id);
+        }, $ids);
     }
 
     public function getUserKarma(User $user): int
@@ -642,5 +664,37 @@ class UserRepository extends EntityRepository
         }
 
         return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Filter given users by a group and a following user.
+     * Uses PARTIAL select because all users are already fully hydrated
+     *
+     * @param Group $group
+     * @param User $followed
+     * @param User[] ...$users
+     *
+     * @return User[]
+     */
+    public function filterByGroupAndFollower(Group $group, User $followed, User ...$users): array
+    {
+        if (($key = array_search($followed, $users, true)) !== false) {
+            unset($users[$key]);
+        }
+
+        return $this->createQueryBuilder('u')
+            ->select('PARTIAL u.{id}')
+            ->leftJoin('u.groups', 'ug')
+            ->andWhere('ug.group = :group')
+            ->setParameter('group', $group)
+            ->andWhere('ug.status = :status')
+            ->setParameter(':status', UserGroup::STATUS_ACTIVE)
+            ->leftJoin('u.following', 'uf')
+            ->andWhere('uf.user = :user')
+            ->setParameter('user', $followed)
+            ->andWhere('u.id IN (:users)')
+            ->setParameter(':users', $users)
+            ->getQuery()
+            ->getResult();
     }
 }

@@ -5,92 +5,126 @@ use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\HtmlBodyInterface;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\UserMentionableInterface;
-use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\PreUpdateEventArgs;
-use Doctrine\ORM\Event\LifecycleEventArgs;
-use Doctrine\ORM\Events;
+use Civix\CoreBundle\Event\CommentEvent;
+use Civix\CoreBundle\Event\CommentEvents;
+use Civix\CoreBundle\Event\PostEvent;
+use Civix\CoreBundle\Event\PostEvents;
+use Civix\CoreBundle\Event\UserPetitionEvent;
+use Civix\CoreBundle\Event\UserPetitionEvents;
+use Civix\CoreBundle\Repository\UserRepository;
+use Civix\CoreBundle\Service\SocialActivityManager;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class MentionSubscriber implements EventSubscriber
+class MentionSubscriber implements EventSubscriberInterface
 {
-    public function getSubscribedEvents()
+    const PATTERN = '/@([a-zA-Z0-9._-]+[a-zA-Z0-9])/';
+
+    /**
+     * @var UserRepository
+     */
+    private $repository;
+    /**
+     * @var SocialActivityManager
+     */
+    private $activityManager;
+
+    public static function getSubscribedEvents(): array
     {
         return [
-            Events::prePersist,
-            Events::preUpdate,
+            PostEvents::POST_PRE_CREATE => 'onPostPreCreate',
+            UserPetitionEvents::PETITION_PRE_CREATE => 'onPetitionPreCreate',
+            CommentEvents::PRE_CREATE => 'onCommentPreCreate',
+            CommentEvents::CREATE => ['onCommentCreate', -100],
+            PostEvents::POST_CREATE => ['onPostCreate', -100],
         ];
     }
 
-    public function prePersist(LifecycleEventArgs $event)
+    public function __construct(UserRepository $repository, SocialActivityManager $activityManager)
     {
-        $this->parseBody($event, true);
+        $this->repository = $repository;
+        $this->activityManager = $activityManager;
     }
 
-    public function preUpdate(LifecycleEventArgs $event)
+    public function onPostPreCreate(PostEvent $event)
     {
-        $this->parseBody($event);
+        $post = $event->getPost();
+        $this->handleHtmlBody($post);
     }
 
-    public function parseBody(LifecycleEventArgs $event, $notify = false)
+    public function onPetitionPreCreate(UserPetitionEvent $event)
     {
-        $entity = $event->getEntity();
-        $manager = $event->getEntityManager();
+        $petition = $event->getPetition();
+        $this->handleHtmlBody($petition);
+    }
 
-        if (!$entity instanceof HtmlBodyInterface) {
-            return;
+    public function onCommentPreCreate(CommentEvent $event)
+    {
+        $comment = $event->getComment();
+        $this->handleHtmlBody($comment);
+    }
+
+    public function onCommentCreate(CommentEvent $event)
+    {
+        $comment = $event->getComment();
+        $users = $this->fetchMentionedUsers($comment->getCommentBody());
+        $users = array_merge($users, $this->fetchEveryone($comment, ...$users));
+        $this->activityManager->noticeCommentMentioned($comment, ...$users);
+    }
+
+    public function onPostCreate(PostEvent $event)
+    {
+        $post = $event->getPost();
+        $users = $this->fetchMentionedUsers($post->getBody());
+        $this->activityManager->noticePostMentioned($post, ...$users);
+    }
+
+    private function handleHtmlBody(HtmlBodyInterface $entity)
+    {
+        $pairs = ['<' => '&lt;', '>' => '&gt;'];
+        if (preg_match_all('/@([a-zA-Z0-9._-]+[a-zA-Z0-9])/', $entity->getBody(), $matches)) {
+            $usernames = array_unique($matches[1]);
+            $keys = array_keys($usernames, 'everyone', true);
+            foreach ($keys as $key) {
+                unset($usernames[$key]);
+            }
+            /** @var User[] $users */
+            $users = $this->repository->findBy(['username' => $usernames]);
+            foreach ($users as $user) {
+                $username = $user->getUsername();
+                $pairs['@'.$username] = "<a data-user-id=\"{$user->getId()}\">@{$username}</a>";
+            }
+        }
+        $entity->setHtmlBody(strtr($entity->getBody(), $pairs));
+    }
+
+    private function fetchMentionedUsers(string $text)
+    {
+        if (preg_match_all(self::PATTERN, $text, $matches)) {
+            $usernames = array_unique($matches[1]);
+            $keys = array_keys($usernames, 'everyone', true);
+            foreach ($keys as $key) {
+                unset($usernames[$key]);
+            }
+            return $this->repository->findBy(['username' => $usernames]);
         }
 
-        $content = strtr($entity->getBody(), ['<' => '&lt;', '>' => '&gt;']);
-        $content = preg_replace_callback(
-            '/@([a-zA-Z0-9._-]+[a-zA-Z0-9])/',
-            function ($matches) use ($manager, $entity, $notify) {
-                $username = $matches[1];
-                if ($username === 'everyone'
-                    && $entity instanceof BaseComment
-                    // check if it's not an auto comment (user == null)
-                    // @todo delete this check after getting rid of auto comments
-                    && $entity->getUser()
-                    && method_exists($entity->getCommentedEntity(), 'getGroup')
-                ) {
-                    /** @var Group $group */
-                    $group = $entity->getCommentedEntity()
-                        ->getGroup();
-                    if (!$group->isOwner($entity->getUser()) && !$group->isManager($entity->getUser())) {
-                        return '@'.$username;
-                    }
-                    $userIds = $manager->getRepository(User::class)
-                        ->findAllMemberIdsByGroup($group);
-                    foreach ($userIds as $userId) {
-                        /** @var User $user */
-                        $user = $manager->getReference(User::class, $userId);
-                        if ($notify && $entity instanceof UserMentionableInterface) {
-                            $entity->addMentionedUser($user);
-                        }
-                    }
+        return [];
+    }
 
-                    return '@'.$username;
-                } else {
-                    $user = $manager->getRepository(User::class)
-                        ->findOneBy(['username' => $username]);
-
-                    if (!$user) {
-                        return '@'.$username;
-                    }
-                    if ($notify && $entity instanceof UserMentionableInterface) {
-                        $entity->addMentionedUser($user);
-                    }
-
-                    return "<a data-user-id=\"{$user->getId()}\">@$username</a>";
+    private function fetchEveryone(BaseComment $comment, User ...$exclude)
+    {
+        $users = [];
+        if (preg_match('/@everyone\W?/', $comment->getCommentBody(), $matches)) {
+            $entity = $comment->getCommentedEntity();
+            if (method_exists($entity, 'getGroup')) {
+                /** @var Group $group */
+                $group = $entity->getGroup();
+                if ($group->isOwner($comment->getUser()) || $group->isManager($comment->getUser())) {
+                    $users = $this->repository->findAllMembersByGroup($group, ...$exclude);
                 }
-            },
-            $content
-        );
-        $entity->setHtmlBody($content);
-        if ($event instanceof PreUpdateEventArgs) {
-            $em = $event->getEntityManager();
-            $uow = $em->getUnitOfWork();
-            $meta = $em->getClassMetadata(get_class($entity));
-            $uow->recomputeSingleEntityChangeSet($meta, $entity);
+            }
         }
+
+        return $users;
     }
 }

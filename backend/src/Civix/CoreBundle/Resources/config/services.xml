@@ -401,7 +401,8 @@
         </service>
 
         <service class="Civix\CoreBundle\EventListener\MentionSubscriber" id="civix_core.event_listener.html_body_subscriber">
-            <tag name="doctrine.event_subscriber"/>
+            <argument id="civix_core.repository.user_repository"/>
+            <argument id="civix_core.social_activity_manager"/>
         </service>
 
         <service class="Civix\CoreBundle\EventListener\CommentSubscriber" id="civix_core.event_listener.comment_subscriber">
