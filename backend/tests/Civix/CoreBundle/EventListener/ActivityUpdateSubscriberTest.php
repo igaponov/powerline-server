@@ -3,7 +3,9 @@
 namespace Tests\Civix\CoreBundle\EventListener;
 
 use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Event\PostEvent;
+use Civix\CoreBundle\Event\UserPetitionEvent;
 use Civix\CoreBundle\EventListener\ActivityUpdateSubscriber;
 use Civix\CoreBundle\Service\ActivityUpdate;
 use PHPUnit\Framework\TestCase;
@@ -20,6 +22,18 @@ class ActivityUpdateSubscriberTest extends TestCase
             ->with($post);
         $subscriber = new ActivityUpdateSubscriber($activityUpdate);
         $subscriber->publishPostToActivity($event);
+    }
+
+    public function testPublishUserPetitionToActivity()
+    {
+        $petition = new UserPetition();
+        $event = new UserPetitionEvent($petition);
+        $activityUpdate = $this->getActivityUpdateMock(['publishUserPetitionToActivity']);
+        $activityUpdate->expects($this->once())
+            ->method('publishUserPetitionToActivity')
+            ->with($petition);
+        $subscriber = new ActivityUpdateSubscriber($activityUpdate);
+        $subscriber->publishUserPetitionToActivity($event);
     }
 
     /**
