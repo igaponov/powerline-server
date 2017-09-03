@@ -31,7 +31,8 @@ class PostController extends FOSRestController
     private $manager;
 
     /**
-     * Create a user's post in a group
+     * Create a user's post in a group.
+     * Deprecated, use `POST /api/v2.2/groups/{group}/posts` instead
      *
      * @REST\Post("")
      *
@@ -53,7 +54,8 @@ class PostController extends FOSRestController
      *                  "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
      *              }
      *          }
-     *     }
+     *     },
+     *     deprecated=true
      * )
      *
      * @View(statusCode=201)

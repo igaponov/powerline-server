@@ -52,3 +52,10 @@ services:
     Civix\ApiBundle\Controller\V2_2\PollCommentController:
         class: Civix\ApiBundle\Controller\V2_2\PollCommentController
         arguments: ['@doctrine.orm.entity_manager', '@security.token_storage']
+
+    Civix\ApiBundle\Controller\V2_2\Group\PostController:
+        class: Civix\ApiBundle\Controller\V2_2\Group\PostController
+        arguments:
+            - '@civix_core.post_manager'
+            - '@form.factory'
+            - '@security.token_storage'
