@@ -39,12 +39,14 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "petition"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string")
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "petition"})
      */
     private $title = '';
 
@@ -52,12 +54,14 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      * @ORM\Column(type="text")
      * @Assert\NotBlank(groups={"Default", "create", "update"})
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "petition"})
      */
     private $body = '';
 
     /**
      * @ORM\Column(name="html_body", type="text")
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "petition"})
      */
     private $htmlBody = '';
 
@@ -74,6 +78,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      * @Serializer\Expose()
      * @Serializer\Type("boolean")
      * @Serializer\SerializedName("is_outsiders_sign")
+     * @Serializer\Groups({"Default", "petition"})
      */
     private $outsidersSign = false;
 
@@ -84,6 +89,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      * @Gedmo\Timestampable()
      * @Serializer\Expose()
      * @Serializer\Type("DateTime<'D, d M Y H:i:s O'>")
+     * @Serializer\Groups({"Default", "petition"})
      */
     private $createdAt;
 
@@ -95,18 +101,20 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
     private $user;
 
     /**
+     * @var bool
+     *
      * @ORM\Column(type="boolean", options={"default" = false})
      * @Serializer\Expose()
-     *
-     * @var bool
+     * @Serializer\Groups({"Default", "petition"})
      */
     private $boosted = false;
 
     /**
+     * @var bool
+     *
      * @ORM\Column(name="organization_needed", type="boolean", options={"default" = false})
      * @Serializer\Expose()
-     *
-     * @var bool
+     * @Serializer\Groups({"Default", "petition"})
      */
     private $organizationNeeded = false;
 
@@ -140,6 +148,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      * @ORM\Column(type="boolean", options={"default" = false})
      * @Serializer\Expose()
      * @Serializer\Type("boolean")
+     * @Serializer\Groups({"Default", "petition"})
      */
     private $supportersWereInvited = false;
 
@@ -149,7 +158,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      * @ORM\Column("automatic_boost", type="boolean", options={"default" = true}, nullable=false)
      * @Serializer\Expose()
      * @Serializer\Type("boolean")
-     * @Serializer\Groups({"petition"})
+     * @Serializer\Groups({"Default", "petition"})
      */
     private $automaticBoost = true;
 
