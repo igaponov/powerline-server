@@ -133,13 +133,16 @@ class UserPetitionManager
     public function savePetition(UserPetition $petition): UserPetition
     {
         $isNew = !$petition->getId();
+        $event = new UserPetitionEvent($petition);
+        if ($isNew) {
+            $this->dispatcher->dispatch(UserPetitionEvents::PETITION_PRE_CREATE, $event);
+            $this->entityManager->persist($petition);
+        }
 
-        $this->entityManager->persist($petition);
         $this->entityManager->flush();
 
-        $event = new UserPetitionEvent($petition);
         $eventName = $isNew ? UserPetitionEvents::PETITION_CREATE : UserPetitionEvents::PETITION_UPDATE;
-        $this->dispatcher->dispatch($eventName, $event);
+        $this->dispatcher->dispatch('async.'.$eventName, $event);
 
         return $petition;
     }
