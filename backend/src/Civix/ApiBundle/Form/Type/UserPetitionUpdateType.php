@@ -3,6 +3,7 @@ namespace Civix\ApiBundle\Form\Type;
 
 use Civix\CoreBundle\Entity\UserPetition;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -18,7 +19,9 @@ class UserPetitionUpdateType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('body')
+            ->add('body', TextareaType::class, [
+                'empty_data' => '',
+            ])
             // @todo for compatibility with old endpoints
             ->add('petition_body', null, [
                 'description' => 'For compatibility with old endpoints.',
