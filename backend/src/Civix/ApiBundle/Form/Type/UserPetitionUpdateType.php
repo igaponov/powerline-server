@@ -10,16 +10,18 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UserPetitionUpdateType extends AbstractType
 {
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return '';
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('body')
+            // @todo for compatibility with old endpoints
             ->add('petition_body', null, [
+                'description' => 'For compatibility with old endpoints.',
                 'mapped' => false,
             ])
         ;
@@ -31,11 +33,10 @@ class UserPetitionUpdateType extends AbstractType
         });
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => UserPetition::class,
-            'csrf_protection' => false,
         ]);
     }
 }
