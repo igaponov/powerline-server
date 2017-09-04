@@ -1,6 +1,7 @@
 <?php
-namespace Civix\ApiBundle\Tests\Controller\V2\Group;
+namespace Tests\Civix\ApiBundle\Controller\V2\Group;
 
+use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Service\UserPetitionManager;
 use Civix\CoreBundle\Test\SocialActivityTester;
@@ -9,8 +10,8 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSpamUserPetitionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionData;
 use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManager;
 use Faker\Factory;
-use Civix\ApiBundle\Tests\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class UserPetitionControllerTest extends WebTestCase
@@ -20,7 +21,7 @@ class UserPetitionControllerTest extends WebTestCase
     /**
      * @var null|Client
      */
-    private $client = null;
+    private $client;
 
     public function setUp()
     {
@@ -120,7 +121,11 @@ class UserPetitionControllerTest extends WebTestCase
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM petition_subscribers WHERE userpetition_id = ?', [$data['id']]);
         $this->assertEquals(1, $count);
         // check social activity
-        $tester = new SocialActivityTester($client->getContainer()->get('doctrine')->getManager());
+        /** @var EntityManager $em */
+        $em = $client->getContainer()
+            ->get('doctrine')
+            ->getManager();
+        $tester = new SocialActivityTester($em);
         $tester->assertActivitiesCount(1);
         $tester->assertActivity(SocialActivity::TYPE_FOLLOW_USER_PETITION_CREATED, null, $user->getId());
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
@@ -262,8 +267,10 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertSame(1, $data['page']);
         $this->assertSame(20, $data['items']);
         $this->assertSame(4, $data['totalItems']);
-        $this->assertCount(4, $data['payload']);
-        foreach ($data['payload'] as $item) {
+        /** @var array $payload */
+        $payload = $data['payload'];
+        $this->assertCount(4, $payload);
+        foreach ($payload as $item) {
             $this->assertNotEmpty($item['user']);
             $this->assertNotEmpty($item['group']);
         }
@@ -314,7 +321,7 @@ class UserPetitionControllerTest extends WebTestCase
      * @param array $methods
      * @return \PHPUnit_Framework_MockObject_MockObject|UserPetitionManager
      */
-    private function getPetitionManagerMock($methods = [])
+    private function getPetitionManagerMock(array $methods = []): \PHPUnit_Framework_MockObject_MockObject
     {
         $container = $this->client->getContainer();
         return $this->getMockBuilder(UserPetitionManager::class)
