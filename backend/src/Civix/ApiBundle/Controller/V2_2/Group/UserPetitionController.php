@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
- * @Route("/groups/{group}/user-petitions")
+ * @Route("/groups/{group}/user-petitions", requirements={"group" = "\d+"})
  */
 class UserPetitionController
 {
