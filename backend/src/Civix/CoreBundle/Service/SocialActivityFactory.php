@@ -33,7 +33,7 @@ class SocialActivityFactory
         ];
     }
 
-    public function createJoinToGroupApproved(User $user, Group $group)
+    public function createJoinToGroupApprovedActivity(User $user, Group $group)
     {
         return SocialActivity::createJoinToGroupApproved($group)
             ->setTarget($this->getJoinToGroupApprovedTarget($user, $group))
@@ -49,7 +49,7 @@ class SocialActivityFactory
         ];
     }
 
-    public function createFollowUserPetitionCreated(UserPetition $petition)
+    public function createFollowUserPetitionCreatedActivity(UserPetition $petition)
     {
         return SocialActivity::createFollowUserPetitionCreated($petition->getUser(), $petition->getGroup())
             ->setTarget($this->getFollowedUserPetitionTarget($petition));
@@ -57,13 +57,15 @@ class SocialActivityFactory
 
     public function getFollowedUserPetitionTarget(UserPetition $petition): array
     {
+        $user = $petition->getUser();
+
         return [
             'id' => $petition->getId(),
             'title' => $petition->getTitle(),
             'body' => $petition->getBody(),
             'type' => 'user-petition',
-            'full_name' => $petition->getUser()->getFullName(),
-            'image' => $petition->getUser()->getAvatarFileName(),
+            'full_name' => $user ? $user->getFullName() : '',
+            'image' => $user ? $user->getAvatarFileName() : '',
         ];
     }
 
@@ -75,12 +77,14 @@ class SocialActivityFactory
 
     public function getFollowPostCreatedTarget(Post $post): array
     {
+        $user = $post->getUser();
+
         return [
             'id' => $post->getId(),
             'body' => $post->getBody(),
             'type' => 'post',
-            'full_name' => $post->getUser()->getFullName(),
-            'image' => $post->getUser()->getAvatarFileName(),
+            'full_name' => $user ? $user->getFullName() : '',
+            'image' => $user ? $user->getAvatarFileName() : '',
         ];
     }
 

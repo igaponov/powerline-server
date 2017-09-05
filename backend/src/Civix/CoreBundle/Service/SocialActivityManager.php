@@ -48,7 +48,7 @@ class SocialActivityManager
 
     public function noticeGroupJoiningApproved(User $user, Group $group): void
     {
-        $socialActivity = $this->activityFactory->createJoinToGroupApproved($user, $group);
+        $socialActivity = $this->activityFactory->createJoinToGroupApprovedActivity($user, $group);
 
         $this->em->persist($socialActivity);
         $this->em->flush();
@@ -56,7 +56,7 @@ class SocialActivityManager
 
     public function noticeUserPetitionCreated(UserPetition $petition): void
     {
-        $socialActivity = $this->activityFactory->createFollowUserPetitionCreated($petition);
+        $socialActivity = $this->activityFactory->createFollowUserPetitionCreatedActivity($petition);
 
         $this->em->persist($socialActivity);
         $this->em->flush();
@@ -127,10 +127,10 @@ class SocialActivityManager
 
             $this->em->persist($socialActivity2);
         }
-
-        if ($petition->getUser()->getIsNotifOwnPostChanged()
-            && $petition->getSubscribers()->contains($petition->getUser())
-            && !$comment->getUser()->isEqualTo($petition->getUser())
+        $user = $petition->getUser();
+        if ($user && $user->getIsNotifOwnPostChanged()
+            && $petition->getSubscribers()->contains($user)
+            && !$comment->getUser()->isEqualTo($user)
         ) {
             $socialActivity3 = $this->activityFactory->createOwnUserPetitionCommentedActivity($comment);
 
@@ -153,10 +153,10 @@ class SocialActivityManager
 
             $this->em->persist($socialActivity2);
         }
-
-        if ($post->getUser()->getIsNotifOwnPostChanged()
-            && $post->getSubscribers()->contains($post->getUser())
-            && !$comment->getUser()->isEqualTo($post->getUser())
+        $user = $post->getUser();
+        if ($user && $user->getIsNotifOwnPostChanged()
+            && $post->getSubscribers()->contains($user)
+            && !$comment->getUser()->isEqualTo($user)
         ) {
             $socialActivity3 = $this->activityFactory->createOwnPostCommentedActivity($comment);
 

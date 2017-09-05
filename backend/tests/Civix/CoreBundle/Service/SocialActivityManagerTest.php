@@ -8,6 +8,7 @@ use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\Poll;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Repository\UserRepository;
 use Civix\CoreBundle\Service\SocialActivityFactory;
 use Civix\CoreBundle\Service\SocialActivityManager;
@@ -18,27 +19,16 @@ class SocialActivityManagerTest extends TestCase
 {
     public function testNoticePostCreated()
     {
-        $activity = new SocialActivity();
-        $user = new User();
-        $group = new Group();
         $post = new Post();
-        $post->setUser($user)
-            ->setGroup($group);
-        $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects($this->once())
-            ->method('persist')
-            ->with($activity);
-        $em->expects($this->once())
-            ->method('flush')
-            ->with();
-        $repository = $this->getUserRepositoryMock();
-        $factory = $this->getActivityFactoryMock();
-        $factory->expects($this->once())
-            ->method('createFollowPostCreatedActivity')
-            ->with($post)
-            ->willReturn($activity);
-        $manager = new SocialActivityManager($em, $repository, $factory);
+        $manager = $this->getSocialActivityManager($post, 'createFollowPostCreatedActivity');
         $manager->noticePostCreated($post);
+    }
+
+    public function testNoticeUserPetitionCreated()
+    {
+        $petition = new UserPetition();
+        $manager = $this->getSocialActivityManager($petition, 'createFollowUserPetitionCreatedActivity');
+        $manager->noticeUserPetitionCreated($petition);
     }
 
     public function testNoticePostMentioned()
@@ -135,5 +125,34 @@ class SocialActivityManagerTest extends TestCase
         return $this->getMockBuilder(SocialActivityFactory::class)
             ->setMethods($methods)
             ->getMock();
+    }
+
+    /**
+     * @param Post|UserPetition $entity
+     * @param string $method
+     * @return SocialActivityManager
+     */
+    private function getSocialActivityManager($entity, string $method): SocialActivityManager
+    {
+        $activity = new SocialActivity();
+        $user = new User();
+        $group = new Group();
+        $entity->setUser($user)
+            ->setGroup($group);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->once())
+            ->method('persist')
+            ->with($activity);
+        $em->expects($this->once())
+            ->method('flush')
+            ->with();
+        $repository = $this->getUserRepositoryMock();
+        $factory = $this->getActivityFactoryMock();
+        $factory->expects($this->once())
+            ->method($method)
+            ->with($entity)
+            ->willReturn($activity);
+
+        return new SocialActivityManager($em, $repository, $factory);
     }
 }
