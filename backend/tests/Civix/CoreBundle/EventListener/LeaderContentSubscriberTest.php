@@ -34,7 +34,7 @@ class LeaderContentSubscriberTest extends TestCase
         $subscriber->addPetitionHashTags($event);
     }
 
-    public function subscribePostAuthor()
+    public function testSubscribePostAuthor()
     {
         $user = new User();
         $post = new Post();
@@ -45,7 +45,7 @@ class LeaderContentSubscriberTest extends TestCase
         $this->assertSame($post, $user->getPostSubscriptions()->first());
     }
 
-    public function subscribePetitionAuthor()
+    public function testSubscribePetitionAuthor()
     {
         $user = new User();
         $petition = new UserPetition();
