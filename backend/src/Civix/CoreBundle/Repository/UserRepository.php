@@ -595,6 +595,7 @@ class UserRepository extends EntityRepository
      * @param Group $group
      * @param User[] $exclude Exclude users from result
      * @return array
+     * @throws \Doctrine\DBAL\DBALException
      * @throws \Doctrine\ORM\ORMException
      */
     public function findAllMembersByGroup(Group $group, User ...$exclude): array
@@ -602,21 +603,18 @@ class UserRepository extends EntityRepository
         $em = $this->getEntityManager();
         $conn = $em->getConnection();
         $userQuery = $conn->createQueryBuilder()
-            ->select('u.id')
-            ->from('user', 'u')
-            ->leftJoin('u', 'users_groups', 'ug', 'ug.user_id = u.id')
+            ->select('ug.user_id')
+            ->from('users_groups', 'ug')
             ->where('ug.group_id = :group');
         $managerQuery = $conn->createQueryBuilder()
-            ->select('u.id')
-            ->from('user', 'u')
-            ->leftJoin('u', 'users_groups_managers', 'mg', 'mg.user_id = u.id')
+            ->select('mg.user_id')
+            ->from('users_groups_managers', 'mg')
             ->where('mg.group_id = :group');
-
-        $conn->setFetchMode(\PDO::FETCH_COLUMN);
-        $ids = $conn->fetchAll(
-            sprintf('(%s) UNION DISTINCT (%s)', $userQuery->getSQL(), $managerQuery->getSQL()),
+        $stmt = $conn->executeQuery(
+            sprintf('%s UNION %s', $userQuery->getSQL(), $managerQuery->getSQL()),
             [':group' => $group->getId()]
         );
+        $ids = $stmt->fetchAll(\PDO::FETCH_COLUMN);
         $owner = $group->getOwner();
         if ($owner && !in_array($owner->getId(), $ids, false)) {
             $ids[] = $owner->getId();
