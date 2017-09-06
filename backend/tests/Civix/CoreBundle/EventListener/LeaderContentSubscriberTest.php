@@ -3,9 +3,11 @@
 namespace Tests\Civix\CoreBundle\EventListener;
 
 use Civix\ApiBundle\EventListener\LeaderContentSubscriber;
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\HashTag;
 use Civix\CoreBundle\Entity\HashTaggableInterface;
 use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\Setting;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Event\PostEvent;
@@ -18,6 +20,27 @@ use PHPUnit\Framework\TestCase;
 
 class LeaderContentSubscriberTest extends TestCase
 {
+    public function testSetPostExpire()
+    {
+        $key = 'micropetition_expire_interval_0';
+        $setting = new Setting($key, '13579');
+        $group = (new Group())->setGroupType(Group::GROUP_TYPE_COMMON);
+        $post = (new Post())->setGroup($group);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $settings = $this->getSettingsMock(['get']);
+        $settings->expects($this->once())
+            ->method('get')
+            ->with($key)
+            ->willReturn($setting);
+        $commentManager = $this->getCommentManagerMock();
+        $subscriber = new LeaderContentSubscriber($em, $settings, $commentManager);
+        $event = new PostEvent($post);
+        $subscriber->setPostExpire($event);
+        $this->assertSame(13579, $post->getUserExpireInterval());
+        $this->assertLessThan(new \DateTime('+13579 days + 1 second'), $post->getExpiredAt());
+        $this->assertGreaterThan(new \DateTime('+13579 days - 1 second'), $post->getExpiredAt());
+    }
+
     public function testAddPostHashTags()
     {
         $post = new Post();
