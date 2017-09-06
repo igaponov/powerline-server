@@ -33,7 +33,8 @@ class MentionSubscriber implements EventSubscriberInterface
         return [
             PostEvents::POST_PRE_CREATE => 'onPostPreCreate',
             UserPetitionEvents::PETITION_PRE_CREATE => 'onPetitionPreCreate',
-            CommentEvents::PRE_CREATE => 'onCommentPreCreate',
+            CommentEvents::PRE_CREATE => 'handleCommentHtmlBody',
+            CommentEvents::PRE_UPDATE => 'handleCommentHtmlBody',
             CommentEvents::CREATE => ['onCommentCreate', -100],
             PostEvents::POST_CREATE => ['onPostCreate', -100],
         ];
@@ -57,7 +58,7 @@ class MentionSubscriber implements EventSubscriberInterface
         $this->handleHtmlBody($petition);
     }
 
-    public function onCommentPreCreate(CommentEvent $event)
+    public function handleCommentHtmlBody(CommentEvent $event)
     {
         $comment = $event->getComment();
         $this->handleHtmlBody($comment);

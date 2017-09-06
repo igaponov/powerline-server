@@ -55,13 +55,13 @@ class MentionSubscriberTest extends TestCase
      * @param string $expected
      * @dataProvider getDataForPreCreate
      */
-    public function testCommentPreCreate($usernames, $body, $expected)
+    public function testHandleCommentHtmlBody($usernames, $body, $expected)
     {
         $entity = new Comment(new User());
         $event = new CommentEvent($entity);
         $entity->setCommentBody($body);
         $subscriber = $this->getMentionSubscriber($usernames);
-        $subscriber->onCommentPreCreate($event);
+        $subscriber->handleCommentHtmlBody($event);
         $this->assertEquals($expected, $entity->getCommentBodyHtml());
     }
 
