@@ -20,9 +20,11 @@ class CommentType extends AbstractType
         $choices = BaseComment::getPrivacyLabels();
         $builder
             ->add('comment_body', Type\TextareaType::class, [
+                'empty_data' => '',
                 'property_path' => 'commentBody',
             ])
-            ->add('privacy', Type\TextType::class, [
+            ->add('privacy', Type\ChoiceType::class, [
+                'choices' => $choices,
                 'empty_data' => BaseComment::PRIVACY_PUBLIC,
                 'description' => 'Privacy, one of: '.implode(', ', $choices),
         ]);
@@ -32,7 +34,7 @@ class CommentType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'csrf_protection' => false,
+            'data_class' => BaseComment::class,
         ]);
     }
 }
