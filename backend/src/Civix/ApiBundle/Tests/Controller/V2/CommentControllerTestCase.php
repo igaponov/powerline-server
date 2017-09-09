@@ -49,31 +49,6 @@ abstract class CommentControllerTestCase extends WebTestCase
         $this->assertEquals($params['privacy'], $data['privacy']);
     }
 
-    protected function updateCommentWithWrongData(BaseComment $comment, $params, $errors)
-    {
-        $client = $this->client;
-        $uri = str_replace('{id}', $comment->getId(), $this->getApiEndpoint());
-        $client->request('PUT', $uri, [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user2"'],
-            json_encode($params)
-        );
-        $this->assertResponseHasErrors($client->getResponse(), $errors);
-    }
-
-    public function getInvalidParams()
-    {
-        return [
-            'empty' => [
-                ['comment_body' => '', 'privacy' => ''],
-                ['comment_body' => 'This value should not be blank.'],
-            ],
-            'long' => [
-                ['comment_body' => str_repeat('x', 501)],
-                ['comment_body' => 'This value is too long. It should have 500 characters or less.'],
-            ],
-        ];
-    }
-
     protected function updateCommentWithWrongCredentials(BaseComment $comment)
     {
         $client = $this->client;
@@ -126,32 +101,6 @@ abstract class CommentControllerTestCase extends WebTestCase
         );
         $response = $client->getResponse();
         $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
-    }
-
-    protected function rateCommentWithWrongData(BaseComment $comment, $params, $errors)
-    {
-        $client = $this->client;
-        $uri = str_replace('{id}', $comment->getId(), $this->getApiEndpoint().'/rate');
-        $client->request('POST', $uri, [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user1"'],
-            json_encode($params)
-        );
-        $response = $client->getResponse();
-        $this->assertResponseHasErrors($response, $errors);
-    }
-
-    public function getInvalidRates()
-    {
-        return [
-            'empty' => [
-                ['rate_value' => null],
-                ['rate_value' => 'This value should not be blank.'],
-            ],
-            'invalid' => [
-                ['rate_value' => 'invalid'],
-                ['rate_value' => 'This value should not be blank.'],
-            ],
-        ];
     }
 
     protected function rateComment(BaseComment $comment, $rate, $user)

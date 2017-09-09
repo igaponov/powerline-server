@@ -26,21 +26,6 @@ class UserPetitionCommentControllerTest extends CommentControllerTestCase
         $this->updateComment($comment);
     }
 
-    /**
-     * @param $params
-     * @param $errors
-     * @dataProvider getInvalidParams
-     */
-    public function testUpdateCommentWithWrongData($params, $errors)
-    {
-        $repository = $this->loadFixtures([
-            LoadUserPetitionCommentData::class,
-        ])->getReferenceRepository();
-        /** @var BaseComment $comment */
-        $comment = $repository->getReference('petition_comment_3');
-        $this->updateCommentWithWrongData($comment, $params, $errors);
-    }
-
     public function testUpdateCommentWithWrongCredentialsThrowsException()
     {
         $repository = $this->loadFixtures([
@@ -79,21 +64,6 @@ class UserPetitionCommentControllerTest extends CommentControllerTestCase
         /** @var BaseComment $comment */
         $comment = $repository->getReference('petition_comment_1');
         $this->rateCommentWithWrongCredentials($comment);
-    }
-
-    /**
-     * @param $params
-     * @param $errors
-     * @dataProvider getInvalidRates
-     */
-    public function testRateCommentWithWrongDataReturnsErrors($params, $errors)
-    {
-        $repository = $this->loadFixtures([
-            LoadUserPetitionCommentRateData::class,
-        ])->getReferenceRepository();
-        /** @var BaseComment $comment */
-        $comment = $repository->getReference('petition_comment_1');
-        $this->rateCommentWithWrongData($comment, $params, $errors);
     }
 
     /**

@@ -17,9 +17,9 @@ abstract class AbstractCommentController extends FOSRestController
      */
     abstract protected function getManager();
 
-    protected function putComment(Request $request, BaseComment $comment, $commentClass)
+    protected function putComment(Request $request, BaseComment $comment)
     {
-        $form = $this->createForm(CommentType::class, $comment, ['data_class' => $commentClass]);
+        $form = $this->createForm(CommentType::class, $comment);
         $form->submit($request->request->all(), false);
 
         if ($form->isValid()) {
@@ -36,7 +36,7 @@ abstract class AbstractCommentController extends FOSRestController
 
     protected function rateComment(Request $request, BaseComment $comment, BaseCommentRate $rate)
     {
-        $form = $this->createForm(CommentRateType::class, $rate, ['data_class' => get_class($rate)]);
+        $form = $this->createForm(CommentRateType::class, $rate);
         $form->submit($request->request->all());
 
         if ($form->isValid()) {
