@@ -10,12 +10,12 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CommentRateType extends AbstractType
 {
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return '';
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $choices = BaseCommentRate::getRateValueLabels();
         $builder
@@ -26,7 +26,7 @@ class CommentRateType extends AbstractType
         $builder->get('rate_value')->addModelTransformer(new KeyToValueTransformer($choices));
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'csrf_protection' => false,
