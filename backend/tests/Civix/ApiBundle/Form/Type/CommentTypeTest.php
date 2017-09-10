@@ -67,7 +67,6 @@ class CommentTypeTest extends FormIntegrationTestCase
             'no data' => [
                 [], [
                     'comment_body' => ['This value should not be blank.'],
-                    'privacy' => ['This value is not valid.'],
                 ],
             ],
             'empty' => [
@@ -77,7 +76,6 @@ class CommentTypeTest extends FormIntegrationTestCase
                 ],
                 [
                     'comment_body' => ['This value should not be blank.'],
-                    'privacy' => ['This value is not valid.'],
                 ],
             ],
             'invalid' => [

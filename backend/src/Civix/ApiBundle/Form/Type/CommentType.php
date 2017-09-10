@@ -6,7 +6,6 @@ use Civix\CoreBundle\Entity\BaseComment;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CommentType extends AbstractType
 {
@@ -25,16 +24,9 @@ class CommentType extends AbstractType
             ])
             ->add('privacy', Type\ChoiceType::class, [
                 'choices' => $choices,
-                'empty_data' => BaseComment::PRIVACY_PUBLIC,
+                'empty_data' => $choices[BaseComment::PRIVACY_PUBLIC],
                 'description' => 'Privacy, one of: '.implode(', ', $choices),
         ]);
         $builder->get('privacy')->addModelTransformer(new KeyToValueTransformer($choices));
-    }
-
-    public function configureOptions(OptionsResolver $resolver): void
-    {
-        $resolver->setDefaults([
-            'data_class' => BaseComment::class,
-        ]);
     }
 }
