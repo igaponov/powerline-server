@@ -1,21 +1,21 @@
 <?php
-namespace Civix\ApiBundle\Tests\Controller\V2;
+namespace Tests\Civix\ApiBundle\Controller\V2;
 
 use Civix\CoreBundle\Entity\BaseComment;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostCommentRateData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostCommentKarmaData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostCommentRateData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 
 class PostCommentControllerTest extends CommentControllerTestCase
 {
-    protected function getApiEndpoint()
+    protected function getApiEndpoint(): string
     {
         return '/api/v2/post-comments/{id}';
     }
 
-    public function testUpdateCommentIsOk()
+    public function testUpdateCommentIsOk(): void
     {
         $repository = $this->loadFixtures([
             LoadPostCommentData::class,
@@ -25,7 +25,7 @@ class PostCommentControllerTest extends CommentControllerTestCase
         $this->updateComment($comment);
     }
 
-    public function testUpdateCommentWithWrongCredentialsThrowsException()
+    public function testUpdateCommentWithWrongCredentialsThrowsException(): void
     {
         $repository = $this->loadFixtures([
             LoadPostCommentData::class,
@@ -35,7 +35,7 @@ class PostCommentControllerTest extends CommentControllerTestCase
         $this->updateCommentWithWrongCredentials($comment);
     }
 
-    public function testDeleteComment()
+    public function testDeleteComment(): void
     {
         $repository = $this->loadFixtures([
             LoadPostCommentData::class,
@@ -45,7 +45,7 @@ class PostCommentControllerTest extends CommentControllerTestCase
         $this->deleteComment($comment);
     }
 
-    public function testDeleteCommentWithWrongCredentialsThrowsException()
+    public function testDeleteCommentWithWrongCredentialsThrowsException(): void
     {
         $repository = $this->loadFixtures([
             LoadPostCommentData::class,
@@ -55,7 +55,7 @@ class PostCommentControllerTest extends CommentControllerTestCase
         $this->deleteCommentWithWrongCredentials($comment);
     }
 
-    public function testRateCommentWithWrongCredentialsThrowsException()
+    public function testRateCommentWithWrongCredentialsThrowsException(): void
     {
         $repository = $this->loadFixtures([
             LoadPostCommentRateData::class,
@@ -70,7 +70,7 @@ class PostCommentControllerTest extends CommentControllerTestCase
      * @param $user
      * @dataProvider getRates
      */
-    public function testRateCommentIsOk($rate, $user)
+    public function testRateCommentIsOk($rate, $user): void
     {
         $repository = $this->loadFixtures([
             LoadPostCommentRateData::class,
@@ -86,7 +86,7 @@ class PostCommentControllerTest extends CommentControllerTestCase
      * @param $rate
      * @dataProvider getRates
      */
-    public function testUpdateCommentRateIsOk($rate)
+    public function testUpdateCommentRateIsOk($rate): void
     {
         $repository = $this->loadFixtures([
             LoadGroupManagerData::class,

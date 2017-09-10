@@ -1,7 +1,6 @@
 <?php
 namespace Tests\Civix\ApiBundle\Controller\V2;
 
-use Civix\ApiBundle\Tests\Controller\V2\CommentControllerTestCase;
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPetitionCommentKarmaData;
@@ -11,12 +10,12 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionCommentRateData;
 
 class UserPetitionCommentControllerTest extends CommentControllerTestCase
 {
-    protected function getApiEndpoint()
+    protected function getApiEndpoint(): string
     {
         return '/api/v2/user-petition-comments/{id}';
     }
 
-    public function testUpdateCommentIsOk()
+    public function testUpdateCommentIsOk(): void
     {
         $repository = $this->loadFixtures([
             LoadUserPetitionCommentData::class,
@@ -26,7 +25,7 @@ class UserPetitionCommentControllerTest extends CommentControllerTestCase
         $this->updateComment($comment);
     }
 
-    public function testUpdateCommentWithWrongCredentialsThrowsException()
+    public function testUpdateCommentWithWrongCredentialsThrowsException(): void
     {
         $repository = $this->loadFixtures([
             LoadUserPetitionCommentData::class,
@@ -36,7 +35,7 @@ class UserPetitionCommentControllerTest extends CommentControllerTestCase
         $this->updateCommentWithWrongCredentials($comment);
     }
 
-    public function testDeleteComment()
+    public function testDeleteComment(): void
     {
         $repository = $this->loadFixtures([
             LoadUserPetitionCommentData::class,
@@ -46,7 +45,7 @@ class UserPetitionCommentControllerTest extends CommentControllerTestCase
         $this->deleteComment($comment);
     }
 
-    public function testDeleteCommentWithWrongCredentialsThrowsException()
+    public function testDeleteCommentWithWrongCredentialsThrowsException(): void
     {
         $repository = $this->loadFixtures([
             LoadUserPetitionCommentData::class,
