@@ -28,8 +28,10 @@ class LoadUserReportData extends AbstractFixture implements DependentFixtureInte
         $representativeJb = $this->getReference('cicero_representative_jb');
         /** @var CiceroRepresentative $representativeRm */
         $representativeRm = $this->getReference('cicero_representative_rm');
+        /** @var CiceroRepresentative $representativeKg */
+        $representativeKg = $this->getReference('cicero_representative_kg');
 
-        $report = new UserReport($user1->getId(), 0, [], 'US', 'NY', 'New York', ['United States', 'New York'], 10);
+        $report = new UserReport($user1->getId(), 0, [$representativeKg->getFullName()], 'US', 'NY', 'New York', ['United States', 'New York'], 10);
         $manager->persist($report);
 
         $report = new UserReport($user3->getId(), 0, [$representativeRm->getFullName()], 'US', 'NY', 'New York', ['United States', 'New York'], 20);
