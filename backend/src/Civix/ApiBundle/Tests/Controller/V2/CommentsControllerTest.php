@@ -2,16 +2,8 @@
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
-use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\CommentedInterface;
-use Civix\CoreBundle\Entity\Poll\Question;
-use Civix\CoreBundle\Entity\Post;
-use Civix\CoreBundle\Entity\SocialActivity;
-use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Test\SocialActivityTester;
-use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 abstract class CommentsControllerTest extends WebTestCase
@@ -19,7 +11,7 @@ abstract class CommentsControllerTest extends WebTestCase
     /**
      * @var Client
      */
-    protected $client = null;
+    protected $client;
 
     abstract protected function getApiEndpoint();
 
@@ -46,9 +38,11 @@ abstract class CommentsControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertSame(1, $data['page']);
         $this->assertSame(20, $data['items']);
-        $this->assertSame(count($comments), $data['totalItems']);
-        $this->assertCount(count($comments), $data['payload']);
-        foreach ($data['payload'] as $k => $item) {
+        $this->assertCount($data['totalItems'], $comments);
+        /** @var array $payload */
+        $payload = $data['payload'];
+        $this->assertCount(count($comments), $payload);
+        foreach ($payload as $k => $item) {
             $this->assertEquals($comments[$k]->getId(), $item['id']);
         }
     }
@@ -82,7 +76,7 @@ abstract class CommentsControllerTest extends WebTestCase
         $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
 
-    public function createComment(CommentedInterface $entity, BaseComment $comment, $responseCount)
+    public function createComment(CommentedInterface $entity, BaseComment $comment)
     {
         $client = $this->client;
         $uri = str_replace('{id}', $entity->getId(), $this->getApiEndpoint());
@@ -105,7 +99,7 @@ abstract class CommentsControllerTest extends WebTestCase
         $this->assertRegExp('{comment text <a data-user-id="\d+">@user2</a>}', $data['comment_body_html']);
     }
 
-    public function createRootComment(CommentedInterface $entity, User $user, Activity $activity)
+    public function createRootComment(CommentedInterface $entity)
     {
         $client = $this->client;
         $uri = str_replace('{id}', $entity->getId(), $this->getApiEndpoint());
@@ -123,156 +117,6 @@ abstract class CommentsControllerTest extends WebTestCase
         $this->assertEquals($params['comment_body'], $data['comment_body']);
         $this->assertEquals(0, $data['parent_comment']);
         $this->assertEquals($params['privacy'], $data['privacy']);
-        /** @var Connection $conn */
-        if ($entity instanceof Question) {
-            $ownType = SocialActivity::TYPE_OWN_POLL_COMMENTED;
-            $followType = SocialActivity::TYPE_FOLLOW_POLL_COMMENTED;
-        } elseif ($entity instanceof Post) {
-            $ownType = SocialActivity::TYPE_OWN_POST_COMMENTED;
-            $followType = SocialActivity::TYPE_FOLLOW_POST_COMMENTED;
-        } else {
-            $ownType = SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED;
-            $followType = SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED;
-        }
         $this->assertRegExp('{comment text <a data-user-id="\d+">@user2</a>}', $data['comment_body_html']);
-        /** @var EntityManager $em */
-        $em = $client->getContainer()
-            ->get('doctrine')
-            ->getManager();
-        $tester = new SocialActivityTester($em);
-        $tester->assertActivitiesCount(3);
-        $tester->assertActivity(SocialActivity::TYPE_COMMENT_MENTIONED, $user->getId());
-        $tester->assertActivity($ownType, $entity->getUser()->getId());
-        $tester->assertActivity($followType, null, $entity->getComments()->last()->getUser()->getId());
-        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
-        $this->assertEquals(3, $queue->count());
-        $this->assertEquals(3, $queue->hasMessageWithMethod('sendSocialActivity'));
-        $count = $em->getConnection()->fetchColumn('SELECT responses_count FROM activities WHERE id = ?', [$activity->getId()]);
-        $this->assertGreaterThanOrEqual(2, $count);
-    }
-
-    public function createCommentMentionedContentOwner(CommentedInterface $entity, BaseComment $comment)
-    {
-        $client = $this->client;
-        $uri = str_replace('{id}', $entity->getId(), $this->getApiEndpoint());
-        $params = [
-            'comment_body' => 'comment text @user1',
-            'parent_comment' => $comment->getId(),
-        ];
-        $client->request('POST', $uri, [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user3"'],
-            json_encode($params)
-        );
-        $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals($params['comment_body'], $data['comment_body']);
-        $this->assertEquals($params['parent_comment'], $data['parent_comment']);
-        $this->assertEquals(BaseComment::getPrivacyLabels()[BaseComment::PRIVACY_PUBLIC], $data['privacy']);
-        /** @var Connection $conn */
-        if ($entity instanceof Question) {
-            $followType = SocialActivity::TYPE_FOLLOW_POLL_COMMENTED;
-        } elseif ($entity instanceof Post) {
-            $followType = SocialActivity::TYPE_FOLLOW_POST_COMMENTED;
-        } else {
-            $followType = SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED;
-        }
-        $this->assertRegExp('{comment text <a data-user-id="\d+">@user1</a>}', $data['comment_body_html']);
-        $tester = new SocialActivityTester($client->getContainer()->get('doctrine')->getManager());
-        $tester->assertActivitiesCount(3);
-        $tester->assertActivity(SocialActivity::TYPE_COMMENT_MENTIONED, $entity->getUser()->getId());
-        $tester->assertActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser()->getId());
-        $tester->assertActivity($followType, null, $comment->getChildrenComments()->first()->getUser()->getId());
-        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
-        $this->assertEquals(3, $queue->count());
-        $this->assertEquals(3, $queue->hasMessageWithMethod('sendSocialActivity'));
-    }
-
-    /**
-     * @param CommentedInterface $entity
-     * @param BaseComment $comment
-     * @param User[] $users
-     */
-    public function createCommentNotifyEveryone(CommentedInterface $entity, BaseComment $comment, $users)
-    {
-        $client = $this->client;
-        $uri = str_replace('{id}', $entity->getId(), $this->getApiEndpoint());
-        $params = [
-            'comment_body' => 'comment text @everyone',
-            'parent_comment' => $comment->getId(),
-            'privacy' => 'private',
-        ];
-        $client->request('POST', $uri, [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user3"'],
-            json_encode($params)
-        );
-        $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals($params['comment_body'], $data['comment_body']);
-        $this->assertEquals($params['comment_body'], $data['comment_body_html']);
-        $this->assertEquals($params['parent_comment'], $data['parent_comment']);
-        $this->assertEquals($params['privacy'], $data['privacy']);
-        /** @var Connection $conn */
-        if ($entity instanceof Question) {
-            $followType = SocialActivity::TYPE_FOLLOW_POLL_COMMENTED;
-        } elseif ($entity instanceof Post) {
-            $followType = SocialActivity::TYPE_FOLLOW_POST_COMMENTED;
-        } else {
-            $followType = SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED;
-        }
-        /** @var Connection $conn */
-        $tester = new SocialActivityTester($client->getContainer()->get('doctrine')->getManager());
-        $tester->assertActivitiesCount(5);
-        foreach ($users as $user) {
-            $tester->assertActivity(SocialActivity::TYPE_COMMENT_MENTIONED, $user->getId());
-        }
-        $tester->assertActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser()->getId());
-        $tester->assertActivity($followType, null, $comment->getChildrenComments()->first()->getUser()->getId());
-        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
-        $this->assertEquals(5, $queue->count());
-        $this->assertEquals(5, $queue->hasMessageWithMethod('sendSocialActivity'));
-    }
-
-    public function createCommentWithEveryoneByMemberNotifyNobody(CommentedInterface $entity, BaseComment $comment)
-    {
-        $client = $this->client;
-        $uri = str_replace('{id}', $entity->getId(), $this->getApiEndpoint());
-        $params = [
-            'comment_body' => 'comment text @everyone',
-            'parent_comment' => $comment->getId(),
-            'privacy' => 'private',
-        ];
-        $client->request('POST', $uri, [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user4"'],
-            json_encode($params)
-        );
-        $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals($params['comment_body'], $data['comment_body']);
-        $this->assertEquals($params['comment_body'], $data['comment_body_html']);
-        $this->assertEquals($params['parent_comment'], $data['parent_comment']);
-        $this->assertEquals($params['privacy'], $data['privacy']);
-        /** @var Connection $conn */
-        if ($entity instanceof Question) {
-            $ownType = SocialActivity::TYPE_OWN_POLL_COMMENTED;
-            $followType = SocialActivity::TYPE_FOLLOW_POLL_COMMENTED;
-        } elseif ($entity instanceof Post) {
-            $ownType = SocialActivity::TYPE_OWN_POST_COMMENTED;
-            $followType = SocialActivity::TYPE_FOLLOW_POST_COMMENTED;
-        } else {
-            $ownType = SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED;
-            $followType = SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED;
-        }
-        /** @var Connection $conn */
-        $tester = new SocialActivityTester($client->getContainer()->get('doctrine')->getManager());
-        $tester->assertActivitiesCount(3);
-        $tester->assertActivity(SocialActivity::TYPE_COMMENT_REPLIED, $comment->getUser()->getId());
-        $tester->assertActivity($ownType, $entity->getUser()->getId());
-        $tester->assertActivity($followType, null, $comment->getChildrenComments()->last()->getUser()->getId());
-        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
-        $this->assertEquals(3, $queue->count());
-        $this->assertEquals(3, $queue->hasMessageWithMethod('sendSocialActivity'));
     }
 }
