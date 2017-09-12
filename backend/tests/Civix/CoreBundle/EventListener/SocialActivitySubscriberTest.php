@@ -2,12 +2,17 @@
 
 namespace Tests\Civix\CoreBundle\EventListener;
 
+use Civix\CoreBundle\Entity\BaseComment;
+use Civix\CoreBundle\Entity\Poll;
 use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserPetition;
+use Civix\CoreBundle\Event\CommentEvent;
 use Civix\CoreBundle\Event\PostEvent;
 use Civix\CoreBundle\Event\UserPetitionEvent;
 use Civix\CoreBundle\EventListener\SocialActivitySubscriber;
 use Civix\CoreBundle\Service\SocialActivityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 
 class SocialActivitySubscriberTest extends TestCase
@@ -20,7 +25,10 @@ class SocialActivitySubscriberTest extends TestCase
         $manager->expects($this->once())
             ->method('noticePostCreated')
             ->with($post);
-        $subscriber = new SocialActivitySubscriber($manager);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->once())
+            ->method('flush');
+        $subscriber = new SocialActivitySubscriber($manager, $em);
         $subscriber->noticePostCreated($event);
     }
 
@@ -32,8 +40,56 @@ class SocialActivitySubscriberTest extends TestCase
         $manager->expects($this->once())
             ->method('noticeUserPetitionCreated')
             ->with($petition);
-        $subscriber = new SocialActivitySubscriber($manager);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->once())
+            ->method('flush');
+        $subscriber = new SocialActivitySubscriber($manager, $em);
         $subscriber->noticeUserPetitionCreated($event);
+    }
+
+    /**
+     * @param BaseComment $comment
+     * @param string[] $methods
+     * @dataProvider getComments
+     */
+    public function testNoticeEntityCommented(BaseComment $comment, string ...$methods)
+    {
+        $event = new CommentEvent($comment);
+        $manager = $this->getSocialActivityManagerMock($methods);
+        foreach ($methods as $method) {
+            $manager->expects($this->once())
+                ->method($method)
+                ->with($comment);
+        }
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->once())
+            ->method('flush');
+        $subscriber = new SocialActivitySubscriber($manager, $em);
+        $subscriber->noticeEntityCommented($event);
+    }
+
+    public function getComments()
+    {
+        return [
+            [
+                new Poll\Comment(new User()),
+                'noticePollCommented',
+                'noticePollCommentReplied',
+                'noticeOwnPollCommented',
+            ],
+            [
+                new UserPetition\Comment(new User()),
+                'noticeUserPetitionCommented',
+                'noticeUserPetitionCommentReplied',
+                'noticeOwnUserPetitionCommented',
+            ],
+            [
+                new Post\Comment(new User()),
+                'noticePostCommented',
+                'noticePostCommentReplied',
+                'noticeOwnPostCommented',
+            ],
+        ];
     }
 
     /**

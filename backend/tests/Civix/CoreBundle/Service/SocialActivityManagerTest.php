@@ -128,24 +128,17 @@ class SocialActivityManagerTest extends TestCase
     }
 
     /**
-     * @param Post|UserPetition $entity
+     * @param Post|UserPetition|BaseComment $entity
      * @param string $method
      * @return SocialActivityManager
      */
     private function getSocialActivityManager($entity, string $method): SocialActivityManager
     {
         $activity = new SocialActivity();
-        $user = new User();
-        $group = new Group();
-        $entity->setUser($user)
-            ->setGroup($group);
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects($this->once())
             ->method('persist')
             ->with($activity);
-        $em->expects($this->once())
-            ->method('flush')
-            ->with();
         $repository = $this->getUserRepositoryMock();
         $factory = $this->getActivityFactoryMock();
         $factory->expects($this->once())
@@ -154,5 +147,77 @@ class SocialActivityManagerTest extends TestCase
             ->willReturn($activity);
 
         return new SocialActivityManager($em, $repository, $factory);
+    }
+
+    public function testNoticePollCommented()
+    {
+        $question = (new Poll\Question\Group())->setOwner(new Group());
+        $comment = (new Poll\Comment(new User()))->setQuestion($question);
+        $manager = $this->getSocialActivityManager($comment, 'createFollowPollCommentedActivity');
+        $manager->noticePollCommented($comment);
+    }
+
+    public function testNoticePollCommentReplied()
+    {
+        $comment = new Poll\Comment(new User(), new Poll\Comment(new User()));
+        $manager = $this->getSocialActivityManager($comment, 'createPollCommentRepliedActivity');
+        $manager->noticePollCommentReplied($comment);
+    }
+
+    public function testNoticeOwnPollCommented()
+    {
+        $user = (new User())->setUsername('-');
+        $question = (new Poll\Question\Group())->setUser($user)->addSubscriber($user);
+        $comment = (new Poll\Comment(new User()))->setQuestion($question);
+        $manager = $this->getSocialActivityManager($comment, 'createOwnPollCommentedActivity');
+        $manager->noticeOwnPollCommented($comment);
+    }
+
+    public function testNoticeUserPetitionCommented()
+    {
+        $petition = (new UserPetition())->setGroup(new Group());
+        $comment = (new UserPetition\Comment(new User()))->setPetition($petition);
+        $manager = $this->getSocialActivityManager($comment, 'createFollowUserPetitionCommentedActivity');
+        $manager->noticeUserPetitionCommented($comment);
+    }
+
+    public function testNoticeUserPetitionCommentReplied()
+    {
+        $comment = new UserPetition\Comment(new User(), new UserPetition\Comment(new User()));
+        $manager = $this->getSocialActivityManager($comment, 'createUserPetitionCommentRepliedActivity');
+        $manager->noticeUserPetitionCommentReplied($comment);
+    }
+
+    public function testNoticeOwnUserPetitionCommented()
+    {
+        $user = (new User())->setUsername('-');
+        $question = (new UserPetition())->setUser($user)->addSubscriber($user);
+        $comment = (new UserPetition\Comment(new User()))->setPetition($question);
+        $manager = $this->getSocialActivityManager($comment, 'createOwnUserPetitionCommentedActivity');
+        $manager->noticeOwnUserPetitionCommented($comment);
+    }
+
+    public function testNoticePostCommented()
+    {
+        $post = (new Post())->setGroup(new Group());
+        $comment = (new Post\Comment(new User()))->setPost($post);
+        $manager = $this->getSocialActivityManager($comment, 'createFollowPostCommentedActivity');
+        $manager->noticePostCommented($comment);
+    }
+
+    public function testNoticePostCommentReplied()
+    {
+        $comment = new Post\Comment(new User(), new Post\Comment(new User()));
+        $manager = $this->getSocialActivityManager($comment, 'createPostCommentRepliedActivity');
+        $manager->noticePostCommentReplied($comment);
+    }
+
+    public function testNoticeOwnPostCommented()
+    {
+        $user = (new User())->setUsername('-');
+        $question = (new Post())->setUser($user)->addSubscriber($user);
+        $comment = (new Post\Comment(new User()))->setPost($question);
+        $manager = $this->getSocialActivityManager($comment, 'createOwnPostCommentedActivity');
+        $manager->noticeOwnPostCommented($comment);
     }
 }

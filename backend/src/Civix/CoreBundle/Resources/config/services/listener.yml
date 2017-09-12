@@ -84,3 +84,11 @@ services:
             - '@civix_core.social_activity_manager'
         tags:
             - { name: kernel.event_subscriber }
+
+    civix_core.event_listener.social_activity_subscriber:
+        class: Civix\CoreBundle\EventListener\SocialActivitySubscriber
+        arguments:
+            - '@civix_core.social_activity_manager'
+            - '@doctrine.orm.entity_manager'
+        tags:
+            - { name: kernel.event_subscriber }

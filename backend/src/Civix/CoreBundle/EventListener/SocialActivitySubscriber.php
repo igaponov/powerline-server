@@ -6,6 +6,7 @@ use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Event;
 use Civix\CoreBundle\Service\SocialActivityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class SocialActivitySubscriber implements EventSubscriberInterface
@@ -14,10 +15,15 @@ class SocialActivitySubscriber implements EventSubscriberInterface
      * @var SocialActivityManager
      */
     private $manager;
+    /**
+     * @var EntityManagerInterface
+     */
+    private $em;
 
-    public function __construct(SocialActivityManager $manager)
+    public function __construct(SocialActivityManager $manager, EntityManagerInterface $em)
     {
         $this->manager = $manager;
+        $this->em = $em;
     }
 
     public static function getSubscribedEvents(): array
@@ -50,11 +56,13 @@ class SocialActivitySubscriber implements EventSubscriberInterface
     public function noticeUserPetitionCreated(Event\UserPetitionEvent $event)
     {
         $this->manager->noticeUserPetitionCreated($event->getPetition());
+        $this->em->flush();
     }
 
     public function noticePostCreated(Event\PostEvent $event)
     {
         $this->manager->noticePostCreated($event->getPost());
+        $this->em->flush();
     }
 
     public function noticeEntityCommented(Event\CommentEvent $event)
@@ -62,11 +70,18 @@ class SocialActivitySubscriber implements EventSubscriberInterface
         $comment = $event->getComment();
         if ($comment instanceof Poll\Comment) {
             $this->manager->noticePollCommented($comment);
+            $this->manager->noticePollCommentReplied($comment);
+            $this->manager->noticeOwnPollCommented($comment);
         } elseif ($comment instanceof UserPetition\Comment) {
             $this->manager->noticeUserPetitionCommented($comment);
+            $this->manager->noticeUserPetitionCommentReplied($comment);
+            $this->manager->noticeOwnUserPetitionCommented($comment);
         } elseif ($comment instanceof Post\Comment) {
             $this->manager->noticePostCommented($comment);
+            $this->manager->noticePostCommentReplied($comment);
+            $this->manager->noticeOwnPostCommented($comment);
         }
+        $this->em->flush();
     }
 
     public function noticeAnsweredToQuestion(Event\Poll\AnswerEvent $event)

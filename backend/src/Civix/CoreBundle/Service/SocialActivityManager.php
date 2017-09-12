@@ -57,17 +57,13 @@ class SocialActivityManager
     public function noticeUserPetitionCreated(UserPetition $petition): void
     {
         $socialActivity = $this->activityFactory->createFollowUserPetitionCreatedActivity($petition);
-
         $this->em->persist($socialActivity);
-        $this->em->flush();
     }
 
     public function noticePostCreated(Post $post): void
     {
         $socialActivity = $this->activityFactory->createFollowPostCreatedActivity($post);
-
         $this->em->persist($socialActivity);
-        $this->em->flush();
     }
 
     public function noticeAnsweredToQuestion(Answer $answer): void
@@ -87,82 +83,89 @@ class SocialActivityManager
     public function noticePollCommented(Poll\Comment $comment): void
     {
         $question = $comment->getQuestion();
-        if (!$question->getOwner() instanceof Group) {
-            return;
+        if ($question && $question->getOwner() instanceof Group) {
+            $socialActivity = $this->activityFactory->createFollowPollCommentedActivity($comment);
+            $this->em->persist($socialActivity);
         }
+    }
 
-        $socialActivity1 = $this->activityFactory->createFollowPollCommentedActivity($comment);
-
-        $this->em->persist($socialActivity1);
+    public function noticePollCommentReplied(Poll\Comment $comment): void
+    {
         $parentComment = $comment->getParentComment();
         if ($parentComment && $parentComment->getUser()
             && $comment->getUser() !== $parentComment->getUser()) {
-            $socialActivity2 = $this->activityFactory->createPollCommentRepliedActivity($comment);
-
-            $this->em->persist($socialActivity2);
+            $socialActivity = $this->activityFactory->createPollCommentRepliedActivity($comment);
+            $this->em->persist($socialActivity);
         }
+    }
 
-        if ($question->getUser()->getIsNotifOwnPostChanged()
+    public function noticeOwnPollCommented(Poll\Comment $comment): void
+    {
+        $question = $comment->getQuestion();
+        if ($question && $question->getUser()->getIsNotifOwnPostChanged()
             && $question->getSubscribers()->contains($question->getUser())
             && !$comment->getUser()->isEqualTo($question->getUser())
         ) {
-            $socialActivity3 = $this->activityFactory->createOwnPollCommentedActivity($comment);
-
-            $this->em->persist($socialActivity3);
+            $socialActivity = $this->activityFactory->createOwnPollCommentedActivity($comment);
+            $this->em->persist($socialActivity);
         }
-        $this->em->flush();
     }
 
     public function noticeUserPetitionCommented(UserPetition\Comment $comment): void
     {
-        $petition = $comment->getPetition();
+        $socialActivity = $this->activityFactory->createFollowUserPetitionCommentedActivity($comment);
+        $this->em->persist($socialActivity);
+    }
 
-        $socialActivity1 = $this->activityFactory->createFollowUserPetitionCommentedActivity($comment);
-
-        $this->em->persist($socialActivity1);
+    public function noticeUserPetitionCommentReplied(UserPetition\Comment $comment): void
+    {
         $parentComment = $comment->getParentComment();
-        if ($parentComment && $parentComment->getUser()
-            && $comment->getUser() !== $parentComment->getUser()) {
+        if ($parentComment && $parentComment->getUser() && $comment->getUser() !== $parentComment->getUser()) {
             $socialActivity2 = $this->activityFactory->createUserPetitionCommentRepliedActivity($comment);
-
             $this->em->persist($socialActivity2);
         }
+    }
+
+    public function noticeOwnUserPetitionCommented(UserPetition\Comment $comment): void
+    {
+        $petition = $comment->getPetition();
         $user = $petition->getUser();
         if ($user && $user->getIsNotifOwnPostChanged()
             && $petition->getSubscribers()->contains($user)
             && !$comment->getUser()->isEqualTo($user)
         ) {
-            $socialActivity3 = $this->activityFactory->createOwnUserPetitionCommentedActivity($comment);
-
-            $this->em->persist($socialActivity3);
+            $socialActivity = $this->activityFactory->createOwnUserPetitionCommentedActivity($comment);
+            $this->em->persist($socialActivity);
         }
-        $this->em->flush();
     }
 
     public function noticePostCommented(Post\Comment $comment): void
     {
-        $post = $comment->getPost();
-
         $socialActivity = $this->activityFactory->createFollowPostCommentedActivity($comment);
-
         $this->em->persist($socialActivity);
+    }
+
+    public function noticePostCommentReplied(Post\Comment $comment): void
+    {
         $parentComment = $comment->getParentComment();
         if ($parentComment && $parentComment->getUser()
             && $comment->getUser() !== $parentComment->getUser()) {
             $socialActivity2 = $this->activityFactory->createPostCommentRepliedActivity($comment);
-
             $this->em->persist($socialActivity2);
         }
+    }
+
+    public function noticeOwnPostCommented(Post\Comment $comment): void
+    {
+        $post = $comment->getPost();
         $user = $post->getUser();
         if ($user && $user->getIsNotifOwnPostChanged()
             && $post->getSubscribers()->contains($user)
             && !$comment->getUser()->isEqualTo($user)
         ) {
-            $socialActivity3 = $this->activityFactory->createOwnPostCommentedActivity($comment);
-
-            $this->em->persist($socialActivity3);
+            $socialActivity = $this->activityFactory->createOwnPostCommentedActivity($comment);
+            $this->em->persist($socialActivity);
         }
-        $this->em->flush();
     }
 
     public function noticeGroupsPermissionsChanged(Group $group): void

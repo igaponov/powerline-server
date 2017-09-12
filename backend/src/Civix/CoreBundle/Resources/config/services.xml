@@ -380,11 +380,6 @@
             <argument id="doctrine.orm.entity_manager" type="service"/>
         </service>
 
-        <service class="Civix\CoreBundle\EventListener\SocialActivitySubscriber" id="civix_core.event_listener.social_activity_subscriber">
-            <argument id="civix_core.social_activity_manager" type="service"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service class="Civix\CoreBundle\EventListener\StripeSubscriber" id="civix_core.event_listener.stripe_subscriber">
             <argument id="civix_core.stripe" type="service"/>
             <tag name="kernel.event_subscriber"/>
