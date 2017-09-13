@@ -106,10 +106,6 @@ class PollControllerTest extends WebTestCase
         $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user2"']);
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals($action == 'up' ? 2 : 0, $data['rate_sum']);
-        $this->assertEquals(3, $data['rates_count']);
-        $this->assertEquals($action == 'up' ? 1 : -1, $data['rate_status']);
 	}
 
     public function getActions()
@@ -130,9 +126,5 @@ class PollControllerTest extends WebTestCase
         $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals(1, $data['rate_sum']);
-        $this->assertEquals(2, $data['rates_count']);
-        $this->assertEquals(0, $data['rate_status']);
     }
 }
