@@ -31,7 +31,9 @@ services:
 
     civix_core.event_listener.async_event_listener:
         class: Civix\CoreBundle\EventListener\AsyncEventListener
-        arguments: ['@old_sound_rabbit_mq.async_event_producer']
+        arguments:
+            - '@old_sound_rabbit_mq.async_event_producer'
+            - '@doctrine.orm.entity_manager'
         tags:
             - { name: kernel.event_listener, event: async_event.dispatch }
 
