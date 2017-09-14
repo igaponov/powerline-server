@@ -1,20 +1,20 @@
 <?php
-namespace Civix\ApiBundle\Tests\Controller\V2;
+namespace Tests\Civix\ApiBundle\Controller\V2;
 
+use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\CiceroRepresentative;
 use Civix\CoreBundle\Entity\Karma;
+use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\Report\PostResponseReport;
 use Civix\CoreBundle\Entity\SocialActivity;
-use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Service\PostManager;
 use Civix\CoreBundle\Test\SocialActivityTester;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadCiceroRepresentativeData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostHashTagData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteKarmaData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSpamPostData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
@@ -23,7 +23,6 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadUserReportData;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Faker\Factory;
-use Civix\ApiBundle\Tests\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class PostControllerTest extends WebTestCase
@@ -33,7 +32,7 @@ class PostControllerTest extends WebTestCase
     /**
      * @var null|Client
      */
-    private $client = null;
+    private $client;
 
     public function setUp()
     {
@@ -64,9 +63,11 @@ class PostControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertSame(6, $data['totalItems']);
-        $this->assertCount(6, $data['payload']);
-        foreach ($data['payload'] as $item) {
-            if ($post->getId() == $item['id']) {
+        /** @var array $payload */
+        $payload = $data['payload'];
+        $this->assertCount(6, $payload);
+        foreach ($payload as $item) {
+            if ($post->getId() === $item['id']) {
                 $this->assertCount(1, $item['votes']);
                 $this->assertEquals($answer->getOption(), $item['votes'][0]['option']);
                 $this->assertArrayHasKey('html_body', $item);
@@ -465,7 +466,7 @@ class PostControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertSame(
-            array_search($option, Post\Vote::getOptionTitles()),
+            array_search($option, Post\Vote::getOptionTitles(), true),
             $data['option']
         );
         $this->assertEquals($answer['id'], $data['id']);
@@ -748,7 +749,7 @@ class PostControllerTest extends WebTestCase
      * @param array $methods
      * @return \PHPUnit_Framework_MockObject_MockObject|PostManager
      */
-    private function getPostManagerMock($methods = [])
+    private function getPostManagerMock(array $methods = [])
     {
         $container = $this->client->getContainer();
         return $this->getMockBuilder(PostManager::class)
