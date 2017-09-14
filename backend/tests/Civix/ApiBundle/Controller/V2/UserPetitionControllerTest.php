@@ -34,7 +34,7 @@ class UserPetitionControllerTest extends WebTestCase
         $this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->client = null;
         parent::tearDown();
