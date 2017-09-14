@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Tests\Controller;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Poll\Question\Group as GroupQuestion;
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadPollCommentRateData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
@@ -24,7 +25,7 @@ class PollControllerTest extends WebTestCase
     /**
      * @var Client
      */
-	private $client = null;
+	private $client;
 
 	public function setUp()
 	{
@@ -52,10 +53,11 @@ class PollControllerTest extends WebTestCase
         ]);
 
         $reference = $fixtures->getReferenceRepository();
-
+        /** @var User $user */
+        $user = $reference->getReference('user_1');
         /** @var Group $group */
         $group = $reference->getReference('group');
-        $group->setOwner($reference->getReference('user_1'));
+        $group->setOwner($user);
         $container = $this->getContainer();
         $em = $container->get('doctrine')->getManager();
         $em->persist($group);
