@@ -3,7 +3,6 @@
 namespace Civix\CoreBundle\QueryFunction;
 
 use Civix\CoreBundle\Entity\Activity;
-use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
 use Doctrine\ORM\EntityManagerInterface;
@@ -56,6 +55,8 @@ final class UserGroupsQuery
             ->setParameter(':groups', array_map(function (UserGroup $userGroup) {
                 return $userGroup->getGroup();
             }, $userGroups))
+            ->andWhere('act.sentAt > :startAt')
+            ->setParameter('startAt', (new \DateTime('-30 days'))->format('Y-m-d H:i:s'))
             ->groupBy('act.group')
             ->getQuery();
         $results = [];
