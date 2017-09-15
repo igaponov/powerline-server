@@ -57,6 +57,9 @@ services:
             - '@civix_core.repository.group_repository'
             - '@logger'
 
+    civix_core.social_activity_factory:
+        class: Civix\CoreBundle\Service\SocialActivityFactory
+
 #    civix_core.uploader.metadata.file_locator:
 #        class: Metadata\Driver\FileLocator
 #        public: false

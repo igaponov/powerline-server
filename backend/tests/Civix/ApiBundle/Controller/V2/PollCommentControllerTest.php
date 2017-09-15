@@ -1,5 +1,5 @@
 <?php
-namespace Civix\ApiBundle\Tests\Controller\V2;
+namespace Tests\Civix\ApiBundle\Controller\V2;
 
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadPollCommentRateData;
@@ -12,12 +12,12 @@ use Doctrine\DBAL\Connection;
 
 class PollCommentControllerTest extends CommentControllerTestCase
 {
-    protected function getApiEndpoint()
+    protected function getApiEndpoint(): string
     {
         return '/api/v2/poll-comments/{id}';
     }
 
-    public function testUpdateCommentIsOk()
+    public function testUpdateCommentIsOk(): void
     {
         $repository = $this->loadFixtures([
             LoadQuestionCommentData::class,
@@ -27,22 +27,7 @@ class PollCommentControllerTest extends CommentControllerTestCase
         $this->updateComment($comment);
     }
 
-    /**
-     * @param $params
-     * @param $errors
-     * @dataProvider getInvalidParams
-     */
-    public function testUpdateCommentWithWrongData($params, $errors)
-    {
-        $repository = $this->loadFixtures([
-            LoadQuestionCommentData::class,
-        ])->getReferenceRepository();
-        /** @var BaseComment $comment */
-        $comment = $repository->getReference('question_comment_1');
-        $this->updateCommentWithWrongData($comment, $params, $errors);
-    }
-
-    public function testUpdateCommentWithWrongCredentialsThrowsException()
+    public function testUpdateCommentWithWrongCredentialsThrowsException(): void
     {
         $repository = $this->loadFixtures([
             LoadQuestionCommentData::class,
@@ -52,7 +37,7 @@ class PollCommentControllerTest extends CommentControllerTestCase
         $this->updateCommentWithWrongCredentials($comment);
     }
 
-    public function testDeleteComment()
+    public function testDeleteComment(): void
     {
         $repository = $this->loadFixtures([
             LoadQuestionCommentData::class,
@@ -62,7 +47,7 @@ class PollCommentControllerTest extends CommentControllerTestCase
         $this->deleteComment($comment);
     }
 
-    public function testDeleteCommentWithWrongCredentialsThrowsException()
+    public function testDeleteCommentWithWrongCredentialsThrowsException(): void
     {
         $repository = $this->loadFixtures([
             LoadQuestionCommentData::class,
@@ -72,7 +57,7 @@ class PollCommentControllerTest extends CommentControllerTestCase
         $this->deleteCommentWithWrongCredentials($comment);
     }
 
-    public function testRateCommentWithWrongCredentialsThrowsException()
+    public function testRateCommentWithWrongCredentialsThrowsException(): void
     {
         $repository = $this->loadFixtures([
             LoadPollCommentRateData::class,
@@ -83,26 +68,11 @@ class PollCommentControllerTest extends CommentControllerTestCase
     }
 
     /**
-     * @param $params
-     * @param $errors
-     * @dataProvider getInvalidRates
-     */
-    public function testRateCommentWithWrongDataReturnsErrors($params, $errors)
-    {
-        $repository = $this->loadFixtures([
-            LoadPollCommentRateData::class,
-        ])->getReferenceRepository();
-        /** @var BaseComment $comment */
-        $comment = $repository->getReference('question_comment_1');
-        $this->rateCommentWithWrongData($comment, $params, $errors);
-    }
-
-    /**
      * @param $rate
      * @param $user
      * @dataProvider getRates
      */
-    public function testRateCommentIsOk($rate, $user)
+    public function testRateCommentIsOk($rate, $user): void
     {
         $repository = $this->loadFixtures([
             LoadPollCommentRateData::class,
@@ -118,7 +88,7 @@ class PollCommentControllerTest extends CommentControllerTestCase
      * @param $rate
      * @dataProvider getRates
      */
-    public function testUpdateCommentRateIsOk($rate)
+    public function testUpdateCommentRateIsOk($rate): void
     {
         $repository = $this->loadFixtures([
             LoadGroupManagerData::class,
@@ -129,7 +99,7 @@ class PollCommentControllerTest extends CommentControllerTestCase
         $this->updateCommentRate($comment, $rate);
     }
 
-    public function testRateNewsCommentMarkActivityAsRead()
+    public function testRateNewsCommentMarkActivityAsRead(): void
     {
         $repository = $this->loadFixtures([
             PM354::class,

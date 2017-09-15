@@ -9,7 +9,6 @@ use Civix\CoreBundle\Service\UserPetitionManager;
 use Civix\CoreBundle\Test\SocialActivityTester;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadSpamUserPetitionData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionHashTagData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
@@ -35,7 +34,7 @@ class UserPetitionControllerTest extends WebTestCase
         $this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->client = null;
         parent::tearDown();
@@ -202,49 +201,6 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertSame($params['body'], $data['body']);
-        // check addHashTags event listener
-        /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine')
-            ->getConnection();
-        $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM hash_tags_petitions WHERE petition_id = ?', [$data['id']]);
-        $this->assertCount($count, $hashTags);
-        $this->assertCount($count, $data['cached_hash_tags']);
-        // check activity
-        $description = $conn->fetchColumn('SELECT description FROM activities WHERE petition_id = ?', [$data['id']]);
-        $this->assertSame($data['petition_body'], $description);
-    }
-
-    public function testUpdateUserPetitionWithExistentHashTag()
-    {
-        $repository = $this->loadFixtures([
-            LoadUserPetitionHashTagData::class,
-        ])->getReferenceRepository();
-        $faker = Factory::create();
-        /** @var UserPetition $petition */
-        $petition = $repository->getReference('user_petition_1');
-        $client = $this->client;
-        $hashTags = [
-            '#testHashTag',
-            '#powerlineHashTag',
-        ];
-        $params = [
-            'body' => $faker->text."\n".implode(' ', $hashTags),
-        ];
-        $client->request('PUT',
-            self::API_ENDPOINT.'/'.$petition->getId(), [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user1"'],
-            json_encode($params)
-        );
-        $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        // check addHashTags event listener
-        /** @var Connection $conn */
-        $conn = $client->getContainer()->get('doctrine')
-            ->getConnection();
-        $count = (int)$conn->fetchColumn('SELECT COUNT(*) FROM hash_tags_petitions WHERE petition_id = ?', [$data['id']]);
-        $this->assertCount($count, $hashTags);
-        $this->assertCount($count, $data['cached_hash_tags']);
     }
 
     /**
@@ -560,7 +516,7 @@ class UserPetitionControllerTest extends WebTestCase
         foreach ($users as $k => $user) {
             $this->assertEquals($user->getLatitude(), $data[$k]['latitude']);
             $this->assertEquals($user->getLongitude(), $data[$k]['longitude']);
-            if ($user->getUsername() === 'user3') {
+            if (in_array($user->getUsername(), ['user1', 'user3'], true)) {
                 $this->assertSame('US', $data[$k]['country']);
                 $this->assertSame('NY', $data[$k]['state']);
                 $this->assertSame('New York', $data[$k]['locality']);

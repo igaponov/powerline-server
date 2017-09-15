@@ -6,6 +6,7 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostCommentData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionCommentData;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -14,7 +15,7 @@ class CommentControllerTest extends WebTestCase
     /**
      * @var Client
      */
-    private $client = null;
+    private $client;
 
     public function setUp()
     {
@@ -78,67 +79,32 @@ class CommentControllerTest extends WebTestCase
         $this->assertCount(2, $data);
     }
 
-    public function testCreatePollComment()
+    public function testCreateComment()
     {
-        $repository = $this->loadFixtures([
-            LoadQuestionCommentData::class,
+        $this->loadFixtures([
+            LoadUserData::class,
         ])->getReferenceRepository();
-        $entity = $repository->getReference('group_question_1');
-        $comment = $repository->getReference('question_comment_1');
         $client = $this->client;
-        $uri = str_replace('{id}', $entity->getId(), '/api/poll/{id}/comments/');
-        $params = ['comment_body' => 'comment text', 'parent_comment' => $comment->getId()];
-        $client->request('POST', $uri, [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user1"'],
-            json_encode($params)
-        );
-        $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals($params['comment_body'], $data['comment_body']);
-        $this->assertEquals($params['parent_comment'], $data['parent_comment']);
+        foreach ($this->getTypes() as [$type]) {
+            $uri = str_replace('{id}', 1, "/api/{$type}/{id}/comments/");
+            $params = ['comment_body' => 'comment text', 'parent_comment' => 2];
+            $client->request('POST', $uri, [], [],
+                ['HTTP_Authorization'=>'Bearer user1'],
+                json_encode($params)
+            );
+            $response = $client->getResponse();
+            $this->assertEquals(302, $response->getStatusCode(), $response->getContent());
+            $this->assertNotEmpty($response->headers->get('Location'));
+        }
     }
 
-    public function testCreatePostComment()
+    public function getTypes()
     {
-        $repository = $this->loadFixtures([
-            LoadPostCommentData::class,
-        ])->getReferenceRepository();
-        $entity = $repository->getReference('post_1');
-        $comment = $repository->getReference('post_comment_1');
-        $client = $this->client;
-        $uri = str_replace('{id}', $entity->getId(), '/api/post/{id}/comments/');
-        $params = ['comment_body' => 'comment text', 'parent_comment' => $comment->getId()];
-        $client->request('POST', $uri, [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user1"'],
-            json_encode($params)
-        );
-        $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals($params['comment_body'], $data['comment_body']);
-        $this->assertEquals($params['parent_comment'], $data['parent_comment']);
-    }
-
-    public function testCreateUserPetitionComment()
-    {
-        $repository = $this->loadFixtures([
-            LoadUserPetitionCommentData::class,
-        ])->getReferenceRepository();
-        $entity = $repository->getReference('user_petition_1');
-        $comment = $repository->getReference('petition_comment_1');
-        $client = $this->client;
-        $uri = str_replace('{id}', $entity->getId(), '/api/micro-petitions/{id}/comments/');
-        $params = ['comment_body' => 'comment text', 'parent_comment' => $comment->getId()];
-        $client->request('POST', $uri, [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user1"'],
-            json_encode($params)
-        );
-        $response = $client->getResponse();
-        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals($params['comment_body'], $data['comment_body']);
-        $this->assertEquals($params['parent_comment'], $data['parent_comment']);
+        return [
+            ['poll'],
+            ['post'],
+            ['micro-petitions'],
+        ];
     }
 
     public function testUpdatePollComment()

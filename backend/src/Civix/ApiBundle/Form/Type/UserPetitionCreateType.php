@@ -2,33 +2,49 @@
 namespace Civix\ApiBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UserPetitionCreateType extends AbstractType
 {
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return '';
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('title')
-            ->add('is_outsiders_sign', CheckboxType::class, [
+            ->add('title', Type\TextType::class, [
+                'empty_data' => '',
+            ])
+            ->add('is_outsiders_sign', Type\CheckboxType::class, [
                 'property_path' => 'outsidersSign',
             ])
-            ->add('organization_needed', CheckboxType::class, [
+            ->add('organization_needed', Type\CheckboxType::class, [
                 'property_path' => 'organizationNeeded',
             ])
             // @todo for compatibility with old endpoints
-            ->add('link', null, ['mapped' => false])
-            ->add('type', null, ['mapped' => false])
+            ->add('link', null, [
+                'mapped' => false,
+                'description' => 'For compatibility with old endpoints.',
+            ])
+            ->add('type', null, [
+                'mapped' => false,
+                'description' => 'For compatibility with old endpoints.',
+            ])
         ;
     }
 
-    public function getParent()
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'validation_groups' => 'create',
+        ]);
+    }
+
+    public function getParent(): string
     {
         return UserPetitionUpdateType::class;
     }

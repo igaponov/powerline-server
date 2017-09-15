@@ -50,13 +50,15 @@ class UserGroupRepository extends EntityRepository
      *
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function isJoinedUser(Group $group, User $user)
+    public function isJoinedUser(Group $group, User $user): ?UserGroup
     {
         return $this->createQueryBuilder('gu')
                 ->where('gu.user = :user')
                 ->andWhere('gu.group = :group')
+                ->andWhere('gu.status = :status')
                 ->setParameter('user', $user)
                 ->setParameter('group', $group)
+                ->setParameter(':status', UserGroup::STATUS_ACTIVE)
                 ->getQuery()
                 ->getOneOrNullResult();
     }

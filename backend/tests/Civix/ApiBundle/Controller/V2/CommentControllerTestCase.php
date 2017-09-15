@@ -1,6 +1,6 @@
 <?php
 
-namespace Civix\ApiBundle\Tests\Controller\V2;
+namespace Tests\Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\BaseComment;
@@ -14,22 +14,22 @@ abstract class CommentControllerTestCase extends WebTestCase
     /**
      * @var Client
      */
-    private $client = null;
+    private $client;
 
-    abstract protected function getApiEndpoint();
+    abstract protected function getApiEndpoint(): string;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->client = NULL;
         parent::tearDown();
     }
 
-    protected function updateComment(BaseComment $comment)
+    protected function updateComment(BaseComment $comment): void
     {
         $client = $this->client;
         $uri = str_replace('{id}', $comment->getId(), $this->getApiEndpoint());
@@ -43,38 +43,10 @@ abstract class CommentControllerTestCase extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertEquals($params['comment_body'], $data['comment_body']);
         $this->assertEquals($params['comment_body'], $data['comment_body_html']);
-        /** @var BaseComment $comment */
-        $comment = $client->getContainer()->get('doctrine')->getManager()->merge($comment);
-        $this->assertEquals($params['comment_body'], $comment->getCommentBodyHtml());
         $this->assertEquals($params['privacy'], $data['privacy']);
     }
 
-    protected function updateCommentWithWrongData(BaseComment $comment, $params, $errors)
-    {
-        $client = $this->client;
-        $uri = str_replace('{id}', $comment->getId(), $this->getApiEndpoint());
-        $client->request('PUT', $uri, [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user2"'],
-            json_encode($params)
-        );
-        $this->assertResponseHasErrors($client->getResponse(), $errors);
-    }
-
-    public function getInvalidParams()
-    {
-        return [
-            'empty' => [
-                ['comment_body' => '', 'privacy' => ''],
-                ['comment_body' => 'This value should not be blank.'],
-            ],
-            'long' => [
-                ['comment_body' => str_repeat('x', 501)],
-                ['comment_body' => 'This value is too long. It should have 500 characters or less.'],
-            ],
-        ];
-    }
-
-    protected function updateCommentWithWrongCredentials(BaseComment $comment)
+    protected function updateCommentWithWrongCredentials(BaseComment $comment): void
     {
         $client = $this->client;
         $uri = str_replace('{id}', $comment->getId(), $this->getApiEndpoint());
@@ -87,7 +59,7 @@ abstract class CommentControllerTestCase extends WebTestCase
         $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
 
-    protected function deleteComment(BaseComment $comment)
+    protected function deleteComment(BaseComment $comment): void
     {
         $client = $this->client;
         $uri = str_replace('{id}', $comment->getId(), $this->getApiEndpoint());
@@ -101,12 +73,12 @@ abstract class CommentControllerTestCase extends WebTestCase
         /** @var EntityManager $em */
         $em = $client->getContainer()->get('doctrine')->getManager();
         /** @var BaseComment $comment */
-        $comment = $em->merge($comment);
-        $this->assertEquals('Deleted by author', $comment->getCommentBody());
+        $updatedComment = $em->merge($comment);
+        $this->assertEquals('Deleted by author', $updatedComment->getCommentBody());
         $this->assertEquals('Deleted by author', $comment->getCommentBodyHtml());
     }
 
-    protected function deleteCommentWithWrongCredentials(BaseComment $comment)
+    protected function deleteCommentWithWrongCredentials(BaseComment $comment): void
     {
         $client = $this->client;
         $uri = str_replace('{id}', $comment->getId(), $this->getApiEndpoint());
@@ -117,44 +89,18 @@ abstract class CommentControllerTestCase extends WebTestCase
         $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
 
-    protected function rateCommentWithWrongCredentials(BaseComment $comment)
+    protected function rateCommentWithWrongCredentials(BaseComment $comment): void
     {
         $client = $this->client;
         $uri = str_replace('{id}', $comment->getId(), $this->getApiEndpoint().'/rate');
         $client->request('POST', $uri, [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user4"']
+            ['HTTP_Authorization'=>'Bearer followertest']
         );
         $response = $client->getResponse();
         $this->assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
 
-    protected function rateCommentWithWrongData(BaseComment $comment, $params, $errors)
-    {
-        $client = $this->client;
-        $uri = str_replace('{id}', $comment->getId(), $this->getApiEndpoint().'/rate');
-        $client->request('POST', $uri, [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user1"'],
-            json_encode($params)
-        );
-        $response = $client->getResponse();
-        $this->assertResponseHasErrors($response, $errors);
-    }
-
-    public function getInvalidRates()
-    {
-        return [
-            'empty' => [
-                ['rate_value' => null],
-                ['rate_value' => 'This value should not be blank.'],
-            ],
-            'invalid' => [
-                ['rate_value' => 'invalid'],
-                ['rate_value' => 'This value should not be blank.'],
-            ],
-        ];
-    }
-
-    protected function rateComment(BaseComment $comment, $rate, $user)
+    protected function rateComment(BaseComment $comment, $rate, $user): void
     {
         $client = $this->client;
         $uri = str_replace('{id}', $comment->getId(), $this->getApiEndpoint().'/rate');
@@ -166,15 +112,16 @@ abstract class CommentControllerTestCase extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $rate = array_search($rate, BaseCommentRate::getRateValueLabels());
+        $rate = array_search($rate, BaseCommentRate::getRateValueLabels(), true);
         $this->assertEquals(
             $rate,
             $data['rate_sum']
         );
         $this->assertEquals($rate === BaseCommentRate::RATE_DELETE ? 2 : 3, $data['rates_count']);
         $result = $client->getContainer()->get('doctrine.dbal.default_connection')
-            ->fetchAssoc('SELECT * FROM karma');
-        if ($rate == BaseCommentRate::RATE_UP) {
+            ->fetchAll('SELECT * FROM karma WHERE user_id = ?', [$comment->getUser()->getId()]);
+        if ($rate === BaseCommentRate::RATE_UP) {
+            $this->assertCount(1, $result);
             $this->assertArraySubset([
                 'user_id' => $comment->getUser()->getId(),
                 'type' => Karma::TYPE_RECEIVE_UPVOTE_ON_COMMENT,
@@ -184,13 +131,13 @@ abstract class CommentControllerTestCase extends WebTestCase
                     'comment_id' => $comment->getId(),
                     'rate_id' => $comment->getRates()->last()->getId(),
                 ]),
-            ], $result);
+            ], $result[0]);
         } else {
             $this->assertFalse((bool) $result);
         }
     }
 
-    protected function updateCommentRate(BaseComment $comment, $rate)
+    protected function updateCommentRate(BaseComment $comment, $rate): void
     {
         $client = $this->client;
         $uri = str_replace('{id}', $comment->getId(), $this->getApiEndpoint().'/rate');
@@ -202,10 +149,10 @@ abstract class CommentControllerTestCase extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $rate = array_search($rate, BaseCommentRate::getRateValueLabels());
+        $rate = array_search($rate, BaseCommentRate::getRateValueLabels(), true);
         $results = $client->getContainer()->get('doctrine.dbal.default_connection')
             ->fetchAll('SELECT * FROM karma');
-        if ($rate == BaseCommentRate::RATE_UP) {
+        if ($rate === BaseCommentRate::RATE_UP) {
             $this->assertCount(1, $results);
             $this->assertArraySubset([
                 'user_id' => $comment->getUser()->getId(),
@@ -227,7 +174,7 @@ abstract class CommentControllerTestCase extends WebTestCase
         }
     }
 
-    public function getRates()
+    public function getRates(): array
     {
         return [
             'up' => ['up', 'user3'],

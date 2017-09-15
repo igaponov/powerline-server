@@ -339,12 +339,12 @@ class Petition implements HtmlBodyInterface
         return $this;
     }
 
-    public function getBody()
+    public function getBody(): ?string
     {
         return $this->getPetitionBody();
     }
 
-    public function setHtmlBody($html)
+    public function setHtmlBody(string $html): Petition
     {
         $this->setPetitionBodyHtml($html);
 

@@ -26,7 +26,7 @@ abstract class WebTestCase extends BaseWebTestCase
     /**
      * @var FixtureLoader
      */
-    private static $fixtureLoader;
+    protected static $fixtureLoader;
 
     protected static function bootFixtureLoader(array $options = [])
     {

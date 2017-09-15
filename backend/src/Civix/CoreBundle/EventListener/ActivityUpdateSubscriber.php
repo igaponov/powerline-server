@@ -23,7 +23,7 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
         $this->activityUpdate = $activityUpdate;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             Event\UserEvents::PROFILE_UPDATE => 'updateOwnerData',

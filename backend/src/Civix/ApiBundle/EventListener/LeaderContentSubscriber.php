@@ -1,6 +1,7 @@
 <?php
 namespace Civix\ApiBundle\EventListener;
 
+use Civix\CoreBundle\Entity\HashTag;
 use Civix\CoreBundle\Entity\Poll\Question\PaymentRequest;
 use Civix\CoreBundle\Event\Poll\AnswerEvent;
 use Civix\CoreBundle\Event\Poll\QuestionEvent;
@@ -10,15 +11,14 @@ use Civix\CoreBundle\Event\PostEvents;
 use Civix\CoreBundle\Event\UserPetitionEvent;
 use Civix\CoreBundle\Event\UserPetitionEvents;
 use Civix\CoreBundle\Service\CommentManager;
-use Civix\CoreBundle\Service\Micropetitions\PetitionManager;
 use Civix\CoreBundle\Service\Settings;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class LeaderContentSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
     private $em;
     /**
@@ -26,15 +26,11 @@ class LeaderContentSubscriber implements EventSubscriberInterface
      */
     private $settings;
     /**
-     * @var PetitionManager
-     */
-    private $petitionManager;
-    /**
      * @var \Civix\CoreBundle\Service\CommentManager
      */
     private $commentManager;
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             // petition
@@ -67,22 +63,21 @@ class LeaderContentSubscriber implements EventSubscriberInterface
     }
 
     public function __construct(
-        EntityManager $em, 
+        EntityManagerInterface $em,
         Settings $settings,
-        PetitionManager $petitionManager,
         CommentManager $commentManager
     ) {
         $this->em = $em;
         $this->settings = $settings;
-        $this->petitionManager = $petitionManager;
         $this->commentManager = $commentManager;
     }
 
     public function setPostExpire(PostEvent $event)
     {
         $post = $event->getPost();
-        $key = 'micropetition_expire_interval_'.$post->getGroup()->getGroupType();
-        $interval = $this->settings->get($key)->getValue();
+        $group = $post->getGroup();
+        $key = 'micropetition_expire_interval_'.$group->getGroupType();
+        $interval = (int)$this->settings->get($key)->getValue();
         $post->setExpiredAt(new \DateTime("+$interval days"));
         $post->setUserExpireInterval($interval);
     }
@@ -95,19 +90,19 @@ class LeaderContentSubscriber implements EventSubscriberInterface
 
     public function addPetitionHashTags(UserPetitionEvent $event)
     {
-        $this->em->getRepository('CivixCoreBundle:HashTag')
+        $this->em->getRepository(HashTag::class)
             ->addForTaggableEntity($event->getPetition());
     }
 
     public function addPostHashTags(PostEvent $event)
     {
-        $this->em->getRepository('CivixCoreBundle:HashTag')
+        $this->em->getRepository(HashTag::class)
             ->addForTaggableEntity($event->getPost());
     }
 
     public function addQuestionHashTags(QuestionEvent $event)
     {
-        $this->em->getRepository('CivixCoreBundle:HashTag')
+        $this->em->getRepository(HashTag::class)
             ->addForTaggableEntity($event->getQuestion());
     }
 
@@ -116,7 +111,6 @@ class LeaderContentSubscriber implements EventSubscriberInterface
         $petition = $event->getPetition();
         $author = $petition->getUser();
         $author->addPetitionSubscription($petition);
-        $this->em->persist($author);
         $this->em->flush();
     }
 
@@ -125,7 +119,6 @@ class LeaderContentSubscriber implements EventSubscriberInterface
         $post = $event->getPost();
         $author = $post->getUser();
         $author->addPostSubscription($post);
-        $this->em->persist($author);
         $this->em->flush();
     }
 
@@ -134,7 +127,6 @@ class LeaderContentSubscriber implements EventSubscriberInterface
         $poll = $event->getQuestion();
         $author = $poll->getUser();
         $author->addPollSubscription($poll);
-        $this->em->persist($author);
         $this->em->flush();
     }
 

@@ -23,7 +23,7 @@ class FixtureLoader
     /**
      * @var ORMExecutor
      */
-    public static $executor;
+    public $executor;
 
     /**
      * @var ContainerInterface
@@ -117,12 +117,12 @@ class FixtureLoader
 
         $executor->execute($loader->getFixtures(), true);
 
-        self::$executor = $executor;
+        $this->executor = $executor;
     }
 
     public function clear(): void
     {
-        self::$executor = null;
+        $this->executor = null;
     }
 
     /**

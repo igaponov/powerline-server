@@ -8,14 +8,18 @@ use Civix\CoreBundle\Parser\UrlConverter;
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\User;
 
+/**
+ * Class ContentManager
+ * @package Civix\CoreBundle\Service
+ *
+ * @deprecated
+ */
 class ContentManager
 {
-    private $em;
     private $userRepo;
 
     public function __construct(EntityManager $em)
     {
-        $this->em = $em;
         $this->userRepo = $em->getRepository(User::class);
     }
 

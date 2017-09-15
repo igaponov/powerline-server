@@ -4,7 +4,6 @@ namespace Civix\CoreBundle\Command;
 
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\UserFollow;
-use Civix\CoreBundle\Service\SocialActivityFactory;
 use SebastianBergmann\Diff\Differ;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,7 +13,7 @@ use Doctrine\ORM\EntityManager;
 
 class FixTargetDataCommand extends ContainerAwareCommand
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('fix:activity:target')
@@ -27,7 +26,7 @@ class FixTargetDataCommand extends ContainerAwareCommand
     {
         /* @var $em EntityManager */
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
-
+        $factory = $this->getContainer()->get('civix_core.social_activity_factory');
         $iterator = $em->getRepository(SocialActivity::class)
             ->createQueryBuilder('a')
             ->getQuery()->iterate();
@@ -44,7 +43,7 @@ class FixTargetDataCommand extends ContainerAwareCommand
                         'follower' => $target['id'] ?? 0,
                     ]);
                     if ($userFollow) {
-                        $activity->setTarget(SocialActivityFactory::getFollowRequestTarget($userFollow));
+                        $activity->setTarget($factory->getFollowRequestTarget($userFollow));
                     }
                     break;
             }

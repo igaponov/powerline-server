@@ -108,6 +108,7 @@ class ActivityUpdate
         }
         $activity->setTitle($petition->getTitle());
         $activity->setDescription($petition->getBody());
+        $activity->setDescriptionHtml($petition->getHtmlBody());
         $activity->setIsOutsiders($petition->isOutsidersSign());
         $activity->setQuorum($petition->getQuorumCount());
 
@@ -136,6 +137,7 @@ class ActivityUpdate
         }
         $activity->setTitle('');
         $activity->setDescription($post->getBody());
+        $activity->setDescriptionHtml($post->getHtmlBody());
         $activity->setQuorum($post->getQuorumCount());
         $activity->setExpireAt($post->getExpiredAt());
 
@@ -249,7 +251,8 @@ class ActivityUpdate
 
     private function createActivityConditionsForQuestion(Activity $activity, Question $question): void
     {
-        if ($activity->getRepresentative() && $activity->getRepresentative()->getDistrict()) {
+        $representative = $activity->getRepresentative();
+        if ($representative && $representative->getDistrict()) {
             $this->createRepresentativeActivityConditions($activity);
         } elseif ($activity->getGroup()) {
             if (($question instanceof GroupSectionInterface) && $question->getGroupSections()->count() > 0) {
@@ -265,7 +268,8 @@ class ActivityUpdate
     private function createRepresentativeActivityConditions(Activity $activity): void
     {
         $condition = new ActivityCondition($activity);
-        $condition->setDistrict($activity->getRepresentative()->getDistrict());
+        $representative = $activity->getRepresentative();
+        $condition->setDistrict($representative->getDistrict());
         $this->entityManager->persist($condition);
         $this->entityManager->flush($condition);
     }

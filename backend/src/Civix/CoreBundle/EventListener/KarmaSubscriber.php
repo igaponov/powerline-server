@@ -21,7 +21,7 @@ class KarmaSubscriber implements EventSubscriberInterface
      */
     private $repository;
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             Event\UserEvents::VIEW_REPRESENTATIVES => 'representativeScreen',
@@ -159,7 +159,7 @@ class KarmaSubscriber implements EventSubscriberInterface
             'rate_id' => $rate->getId(),
         ];
         $type = Karma::TYPE_RECEIVE_UPVOTE_ON_COMMENT;
-        if ($rate->getRateValue() == BaseCommentRate::RATE_UP) {
+        if ($rate->getRateValue() === BaseCommentRate::RATE_UP) {
             $karma = new Karma($user, $type, 2, $metadata);
             $this->em->persist($karma);
             $this->em->flush();

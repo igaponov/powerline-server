@@ -154,7 +154,7 @@ class PostController extends FOSRestController
      */
     public function putAction(Request $request, Post $post)
     {
-        $form = $this->createForm(PostType::class, $post, ['validation_groups' => 'create']);
+        $form = $this->createForm(PostType::class, $post);
         $form->submit($request->request->all(), false);
 
         if ($form->isValid()) {

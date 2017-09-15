@@ -149,11 +149,13 @@ class PushSenderTest extends WebTestCase
         ])->getReferenceRepository();
         /** @var SocialActivityManager $manager */
         $manager = $this->getContainer()->get('civix_core.social_activity_manager');
+        $em = $this->getContainer()->get('doctrine.orm.entity_manager');
         /** @var Connection $conn */
         $conn = $this->getContainer()->get('doctrine')->getConnection();
         /** @var \Civix\CoreBundle\Entity\UserPetition\Comment $comment */
         $comment = $repository->getReference('petition_comment_3');
         $manager->noticeUserPetitionCommented($comment);
+        $em->flush();
         $id = $conn->fetchColumn('SELECT id FROM social_activities');
         $sender = $this->getPushSenderMock();
         $sender->expects($this->once())->method('send');
@@ -168,11 +170,13 @@ class PushSenderTest extends WebTestCase
         ])->getReferenceRepository();
         /** @var SocialActivityManager $manager */
         $manager = $this->getContainer()->get('civix_core.social_activity_manager');
+        $em = $this->getContainer()->get('doctrine.orm.entity_manager');
         /** @var Connection $conn */
         $conn = $this->getContainer()->get('doctrine')->getConnection();
         /** @var \Civix\CoreBundle\Entity\Post\Comment $comment */
         $comment = $repository->getReference('post_comment_3');
         $manager->noticePostCommented($comment);
+        $em->flush();
         $id = $conn->fetchColumn('SELECT id FROM social_activities');
         $sender = $this->getPushSenderMock();
         $sender->expects($this->once())->method('send');
@@ -187,11 +191,13 @@ class PushSenderTest extends WebTestCase
         ])->getReferenceRepository();
         /** @var SocialActivityManager $manager */
         $manager = $this->getContainer()->get('civix_core.social_activity_manager');
+        $em = $this->getContainer()->get('doctrine.orm.entity_manager');
         /** @var Connection $conn */
         $conn = $this->getContainer()->get('doctrine')->getConnection();
         /** @var Comment $comment */
         $comment = $repository->getReference('question_comment_4');
         $manager->noticePollCommented($comment);
+        $em->flush();
         $id = $conn->fetchColumn('SELECT id FROM social_activities');
         $sender = $this->getPushSenderMock();
         $sender->expects($this->exactly(2))->method('send');

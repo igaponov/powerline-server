@@ -31,7 +31,9 @@ services:
 
     civix_core.event_listener.async_event_listener:
         class: Civix\CoreBundle\EventListener\AsyncEventListener
-        arguments: ['@old_sound_rabbit_mq.async_event_producer']
+        arguments:
+            - '@old_sound_rabbit_mq.async_event_producer'
+            - '@doctrine.orm.entity_manager'
         tags:
             - { name: kernel.event_listener, event: async_event.dispatch }
 
@@ -74,5 +76,21 @@ services:
             - '@doctrine.orm.entity_manager'
             - '@imgix.url_builder'
             - '%hostname%'
+        tags:
+            - { name: kernel.event_subscriber }
+
+    civix_core.event_listener.mention_subscriber:
+        class: Civix\CoreBundle\EventListener\MentionSubscriber
+        arguments:
+            - '@civix_core.repository.user_repository'
+            - '@civix_core.social_activity_manager'
+        tags:
+            - { name: kernel.event_subscriber }
+
+    civix_core.event_listener.social_activity_subscriber:
+        class: Civix\CoreBundle\EventListener\SocialActivitySubscriber
+        arguments:
+            - '@civix_core.social_activity_manager'
+            - '@doctrine.orm.entity_manager'
         tags:
             - { name: kernel.event_subscriber }

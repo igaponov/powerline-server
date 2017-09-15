@@ -32,7 +32,6 @@ abstract class CommentRepository extends EntityRepository
 
         foreach ($commentsObjects as $comment) {
             /** @var BaseComment[] $comment */
-            $comment[0]->setRateStatus($comment['rateValue']);
             $comment[0]->setIsOwner($comment[0]->getUser() === $user);
             $comments->add($comment[0]);
         }

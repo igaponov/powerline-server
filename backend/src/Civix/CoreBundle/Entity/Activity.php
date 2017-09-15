@@ -73,7 +73,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @var string
      */
-    protected $title;
+    protected $title = '';
 
     /**
      * @ORM\Column(name="description", type="text")
@@ -82,7 +82,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @var string
      */
-    protected $description;
+    protected $description = '';
 
     /**
      * @ORM\Column(name="description_html", type="text")
@@ -91,7 +91,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @var string
      */
-    protected $descriptionHtml;
+    protected $descriptionHtml = '';
 
     /**
      * @ORM\Column(name="sent_at", type="datetime", nullable=true)
@@ -983,9 +983,11 @@ abstract class Activity implements HtmlBodyInterface
         return $this->getDescription();
     }
 
-    public function setHtmlBody($html)
+    public function setHtmlBody(string $html): Activity
     {
         $this->setDescriptionHtml($html);
+
+        return $this;
     }
 
     /**

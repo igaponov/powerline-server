@@ -1,0 +1,5 @@
+services:
+    civix_core.event_listener.doctrine_subscriber:
+        class: Civix\CoreBundle\EventListener\DoctrineSubscriber
+        tags:
+            - { name: doctrine.event_subscriber }

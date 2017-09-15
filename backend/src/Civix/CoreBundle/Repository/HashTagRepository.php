@@ -20,7 +20,9 @@ class HashTagRepository extends EntityRepository
 {
     /**
      * @param HashTaggableInterface $entity
-     * @param bool     $saveTagsInEntity
+     * @param bool $saveTagsInEntity
+     * @throws \Doctrine\ORM\ORMInvalidArgumentException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function addForTaggableEntity(HashTaggableInterface $entity, $saveTagsInEntity = true)
     {
@@ -35,12 +37,14 @@ class HashTagRepository extends EntityRepository
         }
         $em = $this->getEntityManager();
         $tags = HashTagParser::parseHashTags($content);
+        /** @var array $parsed */
+        $parsed = $tags['parsed'];
         foreach ($entity->getHashTags() as $tag) {
-            if (!in_array($tag->getName(), $tags['parsed'])) {
+            if (!in_array($tag->getName(), $parsed, true)) {
                 $entity->getHashTags()->removeElement($tag);
             }
         }
-        foreach ($tags['parsed'] as $name) {
+        foreach ($parsed as $name) {
             /** @var HashTag $tag */
             $tag = $this->findOneBy(['name' => $name]);
             if (!$tag) {
@@ -53,7 +57,7 @@ class HashTagRepository extends EntityRepository
         }
 
         if ($saveTagsInEntity) {
-            $entity->setCachedHashTags($tags['original']);
+            $entity->setCachedHashTags($parsed);
         }
 
         $em->persist($entity);
