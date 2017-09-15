@@ -89,7 +89,7 @@ class UserGroupControllerTest extends WebTestCase
         $this->assertSame('manager', $payload[2]['user_role']);
         $this->assertEquals($group4->getOfficialName(), $payload[3]['official_name']);
         $this->assertSame('member', $payload[3]['user_role']);
-        $this->assertSame(7, $payload[1]['priority_item_count']);
+        $this->assertSame(6, $payload[1]['priority_item_count']);
         foreach ($payload as $item) {
             $this->assertNotEmpty($item['conversation_view_limit']);
         }
