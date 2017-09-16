@@ -242,7 +242,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return CiceroRepresentative
      */
-    public function setId($id)
+    public function setId($id): CiceroRepresentative
     {
         $this->id = $id;
 
@@ -254,15 +254,15 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return int
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getAddress()
+    public function getAddress(): string
     {
         $address = '';
-        $address .= $this->addressLine1 ? $this->addressLine1 : '';
+        $address .= $this->addressLine1 ? : '';
         $address .= $this->addressLine2 ? ' '.$this->addressLine2 : '';
         $address .= $this->addressLine3 ? ' '.$this->addressLine3 : '';
 
@@ -276,7 +276,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return CiceroRepresentative
      */
-    public function setFirstName($firstName)
+    public function setFirstName(string $firstName): CiceroRepresentative
     {
         $this->firstName = $firstName;
 
@@ -288,7 +288,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return string
      */
-    public function getFirstName()
+    public function getFirstName(): ?string
     {
         return $this->firstName;
     }
@@ -300,7 +300,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return CiceroRepresentative
      */
-    public function setLastName($lastName)
+    public function setLastName(string $lastName): CiceroRepresentative
     {
         $this->lastName = $lastName;
 
@@ -312,7 +312,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return string
      */
-    public function getLastName()
+    public function getLastName(): ?string
     {
         return $this->lastName;
     }
@@ -322,7 +322,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return string
      */
-    public function getFullName()
+    public function getFullName(): string
     {
         return $this->getFirstName() . ' ' . $this->getLastName();
     }
@@ -334,7 +334,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return CiceroRepresentative
      */
-    public function setOfficialTitle($officialTitle)
+    public function setOfficialTitle($officialTitle): CiceroRepresentative
     {
         $this->officialTitle = $officialTitle;
 
@@ -346,7 +346,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return string
      */
-    public function getOfficialTitle()
+    public function getOfficialTitle(): ?string
     {
         return $this->officialTitle;
     }
@@ -356,7 +356,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return string
      */
-    public function getPhone()
+    public function getPhone(): ?string
     {
         return $this->phone;
     }
@@ -368,7 +368,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return \Civix\CoreBundle\Entity\CiceroRepresentative
      */
-    public function setPhone($phone)
+    public function setPhone(string $phone): CiceroRepresentative
     {
         $this->phone = $phone;
 
@@ -380,7 +380,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return string
      */
-    public function getFax()
+    public function getFax(): ?string
     {
         return $this->fax;
     }
@@ -392,7 +392,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return \Civix\CoreBundle\Entity\CiceroRepresentative
      */
-    public function setFax($fax)
+    public function setFax(string $fax): CiceroRepresentative
     {
         $this->fax = $fax;
 
@@ -404,7 +404,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return string
      */
-    public function getEmail()
+    public function getEmail(): ?string
     {
         return $this->email;
     }
@@ -416,7 +416,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return \Civix\CoreBundle\Entity\CiceroRepresentative
      */
-    public function setEmail($email)
+    public function setEmail(string $email): CiceroRepresentative
     {
         $this->email = $email;
 
@@ -428,7 +428,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return string
      */
-    public function getWebsite()
+    public function getWebsite(): ?string
     {
         return $this->website;
     }
@@ -440,7 +440,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return \Civix\CoreBundle\Entity\CiceroRepresentative
      */
-    public function setWebsite($url)
+    public function setWebsite(string $url): CiceroRepresentative
     {
         $this->website = $url;
 
@@ -452,7 +452,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return string
      */
-    public function getCountry()
+    public function getCountry(): ?string
     {
         return $this->country;
     }
@@ -464,7 +464,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return \Civix\CoreBundle\Entity\CiceroRepresentative
      */
-    public function setCountry($country)
+    public function setCountry(string $country): CiceroRepresentative
     {
         $this->country = $country;
 
@@ -476,7 +476,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return string
      */
-    public function getState()
+    public function getState(): ?string
     {
         return $this->state;
     }
@@ -486,7 +486,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return string
      */
-    public function getCity()
+    public function getCity(): ?string
     {
         return $this->city;
     }
@@ -498,7 +498,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return CiceroRepresentative
      */
-    public function setState(State $state = null)
+    public function setState(State $state = null): CiceroRepresentative
     {
         $this->state = $state;
 
@@ -512,7 +512,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return \Civix\CoreBundle\Entity\CiceroRepresentative
      */
-    public function setCity($city)
+    public function setCity(string $city): CiceroRepresentative
     {
         $this->city = $city;
 
@@ -524,7 +524,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return string
      */
-    public function getAddressLine1()
+    public function getAddressLine1(): ?string
     {
         return $this->addressLine1;
     }
@@ -536,7 +536,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return \Civix\CoreBundle\Entity\CiceroRepresentative
      */
-    public function setAddressLine1($address1)
+    public function setAddressLine1(string $address1): CiceroRepresentative
     {
         $this->addressLine1 = $address1;
 
@@ -548,7 +548,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return string
      */
-    public function getAddressLine2()
+    public function getAddressLine2(): ?string
     {
         return $this->addressLine2;
     }
@@ -560,7 +560,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return \Civix\CoreBundle\Entity\CiceroRepresentative
      */
-    public function setAddressLine2($address2)
+    public function setAddressLine2(string $address2): CiceroRepresentative
     {
         $this->addressLine2 = $address2;
 
@@ -572,7 +572,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return string
      */
-    public function getAddressLine3()
+    public function getAddressLine3(): ?string
     {
         return $this->addressLine3;
     }
@@ -584,7 +584,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return \Civix\CoreBundle\Entity\CiceroRepresentative
      */
-    public function setAddressLine3($address3)
+    public function setAddressLine3(string $address3): CiceroRepresentative
     {
         $this->addressLine3 = $address3;
 
@@ -596,9 +596,11 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return int
      */
-    public function getDistrictId()
+    public function getDistrictId(): ?int
     {
-        return $this->getDistrict()->getId();
+        $district = $this->getDistrict();
+
+        return $district ? $district->getId() : null;
     }
 
     /**
@@ -606,9 +608,11 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return string
      */
-    public function getDistrictTypeName()
+    public function getDistrictTypeName(): ?string
     {
-        return $this->getDistrict()->getDistrictTypeName();
+        $district = $this->getDistrict();
+
+        return $district ? $district->getDistrictTypeName() : '';
     }
 
     /**
@@ -630,14 +634,16 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      * @Serializer\SerializedName("avatar_file_path")
      * @return Avatar
      */
-    public function getAvatarFilePath()
+    public function getAvatarFilePath(): Avatar
     {
         return new Avatar($this);
     }
 
-    public function isLocalLeader()
+    public function isLocalLeader(): bool
     {
-        return in_array($this->getDistrict()->getDistrictType(), array(District::LOCAL, District::LOCAL_EXEC));
+        $district = $this->getDistrict();
+
+        return in_array($district ? $district->getDistrictType() : -1, array(District::LOCAL, District::LOCAL_EXEC), true);
     }
 
     /**
@@ -647,7 +653,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return CiceroRepresentative
      */
-    public function setDistrict(District $district = null)
+    public function setDistrict(District $district = null): CiceroRepresentative
     {
         $this->district = $district;
 
@@ -659,7 +665,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return District
      */
-    public function getDistrict()
+    public function getDistrict(): ?District
     {
         return $this->district;
     }
@@ -669,10 +675,11 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      * @Serializer\SerializedName("type")
      * @Serializer\Groups({"api-search"})
      */
-    public function getType()
+    public function getType(): string
     {
         return 'representative';
     }
+
     /**
      * Set party.
      *
@@ -680,7 +687,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return CiceroRepresentative
      */
-    public function setParty($party)
+    public function setParty(string $party): CiceroRepresentative
     {
         $this->party = $party;
 
@@ -692,7 +699,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return string
      */
-    public function getParty()
+    public function getParty(): ?string
     {
         return $this->party;
     }
@@ -704,7 +711,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return CiceroRepresentative
      */
-    public function setBirthday($birthday)
+    public function setBirthday(\DateTime $birthday): CiceroRepresentative
     {
         $this->birthday = $birthday;
 
@@ -716,7 +723,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return \DateTime
      */
-    public function getBirthday()
+    public function getBirthday(): ?\DateTime
     {
         return $this->birthday;
     }
@@ -728,7 +735,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return CiceroRepresentative
      */
-    public function setStartTerm($startTerm)
+    public function setStartTerm(\DateTime $startTerm): CiceroRepresentative
     {
         $this->startTerm = $startTerm;
 
@@ -740,7 +747,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return \DateTime
      */
-    public function getStartTerm()
+    public function getStartTerm(): ?\DateTime
     {
         return $this->startTerm;
     }
@@ -752,7 +759,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return CiceroRepresentative
      */
-    public function setEndTerm($endTerm)
+    public function setEndTerm(\DateTime $endTerm): CiceroRepresentative
     {
         $this->endTerm = $endTerm;
 
@@ -764,7 +771,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return \DateTime
      */
-    public function getEndTerm()
+    public function getEndTerm(): ?\DateTime
     {
         return $this->endTerm;
     }
@@ -776,7 +783,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return CiceroRepresentative
      */
-    public function setFacebook($facebook)
+    public function setFacebook(string $facebook): CiceroRepresentative
     {
         $this->facebook = $facebook;
 
@@ -788,7 +795,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return string
      */
-    public function getFacebook()
+    public function getFacebook(): ?string
     {
         return $this->facebook;
     }
@@ -800,7 +807,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return CiceroRepresentative
      */
-    public function setYoutube($youtube)
+    public function setYoutube(string $youtube): CiceroRepresentative
     {
         $this->youtube = $youtube;
 
@@ -812,7 +819,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return string
      */
-    public function getYoutube()
+    public function getYoutube(): ?string
     {
         return $this->youtube;
     }
@@ -824,7 +831,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return CiceroRepresentative
      */
-    public function setTwitter($twitter)
+    public function setTwitter(string $twitter): CiceroRepresentative
     {
         $this->twitter = $twitter;
 
@@ -836,7 +843,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return string
      */
-    public function getTwitter()
+    public function getTwitter(): ?string
     {
         return $this->twitter;
     }
@@ -848,7 +855,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return CiceroRepresentative
      */
-    public function setOpenstateId($openstateId)
+    public function setOpenstateId(string $openstateId): CiceroRepresentative
     {
         $this->openstateId = $openstateId;
 
@@ -860,7 +867,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return string
      */
-    public function getOpenstateId()
+    public function getOpenstateId(): ?string
     {
         return $this->openstateId;
     }
@@ -872,7 +879,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return CiceroRepresentative
      */
-    public function setUpdatedAt($updatedAt)
+    public function setUpdatedAt(\DateTime $updatedAt): CiceroRepresentative
     {
         $this->updatedAt = $updatedAt;
 
@@ -884,7 +891,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      *
      * @return \DateTime
      */
-    public function getUpdatedAt()
+    public function getUpdatedAt(): ?\DateTime
     {
         return $this->updatedAt;
     }
@@ -893,12 +900,12 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      * @ORM\PrePersist()
      * @ORM\PreUpdate()
      */
-    public function setCurrentTimeAsUpdatedAt()
+    public function setCurrentTimeAsUpdatedAt(): void
     {
         $this->setUpdatedAt(new \DateTime('now'));
     }
 
-    public function getStateCode()
+    public function getStateCode(): ?string
     {
         if ($this->state instanceof State) {
             return $this->state->getCode();
@@ -915,7 +922,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
      * @Serializer\Until("1")
      * @Serializer\SerializedName("storage_id")
      */
-    public function getStorageId()
+    public function getStorageId(): ?int
     {
         return $this->id;
     }
