@@ -229,6 +229,13 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
     private $openstateId;
 
     /**
+     * @var string
+     *
+     * @ORM\Column()
+     */
+    private $bioguide;
+
+    /**
      * @ORM\Column(name="updated_at", type="datetime")
      *
      * @var \DateTime
@@ -870,6 +877,25 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
     public function getOpenstateId(): ?string
     {
         return $this->openstateId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBioguide(): ?string
+    {
+        return $this->bioguide;
+    }
+
+    /**
+     * @param string $bioguide
+     * @return CiceroRepresentative
+     */
+    public function setBioguide(string $bioguide): CiceroRepresentative
+    {
+        $this->bioguide = $bioguide;
+
+        return $this;
     }
 
     /**
