@@ -223,17 +223,17 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
 
     /**
      * @var string
-     * 
-     * @ORM\Column(name="openstate_id", type="string", length=255, nullable=true)
-     */
-    private $openstateId;
-
-    /**
-     * @var string
      *
      * @ORM\Column()
      */
     private $bioguide;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="openstate_id", type="string", length=255, nullable=true)
+     */
+    private $openstateId;
 
     /**
      * @ORM\Column(name="updated_at", type="datetime")
@@ -481,9 +481,9 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
     /**
      * Get state.
      *
-     * @return string
+     * @return State|null
      */
-    public function getState(): ?string
+    public function getState(): ?State
     {
         return $this->state;
     }
