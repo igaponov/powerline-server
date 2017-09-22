@@ -1,0 +1,48 @@
+{
+    "status":"OK",
+    "copyright":" Copyright (c) 2017 Pro Publica Inc. All Rights Reserved.",
+    "results":[
+        {
+            "num_results": "20",
+            "offset": "0",
+            "members": [
+                {
+                    "id": "G000585",
+                    "api_uri":"https://api.propublica.org/congress/v1/members/G000585.json",
+                    "first_name": "Jimmy",
+                    "middle_name": null,
+                    "last_name": "Gomez",
+                    "party": "D",
+                    "chamber": "House",
+                    "state": "CA",
+                    "district": "34",
+                    "start_date": "2017-07-11"
+                },
+                {
+                    "id": "N000190",
+                    "api_uri":"https://api.propublica.org/congress/v1/members/N000190.json",
+                    "first_name": "Ralph",
+                    "middle_name": null,
+                    "last_name": "Norman",
+                    "party": "R",
+                    "chamber": "House",
+                    "state": "SC",
+                    "district": "5",
+                    "start_date": "2017-06-26"
+                },
+                {
+                    "id": "H001078",
+                    "api_uri":"https://api.propublica.org/congress/v1/members/H001078.json",
+                    "first_name": "Karen",
+                    "middle_name": null,
+                    "last_name": "Handel",
+                    "party": "R",
+                    "chamber": "House",
+                    "state": "GA",
+                    "district": "6",
+                    "start_date": "2017-06-26"
+                }
+            ]
+        }
+    ]
+}

@@ -55,7 +55,8 @@
         "serendipity_hq/aws-ses-monitor-bundle": "~1.1",
         "aws/aws-sdk-php": "~3.27",
         "yohang88/letter-avatar": "~1.0",
-        "norkunas/onesignal-php-api": "1.0.0-rc2"
+        "norkunas/onesignal-php-api": "1.0.0-rc2",
+        "guzzlehttp/guzzle-services": "~1.1"
     },
     "require-dev": {
         "phing/phing": "~2.16",
