@@ -253,7 +253,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
     /**
      * @var string
      *
-     * @ORM\Column()
+     * @ORM\Column(name="bioguide", type="string", nullable=true)
      */
     private $bioguide;
 
