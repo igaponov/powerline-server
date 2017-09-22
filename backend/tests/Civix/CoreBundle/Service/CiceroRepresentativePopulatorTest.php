@@ -34,7 +34,7 @@ class CiceroRepresentativePopulatorTest extends TestCase
         $populator = new CiceroRepresentativePopulator($converter, $stateRepo, $districtRepo);
         $representative = new CiceroRepresentative();
         $json = json_decode(file_get_contents(__DIR__.'/../data/representative.json'));
-        $populator->fillRepresentativeByApiObj($representative, $json);
+        $populator->populate($representative, $json);
         $this->assertSame(33976, $representative->getId());
         $this->assertSame('Robert', $representative->getFirstName());
         $this->assertSame('Menendez', $representative->getLastName());

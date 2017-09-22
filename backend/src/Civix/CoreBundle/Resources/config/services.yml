@@ -26,8 +26,15 @@ services:
         arguments:
             - '@civix_core.cicero_calls'
             - '@doctrine.orm.entity_manager'
-            - '@civix_core.content_converter'
             - '@event_dispatcher'
+            - '@civix_core.cicero_representative_populator'
+
+    civix_core.cicero_representative_populator:
+        class: Civix\CoreBundle\Service\CiceroRepresentativePopulator
+        arguments:
+            - '@civix_core.content_converter'
+            - '@civix_core.state_repository'
+            - '@civix_core.district_repository'
 
     civix_core.converter_source.base64:
         class: Civix\Component\ContentConverter\Source\Base64

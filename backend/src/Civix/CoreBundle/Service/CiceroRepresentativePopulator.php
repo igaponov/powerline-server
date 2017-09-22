@@ -41,7 +41,7 @@ class CiceroRepresentativePopulator
      * @param CiceroRepresentative $representative
      * @param \stdClass $response Cicero Api object
      */
-    public function fillRepresentativeByApiObj(CiceroRepresentative $representative, $response): void
+    public function populate(CiceroRepresentative $representative, $response): void
     {
         $representative->setId($response->id);
         $representative->setFirstName(trim($response->first_name));
