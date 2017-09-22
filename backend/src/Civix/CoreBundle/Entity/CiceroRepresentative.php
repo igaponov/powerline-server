@@ -197,6 +197,35 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
     /**
      * @var string
      *
+     * @ORM\Column(name="contact_form", type="string", nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     */
+    private $contactForm;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="missed_votes", type="float")
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     * @Serializer\Type("float")
+     */
+    private $missedVotes = .0;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="missed_votes", type="float")
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     * @Serializer\Type("float")
+     */
+    private $votesWithParty = .0;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="facebook", type="string", length=255, nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-info"})
@@ -781,6 +810,63 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
     public function getEndTerm(): ?\DateTime
     {
         return $this->endTerm;
+    }
+
+    /**
+     * @return string
+     */
+    public function getContactForm(): ?string
+    {
+        return $this->contactForm;
+    }
+
+    /**
+     * @param string $contactForm
+     * @return CiceroRepresentative
+     */
+    public function setContactForm(?string $contactForm): CiceroRepresentative
+    {
+        $this->contactForm = $contactForm;
+
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getMissedVotes(): float
+    {
+        return $this->missedVotes;
+    }
+
+    /**
+     * @param float $missedVotes
+     * @return CiceroRepresentative
+     */
+    public function setMissedVotes(float $missedVotes): CiceroRepresentative
+    {
+        $this->missedVotes = $missedVotes;
+
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getVotesWithParty(): float
+    {
+        return $this->votesWithParty;
+    }
+
+    /**
+     * @param float $votesWithParty
+     * @return CiceroRepresentative
+     */
+    public function setVotesWithParty(float $votesWithParty): CiceroRepresentative
+    {
+        $this->votesWithParty = $votesWithParty;
+
+        return $this;
     }
 
     /**
