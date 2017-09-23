@@ -100,8 +100,8 @@ class CiceroApi extends ServiceApi
             $event = new CiceroRepresentativeEvent($representative);
             $this->dispatcher->dispatch(CiceroRepresentativeEvents::UPDATE, $event);
 
-            $this->entityManager->persist($response);
-            $representatives[] = $response;
+            $this->entityManager->persist($representative);
+            $representatives[] = $representative;
         }
         $this->entityManager->flush();
 

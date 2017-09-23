@@ -12,6 +12,7 @@ use Civix\CoreBundle\Event\CiceroRepresentativeEvent;
 use Civix\CoreBundle\Event\CiceroRepresentativeEvents;
 use Civix\CoreBundle\Service\CiceroApi;
 use Civix\CoreBundle\Service\CiceroCalls;
+use Civix\CoreBundle\Service\CiceroRepresentativePopulator;
 use Civix\CoreBundle\Tests\DataFixtures\ORM;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -74,17 +75,22 @@ class CiceroApiTest extends WebTestCase
         $dispatcher->expects($this->exactly(2))
             ->method('dispatch')
             ->withConsecutive(
-                [CiceroRepresentativeEvents::UPDATE, $this->isInstanceOf(CiceroRepresentativeEvent::class)],
-                [AvatarEvents::CHANGE, $this->isInstanceOf(AvatarEvent::class)]
+                [AvatarEvents::CHANGE, $this->isInstanceOf(AvatarEvent::class)],
+                [CiceroRepresentativeEvents::UPDATE, $this->isInstanceOf(CiceroRepresentativeEvent::class)]
             );
 
         $converter = $this->createMock(ConverterInterface::class);
+        $populator = new CiceroRepresentativePopulator(
+            $converter,
+            $this->getContainer()->get('civix_core.state_repository'),
+            $this->getContainer()->get('civix_core.district_repository')
+        );
 
         $ciceroApi = new CiceroApi(
             $ciceroCallsMock,
             $em,
-            $converter,
-            $dispatcher
+            $dispatcher,
+            $populator
         );
 
         $ciceroCallsMock->expects($this->any())
