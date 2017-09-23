@@ -8,3 +8,13 @@ services:
         class: Civix\CoreBundle\Repository\KarmaRepository
         factory: ["@doctrine", "getRepository"]
         arguments: [Civix\CoreBundle\Entity\Karma]
+
+    civix_core.state_repository:
+        class: Civix\CoreBundle\Repository\StateRepository
+        factory: ["@doctrine", "getRepository"]
+        arguments: [Civix\CoreBundle\Entity\State]
+
+    civix_core.district_repository:
+        class: Civix\CoreBundle\Repository\DistrictRepository
+        factory: ["@doctrine", "getRepository"]
+        arguments: [Civix\CoreBundle\Entity\District]

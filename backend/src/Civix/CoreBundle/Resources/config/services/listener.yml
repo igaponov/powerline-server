@@ -79,6 +79,14 @@ services:
         tags:
             - { name: kernel.event_subscriber }
 
+    civix_core.event_listener.pro_publica_subscriber:
+        class: Civix\CoreBundle\EventListener\ProPublicaSubscriber
+        arguments:
+            - '@civix_core.propublica'
+            - '@civix_core.pro_publica_representative_populator'
+            - '@logger'
+        tags:
+            - { name: kernel.event_subscriber }
     civix_core.event_listener.mention_subscriber:
         class: Civix\CoreBundle\EventListener\MentionSubscriber
         arguments:

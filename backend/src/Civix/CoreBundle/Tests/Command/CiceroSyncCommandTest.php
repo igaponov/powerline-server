@@ -6,6 +6,7 @@ use Civix\Component\ContentConverter\ConverterInterface;
 use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Service\CiceroApi;
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Service\CiceroRepresentativePopulator;
 use Civix\CoreBundle\Service\CongressApi;
 use Civix\CoreBundle\Service\OpenstatesApi;
 use Civix\CoreBundle\Tests\Mock\Service\CiceroCalls;
@@ -13,7 +14,7 @@ use Doctrine\ORM\EntityManager;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Civix\CoreBundle\Command\CiceroSyncCommand;
-use Civix\CoreBundle\Tests\DataFixtures\ORM as ORM;
+use Civix\CoreBundle\Tests\DataFixtures\ORM;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CiceroSyncCommandTest extends WebTestCase
@@ -302,6 +303,11 @@ class CiceroSyncCommandTest extends WebTestCase
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $converter = $this->createMock(ConverterInterface::class);
+        $populator = new CiceroRepresentativePopulator(
+            $converter,
+            $container->get('civix_core.state_repository'),
+            $container->get('civix_core.district_repository')
+        );
         /** @var EntityManager $entityManager */
         $entityManager = $container->get('doctrine')->getManager();
 
@@ -309,8 +315,8 @@ class CiceroSyncCommandTest extends WebTestCase
         $mock = new CiceroApi(
             $ciceroMock,
             $entityManager,
-            $converter,
-            $dispatcher
+            $dispatcher,
+            $populator
         );
 
         $fileSystem = $this->getMockBuilder('Knp\Bundle\GaufretteBundle\FilesystemMap')

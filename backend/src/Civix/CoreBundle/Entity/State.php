@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\StatesRepository")
+ * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\StateRepository")
  * @ORM\Table(name="states")
  */
 class State

@@ -76,3 +76,5 @@ parameters:
     one_signal.app_id: xxx
     one_signal.app_auth_key: xxx
     one_signal.user_auth_key: xxx
+
+    propublica_api_key: xxx

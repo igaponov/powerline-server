@@ -2,15 +2,12 @@
 
 namespace Civix\CoreBundle\Service;
 
-use Civix\Component\ContentConverter\ConverterInterface;
 use Civix\CoreBundle\Entity\CiceroRepresentative;
 use Civix\CoreBundle\Entity\Representative;
-use Civix\CoreBundle\Entity\District;
 use Civix\CoreBundle\Event\AvatarEvent;
 use Civix\CoreBundle\Event\AvatarEvents;
 use Civix\CoreBundle\Event\CiceroRepresentativeEvent;
 use Civix\CoreBundle\Event\CiceroRepresentativeEvents;
-use Civix\CoreBundle\Model\TempFile;
 use Civix\CoreBundle\Service\API\ServiceApi;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -26,24 +23,24 @@ class CiceroApi extends ServiceApi
      */
     private $entityManager;
     /**
-     * @var ConverterInterface
-     */
-    private $converter;
-    /**
      * @var EventDispatcherInterface
      */
     private $dispatcher;
+    /**
+     * @var CiceroRepresentativePopulator
+     */
+    private $populator;
 
     public function __construct(
         CiceroCalls $ciceroService,
         EntityManager $entityManager,
-        ConverterInterface $converter,
-        EventDispatcherInterface $dispatcher
+        EventDispatcherInterface $dispatcher,
+        CiceroRepresentativePopulator $populator
     ) {
         $this->ciceroService = $ciceroService;
         $this->entityManager = $entityManager;
-        $this->converter = $converter;
         $this->dispatcher = $dispatcher;
+        $this->populator = $populator;
     }
 
     /**
@@ -82,23 +79,26 @@ class CiceroApi extends ServiceApi
     protected function handleOfficialResponse(array $officials): array
     {
         $representatives = [];
-        foreach ($officials as $representative) {
+        foreach ($officials as $response) {
             $repository = $this->entityManager->getRepository(CiceroRepresentative::class);
-            $object = $repository->find($representative->id);
-            if (!$object) {
-                $object = $repository->findOneBy([
-                    'district' => $representative->office->district->id,
-                    'firstName' => $representative->first_name,
-                    'lastName' => $representative->last_name,
+            $representative = $repository->find($response->id);
+            if (!$representative) {
+                $representative = $repository->findOneBy([
+                    'district' => $response->office->district->id,
+                    'firstName' => $response->first_name,
+                    'lastName' => $response->last_name,
                 ]);
             }
-            if ($object) {
-                $representative = $this->fillRepresentativeByApiObj($object, $representative);
+            if ($representative) {
+                $this->populator->populate($representative, $response);
             } else {
-                $representative = $this->createCiceroRepresentative($representative);
+                $representative = $this->createCiceroRepresentative($response);
             }
             $event = new AvatarEvent($representative);
             $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
+
+            $event = new CiceroRepresentativeEvent($representative);
+            $this->dispatcher->dispatch(CiceroRepresentativeEvents::UPDATE, $event);
 
             $this->entityManager->persist($representative);
             $representatives[] = $representative;
@@ -205,7 +205,13 @@ class CiceroApi extends ServiceApi
 
     protected function createCiceroRepresentative($response): CiceroRepresentative
     {
-        return $this->fillRepresentativeByApiObj(new CiceroRepresentative(), $response);
+        $representative = new CiceroRepresentative();
+        $this->populator->populate($representative, $response);
+
+        $event = new CiceroRepresentativeEvent($representative);
+        $this->dispatcher->dispatch(CiceroRepresentativeEvents::UPDATE, $event);
+
+        return $representative;
     }
 
     /**
@@ -227,16 +233,21 @@ class CiceroApi extends ServiceApi
         });
         if (!$collection) {
             $collection = array_filter($apiCollection, function ($repr) use ($representative) {
-                return $representative->getDistrict()->getId() === $repr->office->district->id
+                $district = $representative->getDistrict();
+
+                return $district && $district->getId() === $repr->office->district->id
                     && $representative->getFirstName() === $repr->first_name
                     && $representative->getLastName() === $repr->last_name;
             });
         }
         if ($collection) {
-            $representative = $this->fillRepresentativeByApiObj($representative, reset($collection));
+            $this->populator->populate($representative, reset($collection));
 
             $event = new AvatarEvent($representative);
             $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
+
+            $event = new CiceroRepresentativeEvent($representative);
+            $this->dispatcher->dispatch(CiceroRepresentativeEvents::UPDATE, $event);
 
             $this->entityManager->persist($representative);
             $this->entityManager->flush();
@@ -245,98 +256,5 @@ class CiceroApi extends ServiceApi
         }
 
         return false;
-    }
-
-    /**
-     * Change Representative Storage object according to object which was getten from Cicero Api.
-     * 
-     * @param CiceroRepresentative $representative
-     * @param \stdClass $response Cicero Api object
-     * 
-     * @return CiceroRepresentative
-     */
-    private function fillRepresentativeByApiObj(CiceroRepresentative $representative, $response): CiceroRepresentative
-    {
-        $representative->setId($response->id);
-        $representative->setFirstName(trim($response->first_name));
-        $representative->setLastName(trim($response->last_name));
-        $representative->setOfficialTitle(trim($response->office->title));
-        if ($response->photo_origin_url) {
-            $content = $this->converter->convert((string)$response->photo_origin_url);
-            $representative->setAvatar(new TempFile($content));
-        }
-
-        //create district
-        $representativeDistrict = $this->createDistrict($response->office->district);
-        $representative->setDistrict($representativeDistrict);
-
-        $representative->setEmail($response->office->chamber->contact_email);
-        $representative->setWebsite($response->office->chamber->url);
-        $representative->setCountry($response->office->district->country);
-        if (isset($response->addresses[0])) {
-            $representative->setPhone($response->addresses[0]->phone_1);
-            $representative->setFax($response->addresses[0]->fax_1);
-            $state = $this->entityManager->getRepository('CivixCoreBundle:State')
-                ->findOneBy(['code' => $response->addresses[0]->state]);
-            $representative->setState($state);
-            $representative->setCity($response->addresses[0]->city);
-            $representative->setAddressLine1($response->addresses[0]->address_1);
-            $representative->setAddressLine2($response->addresses[0]->address_2);
-            $representative->setAddressLine3($response->addresses[0]->address_3);
-        }
-
-        //extended profile
-        $representative->setParty($response->party);
-        if (isset($response->notes[1]) && \DateTime::createFromFormat('Y-m-d', $response->notes[1]) !== false) {
-            $representative->setBirthday(new \DateTime($response->notes[1]));
-        }
-        if (isset($response->current_term_start_date)) {
-            $representative->setStartTerm(new \DateTime($response->current_term_start_date));
-        }
-        if (isset($response->term_end_date)) {
-            $representative->setEndTerm(new \DateTime($response->term_end_date));
-        }
-
-        //social networks
-        /** @var array $identifiers */
-        $identifiers = $response->identifiers;
-        foreach ($identifiers as $identificator) {
-            $socialType = strtolower($identificator->identifier_type ?? '');
-            $socialMethod = 'set'.ucfirst($socialType);
-            if (method_exists($representative, $socialMethod)) {
-                $representative->$socialMethod($identificator->identifier_value);
-            }
-        }
-
-        $event = new CiceroRepresentativeEvent($representative);
-        $this->dispatcher->dispatch(CiceroRepresentativeEvents::UPDATE, $event);
-
-        return $representative;
-    }
-
-    protected function createDistrict($district)
-    {
-        $currentDistrict = $this->entityManager->getRepository('CivixCoreBundle:District')
-            ->find($district->id);
-        if (!$currentDistrict) {
-            $currentDistrict = new District();
-            $currentDistrict->setId($district->id);
-            $currentDistrict->setLabel($district->label);
-
-            //set district type (for Nonlegislative district type = LOCAL)
-            if ($district->district_type !== 'CENSUS') {
-                $currentDistrict->setDistrictType(
-                    constant('Civix\CoreBundle\Entity\District::'.
-                        $district->district_type)
-                );
-            } else {
-                $currentDistrict->setDistrictType(District::LOCAL);
-            }
-
-            $this->entityManager->persist($currentDistrict);
-            $this->entityManager->flush($currentDistrict);
-        }
-
-        return $currentDistrict;
     }
 }

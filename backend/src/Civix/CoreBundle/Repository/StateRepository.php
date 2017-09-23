@@ -4,7 +4,7 @@ namespace Civix\CoreBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 
-class StatesRepository extends EntityRepository
+class StateRepository extends EntityRepository
 {
     public function getStatesWithRepresentative()
     {
