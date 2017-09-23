@@ -18,7 +18,7 @@ class Version20170517050602 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER IGNORE TABLE notification_endpoints ADD UNIQUE INDEX UNIQ_7AF462EF5F37A13B (token)');
+        $this->addSql('ALTER TABLE notification_endpoints ADD UNIQUE INDEX UNIQ_7AF462EF5F37A13B (token)');
     }
 
     /**
