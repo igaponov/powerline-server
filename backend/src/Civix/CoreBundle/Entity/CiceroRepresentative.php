@@ -206,7 +206,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
     /**
      * @var int
      *
-     * @ORM\Column(name="missed_votes", type="float")
+     * @ORM\Column(name="missed_votes", type="float", options={"default" = 0})
      * @Serializer\Expose()
      * @Serializer\Groups({"api-info"})
      * @Serializer\Type("float")
@@ -216,7 +216,7 @@ class CiceroRepresentative implements HasAvatarInterface, ChangeableAvatarInterf
     /**
      * @var float
      *
-     * @ORM\Column(name="votes_with_party", type="float")
+     * @ORM\Column(name="votes_with_party", type="float", options={"default" = 0})
      * @Serializer\Expose()
      * @Serializer\Groups({"api-info"})
      * @Serializer\Type("float")
