@@ -15,6 +15,7 @@ class PostVoter implements VoterInterface
     const EDIT = 'edit';
     const DELETE = 'delete';
     const SUBSCRIBE = 'subscribe';
+
     /**
      * @var GroupVoter
      */
@@ -32,14 +33,14 @@ class PostVoter implements VoterInterface
      *
      * @return bool    true if this Voter supports the attribute, false otherwise
      */
-    public function supportsAttribute($attribute)
+    public function supportsAttribute($attribute): bool
     {
         return in_array($attribute, array(
             self::VIEW,
             self::EDIT,
             self::DELETE,
             self::SUBSCRIBE,
-        ));
+        ), true);
     }
 
     /**
@@ -49,7 +50,7 @@ class PostVoter implements VoterInterface
      *
      * @return bool    true if this Voter can process the class
      */
-    public function supportsClass($class)
+    public function supportsClass($class): bool
     {
         $supportedClass = Post::class;
         return $supportedClass === $class || is_subclass_of($class, $supportedClass);
@@ -66,8 +67,9 @@ class PostVoter implements VoterInterface
      * @param array $attributes An array of attributes associated with the method being invoked
      *
      * @return int Either ACCESS_GRANTED, ACCESS_ABSTAIN, or ACCESS_DENIED
+     * @throws \InvalidArgumentException
      */
-    public function vote(TokenInterface $token, $object, array $attributes)
+    public function vote(TokenInterface $token, $object, array $attributes): int
     {
         // check if class of this object is supported by this voter
         if (!$this->supportsClass(get_class($object))) {
@@ -100,16 +102,16 @@ class PostVoter implements VoterInterface
         }
 
         // make sure entity has owner attached to it
-        if (!$object->getUser() instanceof UserInterface) {
+        $owner = $object->getUser();
+        if (!$owner instanceof UserInterface) {
             return VoterInterface::ACCESS_DENIED;
         }
 
         // unsubscribed users from the group can subscribe
         if ($attribute === self::SUBSCRIBE) {
             $group = $object->getGroup();
-            $func = function($i, UserGroup $userGroup) use($group) {
-                return $userGroup->getStatus() == UserGroup::STATUS_ACTIVE
-                    && $group->getId() == $userGroup->getGroup()->getId();
+            $func = function(/** @noinspection PhpUnusedParameterInspection */$i, UserGroup $userGroup) use($group) {
+                return $userGroup->isActive() && $group->isEqualTo($userGroup->getGroup());
             };
             if ($user->getUserGroups()->exists($func)) {
                 return VoterInterface::ACCESS_GRANTED;
@@ -126,7 +128,7 @@ class PostVoter implements VoterInterface
 
         // post creator can do anything except subscribing
         if ($attribute !== self::SUBSCRIBE) {
-            if ($object->getUser()->isEqualTo($user)) {
+            if ($owner->isEqualTo($user)) {
                 return VoterInterface::ACCESS_GRANTED;
             }
             // group's managers can delete the post
