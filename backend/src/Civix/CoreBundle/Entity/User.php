@@ -633,6 +633,13 @@ class User implements
      */
     private $longitude;
 
+    /**
+     * @var DateTime
+     *
+     * @ORM\Column(type="datetime", name="last_post_shared_at", nullable=true)
+     */
+    private $lastPostSharedAt;
+
     public function __construct()
     {
         $this->salt = base_convert(sha1(uniqid(mt_rand(), true)), 16, 36);
@@ -2532,6 +2539,24 @@ class User implements
     public function setFollowedDoNotDisturbTill(DateTime $followedDoNotDisturbTill): User
     {
         $this->followedDoNotDisturbTill = $followedDoNotDisturbTill;
+
+        return $this;
+    }
+
+    /**
+     * @return DateTime
+     */
+    public function getLastPostSharedAt(): ?DateTime
+    {
+        return $this->lastPostSharedAt;
+    }
+
+    /**
+     * @return User
+     */
+    public function sharePost(): User
+    {
+        $this->lastPostSharedAt = new DateTime();
 
         return $this;
     }
