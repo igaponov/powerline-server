@@ -6,6 +6,7 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
 use Tests\Civix\CoreBundle\DataFixtures\ORM\Issue\PM590;
@@ -75,5 +76,28 @@ class UserRepositoryTest extends WebTestCase
         $this->assertCount(2, $users);
         $this->assertSame($user1, $users[0]);
         $this->assertSame($user2, $users[1]);
+    }
+
+    public function testGetUsersByGroupAndFollowingForPush()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserGroupOwnerData::class,
+            LoadGroupManagerData::class,
+            LoadUserFollowerData::class
+        ])->getReferenceRepository();
+        $user1 = $repository->getReference('user_1');
+        /** @var User $user2 */
+        $user2 = $repository->getReference('user_2');
+        /** @var Group $group */
+        $group = $repository->getReference('group_1');
+        $service = $this->getContainer()->get('civix_core.repository.user_repository');
+        $users = $service->getUsersByGroupAndFollowingForPush($group, $user2);
+        foreach ($users as $k => $item) {
+            $this->assertSame(0, $k, 'Result should contain only one item');
+            /** @var User $user */
+            $user = $item[0];
+            $this->assertInstanceOf(User::class, $user);
+            $this->assertSame($user1->getId(), $user->getId());
+        }
     }
 }
