@@ -418,6 +418,17 @@ class PostController extends FOSRestController
      *                 author: false
      *             },
      *             //...
+     *         ],
+     *         most_popular: [
+     *             {
+     *                 id: 1,
+     *                 first_name: 'John',
+     *                 last_name: 'Dow',
+     *                 official_title: 'Vice President',
+     *                 upvotes: 10,
+     *                 downvotes: 7
+     *             },
+     *             //...
      *         ]
      *     }
      *
