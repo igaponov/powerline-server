@@ -725,6 +725,18 @@ class PostControllerTest extends WebTestCase
             $this->assertSame($results[$key]['user'], $item['user']);
             $this->assertSame($results[$key]['author'], $item['author']);
         }
+        $representatives = $data['most_popular'];
+        $this->assertCount(5, $representatives);
+        foreach ($representatives as $key => $item) {
+            /** @var CiceroRepresentative $representative */
+            $representative = $results[$key]['representative'];
+            $this->assertEquals($representative->getId(), $item['id']);
+            $this->assertSame($representative->getFirstName(), $item['first_name']);
+            $this->assertSame($representative->getLastName(), $item['last_name']);
+            $this->assertSame($representative->getOfficialTitle(), $item['official_title']);
+            $this->assertSame($results[$key]['upvotes'], $item['upvotes']);
+            $this->assertSame($results[$key]['downvotes'], $item['downvotes']);
+        }
     }
 
     public function getValidPostCredentialsForBoostRequest()
