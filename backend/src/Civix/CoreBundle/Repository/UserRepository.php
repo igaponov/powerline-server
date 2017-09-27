@@ -224,6 +224,35 @@ class UserRepository extends EntityRepository
         return $query->getQuery()->getResult();
     }
 
+    public function getUsersByGroupAndFollowingForPush(Group $group, User $user): IterableResult
+    {
+        /** @var $query \Doctrine\ORM\QueryBuilder */
+        $query = $this->createQueryBuilder('u');
+        $expr = $query->expr();
+
+        $query
+            ->distinct()
+            ->innerJoin('u.groups', 'gr')
+            ->leftJoin('u.following', 'f');
+        $this->setCommonFilterForPush($query, $expr);
+
+        $query
+            ->andWhere('gr.group = :group')
+            ->setParameter('group', $group)
+            ->andWhere('u.isNotifMicroFollowing = true')
+            ->andWhere('u.isNotifMicroGroup = true')
+            ->andWhere('u.followedDoNotDisturbTill < :date')
+            ->andWhere('f.user = :user')
+            ->andWhere('f.notifying = true')
+            ->andWhere('f.status = :status')
+            ->andWhere('f.doNotDisturbTill < :date')
+            ->setParameter(':user', $user)
+            ->setParameter(':status', UserFollow::STATUS_ACTIVE)
+            ->setParameter(':date', new \DateTime());
+
+        return $query->getQuery()->iterate();
+    }
+
     public function getUsersBySectionsForPush($sectionsIds, $type, $startId = 0, $limit = null): array
     {
         /** @var $query \Doctrine\ORM\QueryBuilder */

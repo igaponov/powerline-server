@@ -66,3 +66,10 @@ services:
             - '@civix_core.user_petition_manager'
             - '@form.factory'
             - '@security.token_storage'
+
+    Civix\ApiBundle\Controller\V2\UserSharedPostController:
+        class: Civix\ApiBundle\Controller\V2\UserSharedPostController
+        arguments:
+            - '@civix_core.post_manager'
+            - '@security.token_storage'
+            - '@doctrine.orm.entity_manager'

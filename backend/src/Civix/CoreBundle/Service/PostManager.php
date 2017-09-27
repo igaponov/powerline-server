@@ -9,13 +9,14 @@ use Civix\CoreBundle\Entity\Post\Vote;
 use Civix\CoreBundle\Event\PostEvent;
 use Civix\CoreBundle\Event\PostEvents;
 use Civix\CoreBundle\Event\Post\VoteEvent;
-use Doctrine\ORM\EntityManager;
+use Civix\CoreBundle\Event\PostShareEvent;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PostManager
 {
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
     protected $entityManager;
 
@@ -25,7 +26,7 @@ class PostManager
     private $dispatcher;
 
     public function __construct(
-        EntityManager $entityManager,
+        EntityManagerInterface $entityManager,
         EventDispatcherInterface $dispatcher
     )
     {
@@ -145,5 +146,23 @@ class PostManager
         $this->dispatcher->dispatch('async.'.$eventName, $event);
 
         return $post;
+    }
+
+    public function sharePost(Post $post, User $sharer): void
+    {
+        $filter = function (Post\Vote $vote) use ($sharer) {
+            return $vote->getUser()->isEqualTo($sharer) && $vote->isUpvote();
+        };
+        if ($post->getVotes()->filter($filter)->isEmpty()) {
+            throw new \DomainException('User can share only a post he has upvoted.');
+        }
+        if ($sharer->getLastPostSharedAt() > new \DateTime('-72 hours')) {
+            throw new \DomainException('User can share a post only once in 72 hours.');
+        }
+
+        $sharer->sharePost();
+
+        $event = new PostShareEvent($post, $sharer);
+        $this->dispatcher->dispatch(PostEvents::POST_SHARE, $event);
     }
 }

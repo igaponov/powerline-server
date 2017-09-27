@@ -13,7 +13,7 @@ use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Service\Poll\QuestionUserPush;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
 class PushSender
@@ -27,6 +27,7 @@ class PushSender
     const TYPE_PUSH_USER_PETITION_BOOSTED = 'user-petition-is-boosted';
     const TYPE_PUSH_OWN_POST_BOOSTED = 'own-post-is-boosted';
     const TYPE_PUSH_POST_BOOSTED = 'post-is-boosted';
+    const TYPE_PUSH_POST_SHARED = 'post-is-shared';
     /*Not used in push notification but reserved and use in settings*/
     const TYPE_PUSH_PETITION = 'petition';
     const TYPE_PUSH_NEWS = 'leader_news';
@@ -35,6 +36,9 @@ class PushSender
 
     const MAX_USERS_PER_QUERY = 5000;
 
+    /**
+     * @var EntityManagerInterface
+     */
     protected $entityManager;
     protected $questionUsersPush;
     /**
@@ -47,7 +51,7 @@ class PushSender
     protected $logger;
 
     public function __construct(
-        EntityManager $entityManager,
+        EntityManagerInterface $entityManager,
         QuestionUserPush $questionUsersPush,
         Sender $sender,
         LoggerInterface $logger
@@ -180,6 +184,46 @@ class PushSender
                     ],
                 ],
                 $post->getUser()->getAvatarFileName()
+            );
+        }
+    }
+
+    /**
+     * User post is manually boosted by group leader.
+     * User post is boosted automatically by system in a group.
+     *
+     * @param integer $userId
+     * @param integer $postId
+     */
+    public function sendSharedPostPush($userId, $postId): void
+    {
+        $sharer = $this->entityManager->find(User::class, $userId);
+        $post = $this->entityManager->find(Post::class, $postId);
+        if (!$post || !$sharer || !($author = $post->getUser())) {
+            return;
+        }
+        $iterator = $this->entityManager
+                ->getRepository(User::class)
+                ->getUsersByGroupAndFollowingForPush($post->getGroup(), $sharer);
+
+        foreach ($iterator as $item) {
+            $recipient = $item[0];
+            $this->send(
+                $recipient,
+                $sharer->getFullName(),
+                sprintf(
+                    "shared %s's post with you: %s",
+                    $author->getFirstName(),
+                    $this->preview($post->getBody())
+                ),
+                self::TYPE_PUSH_POST_SHARED,
+                [
+                    'target' => [
+                        'id' => $postId,
+                        'type' => 'post-shared',
+                    ],
+                ],
+                $sharer->getAvatarFileName()
             );
         }
     }

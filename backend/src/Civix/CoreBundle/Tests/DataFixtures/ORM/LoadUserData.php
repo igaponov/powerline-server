@@ -71,7 +71,8 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
             ['district_sd', 'district_us', 'district_nj']
         )
             ->setLatitude(40.781)
-            ->setLongitude(-73.982);
+            ->setLongitude(-73.982)
+            ->sharePost();
         $this->addReference('user_3', $user3);
 
         $this->addReference('user_4', $this->generateUser('user4'));

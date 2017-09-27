@@ -203,4 +203,9 @@ class Vote
             $context->addViolation('You could not answer to your post.');
         }
     }
+
+    public function isUpvote(): bool
+    {
+        return $this->option === self::OPTION_UPVOTE;
+    }
 }
