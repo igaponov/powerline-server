@@ -67,6 +67,29 @@ class PostVoteAnalyticsQuery
                     ':author' => $post->getUser()->getId(),
                 ]
             ),
+            'most_popular' => $this->conn->fetchAll('
+                SELECT
+                  r.id, 
+                  r.firstName first_name, 
+                  r.lastName last_name, 
+                  r.officialTitle official_title,
+                  sum(`option` = :upvote) upvotes,
+                  sum(`option` = :downvote) downvotes
+                FROM post_votes v
+                  INNER JOIN user u ON v.user_id = u.id
+                  INNER JOIN users_districts ud ON u.id = ud.user_id
+                  INNER JOIN cicero_representatives r ON r.district_id = ud.district_id
+                WHERE v.post_id = :post AND v.`option` != :ignore
+                GROUP BY r.id -- + temporary table :(
+                ORDER BY COUNT(v.id) DESC 
+                LIMIT 10',
+                [
+                    ':upvote' => Post\Vote::OPTION_UPVOTE,
+                    ':downvote' => Post\Vote::OPTION_DOWNVOTE,
+                    ':ignore' => Post\Vote::OPTION_IGNORE,
+                    ':post' => $post->getId(),
+                ]
+            )
         ];
     }
 }
