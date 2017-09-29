@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "670ad5f8c2d3be306b4ed09ba8203ee1",
+    "content-hash": "c50c3bce7ac75fb7e83595b83b472f15",
     "packages": [
         {
             "name": "aws/aws-php-sns-message-validator",
@@ -4201,30 +4201,35 @@
         },
         {
             "name": "norkunas/onesignal-php-api",
-            "version": "v1.0.0-rc2",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/norkunas/onesignal-php-api.git",
-                "reference": "18d2345b5a545797e7962c5155b9ce3f1258aa3e"
+                "reference": "f8626d32271606e7f0f051e2a52fc0ce02ce0f15"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/norkunas/onesignal-php-api/zipball/18d2345b5a545797e7962c5155b9ce3f1258aa3e",
-                "reference": "18d2345b5a545797e7962c5155b9ce3f1258aa3e",
+                "url": "https://api.github.com/repos/norkunas/onesignal-php-api/zipball/f8626d32271606e7f0f051e2a52fc0ce02ce0f15",
+                "reference": "f8626d32271606e7f0f051e2a52fc0ce02ce0f15",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.4.0|^7.0",
+                "php": "^5.6 || ^7.0",
                 "php-http/client-common": "^1",
                 "php-http/client-implementation": "^1.0",
                 "php-http/message": "^1.0",
                 "symfony/options-resolver": "~2.7|^3.0"
             },
             "require-dev": {
-                "php-http/guzzle6-adapter": "^1.0",
-                "phpunit/phpunit": "~4.6"
+                "php-http/guzzle6-adapter": "^1.1",
+                "phpunit/phpunit": "^4.0"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "OneSignal\\": "src/"
@@ -4243,9 +4248,10 @@
             "description": "OneSignal API for PHP",
             "keywords": [
                 "api",
+                "notifications",
                 "onesignal"
             ],
-            "time": "2016-03-10T09:21:53+00:00"
+            "time": "2017-09-28T07:53:58+00:00"
         },
         {
             "name": "ocramius/package-versions",
@@ -8984,8 +8990,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "excelwebzone/recaptcha-bundle": 20,
-        "vich/uploader-bundle": 20,
-        "norkunas/onesignal-php-api": 5
+        "vich/uploader-bundle": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
