@@ -38,7 +38,6 @@ class OneSignalDataFactoryTest extends TestCase
                 'isAndroid' => false,
                 'large_icon' => '',
                 'buttons' => [],
-                'ios_category' => 'test_type',
                 'ios_badgeCount' => 5,
                 'ios_badgeType' => 'SetTo',
                 'ios_sound' => 'default',
