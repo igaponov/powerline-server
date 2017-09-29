@@ -80,7 +80,7 @@ services:
         public: false
         arguments:
             - '@event_dispatcher'
-            - '@logger'
+            - '@monolog.logger.push'
 
     civix.notification.sender:
         class: Civix\Component\Notification\Sender
