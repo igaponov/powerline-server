@@ -3,6 +3,7 @@
 namespace Civix\Component\Notification\Model;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -11,6 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity()
  * @ORM\Table(name="notification_devices")
+ * @UniqueEntity(fields={"id"})
  */
 class Device implements ModelInterface
 {
@@ -23,6 +25,7 @@ class Device implements ModelInterface
      * @ORM\Id()
      * @ORM\Column(type="uuid")
      * @Assert\NotBlank()
+     * @Assert\Uuid()
      */
     private $id;
 
