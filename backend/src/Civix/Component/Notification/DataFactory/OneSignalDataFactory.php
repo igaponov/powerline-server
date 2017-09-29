@@ -42,6 +42,8 @@ class OneSignalDataFactory implements DataFactoryInterface
             'isAndroid' => $device->isAndroid(),
             'large_icon' => $message->getImage(), // android
             'buttons' => $this->getActionButtonInfo($message->getType()), // android
+            'ios_attachments' => ['large_icon' => $message->getImage()],
+            'ios_category' => $message->getType(),
             'ios_badgeCount' => $message->getBadge(),
             'ios_badgeType' => 'SetTo',
             'ios_sound' => 'default',
