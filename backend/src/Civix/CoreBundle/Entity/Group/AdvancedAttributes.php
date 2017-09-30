@@ -18,7 +18,7 @@ class AdvancedAttributes
      * @var Group
      *
      * @ORM\Id()
-     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\Group", mappedBy="advancedAttributes")
+     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\Group", inversedBy="advancedAttributes")
      * @ORM\JoinColumn(name="id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      */
     private $group;
