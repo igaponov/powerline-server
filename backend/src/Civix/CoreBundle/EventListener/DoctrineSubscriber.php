@@ -41,10 +41,12 @@ class DoctrineSubscriber implements EventSubscriber
             'targetEntity' => $metadata->getName(),
             'fieldName' => 'parentComment',
             'inversedBy' => 'childrenComments',
-            'joinColumn' => [
-                'name' => 'pid',
-                'referencedColumnName' => 'id',
-                'onDelete' => 'CASCADE',
+            'joinColumns' => [
+                [
+                    'name' => 'pid',
+                    'referencedColumnName' => 'id',
+                    'onDelete' => 'CASCADE',
+                ]
             ],
         ]);
         $metadata->mapOneToMany([
