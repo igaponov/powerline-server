@@ -113,7 +113,7 @@ class ActivityControllerTest extends WebTestCase
                     'activity_question',
                     'activity_leader_event',
                 ],
-                10
+                11
             ],
             'followed' => [
                 ['followed' => true],
@@ -124,7 +124,7 @@ class ActivityControllerTest extends WebTestCase
                     'activity_question',
                     'activity_leader_event',
                 ],
-                9
+                11
             ],
             'non-followed' => [
                 ['non_followed' => true],
@@ -134,7 +134,7 @@ class ActivityControllerTest extends WebTestCase
                     'activity_post',
                     'activity_crowdfunding_payment_request',
                 ],
-                11
+                12
             ]
         ];
 	}
