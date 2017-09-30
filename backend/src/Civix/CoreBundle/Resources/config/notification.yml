@@ -29,10 +29,18 @@ services:
             - '@one_signal.config'
             - '@one_signal.client'
 
+    one_signal.resolver_factory:
+        class: OneSignal\Resolver\ResolverFactory
+        public: false
+        arguments:
+            - '@one_signal.config'
+
     one_signal.notifications:
         class: OneSignal\Notifications
         public: false
-        arguments: ['@one_signal.api']
+        arguments:
+            - '@one_signal.api'
+            - '@one_signal.resolver_factory'
 
     civix.notification.object_device_retriever:
         class: Civix\Component\Notification\Retriever\ObjectDeviceRetriever

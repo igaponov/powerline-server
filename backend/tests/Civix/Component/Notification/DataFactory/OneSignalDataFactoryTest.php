@@ -41,6 +41,10 @@ class OneSignalDataFactoryTest extends TestCase
                 'ios_badgeCount' => 5,
                 'ios_badgeType' => 'SetTo',
                 'ios_sound' => 'default',
+                'ios_attachments' => [
+                    'large_icon' => ''
+                ],
+                'ios_category' => 'test_type',
             ],
             $factory->createData($message, $device)
         );
