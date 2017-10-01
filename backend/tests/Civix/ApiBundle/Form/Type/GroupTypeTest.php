@@ -37,7 +37,7 @@ class GroupTypeTest extends FormIntegrationTestCase
             'official_city' => $faker->city,
             'official_state' => $faker->toUpper($faker->lexify('??')),
             'transparency' => $faker->randomElement(Group::getTransparencyStates()),
-            'conversation_view_limit' => $faker->randomDigit,
+            'conversation_view_limit' => $faker->numberBetween(1),
         ];
 
         $form = $this->factory->create(GroupType::class, null, ['validation_groups' => 'user-registration']);
