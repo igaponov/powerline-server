@@ -2,6 +2,7 @@
 namespace Tests\Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\Component\Notification\Model\Device;
 use Faker\Factory;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Tests\Civix\CoreBundle\DataFixtures\ORM\LoadDeviceData;
@@ -74,5 +75,20 @@ class DeviceControllerTest extends WebTestCase
         $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization' => 'Bearer user1'], json_encode($params));
         $response = $client->getResponse();
         $this->assertResponseHasErrors($response, ['id' => 'This value is already used.']);
+    }
+
+    public function testDeleteDevice()
+    {
+        $repository = self::$fixtureLoader->executor->getReferenceRepository();
+        $device = $repository->getReference('device_1');
+        $client = $this->client;
+        $client->request('DELETE', self::API_ENDPOINT.'/'.$device->getId(), [], [], ['HTTP_Authorization' => 'Bearer user1']);
+        $response = $client->getResponse();
+        $this->assertSame(204, $response->getStatusCode(), $response->getContent());
+        $this->assertNull(
+            $client->getContainer()
+                ->get('doctrine.orm.entity_manager')
+                ->find(Device::class, $device->getId())
+        );
     }
 }
