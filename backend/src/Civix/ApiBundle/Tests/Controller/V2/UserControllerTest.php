@@ -3,7 +3,19 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityReadAuthorData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityRelationsData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPollSubscriberData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostCommentData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionCommentData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSubscriberData;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -78,5 +90,30 @@ class UserControllerTest extends WebTestCase
         $this->assertCount(1, $files);
         $newFile = reset($files);
         $this->assertNotEquals($file->getFilename(), $newFile->getFilename());
+    }
+
+    public function testGetUserStatisticsIsOk(): void
+    {
+        $this->loadFixtures([
+            LoadUserFollowerData::class,
+            LoadActivityRelationsData::class,
+            LoadUserPetitionSubscriberData::class,
+            LoadPostSubscriberData::class,
+            LoadPollSubscriberData::class,
+            LoadActivityReadAuthorData::class,
+            LoadUserGroupOwnerData::class,
+            LoadPostVoteData::class,
+            LoadUserPetitionSignatureData::class,
+            LoadPostCommentData::class,
+            LoadQuestionCommentData::class,
+            LoadUserPetitionCommentData::class,
+        ])->getReferenceRepository();
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT.'/statistics', [], [], ['HTTP_Authorization'=>'Bearer user1']);
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertCount(1, $data);
+        $this->assertSame(3, $data['priority_item_count']);
     }
 }
