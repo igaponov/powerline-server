@@ -78,6 +78,10 @@
             <tag name="security.voter"/>
         </service>
 
+        <service class="Civix\ApiBundle\Security\Authorization\Voter\DeviceVoter" id="civix_api.security_authorization_voter.device_voter">
+            <tag name="security.voter"/>
+        </service>
+
         <service class="Civix\ApiBundle\Security\Authorization\Voter\LeaderContentVoter" id="civix_api.security_authorization_voter.leader_content_voter">
             <argument id="civix_api.security_authorization_voter.group_voter" type="service"/>
             <argument id="civix_api.security_authorization_voter.representative_voter" type="service"/>

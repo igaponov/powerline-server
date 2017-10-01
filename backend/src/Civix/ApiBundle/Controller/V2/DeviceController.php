@@ -9,6 +9,7 @@ use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Controller\Annotations\Post;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -77,5 +78,29 @@ class DeviceController
         }
 
         return $form;
+    }
+
+    /**
+     * @REST\Delete("/{id}")
+     *
+     * @Security("is_granted('delete', device)")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Users",
+     *     description="Delete a device",
+     *     statusCodes={
+     *         401="Authorization required",
+     *         403="Access Denied",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Device $device
+     */
+    public function deleteDeviceAction(Device $device): void
+    {
+        $this->em->remove($device);
+        $this->em->flush();
     }
 }
