@@ -49,7 +49,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\User", inversedBy="representatives")
-     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $user;
 
@@ -197,9 +197,8 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      */
     private $updatedAt;
 
-    public function __construct(User $user)
+    public function __construct()
     {
-        $this->user = $user;
         $this->setCountry('US');
         $this->setUpdatedAt(new \DateTime());
     }
@@ -295,8 +294,9 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      */
     public function getOfficialTitle(): ?string
     {
-        if ($this->getCiceroRepresentative() && $this->getCiceroRepresentative()->getOfficialTitle()) {
-            return $this->getCiceroRepresentative()->getOfficialTitle();
+        $ciceroRepresentative = $this->getCiceroRepresentative();
+        if ($ciceroRepresentative && $ciceroRepresentative->getOfficialTitle()) {
+            return $ciceroRepresentative->getOfficialTitle();
         }
 
         return $this->officialTitle;
@@ -539,7 +539,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return CiceroRepresentative
      */
-    public function getCiceroRepresentative(): CiceroRepresentative
+    public function getCiceroRepresentative(): ?CiceroRepresentative
     {
         return $this->ciceroRepresentative;
     }

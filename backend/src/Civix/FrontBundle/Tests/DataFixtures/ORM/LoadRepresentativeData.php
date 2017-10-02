@@ -18,7 +18,8 @@ class LoadRepresentativeData extends AbstractFixture implements DependentFixture
         /** @var State $state */
         $state = $this->getReference('state_wa');
 
-        $representative = new Representative($user);
+        $representative = new Representative();
+        $representative->setUser($user);
         $representative->setOfficialTitle('Vice President');
         $representative->setCity('Los Angeles');
         $representative->setAddress('6153 Smokey Ln');

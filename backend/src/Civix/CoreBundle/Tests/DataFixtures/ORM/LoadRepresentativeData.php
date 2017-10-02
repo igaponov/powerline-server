@@ -20,7 +20,8 @@ class LoadRepresentativeData extends AbstractFixture implements DependentFixture
         $user = $this->getReference('user_1');
         /** @var District $district */
         $district = $this->getReference('district_us');
-        $representative = new Representative($user);
+        $representative = new Representative();
+        $representative->setUser($user);
         $representative->setOfficialTitle('Vice President');
         $representative->setCity('Los Angeles');
         $representative->setAddress('6153 Smokey Ln');
@@ -30,13 +31,14 @@ class LoadRepresentativeData extends AbstractFixture implements DependentFixture
         $representative->setPrivateEmail($faker->companyEmail);
         $representative->setDistrict($district);
         $representative->setIsNonLegislative(true);
-        $representative->setAvatarFileName(uniqid().'.jpg');
+        $representative->setAvatarFileName(uniqid('', true).'.jpg');
         $this->addReference('representative_jb', $representative);
         $manager->persist($representative);
 
         $user = $this->getReference('user_2');
         $district = $this->getReference('district_sf');
-        $representative = new Representative($user);
+        $representative = new Representative();
+        $representative->setUser($user);
         $representative->setOfficialTitle('CEO');
         $representative->setCity('San Francisco');
         $representative->setAddress('4143 Depaul Dr');
@@ -51,7 +53,8 @@ class LoadRepresentativeData extends AbstractFixture implements DependentFixture
 
         $user = $this->getReference('user_3');
         $district = $this->getReference('district_sd');
-        $representative = new Representative($user);
+        $representative = new Representative();
+        $representative->setUser($user);
         $representative->setOfficialTitle('Software Engineer');
         $representative->setCity('San Diego');
         $representative->setAddress('1730 Auerbach Ave');

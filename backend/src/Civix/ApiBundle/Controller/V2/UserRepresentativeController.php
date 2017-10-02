@@ -116,7 +116,8 @@ class UserRepresentativeController extends FOSRestController
      */
     public function postAction(Request $request)
     {
-        $representative = new Representative($this->getUser());
+        $representative = new Representative();
+        $representative->setUser($this->getUser());
         $form = $this->createForm(RepresentativeType::class, $representative);
         $form->submit($request->request->all());
 

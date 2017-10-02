@@ -39,7 +39,8 @@ class ActivityTest extends TestCase
 
     public function testGetRepresentativeOwnerData()
     {
-        $representative = new Representative(new User());
+        $representative = new Representative();
+        $representative->setUser(new User());
         $activity = new UserPetition();
         $activity->setRepresentative($representative);
         $data = $activity->getOwnerData();
