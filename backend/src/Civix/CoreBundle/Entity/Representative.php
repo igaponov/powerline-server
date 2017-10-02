@@ -63,7 +63,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
     private $localGroup;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(name="officialTitle", type="string", length=255)
      * @Assert\NotBlank(groups={"registration"})
@@ -116,7 +116,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @ORM\Column(name="status", type="smallint")
      */
-    private $status;
+    private $status = self::STATUS_PENDING;
 
     /**
      * @var string
@@ -201,11 +201,10 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
     {
         $this->user = $user;
         $this->setCountry('US');
-        $this->setStatus(self::STATUS_PENDING);
         $this->setUpdatedAt(new \DateTime());
     }
 
-    public function getType()
+    public function getType(): string
     {
         return 'representative';
     }
@@ -213,7 +212,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
     /**
      * @return int
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -221,7 +220,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
     /**
      * @return User
      */
-    public function getUser()
+    public function getUser(): ?User
     {
         return $this->user;
     }
@@ -230,7 +229,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      * @param User $user
      * @return Representative
      */
-    public function setUser($user)
+    public function setUser(User $user): Representative
     {
         $this->user = $user;
 
@@ -247,7 +246,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      * @Serializer\SerializedName("avatar_file_path")
      * @return Avatar
      */
-    public function getAvatarFilePath()
+    public function getAvatarFilePath(): Avatar
     {
         if ($this->getCiceroRepresentative() && !$this->getAvatarFileName()) {
             return new Avatar($this->getCiceroRepresentative());
@@ -270,7 +269,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return string
      */
-    public function getAddress()
+    public function getAddress(): ?string
     {
         return $this->address;
     }
@@ -282,7 +281,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return \Civix\CoreBundle\Entity\Representative
      */
-    public function setAddress($address1)
+    public function setAddress(string $address1): Representative
     {
         $this->address = $address1;
 
@@ -294,7 +293,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return string
      */
-    public function getOfficialTitle()
+    public function getOfficialTitle(): ?string
     {
         if ($this->getCiceroRepresentative() && $this->getCiceroRepresentative()->getOfficialTitle()) {
             return $this->getCiceroRepresentative()->getOfficialTitle();
@@ -310,7 +309,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return Representative
      */
-    public function setOfficialTitle($officialTitle)
+    public function setOfficialTitle(string $officialTitle): Representative
     {
         $this->officialTitle = $officialTitle;
 
@@ -324,7 +323,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return \Civix\CoreBundle\Entity\Representative
      */
-    public function setCountry($country)
+    public function setCountry(string $country): Representative
     {
         $this->country = $country;
 
@@ -336,7 +335,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return string
      */
-    public function getCountry()
+    public function getCountry(): ?string
     {
         return $this->country;
     }
@@ -348,7 +347,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return \Civix\CoreBundle\Entity\Representative
      */
-    public function setState(State $state)
+    public function setState(State $state): Representative
     {
         $this->state = $state;
 
@@ -360,7 +359,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return State
      */
-    public function getState()
+    public function getState(): State
     {
         return $this->state;
     }
@@ -373,7 +372,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      * @Serializer\Groups({"api-info"})
      * @Serializer\SerializedName("state")
      */
-    public function getStateCode()
+    public function getStateCode(): ?string
     {
         if ($this->state instanceof State) {
             return $this->state->getCode();
@@ -389,7 +388,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return \Civix\CoreBundle\Entity\Representative
      */
-    public function setCity($city)
+    public function setCity(string $city): Representative
     {
         $this->city = $city;
 
@@ -401,7 +400,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return string
      */
-    public function getCity()
+    public function getCity(): ?string
     {
         return $this->city;
     }
@@ -413,7 +412,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return Representative
      */
-    public function setPhone($phone)
+    public function setPhone(string $phone): Representative
     {
         $this->phone = $phone;
 
@@ -425,7 +424,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return string
      */
-    public function getPhone()
+    public function getPhone(): ?string
     {
         return $this->phone;
     }
@@ -433,7 +432,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
     /**
      * @return string
      */
-    public function getPrivatePhone()
+    public function getPrivatePhone(): ?string
     {
         return $this->privatePhone;
     }
@@ -442,7 +441,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      * @param string $privatePhone
      * @return Representative
      */
-    public function setPrivatePhone($privatePhone)
+    public function setPrivatePhone(string $privatePhone): Representative
     {
         $this->privatePhone = $privatePhone;
 
@@ -456,7 +455,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return Representative
      */
-    public function setStatus($status)
+    public function setStatus(int $status): Representative
     {
         $this->status = $status;
 
@@ -468,7 +467,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return int
      */
-    public function getStatus()
+    public function getStatus(): int
     {
         return $this->status;
     }
@@ -478,7 +477,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return string
      */
-    public function getEmail()
+    public function getEmail(): ?string
     {
         return $this->email;
     }
@@ -490,7 +489,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return Representative
      */
-    public function setEmail($email)
+    public function setEmail(string $email): Representative
     {
         $this->email = $email;
 
@@ -500,7 +499,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
     /**
      * @return mixed
      */
-    public function getPrivateEmail()
+    public function getPrivateEmail(): ?string
     {
         return $this->privateEmail;
     }
@@ -509,7 +508,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      * @param mixed $privateEmail
      * @return Representative
      */
-    public function setPrivateEmail($privateEmail)
+    public function setPrivateEmail(string $privateEmail): Representative
     {
         $this->privateEmail = $privateEmail;
 
@@ -519,7 +518,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
     /**
      * @return District
      */
-    public function getDistrict()
+    public function getDistrict(): ?District
     {
         return $this->district;
     }
@@ -528,7 +527,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      * @param District $district
      * @return Representative
      */
-    public function setDistrict($district)
+    public function setDistrict(District $district): Representative
     {
         $this->district = $district;
 
@@ -540,7 +539,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return CiceroRepresentative
      */
-    public function getCiceroRepresentative()
+    public function getCiceroRepresentative(): CiceroRepresentative
     {
         return $this->ciceroRepresentative;
     }
@@ -552,7 +551,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return \Civix\CoreBundle\Entity\Representative
      */
-    public function setCiceroRepresentative(CiceroRepresentative $ciceroRepresentative = null)
+    public function setCiceroRepresentative(CiceroRepresentative $ciceroRepresentative = null): Representative
     {
         $this->ciceroRepresentative = $ciceroRepresentative;
 
@@ -575,7 +574,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      * @param $limit
      * @return Representative
      */
-    public function setQuestionLimit(?int $limit)
+    public function setQuestionLimit(?int $limit): Representative
     {
         $this->questionLimit = $limit;
 
@@ -587,7 +586,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return int
      */
-    public function getIsNonLegislative()
+    public function getIsNonLegislative(): int
     {
         return $this->isNonLegislative;
     }
@@ -598,14 +597,14 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      * @param bool $isNonLegislative
      * @return Representative
      */
-    public function setIsNonLegislative($isNonLegislative)
+    public function setIsNonLegislative($isNonLegislative): Representative
     {
         $this->isNonLegislative = $isNonLegislative;
 
         return $this;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->officialTitle;
     }
@@ -617,7 +616,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return Representative
      */
-    public function setLocalGroup(Group $localGroup = null)
+    public function setLocalGroup(Group $localGroup = null): Representative
     {
         $this->localGroup = $localGroup;
 
@@ -629,7 +628,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return \Civix\CoreBundle\Entity\Group
      */
-    public function getLocalGroup()
+    public function getLocalGroup(): Group
     {
         return $this->localGroup;
     }
@@ -639,12 +638,12 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      * 
      * @return bool
      */
-    public function isLocalAdmin()
+    public function isLocalAdmin(): bool
     {
         return $this->getLocalGroup() instanceof Group;
     }
 
-    public function getAddressArray()
+    public function getAddressArray(): array
     {
         return [
             'city' => $this->getCity(),
@@ -659,7 +658,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
     /**
      * @return \DateTime
      */
-    public function getUpdatedAt()
+    public function getUpdatedAt(): \DateTime
     {
         return $this->updatedAt;
     }
@@ -668,7 +667,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      * @param \DateTime $updatedAt
      * @return Representative
      */
-    public function setUpdatedAt($updatedAt)
+    public function setUpdatedAt(\DateTime $updatedAt): Representative
     {
         $this->updatedAt = $updatedAt;
 
@@ -681,7 +680,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      * @Serializer\VirtualProperty()
      * @Serializer\Groups({"api-representatives-list", "api-info"})
      */
-    public function getFirstName()
+    public function getFirstName(): ?string
     {
         return $this->user->getFirstName();
     }
@@ -692,7 +691,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      * @Serializer\VirtualProperty()
      * @Serializer\Groups({"api-representatives-list", "api-info"})
      */
-    public function getLastName()
+    public function getLastName(): ?string
     {
         return $this->user->getLastName();
     }
