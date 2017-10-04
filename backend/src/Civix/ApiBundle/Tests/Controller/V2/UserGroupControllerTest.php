@@ -15,6 +15,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFieldsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadKarmaData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadLocalGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
@@ -299,6 +300,21 @@ class UserGroupControllerTest extends WebTestCase
             ->getMembershipReport($group);
         $this->assertEquals($group->getId(), $result[0]['group']);
         $this->assertEquals([$field->getId() => $fieldValue], $result[0]['fields']);
+    }
+
+    public function testJoinLocalGroupReturnsError()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+            LoadLocalGroupData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('local_group_us');
+        $client = $this->client;
+        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user4"']);
+        $response = $client->getResponse();
+        $this->assertSame(400, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame("User can't join a local group.", $data['message']);
     }
 
     public function testJoinGroupWithErrors()

@@ -1718,6 +1718,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
 
     /**
      * @return Group
+        $this->em->remove($group);
      */
     public function getParent(): ?Group
     {
@@ -1749,6 +1750,11 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     public function isStateGroup(): bool
     {
         return $this->groupType === self::GROUP_TYPE_STATE;
+    }
+
+    public function isLocal(): bool
+    {
+        return in_array($this->groupType, self::getLocalTypes(), true);
     }
 
     /**

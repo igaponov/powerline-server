@@ -22,6 +22,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * @Route("/user/groups")
@@ -180,7 +181,11 @@ class UserGroupController extends FOSRestController
         $form->submit($request->request->all());
 
         if ($form->isValid()) {
-            return $this->manager->inquire($form->getData());
+            try {
+                return $this->manager->inquire($form->getData());
+            } catch (\DomainException $e) {
+                throw new BadRequestHttpException($e->getMessage());
+            }
         }
 
         return $form;

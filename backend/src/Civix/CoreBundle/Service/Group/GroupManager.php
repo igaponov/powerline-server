@@ -121,6 +121,10 @@ class GroupManager
 
     public function joinToGroup(User $user, Group $group): ?UserGroup
     {
+        if ($group->isLocal()) {
+            throw new \DomainException("User can't join a local group.");
+        }
+
         $userGroup = null;
         if ($group->getId()) {
             //current status Group
