@@ -81,7 +81,7 @@ class DeviceController
     }
 
     /**
-     * @REST\Delete("/{id}")
+     * @REST\Delete("/{id}", requirements={"id" = "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$"})
      *
      * @Security("is_granted('delete', device)")
      *
