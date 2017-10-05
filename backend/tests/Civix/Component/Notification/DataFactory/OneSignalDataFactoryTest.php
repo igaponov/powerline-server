@@ -14,7 +14,7 @@ class OneSignalDataFactoryTest extends TestCase
     {
         $recipient = $this->createMock(RecipientInterface::class);
         $device = new Device($recipient);
-        $message = new PushMessage($recipient, 'test_title', 'test_message', 'test_type');
+        $message = new PushMessage($recipient, 'test_title', 'test_message', 'test_type', ['id1' => 'val1']);
         $message->setBadge(5);
         $factory = new OneSignalDataFactory();
         $this->assertEquals(
@@ -27,6 +27,7 @@ class OneSignalDataFactoryTest extends TestCase
                         'id' => null,
                         'username' => null,
                     ],
+                    'entity' => ['id1' => 'val1'],
                 ],
                 'contents' => [
                     'en' => 'test_message',

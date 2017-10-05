@@ -35,6 +35,7 @@ class CivixCoreExtension extends Extension
         $loader->load('geocoder.yml');
         $loader->load('notification.yml');
         $loader->load('propublica.yml');
+        $loader->load('command.yml');
 
         $container->setAlias('mailgun.client', $config['mailgun_client']);
         $container->setAlias('mailgun.public_client', $config['mailgun_public_client']);

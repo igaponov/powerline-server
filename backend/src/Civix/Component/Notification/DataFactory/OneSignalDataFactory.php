@@ -10,6 +10,54 @@ use Civix\CoreBundle\Service\PushSender;
 
 class OneSignalDataFactory implements DataFactoryInterface
 {
+    private const BUTTON_IGNORE = ['id' => 'ignore-button', 'text' => 'Ignore', 'icon' => 'ic_civix_ignore'];
+
+    private const BUTTON_APPROVE_FOLLOW_REQUEST = [
+        'id' => 'approve-follow-request-button',
+        'text' => 'Approve',
+        'icon' => 'ic_civix_approve'
+    ];
+    private const BUTTON_IGNORE_FOLLOW_REQUEST = [
+        'id' => 'ignore-follow-request-button',
+        'text' => 'Ignore',
+        'icon' => 'ic_civix_ignore'
+    ];
+
+    private const BUTTON_OPEN_GROUP = ['id' => 'open-group-button', 'text' => 'Open', 'icon' => 'ic_civix_open'];
+    private const BUTTON_JOIN_GROUP = ['id' => 'join-group-button', 'text' => 'Join', 'icon' => 'ic_civix_join'];
+    private const BUTTON_IGNORE_INVITE = [
+        'id' => 'ignore-invite-button',
+        'text' => 'Ignore',
+        'icon' => 'ic_civix_ignore'
+    ];
+
+    private const BUTTON_OPEN_COMMENT = ['id' => 'open-comment-button', 'text' => 'Open', 'icon' => 'ic_civix_open'];
+    private const BUTTON_REPLY_COMMENT = ['id' => 'reply-comment-button', 'text' => 'Reply', 'icon' => 'ic_civix_reply'];
+
+    private const BUTTON_SHARE_ANNOUNCEMENT = [
+        'id' => 'share-announcement-button',
+        'text' => 'Share',
+        'icon' => 'ic_civix_share'
+    ];
+
+    private const BUTTON_SIGN_PETITION = ['id' => 'sign-petition-button', 'text' => 'Sign', 'icon' => 'ic_civix_sign'];
+    private const BUTTON_VIEW_PETITION = ['id' => 'view-petition-button', 'text' => 'View', 'icon' => 'ic_civix_view'];
+    private const BUTTON_MUTE_PETITION = ['id' => 'mute-petition-button', 'text' => 'Mute', 'icon' => 'ic_civix_mute'];
+
+    private const BUTTON_UPVOTE_POST = ['id' => 'upvote-post-button', 'text' => 'Upvote', 'icon' => 'ic_civix_upvote'];
+    private const BUTTON_DOWNVOTE_POST = ['id' => 'downvote-post-button', 'text' => 'Downvote', 'icon' => 'ic_civix_downvote'];
+    private const BUTTON_OPEN_POST = ['id' => 'open-post-button', 'text' => 'Open', 'icon' => 'ic_civix_open'];
+    private const BUTTON_VIEW_POST = ['id' => 'view-post-button', 'text' => 'View', 'icon' => 'ic_civix_view'];
+    private const BUTTON_MUTE_POST = ['id' => 'mute-post-button', 'text' => 'Mute', 'icon' => 'ic_civix_mute'];
+    private const BUTTON_SHARE_POST = ['id' => 'share-post-button', 'text' => 'Share', 'icon' => 'ic_civix_share'];
+
+    private const BUTTON_VIEW_POLL = ['id' => 'view-poll-button', 'text' => 'View', 'icon' => 'ic_civix_view'];
+    private const BUTTON_MUTE_POLL = ['id' => 'mute-poll-button', 'text' => 'Mute', 'icon' => 'ic_civix_mute'];
+    private const BUTTON_RESPOND_POLL = ['id' => 'respond-button', 'text' => 'Respond', 'icon' => 'ic_civix_respond'];
+    private const BUTTON_OPEN_POLL = ['id' => 'open-poll-button', 'text' => 'Open', 'icon' => 'ic_civix_open'];
+    private const BUTTON_RSVP = ['id' => 'rsvp-button', 'text' => 'RSVP', 'icon' => 'ic_civix_rsvp'];
+    private const BUTTON_DONATE = ['id' => 'donate-button', 'text' => 'Donate', 'icon' => 'ic_civix_donate'];
+
     /**
      * @param PushMessage $message
      * @param ModelInterface|Device $model
@@ -31,6 +79,7 @@ class OneSignalDataFactory implements DataFactoryInterface
                     'id' => $message->getRecipient()->getId(),
                     'username' => $message->getRecipient()->getUsername(),
                 ],
+                'entity' => $message->getData(),
             ],
             'contents' => [
                 'en' => $message->getMessage(),
@@ -60,105 +109,136 @@ class OneSignalDataFactory implements DataFactoryInterface
         switch ($type) {
             case PushSender::TYPE_PUSH_USER_PETITION_BOOSTED:
                 $actionButton = [
-                    ['id' => 'sign-button', 'text' => 'Sign', 'icon' => 'ic_civix_sign'],
+                    self::BUTTON_SIGN_PETITION,
+                    self::BUTTON_IGNORE,
                 ];
                 break;
             case PushSender::TYPE_PUSH_OWN_USER_PETITION_BOOSTED:
                 $actionButton = [
-                    ['id' => 'view-button', 'text' => 'View', 'icon' => 'ic_civix_view'],
+                    self::BUTTON_VIEW_PETITION,
+                    self::BUTTON_IGNORE,
                 ];
                 break;
             case SocialActivity::TYPE_COMMENT_MENTIONED:
+                $actionButton = [
+                    self::BUTTON_OPEN_COMMENT,
+                    self::BUTTON_IGNORE,
+                ];
+                break;
             case SocialActivity::TYPE_POST_MENTIONED:
                 $actionButton = [
-                    ['id' => 'open-button', 'text' => 'Open', 'icon' => 'ic_civix_open'],
+                    self::BUTTON_OPEN_POST,
+                    self::BUTTON_IGNORE,
                 ];
                 break;
             case SocialActivity::TYPE_FOLLOW_REQUEST:
                 $actionButton = [
-                    ['id' => 'approve-button', 'text' => 'Approve', 'icon' => 'ic_civix_approve'],
+                    self::BUTTON_APPROVE_FOLLOW_REQUEST,
+                    self::BUTTON_IGNORE_FOLLOW_REQUEST,
                 ];
                 break;
             case SocialActivity::TYPE_FOLLOW_POST_CREATED:
+            case PushSender::TYPE_PUSH_POST_BOOSTED:
                 $actionButton = [
-                    ['id' => 'upvote-button', 'text' => 'Upvote', 'icon' => 'ic_civix_upvote'],
+                    self::BUTTON_UPVOTE_POST,
+                    self::BUTTON_DOWNVOTE_POST,
                 ];
                 break;
             case SocialActivity::TYPE_FOLLOW_USER_PETITION_CREATED:
                 $actionButton = [
-                    ['id' => 'sign-button', 'text' => 'Sign', 'icon' => 'ic_civix_sign'],
-                ];
-                break;
-            case PushSender::TYPE_PUSH_POST_BOOSTED:
-                $actionButton = [
-                    ['id' => 'upvote-button', 'text' => 'Upvote', 'icon' => 'ic_civix_upvote'],
-                    ['id' => 'downvote-button', 'text' => 'Downvote', 'icon' => 'ic_civix_downvote'],
+                    self::BUTTON_SIGN_PETITION,
+                    self::BUTTON_IGNORE,
                 ];
                 break;
             case PushSender::TYPE_PUSH_OWN_POST_BOOSTED:
                 $actionButton = [
-                    ['id' => 'view-button', 'text' => 'View', 'icon' => 'ic_civix_view'],
+                    self::BUTTON_VIEW_POST,
+                    self::BUTTON_IGNORE,
                 ];
                 break;
             case PushSender::TYPE_PUSH_INVITE:
                 $actionButton = [
-                    ['id' => 'join-button', 'text' => 'Join', 'icon' => 'ic_civix_join'],
+                    self::BUTTON_JOIN_GROUP,
+                    self::BUTTON_IGNORE_INVITE,
                 ];
                 break;
             case SocialActivity::TYPE_GROUP_PERMISSIONS_CHANGED:
                 $actionButton = [
-                    ['id' => 'open-button', 'text' => 'Open', 'icon' => 'ic_civix_open'],
+                    self::BUTTON_OPEN_GROUP,
+                    self::BUTTON_IGNORE,
                 ];
                 break;
             case SocialActivity::TYPE_OWN_POLL_COMMENTED:
-            case SocialActivity::TYPE_OWN_POST_COMMENTED:
-            case SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED:
             case SocialActivity::TYPE_OWN_POLL_ANSWERED:
-            case SocialActivity::TYPE_OWN_POST_VOTED:
-            case SocialActivity::TYPE_OWN_USER_PETITION_SIGNED:
             case SocialActivity::TYPE_FOLLOW_POLL_COMMENTED:
+                $actionButton = [
+                    self::BUTTON_VIEW_POLL,
+                    self::BUTTON_MUTE_POLL,
+                ];
+                break;
+            case SocialActivity::TYPE_OWN_POST_COMMENTED:
+            case SocialActivity::TYPE_OWN_POST_VOTED:
             case SocialActivity::TYPE_FOLLOW_POST_COMMENTED:
+                $actionButton = [
+                    self::BUTTON_VIEW_POST,
+                    self::BUTTON_MUTE_POST,
+                ];
+                break;
+            case SocialActivity::TYPE_OWN_USER_PETITION_COMMENTED:
+            case SocialActivity::TYPE_OWN_USER_PETITION_SIGNED:
             case SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED:
                 $actionButton = [
-                    ['id' => 'view-button', 'text' => 'View', 'icon' => 'ic_civix_view'],
-                    ['id' => 'mute-button', 'text' => 'Mute', 'icon' => 'ic_civix_mute'],
+                    self::BUTTON_VIEW_PETITION,
+                    self::BUTTON_MUTE_PETITION,
                 ];
                 break;
             case SocialActivity::TYPE_COMMENT_REPLIED:
                 $actionButton = [
-                    ['id' => 'reply-button', 'text' => 'Reply', 'icon' => 'ic_civix_reply'],
+                    self::BUTTON_REPLY_COMMENT,
+                    self::BUTTON_IGNORE,
                 ];
                 break;
             case PushSender::TYPE_PUSH_ANNOUNCEMENT:
                 $actionButton = [
-                    ['id' => 'share-button', 'text' => 'Share', 'icon' => 'ic_civix_share'],
+                    self::BUTTON_SHARE_ANNOUNCEMENT,
+                    self::BUTTON_IGNORE,
+                ];
+                break;
+            case PushSender::TYPE_PUSH_POST_SHARED:
+                $actionButton = [
+                    self::BUTTON_UPVOTE_POST,
+                    self::BUTTON_SHARE_POST,
                 ];
                 break;
             case 'group_petition':
                 $actionButton = [
-                    ['id' => 'sign-button', 'text' => 'Sign', 'icon' => 'ic_civix_sign'],
-                    ['id' => 'view-button', 'text' => 'View', 'icon' => 'ic_civix_view'],
+                    self::BUTTON_SIGN_PETITION,
+                    self::BUTTON_VIEW_PETITION,
                 ];
                 break;
             case 'group_question':
                 $actionButton = [
-                    ['id' => 'respond-button', 'text' => 'Respond', 'icon' => 'ic_civix_respond'],
+                    self::BUTTON_RESPOND_POLL,
+                    self::BUTTON_IGNORE,
                 ];
                 break;
             case 'group_news':
                 $actionButton = [
-                    ['id' => 'open-button', 'text' => 'Open', 'icon' => 'ic_civix_open'],
+                    self::BUTTON_OPEN_POLL,
+                    self::BUTTON_IGNORE,
                 ];
                 break;
             case 'group_event':
                 $actionButton = [
-                    ['id' => 'rsvp-button', 'text' => 'RSVP', 'icon' => 'ic_civix_rsvp'],
+                    self::BUTTON_RSVP,
+                    self::BUTTON_IGNORE,
                 ];
                 break;
             case 'group_payment_request':
             case 'group_payment_request_crowdfunding':
                 $actionButton = [
-                    ['id' => 'donate-button', 'text' => 'Donate', 'icon' => 'ic_civix_donate'],
+                    self::BUTTON_DONATE,
+                    self::BUTTON_IGNORE,
                 ];
                 break;
         }
