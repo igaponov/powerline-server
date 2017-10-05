@@ -12,7 +12,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity()
  * @ORM\Table(name="notification_devices")
- * @UniqueEntity(fields={"id"})
+ * @Assert\GroupSequence({"Device", "unique"})
+ * @UniqueEntity(fields={"id"}, groups={"unique"})
  */
 class Device implements ModelInterface
 {
