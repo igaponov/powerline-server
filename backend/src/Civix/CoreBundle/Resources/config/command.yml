@@ -1,0 +1,6 @@
+services:
+    civix_core.command.one_signal_buttons_command:
+        class: Civix\CoreBundle\Command\OneSignalButtonsCommand
+        arguments: ['@civix.notification.one_signal_data_factory']
+        tags:
+            - { name: console.command }
