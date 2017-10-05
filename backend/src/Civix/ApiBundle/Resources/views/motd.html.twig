@@ -29,7 +29,7 @@
                 <br>
                 <b>POST / PUT / PATCH</b> endpoints can additionally provide error messages for request parameters:
             </p>
-            <pre><code lang="json">
+            <pre class="section-list"><code lang="json">
 {
     "code": 400,
     "message": "Validation Failed",
@@ -66,6 +66,342 @@
             <p class="section-list">
                 Blank fields are included as <code>null</code> instead of being omitted.
             </p>
+        </li>
+        <li class="section active">
+            <div class="actions">
+                <a class="action-show-hide">Show/hide</a>
+            </div>
+            <h1 id="section-Push">Push notifications</h1>
+            <table class="section-list">
+                <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Text</th>
+                    <th>Icon</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr style="background-color: lightgrey"><td colspan="3">User petition boosted</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>sign-petition-button</td>
+                    <td>Sign</td>
+                    <td>ic_civix_sign</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>ignore-button</td>
+                    <td>Ignore</td>
+                    <td>ic_civix_ignore</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Own user petition boosted</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>view-petition-button</td>
+                    <td>View</td>
+                    <td>ic_civix_view</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>ignore-button</td>
+                    <td>Ignore</td>
+                    <td>ic_civix_ignore</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Comment mentioned</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>open-comment-button</td>
+                    <td>Open</td>
+                    <td>ic_civix_open</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>ignore-button</td>
+                    <td>Ignore</td>
+                    <td>ic_civix_ignore</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Post mentioned</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>open-post-button</td>
+                    <td>Open</td>
+                    <td>ic_civix_open</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>ignore-button</td>
+                    <td>Ignore</td>
+                    <td>ic_civix_ignore</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Follow request</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>approve-follow-request-button</td>
+                    <td>Approve</td>
+                    <td>ic_civix_approve</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>ignore-follow-request-button</td>
+                    <td>Ignore</td>
+                    <td>ic_civix_ignore</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Follow post created</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>upvote-post-button</td>
+                    <td>Upvote</td>
+                    <td>ic_civix_upvote</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>downvote-post-button</td>
+                    <td>Downvote</td>
+                    <td>ic_civix_downvote</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Post boosted</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>upvote-post-button</td>
+                    <td>Upvote</td>
+                    <td>ic_civix_upvote</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>downvote-post-button</td>
+                    <td>Downvote</td>
+                    <td>ic_civix_downvote</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Follow user petition created</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>sign-petition-button</td>
+                    <td>Sign</td>
+                    <td>ic_civix_sign</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>ignore-button</td>
+                    <td>Ignore</td>
+                    <td>ic_civix_ignore</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Own post boosted</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>view-post-button</td>
+                    <td>View</td>
+                    <td>ic_civix_view</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>ignore-button</td>
+                    <td>Ignore</td>
+                    <td>ic_civix_ignore</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Invite</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>join-group-button</td>
+                    <td>Join</td>
+                    <td>ic_civix_join</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>ignore-invite-button</td>
+                    <td>Ignore</td>
+                    <td>ic_civix_ignore</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Group permissions changed</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>open-group-button</td>
+                    <td>Open</td>
+                    <td>ic_civix_open</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>ignore-button</td>
+                    <td>Ignore</td>
+                    <td>ic_civix_ignore</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Own poll commented</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>view-poll-button</td>
+                    <td>View</td>
+                    <td>ic_civix_view</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>mute-poll-button</td>
+                    <td>Mute</td>
+                    <td>ic_civix_mute</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Poll answered</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>view-poll-button</td>
+                    <td>View</td>
+                    <td>ic_civix_view</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>mute-poll-button</td>
+                    <td>Mute</td>
+                    <td>ic_civix_mute</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Follow poll commented</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>view-poll-button</td>
+                    <td>View</td>
+                    <td>ic_civix_view</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>mute-poll-button</td>
+                    <td>Mute</td>
+                    <td>ic_civix_mute</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Own post commented</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>view-post-button</td>
+                    <td>View</td>
+                    <td>ic_civix_view</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>mute-post-button</td>
+                    <td>Mute</td>
+                    <td>ic_civix_mute</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Own post voted</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>view-post-button</td>
+                    <td>View</td>
+                    <td>ic_civix_view</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>mute-post-button</td>
+                    <td>Mute</td>
+                    <td>ic_civix_mute</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Follow post commented</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>view-post-button</td>
+                    <td>View</td>
+                    <td>ic_civix_view</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>mute-post-button</td>
+                    <td>Mute</td>
+                    <td>ic_civix_mute</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Own user petition commented</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>view-petition-button</td>
+                    <td>View</td>
+                    <td>ic_civix_view</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>mute-petition-button</td>
+                    <td>Mute</td>
+                    <td>ic_civix_mute</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Own user petition signed</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>view-petition-button</td>
+                    <td>View</td>
+                    <td>ic_civix_view</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>mute-petition-button</td>
+                    <td>Mute</td>
+                    <td>ic_civix_mute</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Follow user petition commented</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>view-petition-button</td>
+                    <td>View</td>
+                    <td>ic_civix_view</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>mute-petition-button</td>
+                    <td>Mute</td>
+                    <td>ic_civix_mute</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Comment replied</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>reply-comment-button</td>
+                    <td>Reply</td>
+                    <td>ic_civix_reply</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>ignore-button</td>
+                    <td>Ignore</td>
+                    <td>ic_civix_ignore</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Announcement</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>share-announcement-button</td>
+                    <td>Share</td>
+                    <td>ic_civix_share</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>ignore-button</td>
+                    <td>Ignore</td>
+                    <td>ic_civix_ignore</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Post shared</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>upvote-post-button</td>
+                    <td>Upvote</td>
+                    <td>ic_civix_upvote</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>share-post-button</td>
+                    <td>Share</td>
+                    <td>ic_civix_share</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Petition created</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>sign-petition-button</td>
+                    <td>Sign</td>
+                    <td>ic_civix_sign</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>view-petition-button</td>
+                    <td>View</td>
+                    <td>ic_civix_view</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Poll created</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>respond-button</td>
+                    <td>Respond</td>
+                    <td>ic_civix_respond</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>ignore-button</td>
+                    <td>Ignore</td>
+                    <td>ic_civix_ignore</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">News created</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>open-poll-button</td>
+                    <td>Open</td>
+                    <td>ic_civix_open</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>ignore-button</td>
+                    <td>Ignore</td>
+                    <td>ic_civix_ignore</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Event created</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>rsvp-button</td>
+                    <td>RSVP</td>
+                    <td>ic_civix_rsvp</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>ignore-button</td>
+                    <td>Ignore</td>
+                    <td>ic_civix_ignore</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Payment request created</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>donate-button</td>
+                    <td>Donate</td>
+                    <td>ic_civix_donate</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>ignore-button</td>
+                    <td>Ignore</td>
+                    <td>ic_civix_ignore</td>
+                </tr>
+                <tr style="background-color: lightgrey"><td colspan="3">Crowdfunding request created</td></tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>donate-button</td>
+                    <td>Donate</td>
+                    <td>ic_civix_donate</td>
+                </tr>
+                <tr style="border: 1px solid lightgrey">
+                    <td>ignore-button</td>
+                    <td>Ignore</td>
+                    <td>ic_civix_ignore</td>
+                </tr>
+                </tbody>
+            </table>
         </li>
     </ul>
 </div>
