@@ -52,7 +52,7 @@ class AsyncEventConsumer implements ConsumerInterface
             $this->resetUninitializedProxies($originalEvent);
             $this->dispatcher->dispatch($message->getEventName(), $originalEvent);
         } catch (\Throwable $e) {
-            $this->logger->critical($e->getMessage(), ['message' => $msg]);
+            $this->logger->critical($e->getMessage(), ['message' => $msg, 'exception' => $e]);
         }
 
         return true;
