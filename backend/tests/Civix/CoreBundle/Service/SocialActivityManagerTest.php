@@ -8,11 +8,15 @@ use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\Poll;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Entity\UserPetition;
+use Civix\CoreBundle\Repository\SocialActivityRepository;
 use Civix\CoreBundle\Repository\UserRepository;
 use Civix\CoreBundle\Service\SocialActivityFactory;
 use Civix\CoreBundle\Service\SocialActivityManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Internal\Hydration\IterableResult;
+use Doctrine\ORM\Internal\Hydration\SimpleObjectHydrator;
 use PHPUnit\Framework\TestCase;
 
 class SocialActivityManagerTest extends TestCase
@@ -219,5 +223,58 @@ class SocialActivityManagerTest extends TestCase
         $comment = (new Post\Comment(new User()))->setPost($question);
         $manager = $this->getSocialActivityManager($comment, 'createOwnPostCommentedActivity');
         $manager->noticeOwnPostCommented($comment);
+    }
+
+    public function testDeleteUserFollowActivity()
+    {
+        $generator = function (User $user, $followerId) {
+            /** @var \PHPUnit_Framework_MockObject_MockObject|User $follower */
+            $follower = $this->getMockBuilder(User::class)
+                ->setMethods(['getId'])
+                ->getMock();
+            $follower->expects($this->any())
+                ->method('getId')
+                ->willReturn($followerId);
+            $userFollow = (new UserFollow())
+                ->setUser($user)
+                ->setFollower($follower);
+
+            return $userFollow;
+        };
+        $activityFactory = new SocialActivityFactory();
+        $user = new User();
+        $activities = [
+            [$activityFactory->createFollowRequestActivity($generator($user, 6))],
+            [$activityFactory->createFollowRequestActivity($userFollow = $generator($user, 19))],
+            [$activityFactory->createFollowRequestActivity($generator($user, 34))],
+        ];
+        $em = $this->createMock(EntityManagerInterface::class);
+        /** @var \PHPUnit_Framework_MockObject_MockObject|SimpleObjectHydrator $hydrator */
+        $hydrator = $this->getMockBuilder(SimpleObjectHydrator::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['hydrateRow'])
+            ->getMock();
+        $hydrator->expects($this->exactly(2))
+            ->method('hydrateRow')
+            ->willReturnOnConsecutiveCalls(...$activities);
+        $repository = $this->getMockBuilder(SocialActivityRepository::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['findByRecipientAndType'])
+            ->getMock();
+        $repository->expects($this->once())
+            ->method('findByRecipientAndType')
+            ->with($user, SocialActivity::TYPE_FOLLOW_REQUEST)
+            ->willReturn(new IterableResult($hydrator));
+        $em->expects($this->once())
+            ->method('getRepository')
+            ->with(SocialActivity::class)
+            ->willReturn($repository);
+        $em->expects($this->once())
+            ->method('remove')
+            ->with($activities[1][0]);
+        $em->expects($this->once())
+            ->method('flush');
+        $manager = new SocialActivityManager($em, $this->getUserRepositoryMock(), $activityFactory);
+        $manager->deleteUserFollowActivity($userFollow);
     }
 }

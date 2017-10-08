@@ -7,6 +7,7 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Poll;
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Entity\UserPetition;
@@ -209,5 +210,21 @@ class SocialActivityManager
             $this->em->persist($socialActivity);
         }
         $this->em->flush();
+    }
+
+    public function deleteUserFollowActivity(UserFollow $userFollow): void
+    {
+        $iterator = $this->em->getRepository(SocialActivity::class)
+            ->findByRecipientAndType($userFollow->getUser(), SocialActivity::TYPE_FOLLOW_REQUEST);
+        foreach ($iterator as $item) {
+            /** @var SocialActivity $activity */
+            $activity = $item[0];
+            $target = $activity->getTarget();
+            if (!empty($target['id']) && $target['id'] === $userFollow->getFollower()->getId()) {
+                $this->em->remove($activity);
+                $this->em->flush();
+                return;
+            }
+        }
     }
 }
