@@ -28,6 +28,7 @@ class LoadUserFollowerData extends AbstractFixture implements DependentFixtureIn
         $this->addReference('user_3_user_1', $userFollow);
         $userFollow = $this->generateUserFollow($user4, $user1, UserFollow::STATUS_ACTIVE);
         $manager->persist($userFollow);
+        $this->addReference('user_4_user_1', $userFollow);
         
         $manager->flush();
     }

@@ -7,8 +7,8 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Poll;
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -38,9 +38,9 @@ class SocialActivityManager
         $this->activityFactory = $activityFactory;
     }
 
-    public function sendUserFollowRequest(UserFollow $follow): void
+    public function sendUserFollowRequest(User $user, User $follower): void
     {
-        $socialActivity = $this->activityFactory->createFollowRequestActivity($follow);
+        $socialActivity = $this->activityFactory->createFollowRequestActivity($user, $follower);
 
         $this->em->persist($socialActivity);
         $this->em->flush();
@@ -202,6 +202,10 @@ class SocialActivityManager
     {
         $group = $post->getGroup();
         $user = $post->getUser();
+        if (!$group || !$user) {
+            return;
+        }
+
         $recipients = $this->repository->filterByGroupAndFollower($group, $user, ...$users);
 
         foreach ($recipients as $recipient) {
@@ -209,5 +213,21 @@ class SocialActivityManager
             $this->em->persist($socialActivity);
         }
         $this->em->flush();
+    }
+
+    public function deleteUserFollowActivity(User $user, User $follower): void
+    {
+        $iterator = $this->em->getRepository(SocialActivity::class)
+            ->findByRecipientAndType($user, SocialActivity::TYPE_FOLLOW_REQUEST);
+        foreach ($iterator as $item) {
+            /** @var SocialActivity $activity */
+            $activity = $item[0];
+            $target = $activity->getTarget();
+            if (!empty($target['id']) && $target['id'] === $follower->getId()) {
+                $this->em->remove($activity);
+                $this->em->flush();
+                return;
+            }
+        }
     }
 }

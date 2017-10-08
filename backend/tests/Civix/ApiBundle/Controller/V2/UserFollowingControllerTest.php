@@ -1,15 +1,19 @@
 <?php
-namespace Civix\ApiBundle\Tests\Controller\V2;
+namespace Tests\Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\DataCollector\RabbitMQDataCollector;
 use Civix\CoreBundle\Entity\Karma;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserFollow;
+use Civix\CoreBundle\Event\UserEvents;
+use Civix\CoreBundle\Event\UserFollowEvent;
 use Civix\CoreBundle\Test\SocialActivityTester;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadKarmaData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowData;
+use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Tests\Civix\CoreBundle\DataFixtures\ORM\Issue\PM590;
 
@@ -25,7 +29,7 @@ class UserFollowingControllerTest extends WebTestCase
     /**
      * @var Client
      */
-    private $client = null;
+    private $client;
 
     public function setUp()
     {
@@ -55,8 +59,10 @@ class UserFollowingControllerTest extends WebTestCase
         $this->assertSame(1, $data['page']);
         $this->assertSame(20, $data['items']);
         $this->assertSame(3, $data['totalItems']);
-        $this->assertCount(3, $data['payload']);
-        foreach ($data['payload'] as $item) {
+        /** @var array $payload */
+        $payload = $data['payload'];
+        $this->assertCount(3, $payload);
+        foreach ($payload as $item) {
             $this->assertArrayHasKey('status', $item);
             $this->assertThat(
                 $item['id'],
@@ -161,7 +167,9 @@ class UserFollowingControllerTest extends WebTestCase
         $this->assertCount(1, $userFollow);
         $this->assertSame($follower->getId(), $userFollow[0]->getFollower()->getId());
         $this->assertSame(UserFollow::STATUS_PENDING, $userFollow[0]->getStatus());
-        $tester = new SocialActivityTester($client->getContainer()->get('doctrine')->getManager());
+        /** @var EntityManager $em */
+        $em = $client->getContainer()->get('doctrine')->getManager();
+        $tester = new SocialActivityTester($em);
         $tester->assertActivitiesCount(1);
         $tester->assertActivity(SocialActivity::TYPE_FOLLOW_REQUEST, $user->getId());
         $queue = $client->getContainer()->get('civix_core.mock_queue_task');
@@ -241,11 +249,19 @@ class UserFollowingControllerTest extends WebTestCase
         ])->getReferenceRepository();
         $user = $repository->getReference('userfollowtest1');
         $client = $this->client;
+        $client->enableProfiler();
         $client->request('DELETE', self::API_ENDPOINT.'/'.$user->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']);
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         $followers = $this->em->getRepository(UserFollow::class)->findBy(['user' => $user]);
         $this->assertCount(0, $followers);
+        /** @var RabbitMQDataCollector $collector */
+        $collector = $client->getProfile()->getCollector('rabbit_mq');
+        $data = $collector->getData();
+        $this->assertCount(1, $data);
+        $msg = unserialize($data[0]['msg']);
+        $this->assertSame(UserEvents::UNFOLLOW, $msg->getEventName());
+        $this->assertInstanceOf(UserFollowEvent::class, $msg->getEvent());
     }
 
     public function testUnfollowPendingUserIsSuccessful()
@@ -256,10 +272,18 @@ class UserFollowingControllerTest extends WebTestCase
         ])->getReferenceRepository();
         $user = $repository->getReference('userfollowtest2');
         $client = $this->client;
+        $client->enableProfiler();
         $client->request('DELETE', self::API_ENDPOINT.'/'.$user->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']);
         $response = $client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
         $followers = $this->em->getRepository(UserFollow::class)->findBy(['user' => $user]);
         $this->assertCount(0, $followers);
+        /** @var RabbitMQDataCollector $collector */
+        $collector = $client->getProfile()->getCollector('rabbit_mq');
+        $data = $collector->getData();
+        $this->assertCount(1, $data);
+        $msg = unserialize($data[0]['msg']);
+        $this->assertSame(UserEvents::UNFOLLOW, $msg->getEventName());
+        $this->assertInstanceOf(UserFollowEvent::class, $msg->getEvent());
     }
 }

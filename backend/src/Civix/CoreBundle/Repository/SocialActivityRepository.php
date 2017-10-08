@@ -4,6 +4,7 @@ namespace Civix\CoreBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Civix\CoreBundle\Entity\User;
+use Doctrine\ORM\Internal\Hydration\IterableResult;
 use Doctrine\ORM\Query\Expr;
 
 class SocialActivityRepository extends EntityRepository
@@ -70,9 +71,9 @@ class SocialActivityRepository extends EntityRepository
         if ($where->count()) {
             return $qb->where($where)
                 ->getQuery();
-        } else {
-            return [];
         }
+
+        return [];
     }
 
     private function getExprForYouTab(User $user)
@@ -89,17 +90,28 @@ class SocialActivityRepository extends EntityRepository
             ->getRepository('CivixCoreBundle:UserGroup')
             ->getActiveGroupIds($user);
         $expr = $exprBuilder->andX('sa.recipient is NULL');
-        if (empty($activeGroups)) {
+        if (empty($activeGroups) || empty($userFollowingIds)) {
             return null;
-        } else {
-            $expr->add($exprBuilder->in('sa.group', $activeGroups));
         }
-        if (empty($userFollowingIds)) {
-            return null;
-        } else {
-            $expr->add($exprBuilder->in('sa.following', $userFollowingIds));
-        }
+        $expr->add($exprBuilder->in('sa.group', $activeGroups));
+        $expr->add($exprBuilder->in('sa.following', $userFollowingIds));
 
         return $expr;
+    }
+
+    /**
+     * @param User $recipient
+     * @param string $type
+     * @return IterableResult
+     */
+    public function findByRecipientAndType(User $recipient, string $type): IterableResult
+    {
+        return $this->createQueryBuilder('sa')
+            ->where('sa.recipient = :recipient')
+            ->setParameter(':recipient', $recipient)
+            ->andWhere('sa.type = :type')
+            ->setParameter(':type', $type)
+            ->andWhere('sa.ignore IS NULL')
+            ->getQuery()->iterate();
     }
 }

@@ -6,6 +6,7 @@ use Civix\CoreBundle\Entity\Karma;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Event\PostEvent;
+use Civix\CoreBundle\Event\UserFollowEvent;
 use Civix\CoreBundle\EventListener\KarmaSubscriber;
 use Civix\CoreBundle\Repository\KarmaRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -59,6 +60,57 @@ class KarmaSubscriberTest extends TestCase
         $subscriber = new KarmaSubscriber($em, $repository);
         $event = new PostEvent($post);
         $subscriber->createPost($event);
+    }
+
+    public function testApproveFollowRequest()
+    {
+        /** @var \PHPUnit_Framework_MockObject_MockObject|User $follower */
+        $follower = $this->getMockBuilder(User::class)
+            ->setMethods(['getId'])
+            ->getMock();
+        $follower->expects($this->once())
+            ->method('getId')
+            ->willReturn(67);
+        $user = new User();
+        $type = Karma::TYPE_APPROVE_FOLLOW_REQUEST;
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->once())
+            ->method('persist')
+            ->with($this->callback(function (Karma $karma) use ($user, $type) {
+                $this->assertSame($user, $karma->getUser());
+                $this->assertSame($type, $karma->getType());
+                $this->assertSame(10, $karma->getPoints());
+                $this->assertSame(['follower_id' => 67], $karma->getMetadata());
+
+                return true;
+            }));
+        $em->expects($this->once())
+            ->method('flush');
+        $repository = $this->getKarmaRepositoryMock(['findOneByUserAndType']);
+        $repository->expects($this->once())
+            ->method('findOneByUserAndType')
+            ->with($user, $type);
+        $subscriber = new KarmaSubscriber($em, $repository);
+        $event = new UserFollowEvent($user, $follower);
+        $subscriber->approveFollowRequest($event);
+    }
+
+    public function testApproveFollowRequestSecondTime()
+    {
+        $user = new User();
+        $follower = new User();
+        $type = Karma::TYPE_APPROVE_FOLLOW_REQUEST;
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->never())
+            ->method('flush');
+        $repository = $this->getKarmaRepositoryMock(['findOneByUserAndType']);
+        $repository->expects($this->once())
+            ->method('findOneByUserAndType')
+            ->with($user, $type)
+            ->willReturn(new Karma($user, $type, 10));
+        $subscriber = new KarmaSubscriber($em, $repository);
+        $event = new UserFollowEvent($user, $follower);
+        $subscriber->approveFollowRequest($event);
     }
 
     /**
