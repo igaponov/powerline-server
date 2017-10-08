@@ -64,7 +64,7 @@ class ReportSubscriber implements EventSubscriberInterface
 
     public function updateUserReport(Event\UserFollowEvent $event): void
     {
-        $user = $event->getUserFollow()->getUser();
+        $user = $event->getUser();
         $this->em->getRepository(UserReport::class)
             ->upsertUserReport($user, $user->getFollowers()->count());
     }
@@ -159,8 +159,7 @@ class ReportSubscriber implements EventSubscriberInterface
     {
         $this->em->getRepository(UserReport::class)
             ->updateUserReportKarma(
-                $event->getUserFollow()
-                    ->getFollower()
+                $event->getFollower()
             );
     }
 
@@ -168,8 +167,7 @@ class ReportSubscriber implements EventSubscriberInterface
     {
         $this->em->getRepository(UserReport::class)
             ->updateUserReportKarma(
-                $event->getUserFollow()
-                    ->getUser()
+                $event->getUser()
             );
     }
 

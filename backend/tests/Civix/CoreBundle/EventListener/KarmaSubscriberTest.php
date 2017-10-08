@@ -5,7 +5,6 @@ namespace Tests\Civix\CoreBundle\EventListener;
 use Civix\CoreBundle\Entity\Karma;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Event\PostEvent;
 use Civix\CoreBundle\Event\UserFollowEvent;
 use Civix\CoreBundle\EventListener\KarmaSubscriber;
@@ -73,9 +72,6 @@ class KarmaSubscriberTest extends TestCase
             ->method('getId')
             ->willReturn(67);
         $user = new User();
-        $userFollow = (new UserFollow())
-            ->setUser($user)
-            ->setFollower($follower);
         $type = Karma::TYPE_APPROVE_FOLLOW_REQUEST;
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects($this->once())
@@ -95,15 +91,14 @@ class KarmaSubscriberTest extends TestCase
             ->method('findOneByUserAndType')
             ->with($user, $type);
         $subscriber = new KarmaSubscriber($em, $repository);
-        $event = new UserFollowEvent($userFollow);
+        $event = new UserFollowEvent($user, $follower);
         $subscriber->approveFollowRequest($event);
     }
 
     public function testApproveFollowRequestSecondTime()
     {
         $user = new User();
-        $userFollow = new UserFollow();
-        $userFollow->setUser($user);
+        $follower = new User();
         $type = Karma::TYPE_APPROVE_FOLLOW_REQUEST;
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects($this->never())
@@ -114,7 +109,7 @@ class KarmaSubscriberTest extends TestCase
             ->with($user, $type)
             ->willReturn(new Karma($user, $type, 10));
         $subscriber = new KarmaSubscriber($em, $repository);
-        $event = new UserFollowEvent($userFollow);
+        $event = new UserFollowEvent($user, $follower);
         $subscriber->approveFollowRequest($event);
     }
 

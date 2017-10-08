@@ -9,27 +9,26 @@ use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Entity\UserPetition;
 
 class SocialActivityFactory
 {
     const PREVIEW_LENGTH = 20;
 
-    public function createFollowRequestActivity(UserFollow $userFollow): SocialActivity
+    public function createFollowRequestActivity(User $user, User $follower): SocialActivity
     {
         return SocialActivity::createFollowRequest()
-            ->setTarget($this->getFollowRequestTarget($userFollow))
-            ->setRecipient($userFollow->getUser());
+            ->setTarget($this->getFollowRequestTarget($follower))
+            ->setRecipient($user);
     }
 
-    public function getFollowRequestTarget(UserFollow $userFollow): array
+    public function getFollowRequestTarget(User $follower): array
     {
         return [
-            'id' => $userFollow->getFollower()->getId(),
+            'id' => $follower->getId(),
             'type' => 'user',
-            'full_name' => $userFollow->getFollower()->getFullName(),
-            'image' => $userFollow->getFollower()->getAvatarFileName(),
+            'full_name' => $follower->getFullName(),
+            'image' => $follower->getAvatarFileName(),
         ];
     }
 

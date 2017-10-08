@@ -33,8 +33,10 @@ class ReportSubscriberTest extends TestCase
     public function testUpdateUserReport(): void
     {
         $user = new User();
-        $userFollow = new UserFollow();
-        $userFollow->setUser($user);
+        $follower = new User();
+        $userFollow = (new UserFollow())
+            ->setUser($user)
+            ->setFollower($follower);
         $user->addFollower($userFollow);
         $repository = $this->getUserReportRepositoryMock(['upsertUserReport']);
         $repository->expects($this->once())
@@ -42,7 +44,7 @@ class ReportSubscriberTest extends TestCase
             ->with($user, 1);
         $em = $this->getManagerMock(UserReport::class, $repository);
         $subscriber = new ReportSubscriber($em);
-        $event = new UserFollowEvent($userFollow);
+        $event = new UserFollowEvent($user, $follower);
         $subscriber->updateUserReport($event);
     }
 
@@ -64,15 +66,14 @@ class ReportSubscriberTest extends TestCase
     public function testUpdateKarmaApproveFollowRequest(): void
     {
         $user = new User();
-        $userFollow = new UserFollow();
-        $userFollow->setUser($user);
+        $follower = new User();
         $repository = $this->getUserReportRepositoryMock(['updateUserReportKarma']);
         $repository->expects($this->once())
             ->method('updateUserReportKarma')
             ->with($user);
         $em = $this->getManagerMock(UserReport::class, $repository);
         $subscriber = new ReportSubscriber($em);
-        $event = new UserFollowEvent($userFollow);
+        $event = new UserFollowEvent($user, $follower);
         $subscriber->updateKarmaApproveFollowRequest($event);
     }
 

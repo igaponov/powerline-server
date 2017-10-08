@@ -47,7 +47,7 @@ class SocialActivitySubscriber implements EventSubscriberInterface
 
     public function sendUserFollowRequest(Event\UserFollowEvent $event)
     {
-        $this->manager->sendUserFollowRequest($event->getUserFollow());
+        $this->manager->sendUserFollowRequest($event->getUser(), $event->getFollower());
     }
 
     public function noticeGroupsPermissionsChanged(Event\GroupEvent $event)
@@ -99,6 +99,6 @@ class SocialActivitySubscriber implements EventSubscriberInterface
 
     public function deleteUserFollowRequest(Event\UserFollowEvent $event)
     {
-        $this->manager->deleteUserFollowActivity($event->getUserFollow());
+        $this->manager->deleteUserFollowActivity($event->getUser(), $event->getFollower());
     }
 }

@@ -8,7 +8,6 @@ use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\Poll;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Repository\SocialActivityRepository;
 use Civix\CoreBundle\Repository\UserRepository;
@@ -227,7 +226,7 @@ class SocialActivityManagerTest extends TestCase
 
     public function testDeleteUserFollowActivity()
     {
-        $generator = function (User $user, $followerId) {
+        $generator = function ($followerId) {
             /** @var \PHPUnit_Framework_MockObject_MockObject|User $follower */
             $follower = $this->getMockBuilder(User::class)
                 ->setMethods(['getId'])
@@ -235,18 +234,15 @@ class SocialActivityManagerTest extends TestCase
             $follower->expects($this->any())
                 ->method('getId')
                 ->willReturn($followerId);
-            $userFollow = (new UserFollow())
-                ->setUser($user)
-                ->setFollower($follower);
 
-            return $userFollow;
+            return $follower;
         };
         $activityFactory = new SocialActivityFactory();
         $user = new User();
         $activities = [
-            [$activityFactory->createFollowRequestActivity($generator($user, 6))],
-            [$activityFactory->createFollowRequestActivity($userFollow = $generator($user, 19))],
-            [$activityFactory->createFollowRequestActivity($generator($user, 34))],
+            [$activityFactory->createFollowRequestActivity($user, $generator(6))],
+            [$activityFactory->createFollowRequestActivity($user, $follower = $generator(19))],
+            [$activityFactory->createFollowRequestActivity($user, $generator(34))],
         ];
         $em = $this->createMock(EntityManagerInterface::class);
         /** @var \PHPUnit_Framework_MockObject_MockObject|SimpleObjectHydrator $hydrator */
@@ -275,6 +271,6 @@ class SocialActivityManagerTest extends TestCase
         $em->expects($this->once())
             ->method('flush');
         $manager = new SocialActivityManager($em, $this->getUserRepositoryMock(), $activityFactory);
-        $manager->deleteUserFollowActivity($userFollow);
+        $manager->deleteUserFollowActivity($user, $follower);
     }
 }

@@ -6,7 +6,6 @@ use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\Poll;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Event\CommentEvent;
 use Civix\CoreBundle\Event\PostEvent;
@@ -96,12 +95,13 @@ class SocialActivitySubscriberTest extends TestCase
 
     public function testDeleteUserFollowRequest()
     {
-        $userFollow = new UserFollow();
-        $event = new UserFollowEvent($userFollow);
+        $user = new User();
+        $follower = new User();
+        $event = new UserFollowEvent($user, $follower);
         $manager = $this->getSocialActivityManagerMock(['deleteUserFollowActivity']);
         $manager->expects($this->once())
             ->method('deleteUserFollowActivity')
-            ->with($userFollow);
+            ->with($user, $follower);
         $em = $this->createMock(EntityManagerInterface::class);
         $subscriber = new SocialActivitySubscriber($manager, $em);
         $subscriber->deleteUserFollowRequest($event);

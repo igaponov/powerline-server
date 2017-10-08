@@ -216,7 +216,7 @@ class FollowController extends BaseController
         $userFollowRepo = $this->getDoctrine()->getRepository(UserFollow::class);
         $userFollowRepo->handle($follow);
 
-        $event = new UserFollowEvent($follow);
+        $event = new UserFollowEvent($user, $this->getUser());
         $this->get('event_dispatcher')->dispatch(UserEvents::FOLLOW, $event);
     }
 }

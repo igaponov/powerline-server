@@ -22,11 +22,11 @@ class PS617 extends AbstractFixture implements DependentFixtureInterface
         /** @var UserFollow $userFollow4 */
         $userFollow4 = $this->getReference('user_4_user_1');
 
-        $activity = $factory->createFollowRequestActivity($userFollow2);
+        $activity = $factory->createFollowRequestActivity($userFollow2->getUser(), $userFollow2->getFollower());
         $manager->persist($activity);
-        $activity = $factory->createFollowRequestActivity($userFollow3);
+        $activity = $factory->createFollowRequestActivity($userFollow3->getUser(), $userFollow3->getFollower());
         $manager->persist($activity);
-        $activity = $factory->createFollowRequestActivity($userFollow4);
+        $activity = $factory->createFollowRequestActivity($userFollow4->getUser(), $userFollow4->getFollower());
         $manager->persist($activity);
 
         $manager->flush();

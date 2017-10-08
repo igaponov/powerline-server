@@ -57,11 +57,10 @@ class KarmaSubscriber implements EventSubscriberInterface
 
     public function follow(Event\UserFollowEvent $event)
     {
-        $userFollow = $event->getUserFollow();
-        $user = $userFollow->getFollower();
+        $user = $event->getFollower();
         $karma = $this->repository->findOneByUserAndType($user, Karma::TYPE_FOLLOW);
         if (!$karma) {
-            $karma = new Karma($user, Karma::TYPE_FOLLOW, 10, ['following_id' => $userFollow->getUser()->getId()]);
+            $karma = new Karma($user, Karma::TYPE_FOLLOW, 10, ['following_id' => $event->getUser()->getId()]);
             $this->em->persist($karma);
             $this->em->flush();
         }
@@ -69,12 +68,11 @@ class KarmaSubscriber implements EventSubscriberInterface
 
     public function approveFollowRequest(Event\UserFollowEvent $event)
     {
-        $userFollow = $event->getUserFollow();
-        $user = $userFollow->getUser();
+        $user = $event->getUser();
         $karma = $this->repository
             ->findOneByUserAndType($user, Karma::TYPE_APPROVE_FOLLOW_REQUEST);
         if (!$karma) {
-            $karma = new Karma($user, Karma::TYPE_APPROVE_FOLLOW_REQUEST, 10, ['follower_id' => $userFollow->getFollower()->getId()]);
+            $karma = new Karma($user, Karma::TYPE_APPROVE_FOLLOW_REQUEST, 10, ['follower_id' => $event->getFollower()->getId()]);
             $this->em->persist($karma);
             $this->em->flush();
         }

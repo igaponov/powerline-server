@@ -43,7 +43,7 @@ class FixTargetDataCommand extends ContainerAwareCommand
                         'follower' => $target['id'] ?? 0,
                     ]);
                     if ($userFollow) {
-                        $activity->setTarget($factory->getFollowRequestTarget($userFollow));
+                        $activity->setTarget($factory->getFollowRequestTarget($userFollow->getFollower()));
                     }
                     break;
             }
