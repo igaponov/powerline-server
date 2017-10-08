@@ -6,9 +6,11 @@ use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\Poll;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Event\CommentEvent;
 use Civix\CoreBundle\Event\PostEvent;
+use Civix\CoreBundle\Event\UserFollowEvent;
 use Civix\CoreBundle\Event\UserPetitionEvent;
 use Civix\CoreBundle\EventListener\SocialActivitySubscriber;
 use Civix\CoreBundle\Service\SocialActivityManager;
@@ -90,6 +92,19 @@ class SocialActivitySubscriberTest extends TestCase
                 'noticeOwnPostCommented',
             ],
         ];
+    }
+
+    public function testDeleteUserFollowRequest()
+    {
+        $userFollow = new UserFollow();
+        $event = new UserFollowEvent($userFollow);
+        $manager = $this->getSocialActivityManagerMock(['deleteUserFollowActivity']);
+        $manager->expects($this->once())
+            ->method('deleteUserFollowActivity')
+            ->with($userFollow);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $subscriber = new SocialActivitySubscriber($manager, $em);
+        $subscriber->deleteUserFollowRequest($event);
     }
 
     /**

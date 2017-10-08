@@ -203,6 +203,10 @@ class SocialActivityManager
     {
         $group = $post->getGroup();
         $user = $post->getUser();
+        if (!$group || !$user) {
+            return;
+        }
+
         $recipients = $this->repository->filterByGroupAndFollower($group, $user, ...$users);
 
         foreach ($recipients as $recipient) {
