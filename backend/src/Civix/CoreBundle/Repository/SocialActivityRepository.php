@@ -71,9 +71,9 @@ class SocialActivityRepository extends EntityRepository
         if ($where->count()) {
             return $qb->where($where)
                 ->getQuery();
-        } else {
-            return [];
         }
+
+        return [];
     }
 
     private function getExprForYouTab(User $user)
@@ -90,16 +90,11 @@ class SocialActivityRepository extends EntityRepository
             ->getRepository('CivixCoreBundle:UserGroup')
             ->getActiveGroupIds($user);
         $expr = $exprBuilder->andX('sa.recipient is NULL');
-        if (empty($activeGroups)) {
+        if (empty($activeGroups) || empty($userFollowingIds)) {
             return null;
-        } else {
-            $expr->add($exprBuilder->in('sa.group', $activeGroups));
         }
-        if (empty($userFollowingIds)) {
-            return null;
-        } else {
-            $expr->add($exprBuilder->in('sa.following', $userFollowingIds));
-        }
+        $expr->add($exprBuilder->in('sa.group', $activeGroups));
+        $expr->add($exprBuilder->in('sa.following', $userFollowingIds));
 
         return $expr;
     }
