@@ -4,6 +4,7 @@ namespace Civix\CoreBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Civix\CoreBundle\Entity\User;
+use Doctrine\ORM\Internal\Hydration\IterableResult;
 use Doctrine\ORM\Query\Expr;
 
 class SocialActivityRepository extends EntityRepository
@@ -101,5 +102,21 @@ class SocialActivityRepository extends EntityRepository
         }
 
         return $expr;
+    }
+
+    /**
+     * @param User $recipient
+     * @param string $type
+     * @return IterableResult
+     */
+    public function findByRecipientAndType(User $recipient, string $type): IterableResult
+    {
+        return $this->createQueryBuilder('sa')
+            ->where('sa.recipient = :recipient')
+            ->setParameter(':recipient', $recipient)
+            ->andWhere('sa.type = :type')
+            ->setParameter(':type', $type)
+            ->andWhere('sa.ignore IS NULL')
+            ->getQuery()->iterate();
     }
 }
