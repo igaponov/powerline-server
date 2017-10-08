@@ -30,6 +30,8 @@ class SocialActivitySubscriber implements EventSubscriberInterface
     {
         return [
             Event\UserEvents::FOLLOW => ['sendUserFollowRequest', -100],
+            Event\UserEvents::UNFOLLOW => ['deleteUserFollowRequest', -100],
+            Event\UserEvents::FOLLOW_REQUEST_APPROVE => ['deleteUserFollowRequest', -100],
             Event\GroupEvents::PERMISSIONS_CHANGED => ['noticeGroupsPermissionsChanged', -100],
             Event\UserPetitionEvents::PETITION_CREATE => ['noticeUserPetitionCreated', -100],
             Event\PostEvents::POST_CREATE => [
@@ -93,5 +95,10 @@ class SocialActivitySubscriber implements EventSubscriberInterface
     public function noticeGroupJoiningApproved(Event\GroupUserEvent $event)
     {
         $this->manager->noticeGroupJoiningApproved($event->getUser(), $event->getGroup());
+    }
+
+    public function deleteUserFollowRequest(Event\UserFollowEvent $event)
+    {
+        $this->manager->deleteUserFollowActivity($event->getUserFollow());
     }
 }
