@@ -29,7 +29,8 @@ class AsyncEventConsumerTest extends TestCase
             ->getMock();
         $proxyFactory->expects($this->once())
             ->method('resetUninitializedProxy')
-            ->with($subject);
+            ->with($subject)
+            ->willReturnArgument(0);
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects($this->once())
             ->method('getProxyFactory')

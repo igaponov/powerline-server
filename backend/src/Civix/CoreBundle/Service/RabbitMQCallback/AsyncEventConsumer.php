@@ -67,7 +67,8 @@ class AsyncEventConsumer implements ConsumerInterface
             $property->setAccessible(true);
             $value = $property->getValue($originalEvent);
             if ($value instanceof Proxy) {
-                $proxyFactory->resetUninitializedProxy($value);
+                $value = $proxyFactory->resetUninitializedProxy($value);
+                $property->setValue($originalEvent, $value);
             }
             $property->setAccessible(false);
         }
