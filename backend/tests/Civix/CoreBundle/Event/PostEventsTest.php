@@ -38,6 +38,15 @@ class PostEventsTest extends EventsTestCase
         $this->assertListeners(PostEvents::POST_CREATE, PostEvent::class, $expectedListeners);
     }
 
+    public function testUpdateEvent(): void
+    {
+        $expectedListeners = [
+            [LeaderContentSubscriber::class, 'addPostHashTags'],
+            [ActivityUpdateSubscriber::class, 'publishPostToActivity'],
+        ];
+        $this->assertListeners(PostEvents::POST_UPDATE, PostEvent::class, $expectedListeners);
+    }
+
     public function testShareEvent()
     {
         $expectedListeners = [
