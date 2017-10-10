@@ -6,7 +6,6 @@ use Civix\CoreBundle\Service\RabbitMQCallback\AsyncEventConsumer;
 use Civix\CoreBundle\Service\RabbitMQCallback\EventMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Proxy\Proxy;
-use Doctrine\ORM\Proxy\ProxyFactory;
 use PhpAmqpLib\Message\AMQPMessage;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -23,19 +22,11 @@ class AsyncEventConsumerTest extends TestCase
         $event = new GenericEvent($subject);
         $message = new EventMessage($eventName, $event);
         $msg = new AMQPMessage(serialize($message));
-        $proxyFactory = $this->getMockBuilder(ProxyFactory::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['resetUninitializedProxy'])
-            ->getMock();
-        $proxyFactory->expects($this->once())
-            ->method('resetUninitializedProxy')
-            ->with($subject)
-            ->willReturnArgument(0);
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects($this->once())
-            ->method('getProxyFactory')
-            ->with()
-            ->willReturn($proxyFactory);
+            ->method('merge')
+            ->with($subject)
+            ->willReturnArgument(0);
         $dispatcher = $this->getDispatcherMock();
         $dispatcher->expects($this->once())
             ->method('dispatch')
