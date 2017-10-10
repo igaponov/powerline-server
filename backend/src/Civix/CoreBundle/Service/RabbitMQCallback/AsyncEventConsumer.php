@@ -52,7 +52,7 @@ class AsyncEventConsumer implements ConsumerInterface
             $this->resetUninitializedProxies($originalEvent);
             $this->dispatcher->dispatch($message->getEventName(), $originalEvent);
         } catch (\Throwable $e) {
-            $this->logger->critical($e->getMessage(), ['message' => $msg, 'exception' => $e]);
+            $this->logger->critical($e->getMessage(), ['message' => $message, 'exception' => $e]);
         }
 
         return true;
@@ -62,12 +62,11 @@ class AsyncEventConsumer implements ConsumerInterface
     {
         $object = new \ReflectionObject($originalEvent);
         $properties = $object->getProperties();
-        $proxyFactory = $this->em->getProxyFactory();
         foreach ($properties as $property) {
             $property->setAccessible(true);
             $value = $property->getValue($originalEvent);
             if ($value instanceof Proxy) {
-                $value = $proxyFactory->resetUninitializedProxy($value);
+                $value = $this->em->merge($value);
                 $property->setValue($originalEvent, $value);
             }
             $property->setAccessible(false);
