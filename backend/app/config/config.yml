@@ -232,11 +232,15 @@ old_sound_rabbit_mq:
             exchange_options:   {name: 'push-queue', type: direct }
             queue_options:      {name: 'push-queue'}
             callback:           civix_core.rabbit.push_queue
+            idle_timeout:           60
+            idle_timeout_exit_code: 0
         async_event:
             connection:         default
             exchange_options:   {name: 'async-event', type: direct}
             queue_options:      {name: 'async-event'}
             callback:           civix_core.rabbit.async_event_consumer
+            idle_timeout:           60
+            idle_timeout_exit_code: 0
             enable_logger:      '%kernel.debug%'
 
 stof_doctrine_extensions:
