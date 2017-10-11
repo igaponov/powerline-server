@@ -223,6 +223,7 @@ old_sound_rabbit_mq:
         async_event:
             connection:         default
             exchange_options:   {name: 'async-event', type: direct}
+            enable_logger:      '%kernel.debug%'
 
     # define consumers
     consumers:
@@ -236,6 +237,7 @@ old_sound_rabbit_mq:
             exchange_options:   {name: 'async-event', type: direct}
             queue_options:      {name: 'async-event'}
             callback:           civix_core.rabbit.async_event_consumer
+            enable_logger:      '%kernel.debug%'
 
 stof_doctrine_extensions:
     default_locale: en_US
