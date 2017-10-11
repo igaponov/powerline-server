@@ -43,7 +43,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class User implements
     UserInterface,
-    \Serializable,
     OfficialInterface,
     HasAvatarInterface,
     ChangeableAvatarInterface,
@@ -68,7 +67,7 @@ class User implements
      *      "api-invites-create", "api-follow-create", "api-leader-answers", "api-short-info", "user-list"}
      * )
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
@@ -1554,28 +1553,6 @@ class User implements
         return $this->following->map(function (UserFollow $userFollow) {
                     return $userFollow->getUser()->getId();
         })->toArray();
-    }
-
-    /**
-     * Serializes the user.
-     *
-     * @return string
-     */
-    public function serialize(): string
-    {
-        return serialize([
-            $this->id,
-        ]);
-    }
-
-    /**
-     * Unserializes the user.
-     *
-     * @param string $serialized
-     */
-    public function unserialize($serialized): void
-    {
-        [$this->id] = unserialize($serialized, ['allowed_classes' => false]);
     }
 
     /**
