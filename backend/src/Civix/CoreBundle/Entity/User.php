@@ -43,6 +43,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class User implements
     UserInterface,
+    \Serializable,
     OfficialInterface,
     HasAvatarInterface,
     ChangeableAvatarInterface,
@@ -665,6 +666,16 @@ class User implements
         $this->isNotifScheduled = false;
         $this->isNotifOwnPostChanged = true;
         $this->followedDoNotDisturbTill = new DateTime();
+    }
+
+    public function serialize(): string
+    {
+        return serialize($this->getId());
+    }
+
+    public function unserialize($serialized): void
+    {
+        $this->id = unserialize($serialized);
     }
 
     /**
