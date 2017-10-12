@@ -9,6 +9,8 @@ use PhpAmqpLib\Message\AMQPMessage;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\VarDumper\Cloner\VarCloner;
+use Symfony\Component\VarDumper\Dumper\CliDumper;
 
 class AsyncEventConsumer implements ConsumerInterface
 {
@@ -24,6 +26,14 @@ class AsyncEventConsumer implements ConsumerInterface
      * @var LoggerInterface
      */
     private $logger;
+    /**
+     * @var VarCloner
+     */
+    private $cloner;
+    /**
+     * @var CliDumper
+     */
+    private $dumper;
 
     public function __construct(
         EntityManagerInterface $em,
@@ -33,6 +43,10 @@ class AsyncEventConsumer implements ConsumerInterface
         $this->em = $em;
         $this->dispatcher = $dispatcher;
         $this->logger = $logger;
+        $this->cloner = new VarCloner();
+        $this->cloner->setMaxItems(-1);
+        $this->dumper = new CliDumper(null, null);
+        $this->dumper->setColors(false);
     }
 
     /**
@@ -41,18 +55,26 @@ class AsyncEventConsumer implements ConsumerInterface
      */
     public function execute(AMQPMessage $msg): bool
     {
-        $this->logger->debug('Handle async event.', ['message' => $msg]);
         $message = @unserialize($msg->getBody());
         if (!$message instanceof EventMessage) {
-            $this->logger->critical('Wrong message for async event queue.', ['message' => $msg]);
+            $this->logger->critical('Wrong message for async event queue.', [
+                'message' => $msg,
+            ]);
             return true;
         }
+        $clone = $this->cloner->cloneVar($message)->withRefHandles(false);
+        $this->logger->debug('Handle async event.', [
+            'message' => $this->dumper->dump($clone, true),
+        ]);
         $originalEvent = $message->getEvent();
         try {
             $this->resetUninitializedProxies($originalEvent);
             $this->dispatcher->dispatch($message->getEventName(), $originalEvent);
         } catch (\Throwable $e) {
-            $this->logger->critical($e->getMessage(), ['message' => var_export($message, true), 'exception' => $e]);
+            $this->logger->critical($e->getMessage(), [
+                'message' => $this->dumper->dump($clone, true),
+                'exception' => $e,
+            ]);
         }
 
         return true;
