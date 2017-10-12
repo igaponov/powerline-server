@@ -265,11 +265,10 @@ class GroupController extends FOSRestController
      * @Method("GET")
      *
      * @QueryParam(name="status", requirements="pending|active|banned", nullable=true, description="Filter by user's status in the group.")
+     * @QueryParam(name="username", requirements="\w{2,}", nullable=true, description="Filter by username.")
      * @QueryParam(name="page", requirements="\d+", default="1")
      * @QueryParam(name="per_page", requirements="(10|20)", default="20")
      * 
-     * @ParamConverter("group")
-     *
      * @ApiDoc(
      *     authentication=true,
      *     section="Groups",
