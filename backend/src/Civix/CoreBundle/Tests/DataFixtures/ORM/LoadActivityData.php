@@ -32,7 +32,9 @@ class LoadActivityData extends AbstractFixture implements DependentFixtureInterf
         /** @var User $user1 */
         $user1 = $this->getReference('user_1');
         $leaderNews = $this->generateActivity(new LeaderNews(), $user1, $group)
-            ->setSentAt(new \DateTime('-20 minute'));
+            ->setSentAt(new \DateTime('-20 minute'))
+            ->setDescription('some text with hash tag #breakingnews here')
+            ->setDescriptionHtml('some text with hash tag #breakingnews here');
         $manager->persist($leaderNews);
         $this->addReference('activity_leader_news', $leaderNews);
         $crowdfundingPaymentRequest = $this->generateActivity(

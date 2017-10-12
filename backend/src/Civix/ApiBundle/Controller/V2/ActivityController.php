@@ -57,6 +57,7 @@ class ActivityController extends FOSRestController
      * @QueryParam(name="post_id", requirements="\d+", description="Filter by post id")
      * @QueryParam(name="poll_id", requirements="\d+", description="Filter by poll id")
      * @QueryParam(name="petition_id", requirements="\d+", description="Filter by petition id")
+     * @QueryParam(name="hash_tag", requirements=".+", description="Filter by hash tag")
      * @QueryParam(name="page", requirements="\d+", default="1")
      * @QueryParam(name="per_page", requirements="(10|15|20)", default="20")
      *
@@ -108,7 +109,8 @@ class ActivityController extends FOSRestController
                     [
                         $queryBuilder::getFilterByFollowing($userFollow->getUser()),
                         $queryBuilder::getFilterByGroup($params->get('group')),
-                        $queryBuilder::getFilterByStartAt($start)
+                        $queryBuilder::getFilterByStartAt($start),
+                        $queryBuilder::getFilterByHashTag($params->get('hash_tag')),
                     ]
                 );
             }
@@ -124,7 +126,8 @@ class ActivityController extends FOSRestController
                     [
                         $queryBuilder::getFilterByFollowing($following),
                         $queryBuilder::getFilterByGroup($params->get('group')),
-                        $queryBuilder::getFilterByStartAt($start)
+                        $queryBuilder::getFilterByStartAt($start),
+                        $queryBuilder::getFilterByHashTag($params->get('hash_tag')),
                     ]
                 );
             }
@@ -135,7 +138,8 @@ class ActivityController extends FOSRestController
                 [
                     $queryBuilder::getFilterByFollowed($user),
                     $queryBuilder::getFilterByGroup($params->get('group')),
-                    $queryBuilder::getFilterByStartAt($start)
+                    $queryBuilder::getFilterByStartAt($start),
+                    $queryBuilder::getFilterByHashTag($params->get('hash_tag')),
                 ],
                 true
             );
@@ -146,7 +150,8 @@ class ActivityController extends FOSRestController
                 [
                     $queryBuilder::getFilterByNonFollowed($user),
                     $queryBuilder::getFilterByGroup($params->get('group')),
-                    $queryBuilder::getFilterByStartAt($start)
+                    $queryBuilder::getFilterByStartAt($start),
+                    $queryBuilder::getFilterByHashTag($params->get('hash_tag')),
                 ]
             );
         } elseif ($params->get('post_id')) {
@@ -156,6 +161,7 @@ class ActivityController extends FOSRestController
                 [
                     $queryBuilder::getFilterByStartAt($start),
                     $queryBuilder::getFilterByPostId($params->get('post_id')),
+                    $queryBuilder::getFilterByHashTag($params->get('hash_tag')),
                 ]
             );
         } elseif ($params->get('poll_id')) {
@@ -165,6 +171,7 @@ class ActivityController extends FOSRestController
                 [
                     $queryBuilder::getFilterByStartAt($start),
                     $queryBuilder::getFilterByPollId($params->get('poll_id')),
+                    $queryBuilder::getFilterByHashTag($params->get('hash_tag')),
                 ]
             );
         } elseif ($params->get('petition_id')) {
@@ -174,6 +181,7 @@ class ActivityController extends FOSRestController
                 [
                     $queryBuilder::getFilterByStartAt($start),
                     $queryBuilder::getFilterByPetitionId($params->get('petition_id')),
+                    $queryBuilder::getFilterByHashTag($params->get('hash_tag')),
                 ]
             );
         } else {
@@ -182,7 +190,8 @@ class ActivityController extends FOSRestController
                 $activityTypes,
                 [
                     $queryBuilder::getFilterByGroup($params->get('group')),
-                    $queryBuilder::getFilterByStartAt($start)
+                    $queryBuilder::getFilterByStartAt($start),
+                    $queryBuilder::getFilterByHashTag($params->get('hash_tag')),
                 ]
             );
         }
