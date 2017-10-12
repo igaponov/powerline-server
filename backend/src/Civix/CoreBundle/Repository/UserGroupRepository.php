@@ -18,7 +18,7 @@ class UserGroupRepository extends EntityRepository
             ->where('gu.group = :group')
             ->setParameter('group', $group);
 
-        if (!is_null($status)) {
+        if (null !== $status) {
             $query
                 ->andWhere('gu.status = :status')
                 ->setParameter('status', $status);
@@ -95,7 +95,7 @@ class UserGroupRepository extends EntityRepository
             ->where('gu.group = :group')
             ->setParameter('group', $group);
 
-        if (!is_null($status)) {
+        if (null !== $status) {
             $queryBuilder
                 ->andWhere('gu.status = :status')
                 ->setParameter('status', $status);
@@ -106,7 +106,7 @@ class UserGroupRepository extends EntityRepository
         return $queryBuilder->getQuery();
     }
 
-    public function getFindByGroupQuery(Group $group, $params = [])
+    public function getFindByGroupQuery(Group $group, array $params = [])
     {
         $qb = $this->createQueryBuilder('ug')
             ->select('ug', 'u', 'g', 'gm')
@@ -117,7 +117,7 @@ class UserGroupRepository extends EntityRepository
             ->setParameter('group', $group)
             ->orderBy('u.id', 'ASC');
         $labels = UserGroup::getStatusLabels();
-        if (!empty($params['status']) && $status = array_search($params['status'], $labels) !== false) {
+        if (!empty($params['status']) && ($status = array_search($params['status'], $labels, true)) !== false) {
             $qb->andWhere('ug.status = :status')
                 ->setParameter(':status', $status);
         }
