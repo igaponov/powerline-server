@@ -99,6 +99,16 @@ final class ActivitiesQuery
         };
     }
 
+    public static function getFilterByHashTag(string $hashTag): \Closure
+    {
+        return function (QueryBuilder $qb) use ($hashTag) {
+            if ($hashTag) {
+                $qb->andWhere('act.description LIKE :description')
+                    ->setParameter(':description', '%#'.ltrim($hashTag, '#').'%');
+            }
+        };
+    }
+
     public function __invoke(User $user, ?array $types, array $filters, bool $addPublicGroups = false): Query
     {
         $builder = new ActivitiesQueryBuilder($this->em);

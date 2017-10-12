@@ -163,6 +163,26 @@ class ActivityControllerTest extends WebTestCase
     /**
      * @QueryCount(6)
      */
+	public function testGetActivitiesFilteredByHashTagIsOk(): void
+    {
+        $this->loadFixtures([
+            LoadActivityData::class,
+            LoadUserGroupOwnerData::class,
+        ]);
+        $client = $this->client;
+        $client->request('GET', self::API_ENDPOINT, ['hash_tag' => '#breakingnews'], [], ['HTTP_Authorization'=>'Bearer user1']);
+		$response = $client->getResponse();
+		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+		$data = json_decode($response->getContent(), true);
+		$this->assertSame(1, $data['page']);
+		$this->assertSame(20, $data['items']);
+		$this->assertSame(1, $data['totalItems']);
+		$this->assertCount(1, $data['payload']);
+	}
+
+    /**
+     * @QueryCount(6)
+     */
 	public function testGetActivitiesFilteredByContentIdIsOk(): void
     {
         $repository = $this->loadFixtures([
