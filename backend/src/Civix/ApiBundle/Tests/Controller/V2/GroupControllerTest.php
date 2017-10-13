@@ -381,12 +381,13 @@ class GroupControllerTest extends WebTestCase
         $repository = $this->loadFixtures([
             LoadUserGroupData::class,
             LoadGroupManagerData::class,
+            LoadUserGroupOwnerData::class,
         ])->getReferenceRepository();
 		$group = $repository->getReference('group_1');
 		$client = $this->client;
 		$headers = ['HTTP_Authorization' => 'Bearer user1'];
         foreach ($this->getUsernames() as $username => $count) {
-            $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/users', ['username' => $username], [], $headers);
+            $client->request('GET', self::API_ENDPOINT.'/'.$group->getId().'/users', ['query' => $username], [], $headers);
             $response = $client->getResponse();
             $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
             $data = json_decode($response->getContent(), true);
@@ -400,10 +401,12 @@ class GroupControllerTest extends WebTestCase
     public function getUsernames()
     {
         return [
-            'z' => 3, // 2 letters minimum
+            'z' => 4, // 2 letters minimum
             'se' => 0, // should be the beginning of a username
-            'us' => 3,
-            'user2' => 1,
+            'us' => 4, // partial
+            'Use' => 4, // first name
+            'One' => 1, // last name
+            'user2' => 1, // username
         ];
 	}
 

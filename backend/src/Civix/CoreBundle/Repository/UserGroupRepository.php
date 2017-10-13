@@ -121,9 +121,15 @@ class UserGroupRepository extends EntityRepository
             $qb->andWhere('ug.status = :status')
                 ->setParameter(':status', $status);
         }
-        if (!empty($params['username'])) {
-            $qb->andWhere('u.username LIKE :username')
-                ->setParameter(':username', "{$params['username']}%");
+        if (!empty($params['query'])) {
+            $qb->andWhere(
+                $qb->expr()->orX(
+                    'u.username LIKE :query',
+                    'u.firstName LIKE :query',
+                    'u.lastName LIKE :query'
+                )
+            )
+                ->setParameter(':query', "{$params['query']}%");
         }
 
         return $qb->getQuery();
