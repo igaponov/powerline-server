@@ -6,9 +6,9 @@
   tags: deploy
   service: name=nginx state=stopped
 
-- name: stop php5-fpm
+- name: stop php7.1-fpm
   tags: deploy
-  service: name=php5-fpm state=stopped
+  service: name=php7.1-fpm state=stopped
 
 - name: stop supervisor payments
   tags: deploy
@@ -28,9 +28,9 @@
   command: rm /srv/{{ project }}/web/app_dev.php
   when: dev_env is not defined
 
-- name: start php5-fpm
+- name: start php7.1-fpm
   tags: deploy
-  service: name=php5-fpm state=started
+  service: name=php7.1-fpm state=started
 
 - name: start nginx
   tags: deploy
