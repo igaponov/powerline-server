@@ -6,6 +6,7 @@ use Civix\CoreBundle\Model\Group\GroupSectionTrait;
 use Civix\CoreBundle\Parser\UrlConverter;
 use Civix\CoreBundle\Serializer\Type\Image;
 use Civix\CoreBundle\Validator\Constraints\PublishDate;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
@@ -71,14 +72,14 @@ abstract class Announcement implements LeaderContentInterface
     private $contentParsed;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      */
     private $createdAt;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="published_at", type="datetime", nullable=true)
      * @Serializer\Expose()
@@ -115,6 +116,7 @@ abstract class Announcement implements LeaderContentInterface
     {
         $this->groupSections = new ArrayCollection();
         $this->announcementRead = new ArrayCollection();
+        $this->createdAt = new DateTime();
     }
 
     /**
@@ -122,7 +124,7 @@ abstract class Announcement implements LeaderContentInterface
      *
      * @return int
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -134,7 +136,7 @@ abstract class Announcement implements LeaderContentInterface
      *
      * @return Announcement
      */
-    public function setContent($content)
+    public function setContent(string $content): Announcement
     {
         $this->content = $content;
         $this->setContentParsed(UrlConverter::convert($content));
@@ -147,7 +149,7 @@ abstract class Announcement implements LeaderContentInterface
      *
      * @return string
      */
-    public function getContent()
+    public function getContent(): ?string
     {
         return $this->content;
     }
@@ -159,7 +161,7 @@ abstract class Announcement implements LeaderContentInterface
      *
      * @return Announcement
      */
-    public function setContentParsed($contentParsed)
+    public function setContentParsed(string $contentParsed): Announcement
     {
         $this->contentParsed = $contentParsed;
 
@@ -171,31 +173,17 @@ abstract class Announcement implements LeaderContentInterface
      *
      * @return string
      */
-    public function getContentParsed()
+    public function getContentParsed(): ?string
     {
         return $this->contentParsed;
     }
 
     /**
-     * Set createdAt.
-     *
-     * @param \DateTime $createdAt
-     *
-     * @return Announcement
-     */
-    public function setCreatedAt($createdAt)
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    /**
      * Get createdAt.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getCreatedAt()
+    public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
     }
@@ -203,11 +191,11 @@ abstract class Announcement implements LeaderContentInterface
     /**
      * Set publishedAt.
      *
-     * @param \DateTime $publishedAt
+     * @param DateTime $publishedAt
      *
      * @return Announcement
      */
-    public function setPublishedAt($publishedAt)
+    public function setPublishedAt(DateTime $publishedAt): Announcement
     {
         $this->publishedAt = $publishedAt;
 
@@ -217,22 +205,14 @@ abstract class Announcement implements LeaderContentInterface
     /**
      * Get publishedAt.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getPublishedAt()
+    public function getPublishedAt(): ?DateTime
     {
         return $this->publishedAt;
     }
 
-    /**
-     * @ORM\PrePersist()
-     */
-    public function setCreatedDate()
-    {
-        $this->setCreatedAt(new \DateTime());
-    }
-
-    public function isContentValid(ExecutionContextInterface $context)
+    public function isContentValid(ExecutionContextInterface $context): void
     {
         $text = preg_replace(array('/<a[^>]+href[^>]+>/', '/<\/a>/'), '', $this->contentParsed);
 
@@ -249,7 +229,7 @@ abstract class Announcement implements LeaderContentInterface
      * @Serializer\SerializedName("share_picture")
      * @Serializer\Type("Image")
      */
-    public function getSharePicture()
+    public function getSharePicture(): Image
     {
         $entity = $this->getRoot();
 
@@ -263,19 +243,22 @@ abstract class Announcement implements LeaderContentInterface
      * @Serializer\Groups({"announcement-list"})
      * @Serializer\Type("boolean")
      */
-    public function isRead()
+    public function isRead(): bool
     {
-        return !!$this->announcementRead->count();
+        return !$this->announcementRead->isEmpty();
     }
 
     /**
      * @param User $user
+     * @return Announcement
      */
-    public function markAsRead(User $user)
+    public function markAsRead(User $user): Announcement
     {
         $this->announcementRead->add(
             new AnnouncementRead($this, $user)
         );
+
+        return $this;
     }
 
     /**
@@ -285,7 +268,7 @@ abstract class Announcement implements LeaderContentInterface
      * @Serializer\SerializedName("user")
      * @Serializer\Groups({"api"})
      */
-    abstract public function getRoot();
+    abstract public function getRoot(): LeaderContentRootInterface;
 
     /**
      * @param LeaderContentRootInterface $root
