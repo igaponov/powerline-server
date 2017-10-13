@@ -1,5 +1,5 @@
 <?php
-namespace Civix\ApiBundle\Tests\Controller\V2\Group;
+namespace Tests\Civix\ApiBundle\Controller\V2\Group;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
@@ -16,7 +16,7 @@ class AnnouncementControllerTest extends WebTestCase
 	/**
 	 * @var Client
 	 */
-	private $client = null;
+	private $client;
 
 	public function setUp()
 	{
