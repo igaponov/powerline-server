@@ -43,7 +43,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class User implements
     UserInterface,
-    \Serializable,
     OfficialInterface,
     HasAvatarInterface,
     ChangeableAvatarInterface,
@@ -118,7 +117,7 @@ class User implements
      * @ORM\Column(name="lastName", type="string", length=255, nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({
-     *  "api-profile", "api-comments", "api-info", "api-petitions-list", 
+     *  "api-profile", "api-comments", "api-info", "api-petitions-list",
      *  "api-petitions-info", "api-search", "api-full-info", "api-invites", "api-leader-answers", "api-short-info", "user-list"
      * })
      * @Serializer\SerializedName("last_name")
@@ -668,14 +667,9 @@ class User implements
         $this->followedDoNotDisturbTill = new DateTime();
     }
 
-    public function serialize(): string
+    public function __sleep()
     {
-        return serialize($this->getId());
-    }
-
-    public function unserialize($serialized): void
-    {
-        $this->id = unserialize($serialized);
+        return ['id'];
     }
 
     /**
