@@ -56,3 +56,5 @@ parameters:
     one_signal.user_auth_key: xxx
 
     propublica_api_key: xxx
+
+    google_api_key: xxx
