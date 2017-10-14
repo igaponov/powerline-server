@@ -35,6 +35,7 @@ class LoadRepresentativeAnnouncementData extends AbstractFixture implements Fixt
         $announcementPublished->setRoot($representative);
         $announcementPublished->setContent($faker->sentence);
         $announcementPublished->setPublishedAt(new \DateTime());
+        $announcementPublished->getImage()->setName('a78c5603173175.png');
         $this->addReference('announcement_jb_3', $announcementPublished);
         $manager->persist($announcementPublished);
 

@@ -157,6 +157,12 @@ knp_gaufrette:
                 bucket_name: '%amazon_s3.bucket%'
                 options:
                     directory: 'posts'
+        image_announcement_adapter:
+            aws_s3:
+                service_id: 'aws.s3'
+                bucket_name: '%amazon_s3.bucket%'
+                options:
+                    directory: 'announcement'
     filesystems:
         avatar_image_fs:
             adapter: avatar_image_adapter
@@ -170,6 +176,8 @@ knp_gaufrette:
             adapter: educational_image_adapter
         blog_post_fs:
             adapter: blog_post_adapter
+        image_announcement_fs:
+            adapter: image_announcement_adapter
 
 vich_uploader:
     db_driver: orm
@@ -208,6 +216,10 @@ vich_uploader:
             upload_destination: blog_post_fs
             namer: vich_uploader.namer_uniqid
             inject_on_load: true
+        image_announcement:
+            uri_prefix: /announcement
+            upload_destination: image_announcement_fs
+            namer: vich_uploader.namer_uniqid
 
 old_sound_rabbit_mq:
     connections: '%rabbitmq_connections%'

@@ -55,9 +55,12 @@ class AnnouncementControllerTest extends WebTestCase
         $this->assertSame(20, $data['items']);
         $this->assertSame(1, $data['totalItems']);
         $this->assertCount(1, $data['payload']);
+        /** @var Announcement $announcement */
         $announcement = $repository->getReference('announcement_jb_3');
-        $this->assertEquals($announcement->getContent(), $data['payload'][0]['content_parsed']);
-        $this->assertFalse($data['payload'][0]['is_read']);
+        $item = $data['payload'][0];
+        $this->assertEquals($announcement->getContent(), $item['content_parsed']);
+        $this->assertFalse($item['is_read']);
+        $this->assertContains('/'.$announcement->getImage()->getName().'?', $item['image']);
     }
 
     public function testGetGroupAnnouncementsIsOk()
@@ -210,14 +213,7 @@ class AnnouncementControllerTest extends WebTestCase
         $client = $this->client;
         $announcement = $repository->getReference('announcement_group_1');
         $client->request('PUT', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Token'=>'user1'], json_encode($params));
-        $response = $client->getResponse();
-        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertSame('Validation Failed', $data['message']);
-        $children = $data['errors']['children'];
-        foreach ($errors as $child => $error) {
-            $this->assertEquals([$error], $children[$child]['errors']);
-        }
+        $this->assertResponseHasErrors($client->getResponse(), $errors);
     }
 
     /**
@@ -233,14 +229,7 @@ class AnnouncementControllerTest extends WebTestCase
         $client = $this->client;
         $announcement = $repository->getReference('announcement_jb_1');
         $client->request('PUT', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Token'=>'user1'], json_encode($params));
-        $response = $client->getResponse();
-        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertSame('Validation Failed', $data['message']);
-        $children = $data['errors']['children'];
-        foreach ($errors as $child => $error) {
-            $this->assertEquals([$error], $children[$child]['errors']);
-        }
+        $this->assertResponseHasErrors($client->getResponse(), $errors);
     }
 
     public function getInvalidParams()
@@ -251,6 +240,7 @@ class AnnouncementControllerTest extends WebTestCase
                     'content' => '',
                 ],
                 [
+                    'The announcement should not be blank.',
                     'content' => 'This value should not be blank.',
                 ]
             ],
@@ -336,8 +326,10 @@ class AnnouncementControllerTest extends WebTestCase
         )->getReferenceRepository();
         $params = [
             'content' => $faker->sentence,
+            'image' => base64_encode(file_get_contents(__DIR__.'/../../../../data/image2.png')),
         ];
         $announcement = $repository->getReference($reference);
+        $image = $announcement->getImage()->getName();
         $client = $this->client;
         $client->request('PUT', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="'.$user.'"'], json_encode($params));
         $response = $client->getResponse();
@@ -345,6 +337,7 @@ class AnnouncementControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertSame($announcement->getId(), $data['id']);
         $this->assertSame($params['content'], $data['content_parsed']);
+        $this->assertNotSame($image, $data['image']);
     }
 
     public function getValidAnnouncementCredentialsForUpdateRequest()
