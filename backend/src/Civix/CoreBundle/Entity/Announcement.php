@@ -33,12 +33,14 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  *      "representative" = "Civix\CoreBundle\Entity\Announcement\RepresentativeAnnouncement",
  * })
  * @Assert\Callback(callback="isContentValid")
+ * @Assert\Callback(callback="isImageValid")
  * @Serializer\ExclusionPolicy("all")
  * @PublishDate(objectName="Announcement", groups={"update", "publish"})
  */
 abstract class Announcement implements LeaderContentInterface
 {
-    use GroupSectionTrait;
+    use GroupSectionTrait,
+        AnnouncementSerializableTrait;
 
     /**
      * @var int
@@ -64,7 +66,7 @@ abstract class Announcement implements LeaderContentInterface
      * @var string
      *
      * @ORM\Column(name="content_parsed", type="text")
-     * @Assert\NotBlank(message="The announcement should not be blank", groups={"Default", "update"})
+     * @Assert\NotBlank(message="The announcement should not be blank.", groups={"Default", "update"})
      *
      * @Serializer\Expose()
      * @Serializer\Groups({"api"})
@@ -112,10 +114,18 @@ abstract class Announcement implements LeaderContentInterface
      */
     protected $announcementRead;
 
+    /**
+     * @var File
+     *
+     * @ORM\Embedded(class="Civix\CoreBundle\Entity\File", columnPrefix="")
+     */
+    protected $image;
+
     public function __construct()
     {
         $this->groupSections = new ArrayCollection();
         $this->announcementRead = new ArrayCollection();
+        $this->image = new File();
         $this->createdAt = new DateTime();
     }
 
@@ -223,6 +233,16 @@ abstract class Announcement implements LeaderContentInterface
         }
     }
 
+    public function isImageValid(ExecutionContextInterface $context): void
+    {
+        if ($this->image instanceof File) {
+            $context->getValidator()
+                ->inContext($context)
+                ->atPath('image')
+                ->validate($this->image->getFile(), [new Assert\Image()]);
+        }
+    }
+
     /**
      * @Serializer\Groups({"api"})
      * @Serializer\VirtualProperty
@@ -275,4 +295,23 @@ abstract class Announcement implements LeaderContentInterface
      * @return mixed
      */
     abstract public function setRoot(LeaderContentRootInterface $root);
+
+    /**
+     * @return File
+     */
+    public function getImage(): File
+    {
+        return $this->image;
+    }
+
+    /**
+     * @param File $image
+     * @return Announcement
+     */
+    public function setImage(File $image): Announcement
+    {
+        $this->image = $image;
+
+        return $this;
+    }
 }
