@@ -4,3 +4,9 @@ services:
         arguments: ['@civix.notification.one_signal_data_factory']
         tags:
             - { name: console.command }
+
+    civix_core.command.fix_target_data_command:
+        class: Civix\CoreBundle\Command\FixTargetDataCommand
+        arguments: ['@doctrine.orm.entity_manager', '@civix_core.social_activity_factory']
+        tags:
+            - { name: console.command }
