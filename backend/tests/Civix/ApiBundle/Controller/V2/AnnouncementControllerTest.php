@@ -1,5 +1,5 @@
 <?php
-namespace Civix\ApiBundle\Tests\Controller\V2;
+namespace Tests\Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Announcement;
@@ -27,7 +27,7 @@ class AnnouncementControllerTest extends WebTestCase
     /**
      * @var null|Client
      */
-    private $client = null;
+    private $client;
 
     public function setUp()
     {
@@ -97,10 +97,12 @@ class AnnouncementControllerTest extends WebTestCase
         $this->assertSame(1, $data['page']);
         $this->assertSame(20, $data['items']);
         $this->assertSame(2, $data['totalItems']);
-        $this->assertCount(2, $data['payload']);
+        /** @var array $payload */
+        $payload = $data['payload'];
+        $this->assertCount(2, $payload);
         $announcement1 = $repository->getReference('announcement_jb_2');
         $announcement2 = $repository->getReference('announcement_jb_3');
-        foreach ($data['payload'] as $item) {
+        foreach ($payload as $item) {
             $this->assertThat(
                 $item['content_parsed'],
                 $this->logicalOr($announcement1->getContent(), $announcement2->getContent())
@@ -303,7 +305,7 @@ class AnnouncementControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertSame(["Announcement is already published"], $data['errors']['errors']);
+        $this->assertSame(['Announcement is already published'], $data['errors']['errors']);
     }
 
     public function testUpdatePublishedRepresentativeAnnouncementReturnsError()
@@ -317,7 +319,7 @@ class AnnouncementControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertSame(["Announcement is already published"], $data['errors']['errors']);
+        $this->assertSame(['Announcement is already published'], $data['errors']['errors']);
     }
 
     /**
@@ -411,7 +413,7 @@ class AnnouncementControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertSame(["Announcement is already published"], $data['errors']['errors']);
+        $this->assertSame(['Announcement is already published'], $data['errors']['errors']);
     }
 
     public function testPublishPublishedRepresentativeAnnouncementReturnsError()
@@ -426,7 +428,7 @@ class AnnouncementControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertSame(["Announcement is already published"], $data['errors']['errors']);
+        $this->assertSame(['Announcement is already published'], $data['errors']['errors']);
     }
 
     /**
@@ -515,7 +517,7 @@ class AnnouncementControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertSame(["Announcement is already published"], $data['errors']['errors']);
+        $this->assertSame(['Announcement is already published'], $data['errors']['errors']);
     }
 
     public function testDeletePublishedRepresentativeAnnouncementReturnsError()
@@ -529,7 +531,7 @@ class AnnouncementControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertSame(["Announcement is already published"], $data['errors']['errors']);
+        $this->assertSame(['Announcement is already published'], $data['errors']['errors']);
     }
 
     /**
@@ -575,6 +577,7 @@ class AnnouncementControllerTest extends WebTestCase
         $client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        /** @var array $data */
         $data = json_decode($response->getContent(), true);
         foreach ($data as $item) {
             $this->assertThat($item['id'], $this->logicalOr($announcement1->getId(), $announcement3->getId()));
@@ -601,6 +604,7 @@ class AnnouncementControllerTest extends WebTestCase
         $client->request('PATCH', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], json_encode($params));
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        /** @var array $data */
         $data = json_decode($response->getContent(), true);
         foreach ($data as $item) {
             $this->assertThat($item['id'], $this->logicalOr($announcement1->getId(), $announcement3->getId()));
