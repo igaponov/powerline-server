@@ -288,11 +288,7 @@ class SocialActivityFactory
                 'label' => $this->getLabelByPoll($question),
             ];
         }
-        $parentComment = $comment->getParentComment();
-        if ($parentComment && $parentComment->getUser()) {
-            $target['comment_id'] = $comment->getId();
-        }
-
+        $target['comment_id'] = $comment->getId();
         $user = $comment->getUser();
         $target['user_id'] = $user->getId();
         $target['full_name'] = $user->getFullName();
