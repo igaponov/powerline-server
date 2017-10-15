@@ -41,7 +41,7 @@ class File
      * @param string $name
      * @return File
      */
-    public function setName(string $name): File
+    public function setName(?string $name): File
     {
         $this->name = $name;
 
