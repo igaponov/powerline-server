@@ -1,6 +1,6 @@
 <?php
 
-namespace Civix\FrontBundle\Tests\Controller;
+namespace Tests\Civix\FrontBundle\Controller;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Representative;
