@@ -2,7 +2,7 @@
 
 namespace Tests\Civix\CoreBundle\Service;
 
-use Civix\CoreBundle\Entity\CiceroRepresentative;
+use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Service\ProPublicaRepresentativePopulator;
 use PHPUnit\Framework\TestCase;
 
@@ -10,7 +10,7 @@ class ProPublicaRepresentativePopulatorTest extends TestCase
 {
     public function testPopulate()
     {
-        $representative = new CiceroRepresentative();
+        $representative = new Representative();
         $representative->setBioguide('M000639');
         $response = json_decode(file_get_contents(__DIR__.'/../data/propublica_member.json'), true);
         $populator = new ProPublicaRepresentativePopulator();

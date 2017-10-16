@@ -4,11 +4,11 @@ namespace Civix\ApiBundle\Security\Authorization\Voter;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Civix\CoreBundle\Entity\Poll\Question;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Entity\Superuser;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserInterface;
-use Civix\CoreBundle\Repository\RepresentativeRepository;
+use Civix\CoreBundle\Repository\UserRepresentativeRepository;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
@@ -18,11 +18,11 @@ class PollVoter implements VoterInterface
     const ANSWER = 'answer';
 
     /**
-     * @var RepresentativeRepository
+     * @var UserRepresentativeRepository
      */
     private $representativeRepository;
 
-    public function __construct(RepresentativeRepository $representativeRepository)
+    public function __construct(UserRepresentativeRepository $representativeRepository)
     {
         $this->representativeRepository = $representativeRepository;
     }
@@ -120,7 +120,7 @@ class PollVoter implements VoterInterface
                 return VoterInterface::ACCESS_GRANTED;
             } elseif ($questionOwner instanceof Group && ($questionOwner->isMember($user) || $questionOwner->isManager($user) || $questionOwner->getOwner()->isEqualTo($user) || $this->representativeRepository->isGroupRepresentative($questionOwner, $user))) {
                 return VoterInterface::ACCESS_GRANTED;
-            } elseif ($questionOwner instanceof Representative
+            } elseif ($questionOwner instanceof UserRepresentative
             && array_search($questionOwner->getDistrict() ? $questionOwner->getDistrict()->getId() : null, $user->getDistrictsIds()) !== false) {
                 return VoterInterface::ACCESS_GRANTED;
             }

@@ -45,7 +45,7 @@
         <service class="Civix\CoreBundle\Repository\RepresentativeRepository"
                  id="civix_core.repository.representative_repository" public="false">
             <factory service="doctrine.orm.entity_manager" method="getRepository" />
-            <argument type="string">Civix\CoreBundle\Entity\Representative</argument>
+            <argument type="string">Civix\CoreBundle\Entity\UserRepresentative</argument>
         </service>
         <service class="Mailgun\Mailgun" id="mailgun.basic_client" public="false">
             <argument>%mailgun_private%</argument>

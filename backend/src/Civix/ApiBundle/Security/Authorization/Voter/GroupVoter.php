@@ -5,7 +5,7 @@ namespace Civix\ApiBundle\Security\Authorization\Voter;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Subscription\Subscription;
 use Civix\CoreBundle\Entity\UserInterface;
-use Civix\CoreBundle\Repository\RepresentativeRepository;
+use Civix\CoreBundle\Repository\UserRepresentativeRepository;
 use Civix\CoreBundle\Service\Subscription\PackageHandler;
 use Civix\CoreBundle\Service\Subscription\SubscriptionManager;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
@@ -65,14 +65,14 @@ class GroupVoter implements VoterInterface
      */
     private $packageHandler;
     /**
-     * @var RepresentativeRepository
+     * @var UserRepresentativeRepository
      */
     private $representativeRepository;
 
     public function __construct(
         SubscriptionManager $subscriptionManager,
         PackageHandler $packageHandler,
-        RepresentativeRepository $representativeRepository
+        UserRepresentativeRepository $representativeRepository
     ) {
         $this->subscriptionManager = $subscriptionManager;
         $this->packageHandler = $packageHandler;

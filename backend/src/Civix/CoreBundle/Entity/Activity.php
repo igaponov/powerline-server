@@ -153,7 +153,7 @@ abstract class Activity implements HtmlBodyInterface
     protected $owner;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Representative")
+     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\UserRepresentative")
      * @ORM\JoinColumn(name="representative_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $representative;
@@ -499,7 +499,7 @@ abstract class Activity implements HtmlBodyInterface
         return $this;
     }
 
-    public function setRepresentative(Representative $representative): Activity
+    public function setRepresentative(UserRepresentative $representative): Activity
     {
         $this->representative = $representative;
         $this->owner = self::toRepresentativeOwnerData($representative);
@@ -534,18 +534,18 @@ abstract class Activity implements HtmlBodyInterface
         return $this;
     }
 
-    public static function toRepresentativeOwnerData(Representative $representative): array
+    public static function toRepresentativeOwnerData(UserRepresentative $userRepresentative): array
     {
         $data = [
-            'id' => $representative->getId(),
-            'type' => $representative->getType(),
-            'official_title' => $representative->getOfficialTitle(),
-            'first_name' => $representative->getUser()->getFirstName(),
-            'last_name' => $representative->getUser()->getLastName(),
-            'avatar_file_path' => $representative->getCiceroRepresentative() ? $representative->getCiceroRepresentative()->getAvatarFileName() : $representative->getAvatarFileName(),
+            'id' => $userRepresentative->getId(),
+            'type' => $userRepresentative->getType(),
+            'official_title' => $userRepresentative->getOfficialTitle(),
+            'first_name' => $userRepresentative->getUser()->getFirstName(),
+            'last_name' => $userRepresentative->getUser()->getLastName(),
+            'avatar_file_path' => $userRepresentative->getRepresentative() ? $userRepresentative->getRepresentative()->getAvatarFileName() : $userRepresentative->getAvatarFileName(),
         ];
-        if ($representative->getCiceroRepresentative()) {
-            $data['cicero_id'] = $representative->getCiceroRepresentative();
+        if ($userRepresentative->getRepresentative()) {
+            $data['cicero_id'] = $userRepresentative->getRepresentative();
         }
 
         return $data;
@@ -629,9 +629,9 @@ abstract class Activity implements HtmlBodyInterface
     /**
      * Get representative.
      *
-     * @return \Civix\CoreBundle\Entity\Representative
+     * @return \Civix\CoreBundle\Entity\UserRepresentative
      */
-    public function getRepresentative(): ?Representative
+    public function getRepresentative(): ?UserRepresentative
     {
         return $this->representative;
     }

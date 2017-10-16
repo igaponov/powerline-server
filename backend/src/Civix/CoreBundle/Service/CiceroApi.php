@@ -2,12 +2,12 @@
 
 namespace Civix\CoreBundle\Service;
 
-use Civix\CoreBundle\Entity\CiceroRepresentative;
 use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Event\AvatarEvent;
 use Civix\CoreBundle\Event\AvatarEvents;
-use Civix\CoreBundle\Event\CiceroRepresentativeEvent;
-use Civix\CoreBundle\Event\CiceroRepresentativeEvents;
+use Civix\CoreBundle\Event\RepresentativeEvent;
+use Civix\CoreBundle\Event\RepresentativeEvents;
 use Civix\CoreBundle\Service\API\ServiceApi;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -51,7 +51,7 @@ class CiceroApi extends ServiceApi
      * @param string $state     State
      * @param string $country   Country
      *
-     * @return CiceroRepresentative[]
+     * @return Representative[]
      */
     public function getRepresentativesByLocation($address, $city, $state, $country = 'US'): array
     {
@@ -66,7 +66,7 @@ class CiceroApi extends ServiceApi
      * @param string $lastName
      * @param string $officialTitle
      *
-     * @return CiceroRepresentative[]
+     * @return Representative[]
      */
     public function getRepresentativesByOfficialInfo($firstName, $lastName, $officialTitle): array
     {
@@ -80,7 +80,7 @@ class CiceroApi extends ServiceApi
     {
         $representatives = [];
         foreach ($officials as $response) {
-            $repository = $this->entityManager->getRepository(CiceroRepresentative::class);
+            $repository = $this->entityManager->getRepository(Representative::class);
             $representative = $repository->find($response->id);
             if (!$representative) {
                 $representative = $repository->findOneBy([
@@ -92,13 +92,13 @@ class CiceroApi extends ServiceApi
             if ($representative) {
                 $this->populator->populate($representative, $response);
             } else {
-                $representative = $this->createCiceroRepresentative($response);
+                $representative = $this->createRepresentative($response);
             }
             $event = new AvatarEvent($representative);
             $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
 
-            $event = new CiceroRepresentativeEvent($representative);
-            $this->dispatcher->dispatch(CiceroRepresentativeEvents::UPDATE, $event);
+            $event = new RepresentativeEvent($representative);
+            $this->dispatcher->dispatch(RepresentativeEvents::UPDATE, $event);
 
             $this->entityManager->persist($representative);
             $representatives[] = $representative;
@@ -111,13 +111,13 @@ class CiceroApi extends ServiceApi
     /**
      * Get representative from api, save his, get district id.
      *
-     * @param Representative $representative Representative object
+     * @param UserRepresentative $representative Representative object
      *
      * @return bool
      * @throws \Doctrine\ORM\OptimisticLockException
      * @throws \Doctrine\ORM\ORMInvalidArgumentException
      */
-    public function updateByRepresentativeInfo(Representative $representative): bool
+    public function updateByRepresentativeInfo(UserRepresentative $representative): bool
     {
         $representativesFromApi = $this->ciceroService
             ->findRepresentativeByOfficialData(
@@ -128,7 +128,7 @@ class CiceroApi extends ServiceApi
         if ($representativesFromApi) {
             return $this->updateRepresentative(
                 $representativesFromApi,
-                $representative->getCiceroRepresentative()
+                $representative->getRepresentative()
             );
         }
 
@@ -138,17 +138,17 @@ class CiceroApi extends ServiceApi
     /**
      * Synchronize $storageRepresentative with Cicero representative.
      *
-     * @param \Civix\CoreBundle\Entity\Representative $representative
+     * @param \Civix\CoreBundle\Entity\UserRepresentative $representative
      *
      * @return bool
      * @throws \Doctrine\ORM\OptimisticLockException
      * @throws \Doctrine\ORM\ORMInvalidArgumentException
      */
-    public function synchronizeRepresentative(Representative $representative): bool
+    public function synchronizeRepresentative(UserRepresentative $representative): bool
     {
         //find in current representative storage
         $ciceroRepresentative = $this->entityManager
-            ->getRepository(CiceroRepresentative::class)
+            ->getRepository(Representative::class)
             ->getByOfficialInfo(
                 $representative->getUser()->getFirstName(),
                 $representative->getUser()->getLastName(),
@@ -182,10 +182,10 @@ class CiceroApi extends ServiceApi
 
         if ($ciceroRepresentative) {
             $representative->setDistrict($ciceroRepresentative->getDistrict());
-            $representative->setCiceroRepresentative($ciceroRepresentative);
+            $representative->setRepresentative($ciceroRepresentative);
         } else {
             $representative->setDistrict(null);
-            $representative->setCiceroRepresentative();
+            $representative->setRepresentative();
         }
 
         $this->entityManager->persist($representative);
@@ -196,20 +196,20 @@ class CiceroApi extends ServiceApi
 
     public function synchronizeByStateCode($stateCode): void
     {
-        $representatives = $this->entityManager->getRepository(Representative::class)
+        $representatives = $this->entityManager->getRepository(UserRepresentative::class)
             ->findByState($stateCode);
         foreach ($representatives as $storageRepresentative) {
             $this->synchronizeRepresentative($storageRepresentative);
         }
     }
 
-    protected function createCiceroRepresentative($response): CiceroRepresentative
+    protected function createRepresentative($response): Representative
     {
-        $representative = new CiceroRepresentative();
+        $representative = new Representative();
         $this->populator->populate($representative, $response);
 
-        $event = new CiceroRepresentativeEvent($representative);
-        $this->dispatcher->dispatch(CiceroRepresentativeEvents::UPDATE, $event);
+        $event = new RepresentativeEvent($representative);
+        $this->dispatcher->dispatch(RepresentativeEvents::UPDATE, $event);
 
         return $representative;
     }
@@ -219,14 +219,14 @@ class CiceroApi extends ServiceApi
      * Set link between representative and representative storage.
      *
      * @param array $apiCollection Object from Cicero API
-     * @param CiceroRepresentative $representative CiceroRepresentative object
+     * @param Representative $representative Representative object
      *
      * @return bool
      *
      * @throws \Doctrine\ORM\OptimisticLockException
      * @throws \Doctrine\ORM\ORMInvalidArgumentException
      */
-    protected function updateRepresentative($apiCollection, CiceroRepresentative $representative): bool
+    protected function updateRepresentative($apiCollection, Representative $representative): bool
     {
         $collection = array_filter($apiCollection, function($repr) use ($representative) {
             return $representative->getId() === $repr->id;
@@ -246,8 +246,8 @@ class CiceroApi extends ServiceApi
             $event = new AvatarEvent($representative);
             $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
 
-            $event = new CiceroRepresentativeEvent($representative);
-            $this->dispatcher->dispatch(CiceroRepresentativeEvents::UPDATE, $event);
+            $event = new RepresentativeEvent($representative);
+            $this->dispatcher->dispatch(RepresentativeEvents::UPDATE, $event);
 
             $this->entityManager->persist($representative);
             $this->entityManager->flush();

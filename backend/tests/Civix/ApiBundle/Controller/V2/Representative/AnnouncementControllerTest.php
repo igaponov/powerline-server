@@ -2,7 +2,7 @@
 namespace Tests\Civix\ApiBundle\Controller\V2\Representative;
 
 use Civix\ApiBundle\Tests\WebTestCase;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserRepresentativeData;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class AnnouncementControllerTest extends WebTestCase
@@ -28,7 +28,7 @@ class AnnouncementControllerTest extends WebTestCase
 	public function testCreateAnnouncementWithWrongCredentials()
 	{
         $repository = $this->loadFixtures([
-            LoadRepresentativeData::class,
+            LoadUserRepresentativeData::class,
         ])->getReferenceRepository();
 		$client = $this->client;
         $representative = $repository->getReference('representative_jb');
@@ -46,7 +46,7 @@ class AnnouncementControllerTest extends WebTestCase
 	public function testCreateAnnouncementReturnsErrors($params, $errors)
 	{
         $repository = $this->loadFixtures([
-            LoadRepresentativeData::class,
+            LoadUserRepresentativeData::class,
         ])->getReferenceRepository();
 		$client = $this->client;
         $representative = $repository->getReference('representative_jb');
@@ -82,7 +82,7 @@ class AnnouncementControllerTest extends WebTestCase
 	public function testCreateAnnouncementIsOk()
 	{
         $repository = $this->loadFixtures([
-            LoadRepresentativeData::class,
+            LoadUserRepresentativeData::class,
         ])->getReferenceRepository();
         $representative = $repository->getReference('representative_jb');
         $params = [

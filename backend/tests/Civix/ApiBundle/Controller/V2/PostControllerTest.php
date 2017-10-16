@@ -2,7 +2,7 @@
 namespace Tests\Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
-use Civix\CoreBundle\Entity\CiceroRepresentative;
+use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\Karma;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\Report\PostResponseReport;
@@ -10,7 +10,7 @@ use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Service\PostManager;
 use Civix\CoreBundle\Test\SocialActivityTester;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadCiceroRepresentativeData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostSubscriberData;
@@ -665,7 +665,7 @@ class PostControllerTest extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadPostVoteData::class,
-            LoadCiceroRepresentativeData::class,
+            LoadRepresentativeData::class,
             LoadGroupManagerData::class,
         ])->getReferenceRepository();
         /** @var Post $post */
@@ -684,9 +684,17 @@ class PostControllerTest extends WebTestCase
         ];
         $results = [
             array_merge([
+                'representative' => $repository->getReference('cicero_representative_bo'),
+
+            ], $vote1),
+            array_merge([
                 'representative' => $repository->getReference('cicero_representative_jb'),
 
             ], $vote1),
+            array_merge([
+                'representative' => $repository->getReference('cicero_representative_rm'),
+
+            ], $vote2),
             array_merge([
                 'representative' => $repository->getReference('cicero_representative_kg'),
 
@@ -695,14 +703,6 @@ class PostControllerTest extends WebTestCase
                 'representative' => $repository->getReference('cicero_representative_eh'),
 
             ], $vote2),
-            array_merge([
-                'representative' => $repository->getReference('cicero_representative_rm'),
-
-            ], $vote2),
-            array_merge([
-                'representative' => $repository->getReference('cicero_representative_bo'),
-
-            ], $vote1),
         ];
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT.'/'.$post->getId().'/analytics', [], [], ['HTTP_Authorization'=>'Bearer user2']);
@@ -714,9 +714,9 @@ class PostControllerTest extends WebTestCase
         $representatives = $data['representatives'];
         $this->assertCount(5, $representatives);
         foreach ($representatives as $key => $item) {
-            /** @var CiceroRepresentative $representative */
+            /** @var Representative $representative */
             $representative = $results[$key]['representative'];
-            $this->assertEquals($representative->getId(), $item['id']);
+            $this->assertEquals($representative->getCiceroId(), $item['cicero_id']);
             $this->assertSame($representative->getFirstName(), $item['first_name']);
             $this->assertSame($representative->getLastName(), $item['last_name']);
             $this->assertSame($representative->getOfficialTitle(), $item['official_title']);
@@ -728,9 +728,9 @@ class PostControllerTest extends WebTestCase
         $representatives = $data['most_popular'];
         $this->assertCount(5, $representatives);
         foreach ($representatives as $key => $item) {
-            /** @var CiceroRepresentative $representative */
+            /** @var Representative $representative */
             $representative = $results[$key]['representative'];
-            $this->assertEquals($representative->getId(), $item['id']);
+            $this->assertEquals($representative->getCiceroId(), $item['cicero_id']);
             $this->assertSame($representative->getFirstName(), $item['first_name']);
             $this->assertSame($representative->getLastName(), $item['last_name']);
             $this->assertSame($representative->getOfficialTitle(), $item['official_title']);

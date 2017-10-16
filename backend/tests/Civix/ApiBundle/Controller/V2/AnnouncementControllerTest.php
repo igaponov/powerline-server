@@ -5,14 +5,14 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Announcement;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Karma;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Model\Subscription\PackageLimitState;
 use Civix\CoreBundle\Service\Subscription\PackageHandler;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupAnnouncementData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupAnnouncementReadData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupRepresentativesData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeAnnouncementData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupUserRepresentativesData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserRepresentativeAnnouncementData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
@@ -44,7 +44,7 @@ class AnnouncementControllerTest extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
-            LoadRepresentativeAnnouncementData::class,
+            LoadUserRepresentativeAnnouncementData::class,
         ])->getReferenceRepository();
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"']);
@@ -89,7 +89,7 @@ class AnnouncementControllerTest extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
-            LoadRepresentativeAnnouncementData::class,
+            LoadUserRepresentativeAnnouncementData::class,
         ])->getReferenceRepository();
         $client = $this->client;
         $date = new \DateTime('-2 months');
@@ -145,7 +145,7 @@ class AnnouncementControllerTest extends WebTestCase
     public function testGetRepresentativeAnnouncementWithWrongCredentialsReturnsException()
     {
         $repository = $this->loadFixtures([
-            LoadRepresentativeAnnouncementData::class,
+            LoadUserRepresentativeAnnouncementData::class,
         ])->getReferenceRepository();
         /** @var Announcement $announcement */
         $announcement = $repository->getReference('announcement_jb_1');
@@ -181,14 +181,14 @@ class AnnouncementControllerTest extends WebTestCase
             'owner' => [[], 'user1', 'announcement_group_1'],
             'manager' => [[LoadGroupManagerData::class], 'user3', 'announcement_private_1'],
             'member' => [[LoadUserGroupData::class], 'user3', 'announcement_topsecret_1'],
-            'representative' => [[LoadGroupRepresentativesData::class], 'user3', 'announcement_group_1'],
+            'representative' => [[LoadGroupUserRepresentativesData::class], 'user3', 'announcement_group_1'],
         ];
     }
 
     public function testGetRepresentativeAnnouncementIsOk()
     {
         $repository = $this->loadFixtures([
-            LoadRepresentativeAnnouncementData::class,
+            LoadUserRepresentativeAnnouncementData::class,
         ])->getReferenceRepository();
         $announcement = $repository->getReference('announcement_jb_1');
         $client = $this->client;
@@ -224,7 +224,7 @@ class AnnouncementControllerTest extends WebTestCase
     public function testUpdateRepresentativeAnnouncementReturnsErrors($params, $errors)
     {
         $repository = $this->loadFixtures([
-            LoadRepresentativeAnnouncementData::class,
+            LoadUserRepresentativeAnnouncementData::class,
         ])->getReferenceRepository();
         $client = $this->client;
         $announcement = $repository->getReference('announcement_jb_1');
@@ -275,7 +275,7 @@ class AnnouncementControllerTest extends WebTestCase
     public function testUpdateRepresentativeAnnouncementWithWrongCredentialsReturnsException()
     {
         $repository = $this->loadFixtures([
-            LoadRepresentativeAnnouncementData::class,
+            LoadUserRepresentativeAnnouncementData::class,
         ])->getReferenceRepository();
         $client = $this->client;
         $announcement = $repository->getReference('announcement_jb_1');
@@ -301,7 +301,7 @@ class AnnouncementControllerTest extends WebTestCase
     public function testUpdatePublishedRepresentativeAnnouncementReturnsError()
     {
         $repository = $this->loadFixtures([
-            LoadRepresentativeAnnouncementData::class,
+            LoadUserRepresentativeAnnouncementData::class,
         ])->getReferenceRepository();
         $client = $this->client;
         $announcement = $repository->getReference('announcement_jb_2');
@@ -345,7 +345,7 @@ class AnnouncementControllerTest extends WebTestCase
         return [
             'owner' => [[], 'user1', 'announcement_group_1'],
             'manager' => [[LoadGroupManagerData::class], 'user3', 'announcement_group_1'],
-            'representative' => [[LoadGroupRepresentativesData::class], 'user3', 'announcement_group_1'],
+            'representative' => [[LoadGroupUserRepresentativesData::class], 'user3', 'announcement_group_1'],
         ];
     }
 
@@ -353,7 +353,7 @@ class AnnouncementControllerTest extends WebTestCase
     {
         $faker = Factory::create();
         $repository = $this->loadFixtures([
-            LoadRepresentativeAnnouncementData::class,
+            LoadUserRepresentativeAnnouncementData::class,
         ])->getReferenceRepository();
         $params = [
             'content' => $faker->sentence,
@@ -384,10 +384,10 @@ class AnnouncementControllerTest extends WebTestCase
     public function testPublishRepresentativeAnnouncementWithExceededLimitReturnsException()
     {
         $repository = $this->loadFixtures([
-            LoadRepresentativeAnnouncementData::class,
+            LoadUserRepresentativeAnnouncementData::class,
         ])->getReferenceRepository();
         $client = $this->client;
-        $client->getContainer()->set('civix_core.package_handler', $this->getPackageHandlerMock(Representative::class, 2));
+        $client->getContainer()->set('civix_core.package_handler', $this->getPackageHandlerMock(UserRepresentative::class, 2));
         $announcement = $repository->getReference('announcement_jb_1');
         $client->request('PATCH', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], '{}');
         $response = $client->getResponse();
@@ -412,10 +412,10 @@ class AnnouncementControllerTest extends WebTestCase
     public function testPublishPublishedRepresentativeAnnouncementReturnsError()
     {
         $repository = $this->loadFixtures([
-            LoadRepresentativeAnnouncementData::class,
+            LoadUserRepresentativeAnnouncementData::class,
         ])->getReferenceRepository();
         $client = $this->client;
-        $client->getContainer()->set('civix_core.package_handler', $this->getPackageHandlerMock(Representative::class));
+        $client->getContainer()->set('civix_core.package_handler', $this->getPackageHandlerMock(UserRepresentative::class));
         $announcement = $repository->getReference('announcement_jb_2');
         $client->request('PATCH', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"'], '{}');
         $response = $client->getResponse();
@@ -453,12 +453,12 @@ class AnnouncementControllerTest extends WebTestCase
     public function testPublishRepresentativeAnnouncementIsOk()
     {
         $repository = $this->loadFixtures([
-            LoadRepresentativeAnnouncementData::class,
+            LoadUserRepresentativeAnnouncementData::class,
         ])->getReferenceRepository();
         /** @var Announcement\RepresentativeAnnouncement $announcement */
         $announcement = $repository->getReference('announcement_jb_1');
         $client = $this->client;
-        $client->getContainer()->set('civix_core.package_handler', $this->getPackageHandlerMock(Representative::class));
+        $client->getContainer()->set('civix_core.package_handler', $this->getPackageHandlerMock(UserRepresentative::class));
         $client->request('PATCH', self::API_ENDPOINT.'/'.$announcement->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -490,7 +490,7 @@ class AnnouncementControllerTest extends WebTestCase
     public function testDeleteRepresentativeAnnouncementWithWrongCredentialsReturnsException()
     {
         $repository = $this->loadFixtures([
-            LoadRepresentativeAnnouncementData::class,
+            LoadUserRepresentativeAnnouncementData::class,
         ])->getReferenceRepository();
         $client = $this->client;
         $announcement = $repository->getReference('announcement_jb_1');
@@ -516,7 +516,7 @@ class AnnouncementControllerTest extends WebTestCase
     public function testDeletePublishedRepresentativeAnnouncementReturnsError()
     {
         $repository = $this->loadFixtures([
-            LoadRepresentativeAnnouncementData::class,
+            LoadUserRepresentativeAnnouncementData::class,
         ])->getReferenceRepository();
         $client = $this->client;
         $announcement = $repository->getReference('announcement_jb_2');
@@ -548,7 +548,7 @@ class AnnouncementControllerTest extends WebTestCase
     public function testDeleteRepresentativeAnnouncementIsOk()
     {
         $repository = $this->loadFixtures([
-            LoadRepresentativeAnnouncementData::class,
+            LoadUserRepresentativeAnnouncementData::class,
         ])->getReferenceRepository();
         $announcement = $repository->getReference('announcement_jb_1');
         $client = $this->client;

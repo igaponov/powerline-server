@@ -1,10 +1,10 @@
 <?php
 namespace Civix\ApiBundle\Controller\V2;
 
-use Civix\ApiBundle\Form\Type\RepresentativeType;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\ApiBundle\Form\Type\UserRepresentativeType;
+use Civix\CoreBundle\Entity\UserRepresentative;
+use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
-use Civix\CoreBundle\Event\UserRepresentativeEvent;
 use Civix\CoreBundle\Service\Representative\RepresentativeManager;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -49,7 +49,7 @@ class UserRepresentativeController extends FOSRestController
      *     section="Representatives",
      *     description="List representatives of a user",
      *     output = {
-     *          "class" = "array<Civix\CoreBundle\Entity\Representative> as paginator",
+     *          "class" = "array<Civix\CoreBundle\Entity\UserRepresentative> as paginator",
      *          "groups" = {"api-info"},
      *          "parsers" = {
      *              "Civix\ApiBundle\Parser\PaginatorParser"
@@ -69,12 +69,12 @@ class UserRepresentativeController extends FOSRestController
     public function getRepresentativesAction(ParamFetcher $params)
     {
         $user = $this->getUser();
-        $query = $this->getDoctrine()->getRepository(Representative::class)
+        $query = $this->getDoctrine()->getRepository(UserRepresentative::class)
             ->getByUserQuery($user);
 
         $this->dispatcher->dispatch(
             UserEvents::VIEW_REPRESENTATIVES,
-            new UserRepresentativeEvent($user)
+            new UserEvent($user)
         );
 
         return $this->get('knp_paginator')->paginate(
@@ -99,7 +99,7 @@ class UserRepresentativeController extends FOSRestController
      *     },
      *     responseMap={
      *          201 = {
-     *              "class" = "Civix\CoreBundle\Entity\Representative",
+     *              "class" = "Civix\CoreBundle\Entity\UserRepresentative",
      *              "groups" = {"api-info"},
      *              "parsers" = {
      *                  "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
@@ -112,13 +112,12 @@ class UserRepresentativeController extends FOSRestController
      *
      * @param Request $request
      *
-     * @return Representative|\Symfony\Component\Form\Form
+     * @return UserRepresentative|\Symfony\Component\Form\Form
      */
     public function postAction(Request $request)
     {
-        $representative = new Representative();
-        $representative->setUser($this->getUser());
-        $form = $this->createForm(RepresentativeType::class, $representative);
+        $representative = new UserRepresentative($this->getUser());
+        $form = $this->createForm(UserRepresentativeType::class, $representative);
         $form->submit($request->request->all());
 
         if ($form->isValid()) {

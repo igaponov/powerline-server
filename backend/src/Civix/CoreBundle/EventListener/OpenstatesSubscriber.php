@@ -2,8 +2,8 @@
 
 namespace Civix\CoreBundle\EventListener;
 
-use Civix\CoreBundle\Event\CiceroRepresentativeEvent;
-use Civix\CoreBundle\Event\CiceroRepresentativeEvents;
+use Civix\CoreBundle\Event\RepresentativeEvent;
+use Civix\CoreBundle\Event\RepresentativeEvents;
 use Civix\CoreBundle\Service\OpenstatesApi;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -17,7 +17,7 @@ class OpenstatesSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            CiceroRepresentativeEvents::UPDATE => 'updateRepresentativeProfile',
+            RepresentativeEvents::UPDATE => 'updateRepresentativeProfile',
         ];
     }
 
@@ -26,7 +26,7 @@ class OpenstatesSubscriber implements EventSubscriberInterface
         $this->openstatesApi = $openstatesApi;
     }
 
-    public function updateRepresentativeProfile(CiceroRepresentativeEvent $event): void
+    public function updateRepresentativeProfile(RepresentativeEvent $event): void
     {
         $this->openstatesApi->updateRepresentativeProfile($event->getRepresentative());
     }

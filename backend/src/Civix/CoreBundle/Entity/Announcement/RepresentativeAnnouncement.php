@@ -3,7 +3,7 @@
 namespace Civix\CoreBundle\Entity\Announcement;
 
 use Civix\CoreBundle\Entity\LeaderContentRootInterface;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Civix\CoreBundle\Entity\Announcement;
@@ -15,18 +15,18 @@ use Civix\CoreBundle\Entity\Announcement;
 class RepresentativeAnnouncement extends Announcement
 {
     /**
-     * @return Representative
+     * @return UserRepresentative
      */
-    public function getRepresentative(): Representative
+    public function getRepresentative(): UserRepresentative
     {
         return $this->representative;
     }
 
     /**
-     * @param Representative|LeaderContentRootInterface $representative
+     * @param UserRepresentative|LeaderContentRootInterface $representative
      * @return RepresentativeAnnouncement
      */
-    public function setRepresentative(Representative $representative): RepresentativeAnnouncement
+    public function setRepresentative(UserRepresentative $representative): RepresentativeAnnouncement
     {
         $this->representative = $representative;
 
@@ -38,7 +38,7 @@ class RepresentativeAnnouncement extends Announcement
      *
      * @param LeaderContentRootInterface $root
      * @return Announcement
-     * @internal param \Civix\CoreBundle\Entity\Representative $representative
+     * @internal param \Civix\CoreBundle\Entity\UserRepresentative $representative
      *
      */
     public function setRoot(LeaderContentRootInterface $root): Announcement
@@ -49,7 +49,7 @@ class RepresentativeAnnouncement extends Announcement
     /**
      * Get representative.
      *
-     * @return LeaderContentRootInterface|Representative
+     * @return LeaderContentRootInterface|\Civix\CoreBundle\Entity\UserRepresentative
      */
     public function getRoot(): LeaderContentRootInterface
     {

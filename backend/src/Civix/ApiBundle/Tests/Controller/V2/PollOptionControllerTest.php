@@ -5,7 +5,7 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadGroupQuestionData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupRepresentativesData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupUserRepresentativesData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Faker\Factory;
 use Symfony\Component\BrowserKit\Client;
@@ -158,7 +158,7 @@ class PollOptionControllerTest extends WebTestCase
         return [
             'owner' => [[], 'user1', 'group_question_1'],
             'manager' => [[LoadGroupManagerData::class], 'user2', 'group_question_1'],
-            'representative' => [[LoadGroupRepresentativesData::class], 'user3', 'group_question_1'],
+            'representative' => [[LoadGroupUserRepresentativesData::class], 'user3', 'group_question_1'],
         ];
     }
 }

@@ -3,8 +3,8 @@ namespace Civix\CoreBundle\Tests\DataFixtures\ORM\Representative;
 
 use Civix\CoreBundle\Entity\Poll\Option;
 use Civix\CoreBundle\Entity\Poll\Question\RepresentativePaymentRequest;
-use Civix\CoreBundle\Entity\Representative;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData;
+use Civix\CoreBundle\Entity\UserRepresentative;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserRepresentativeData;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -16,7 +16,7 @@ class LoadRepresentativePaymentRequestData extends AbstractFixture implements De
     {
         $faker = Factory::create();
 
-        /** @var Representative $representative */
+        /** @var UserRepresentative $representative */
         $representative = $this->getReference('representative_jb');
 
         $question = new RepresentativePaymentRequest();
@@ -68,6 +68,6 @@ class LoadRepresentativePaymentRequestData extends AbstractFixture implements De
 
     public function getDependencies()
     {
-        return [LoadRepresentativeData::class];
+        return [LoadUserRepresentativeData::class];
     }
 }

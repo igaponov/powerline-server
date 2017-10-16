@@ -606,8 +606,8 @@ class User implements
     private $ownedGroups;
 
     /**
-     * @var Collection|Representative[]
-     * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\Representative", mappedBy="user", orphanRemoval=true)
+     * @var Collection|UserRepresentative[]
+     * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\UserRepresentative", mappedBy="user", orphanRemoval=true)
      */
     private $representatives;
 
@@ -2395,11 +2395,11 @@ class User implements
     /**
      * Add representative.
      *
-     * @param Representative $representative
+     * @param UserRepresentative $representative
      *
      * @return User
      */
-    public function addRepresentative(Representative $representative): User
+    public function addRepresentative(UserRepresentative $representative): User
     {
         $this->representatives[] = $representative;
 
@@ -2409,9 +2409,9 @@ class User implements
     /**
      * Remove representative.
      *
-     * @param Representative $representative
+     * @param UserRepresentative $representative
      */
-    public function removeRepresentative(Representative $representative): void
+    public function removeRepresentative(UserRepresentative $representative): void
     {
         $this->representatives->removeElement($representative);
     }

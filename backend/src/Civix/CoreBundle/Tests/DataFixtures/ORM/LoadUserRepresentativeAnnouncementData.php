@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\DataFixtures\FixtureInterface;
@@ -9,12 +10,13 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Civix\CoreBundle\Entity\Announcement\RepresentativeAnnouncement;
 use Faker\Factory;
 
-class LoadRepresentativeAnnouncementData extends AbstractFixture implements FixtureInterface, DependentFixtureInterface
+class LoadUserRepresentativeAnnouncementData extends AbstractFixture implements FixtureInterface, DependentFixtureInterface
 {
     public function load(ObjectManager $manager)
     {
         $faker = Factory::create();
-        
+
+        /** @var UserRepresentative $representative */
         $representative = $this->getReference('representative_jb');
 
         $announcement = new RepresentativeAnnouncement();
@@ -61,6 +63,6 @@ class LoadRepresentativeAnnouncementData extends AbstractFixture implements Fixt
 
     public function getDependencies()
     {
-        return [LoadRepresentativeData::class];
+        return [LoadUserRepresentativeData::class];
     }
 }

@@ -3,8 +3,8 @@
 namespace Civix\CoreBundle\EventListener;
 
 use Civix\CoreBundle\Entity\Report\UserReport;
-use Civix\CoreBundle\Event\RepresentativeEvent;
-use Civix\CoreBundle\Event\RepresentativeEvents;
+use Civix\CoreBundle\Event\UserRepresentativeEvent;
+use Civix\CoreBundle\Event\UserRepresentativeEvents;
 use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Service\CiceroApi;
@@ -28,8 +28,8 @@ class CiceroSubscriber implements EventSubscriberInterface
     {
         return [
             UserEvents::REGISTRATION => 'updateDistrictsIds',
-            RepresentativeEvents::APPROVE => 'synchronizeRepresentative',
-            RepresentativeEvents::SYNCHRONIZE => 'synchronizeByStateCode',
+            UserRepresentativeEvents::APPROVE => 'synchronizeRepresentative',
+            UserRepresentativeEvents::SYNCHRONIZE => 'synchronizeByStateCode',
         ];
     }
 
@@ -63,7 +63,7 @@ class CiceroSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function synchronizeRepresentative(RepresentativeEvent $event): void
+    public function synchronizeRepresentative(UserRepresentativeEvent $event): void
     {
         $this->ciceroApi->synchronizeRepresentative($event->getRepresentative());
     }

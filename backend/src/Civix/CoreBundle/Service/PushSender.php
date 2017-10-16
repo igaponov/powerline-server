@@ -8,7 +8,7 @@ use Civix\CoreBundle\Entity\Announcement\GroupAnnouncement;
 use Civix\CoreBundle\Entity\Announcement\RepresentativeAnnouncement;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\UserPetition;
@@ -230,9 +230,9 @@ class PushSender
 
     public function sendPublishedRepresentativeAnnouncementPush($representativeId, $announcementId): void
     {
-        /** @var Representative $representative */
+        /** @var UserRepresentative $representative */
         $representative = $this->entityManager
-            ->getRepository('CivixCoreBundle:Representative')
+            ->getRepository(UserRepresentative::class)
             ->find($representativeId);
 
         if (!$representative) {

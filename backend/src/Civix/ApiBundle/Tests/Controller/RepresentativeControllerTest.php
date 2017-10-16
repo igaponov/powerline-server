@@ -2,12 +2,12 @@
 namespace Civix\ApiBundle\Tests\Controller;
 
 use Civix\ApiBundle\Tests\WebTestCase;
-use Civix\CoreBundle\Entity\CiceroRepresentative;
 use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Serializer\Adapter\BillAdapter;
 use Civix\CoreBundle\Serializer\Adapter\CommitteeAdapter;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadCiceroRepresentativeData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserRepresentativeData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -35,8 +35,8 @@ class RepresentativeControllerTest  extends WebTestCase
     public function testGetRepresentatives()
     {
         $repository = $this->loadFixtures([
+            LoadUserRepresentativeData::class,
             LoadRepresentativeData::class,
-            LoadCiceroRepresentativeData::class,
         ])->getReferenceRepository();
         $representative = $repository->getReference('representative_jb');
         $this->client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"']);
@@ -71,16 +71,16 @@ class RepresentativeControllerTest  extends WebTestCase
                     'title' => 'Office of the President',
                     'representatives' => [
                         [
-                            'storage_id' => 44926,
-                            'first_name' => 'Joseph',
-                            'last_name' => 'Biden',
-                            'official_title' => 'Vice President',
-                        ],
-                        [
                             'storage_id' => 123543,
                             'first_name' => 'Barack',
                             'last_name' => 'Obama',
                             'official_title' => 'President',
+                        ],
+                        [
+                            'storage_id' => 44926,
+                            'first_name' => 'Joseph',
+                            'last_name' => 'Biden',
+                            'official_title' => 'Vice President',
                         ],
                     ],
                 ],
@@ -104,9 +104,9 @@ class RepresentativeControllerTest  extends WebTestCase
     public function testGetRepresentative()
     {
         $repository = $this->loadFixtures([
-            LoadRepresentativeData::class,
+            LoadUserRepresentativeData::class,
         ])->getReferenceRepository();
-        /** @var Representative $representative */
+        /** @var UserRepresentative $representative */
         $representative = $repository->getReference('representative_jb');
         $this->client->request('GET', self::API_ENDPOINT.'info/'.$representative->getId().'/0', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"']);
         $response = $this->client->getResponse();
@@ -127,9 +127,9 @@ class RepresentativeControllerTest  extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
-            LoadCiceroRepresentativeData::class,
+            LoadRepresentativeData::class,
         ])->getReferenceRepository();
-        /** @var CiceroRepresentative $representative */
+        /** @var Representative $representative */
         $representative = $repository->getReference('cicero_representative_jb');
         $this->client->request('GET', self::API_ENDPOINT.'info/1/'.$representative->getId(), [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"']);
         $response = $this->client->getResponse();
@@ -140,15 +140,15 @@ class RepresentativeControllerTest  extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
-            LoadCiceroRepresentativeData::class,
+            LoadRepresentativeData::class,
         ])->getReferenceRepository();
-        /** @var CiceroRepresentative $representative */
+        /** @var Representative $representative */
         $representative = $repository->getReference('cicero_representative_jb');
         $this->client->request('GET', self::API_ENDPOINT.'info/0/'.$representative->getId(), [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"']);
         $response = $this->client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals($representative->getId(), $data['storage_id']);
+        $this->assertEquals($representative->getCiceroId(), $data['storage_id']);
         $this->assertEquals($representative->getFirstName(), $data['first_name']);
         $this->assertEquals($representative->getLastName(), $data['last_name']);
         $this->assertEquals($representative->getOfficialTitle(), $data['official_title']);
@@ -161,9 +161,9 @@ class RepresentativeControllerTest  extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
-            LoadCiceroRepresentativeData::class,
+            LoadRepresentativeData::class,
         ])->getReferenceRepository();
-        /** @var CiceroRepresentative $representative */
+        /** @var Representative $representative */
         $representative = $repository->getReference('cicero_representative_jb');
         $mock = $this->getServiceMockBuilder('civix_core.openstates_api')
             ->setMethods(['getCommiteeMembership'])
@@ -194,9 +194,9 @@ class RepresentativeControllerTest  extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
-            LoadCiceroRepresentativeData::class,
+            LoadRepresentativeData::class,
         ])->getReferenceRepository();
-        /** @var CiceroRepresentative $representative */
+        /** @var Representative $representative */
         $representative = $repository->getReference('cicero_representative_jb');
         $mock = $this->getServiceMockBuilder('civix_core.openstates_api')
             ->setMethods(['getBillsBySponsorId'])

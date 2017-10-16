@@ -43,7 +43,7 @@ class KarmaSubscriber implements EventSubscriberInterface
         $this->repository = $repository;
     }
 
-    public function representativeScreen(Event\UserRepresentativeEvent $event)
+    public function representativeScreen(Event\UserEvent $event)
     {
         $user = $event->getUser();
         $karma = $this->repository

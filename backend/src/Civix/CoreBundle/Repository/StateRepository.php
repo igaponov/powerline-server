@@ -13,7 +13,7 @@ class StateRepository extends EntityRepository
             ->createQueryBuilder()
             ->select('st.code, COUNT(rs.id) AS stcount, MIN(rs.updated_at) as lastUpdatedAt')
             ->from('states', 'st')
-            ->leftJoin('st', 'cicero_representatives', 'rs', 'rs.state = st.code')
+            ->leftJoin('st', 'representatives', 'rs', 'rs.state = st.code')
             ->groupBy('st.code')
             ->orderBy('lastUpdatedAt', 'DESC')
             ->addOrderBy('st.code', 'ASC');

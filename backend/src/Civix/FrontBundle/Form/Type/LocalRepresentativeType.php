@@ -3,7 +3,8 @@
 namespace Civix\FrontBundle\Form\Type;
 
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Repository\RepresentativeRepository;
+use Civix\CoreBundle\Entity\UserRepresentative;
+use Civix\CoreBundle\Repository\UserRepresentativeRepository;
 use Mopa\Bundle\BootstrapBundle\Form\Type\FormActionsType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -22,13 +23,13 @@ class LocalRepresentativeType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('localRepresentatives', EntityType::class, array(
-            'class' => 'CivixCoreBundle:Representative',
+            'class' => UserRepresentative::class,
             'label' => 'Local representatives',
             'attr' => array('class' => 'span6'),
             'by_reference' => false,
             'multiple' => true,
             'required' => false,
-            'query_builder' => function (RepresentativeRepository $er) {
+            'query_builder' => function (UserRepresentativeRepository $er) {
                 return $er->getQueryBuilderLocalRepr();
             },
         ));

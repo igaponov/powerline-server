@@ -3,7 +3,7 @@
 namespace Tests\Civix\CoreBundle\Service;
 
 use Civix\Component\ContentConverter\ConverterInterface;
-use Civix\CoreBundle\Entity\CiceroRepresentative;
+use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\District;
 use Civix\CoreBundle\Entity\State;
 use Civix\CoreBundle\Model\TempFile;
@@ -32,10 +32,10 @@ class CiceroRepresentativePopulatorTest extends TestCase
             ->method('find')
             ->with(47);
         $populator = new CiceroRepresentativePopulator($converter, $stateRepo, $districtRepo);
-        $representative = new CiceroRepresentative();
+        $representative = new Representative();
         $json = json_decode(file_get_contents(__DIR__.'/../data/representative.json'));
         $populator->populate($representative, $json);
-        $this->assertSame(33976, $representative->getId());
+        $this->assertSame(33976, $representative->getCiceroId());
         $this->assertSame('Robert', $representative->getFirstName());
         $this->assertSame('Menendez', $representative->getLastName());
         $this->assertSame('Senator', $representative->getOfficialTitle());

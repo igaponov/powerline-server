@@ -4,7 +4,7 @@ namespace Civix\ApiBundle\Controller\V2\Representative;
 
 use Civix\ApiBundle\Configuration\SecureParam;
 use Civix\ApiBundle\Controller\V2\AbstractBankAccountController;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Entity\Stripe\Account;
 use Civix\CoreBundle\Service\PaymentManager;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -61,11 +61,11 @@ class BankAccountController extends AbstractBankAccountController
      * @View(statusCode=201)
      *
      * @param Request $request
-     * @param Representative $representative
+     * @param UserRepresentative $representative
      *
      * @return Account|\Symfony\Component\Form\Form
      */
-    public function postBankAccountAction(Request $request, Representative $representative)
+    public function postBankAccountAction(Request $request, UserRepresentative $representative)
     {
         return $this->postBankAccount($request, $representative);
     }
@@ -96,11 +96,11 @@ class BankAccountController extends AbstractBankAccountController
      *
      * @View(serializerGroups={"api"})
      *
-     * @param Representative $representative
+     * @param UserRepresentative $representative
      *
      * @return array|mixed
      */
-    public function getBankAccountsAction(Representative $representative)
+    public function getBankAccountsAction(UserRepresentative $representative)
     {
         return $this->getBankAccounts($representative);
     }
@@ -123,10 +123,10 @@ class BankAccountController extends AbstractBankAccountController
      *     }
      * )
      *
-     * @param Representative $representative
+     * @param UserRepresentative $representative
      * @param string $id
      */
-    public function deleteBankAccountAction(Representative $representative, $id)
+    public function deleteBankAccountAction(UserRepresentative $representative, $id)
     {
         $this->deleteBankAccount($representative, $id);
     }

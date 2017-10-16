@@ -3,8 +3,8 @@ namespace Civix\CoreBundle\Tests\DataFixtures\ORM\Representative;
 
 use Civix\CoreBundle\Entity\Poll\Option;
 use Civix\CoreBundle\Entity\Poll\Question\Representative as RepresentativeQuestion;
-use Civix\CoreBundle\Entity\Representative;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData;
+use Civix\CoreBundle\Entity\UserRepresentative;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserRepresentativeData;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -16,11 +16,11 @@ class LoadRepresentativeQuestionData extends AbstractFixture implements Dependen
     {
         $faker = Factory::create();
 
-        /** @var Representative $representative1 */
+        /** @var UserRepresentative $representative1 */
         $representative1 = $this->getReference('representative_jb');
-        /** @var Representative $representative2 */
+        /** @var UserRepresentative $representative2 */
         $representative2 = $this->getReference('representative_jt');
-        /** @var Representative $representative3 */
+        /** @var UserRepresentative $representative3 */
         $representative3 = $this->getReference('representative_wc');
 
         $question = new RepresentativeQuestion();
@@ -97,6 +97,6 @@ class LoadRepresentativeQuestionData extends AbstractFixture implements Dependen
 
     public function getDependencies()
     {
-        return [LoadRepresentativeData::class];
+        return [LoadUserRepresentativeData::class];
     }
 }

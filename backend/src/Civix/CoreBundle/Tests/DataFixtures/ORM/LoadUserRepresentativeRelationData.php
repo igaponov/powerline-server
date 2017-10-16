@@ -5,22 +5,22 @@ namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 
-class LoadRepresentativeRelationData extends AbstractFixture implements DependentFixtureInterface
+class LoadUserRepresentativeRelationData extends AbstractFixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager)
     {
-        /** @var Representative $representative */
+        /** @var UserRepresentative $representative */
         $representative = $this->getReference('representative_jb');
         $cicero = $this->getReference('cicero_representative_jb');
-        $representative->setCiceroRepresentative($cicero);
+        $representative->setRepresentative($cicero);
         $manager->persist($representative);
         $manager->flush();
     }
 
     public function getDependencies()
     {
-        return [LoadRepresentativeData::class, LoadCiceroRepresentativeData::class];
+        return [LoadUserRepresentativeData::class, LoadRepresentativeData::class];
     }
 }

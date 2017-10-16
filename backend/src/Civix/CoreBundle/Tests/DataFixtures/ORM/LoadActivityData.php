@@ -13,7 +13,7 @@ use Civix\CoreBundle\Entity\Activities\Question;
 use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\ActivityCondition;
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Entity\User;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -71,7 +71,7 @@ class LoadActivityData extends AbstractFixture implements DependentFixtureInterf
         $this->addReference('activity_leader_event', $leaderEvent);
         $paymentRequest = $this->generateActivity(new PaymentRequest(), $user3, $group)
             ->setSentAt(new \DateTime('-3 minutes'));
-        /** @var Representative $representative */
+        /** @var UserRepresentative $representative */
         $representative = $this->getReference('representative_jb');
         $paymentRequest->setRepresentative($representative);
         $manager->persist($paymentRequest);
@@ -104,6 +104,6 @@ class LoadActivityData extends AbstractFixture implements DependentFixtureInterf
 
     public function getDependencies(): array
     {
-        return [LoadUserData::class, LoadGroupData::class, LoadRepresentativeData::class];
+        return [LoadUserData::class, LoadGroupData::class, LoadUserRepresentativeData::class];
     }
 }

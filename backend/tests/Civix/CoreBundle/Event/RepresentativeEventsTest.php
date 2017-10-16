@@ -2,13 +2,13 @@
 
 namespace Tests\Civix\CoreBundle\Event;
 
-use Civix\CoreBundle\Event\CiceroRepresentativeEvent;
-use Civix\CoreBundle\Event\CiceroRepresentativeEvents;
+use Civix\CoreBundle\Event\RepresentativeEvent;
+use Civix\CoreBundle\Event\RepresentativeEvents;
 use Civix\CoreBundle\EventListener\CongressSubscriber;
 use Civix\CoreBundle\EventListener\OpenstatesSubscriber;
 use Civix\CoreBundle\EventListener\ProPublicaSubscriber;
 
-class CiceroRepresentativeEventsTest extends EventsTestCase
+class RepresentativeEventsTest extends EventsTestCase
 {
     public function testRegistrationEvent(): void
     {
@@ -18,8 +18,8 @@ class CiceroRepresentativeEventsTest extends EventsTestCase
             [ProPublicaSubscriber::class, 'getInfo'],
         ];
         $this->assertListeners(
-            CiceroRepresentativeEvents::UPDATE,
-            CiceroRepresentativeEvent::class,
+            RepresentativeEvents::UPDATE,
+            RepresentativeEvent::class,
             $expectedListeners
         );
     }

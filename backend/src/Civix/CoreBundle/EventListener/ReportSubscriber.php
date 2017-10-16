@@ -149,7 +149,7 @@ class ReportSubscriber implements EventSubscriberInterface
             ->deletePetitionResponseReport($event->getSignature());
     }
 
-    public function updateKarmaRepresentativeScreen(Event\UserRepresentativeEvent $event): void
+    public function updateKarmaRepresentativeScreen(Event\UserEvent $event): void
     {
         $this->em->getRepository(UserReport::class)
             ->updateUserReportKarma($event->getUser());

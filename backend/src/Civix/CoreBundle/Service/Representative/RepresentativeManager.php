@@ -2,11 +2,11 @@
 
 namespace Civix\CoreBundle\Service\Representative;
 
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Event\AvatarEvent;
 use Civix\CoreBundle\Event\AvatarEvents;
-use Civix\CoreBundle\Event\RepresentativeEvent;
-use Civix\CoreBundle\Event\RepresentativeEvents;
+use Civix\CoreBundle\Event\UserRepresentativeEvent;
+use Civix\CoreBundle\Event\UserRepresentativeEvents;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -29,7 +29,7 @@ class RepresentativeManager
         $this->dispatcher = $dispatcher;
     }
 
-    public function save(Representative $representative): Representative
+    public function save(UserRepresentative $representative): UserRepresentative
     {
         $event = new AvatarEvent($representative);
         $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
@@ -40,12 +40,12 @@ class RepresentativeManager
         return $representative;
     }
 
-    public function approveRepresentative(Representative $representative): Representative
+    public function approveRepresentative(UserRepresentative $representative): UserRepresentative
     {
-        $representative->setStatus(Representative::STATUS_ACTIVE);
+        $representative->setStatus(UserRepresentative::STATUS_ACTIVE);
 
-        $event = new RepresentativeEvent($representative);
-        $this->dispatcher->dispatch(RepresentativeEvents::APPROVE, $event);
+        $event = new UserRepresentativeEvent($representative);
+        $this->dispatcher->dispatch(UserRepresentativeEvents::APPROVE, $event);
 
         return $representative;
     }

@@ -3,10 +3,10 @@
 namespace Tests\Civix\FrontBundle\Controller;
 
 use Civix\ApiBundle\Tests\WebTestCase;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Service\CiceroApi;
 use Civix\FrontBundle\Tests\DataFixtures\ORM\LoadGroupData;
-use Civix\FrontBundle\Tests\DataFixtures\ORM\LoadRepresentativeData;
+use Civix\FrontBundle\Tests\DataFixtures\ORM\LoadUserRepresentativeData;
 use Civix\FrontBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
 use Doctrine\DBAL\Connection;
 
@@ -16,7 +16,7 @@ class RepresentativeControllerTest extends WebTestCase
     {
         $this->loadFixtures([
             LoadSuperuserData::class,
-            LoadRepresentativeData::class,
+            LoadUserRepresentativeData::class,
         ]);
         $crawler = $this->fetchCrawler('/admin/representatives', 'GET', true);
         $this->assertCount(1, $crawler->filter('tbody > tr'));
@@ -28,7 +28,7 @@ class RepresentativeControllerTest extends WebTestCase
     {
         $this->loadFixtures([
             LoadSuperuserData::class,
-            LoadRepresentativeData::class,
+            LoadUserRepresentativeData::class,
             LoadGroupData::class,
         ]);
         $client = $this->makeClient(true);
@@ -61,7 +61,7 @@ class RepresentativeControllerTest extends WebTestCase
     {
         $this->loadFixtures([
             LoadSuperuserData::class,
-            LoadRepresentativeData::class,
+            LoadUserRepresentativeData::class,
             LoadGroupData::class,
         ]);
         $client = $this->makeClient(true);
@@ -74,7 +74,7 @@ class RepresentativeControllerTest extends WebTestCase
         $this->assertCount(1, $crawler->filter('tbody > tr:contains("Table is empty.")'));
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine')->getConnection();
-        $count = $conn->fetchColumn('SELECT COUNT(*) FROM representatives');
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM user_representatives');
         $this->assertEquals(0, $count);
     }
 
@@ -82,7 +82,7 @@ class RepresentativeControllerTest extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadSuperuserData::class,
-            LoadRepresentativeData::class,
+            LoadUserRepresentativeData::class,
         ])->getReferenceRepository();
         $representative = $repository->getReference('representative_1');
         $service = $this->getMockBuilder(CiceroApi::class)
@@ -103,7 +103,7 @@ class RepresentativeControllerTest extends WebTestCase
         $this->assertCount(1, $crawler->filter('tbody > tr:contains("Table is empty.")'));
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine')->getConnection();
-        $count = $conn->fetchColumn('SELECT COUNT(*) FROM representatives WHERE status = ? AND id = ?', [Representative::STATUS_ACTIVE, $representative->getId()]);
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM user_representatives WHERE status = ? AND id = ?', [UserRepresentative::STATUS_ACTIVE, $representative->getId()]);
         $this->assertEquals(1, $count);
     }
 }

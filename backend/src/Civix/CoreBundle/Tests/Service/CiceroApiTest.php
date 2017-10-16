@@ -5,11 +5,11 @@ namespace Civix\CoreBundle\Tests\Service;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\Component\ContentConverter\ConverterInterface;
 use Civix\CoreBundle\Entity\District;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Event\AvatarEvent;
 use Civix\CoreBundle\Event\AvatarEvents;
-use Civix\CoreBundle\Event\CiceroRepresentativeEvent;
-use Civix\CoreBundle\Event\CiceroRepresentativeEvents;
+use Civix\CoreBundle\Event\RepresentativeEvent;
+use Civix\CoreBundle\Event\RepresentativeEvents;
 use Civix\CoreBundle\Service\CiceroApi;
 use Civix\CoreBundle\Service\CiceroCalls;
 use Civix\CoreBundle\Service\CiceroRepresentativePopulator;
@@ -20,7 +20,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class CiceroApiTest extends WebTestCase
 {
     /**
-     * @var Representative
+     * @var UserRepresentative
      */
     private $districtObj;
     private $responseCandidates;
@@ -57,13 +57,13 @@ class CiceroApiTest extends WebTestCase
     public function testUpdateByRepresentativeInfo(): void
     {
         $repository = $this->loadFixtures(array(
-            ORM\LoadRepresentativeRelationData::class,
+            ORM\LoadUserRepresentativeRelationData::class,
         ))->getReferenceRepository();
         /** @var EntityManager $em */
         $em = $this->getContainer()
             ->get('doctrine')
             ->getManager();
-        /** @var Representative $representativeObj */
+        /** @var UserRepresentative $representativeObj */
         $representativeObj = $repository->getReference('representative_jb');
         /** @var CiceroCalls|\PHPUnit_Framework_MockObject_MockObject $ciceroCallsMock */
         $ciceroCallsMock = $this->getMockBuilder(CiceroCalls::class)
@@ -76,7 +76,7 @@ class CiceroApiTest extends WebTestCase
             ->method('dispatch')
             ->withConsecutive(
                 [AvatarEvents::CHANGE, $this->isInstanceOf(AvatarEvent::class)],
-                [CiceroRepresentativeEvents::UPDATE, $this->isInstanceOf(CiceroRepresentativeEvent::class)]
+                [RepresentativeEvents::UPDATE, $this->isInstanceOf(RepresentativeEvent::class)]
             );
 
         $converter = $this->createMock(ConverterInterface::class);
@@ -102,7 +102,7 @@ class CiceroApiTest extends WebTestCase
         $em->flush();
         $em->refresh($representativeObj);
         $this->assertSame(
-            $representativeObj->getCiceroRepresentative()->getId(),
+            $representativeObj->getRepresentative()->getCiceroId(),
             $this->responseRepresentative->response->results->officials[0]->id
         );
     }

@@ -2,8 +2,8 @@
 
 namespace Civix\CoreBundle\EventListener;
 
-use Civix\CoreBundle\Event\CiceroRepresentativeEvent;
-use Civix\CoreBundle\Event\CiceroRepresentativeEvents;
+use Civix\CoreBundle\Event\RepresentativeEvent;
+use Civix\CoreBundle\Event\RepresentativeEvents;
 use Civix\CoreBundle\Service\ProPublicaRepresentativePopulator;
 use GuzzleHttp\Command\ServiceClientInterface;
 use Psr\Log\LoggerInterface;
@@ -27,7 +27,7 @@ class ProPublicaSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            CiceroRepresentativeEvents::UPDATE => 'getInfo',
+            RepresentativeEvents::UPDATE => 'getInfo',
         ];
     }
 
@@ -41,7 +41,7 @@ class ProPublicaSubscriber implements EventSubscriberInterface
         $this->logger = $logger;
     }
 
-    public function getInfo(CiceroRepresentativeEvent $event)
+    public function getInfo(RepresentativeEvent $event)
     {
         $representative = $event->getRepresentative();
 
