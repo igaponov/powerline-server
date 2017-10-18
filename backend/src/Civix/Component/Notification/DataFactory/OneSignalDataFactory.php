@@ -57,6 +57,8 @@ class OneSignalDataFactory implements DataFactoryInterface
     private const BUTTON_OPEN_POLL = ['id' => 'open-poll-button', 'text' => 'Open', 'icon' => 'ic_civix_open'];
     private const BUTTON_RSVP = ['id' => 'rsvp-button', 'text' => 'RSVP', 'icon' => 'ic_civix_rsvp'];
     private const BUTTON_DONATE = ['id' => 'donate-button', 'text' => 'Donate', 'icon' => 'ic_civix_donate'];
+    private const BUTTON_SIGN_LEADER_PETITION = ['id' => 'sign-leader-petition-button', 'text' => 'Sign', 'icon' => 'ic_civix_sign'];
+    private const BUTTON_VIEW_LEADER_PETITION = ['id' => 'view-leader-petition-button', 'text' => 'View', 'icon' => 'ic_civix_view'];
 
     /**
      * @param PushMessage $message
@@ -212,8 +214,8 @@ class OneSignalDataFactory implements DataFactoryInterface
                 break;
             case 'group_petition':
                 $actionButton = [
-                    self::BUTTON_SIGN_PETITION,
-                    self::BUTTON_VIEW_PETITION,
+                    self::BUTTON_SIGN_LEADER_PETITION,
+                    self::BUTTON_VIEW_LEADER_PETITION,
                 ];
                 break;
             case 'group_question':
