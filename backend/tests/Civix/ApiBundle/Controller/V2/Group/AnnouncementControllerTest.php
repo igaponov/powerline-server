@@ -1,5 +1,5 @@
 <?php
-namespace Civix\ApiBundle\Tests\Controller\V2\Group;
+namespace Tests\Civix\ApiBundle\Controller\V2\Group;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
@@ -16,7 +16,7 @@ class AnnouncementControllerTest extends WebTestCase
 	/**
 	 * @var Client
 	 */
-	private $client = null;
+	private $client;
 
 	public function setUp()
 	{
@@ -56,14 +56,7 @@ class AnnouncementControllerTest extends WebTestCase
         $group = $repository->getReference('testfollowsecretgroups');
         $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
         $client->request('POST', $uri, [], [], ['HTTP_Token'=>'userfollowtest1'], json_encode($params));
-		$response = $client->getResponse();
-		$this->assertEquals(400, $response->getStatusCode(), $response->getContent());
-		$data = json_decode($response->getContent(), true);
-		$this->assertSame('Validation Failed', $data['message']);
-		$children = $data['errors']['children'];
-		foreach ($errors as $child => $error) {
-			$this->assertEquals([$error], $children[$child]['errors']);
-		}
+		$this->assertResponseHasErrors($client->getResponse(), $errors);
 	}
 
     public function getInvalidParams()
@@ -74,8 +67,18 @@ class AnnouncementControllerTest extends WebTestCase
                     'content' => '',
                 ],
                 [
+                    'The announcement should not be blank.',
                     'content' => 'This value should not be blank.',
-                ]
+                ],
+            ],
+            'invalid' => [
+                [
+                    'content' => 'test',
+                    'image' => base64_encode(file_get_contents(__FILE__)),
+                ],
+                [
+                    'image' => 'This file is not a valid image.',
+                ],
             ],
         ];
     }
@@ -97,6 +100,7 @@ class AnnouncementControllerTest extends WebTestCase
         $params = [
 			'content' => 'some text',
             'group_sections' => [$section1->getId(), $section2->getId()],
+            'image' => base64_encode(file_get_contents(__DIR__.'/../../../../../data/image.png')),
 		];
         $client = $this->client;
         $uri = str_replace('{group}', $group->getId(), self::API_ENDPOINT);
@@ -106,10 +110,13 @@ class AnnouncementControllerTest extends WebTestCase
 		$data = json_decode($response->getContent(), true);
 		$this->assertNotNull($data['id']);
 		$this->assertSame($params['content'], $data['content_parsed']);
+        $this->assertNotEmpty($data['image']);
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine')->getConnection();
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM announcement_sections ps WHERE group_section_id IN (?, ?) AND announcement_id = ?', [$section1->getId(), $section2->getId(), $data['id']]);
         $this->assertEquals(2, $count);
+        $storage = $client->getContainer()->get('civix_core.storage.array');
+        $this->assertCount(1, $storage->getFiles('image_announcement_fs'));
 	}
 
 	public function testCreateAnnouncementWithInvalidGroupSection()

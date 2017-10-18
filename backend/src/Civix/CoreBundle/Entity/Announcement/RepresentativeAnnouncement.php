@@ -17,7 +17,7 @@ class RepresentativeAnnouncement extends Announcement
     /**
      * @return Representative
      */
-    public function getRepresentative()
+    public function getRepresentative(): Representative
     {
         return $this->representative;
     }
@@ -26,7 +26,7 @@ class RepresentativeAnnouncement extends Announcement
      * @param Representative|LeaderContentRootInterface $representative
      * @return RepresentativeAnnouncement
      */
-    public function setRepresentative(Representative $representative)
+    public function setRepresentative(Representative $representative): RepresentativeAnnouncement
     {
         $this->representative = $representative;
 
@@ -41,7 +41,7 @@ class RepresentativeAnnouncement extends Announcement
      * @internal param \Civix\CoreBundle\Entity\Representative $representative
      *
      */
-    public function setRoot(LeaderContentRootInterface $root)
+    public function setRoot(LeaderContentRootInterface $root): Announcement
     {
         return $this->setRepresentative($root);
     }
@@ -49,9 +49,9 @@ class RepresentativeAnnouncement extends Announcement
     /**
      * Get representative.
      *
-     * @return \Civix\CoreBundle\Entity\Representative
+     * @return LeaderContentRootInterface|Representative
      */
-    public function getRoot()
+    public function getRoot(): LeaderContentRootInterface
     {
         return $this->getRepresentative();
     }

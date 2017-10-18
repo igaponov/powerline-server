@@ -1,5 +1,5 @@
 <?php
-namespace Civix\ApiBundle\Tests\Controller\V2\Representative;
+namespace Tests\Civix\ApiBundle\Controller\V2\Representative;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData;
@@ -12,7 +12,7 @@ class AnnouncementControllerTest extends WebTestCase
 	/**
 	 * @var Client
 	 */
-	private $client = null;
+	private $client;
 
 	public function setUp()
 	{
@@ -52,14 +52,7 @@ class AnnouncementControllerTest extends WebTestCase
         $representative = $repository->getReference('representative_jb');
         $uri = str_replace('{representative}', $representative->getId(), self::API_ENDPOINT);
         $client->request('POST', $uri, [], [], ['HTTP_Token' => 'user1'], json_encode($params));
-		$response = $client->getResponse();
-		$this->assertEquals(400, $response->getStatusCode(), $response->getContent());
-		$data = json_decode($response->getContent(), true);
-		$this->assertSame('Validation Failed', $data['message']);
-		$children = $data['errors']['children'];
-		foreach ($errors as $child => $error) {
-			$this->assertEquals([$error], $children[$child]['errors']);
-		}
+		$this->assertResponseHasErrors($client->getResponse(), $errors);
 	}
 
     public function getInvalidParams()
@@ -70,8 +63,18 @@ class AnnouncementControllerTest extends WebTestCase
                     'content' => '',
                 ],
                 [
+                    'The announcement should not be blank.',
                     'content' => 'This value should not be blank.',
-                ]
+                ],
+            ],
+            'invalid' => [
+                [
+                    'content' => 'test',
+                    'image' => base64_encode(file_get_contents(__FILE__)),
+                ],
+                [
+                    'image' => 'This file is not a valid image.',
+                ],
             ],
         ];
     }
