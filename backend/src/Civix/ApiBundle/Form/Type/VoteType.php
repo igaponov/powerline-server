@@ -24,14 +24,7 @@ class VoteType extends AbstractType
         $builder->add('option', TextType::class, [
             'description' => 'Option, one of: '.implode(', ', $choices),
         ]);
-        $builder->get('option')->addModelTransformer(new KeyToValueTransformer($choices))
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
-                $form = $event->getForm();
-                $data = $form->getData();
-                if ($data && $data !== Vote::OPTION_IGNORE) {
-                    $form->addError(new FormError('User is already answered this petition'));
-                }
-            });
+        $builder->get('option')->addModelTransformer(new KeyToValueTransformer($choices));
     }
 
     public function configureOptions(OptionsResolver $resolver)
