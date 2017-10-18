@@ -437,11 +437,12 @@ class PostControllerTest extends WebTestCase
     }
 
     /**
-     * @param $reference
+     * @param $postReference
+     * @param $userReference
      * @param $option
      * @dataProvider getOptions
      */
-    public function testUpdateVote($reference, $option)
+    public function testUpdateVote($postReference, $userReference, $option)
     {
         $repository = $this->loadFixtures([
             LoadPostVoteData::class,
@@ -453,9 +454,9 @@ class PostControllerTest extends WebTestCase
         $em = $client->getContainer()->get('doctrine')->getManager();
         $conn = $em->getConnection();
         /** @var Post $post */
-        $post = $repository->getReference('post_1');
+        $post = $repository->getReference($postReference);
         /** @var User $user */
-        $user = $repository->getReference($reference);
+        $user = $repository->getReference($userReference);
         $answer = $conn->fetchAssoc('SELECT id, `option` FROM post_votes WHERE post_id = ? AND user_id = ?', [$post->getId(), $user->getId()]);
         $client->request('POST',
             self::API_ENDPOINT.'/'.$post->getId().'/vote', [], [],
@@ -472,12 +473,16 @@ class PostControllerTest extends WebTestCase
         $this->assertEquals($answer['id'], $data['id']);
         $this->assertNotEquals($answer['option'], $data['option']);
         // check social activity
-        $tester = new SocialActivityTester($em);
-        $tester->assertActivitiesCount(1);
-        $tester->assertActivity(SocialActivity::TYPE_OWN_POST_VOTED, $post->getUser()->getId());
-        $queue = $client->getContainer()->get('civix_core.mock_queue_task');
-        $this->assertEquals(1, $queue->count());
-        $this->assertEquals(1, $queue->hasMessageWithMethod('sendSocialActivity'));
+        if ($postReference === 'post_1') {
+            $tester = new SocialActivityTester($em);
+            $tester->assertActivitiesCount(1);
+            $tester->assertActivity(SocialActivity::TYPE_OWN_POST_VOTED,
+                $post->getUser()->getId()
+            );
+            $queue = $client->getContainer()->get('civix_core.mock_queue_task');
+            $this->assertEquals(1, $queue->count());
+            $this->assertEquals(1, $queue->hasMessageWithMethod('sendSocialActivity'));
+        }
         $report = $em->getRepository(PostResponseReport::class)
             ->getPostResponseReport($user, $post);
         $this->assertSame($option, $report->getVote());
@@ -500,31 +505,11 @@ class PostControllerTest extends WebTestCase
     public function getOptions()
     {
         return [
-            ['user_3', 'downvote'],
-            ['user_3', 'upvote'],
+            ['post_3', 'user_4', 'downvote'], // change upvote to downvote
+            ['post_1', 'user_2', 'upvote'], // change downvote to upvote
+            ['post_1', 'user_3', 'downvote'], // change ignore to downvote
+            ['post_1', 'user_3', 'upvote'], // change ignore to upvote
         ];
-    }
-
-    public function testUpdateVoteWithErrors()
-    {
-        $repository = $this->loadFixtures([
-            LoadPostVoteData::class,
-        ])->getReferenceRepository();
-        $client = $this->client;
-        /** @var Post $post */
-        $post = $repository->getReference('post_1');
-        $client->request('POST',
-            self::API_ENDPOINT.'/'.$post->getId().'/vote', [], [],
-            ['HTTP_Authorization'=>'Bearer type="user" token="user2"'],
-            json_encode(['option' => 'upvote'])
-        );
-        $response = $client->getResponse();
-        $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertContains(
-            'User is already answered this petition',
-            $data['errors']['children']['option']['errors']
-        );
     }
 
     public function testUnvotePost()
