@@ -70,6 +70,14 @@ services:
     civix_core.social_activity_factory:
         class: Civix\CoreBundle\Service\SocialActivityFactory
 
+    civix_core.representative_importer:
+        class: Civix\CoreBundle\Service\RepresentativeImporter
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - '@civix_core.state_repository'
+            - '@civix_core.district_repository'
+            - '@civix_core.content_converter'
+
 #    civix_core.uploader.metadata.file_locator:
 #        class: Metadata\Driver\FileLocator
 #        public: false

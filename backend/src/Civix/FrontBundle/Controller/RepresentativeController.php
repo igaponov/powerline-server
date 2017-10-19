@@ -3,6 +3,7 @@
 namespace Civix\FrontBundle\Controller;
 
 use Civix\CoreBundle\Entity\UserRepresentative;
+use Civix\FrontBundle\Form\Type\BulkRepresentativeType;
 use Civix\FrontBundle\Form\Type\LimitType;
 use Civix\FrontBundle\Form\Type\RepresentativeType;
 use Doctrine\ORM\EntityManager;
@@ -182,6 +183,32 @@ class RepresentativeController extends Controller
             $this->em->flush();
 
             $this->addFlash('notice', 'Question\'s limit has been successfully saved');
+
+            return $this->redirectToRoute('civix_front_representative_index');
+        }
+
+        return array(
+            'form' => $form->createView(),
+        );
+    }
+
+    /**
+     * @Route("/bulk", name="civix_front_representative_bulk")
+     * @Method({"GET", "POST"})
+     * @Template("CivixFrontBundle::form.html.twig")
+     * @param Request $request
+     * @return array|RedirectResponse
+     */
+    public function bulkCreateAction(Request $request)
+    {
+        $form = $this->createForm(BulkRepresentativeType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $importer = $this->get('civix_core.representative_importer');
+            $importer->import($form->get('file')->getData());
+
+            $this->addFlash('notice', 'All representatives are imported.');
 
             return $this->redirectToRoute('civix_front_representative_index');
         }

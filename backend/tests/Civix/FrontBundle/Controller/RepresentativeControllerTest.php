@@ -106,4 +106,25 @@ class RepresentativeControllerTest extends WebTestCase
         $count = $conn->fetchColumn('SELECT COUNT(*) FROM user_representatives WHERE status = ? AND id = ?', [UserRepresentative::STATUS_ACTIVE, $representative->getId()]);
         $this->assertEquals(1, $count);
     }
+
+    public function testBulkCreateRepresentative()
+    {
+        $this->loadFixtures([
+            LoadSuperuserData::class,
+        ]);
+        $client = $this->makeClient(true);
+        $crawler = $client->request('GET', '/admin/representatives/bulk');
+        $form = $crawler->selectButton('Submit')->form();
+        $form['bulk_representative[file]']->setValue(__DIR__.'/../../../Civix/CoreBundle/data/representatives.csv');
+        $client->submit($form);
+        $crawler = $client->followRedirect();
+        $this->assertContains(
+            'All representatives are imported.',
+            $crawler->filter('.alert-info')->text()
+        );
+        $count = $client->getContainer()->get('database_connection')->fetchColumn(
+            'SELECT COUNT(*) from representatives WHERE cicero_id IS NULL'
+        );
+        $this->assertEquals(2, $count);
+    }
 }
