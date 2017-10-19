@@ -2,11 +2,11 @@
 
 namespace Civix\CoreBundle\Service;
 
-use Civix\CoreBundle\Entity\CiceroRepresentative;
+use Civix\CoreBundle\Entity\Representative;
 
 class ProPublicaRepresentativePopulator
 {
-    public function populate(CiceroRepresentative $representative, array $response): void
+    public function populate(Representative $representative, array $response): void
     {
         if ($response['date_of_birth'] && !$representative->getBirthday()) {
             $representative->setBirthday(new \DateTime($response['date_of_birth']));

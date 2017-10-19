@@ -7,7 +7,7 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\Expr\Join;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Answer;
@@ -264,7 +264,7 @@ class QuestionRepository extends EntityRepository
         ;
         if ($root instanceof Group) {
             $qb->where('p.group = :root');
-        } elseif ($root instanceof Representative) {
+        } elseif ($root instanceof UserRepresentative) {
             $qb->where('p.representative = :root');
         }
 
@@ -322,7 +322,7 @@ class QuestionRepository extends EntityRepository
      */
     private function getPetitionRepositoryName(LeaderContentRootInterface $root)
     {
-        if ($root instanceof Representative) {
+        if ($root instanceof UserRepresentative) {
             return 'CivixCoreBundle:Poll\Question\RepresentativePetition';
         } elseif ($root instanceof Group) {
             return 'CivixCoreBundle:Poll\Question\GroupPetition';

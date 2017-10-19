@@ -4,7 +4,7 @@ namespace Civix\ApiBundle\Security\Authorization\Voter;
 
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\LeaderContentInterface;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
@@ -86,7 +86,7 @@ class LeaderContentVoter implements VoterInterface
         $root = $object->getRoot();
         if ($root instanceof Group) {
             return $this->groupVoter->vote($token, $root, $attributes);
-        } elseif ($root instanceof Representative) {
+        } elseif ($root instanceof UserRepresentative) {
             $attributes = $attributes[0] == self::VIEW ? $attributes : [self::EDIT];
             return $this->representativeVoter->vote($token, $root, $attributes);
         }

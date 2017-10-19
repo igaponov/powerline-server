@@ -2,7 +2,7 @@
 namespace Civix\ApiBundle\Tests\Controller;
 
 use Civix\ApiBundle\Tests\WebTestCase;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserRepresentativeData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -33,7 +33,7 @@ class SearchControllerTest  extends WebTestCase
         $this->loadFixtures([
             LoadUserData::class,
             LoadUserGroupOwnerData::class,
-            LoadRepresentativeData::class,
+            LoadUserRepresentativeData::class,
         ]);
 
         $this->client->request('GET', self::API_ENDPOINT, ['query' => 'r'], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"']);
@@ -50,7 +50,7 @@ class SearchControllerTest  extends WebTestCase
         $this->loadFixtures([
             LoadUserData::class,
             LoadUserGroupOwnerData::class,
-            LoadRepresentativeData::class,
+            LoadUserRepresentativeData::class,
         ]);
 
         $this->client->request('GET', self::API_ENDPOINT, ['query' => ''], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"']);

@@ -2,14 +2,14 @@
 
 namespace Civix\FrontBundle\Tests\DataFixtures\ORM;
 
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Entity\State;
 use Civix\CoreBundle\Entity\User;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 
-class LoadRepresentativeData extends AbstractFixture implements DependentFixtureInterface
+class LoadUserRepresentativeData extends AbstractFixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager)
     {
@@ -18,7 +18,7 @@ class LoadRepresentativeData extends AbstractFixture implements DependentFixture
         /** @var State $state */
         $state = $this->getReference('state_wa');
 
-        $representative = new Representative($user);
+        $representative = new UserRepresentative($user);
         $representative->setOfficialTitle('Vice President');
         $representative->setCity('Los Angeles');
         $representative->setAddress('6153 Smokey Ln');

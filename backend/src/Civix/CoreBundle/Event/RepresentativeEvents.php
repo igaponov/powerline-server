@@ -4,6 +4,5 @@ namespace Civix\CoreBundle\Event;
 
 class RepresentativeEvents
 {
-    const APPROVE = 'representative.approve';
-    const SYNCHRONIZE = 'representative.synchronize';
+    const UPDATE = 'cicero_representative.update';
 }

@@ -91,8 +91,8 @@ abstract class Announcement implements LeaderContentInterface
     private $publishedAt;
 
     /**
-     * @var Representative
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Representative")
+     * @var UserRepresentative
+     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\UserRepresentative")
      * @ORM\JoinColumn(name="representative_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $representative;

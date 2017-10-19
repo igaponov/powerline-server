@@ -2,7 +2,7 @@
 
 namespace Civix\CoreBundle\Service;
 
-use Civix\CoreBundle\Entity\CiceroRepresentative;
+use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Service\API\ServiceApi;
 
 class CongressApi extends ServiceApi
@@ -54,7 +54,7 @@ class CongressApi extends ServiceApi
         return array();
     }
 
-    public function updateRepresentativeProfile(CiceroRepresentative $representative)
+    public function updateRepresentativeProfile(Representative $representative)
     {
         $response = $this->getRepresentativeByName(
             $representative->getFirstName(),

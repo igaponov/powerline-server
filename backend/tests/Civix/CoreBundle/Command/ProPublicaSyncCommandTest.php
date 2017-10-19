@@ -3,8 +3,8 @@
 namespace Tests\Civix\CoreBundle\Command;
 
 use Civix\CoreBundle\Command\ProPublicaSyncCommand;
-use Civix\CoreBundle\Entity\CiceroRepresentative;
-use Civix\CoreBundle\Repository\CiceroRepresentativeRepository;
+use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Repository\RepresentativeRepository;
 use Civix\CoreBundle\Service\ProPublicaRepresentativePopulator;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Command\Guzzle\GuzzleClient;
@@ -32,7 +32,7 @@ class ProPublicaSyncCommandTest extends TestCase
         $repository->expects($this->at(0))
             ->method('findOneBy')
             ->with(['bioguide' => 'G000585']);
-        $representative = new CiceroRepresentative();
+        $representative = new Representative();
         $repository->expects($this->at(1))
             ->method('findOneBy')
             ->with(['bioguide' => 'N000190'])
@@ -64,11 +64,11 @@ class ProPublicaSyncCommandTest extends TestCase
 
     /**
      * @param array $methods
-     * @return \PHPUnit_Framework_MockObject_MockObject|CiceroRepresentativeRepository
+     * @return \PHPUnit_Framework_MockObject_MockObject|RepresentativeRepository
      */
     private function getRepositoryMock(array $methods = []): \PHPUnit_Framework_MockObject_MockObject
     {
-        return $this->getMockBuilder(CiceroRepresentativeRepository::class)
+        return $this->getMockBuilder(RepresentativeRepository::class)
             ->disableOriginalConstructor()
             ->setMethods($methods)
             ->getMock();

@@ -20,7 +20,7 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData as Load
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionAnswerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData as LoadGroupQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupRepresentativesData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupUserRepresentativesData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadKarmaData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadStripeCustomerUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
@@ -1479,7 +1479,7 @@ class PollControllerTest extends WebTestCase
             'owner' => [[], 'user1', 'group_question_1'],
             'manager' => [[LoadGroupManagerData::class], 'user2', 'group_question_1'],
             'member' => [[LoadUserGroupData::class], 'user4', 'group_question_1'],
-            'representative' => [[LoadGroupRepresentativesData::class], 'user3', 'group_question_1'],
+            'representative' => [[LoadGroupUserRepresentativesData::class], 'user3', 'group_question_1'],
         ];
     }
 
@@ -1505,7 +1505,7 @@ class PollControllerTest extends WebTestCase
         return [
             'owner' => [[], 'user1', 'group_question_1'],
             'manager' => [[LoadGroupManagerData::class], 'user2', 'group_question_1'],
-            'representative' => [[LoadGroupRepresentativesData::class], 'user3', 'group_question_1'],
+            'representative' => [[LoadGroupUserRepresentativesData::class], 'user3', 'group_question_1'],
         ];
     }
 

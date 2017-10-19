@@ -7,7 +7,7 @@ use Civix\CoreBundle\Entity\ActivityRead;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Entity\Superuser;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserPetition;
@@ -368,7 +368,7 @@ class ActivityRepository extends EntityRepository
         ;
     }
 
-    public function updateOwnerRepresentative(Representative $owner): void
+    public function updateOwnerRepresentative(UserRepresentative $owner): void
     {
     }
 

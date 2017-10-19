@@ -2,8 +2,8 @@
 
 namespace Civix\CoreBundle\Command;
 
-use Civix\CoreBundle\Entity\CiceroRepresentative;
-use Civix\CoreBundle\Repository\CiceroRepresentativeRepository;
+use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Repository\RepresentativeRepository;
 use Civix\CoreBundle\Service\ProPublicaRepresentativePopulator;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Command\ServiceClientInterface;
@@ -22,7 +22,7 @@ class ProPublicaSyncCommand extends Command
      */
     private $populator;
     /**
-     * @var CiceroRepresentativeRepository
+     * @var RepresentativeRepository
      */
     private $repository;
     /**
@@ -33,7 +33,7 @@ class ProPublicaSyncCommand extends Command
     public function __construct(
         ServiceClientInterface $client,
         ProPublicaRepresentativePopulator $populator,
-        CiceroRepresentativeRepository $repository,
+        RepresentativeRepository $repository,
         EntityManagerInterface $em
     ) {
         parent::__construct('civix:propublica:sync');
@@ -52,7 +52,7 @@ class ProPublicaSyncCommand extends Command
             $members = $results['results'][0]['members'];
             foreach ($members as $member) {
                 $id = $member['id'];
-                /** @var CiceroRepresentative $representative */
+                /** @var Representative $representative */
                 $representative = $this->repository->findOneBy(['bioguide' => $id]);
                 if (!$representative) {
                     continue;

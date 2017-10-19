@@ -323,7 +323,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     private $localDistrict;
 
     /**
-     * @ORM\OneToMany(targetEntity="Representative", mappedBy="localGroup", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="UserRepresentative", mappedBy="localGroup", cascade={"persist"})
      */
     private $localRepresentatives;
 
@@ -1327,11 +1327,11 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     /**
      * Add localRepresentatives.
      *
-     * @param Representative $localRepresentative
+     * @param UserRepresentative $localRepresentative
      *
      * @return Group
      */
-    public function addLocalRepresentative(Representative $localRepresentative): Group
+    public function addLocalRepresentative(UserRepresentative $localRepresentative): Group
     {
         $localRepresentative->setLocalGroup($this);
         $this->localRepresentatives[] = $localRepresentative;
@@ -1342,9 +1342,9 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     /**
      * Remove localRepresentatives.
      *
-     * @param Representative $localRepresentative
+     * @param UserRepresentative $localRepresentative
      */
-    public function removeLocalRepresentative(Representative $localRepresentative): void
+    public function removeLocalRepresentative(UserRepresentative $localRepresentative): void
     {
         $localRepresentative->setLocalGroup();
         $this->localRepresentatives->removeElement($localRepresentative);

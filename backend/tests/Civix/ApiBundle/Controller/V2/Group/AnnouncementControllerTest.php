@@ -4,7 +4,7 @@ namespace Tests\Civix\ApiBundle\Controller\V2\Group;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupRepresentativesData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupUserRepresentativesData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupSectionData;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -142,7 +142,7 @@ class AnnouncementControllerTest extends WebTestCase
         return [
             'owner' => [[], 'user1', 'group_1'],
             'manager' => [[LoadGroupManagerData::class], 'user3', 'group_1'],
-            'representative' => [[LoadGroupRepresentativesData::class], 'user3', 'group_1'],
+            'representative' => [[LoadGroupUserRepresentativesData::class], 'user3', 'group_1'],
         ];
     }
 }

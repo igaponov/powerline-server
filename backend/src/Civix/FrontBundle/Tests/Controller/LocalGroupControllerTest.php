@@ -4,9 +4,9 @@ namespace Civix\FrontBundle\Tests\Controller;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\FrontBundle\Tests\DataFixtures\ORM\LoadGroupData;
-use Civix\FrontBundle\Tests\DataFixtures\ORM\LoadRepresentativeData;
+use Civix\FrontBundle\Tests\DataFixtures\ORM\LoadUserRepresentativeData;
 use Civix\FrontBundle\Tests\DataFixtures\ORM\LoadSuperuserData;
 use Doctrine\DBAL\Connection;
 
@@ -43,13 +43,13 @@ class LocalGroupControllerTest extends WebTestCase
         $repository = $this->loadFixtures([
             LoadSuperuserData::class,
             LoadGroupData::class,
-            LoadRepresentativeData::class,
+            LoadUserRepresentativeData::class,
         ])->getReferenceRepository();
         /** @var Group $groupCa */
         $groupCa = $repository->getReference('group_ca');
         /** @var Group $groupLa */
         $groupLa = $repository->getReference('group_la');
-        /** @var Representative $representative */
+        /** @var UserRepresentative $representative */
         $representative = $repository->getReference('representative_1');
         $client = $this->makeClient(true);
         $crawler = $client->request('GET', '/admin/local-groups?id='.$groupCa->getId());
@@ -62,7 +62,7 @@ class LocalGroupControllerTest extends WebTestCase
         $this->assertCount(1, $crawler->filter('.alert-info:contains("Assign to local group is completed")'));
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine')->getConnection();
-        $count = $conn->fetchColumn('SELECT COUNT(*) FROM representatives WHERE local_group = ? AND id = ?', [$groupLa->getId(), $representative->getId()]);
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM user_representatives WHERE local_group = ? AND id = ?', [$groupLa->getId(), $representative->getId()]);
         $this->assertEquals(1, $count);
     }
 }

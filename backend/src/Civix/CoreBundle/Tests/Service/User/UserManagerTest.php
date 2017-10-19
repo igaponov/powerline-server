@@ -6,7 +6,7 @@ use Civix\CoreBundle\Entity\Report\UserReport;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Service\CiceroApi;
 use Civix\CoreBundle\Service\User\UserManager;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadCiceroRepresentativeData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Doctrine\ORM\EntityManager;
 
@@ -16,7 +16,7 @@ class UserManagerTest extends WebTestCase
     {
         $repository = $this->loadFixtures([
             LoadUserFollowerData::class,
-            LoadCiceroRepresentativeData::class,
+            LoadRepresentativeData::class,
         ])->getReferenceRepository();
         /** @var \PHPUnit_Framework_MockObject_MockObject|CiceroApi $cicero */
         $cicero = $this->getMockBuilder(CiceroApi::class)

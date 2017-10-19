@@ -2,7 +2,7 @@
 namespace Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Configuration\SecureParam;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Service\AvatarManager;
 use FOS\RestBundle\Controller\FOSRestController;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -38,9 +38,9 @@ class RepresentativeController extends FOSRestController
      *         405="Method Not Allowed"
      *     }
      * )
-     * @param Representative $representative
+     * @param UserRepresentative $representative
      */
-    public function deleteAvatarAction(Representative $representative)
+    public function deleteAvatarAction(UserRepresentative $representative)
     {
         $this->avatarManager->deleteAvatar($representative);
     }

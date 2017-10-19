@@ -2,7 +2,7 @@
 
 namespace Civix\CoreBundle\Command;
 
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -24,7 +24,7 @@ class OpenstatesUpdateCommand extends ContainerAwareCommand
         $entityManager = $this->getContainer()->get('doctrine.orm.entity_manager');
 
         $output->writeln('Get all storage representative without link openstates api');
-        $representatives = $entityManager->getRepository(Representative::class)
+        $representatives = $entityManager->getRepository(UserRepresentative::class)
             ->getByEmptyOpenStatesId();
 
         foreach ($representatives as $representative) {

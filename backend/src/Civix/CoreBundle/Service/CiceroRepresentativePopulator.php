@@ -3,7 +3,7 @@
 namespace Civix\CoreBundle\Service;
 
 use Civix\Component\ContentConverter\ConverterInterface;
-use Civix\CoreBundle\Entity\CiceroRepresentative;
+use Civix\CoreBundle\Entity\Representative;
 use Civix\CoreBundle\Entity\District;
 use Civix\CoreBundle\Model\TempFile;
 use Civix\CoreBundle\Repository\DistrictRepository;
@@ -35,15 +35,15 @@ class CiceroRepresentativePopulator
     }
 
     /**
-     * Change CiceroRepresentative object
+     * Change Representative object
      * according to object which was got from Cicero Api.
      *
-     * @param CiceroRepresentative $representative
+     * @param Representative $representative
      * @param \stdClass $response Cicero Api object
      */
-    public function populate(CiceroRepresentative $representative, $response): void
+    public function populate(Representative $representative, $response): void
     {
-        $representative->setId($response->id);
+        $representative->setCiceroId($response->id);
         $representative->setFirstName(trim($response->first_name));
         $representative->setLastName(trim($response->last_name));
         $representative->setOfficialTitle(trim($response->office->title));

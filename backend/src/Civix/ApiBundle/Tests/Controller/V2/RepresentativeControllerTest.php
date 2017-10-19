@@ -2,8 +2,8 @@
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
-use Civix\CoreBundle\Entity\Representative;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData;
+use Civix\CoreBundle\Entity\UserRepresentative;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserRepresentativeData;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -24,7 +24,7 @@ class RepresentativeControllerTest extends WebTestCase
     public function testDeleteGroupAvatarWithWrongCredentialsThrowsException()
     {
         $repository = $this->loadFixtures([
-            LoadRepresentativeData::class,
+            LoadUserRepresentativeData::class,
         ])->getReferenceRepository();
         $representative = $repository->getReference('representative_jb');
         $client = $this->client;
@@ -37,9 +37,9 @@ class RepresentativeControllerTest extends WebTestCase
     public function testDeleteRepresentativeAvatarIsOk()
     {
         $repository = $this->loadFixtures([
-            LoadRepresentativeData::class,
+            LoadUserRepresentativeData::class,
         ])->getReferenceRepository();
-        /** @var Representative $representative */
+        /** @var UserRepresentative $representative */
         $representative = $repository->getReference('representative_jb');
         $client = $this->client;
         $storage = $client->getContainer()->get('civix_core.storage.array');

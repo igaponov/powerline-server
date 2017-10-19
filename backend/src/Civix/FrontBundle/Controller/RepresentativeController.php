@@ -2,7 +2,8 @@
 
 namespace Civix\FrontBundle\Controller;
 
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
+use Civix\FrontBundle\Form\Type\BulkRepresentativeType;
 use Civix\FrontBundle\Form\Type\LimitType;
 use Civix\FrontBundle\Form\Type\RepresentativeType;
 use Doctrine\ORM\EntityManager;
@@ -11,6 +12,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -33,11 +35,11 @@ class RepresentativeController extends Controller
      * @param Request $request
      * @return array
      */
-    public function approvalsAction(Request $request)
+    public function approvalsAction(Request $request): array
     {
         $query = $this->em
-            ->getRepository('CivixCoreBundle:Representative')
-            ->getQueryRepresentativeByStatus(Representative::STATUS_PENDING);
+            ->getRepository(UserRepresentative::class)
+            ->getQueryRepresentativeByStatus(UserRepresentative::STATUS_PENDING);
 
         $pagination = $this->get('knp_paginator')->paginate(
             $query,
@@ -55,10 +57,10 @@ class RepresentativeController extends Controller
      * @param Request $request
      * @return array
      */
-    public function indexAction(Request $request)
+    public function indexAction(Request $request): array
     {
         $query = $this->em
-            ->getRepository('CivixCoreBundle:Representative')
+            ->getRepository(UserRepresentative::class)
             ->createQueryBuilder('r')
             ->getQuery();
 
@@ -75,14 +77,14 @@ class RepresentativeController extends Controller
     }
 
     /**
-     * @Route("/{id}", name="civix_front_representative_edit")
+     * @Route("/{id}", name="civix_front_representative_edit", requirements={"id" = "\d+"})
      * @Method({"GET", "POST"})
      * @Template("CivixFrontBundle::form.html.twig")
      * @param Request $request
-     * @param Representative $representative
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+     * @param UserRepresentative $representative
+     * @return array|RedirectResponse
      */
-    public function editAction(Request $request, Representative $representative)
+    public function editAction(Request $request, UserRepresentative $representative)
     {
         $form = $this->createForm(RepresentativeType::class, $representative);
         $form->handleRequest($request);
@@ -106,10 +108,10 @@ class RepresentativeController extends Controller
      * @Route("/{id}/delete", name="civix_front_representative_delete")
      * @Method({"POST"})
      * @param Request $request
-     * @param Representative $representative
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @param UserRepresentative $representative
+     * @return RedirectResponse
      */
-    public function deleteAction(Request $request, Representative $representative)
+    public function deleteAction(Request $request, UserRepresentative $representative): RedirectResponse
     {
         if ($this->isCsrfTokenValid(
             'representative_delete_'.$representative->getId(), $request->get('_token')
@@ -129,10 +131,10 @@ class RepresentativeController extends Controller
      * @Route("/{id}/approve", name="civix_front_representative_approve")
      * @Method({"POST"})
      * @param Request $request
-     * @param Representative $representative
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @param UserRepresentative $representative
+     * @return RedirectResponse
      */
-    public function approveAction(Request $request, Representative $representative)
+    public function approveAction(Request $request, UserRepresentative $representative): RedirectResponse
     {
         if ($this->isCsrfTokenValid(
             'representative_approve_'.$representative->getId(), $request->get('_token')
@@ -168,10 +170,10 @@ class RepresentativeController extends Controller
      * @Method({"GET", "POST"})
      * @Template("CivixFrontBundle::form.html.twig")
      * @param Request $request
-     * @param Representative $representative
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+     * @param UserRepresentative $representative
+     * @return array|RedirectResponse
      */
-    public function limitAction(Request $request, Representative $representative)
+    public function limitAction(Request $request, UserRepresentative $representative)
     {
         $form = $this->createForm(LimitType::class, $representative);
         $form->handleRequest($request);
@@ -181,6 +183,32 @@ class RepresentativeController extends Controller
             $this->em->flush();
 
             $this->addFlash('notice', 'Question\'s limit has been successfully saved');
+
+            return $this->redirectToRoute('civix_front_representative_index');
+        }
+
+        return array(
+            'form' => $form->createView(),
+        );
+    }
+
+    /**
+     * @Route("/bulk", name="civix_front_representative_bulk")
+     * @Method({"GET", "POST"})
+     * @Template("CivixFrontBundle::form.html.twig")
+     * @param Request $request
+     * @return array|RedirectResponse
+     */
+    public function bulkCreateAction(Request $request)
+    {
+        $form = $this->createForm(BulkRepresentativeType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $importer = $this->get('civix_core.representative_importer');
+            $importer->import($form->get('file')->getData());
+
+            $this->addFlash('notice', 'All representatives are imported.');
 
             return $this->redirectToRoute('civix_front_representative_index');
         }

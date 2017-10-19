@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Gaufrette\Stream\Local as LocalStream;
 use Gaufrette\StreamMode;
 use Gaufrette\Adapter\MetadataSupporter;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Poll\EducationalContext;
@@ -63,7 +63,7 @@ class UploadLocalFilesCommand extends ContainerAwareCommand
         $this->vichLocalStorage = $this->getContainer()->get('vich_uploader.storage.file_system');
         $this->vichGaufretteStorage = $this->getContainer()->get('vich_uploader.storage.gaufrette');
 
-        $representatives = $em->getRepository(Representative::class)->findAll();
+        $representatives = $em->getRepository(UserRepresentative::class)->findAll();
         $groups = $em->getRepository(Group::class)->findAll();
         $users = $em->getRepository(User::class)->findAll();
         $educational = $em->getRepository(EducationalContext::class)->findAll();
@@ -79,7 +79,7 @@ class UploadLocalFilesCommand extends ContainerAwareCommand
         if ($input->getOption('dump')) {
             $output->writeln('<info>Next files ready to upload:</info>');
 
-            /* @var \Civix\CoreBundle\Entity\Representative $item */
+            /* @var \Civix\CoreBundle\Entity\UserRepresentative $item */
             foreach ($representatives as $item) {
                 $output->writeln("<comment>Representative:</comment> {$item->getId()} ".
                     "{$item->getFirstName()} {$item->getLastName()} {$item->getAvatar()->getPathname()}"
@@ -108,7 +108,7 @@ class UploadLocalFilesCommand extends ContainerAwareCommand
             }
         } else {
             $output->writeln('<info>Representative uploading:</info>');
-            /* @var \Civix\CoreBundle\Entity\Representative $item */
+            /* @var \Civix\CoreBundle\Entity\UserRepresentative $item */
             foreach ($representatives as $item) {
                 $this->uploadAvatar($item->getAvatar(), '/avatars/representatives/',
                     $this->getContainer()->get('gaufrette.avatar_representative_fs_filesystem'), $output);

@@ -4,7 +4,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Karma;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadKarmaData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserRepresentativeData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadStateData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadUserReportData;
@@ -47,7 +47,7 @@ class UserRepresentativeControllerTest extends WebTestCase
     public function testGetRepresentatives()
     {
         $repository = $this->loadFixtures([
-            LoadRepresentativeData::class,
+            LoadUserRepresentativeData::class,
         ])->getReferenceRepository();
         $representative = $repository->getReference('representative_jb');
         $user = $repository->getReference('user_1');
@@ -154,7 +154,7 @@ class UserRepresentativeControllerTest extends WebTestCase
         }
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine')->getConnection();
-        $count = $conn->fetchColumn('SELECT COUNT(*) FROM representatives r WHERE r.privatePhone = ? AND r.privateEmail = ?', [$privateParams['private_phone'], $privateParams['private_email']]);
+        $count = $conn->fetchColumn('SELECT COUNT(*) FROM user_representatives r WHERE r.privatePhone = ? AND r.privateEmail = ?', [$privateParams['private_phone'], $privateParams['private_email']]);
         $this->assertEquals(1, $count);
         $storage = $client->getContainer()->get('civix_core.storage.array');
         $this->assertCount(1, $storage->getFiles('avatar_representative_fs'));

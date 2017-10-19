@@ -2,8 +2,8 @@
 
 namespace Tests\Civix\CoreBundle\EventListener;
 
-use Civix\CoreBundle\Entity\CiceroRepresentative;
-use Civix\CoreBundle\Event\CiceroRepresentativeEvent;
+use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Event\RepresentativeEvent;
 use Civix\CoreBundle\EventListener\ProPublicaSubscriber;
 use Civix\CoreBundle\Service\ProPublicaRepresentativePopulator;
 use GuzzleHttp\Command\Guzzle\GuzzleClient;
@@ -15,7 +15,7 @@ class ProPublicaSubscriberTest extends TestCase
 {
     public function testGetInfo()
     {
-        $representative = new CiceroRepresentative();
+        $representative = new Representative();
         $representative->setBioguide('M000639');
         $client = $this->getClientMock(['getMember']);
         $result = new Result(['results' => [['id' => 'K0001']]]);
@@ -29,7 +29,7 @@ class ProPublicaSubscriberTest extends TestCase
             ->with($representative, $result['results'][0]);
         $logger = $this->createMock(LoggerInterface::class);
         $subscriber = new ProPublicaSubscriber($client, $populator, $logger);
-        $event = new CiceroRepresentativeEvent($representative);
+        $event = new RepresentativeEvent($representative);
         $subscriber->getInfo($event);
     }
 

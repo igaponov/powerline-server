@@ -3,7 +3,7 @@
 namespace Civix\CoreBundle\Tests\Command;
 
 use Civix\Component\ContentConverter\ConverterInterface;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Service\CiceroApi;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Service\CiceroRepresentativePopulator;
@@ -16,6 +16,8 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Civix\CoreBundle\Command\CiceroSyncCommand;
 use Civix\CoreBundle\Tests\DataFixtures\ORM;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Knp\Bundle\GaufretteBundle\FilesystemMap;
+use Vich\UploaderBundle\Storage\GaufretteStorage;
 
 class CiceroSyncCommandTest extends WebTestCase
 {
@@ -52,11 +54,11 @@ class CiceroSyncCommandTest extends WebTestCase
     public function testSync()
     {
         $executor = $this->loadFixtures(array(
-            ORM\LoadRepresentativeRelationData::class,
+            ORM\LoadUserRepresentativeRelationData::class,
         ));
-        /** @var Representative $representative */
+        /** @var UserRepresentative $representative */
         $representative = $executor->getReferenceRepository()->getReference('representative_jb');
-        $representative->getCiceroRepresentative();
+        $representative->getRepresentative();
         $districtId = $representative->getDistrict()->getId();
 
         $container = $this->getContainerForCheck($this->responseRepresentative);
@@ -64,13 +66,13 @@ class CiceroSyncCommandTest extends WebTestCase
 
         $this->assertRegExp('/Checking User One/', $commandTester->getDisplay());
         $this->assertRegExp('/Synchronization is completed/', $commandTester->getDisplay());
-        /** @var Representative $representativeUpdated */
-        $representativeUpdated = $container->get('doctrine')->getManager()
-            ->getRepository('CivixCoreBundle:Representative')->find($representative->getId());
+        /** @var UserRepresentative $representativeUpdated */
+        $representativeUpdated = $container->get('doctrine.orm.entity_manager')
+            ->find(UserRepresentative::class, $representative->getId());
 
         $this->assertEquals(
             $this->responseRepresentative->response->results->officials[0]->id,
-            $representativeUpdated->getCiceroRepresentative()->getId()
+            $representativeUpdated->getRepresentative()->getCiceroId()
         );
         $this->assertEquals($districtId, $representativeUpdated->getDistrict()->getId());
     }
@@ -82,9 +84,9 @@ class CiceroSyncCommandTest extends WebTestCase
     public function testSyncLink()
     {
         $executor = $this->loadFixtures(array(
-            ORM\LoadRepresentativeData::class,
+            ORM\LoadUserRepresentativeData::class,
         ));
-        /** @var Representative $representative */
+        /** @var UserRepresentative $representative */
         $representative = $executor->getReferenceRepository()->getReference('representative_jb');
         $officialName = $representative->getOfficialTitle();
         $districtId = $representative->getDistrict()->getId();
@@ -94,14 +96,14 @@ class CiceroSyncCommandTest extends WebTestCase
 
         $this->assertRegExp('/Checking User One/', $commandTester->getDisplay());
         $this->assertRegExp('/Synchronization is completed/', $commandTester->getDisplay());
-        /** @var Representative $representativeUpdated */
-        $representativeUpdated = $container->get('doctrine')->getManager()
-            ->getRepository('CivixCoreBundle:Representative')->find($representative->getId());
-        $this->assertInstanceOf('Civix\CoreBundle\Entity\Representative', $representativeUpdated);
+        /** @var UserRepresentative $representativeUpdated */
+        $representativeUpdated = $container->get('doctrine.orm.entity_manager')
+            ->find(UserRepresentative::class, $representative->getId());
+        $this->assertInstanceOf(UserRepresentative::class, $representativeUpdated);
 
         //check links
         $this->assertNotNull(
-            $representativeUpdated->getCiceroRepresentative(),
+            $representativeUpdated->getRepresentative(),
             'Cicero id in representative must be not null'
         );
 
@@ -122,9 +124,9 @@ class CiceroSyncCommandTest extends WebTestCase
     public function testSyncWithChangedOfficialTitle()
     {
         $executor = $this->loadFixtures(array(
-            ORM\LoadRepresentativeData::class,
+            ORM\LoadUserRepresentativeData::class,
         ));
-        /** @var Representative $representative */
+        /** @var UserRepresentative $representative */
         $representative = $executor->getReferenceRepository()->getReference('representative_jb');
         $officialName = $representative->getOfficialTitle();
         $districtId = $representative->getDistrict()->getId();
@@ -134,9 +136,9 @@ class CiceroSyncCommandTest extends WebTestCase
 
         $this->assertRegExp('/Checking User One/', $commandTester->getDisplay());
         $this->assertRegExp('/Synchronization is completed/', $commandTester->getDisplay());
-        /** @var Representative $representativeUpdated */
-        $representativeUpdated = $container->get('doctrine')->getManager()
-            ->getRepository('CivixCoreBundle:Representative')->find($representative->getId());
+        /** @var UserRepresentative $representativeUpdated */
+        $representativeUpdated = $container->get('doctrine.orm.entity_manager')
+            ->find(UserRepresentative::class, $representative->getId());
 
         $this->assertNotEquals(
             $officialName, $representativeUpdated->getOfficialTitle(),
@@ -155,9 +157,9 @@ class CiceroSyncCommandTest extends WebTestCase
     public function testSyncWithChangedOfficialTitleLink()
     {
         $executor = $this->loadFixtures(array(
-            ORM\LoadRepresentativeData::class,
+            ORM\LoadUserRepresentativeData::class,
         ));
-        /** @var Representative $representative */
+        /** @var UserRepresentative $representative */
         $representative = $executor->getReferenceRepository()->getReference('representative_jb');
         $districtId = $representative->getDistrict()->getId();
 
@@ -166,10 +168,10 @@ class CiceroSyncCommandTest extends WebTestCase
 
         $this->assertRegExp('/Checking User One/', $commandTester->getDisplay());
         $this->assertRegExp('/Synchronization is completed/', $commandTester->getDisplay());
-        /** @var Representative $representativeUpdated */
-        $representativeUpdated = $container->get('doctrine')->getManager()
-            ->getRepository('CivixCoreBundle:Representative')->find($representative->getId());
-        $this->assertInstanceOf('Civix\CoreBundle\Entity\Representative', $representativeUpdated);
+        /** @var UserRepresentative $representativeUpdated */
+        $representativeUpdated = $container->get('doctrine.orm.entity_manager')
+            ->find(UserRepresentative::class, $representative->getId());
+        $this->assertInstanceOf(UserRepresentative::class, $representativeUpdated);
 
         $this->assertEquals(
             $districtId, $representativeUpdated->getDistrict()->getId(),
@@ -184,9 +186,9 @@ class CiceroSyncCommandTest extends WebTestCase
     public function testSyncWithChangedDistrict()
     {
         $executor = $this->loadFixtures(array(
-            ORM\LoadRepresentativeData::class,
+            ORM\LoadUserRepresentativeData::class,
         ));
-        /** @var Representative $representative */
+        /** @var UserRepresentative $representative */
         $representative = $executor->getReferenceRepository()->getReference('representative_jb');
         $officialName = $representative->getOfficialTitle();
         $districtId = $representative->getDistrict()->getId();
@@ -196,9 +198,9 @@ class CiceroSyncCommandTest extends WebTestCase
 
         $this->assertRegExp('/Checking User One/', $commandTester->getDisplay());
         $this->assertRegExp('/Synchronization is completed/', $commandTester->getDisplay());
-        /** @var Representative $representativeUpdated */
-        $representativeUpdated = $container->get('doctrine')->getManager()
-            ->getRepository('CivixCoreBundle:Representative')->find($representative->getId());
+        /** @var UserRepresentative $representativeUpdated */
+        $representativeUpdated = $container->get('doctrine.orm.entity_manager')
+            ->find(UserRepresentative::class, $representative->getId());
 
         $this->assertEquals(
             $officialName, $representativeUpdated->getOfficialTitle(),
@@ -217,7 +219,7 @@ class CiceroSyncCommandTest extends WebTestCase
     public function testSyncWithChangedDistrictLink()
     {
         $executor = $this->loadFixtures(array(
-            ORM\LoadRepresentativeData::class,
+            ORM\LoadUserRepresentativeData::class,
         ));
 
         $representative = $executor->getReferenceRepository()->getReference('representative_jb');
@@ -226,10 +228,10 @@ class CiceroSyncCommandTest extends WebTestCase
 
         $this->assertRegExp('/Checking User One/', $commandTester->getDisplay());
         $this->assertRegExp('/Synchronization is completed/', $commandTester->getDisplay());
-        /** @var Representative $representativeUpdated */
-        $representativeUpdated = $container->get('doctrine')->getManager()
-            ->getRepository('CivixCoreBundle:Representative')->find($representative->getId());
-        $this->assertInstanceOf('Civix\CoreBundle\Entity\Representative', $representativeUpdated);
+        /** @var UserRepresentative $representativeUpdated */
+        $representativeUpdated = $container->get('doctrine.orm.entity_manager')
+            ->find(UserRepresentative::class, $representative->getId());
+        $this->assertInstanceOf(UserRepresentative::class, $representativeUpdated);
     }
 
     /**
@@ -239,7 +241,7 @@ class CiceroSyncCommandTest extends WebTestCase
     public function testSyncRepresentativeNotFoundLink()
     {
         $executor = $this->loadFixtures(array(
-            ORM\LoadRepresentativeData::class,
+            ORM\LoadUserRepresentativeData::class,
         ));
 
         $representative = $executor->getReferenceRepository()->getReference('representative_jb');
@@ -249,12 +251,12 @@ class CiceroSyncCommandTest extends WebTestCase
         $this->assertRegExp('/Checking User One/', $commandTester->getDisplay());
         $this->assertRegExp('/User One is not found and will be removed/', $commandTester->getDisplay());
         $this->assertRegExp('/Synchronization is completed/', $commandTester->getDisplay());
-        /** @var Representative $representativeUpdated */
-        $representativeUpdated = $container->get('doctrine')->getManager()
-            ->getRepository('CivixCoreBundle:Representative')->find($representative->getId());
-        $this->assertInstanceOf('Civix\CoreBundle\Entity\Representative', $representativeUpdated);
+        /** @var UserRepresentative $representativeUpdated */
+        $representativeUpdated = $container->get('doctrine.orm.entity_manager')
+            ->find(UserRepresentative::class, $representative->getId());
+        $this->assertInstanceOf(UserRepresentative::class, $representativeUpdated);
         $this->assertNull(
-            $representativeUpdated->getCiceroRepresentative(),
+            $representativeUpdated->getRepresentative(),
             'Representative should be removed from representative storage '.
             '(no link between representative and representative storage)'
         );
@@ -283,7 +285,7 @@ class CiceroSyncCommandTest extends WebTestCase
         static::$kernel->boot();
         $container = static::$kernel->getContainer();
         /** @var CiceroCalls|\PHPUnit_Framework_MockObject_MockObject $ciceroMock */
-        $ciceroMock = $this->getMockBuilder('Civix\CoreBundle\Service\CiceroCalls')
+        $ciceroMock = $this->getMockBuilder(\Civix\CoreBundle\Service\CiceroCalls::class)
             ->setMethods(array('getResponse'))
             ->disableOriginalConstructor()
             ->getMock();
@@ -291,12 +293,12 @@ class CiceroSyncCommandTest extends WebTestCase
            ->method('getResponse')
            ->will($this->returnValue($ciceroReturnResult));
         /** @var OpenstatesApi|\PHPUnit_Framework_MockObject_MockObject $openStateServiceMock */
-        $openStateServiceMock = $this->getMockBuilder('Civix\CoreBundle\Service\OpenstatesApi')
+        $openStateServiceMock = $this->getMockBuilder(OpenstatesApi::class)
             ->setMethods(array('updateRepresentativeProfile'))
             ->disableOriginalConstructor()
             ->getMock();
         /** @var CongressApi|\PHPUnit_Framework_MockObject_MockObject $congressMock */
-        $congressMock = $this->getMockBuilder('Civix\CoreBundle\Service\CongressApi')
+        $congressMock = $this->getMockBuilder(CongressApi::class)
             ->setMethods(array('updateRepresentativeProfile'))
             ->disableOriginalConstructor()
             ->getMock();
@@ -319,10 +321,10 @@ class CiceroSyncCommandTest extends WebTestCase
             $populator
         );
 
-        $fileSystem = $this->getMockBuilder('Knp\Bundle\GaufretteBundle\FilesystemMap')
+        $fileSystem = $this->getMockBuilder(FilesystemMap::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $storage = $this->getMockBuilder('Vich\UploaderBundle\Storage\GaufretteStorage')
+        $storage = $this->getMockBuilder(GaufretteStorage::class)
             ->disableOriginalConstructor()
             ->getMock();
 
