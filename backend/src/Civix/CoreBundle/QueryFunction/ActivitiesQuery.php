@@ -118,7 +118,7 @@ final class ActivitiesQuery
         }
 
         $qb = $builder($user, $types, $addPublicGroups)
-            ->select('act', 'act_r', 'g', 'u')
+            ->select('act', 'act_r', 'g', 'u', 'mem', 'man')
             // 0 = Prioritized Zone (unread, unanswered)
             // 2 = Expired Zone (expired)
             // 1 = Non-Prioritized Zone (others)
@@ -131,6 +131,8 @@ final class ActivitiesQuery
             ELSE 1
             END) AS zone')
             ->addSelect('CASE WHEN act_c.user = :user THEN 0 ELSE 1 END AS HIDDEN is_followed')
+            ->leftJoin('g.users', 'mem', 'WITH', 'mem.user = :user')
+            ->leftJoin('g.managers', 'man', 'WITH', 'man.user = :user')
             ->orderBy('zone', 'ASC') // order by priority zone
             ->addOrderBy('is_followed', 'ASC') // order by followed user
             ->addOrderBy('act.sentAt', 'DESC');

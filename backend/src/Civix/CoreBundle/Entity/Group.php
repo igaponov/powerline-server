@@ -1803,7 +1803,7 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
      * @return UserRole
      *
      * @Serializer\VirtualProperty()
-     * @Serializer\Groups({"user-role"})
+     * @Serializer\Groups({"user-role", "activity-list"})
      * @Serializer\SerializedName("user_role")
      * @Serializer\Type("UserRole")
      */
