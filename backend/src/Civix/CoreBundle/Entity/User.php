@@ -50,7 +50,9 @@ class User implements
     AdvancedUserInterface,
     RecipientInterface
 {
-    use HasStripeCustomerTrait, HasAvatarTrait;
+    use HasStripeCustomerTrait,
+        HasAvatarTrait,
+        UserSerializableTrait;
 
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_user.png';
     const SOMEONE_AVATAR = '/bundles/civixfront/img/default_someone.png';

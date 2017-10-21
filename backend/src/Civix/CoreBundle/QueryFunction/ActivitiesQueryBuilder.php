@@ -15,7 +15,7 @@ final class ActivitiesQueryBuilder
     /**
      * @var EntityManagerInterface
      */
-    protected $em;
+    private $em;
 
     public function __construct(EntityManagerInterface $em)
     {
@@ -39,7 +39,7 @@ final class ActivitiesQueryBuilder
             $conditions[] = $expr->in('g.groupType', Group::getLocalTypes());
         }
         $qb = $this->em->getRepository(Activity::class)->createQueryBuilder('act')
-            ->distinct(true)
+            ->distinct()
             ->leftJoin('act.user', 'u')
             ->leftJoin('act.activityConditions', 'act_c')
             ->leftJoin('act.activityRead', 'act_r', Query\Expr\Join::WITH, 'act_r.user = :user')
@@ -49,7 +49,7 @@ final class ActivitiesQueryBuilder
             ->setParameter('districtIds', $districtIds)
             ->setParameter('groupIds', $groupIds)
             ->setParameter('groupSectionIds', $groupSectionIds);
-;
+
         $cases = $this->getTypeCases();
         if ($types) {
             $cases = array_intersect_key($cases, array_flip($types));

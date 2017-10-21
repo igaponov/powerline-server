@@ -90,6 +90,18 @@ class ActivityControllerTest extends WebTestCase
                 }
                 /** @var Activity $activity */
                 $activity = $repository->getReference($set[1][$key]);
+                if ($item['group']['official_name'] === 'group1') {
+                    $this->assertSame($item['group']['user_role'], 'owner');
+                } else {
+                    $this->assertNull($item['group']['user_role']);
+                }
+                if (in_array($item['user']['username'], ['user2', 'user4'], true)) {
+                    $this->assertSame($item['user']['follow_status'], 'active');
+                } elseif ($item['user']['username'] === 'user3') {
+                    $this->assertSame($item['user']['follow_status'], 'pending');
+                } else {
+                    $this->assertNull($item['user']['follow_status']);
+                }
                 $this->assertActivity($item, $activity);
             }
             /** @var DoctrineDataCollector $dataCollector */
