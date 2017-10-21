@@ -95,6 +95,13 @@ class ActivityControllerTest extends WebTestCase
                 } else {
                     $this->assertNull($item['group']['user_role']);
                 }
+                if (in_array($item['user']['username'], ['user2', 'user4'], true)) {
+                    $this->assertSame($item['user']['follow_status'], 'active');
+                } elseif ($item['user']['username'] === 'user3') {
+                    $this->assertSame($item['user']['follow_status'], 'pending');
+                } else {
+                    $this->assertNull($item['user']['follow_status']);
+                }
                 $this->assertActivity($item, $activity);
             }
             /** @var DoctrineDataCollector $dataCollector */
