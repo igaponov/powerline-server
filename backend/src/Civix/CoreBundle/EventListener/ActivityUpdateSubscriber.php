@@ -43,7 +43,10 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
                 ['updateResponsesPost', -110],
                 ['updatePostAuthorActivity', -100],
             ],
-            Event\PostEvents::POST_UNVOTE => ['updatePostAuthorActivity', -100],
+            Event\PostEvents::POST_UNVOTE => [
+                ['updateResponsesPost', -110],
+                ['updatePostAuthorActivity', -100],
+            ],
             Event\PostEvents::POST_BOOST => ['publishPostToActivity', -100],
 
             Event\PollEvents::QUESTION_PUBLISHED => ['publishQuestionToActivity', -100],
