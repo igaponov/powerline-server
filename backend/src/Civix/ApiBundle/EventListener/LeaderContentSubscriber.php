@@ -82,10 +82,12 @@ class LeaderContentSubscriber implements EventSubscriberInterface
     {
         $post = $event->getPost();
         $group = $post->getGroup();
-        $key = 'micropetition_expire_interval_'.$group->getGroupType();
-        $interval = (int)$this->settings->get($key)->getValue();
-        $post->setExpiredAt(new \DateTime("+$interval days"));
-        $post->setUserExpireInterval($interval);
+        if ($group) {
+            $key = 'micropetition_expire_interval_'.$group->getGroupType();
+            $interval = (int)$this->settings->get($key)->getValue();
+            $post->setExpiredAt(new \DateTime("+$interval days"));
+            $post->setUserExpireInterval($interval);
+        }
     }
 
     public function setPostFacebookThumbnailImageName(PostEvent $event)
@@ -126,16 +128,20 @@ class LeaderContentSubscriber implements EventSubscriberInterface
     {
         $petition = $event->getPetition();
         $author = $petition->getUser();
-        $author->addPetitionSubscription($petition);
-        $this->em->flush();
+        if ($author) {
+            $author->addPetitionSubscription($petition);
+            $this->em->flush();
+        }
     }
 
     public function subscribePostAuthor(PostEvent $event)
     {
         $post = $event->getPost();
         $author = $post->getUser();
-        $author->addPostSubscription($post);
-        $this->em->flush();
+        if ($author) {
+            $author->addPostSubscription($post);
+            $this->em->flush();
+        }
     }
 
     public function subscribePollAuthor(QuestionEvent $event)
