@@ -12,6 +12,7 @@ use Civix\CoreBundle\EventListener\MentionSubscriber;
 use Civix\CoreBundle\EventListener\PushSenderSubscriber;
 use Civix\CoreBundle\EventListener\ReportSubscriber;
 use Civix\CoreBundle\EventListener\SocialActivitySubscriber;
+use Civix\CoreBundle\EventListener\ThumbnailSubscriber;
 
 class PostEventsTest extends EventsTestCase
 {
@@ -20,6 +21,7 @@ class PostEventsTest extends EventsTestCase
         $expectedListeners = [
             [MentionSubscriber::class, 'onPostPreCreate'],
             [LeaderContentSubscriber::class, 'setPostExpire'],
+            [LeaderContentSubscriber::class, 'setPostFacebookThumbnailImageName'],
         ];
         $this->assertListeners(PostEvents::POST_PRE_CREATE, PostEvent::class, $expectedListeners);
     }
@@ -28,6 +30,7 @@ class PostEventsTest extends EventsTestCase
     {
         $expectedListeners = [
             [KarmaSubscriber::class, 'createPost'],
+            [ThumbnailSubscriber::class, 'createPostFacebookThumbnail'],
             [LeaderContentSubscriber::class, 'addPostHashTags'],
             [LeaderContentSubscriber::class, 'subscribePostAuthor'],
             [ReportSubscriber::class, 'updateKarmaCreatePost'],

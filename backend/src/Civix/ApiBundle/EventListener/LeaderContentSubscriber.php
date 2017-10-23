@@ -34,13 +34,19 @@ class LeaderContentSubscriber implements EventSubscriberInterface
     {
         return [
             // petition
+            UserPetitionEvents::PETITION_PRE_CREATE => [
+                ['setPetitionFacebookThumbnailImageName'],
+            ],
             UserPetitionEvents::PETITION_CREATE => [
                 ['addPetitionHashTags'],
                 ['subscribePetitionAuthor'],
             ],
             UserPetitionEvents::PETITION_UPDATE => 'addPetitionHashTags',
             // post
-            PostEvents::POST_PRE_CREATE => 'setPostExpire',
+            PostEvents::POST_PRE_CREATE => [
+                ['setPostExpire'],
+                ['setPostFacebookThumbnailImageName'],
+            ],
             PostEvents::POST_CREATE => [
                 ['addPostHashTags'],
                 ['subscribePostAuthor'],
@@ -80,6 +86,16 @@ class LeaderContentSubscriber implements EventSubscriberInterface
         $interval = (int)$this->settings->get($key)->getValue();
         $post->setExpiredAt(new \DateTime("+$interval days"));
         $post->setUserExpireInterval($interval);
+    }
+
+    public function setPostFacebookThumbnailImageName(PostEvent $event)
+    {
+        $event->getPost()->getFacebookThumbnail()->setName(bin2hex(random_bytes(10)).'.png');
+    }
+
+    public function setPetitionFacebookThumbnailImageName(UserPetitionEvent $event)
+    {
+        $event->getPetition()->getFacebookThumbnail()->setName(bin2hex(random_bytes(10)).'.png');
     }
 
     public function setQuestionExpire(QuestionEvent $event)

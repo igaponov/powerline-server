@@ -69,7 +69,7 @@ class PostControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(201, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertCount(9, $data);
+        $this->assertCount(10, $data);
         $this->assertNotEmpty($data['id']);
         $this->assertSame($params['body'], $data['body']);
         $this->assertSame(sprintf(
@@ -84,6 +84,7 @@ class PostControllerTest extends WebTestCase
         $this->assertFalse($data['boosted']);
         $this->assertFalse($data['supporters_were_invited']);
         $this->assertFalse($data['automatic_boost']);
+        $this->assertRegExp('/[\w\d]\.png/', $data['facebook_thumbnail']);
         /** @var RabbitMQDataCollector $collector */
         $collector = $client->getProfile()->getCollector('rabbit_mq');
         $data = $collector->getData();
