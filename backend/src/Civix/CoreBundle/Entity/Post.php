@@ -157,6 +157,13 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      */
     private $automaticBoost = true;
 
+    /**
+     * @var File
+     *
+     * @ORM\Embedded(class="Civix\CoreBundle\Entity\File", columnPrefix="")
+     */
+    private $facebookThumbnail;
+
     public function __construct()
     {
         $this->votes = new ArrayCollection();
@@ -164,6 +171,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
         $this->comments = new ArrayCollection();
         $this->metadata = new Metadata();
         $this->subscribers = new ArrayCollection();
+        $this->facebookThumbnail = new File();
     }
 
     /**
@@ -523,5 +531,38 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
         $this->automaticBoost = $automaticBoost;
 
         return $this;
+    }
+
+    /**
+     * @return File
+     */
+    public function getFacebookThumbnail(): File
+    {
+        return $this->facebookThumbnail;
+    }
+
+    /**
+     * @param File $facebookThumbnail
+     * @return Post
+     */
+    public function setFacebookThumbnail(File $facebookThumbnail): Post
+    {
+        $this->facebookThumbnail = $facebookThumbnail;
+
+        return $this;
+    }
+
+    /**
+     * Get facebook thumbnail image
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"Default", "post"})
+     * @Serializer\Type("Image")
+     * @Serializer\SerializedName("facebook_thumbnail")
+     * @return Image
+     */
+    public function getFacebookThumbnailImage(): Image
+    {
+        return new Image($this, 'facebookThumbnail.file', null, false);
     }
 }

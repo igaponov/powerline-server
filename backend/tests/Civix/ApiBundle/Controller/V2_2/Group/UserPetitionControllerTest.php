@@ -91,7 +91,7 @@ class UserPetitionControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(201, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertCount(10, $data);
+        $this->assertCount(11, $data);
         $this->assertNotEmpty($data['id']);
         foreach ($params as $key => $param) {
             $this->assertSame($param, $data[$key]);
@@ -101,6 +101,7 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertNotEmpty($data['created_at']);
         $this->assertFalse($data['supporters_were_invited']);
         $this->assertTrue($data['automatic_boost']);
+        $this->assertRegExp('/[\w\d]\.png/', $data['facebook_thumbnail']);
         /** @var RabbitMQDataCollector $collector */
         $collector = $client->getProfile()->getCollector('rabbit_mq');
         $data = $collector->getData();

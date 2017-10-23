@@ -162,6 +162,13 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      */
     private $automaticBoost = true;
 
+    /**
+     * @var File
+     *
+     * @ORM\Embedded(class="Civix\CoreBundle\Entity\File", columnPrefix="")
+     */
+    private $facebookThumbnail;
+
     public function __construct()
     {
         $this->signatures = new ArrayCollection();
@@ -169,6 +176,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
         $this->comments = new ArrayCollection();
         $this->metadata = new Metadata();
         $this->subscribers = new ArrayCollection();
+        $this->facebookThumbnail = new File();
     }
 
     /**
@@ -690,5 +698,38 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
         $this->automaticBoost = $automaticBoost;
 
         return $this;
+    }
+
+    /**
+     * @return File
+     */
+    public function getFacebookThumbnail(): File
+    {
+        return $this->facebookThumbnail;
+    }
+
+    /**
+     * @param File $facebookThumbnail
+     * @return UserPetition
+     */
+    public function setFacebookThumbnail(File $facebookThumbnail): UserPetition
+    {
+        $this->facebookThumbnail = $facebookThumbnail;
+
+        return $this;
+    }
+
+    /**
+     * Get facebook thumbnail image
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"Default", "petition"})
+     * @Serializer\Type("Image")
+     * @Serializer\SerializedName("facebook_thumbnail")
+     * @return Image
+     */
+    public function getFacebookThumbnailImage(): Image
+    {
+        return new Image($this, 'facebookThumbnail.file', null, false);
     }
 }

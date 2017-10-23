@@ -36,6 +36,7 @@ class CivixCoreExtension extends Extension
         $loader->load('notification.yml');
         $loader->load('propublica.yml');
         $loader->load('command.yml');
+        $loader->load('thumbnail_generator.yml');
 
         $container->setAlias('mailgun.client', $config['mailgun_client']);
         $container->setAlias('mailgun.public_client', $config['mailgun_public_client']);

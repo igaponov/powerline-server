@@ -34,13 +34,19 @@ class LeaderContentSubscriber implements EventSubscriberInterface
     {
         return [
             // petition
+            UserPetitionEvents::PETITION_PRE_CREATE => [
+                ['setPetitionFacebookThumbnailImageName'],
+            ],
             UserPetitionEvents::PETITION_CREATE => [
                 ['addPetitionHashTags'],
                 ['subscribePetitionAuthor'],
             ],
             UserPetitionEvents::PETITION_UPDATE => 'addPetitionHashTags',
             // post
-            PostEvents::POST_PRE_CREATE => 'setPostExpire',
+            PostEvents::POST_PRE_CREATE => [
+                ['setPostExpire'],
+                ['setPostFacebookThumbnailImageName'],
+            ],
             PostEvents::POST_CREATE => [
                 ['addPostHashTags'],
                 ['subscribePostAuthor'],
@@ -76,10 +82,22 @@ class LeaderContentSubscriber implements EventSubscriberInterface
     {
         $post = $event->getPost();
         $group = $post->getGroup();
-        $key = 'micropetition_expire_interval_'.$group->getGroupType();
-        $interval = (int)$this->settings->get($key)->getValue();
-        $post->setExpiredAt(new \DateTime("+$interval days"));
-        $post->setUserExpireInterval($interval);
+        if ($group) {
+            $key = 'micropetition_expire_interval_'.$group->getGroupType();
+            $interval = (int)$this->settings->get($key)->getValue();
+            $post->setExpiredAt(new \DateTime("+$interval days"));
+            $post->setUserExpireInterval($interval);
+        }
+    }
+
+    public function setPostFacebookThumbnailImageName(PostEvent $event)
+    {
+        $event->getPost()->getFacebookThumbnail()->setName(bin2hex(random_bytes(10)).'.png');
+    }
+
+    public function setPetitionFacebookThumbnailImageName(UserPetitionEvent $event)
+    {
+        $event->getPetition()->getFacebookThumbnail()->setName(bin2hex(random_bytes(10)).'.png');
     }
 
     public function setQuestionExpire(QuestionEvent $event)
@@ -110,16 +128,20 @@ class LeaderContentSubscriber implements EventSubscriberInterface
     {
         $petition = $event->getPetition();
         $author = $petition->getUser();
-        $author->addPetitionSubscription($petition);
-        $this->em->flush();
+        if ($author) {
+            $author->addPetitionSubscription($petition);
+            $this->em->flush();
+        }
     }
 
     public function subscribePostAuthor(PostEvent $event)
     {
         $post = $event->getPost();
         $author = $post->getUser();
-        $author->addPostSubscription($post);
-        $this->em->flush();
+        if ($author) {
+            $author->addPostSubscription($post);
+            $this->em->flush();
+        }
     }
 
     public function subscribePollAuthor(QuestionEvent $event)

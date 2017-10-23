@@ -41,6 +41,18 @@ class LeaderContentSubscriberTest extends TestCase
         $this->assertGreaterThan(new \DateTime('+13579 days - 1 second'), $post->getExpiredAt());
     }
 
+    public function testSetPostFacebookThumbnailImageName()
+    {
+        $post = new Post();
+        $em = $this->createMock(EntityManagerInterface::class);
+        $settings = $this->getSettingsMock();
+        $commentManager = $this->getCommentManagerMock();
+        $subscriber = new LeaderContentSubscriber($em, $settings, $commentManager);
+        $event = new PostEvent($post);
+        $subscriber->setPostFacebookThumbnailImageName($event);
+        $this->assertRegExp('/\w\d/', $post->getFacebookThumbnail()->getName());
+    }
+
     public function testAddPostHashTags()
     {
         $post = new Post();

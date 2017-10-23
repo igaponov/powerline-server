@@ -108,3 +108,11 @@ services:
         arguments: ['@doctrine.orm.entity_manager']
         tags:
             - { name: kernel.event_subscriber }
+
+    civix_core.event_listener.thumbnail_subscriber:
+        class: Civix\CoreBundle\EventListener\ThumbnailSubscriber
+        arguments:
+            - '@civix.thumbnail_generator.thumbnail_generator'
+            - '@vich_uploader.upload_handler'
+        tags:
+            - { name: kernel.event_subscriber }
