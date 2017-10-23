@@ -1,0 +1,34 @@
+services:
+    civix_core.thumbnail_generator.facebook_thumbnail_generator_config:
+        class: Civix\CoreBundle\Service\ThumbnailGenerator\FacebookThumbnailGeneratorConfig
+        arguments:
+            - '%kernel.root_dir%/../src/Civix/CoreBundle/Resources/public/fonts/montserrat_regular.ttf'
+            - '%kernel.root_dir%/../src/Civix/CoreBundle/Resources/public/fonts/montserrat_bold.ttf'
+            - '%kernel.root_dir%/../src/Civix/CoreBundle/Resources/public/fonts/montserrat_italic.ttf'
+            - '%kernel.root_dir%/../src/Civix/CoreBundle/Resources/public/fonts/open_sans_regular.ttf'
+
+    civix_core.thumbnail_generator.facebook_thumbnail_generator:
+        class: Civix\CoreBundle\Service\ThumbnailGenerator\FacebookThumbnailGenerator
+        arguments:
+            - '@civix_core.image_manager'
+            - '@civix_core.thumbnail_generator.facebook_thumbnail_generator_config'
+
+    civix_core.thumbnail_generator.user_content_to_facebook_content_normalizer:
+        class: Civix\CoreBundle\Service\ThumbnailGenerator\UserContentToFacebookContentNormalizer
+        arguments: ['@vich_uploader.storage', '@imgix.url_builder']
+
+    civix.thumbnail_generator.generator_collection:
+        class: Civix\Component\ThumbnailGenerator\GeneratorCollection
+        arguments:
+            - '@civix_core.thumbnail_generator.facebook_thumbnail_generator'
+
+    civix.thumbnail_generator.normalizer_collection:
+        class: Civix\Component\ThumbnailGenerator\NormalizerCollection
+        arguments:
+            - '@civix_core.thumbnail_generator.user_content_to_facebook_content_normalizer'
+
+    civix.thumbnail_generator.thumbnail_generator:
+        class: Civix\Component\ThumbnailGenerator\ThumbnailGenerator
+        arguments:
+            - '@civix.thumbnail_generator.normalizer_collection'
+            - '@civix.thumbnail_generator.generator_collection'
