@@ -163,6 +163,18 @@ knp_gaufrette:
                 bucket_name: '%amazon_s3.bucket%'
                 options:
                     directory: 'announcement'
+        thumbnail_post_adapter:
+            aws_s3:
+                service_id: 'aws.s3'
+                bucket_name: '%amazon_s3.bucket%'
+                options:
+                    directory: 'post/thumbnail'
+        thumbnail_petition_adapter:
+            aws_s3:
+                service_id: 'aws.s3'
+                bucket_name: '%amazon_s3.bucket%'
+                options:
+                    directory: 'petition/thumbnail'
     filesystems:
         avatar_image_fs:
             adapter: avatar_image_adapter
@@ -178,6 +190,10 @@ knp_gaufrette:
             adapter: blog_post_adapter
         image_announcement_fs:
             adapter: image_announcement_adapter
+        thumbnail_post_fs:
+            adapter: thumbnail_post_adapter
+        thumbnail_petition_fs:
+            adapter: thumbnail_petition_adapter
 
 vich_uploader:
     db_driver: orm
@@ -220,6 +236,21 @@ vich_uploader:
             uri_prefix: /announcement
             upload_destination: image_announcement_fs
             namer: vich_uploader.namer_uniqid
+        thumbnail_post:
+            uri_prefix: /thumbnail/post
+            upload_destination: thumbnail_post_fs
+            namer:
+                service: vich_uploader.namer_property
+                options:
+                    property: facebookThumbnail.name
+                    transliterate: false
+        thumbnail_petition:
+            uri_prefix: /thumbnail/petition
+            upload_destination: thumbnail_petition_fs
+            namer:
+                service: civix_core.property_namer
+                options:
+                    property: facebookThumbnail.name
 
 old_sound_rabbit_mq:
     connections: '%rabbitmq_connections%'

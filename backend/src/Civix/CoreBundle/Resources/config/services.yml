@@ -78,6 +78,9 @@ services:
             - '@civix_core.district_repository'
             - '@civix_core.content_converter'
 
+    civix_core.property_namer:
+        class: Civix\CoreBundle\Service\PropertyNamer
+
 #    civix_core.uploader.metadata.file_locator:
 #        class: Metadata\Driver\FileLocator
 #        public: false
