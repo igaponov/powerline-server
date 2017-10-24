@@ -10,6 +10,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Vich\UploaderBundle\Handler\UploadHandler;
 
@@ -66,16 +67,13 @@ class ThumbnailGenerateCommand extends Command
                 ->from($class, 'e')
                 ->getQuery()->iterate();
         }
-        $accessor = new PropertyAccessor();
+        $accessor = PropertyAccess::createPropertyAccessor();
         $buffer = [];
         foreach ($iterator as $k => $item) {
             $object = $item[0];
             $this->logger->debug(sprintf('Handle %s, id: %d', $class, $accessor->getValue($object, 'id')));
-            $image = $this->converter->generate($object);
-            $image->encode('png', 100);
-            $accessor->setValue($object, $property, new TempFile($image->getEncoded()));
             try {
-                $this->uploadHandler->upload($object, $property);
+                $this->generateThumbnail($object, $accessor, $property);
                 $buffer[] = $object;
             } catch (\Exception $e) {
                 $this->logger->critical($e->getMessage(), ['e' => $e]);
@@ -86,5 +84,13 @@ class ThumbnailGenerateCommand extends Command
             }
         }
         $this->em->flush();
+    }
+
+    private function generateThumbnail($object, PropertyAccessor $accessor, string $property)
+    {
+        $image = $this->converter->generate($object);
+        $image->encode('png', 100);
+        $accessor->setValue($object, $property, new TempFile($image->getEncoded()));
+        $this->uploadHandler->upload($object, $property);
     }
 }
