@@ -160,7 +160,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
     /**
      * @var File
      *
-     * @ORM\Embedded(class="Civix\CoreBundle\Entity\File", columnPrefix="")
+     * @ORM\Embedded(class="Civix\CoreBundle\Entity\File", columnPrefix="facebook_thumbnail_")
      */
     private $facebookThumbnail;
 
