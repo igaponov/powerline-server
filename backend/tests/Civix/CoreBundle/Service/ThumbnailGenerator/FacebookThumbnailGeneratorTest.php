@@ -13,12 +13,15 @@ class FacebookThumbnailGeneratorTest extends TestCase
     public function testGenerate()
     {
         $manager = new ImageManager();
-        $path = __DIR__.'/../../../../../src/Civix/CoreBundle/Resources/public/fonts/';
+        $fontPath = __DIR__.'/../../../../../src/Civix/CoreBundle/Resources/public/fonts/';
+        $imgPath = __DIR__.'/../../../../../src/Civix/CoreBundle/Resources/public/img/';
         $config = new FacebookThumbnailGeneratorConfig(
-            $path.'montserrat_regular.ttf',
-            $path.'montserrat_bold.ttf',
-            $path.'montserrat_italic.ttf',
-            $path.'open_sans_regular.ttf'
+            $fontPath.'montserrat_regular.ttf',
+            $fontPath.'montserrat_bold.ttf',
+            $fontPath.'montserrat_italic.ttf',
+            $fontPath.'open_sans_regular.ttf',
+            $imgPath.'jc_logo.png',
+            $imgPath.'p_logo_watermark.png'
         );
         $converter = new FacebookThumbnailGenerator($manager, $config);
         $content = new FacebookContent(

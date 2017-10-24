@@ -240,7 +240,7 @@ vich_uploader:
             uri_prefix: /thumbnail/post
             upload_destination: thumbnail_post_fs
             namer:
-                service: vich_uploader.namer_property
+                service: civix_core.property_namer
                 options:
                     property: facebookThumbnail.name
                     transliterate: false

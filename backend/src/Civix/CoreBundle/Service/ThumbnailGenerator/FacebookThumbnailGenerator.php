@@ -51,9 +51,9 @@ class FacebookThumbnailGenerator implements ObjectThumbnailGeneratorInterface
         $userAvatar = $this->createAvatar($object->getUserAvatar());
         $groupAvatar = $this->createAvatar($object->getGroupAvatar());
         $logo = $this->manager
-            ->make('./src/Civix/CoreBundle/Resources/public/img/jc_logo.png');
+            ->make($this->config->getLogo());
         $watermark = $this->manager
-            ->make('./src/Civix/CoreBundle/Resources/public/img/p_logo_watermark.png');
+            ->make($this->config->getWatermark());
 
         $groupName = $this->createGroupName($object->getGroupName());
 
@@ -195,7 +195,7 @@ class FacebookThumbnailGenerator implements ObjectThumbnailGeneratorInterface
         while ($width > 0) {
             for ($i = 3; $i < 23; $i++) {
                 $color = $image->pickColor($width, $i, 'hex');
-                if ($color !== '#ffffff') {
+                if ($color !== $this->config->getBackground()) {
                     break 2;
                 }
             }

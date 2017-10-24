@@ -6,6 +6,8 @@ services:
             - '%kernel.root_dir%/../src/Civix/CoreBundle/Resources/public/fonts/montserrat_bold.ttf'
             - '%kernel.root_dir%/../src/Civix/CoreBundle/Resources/public/fonts/montserrat_italic.ttf'
             - '%kernel.root_dir%/../src/Civix/CoreBundle/Resources/public/fonts/open_sans_regular.ttf'
+            - '%kernel.root_dir%/../src/Civix/CoreBundle/Resources/public/img/jc_logo.png'
+            - '%kernel.root_dir%/../src/Civix/CoreBundle/Resources/public/img/p_logo_watermark.png'
 
     civix_core.thumbnail_generator.facebook_thumbnail_generator:
         class: Civix\CoreBundle\Service\ThumbnailGenerator\FacebookThumbnailGenerator

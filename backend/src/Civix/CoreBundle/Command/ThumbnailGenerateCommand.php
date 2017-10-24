@@ -59,6 +59,7 @@ class ThumbnailGenerateCommand extends Command
         $buffer = [];
         foreach ($iterator as $k => $item) {
             $object = $item[0];
+            $output->writeln(sprintf('Handle %s, id: %d', $class, $accessor->getValue($object, 'id')));
             $image = $this->converter->generate($object);
             $image->encode('png', 100);
             $accessor->setValue($object, $property, new TempFile($image->getEncoded()));

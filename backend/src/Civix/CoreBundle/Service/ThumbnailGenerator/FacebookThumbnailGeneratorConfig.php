@@ -52,17 +52,27 @@ class FacebookThumbnailGeneratorConfig
      * @var int
      */
     private $fontSize;
+    /**
+     * @var string
+     */
+    private $logo;
+    /**
+     * @var string
+     */
+    private $watermark;
 
     public function __construct(
         string $fontRegular,
         string $fontBold,
         $fontItalic,
         $fontOpenSans,
-        $colorRegular = '#000',
+        $logo,
+        $watermark,
+        $colorRegular = '#000000',
         $colorBlue = '#000066',
         $colorLightBlue = '#55C5FF',
         $colorGrey = '#808080',
-        $background = '#fff',
+        $background = '#ffffff',
         $width = 480,
         $padding = 15,
         $fontSize = 20
@@ -71,6 +81,8 @@ class FacebookThumbnailGeneratorConfig
         $this->fontBold = $fontBold;
         $this->fontItalic = $fontItalic;
         $this->fontOpenSans = $fontOpenSans;
+        $this->logo = $logo;
+        $this->watermark = $watermark;
         $this->colorRegular = $colorRegular;
         $this->colorBlue = $colorBlue;
         $this->colorLightBlue = $colorLightBlue;
@@ -111,6 +123,22 @@ class FacebookThumbnailGeneratorConfig
     public function getFontOpenSans(): string
     {
         return $this->fontOpenSans;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLogo()
+    {
+        return $this->logo;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getWatermark()
+    {
+        return $this->watermark;
     }
 
     /**
