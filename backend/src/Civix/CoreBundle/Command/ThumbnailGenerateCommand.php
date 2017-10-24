@@ -5,6 +5,7 @@ namespace Civix\CoreBundle\Command;
 use Civix\Component\ThumbnailGenerator\ThumbnailGeneratorInterface;
 use Civix\CoreBundle\Model\TempFile;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -26,13 +27,22 @@ class ThumbnailGenerateCommand extends Command
      * @var UploadHandler
      */
     private $uploadHandler;
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
-    public function __construct(EntityManagerInterface $em, ThumbnailGeneratorInterface $converter, UploadHandler $uploadHandler)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        ThumbnailGeneratorInterface $converter,
+        UploadHandler $uploadHandler,
+        LoggerInterface $logger
+    ) {
         parent::__construct('civix:thumbnail:generate');
         $this->em = $em;
         $this->converter = $converter;
         $this->uploadHandler = $uploadHandler;
+        $this->logger = $logger;
     }
 
     protected function configure(): void
@@ -52,6 +62,7 @@ class ThumbnailGenerateCommand extends Command
             $iterator = [[$this->em->find($class, $id)]];
         } else {
             $iterator = $this->em->createQueryBuilder()
+                ->select('e')
                 ->from($class, 'e')
                 ->getQuery()->iterate();
         }
@@ -59,16 +70,19 @@ class ThumbnailGenerateCommand extends Command
         $buffer = [];
         foreach ($iterator as $k => $item) {
             $object = $item[0];
-            $output->writeln(sprintf('Handle %s, id: %d', $class, $accessor->getValue($object, 'id')));
+            $this->logger->debug(sprintf('Handle %s, id: %d', $class, $accessor->getValue($object, 'id')));
             $image = $this->converter->generate($object);
             $image->encode('png', 100);
             $accessor->setValue($object, $property, new TempFile($image->getEncoded()));
-            $this->uploadHandler->upload($object, $property);
+            try {
+                $this->uploadHandler->upload($object, $property);
+                $buffer[] = $object;
+            } catch (\Exception $e) {
+                $this->logger->critical($e->getMessage(), ['e' => $e]);
+            }
             if ($k % 20 === 0) {
                 $this->em->flush();
                 array_walk($buffer, [$this->em, 'detach']);
-            } else {
-                $buffer[] = $object;
             }
         }
         $this->em->flush();
