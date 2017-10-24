@@ -42,7 +42,7 @@ class ThumbnailSubscriber implements EventSubscriberInterface
         $image = $this->converter->generate($post);
         $image->encode('png', 100);
         $post->getFacebookThumbnail()->setFile(new TempFile($image->getEncoded()));
-        $this->uploadHandler->upload($post, 'facebookThumbnail');
+        $this->uploadHandler->upload($post, 'facebookThumbnail.file');
     }
 
     public function createPetitionFacebookThumbnail(UserPetitionEvent $event): void
@@ -51,6 +51,6 @@ class ThumbnailSubscriber implements EventSubscriberInterface
         $image = $this->converter->generate($petition);
         $image->encode('png', 100);
         $petition->getFacebookThumbnail()->setFile(new TempFile($image->getEncoded()));
-        $this->uploadHandler->upload($petition, 'facebookThumbnail');
+        $this->uploadHandler->upload($petition, 'facebookThumbnail.file');
     }
 }
