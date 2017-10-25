@@ -26,7 +26,7 @@ trait PostSerializableTrait
      * Get facebook thumbnail image
      *
      * @Serializer\VirtualProperty()
-     * @Serializer\Groups({"Default", "post"})
+     * @Serializer\Groups({"Default", "post", "activity-list"})
      * @Serializer\Type("Image")
      * @Serializer\SerializedName("facebook_thumbnail")
      *
@@ -41,7 +41,7 @@ trait PostSerializableTrait
      * Get image
      *
      * @Serializer\VirtualProperty()
-     * @Serializer\Groups({"Default", "post"})
+     * @Serializer\Groups({"Default", "post", "activity-list"})
      * @Serializer\Type("Image")
      * @Serializer\SerializedName("image")
      *
