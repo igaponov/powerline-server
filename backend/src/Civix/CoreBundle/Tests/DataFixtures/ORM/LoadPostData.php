@@ -33,7 +33,8 @@ class LoadPostData extends AbstractFixture implements DependentFixtureInterface
             ->boost()
             ->setExpiredAt(new \DateTime('+1 month'))
             ->setUserExpireInterval(1000)
-            ->setGroup($group1);
+            ->setGroup($group1)
+            ->getImage()->setName(uniqid().'.png');
         $manager->persist($post);
         $this->addReference('post_1', $post);
 

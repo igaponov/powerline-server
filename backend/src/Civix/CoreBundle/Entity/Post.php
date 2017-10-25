@@ -4,8 +4,8 @@ namespace Civix\CoreBundle\Entity;
 
 use Civix\CoreBundle\Entity\Post\Comment;
 use Civix\CoreBundle\Entity\Post\Vote;
-use Civix\CoreBundle\Serializer\Type\Image;
 use Civix\CoreBundle\Service\Micropetitions\PetitionManager;
+use Civix\CoreBundle\Validator\Constraints\Property;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -29,7 +29,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterface, HashTaggableInterface
 {
-    use HashTaggableTrait, MetadataTrait, SpamMarksTrait;
+    use HashTaggableTrait,
+        MetadataTrait,
+        SpamMarksTrait,
+        PostSerializableTrait;
 
     /**
      * @ORM\Id
@@ -164,6 +167,15 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      */
     private $facebookThumbnail;
 
+    /**
+     * @var File
+     *
+     * @ORM\Embedded(class="Civix\CoreBundle\Entity\File", columnPrefix="")
+     *
+     * @Property(propertyPath="file", constraints={@Assert\Image()}, groups={"Default", "create", "update"})
+     */
+    protected $image;
+
     public function __construct()
     {
         $this->votes = new ArrayCollection();
@@ -172,6 +184,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
         $this->metadata = new Metadata();
         $this->subscribers = new ArrayCollection();
         $this->facebookThumbnail = new File();
+        $this->image = new File();
     }
 
     /**
@@ -391,20 +404,6 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
     }
 
     /**
-     * @Serializer\Groups({"api-petitions-info"})
-     * @Serializer\VirtualProperty
-     * @Serializer\SerializedName("share_picture")
-     * @Serializer\Type("Image")
-     */
-    public function getSharePicture(): Image
-    {
-        $entity = $this->isBoosted() ? $this->getGroup() : $this->getUser();
-
-        return new Image($entity, 'avatar');
-    }
-
-
-    /**
      * Add comment
      *
      * @param BaseComment|Comment $comment
@@ -553,16 +552,23 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
     }
 
     /**
-     * Get facebook thumbnail image
-     *
-     * @Serializer\VirtualProperty()
-     * @Serializer\Groups({"Default", "post"})
-     * @Serializer\Type("Image")
-     * @Serializer\SerializedName("facebook_thumbnail")
-     * @return Image
+     * @return File
      */
-    public function getFacebookThumbnailImage(): Image
+    public function getImage(): File
     {
-        return new Image($this, 'facebookThumbnail.file', null, false);
+        return $this->image;
+    }
+
+    /**
+     * @param File $image
+     * @return Post
+     */
+    public function setImage(?File $image): Post
+    {
+        if ($image) {
+            $this->image = $image;
+        }
+
+        return $this;
     }
 }
