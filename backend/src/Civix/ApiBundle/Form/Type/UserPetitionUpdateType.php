@@ -1,6 +1,7 @@
 <?php
 namespace Civix\ApiBundle\Form\Type;
 
+use Civix\CoreBundle\Entity\File;
 use Civix\CoreBundle\Entity\UserPetition;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -26,6 +27,11 @@ class UserPetitionUpdateType extends AbstractType
             ->add('petition_body', null, [
                 'description' => 'For compatibility with old endpoints.',
                 'mapped' => false,
+            ])
+            ->add('image', EncodedFileType::class, [
+                'description' => 'Base64-encoded attachment',
+                'data_class' => File::class,
+                'required' => false,
             ])
         ;
         $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {

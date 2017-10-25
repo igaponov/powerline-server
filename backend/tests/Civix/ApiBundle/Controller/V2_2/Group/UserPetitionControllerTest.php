@@ -86,12 +86,16 @@ class UserPetitionControllerTest extends WebTestCase
         ];
         $client->request('POST',
             $uri, [], [], ['HTTP_Authorization' => 'Bearer user1'],
-            json_encode($params)
+            json_encode(array_merge([
+                'image' => base64_encode(file_get_contents(__DIR__.'/../../../../../data/image.png')),
+            ],
+                $params
+            ))
         );
         $response = $client->getResponse();
         $this->assertEquals(201, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertCount(11, $data);
+        $this->assertCount(12, $data);
         $this->assertNotEmpty($data['id']);
         foreach ($params as $key => $param) {
             $this->assertSame($param, $data[$key]);
@@ -99,6 +103,7 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertSame($params['body'], $data['html_body']);
         $this->assertFalse($data['boosted']);
         $this->assertNotEmpty($data['created_at']);
+        $this->assertNotEmpty($data['image']);
         $this->assertFalse($data['supporters_were_invited']);
         $this->assertTrue($data['automatic_boost']);
         $this->assertRegExp('/[\w\d]\.png/', $data['facebook_thumbnail']);
@@ -109,6 +114,8 @@ class UserPetitionControllerTest extends WebTestCase
         $msg = unserialize($data[0]['msg']);
         $this->assertSame(UserPetitionEvents::PETITION_CREATE, $msg->getEventName());
         $this->assertInstanceOf(UserPetitionEvent::class, $msg->getEvent());
+        $storage = $client->getContainer()->get('civix_core.storage.array');
+        $this->assertCount(1, $storage->getFiles('image_petition_fs'));
     }
 
     /**
