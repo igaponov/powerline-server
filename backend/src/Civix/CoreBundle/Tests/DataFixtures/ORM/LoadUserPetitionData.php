@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserPetition;
 use Doctrine\Common\DataFixtures\AbstractFixture;
@@ -21,7 +22,9 @@ class LoadUserPetitionData extends AbstractFixture implements DependentFixtureIn
         $user2 = $this->getReference('user_2');
         /** @var User $user3 */
         $user3 = $this->getReference('user_3');
+        /** @var Group $group1 */
         $group1 = $this->getReference('group_1');
+        /** @var Group $group2 */
         $group2 = $this->getReference('group_2');
 
         $petition = new UserPetition();
@@ -32,7 +35,8 @@ class LoadUserPetitionData extends AbstractFixture implements DependentFixtureIn
             ->setHtmlBody($body)
             ->boost()
             ->setOrganizationNeeded(true)
-            ->setGroup($group1);
+            ->setGroup($group1)
+            ->getImage()->setName(uniqid().'.png');
         $manager->persist($petition);
         $this->addReference('user_petition_1', $petition);
 

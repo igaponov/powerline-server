@@ -163,6 +163,18 @@ knp_gaufrette:
                 bucket_name: '%amazon_s3.bucket%'
                 options:
                     directory: 'announcement'
+        image_post_adapter:
+            aws_s3:
+                service_id: 'aws.s3'
+                bucket_name: '%amazon_s3.bucket%'
+                options:
+                    directory: 'post'
+        image_petition_adapter:
+            aws_s3:
+                service_id: 'aws.s3'
+                bucket_name: '%amazon_s3.bucket%'
+                options:
+                    directory: 'petition'
         thumbnail_post_adapter:
             aws_s3:
                 service_id: 'aws.s3'
@@ -190,6 +202,10 @@ knp_gaufrette:
             adapter: blog_post_adapter
         image_announcement_fs:
             adapter: image_announcement_adapter
+        image_post_fs:
+            adapter: image_post_adapter
+        image_petition_fs:
+            adapter: image_petition_adapter
         thumbnail_post_fs:
             adapter: thumbnail_post_adapter
         thumbnail_petition_fs:
@@ -235,6 +251,14 @@ vich_uploader:
         image_announcement:
             uri_prefix: /announcement
             upload_destination: image_announcement_fs
+            namer: vich_uploader.namer_uniqid
+        image_post:
+            uri_prefix: /post
+            upload_destination: image_post_fs
+            namer: vich_uploader.namer_uniqid
+        image_petition:
+            uri_prefix: /petition
+            upload_destination: image_petition_fs
             namer: vich_uploader.namer_uniqid
         thumbnail_post:
             uri_prefix: /thumbnail/post

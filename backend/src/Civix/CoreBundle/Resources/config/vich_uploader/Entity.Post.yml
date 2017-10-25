@@ -1,4 +1,7 @@
 Civix\CoreBundle\Entity\Post:
+    image.file:
+        mapping: image_post
+        filename_property: image.name
     facebookThumbnail.file:
         mapping: thumbnail_post
         filename_property: facebookThumbnail.name

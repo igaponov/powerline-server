@@ -34,12 +34,12 @@ class PostControllerTest extends WebTestCase
      */
     private $client;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->client = null;
         parent::tearDown();
@@ -52,6 +52,7 @@ class PostControllerTest extends WebTestCase
             LoadPostData::class,
             LoadPostVoteData::class,
         ])->getReferenceRepository();
+        /** @var Post $post */
         $post = $repository->getReference('post_1');
         $answer = $repository->getReference('post_answer_1');
         $client = $this->client;
@@ -71,6 +72,7 @@ class PostControllerTest extends WebTestCase
                 $this->assertCount(1, $item['votes']);
                 $this->assertEquals($answer->getOption(), $item['votes'][0]['option']);
                 $this->assertArrayHasKey('html_body', $item);
+                $this->assertContains($post->getImage()->getName(), $item['image']);
             }
         }
     }
@@ -111,6 +113,7 @@ class PostControllerTest extends WebTestCase
         $this->assertSame($post->getBody(), $data['body']);
         $this->assertSame($post->isSupportersWereInvited(), $data['supporters_were_invited']);
         $this->assertSame($post->isAutomaticBoost(), $data['automatic_boost']);
+        $this->assertContains($post->getImage()->getName(), $data['image']);
     }
 
     public function testGetDeletedPost()
@@ -189,6 +192,7 @@ class PostControllerTest extends WebTestCase
         $faker = Factory::create();
         /** @var Post $post */
         $post = $repository->getReference('post_1');
+        $image = $post->getImage()->getName();
         $client = $this->client;
         $hashTags = [
             '#testHashTag',
@@ -197,6 +201,7 @@ class PostControllerTest extends WebTestCase
         $params = [
             'body' => $faker->text."\n".implode(' ', $hashTags),
             'automatic_boost' => false,
+            'image' => base64_encode(file_get_contents(__DIR__.'/../../../../data/image.png')),
         ];
         $client->request('PUT',
             self::API_ENDPOINT.'/'.$post->getId(), [], [],
@@ -208,6 +213,9 @@ class PostControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertSame($params['body'], $data['body']);
         $this->assertSame($params['automatic_boost'], $data['automatic_boost']);
+        $this->assertNotSame($image, $data['image']);
+        $storage = $client->getContainer()->get('civix_core.storage.array');
+        $this->assertCount(1, $storage->getFiles('image_post_fs'));
     }
 
     public function testBoostPostWithWrongCredentialsThrowsException()

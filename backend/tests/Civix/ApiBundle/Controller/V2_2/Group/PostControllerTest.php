@@ -29,12 +29,12 @@ class PostControllerTest extends WebTestCase
         ]);
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->client = null;
         parent::tearDown();
@@ -64,12 +64,13 @@ class PostControllerTest extends WebTestCase
                 $mentioned->getUsername(),
                 implode(' ', $hashTags)
             ),
+            'image' => base64_encode(file_get_contents(__DIR__.'/../../../../../data/image.png')),
         ];
         $client->request('POST', $uri, [], [], ['HTTP_Authorization' => 'Bearer user1'], json_encode($params));
         $response = $client->getResponse();
         $this->assertEquals(201, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertCount(10, $data);
+        $this->assertCount(11, $data);
         $this->assertNotEmpty($data['id']);
         $this->assertSame($params['body'], $data['body']);
         $this->assertSame(sprintf(
@@ -80,6 +81,7 @@ class PostControllerTest extends WebTestCase
         ), $data['html_body']);
         $this->assertNotEmpty($data['created_at']);
         $this->assertNotEmpty($data['expired_at']);
+        $this->assertNotEmpty($data['image']);
         $this->assertSame($interval, $data['user_expire_interval']);
         $this->assertFalse($data['boosted']);
         $this->assertFalse($data['supporters_were_invited']);
@@ -92,6 +94,8 @@ class PostControllerTest extends WebTestCase
         $msg = unserialize($data[0]['msg']);
         $this->assertSame(PostEvents::POST_CREATE, $msg->getEventName());
         $this->assertInstanceOf(PostEvent::class, $msg->getEvent());
+        $storage = $client->getContainer()->get('civix_core.storage.array');
+        $this->assertCount(1, $storage->getFiles('image_post_fs'));
     }
 
     /**

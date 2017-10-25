@@ -2,6 +2,7 @@
 
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM;
 
+use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
 use Doctrine\Common\DataFixtures\AbstractFixture;
@@ -21,7 +22,9 @@ class LoadPostData extends AbstractFixture implements DependentFixtureInterface
         $user2 = $this->getReference('user_2');
         /** @var User $user3 */
         $user3 = $this->getReference('user_3');
+        /** @var Group $group1 */
         $group1 = $this->getReference('group_1');
+        /** @var Group $group2 */
         $group2 = $this->getReference('group_2');
 
         $post = new Post();
@@ -30,7 +33,8 @@ class LoadPostData extends AbstractFixture implements DependentFixtureInterface
             ->boost()
             ->setExpiredAt(new \DateTime('+1 month'))
             ->setUserExpireInterval(1000)
-            ->setGroup($group1);
+            ->setGroup($group1)
+            ->getImage()->setName(uniqid().'.png');
         $manager->persist($post);
         $this->addReference('post_1', $post);
 

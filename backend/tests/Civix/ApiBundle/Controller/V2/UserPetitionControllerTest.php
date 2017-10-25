@@ -47,6 +47,7 @@ class UserPetitionControllerTest extends WebTestCase
             LoadUserPetitionData::class,
             LoadUserPetitionSignatureData::class,
         ])->getReferenceRepository();
+        /** @var UserPetition $petition */
         $petition = $repository->getReference('user_petition_1');
         $signature = $repository->getReference('petition_answer_1');
         $client = $this->client;
@@ -66,6 +67,7 @@ class UserPetitionControllerTest extends WebTestCase
                 $this->assertCount(1, $item['answers']);
                 $this->assertEquals($signature->getOptionId(), $item['answers'][0]['option_id']);
                 $this->assertArrayHasKey('html_body', $item);
+                $this->assertContains($petition->getImage()->getName(), $item['image']);
             }
         }
     }
@@ -107,6 +109,7 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertArrayHasKey('group_id', $data);
         $this->assertNotEmpty($data['group_id']);
         $this->assertSame($petition->isSupportersWereInvited(), $data['supporters_were_invited']);
+        $this->assertContains($petition->getImage()->getName(), $data['image']);
     }
 
     public function testGetDeletedUserPetition()
@@ -184,6 +187,7 @@ class UserPetitionControllerTest extends WebTestCase
         $faker = Factory::create();
         /** @var UserPetition $petition */
         $petition = $repository->getReference('user_petition_1');
+        $image = $petition->getImage()->getName();
         $client = $this->client;
         $hashTags = [
             '#testHashTag',
@@ -191,6 +195,7 @@ class UserPetitionControllerTest extends WebTestCase
         ];
         $params = [
             'body' => $faker->text."\n".implode(' ', $hashTags),
+            'image' => base64_encode(file_get_contents(__DIR__.'/../../../../data/image.png')),
         ];
         $client->request('PUT',
             self::API_ENDPOINT.'/'.$petition->getId(), [], [],
@@ -201,6 +206,9 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         $this->assertSame($params['body'], $data['body']);
+        $this->assertNotSame($image, $data['image']);
+        $storage = $client->getContainer()->get('civix_core.storage.array');
+        $this->assertCount(1, $storage->getFiles('image_petition_fs'));
     }
 
     /**
