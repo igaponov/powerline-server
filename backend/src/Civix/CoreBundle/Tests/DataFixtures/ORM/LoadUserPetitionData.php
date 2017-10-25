@@ -35,7 +35,8 @@ class LoadUserPetitionData extends AbstractFixture implements DependentFixtureIn
             ->setHtmlBody($body)
             ->boost()
             ->setOrganizationNeeded(true)
-            ->setGroup($group1);
+            ->setGroup($group1)
+            ->getImage()->setName(uniqid().'.png');
         $manager->persist($petition);
         $this->addReference('user_petition_1', $petition);
 

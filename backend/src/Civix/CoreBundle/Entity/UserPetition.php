@@ -4,8 +4,8 @@ namespace Civix\CoreBundle\Entity;
 
 use Civix\CoreBundle\Entity\UserPetition\Comment;
 use Civix\CoreBundle\Entity\UserPetition\Signature;
-use Civix\CoreBundle\Serializer\Type\Image;
 use Civix\CoreBundle\Service\Micropetitions\PetitionManager;
+use Civix\CoreBundle\Validator\Constraints\Property;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -32,7 +32,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class UserPetition implements HtmlBodyInterface, SubscriptionInterface, CommentedInterface, HashTaggableInterface
 {
-    use HashTaggableTrait, MetadataTrait, SpamMarksTrait;
+    use HashTaggableTrait,
+        MetadataTrait,
+        SpamMarksTrait,
+        UserPetitionSerializableTrait;
 
     /**
      * @ORM\Id
@@ -135,7 +138,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
     private $comments;
 
     /**
-     * @var ArrayCollection|User[]
+     * @var Collection|User[]
      *
      * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\User", cascade={"persist"}, mappedBy="petitionSubscriptions", fetch="EXTRA_LAZY")
      * @ORM\JoinTable(name="petition_subscribers", joinColumns={@ORM\JoinColumn(name="petition_id", referencedColumnName="id")})
@@ -169,6 +172,15 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      */
     private $facebookThumbnail;
 
+    /**
+     * @var File
+     *
+     * @ORM\Embedded(class="Civix\CoreBundle\Entity\File", columnPrefix="")
+     *
+     * @Property(propertyPath="file", constraints={@Assert\Image()}, groups={"Default", "create", "update"})
+     */
+    protected $image;
+
     public function __construct()
     {
         $this->signatures = new ArrayCollection();
@@ -177,6 +189,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
         $this->metadata = new Metadata();
         $this->subscribers = new ArrayCollection();
         $this->facebookThumbnail = new File();
+        $this->image = new File();
     }
 
     /**
@@ -441,18 +454,6 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
     }
 
     /**
-     * @Serializer\VirtualProperty
-     * @Serializer\SerializedName("share_picture")
-     * @Serializer\Type("Image")
-     */
-    public function getSharePicture(): Image
-    {
-        $entity = $this->isBoosted() ? $this->getGroup() : $this->getUser();
-
-        return new Image($entity, 'avatar');
-    }
-
-    /**
      * Add comment
      *
      * @param BaseComment|Comment $comment
@@ -520,149 +521,6 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
     }
 
     /**
-     * Virtual property for old endpoint
-     *
-     * @return mixed
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("petition_body_html")
-     * @Serializer\Type("string")
-     *
-     * @internal
-     */
-    public function getPetitionBodyHtml(): string
-    {
-        return $this->htmlBody;
-    }
-
-    /**
-     * Virtual property for old endpoint
-     *
-     * @return mixed
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("petition_body")
-     * @Serializer\Type("string")
-     *
-     * @internal
-     */
-    public function getPetitionBody(): string
-    {
-        return $this->body;
-    }
-
-    /**
-     * Virtual property for old endpoint
-     *
-     * @return mixed
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("expire_at")
-     * @Serializer\Type("DateTime")
-     *
-     * @internal
-     */
-    public function getExpireAt(): DateTime
-    {
-        return new DateTime('+1 year');
-    }
-
-    /**
-     * Virtual property for old endpoint
-     *
-     * @return mixed
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("user_expire_interval")
-     * @Serializer\Type("integer")
-     *
-     * @internal
-     */
-    public function getUserExpireInterval(): int
-    {
-        return 0;
-    }
-
-    /**
-     * Virtual property for old endpoint
-     *
-     * @return mixed
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("type")
-     * @Serializer\Type("string")
-     *
-     * @internal
-     */
-    public function getType(): string
-    {
-        return 'long petition';
-    }
-
-    /**
-     * Virtual property for old endpoint
-     *
-     * @return mixed
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("link")
-     * @Serializer\Type("string")
-     *
-     * @internal
-     */
-    public function getLink(): string
-    {
-        return '';
-    }
-
-    /**
-     * Virtual property for old endpoint
-     *
-     * @return mixed
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("publish_status")
-     * @Serializer\Type("integer")
-     *
-     * @internal
-     */
-    public function getPublishStatus(): int
-    {
-        return (int)$this->boosted;
-    }
-
-    /**
-     * @internal
-     * @return Collection
-     *
-     * @Serializer\VirtualProperty()
-     * @Serializer\Type("array<Civix\CoreBundle\Entity\UserPetition\Signature>")
-     * @Serializer\Groups({"api-petitions-answers"})
-     */
-    public function getAnswers(): Collection
-    {
-        return $this->signatures;
-    }
-
-    /**
-     * @return bool
-     *
-     * @Serializer\VirtualProperty()
-     * @Serializer\Type("boolean")
-     * @Serializer\Groups({"activity-list"})
-     */
-    public function isSubscribed(): bool
-    {
-        return !$this->subscribers->isEmpty();
-    }
-
-    /**
-     * @return int
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("group_id")
-     * @Serializer\Type("integer")
-     */
-    public function getGroupId(): ?int
-    {
-        $group = $this->getGroup();
-
-        return $group ? $group->getId() : null;
-    }
-
-    /**
      * @return bool
      */
     public function isSupportersWereInvited(): bool
@@ -720,16 +578,23 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
     }
 
     /**
-     * Get facebook thumbnail image
-     *
-     * @Serializer\VirtualProperty()
-     * @Serializer\Groups({"Default", "petition"})
-     * @Serializer\Type("Image")
-     * @Serializer\SerializedName("facebook_thumbnail")
-     * @return Image
+     * @return File
      */
-    public function getFacebookThumbnailImage(): Image
+    public function getImage(): File
     {
-        return new Image($this, 'facebookThumbnail.file', null, false);
+        return $this->image;
+    }
+
+    /**
+     * @param File $image
+     * @return UserPetition
+     */
+    public function setImage(?File $image): UserPetition
+    {
+        if ($image) {
+            $this->image = $image;
+        }
+
+        return $this;
     }
 }
