@@ -5,14 +5,15 @@ namespace Civix\CoreBundle\Command;
 use Civix\Component\ThumbnailGenerator\ThumbnailGeneratorInterface;
 use Civix\CoreBundle\Model\TempFile;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Vich\UploaderBundle\Handler\UploadHandler;
+use Vich\UploaderBundle\Mapping\PropertyMappingFactory;
 
 class ThumbnailGenerateCommand extends Command
 {
@@ -29,21 +30,21 @@ class ThumbnailGenerateCommand extends Command
      */
     private $uploadHandler;
     /**
-     * @var LoggerInterface
+     * @var PropertyMappingFactory
      */
-    private $logger;
+    private $factory;
 
     public function __construct(
         EntityManagerInterface $em,
         ThumbnailGeneratorInterface $converter,
         UploadHandler $uploadHandler,
-        LoggerInterface $logger
+        PropertyMappingFactory $factory
     ) {
         parent::__construct('civix:thumbnail:generate');
         $this->em = $em;
         $this->converter = $converter;
         $this->uploadHandler = $uploadHandler;
-        $this->logger = $logger;
+        $this->factory = $factory;
     }
 
     protected function configure(): void
@@ -56,6 +57,8 @@ class ThumbnailGenerateCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
+        $style = new SymfonyStyle($input, $output);
+        $isVerbose = $output->isVerbose();
         $class = $input->getArgument('entity');
         $property = $input->getArgument('property');
         $id = $input->getArgument('id');
@@ -71,12 +74,14 @@ class ThumbnailGenerateCommand extends Command
         $buffer = [];
         foreach ($iterator as $k => $item) {
             $object = $item[0];
-            $this->logger->debug(sprintf('Handle %s, id: %d', $class, $accessor->getValue($object, 'id')));
+            if ($isVerbose) {
+                $style->comment(sprintf('Handle %s, id: %d', $class, $accessor->getValue($object, 'id')));
+            }
             try {
                 $this->generateThumbnail($object, $accessor, $property);
                 $buffer[] = $object;
             } catch (\Exception $e) {
-                $this->logger->critical($e->getMessage(), ['e' => $e]);
+                $style->error($e->getMessage());
             }
             if ($k % 20 === 0) {
                 $this->em->flush();
@@ -84,10 +89,18 @@ class ThumbnailGenerateCommand extends Command
             }
         }
         $this->em->flush();
+        $style->success('Finished');
     }
 
     private function generateThumbnail($object, PropertyAccessor $accessor, string $property)
     {
+        $mapping = $this->factory->fromField($object, $property);
+        if (!$mapping) {
+            throw new \RuntimeException(
+                sprintf('No mapping found for "%s" field.', $property)
+            );
+        }
+        $accessor->setValue($object, $mapping->getFileNamePropertyName(), bin2hex(random_bytes(10)).'.png');
         $image = $this->converter->generate($object);
         $image->encode('png', 100);
         $accessor->setValue($object, $property, new TempFile($image->getEncoded()));

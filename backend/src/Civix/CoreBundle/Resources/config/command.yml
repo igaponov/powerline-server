@@ -17,6 +17,6 @@ services:
             - '@doctrine.orm.entity_manager'
             - '@civix.thumbnail_generator.thumbnail_generator'
             - '@vich_uploader.upload_handler'
-            - '@logger'
+            - '@vich_uploader.property_mapping_factory'
         tags:
             - { name: console.command }
