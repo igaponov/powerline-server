@@ -1,6 +1,7 @@
 <?php
 namespace Civix\ApiBundle\Form\Type;
 
+use Civix\CoreBundle\Entity\File;
 use Civix\CoreBundle\Entity\Post;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -25,6 +26,11 @@ class PostType extends AbstractType
             ->add('automatic_boost', CheckboxType::class, [
                 'property_path' => 'automaticBoost',
                 'description' => 'Post will be boosted automatically',
+            ])
+            ->add('image', EncodedFileType::class, [
+                'description' => 'Base64-encoded attachment',
+                'data_class' => File::class,
+                'required' => false,
             ]);
     }
 
