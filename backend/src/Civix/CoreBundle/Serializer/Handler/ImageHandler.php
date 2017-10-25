@@ -49,9 +49,10 @@ class ImageHandler implements SubscribingHandlerInterface
         }
         if ($image->isUrl()) {
             $url = $image->getImageSrc();
-        } else {
-            $uri = $this->storage->resolveUri($image->getEntity(), $image->getField());
+        } elseif ($uri = $this->storage->resolveUri($image->getEntity(), $image->getField())) {
             $url = $this->urlBuilder->createURL($uri);
+        } else {
+            return null;
         }
 
         return $visitor->visitString($url, $type, $context);
