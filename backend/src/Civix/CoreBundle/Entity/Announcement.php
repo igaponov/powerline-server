@@ -5,6 +5,7 @@ namespace Civix\CoreBundle\Entity;
 use Civix\CoreBundle\Model\Group\GroupSectionTrait;
 use Civix\CoreBundle\Parser\UrlConverter;
 use Civix\CoreBundle\Serializer\Type\Image;
+use Civix\CoreBundle\Validator\Constraints\Property;
 use Civix\CoreBundle\Validator\Constraints\PublishDate;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -33,7 +34,6 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  *      "representative" = "Civix\CoreBundle\Entity\Announcement\RepresentativeAnnouncement",
  * })
  * @Assert\Callback(callback="isContentValid")
- * @Assert\Callback(callback="isImageValid")
  * @Serializer\ExclusionPolicy("all")
  * @PublishDate(objectName="Announcement", groups={"update", "publish"})
  */
@@ -118,6 +118,8 @@ abstract class Announcement implements LeaderContentInterface
      * @var File
      *
      * @ORM\Embedded(class="Civix\CoreBundle\Entity\File", columnPrefix="")
+     *
+     * @Property(propertyPath="file", constraints={@Assert\Image()}, groups={"Default", "update"})
      */
     protected $image;
 
@@ -230,16 +232,6 @@ abstract class Announcement implements LeaderContentInterface
             $context->buildViolation('The message too long')
                 ->atPath('content')
                 ->addViolation();
-        }
-    }
-
-    public function isImageValid(ExecutionContextInterface $context): void
-    {
-        if ($this->image instanceof File) {
-            $context->getValidator()
-                ->inContext($context)
-                ->atPath('image')
-                ->validate($this->image->getFile(), [new Assert\Image()]);
         }
     }
 
