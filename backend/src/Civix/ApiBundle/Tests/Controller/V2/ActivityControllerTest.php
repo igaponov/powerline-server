@@ -347,6 +347,14 @@ class ActivityControllerTest extends WebTestCase
                     $userPetition['comments'][0]['id']
                 );
             }
+            $this->assertContains(
+                $petition->getFacebookThumbnail()->getName(),
+                $userPetition['facebook_thumbnail']
+            );
+            $this->assertContains(
+                $petition->getImage()->getName(),
+                $userPetition['image']
+            );
         } elseif ($item['entity']['type'] === 'post') {
             $postData = $item['post'];
             $this->assertTrue($postData['is_subscribed']);
@@ -363,6 +371,14 @@ class ActivityControllerTest extends WebTestCase
                     $postData['comments'][0]['id']
                 );
             }
+            $this->assertContains(
+                $post->getFacebookThumbnail()->getName(),
+                $postData['facebook_thumbnail']
+            );
+            $this->assertContains(
+                $post->getImage()->getName(),
+                $postData['image']
+            );
         } elseif ($item['group']['group_type_label'] !== 'country' && in_array($item['entity']['type'], ['question', 'petition'], true)) {
             $this->assertNotEmpty($item['group']['avatar_file_path']);
             $pollData = $item['poll'];

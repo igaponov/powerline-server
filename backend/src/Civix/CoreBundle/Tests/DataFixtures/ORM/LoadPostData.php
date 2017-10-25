@@ -35,6 +35,7 @@ class LoadPostData extends AbstractFixture implements DependentFixtureInterface
             ->setUserExpireInterval(1000)
             ->setGroup($group1)
             ->getImage()->setName(uniqid().'.png');
+        $post->getFacebookThumbnail()->setName(uniqid().'.png');
         $manager->persist($post);
         $this->addReference('post_1', $post);
 

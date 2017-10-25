@@ -37,6 +37,7 @@ class LoadUserPetitionData extends AbstractFixture implements DependentFixtureIn
             ->setOrganizationNeeded(true)
             ->setGroup($group1)
             ->getImage()->setName(uniqid().'.png');
+        $petition->getFacebookThumbnail()->setName(uniqid().'.png');
         $manager->persist($petition);
         $this->addReference('user_petition_1', $petition);
 

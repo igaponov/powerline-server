@@ -173,7 +173,7 @@ trait UserPetitionSerializableTrait
      * Get facebook thumbnail image
      *
      * @Serializer\VirtualProperty()
-     * @Serializer\Groups({"Default", "petition"})
+     * @Serializer\Groups({"Default", "petition", "activity-list"})
      * @Serializer\Type("Image")
      * @Serializer\SerializedName("facebook_thumbnail")
      * @return Image
@@ -187,7 +187,7 @@ trait UserPetitionSerializableTrait
      * Get image
      *
      * @Serializer\VirtualProperty()
-     * @Serializer\Groups({"Default", "petition"})
+     * @Serializer\Groups({"Default", "petition", "activity-list"})
      * @Serializer\Type("Image")
      * @Serializer\SerializedName("image")
      *
