@@ -22,6 +22,8 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserFollow;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @Route("/profile")
@@ -352,6 +354,12 @@ class ProfileController extends BaseController
     /**
      * @Route("/facebook-friends", name="api_profile_facebook_friends")
      * @Method("POST")
+     *
+     * Send array of facebook ids as parameters.
+     * Example:
+     *
+     *     ["facebook_id_1", "facebook_id_2", ...]
+     *
      * @ApiDoc(
      *     section="Users",
      *     description="Get friends of user from facebook",
@@ -368,7 +376,11 @@ class ProfileController extends BaseController
     public function getMyFacebookFriends(Request $request)
     {
         $entityManager = $this->getDoctrine()->getManager();
-        $ids = json_decode($request->getContent());
+        $ids = array_values((array)json_decode($request->getContent()));
+        $list = $this->get('validator')->validate($ids, [new All(['constraints' => new Type(['type' => 'scalar'])])]);
+        if ($list->count()) {
+            return $list;
+        }
         $excludeIds = $this->getUser()->getFollowingIds();
 
         $facebookUsers = $entityManager->getRepository('CivixCoreBundle:User')
