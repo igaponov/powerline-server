@@ -27,7 +27,7 @@ abstract class BaseComment implements HtmlBodyInterface
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-comments", "api-comments-parent", "api-comments-add"})
+     * @Serializer\Groups({"api-comments", "api-comments-parent", "api-comments-add", "activity-list"})
      * @Serializer\Type("integer")
      */
     protected $id;
@@ -35,7 +35,7 @@ abstract class BaseComment implements HtmlBodyInterface
     /**
      * @ORM\Column(name="comment_body", type="text")
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-comments", "api-comments-add", "api-comments-update"})
+     * @Serializer\Groups({"api-comments", "api-comments-add", "api-comments-update", "activity-list"})
      * @Serializer\Type("string")
      * @Assert\NotBlank()
      * @Assert\Length(max=500)
@@ -45,7 +45,7 @@ abstract class BaseComment implements HtmlBodyInterface
     /**
      * @ORM\Column(name="comment_body_html", type="text")
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-comments", "api-comments-add"})
+     * @Serializer\Groups({"api-comments", "api-comments-add", "activity-list"})
      * @Serializer\Type("string")
      */
     protected $commentBodyHtml = '';
@@ -56,7 +56,7 @@ abstract class BaseComment implements HtmlBodyInterface
      * @ORM\Column(name="created_at", type="datetime")
      * @Gedmo\Timestampable()
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-comments", "api-comments-add"})
+     * @Serializer\Groups({"api-comments", "api-comments-add", "activity-list"})
      * @Serializer\Type("DateTime<'D, d M Y H:i:s O'>")
      */
     protected $createdAt;
@@ -94,7 +94,7 @@ abstract class BaseComment implements HtmlBodyInterface
     /**
      * @ORM\Column(name="rate_sum", type="integer")
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-comments"})
+     * @Serializer\Groups({"api-comments", "activity-list"})
      * @Serializer\Type("integer")
      */
     protected $rateSum = 0;
@@ -102,7 +102,7 @@ abstract class BaseComment implements HtmlBodyInterface
     /**
      * @ORM\Column(name="rates_count", type="integer", nullable=true)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-comments"})
+     * @Serializer\Groups({"api-comments", "activity-list"})
      * @Serializer\Until("2")
      */
     protected $ratesCount = 0;
@@ -380,7 +380,7 @@ abstract class BaseComment implements HtmlBodyInterface
      * @Serializer\VirtualProperty()
      * @Serializer\Since("2")
      * @Serializer\Type("Owner")
-     * @Serializer\Groups({"api-comments"})
+     * @Serializer\Groups({"api-comments", "activity-list"})
      * @Serializer\SerializedName("is_owner")
      */
     public function getIsUserOwner(): User
@@ -390,7 +390,7 @@ abstract class BaseComment implements HtmlBodyInterface
 
     /**
      * @Serializer\VirtualProperty
-     * @Serializer\Groups({"api-comments"})
+     * @Serializer\Groups({"api-comments", "activity-list"})
      * @Serializer\Type("Avatar")
      * @Serializer\SerializedName("author_picture")
      */
@@ -404,7 +404,7 @@ abstract class BaseComment implements HtmlBodyInterface
 
     /**
      * @Serializer\VirtualProperty
-     * @Serializer\Groups({"api-comments"})
+     * @Serializer\Groups({"api-comments", "activity-list"})
      * @Serializer\SerializedName("user")
      * @Serializer\Type("Civix\CoreBundle\Entity\User")
      */
@@ -529,7 +529,7 @@ abstract class BaseComment implements HtmlBodyInterface
      * @Serializer\VirtualProperty()
      * @Serializer\Since("2.2")
      * @Serializer\Type("integer")
-     * @Serializer\Groups({"api-comments"})
+     * @Serializer\Groups({"api-comments", "activity-list"})
      */
     public function getRateCount(): int
     {
@@ -565,7 +565,7 @@ abstract class BaseComment implements HtmlBodyInterface
      * @Serializer\Since("2")
      * @Serializer\SerializedName("privacy")
      * @Serializer\Type("string")
-     * @Serializer\Groups({"api-comments", "api-comments-add", "api-comments-update"})
+     * @Serializer\Groups({"api-comments", "api-comments-add", "api-comments-update", "activity-list"})
      */
     public function getPrivacyLabel(): string
     {

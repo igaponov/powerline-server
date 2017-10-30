@@ -31,8 +31,9 @@ class PollManager
     /**
      * @param Question $question
      * @return Question
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function publish(Question $question)
+    public function publish(Question $question): Question
     {
         $question->setPublishedAt(new \DateTime());
         $this->em->persist($question);
@@ -44,7 +45,7 @@ class PollManager
         return $question;
     }
 
-    public function savePoll(Question $poll)
+    public function savePoll(Question $poll): Question
     {
         $isNew = !$poll->getId();
         $event = new QuestionEvent($poll);
@@ -65,11 +66,17 @@ class PollManager
      * @param Question $question
      * @param Answer $answer
      * @return Answer
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function addAnswer(Question $question, Answer $answer)
+    public function saveAnswer(Question $question, Answer $answer): Answer
     {
-        $question->addAnswer($answer);
-        $this->em->persist($answer);
+        $isNew = !$this->em->contains($answer);
+        if ($isNew) {
+            $this->em->persist($answer);
+            $eventName = PollEvents::QUESTION_ANSWER;
+        } else {
+            $eventName = PollEvents::QUESTION_CHANGE_ANSWER;
+        }
 
         if ($question instanceof Question\PaymentRequest
             && !$question->getIsCrowdfunding()
@@ -77,26 +84,27 @@ class PollManager
         ) {
             $this->chargeToPaymentRequest($question, $answer);
         }
+
         $this->em->flush();
 
         $event = new AnswerEvent($answer);
-        $this->dispatcher->dispatch(PollEvents::QUESTION_ANSWER, $event);
+        $this->dispatcher->dispatch($eventName, $event);
 
         return $answer;
     }
 
-    public function chargeToPaymentRequest(Question $question, Answer $answer)
+    public function chargeToPaymentRequest(Question $question, Answer $answer): void
     {
         $user = $answer->getUser();
         $customer = $user->getStripeCustomer();
 
-        if (!$customer->getId()) {
+        if (!$customer) {
             throw new \RuntimeException(ucfirst($user->getType())." doesn't have an account in stripe");
         }
 
         $account = $question->getOwner()->getStripeAccount();
 
-        if (!$account->getId()) {
+        if (!$account) {
             throw new \RuntimeException(ucfirst($question->getOwner()->getType())." doesn't have an account in stripe");
         }
 

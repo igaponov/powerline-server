@@ -80,7 +80,7 @@ class User implements
      * @Serializer\Expose()
      * @Serializer\Groups(
      *      {"api-profile", "api-info", "api-comments", "api-session", "api-full-info", "api-public",
-     *      "api-petitions-list", "api-petitions-info", "api-search", "api-invites", "api-leader-answers", "api-short-info", "user-list"}
+     *      "api-petitions-list", "api-petitions-info", "api-search", "api-invites", "api-leader-answers", "api-short-info", "user-list", "activity-list"}
      * )
      * @Assert\NotBlank(groups={"registration", "profile", "registration2.2"})
      * @Assert\Regex(pattern="/^[a-zA-Z0-9._-]+[a-zA-Z0-9]$/", match="true", groups={"registration", "profile"})

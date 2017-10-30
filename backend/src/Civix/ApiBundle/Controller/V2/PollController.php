@@ -18,13 +18,14 @@ use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\DiExtraBundle\Annotation as DI;
+use Knp\Component\Pager\Pagination\PaginationInterface;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -85,7 +86,7 @@ class PollController extends FOSRestController
      *
      * @return Question
      */
-    public function getAction(Question $question)
+    public function getAction(Question $question): Question
     {
         return $question;
     }
@@ -125,6 +126,7 @@ class PollController extends FOSRestController
      * @param Question $question
      *
      * @return Question|\Symfony\Component\Form\Form
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function putAction(Request $request, Question $question)
     {
@@ -218,9 +220,8 @@ class PollController extends FOSRestController
             $this->em->flush();
 
             return null;
-        } else {
-            return $violations;
         }
+        return $violations;
     }
 
     /**
@@ -318,9 +319,9 @@ class PollController extends FOSRestController
      * @param ParamFetcher $params
      * @param Question $question
      *
-     * @return \Knp\Component\Pager\Pagination\PaginationInterface
+     * @return PaginationInterface
      */
-    public function getAnswersAction(ParamFetcher $params, Question $question)
+    public function getAnswersAction(ParamFetcher $params, Question $question): PaginationInterface
     {
         $query = $this->em->getRepository('CivixCoreBundle:Poll\Answer')
             ->getAnswersByQuestion(
@@ -361,6 +362,7 @@ class PollController extends FOSRestController
      *          }
      *     },
      *     statusCodes={
+     *         400="Bad Request",
      *         403="Access Denied",
      *         404="Question or Option Not Found",
      *         405="Method Not Allowed"
@@ -375,22 +377,24 @@ class PollController extends FOSRestController
      * @param Answer $answer
      *
      * @return Answer|Form
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function putAnswersAction(Request $request, Question $question, Option $option, Answer $answer = null)
     {
-        if (!is_null($answer)) {
-            throw new AccessDeniedException();
-        } else {
+        if ($answer === null) {
             $answer = new Answer();
-            $answer->setUser($this->getUser())
-                ->setOption($option);
+            $answer->setUser($this->getUser());
+            $question->addAnswer($answer);
+        } elseif ($question instanceof Question\PaymentRequest && $question->isCrowdfundingDeadline()) {
+            throw new BadRequestHttpException("Payment can't be changed for a crowdfunding after the deadline.");
         }
+        $answer->setOption($option);
 
         $form = $this->createForm(AnswerType::class, $answer, ['validation_groups' => 'api-poll']);
         $form->submit($request->request->all());
 
         if ($form->isValid()) {
-            return $this->manager->addAnswer($question, $answer);
+            return $this->manager->saveAnswer($question, $answer);
         }
 
         return $form;
@@ -422,7 +426,7 @@ class PollController extends FOSRestController
      *
      * @return array
      */
-    public function getResponsesAction(Question $question)
+    public function getResponsesAction(Question $question): array
     {
         $query = new PollResponsesQuery($this->em);
 
@@ -452,7 +456,7 @@ class PollController extends FOSRestController
      *
      * @return TempFile
      */
-    public function getResponsesLinkAction(Question $question)
+    public function getResponsesLinkAction(Question $question): TempFile
     {
         $result = $this->getResponsesAction($question);
         $file = new TempFile(

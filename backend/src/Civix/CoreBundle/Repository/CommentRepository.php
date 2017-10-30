@@ -102,15 +102,14 @@ abstract class CommentRepository extends EntityRepository
 
     public function getChildCommentsCursor(BaseComment $comment, User $user, int $lastId, int $limit)
     {
-        $query = $this->createQueryBuilder('c')
+        $qb = $this->createQueryBuilder('c')
             ->addSelect('u', 'r')
             ->leftJoin('c.user', 'u')
             ->leftJoin('c.rates', 'r', Join::WITH, 'r.user = :user')
             ->setParameter(':user', $user)
             ->where('c.parentComment = :comment')
-            ->setParameter(':comment', $comment)
-            ->getQuery();
+            ->setParameter(':comment', $comment);
 
-        return new Cursor($query, $lastId, $limit);
+        return new Cursor($qb, $lastId, $limit);
     }
 }
