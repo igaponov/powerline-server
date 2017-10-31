@@ -46,7 +46,8 @@ class UserContentToFacebookContentNormalizer implements ObjectNormalizerInterfac
         }
 
         return new FacebookContent(
-            $user->getFullName(),
+            $user->getFirstName()
+                .' '.(!empty($user->getLastName()[0]) ? $user->getLastName()[0].'.' : ''),
             $user->getUsername(),
             $this->urlBuilder->createURL($this->storage->resolveUri($user, 'avatar')),
             $group->getOfficialName(),

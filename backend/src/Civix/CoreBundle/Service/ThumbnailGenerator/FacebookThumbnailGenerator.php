@@ -123,7 +123,7 @@ class FacebookThumbnailGenerator implements ObjectThumbnailGeneratorInterface
             ->circle(66, 35, 35, function (AbstractShape $shape) {
                 $shape->border(2, $this->config->getColorBlue());
             })
-            ->opacity(60);
+            ->opacity(40);
 
         return $this->manager
             ->make($avatar)
