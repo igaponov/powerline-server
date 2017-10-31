@@ -92,7 +92,7 @@ class UserPetitionCreateTypeTest extends FormIntegrationTestCase
         $this->assertTrue($form->isSynchronized());
         $this->assertFalse($form->isValid());
         $this->assertErrors([
-            'image' => ['The mime type of the file is invalid ("text/x-php"). Allowed mime types are "image/jpg", "image/jpeg", "image/png"'],
+            'image' => ['The mime type of the file is invalid ("text/x-php"). Allowed mime types are "image/jpg", "image/jpeg", "image/png".'],
         ], $form);
     }
 

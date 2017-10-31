@@ -41,7 +41,7 @@ class FacebookThumbnailGeneratorTest extends TestCase
         $points = [
             [23, 23],
             [97, 32],
-            [143, 63],
+            [142, 62],
             [430, 135],
             [455, 45],
             [375, 382],

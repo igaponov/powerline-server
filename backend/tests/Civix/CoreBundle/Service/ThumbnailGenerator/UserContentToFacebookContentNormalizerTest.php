@@ -58,7 +58,7 @@ class UserContentToFacebookContentNormalizerTest extends TestCase
         $normalizer = new UserContentToFacebookContentNormalizer($storage, $urlBuilder);
         $content = $normalizer->normalize($userContent);
         $this->assertInstanceOf(FacebookContent::class, $content);
-        $this->assertSame($user->getFullName(), $content->getUserFullName());
+        $this->assertSame($user->getFirstName().' '.$user->getLastName()[0].'.', $content->getUserFullName());
         $this->assertSame($user->getUsername(), $content->getUsername());
         $this->assertSame($userUrl, $content->getUserAvatar());
         $this->assertSame($group->getOfficialName(), $content->getGroupName());
