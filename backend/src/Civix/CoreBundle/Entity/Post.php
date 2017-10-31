@@ -172,7 +172,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      *
      * @ORM\Embedded(class="Civix\CoreBundle\Entity\File", columnPrefix="")
      *
-     * @Property(propertyPath="file", constraints={@Assert\Image()}, groups={"Default", "create", "update"})
+     * @Property(propertyPath="file", constraints={@Assert\File(mimeTypes={"image/jpg", "image/jpeg", "image/png"})}, groups={"Default", "create", "update"})
      */
     protected $image;
 
