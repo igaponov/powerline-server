@@ -180,13 +180,13 @@ knp_gaufrette:
                 service_id: 'aws.s3'
                 bucket_name: '%amazon_s3.bucket%'
                 options:
-                    directory: 'post/thumbnail'
+                    directory: 'thumbnail/post'
         thumbnail_petition_adapter:
             aws_s3:
                 service_id: 'aws.s3'
                 bucket_name: '%amazon_s3.bucket%'
                 options:
-                    directory: 'petition/thumbnail'
+                    directory: 'thumbnail/petition'
     filesystems:
         avatar_image_fs:
             adapter: avatar_image_adapter
