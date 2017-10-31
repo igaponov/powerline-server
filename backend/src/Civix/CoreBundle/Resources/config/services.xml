@@ -8,6 +8,7 @@
         <import resource="services/listener.yml"/>
         <import resource="services/repository.yml"/>
         <import resource="doctrine_listener.yml"/>
+        <import resource="jms_handler.yml"/>
     </imports>
 
     <parameters>
@@ -108,12 +109,6 @@
             <argument type="service" id="vich_uploader.storage" />
             <argument type="service" id="imgix.url_builder" />
             <tag name="jms_serializer.subscribing_handler" type="Image" direction="serialization" format="json" />
-        </service>
-
-        <!-- JoinStatus Serializer Handler -->
-        <service id="civix_core.serializer.handler.join_status_handler" class="Civix\CoreBundle\Serializer\Handler\JoinStatusHandler">
-            <argument type="service" id="security.token_storage" />
-            <tag name="jms_serializer.subscribing_handler" type="JoinStatus" direction="serialization" format="json" />
         </service>
 
         <service class="Civix\CoreBundle\Serializer\Handler\OwnerHandler" id="civix_core.serializer_handler.owner_handler">

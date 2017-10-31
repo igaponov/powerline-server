@@ -140,6 +140,7 @@ class GroupControllerTest extends WebTestCase
         $this->assertSame(3, $data['total_members']);
         $this->assertSame('owner', $data['user_role']);
         $this->assertSame(Group::GROUP_TRANSPARENCY_PRIVATE, $data['transparency']);
+        $this->assertSame('active', $data['join_status']);
         $this->assertContains('58d5e28b2a8f3.jpeg', $data['avatar_file_path']);
         $this->assertContains('b2a8f358d5e28.png', $data['banner']);
 	}

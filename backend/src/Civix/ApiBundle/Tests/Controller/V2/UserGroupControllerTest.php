@@ -83,12 +83,16 @@ class UserGroupControllerTest extends WebTestCase
         /** @var array $payload */
         $payload = $data['payload'];
         $this->assertEquals($group3->getOfficialName(), $payload[0]['official_name']);
+        $this->assertCount($payload[0]['total_members'], $group3->getUserGroups());
         $this->assertSame('owner', $payload[0]['user_role']);
         $this->assertEquals($group1->getOfficialName(), $payload[1]['official_name']);
+        $this->assertCount($payload[1]['total_members'], $group1->getUserGroups());
         $this->assertSame('manager', $payload[1]['user_role']);
         $this->assertEquals($group2->getOfficialName(), $payload[2]['official_name']);
+        $this->assertCount($payload[2]['total_members'], $group2->getUserGroups());
         $this->assertSame('manager', $payload[2]['user_role']);
         $this->assertEquals($group4->getOfficialName(), $payload[3]['official_name']);
+        $this->assertCount($payload[3]['total_members'], $group4->getUserGroups());
         $this->assertSame('member', $payload[3]['user_role']);
         $this->assertSame(6, $payload[1]['priority_item_count']);
         foreach ($payload as $item) {

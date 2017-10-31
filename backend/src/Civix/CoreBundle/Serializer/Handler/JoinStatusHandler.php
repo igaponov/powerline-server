@@ -2,19 +2,24 @@
 
 namespace Civix\CoreBundle\Serializer\Handler;
 
-use Civix\CoreBundle\Entity\UserInterface;
+use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserGroup;
+use Civix\CoreBundle\Serializer\Type\JoinStatus;
+use Doctrine\Common\Collections\AbstractLazyCollection;
 use JMS\Serializer\Context;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\JsonSerializationVisitor;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Civix\CoreBundle\Serializer\Type\JoinStatus;
 
 class JoinStatusHandler implements SubscribingHandlerInterface
 {
-    private $user;
+    /**
+     * @var TokenStorageInterface
+     */
+    private $tokenStorage;
 
-    public static function getSubscribingMethods()
+    public static function getSubscribingMethods(): array
     {
         return [
             [
@@ -28,20 +33,28 @@ class JoinStatusHandler implements SubscribingHandlerInterface
 
     public function __construct(TokenStorageInterface $tokenStorage)
     {
-        $this->user = $tokenStorage->getToken()->getUser();
+        $this->tokenStorage = $tokenStorage;
     }
 
-    public function serialize(JsonSerializationVisitor $visitor, JoinStatus $joinStatusType, array $type, Context $context)
+    public function serialize(JsonSerializationVisitor $visitor, JoinStatus $joinStatus, array $type, Context $context)
     {
-        $result = false;
-        if ($this->user instanceof UserInterface) {
-            $result = $visitor->visitBoolean(
-                $joinStatusType->getEntity()->getJoined($this->user),
-                $type,
-                $context
-            );
+        $token = $this->tokenStorage->getToken();
+        $collection = $joinStatus->getEntity()->getUserGroups();
+        if (!$token
+            || !($user = $token->getUser())
+            || !$user instanceof User
+            || ($collection instanceof AbstractLazyCollection && !$collection->isInitialized())
+        ) {
+            return $visitor->visitNull(null, $type, $context);
+        }
+        $filter = function (UserGroup $userGroup) use ($user) {
+            return $userGroup->getUser()->isEqualTo($user);
+        };
+        /** @var UserGroup $userGroup */
+        if ($userGroup = $collection->filter($filter)->first()) {
+            return $visitor->visitString($userGroup->getJoinStatus(), $type, $context);
         }
 
-        return $visitor->visitBoolean($result, $type, $context);
+        return $visitor->visitNull(null, $type, $context);
     }
 }

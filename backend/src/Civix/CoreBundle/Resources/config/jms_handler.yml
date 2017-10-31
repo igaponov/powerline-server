@@ -1,0 +1,12 @@
+services:
+    civix_core.serializer_handler.join_status_handler:
+        class: Civix\CoreBundle\Serializer\Handler\JoinStatusHandler
+        arguments: ['@security.token_storage']
+        tags:
+            - { name: jms_serializer.subscribing_handler }
+
+    civix_core.serializer_handler.joined_status_handler:
+        class: Civix\CoreBundle\Serializer\Handler\JoinedStatusHandler
+        arguments: ['@security.token_storage']
+        tags:
+            - { name: jms_serializer.subscribing_handler }
