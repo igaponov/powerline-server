@@ -52,6 +52,7 @@ class AsyncEventConsumer implements ConsumerInterface
     /**
      * @param AMQPMessage $msg
      * @return bool
+     * @throws \Exception
      */
     public function execute(AMQPMessage $msg): bool
     {
@@ -70,11 +71,14 @@ class AsyncEventConsumer implements ConsumerInterface
         try {
             $this->resetUninitializedProxies($originalEvent);
             $this->dispatcher->dispatch($message->getEventName(), $originalEvent);
+            $this->em->flush();
         } catch (\Throwable $e) {
             $this->logger->critical($e->getMessage(), [
                 'message' => $this->dumper->dump($clone, true),
                 'exception' => $e,
             ]);
+        } finally {
+            $this->em->clear();
         }
 
         return true;

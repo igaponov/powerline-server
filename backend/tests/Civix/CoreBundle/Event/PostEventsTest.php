@@ -9,6 +9,7 @@ use Civix\CoreBundle\Event\PostShareEvent;
 use Civix\CoreBundle\EventListener\ActivityUpdateSubscriber;
 use Civix\CoreBundle\EventListener\KarmaSubscriber;
 use Civix\CoreBundle\EventListener\MentionSubscriber;
+use Civix\CoreBundle\EventListener\MetadataSubscriber;
 use Civix\CoreBundle\EventListener\PushSenderSubscriber;
 use Civix\CoreBundle\EventListener\ReportSubscriber;
 use Civix\CoreBundle\EventListener\SocialActivitySubscriber;
@@ -31,6 +32,7 @@ class PostEventsTest extends EventsTestCase
         $expectedListeners = [
             [KarmaSubscriber::class, 'createPost'],
             [ThumbnailSubscriber::class, 'createPostFacebookThumbnail'],
+            [MetadataSubscriber::class, 'handlePost'],
             [LeaderContentSubscriber::class, 'addPostHashTags'],
             [LeaderContentSubscriber::class, 'subscribePostAuthor'],
             [ReportSubscriber::class, 'updateKarmaCreatePost'],

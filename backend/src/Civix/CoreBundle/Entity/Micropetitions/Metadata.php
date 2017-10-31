@@ -56,16 +56,16 @@ class Metadata
     /**
      * @return string
      */
-    public function getTitle()
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
     /**
      * @param string $title
-     * @return Metadata
+     * @return $this
      */
-    public function setTitle($title)
+    public function setTitle($title): self
     {
         $this->title = $title;
 
@@ -75,16 +75,16 @@ class Metadata
     /**
      * @return string
      */
-    public function getDescription()
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
     /**
      * @param string $description
-     * @return Metadata
+     * @return $this
      */
-    public function setDescription($description)
+    public function setDescription($description): self
     {
         $this->description = $description;
 
@@ -94,16 +94,16 @@ class Metadata
     /**
      * @return string
      */
-    public function getImage()
+    public function getImage(): ?string
     {
         return $this->image;
     }
 
     /**
      * @param string $image
-     * @return Metadata
+     * @return $this
      */
-    public function setImage($image)
+    public function setImage(string $image): self
     {
         $this->image = $image;
 
@@ -113,16 +113,16 @@ class Metadata
     /**
      * @return string
      */
-    public function getUrl()
+    public function getUrl(): ?string
     {
         return $this->url;
     }
 
     /**
      * @param string $url
-     * @return Metadata
+     * @return $this
      */
-    public function setUrl($url)
+    public function setUrl(string $url): self
     {
         $this->url = $url;
 

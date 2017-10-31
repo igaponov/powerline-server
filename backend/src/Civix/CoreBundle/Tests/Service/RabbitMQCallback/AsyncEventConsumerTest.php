@@ -27,6 +27,8 @@ class AsyncEventConsumerTest extends TestCase
             ->method('merge')
             ->with($subject)
             ->willReturnArgument(0);
+        $em->expects($this->once())->method('flush');
+        $em->expects($this->once())->method('clear');
         $dispatcher = $this->getDispatcherMock();
         $dispatcher->expects($this->once())
             ->method('dispatch')
@@ -41,6 +43,8 @@ class AsyncEventConsumerTest extends TestCase
     public function testInvalidMessageBody()
     {
         $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->never())->method('flush');
+        $em->expects($this->never())->method('clear');
         $dispatcher = $this->getDispatcherMock();
         $dispatcher->expects($this->never())
             ->method('dispatch');
@@ -54,6 +58,8 @@ class AsyncEventConsumerTest extends TestCase
     public function testInvalidMessage()
     {
         $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->never())->method('flush');
+        $em->expects($this->never())->method('clear');
         $dispatcher = $this->getDispatcherMock();
         $dispatcher->expects($this->never())
             ->method('dispatch');
@@ -71,6 +77,8 @@ class AsyncEventConsumerTest extends TestCase
         $message = new EventMessage($eventName, $event);
         $msg = new AMQPMessage(serialize($message));
         $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->never())->method('flush');
+        $em->expects($this->once())->method('clear');
         $dispatcher = $this->getDispatcherMock();
         $dispatcher->expects($this->once())
             ->method('dispatch')
@@ -90,6 +98,8 @@ class AsyncEventConsumerTest extends TestCase
         $message = new EventMessage($eventName, $event);
         $msg = new AMQPMessage(serialize($message));
         $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->never())->method('flush');
+        $em->expects($this->once())->method('clear');
         $dispatcher = $this->getDispatcherMock();
         $dispatcher->expects($this->once())
             ->method('dispatch')

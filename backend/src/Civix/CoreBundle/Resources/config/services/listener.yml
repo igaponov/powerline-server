@@ -116,3 +116,13 @@ services:
             - '@vich_uploader.upload_handler'
         tags:
             - { name: kernel.event_subscriber }
+
+    civix_api.event_listener.petition_metadata_listener:
+        class: Civix\CoreBundle\EventListener\MetadataSubscriber
+        arguments:
+            - "@http.client"
+            - "@civix_core.service.htmlmetadata_parser"
+            - "@civix_core.tld_extract"
+            - "@logger"
+        tags:
+            - { name: kernel.event_subscriber }

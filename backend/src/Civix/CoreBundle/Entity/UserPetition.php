@@ -30,10 +30,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  * })
  * @Serializer\ExclusionPolicy("all")
  */
-class UserPetition implements HtmlBodyInterface, SubscriptionInterface, CommentedInterface, HashTaggableInterface
+class UserPetition implements HtmlBodyInterface, SubscriptionInterface, CommentedInterface, HashTaggableInterface, HasMetadataInterface
 {
     use HashTaggableTrait,
-        MetadataTrait,
+        HasMetadataTrait,
         SpamMarksTrait,
         UserPetitionSerializableTrait;
 
