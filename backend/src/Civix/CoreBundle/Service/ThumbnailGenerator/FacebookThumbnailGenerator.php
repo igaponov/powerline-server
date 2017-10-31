@@ -75,7 +75,7 @@ class FacebookThumbnailGenerator implements ObjectThumbnailGeneratorInterface
                 $font->color($this->config->getColorBlue());
             })
             ->text('@'.$object->getUsername(), 90, 70, function(AbstractFont $font) {
-                $font->file($this->config->getFontBold());
+                $font->file($this->config->getFontRegular());
                 $font->size($this->config->getFontSize());
                 $font->color($this->config->getColorBlue());
             })
