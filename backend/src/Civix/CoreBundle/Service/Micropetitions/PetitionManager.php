@@ -13,7 +13,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PetitionManager
 {
-    const EXPIRE_INTERVAL = 7;
+    const EXPIRE_INTERVAL = 30;
     const PERCENT_IN_GROUP = 10;
 
     /**
