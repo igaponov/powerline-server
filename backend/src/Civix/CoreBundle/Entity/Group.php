@@ -9,20 +9,14 @@ use Civix\CoreBundle\Entity\Group\Tag;
 use Civix\CoreBundle\Model\Avatar\DefaultAvatar;
 use Civix\CoreBundle\Model\Avatar\DefaultAvatarInterface;
 use Civix\CoreBundle\Model\Avatar\FirstLetterDefaultAvatar;
-use Civix\CoreBundle\Serializer\Type\ContentRemaining;
-use Civix\CoreBundle\Serializer\Type\Image;
-use Civix\CoreBundle\Serializer\Type\TotalMembers;
-use Civix\CoreBundle\Serializer\Type\UserRole;
+use Civix\CoreBundle\Service\Micropetitions\PetitionManager;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
+use JMS\Serializer\Annotation as Serializer;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
-use JMS\Serializer\Annotation as Serializer;
-use Civix\CoreBundle\Serializer\Type\Avatar;
-use Civix\CoreBundle\Service\Micropetitions\PetitionManager;
-use Civix\CoreBundle\Serializer\Type\JoinStatus;
 
 /**
  * Group entity.
@@ -638,40 +632,6 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     }
 
     /**
-     * Get avatarSrc.
-     *
-     * @Serializer\VirtualProperty()
-     * @Serializer\Groups(
-     *      {"api-activities", "api-poll","api-groups", "api-info", "api-search",
-     *      "api-petitions-list", "api-petitions-info", "api-invites", "api-poll-public"}
-     * )
-     * @Serializer\Type("Avatar")
-     * @Serializer\SerializedName("avatar_file_path")
-     * @return Avatar
-     */
-    public function getAvatarFilePath(): Avatar
-    {
-        return new Avatar($this);
-    }
-
-    /**
-     * Get banner image
-     *
-     * @Serializer\VirtualProperty()
-     * @Serializer\Groups(
-     *      {"api-activities", "api-poll","api-groups", "api-info", "api-search",
-     *      "api-petitions-list", "api-petitions-info", "api-invites", "api-poll-public"}
-     * )
-     * @Serializer\Type("Image")
-     * @Serializer\SerializedName("banner")
-     * @return Image
-     */
-    public function getBannerImage(): Image
-    {
-        return new Image($this, 'banner.file', null, false);
-    }
-
-    /**
      * Get id.
      *
      * @return int
@@ -679,16 +639,6 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    /**
-     * @Serializer\VirtualProperty()
-     * @Serializer\Type("TotalMembers")
-     * @Serializer\Groups({"api-full-info"})
-     */
-    public function getTotalMembers(): TotalMembers
-    {
-        return new TotalMembers($this);
     }
 
     /**
@@ -993,29 +943,6 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
         }
 
         return new FirstLetterDefaultAvatar($this->officialName);
-    }
-
-    /**
-     * @return JoinStatus
-     * @Serializer\VirtualProperty()
-     * @Serializer\Groups({"api-groups", "api-info"})
-     * @Serializer\Type("JoinStatus")
-     * @Serializer\SerializedName("joined")
-     */
-    public function getJoinStatus(): JoinStatus
-    {
-        return new JoinStatus($this);
-    }
-
-    /**
-     * Get Join status.
-     *
-     * @param User $user
-     * @return int
-     */
-    public function getJoined(User $user): int
-    {
-        return $user->getGroups()->contains($this) ? 1 : 0;
     }
 
     /**
@@ -1799,48 +1726,9 @@ class Group implements \Serializable, CheckingLimits, LeaderContentRootInterface
         return $this;
     }
 
-    /**
-     * @return UserRole
-     *
-     * @Serializer\VirtualProperty()
-     * @Serializer\Groups({"user-role", "activity-list"})
-     * @Serializer\SerializedName("user_role")
-     * @Serializer\Type("UserRole")
-     */
-    public function getUserRole(): ?UserRole
-    {
-        if ($this->users->count()) {
-            return new UserRole($this->users->first());
-        }
-
-        return null;
-    }
-
     public function getOfficialTitle(): ?string
     {
         return $this->getOfficialName();
-    }
-
-    /**
-     * @Serializer\VirtualProperty()
-     * @Serializer\Groups({"micropetition-config"})
-     * @Serializer\Type("ContentRemaining")
-     * @return ContentRemaining
-     */
-    public function getPostsRemaining(): ContentRemaining
-    {
-        return new ContentRemaining('post', $this);
-    }
-
-    /**
-     * @Serializer\VirtualProperty()
-     * @Serializer\Groups({"micropetition-config"})
-     * @Serializer\Type("ContentRemaining")
-     * @return ContentRemaining
-     */
-    public function getPetitionsRemaining(): ContentRemaining
-    {
-        return new ContentRemaining('petition', $this);
     }
 
     public function getUserGroups(): Collection

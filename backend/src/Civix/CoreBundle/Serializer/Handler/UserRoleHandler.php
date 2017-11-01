@@ -9,7 +9,7 @@ use JMS\Serializer\JsonSerializationVisitor;
 
 class UserRoleHandler implements SubscribingHandlerInterface
 {
-    public static function getSubscribingMethods()
+    public static function getSubscribingMethods(): array
     {
         return [
             [
@@ -26,7 +26,7 @@ class UserRoleHandler implements SubscribingHandlerInterface
         $userGroup = $userRole->getUserGroup();
         $group = $userGroup->getGroup();
         $user = $userGroup->getUser();
-        if ($group->getOwner() && $group->getOwner()->isEqualTo($user)) {
+        if ($group->getOwner() && $group->getOwner()->getId() === $user->getId()) {
             $result = 'owner';
         } elseif ($group->getManagers()->contains($user)) {
             $result = 'manager';

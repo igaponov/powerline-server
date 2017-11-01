@@ -84,7 +84,15 @@ class UserGroupController extends FOSRestController
             if (!$pagination instanceof AbstractPagination) {
                 return;
             }
-            $query->runPostQueries($user, ...$pagination->getItems());
+            $groups = [];
+            foreach ($pagination as $item) {
+                /** @var UserGroup $userGroup */
+                $userGroup = $item[0];
+                $userGroup->getGroup()->setTotalMembers($item['totalMembers']);
+                $groups[] = $userGroup;
+            }
+            $query->runPostQueries($user, ...$groups);
+            $pagination->setItems($groups);
         });
 
         return $paginator->paginate(

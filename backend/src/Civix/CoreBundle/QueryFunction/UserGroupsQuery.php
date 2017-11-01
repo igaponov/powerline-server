@@ -24,14 +24,17 @@ final class UserGroupsQuery
         $qb = $this->em->createQueryBuilder();
 
         return $qb
-            ->select('ug, g, gm, CASE WHEN g.owner = :user THEN 0 WHEN gm.user IS NOT NULL THEN 1 ELSE 2 END AS HIDDEN sortCondition')
+            ->select('ug, g, gm, a, COUNT(u) AS totalMembers, CASE WHEN g.owner = :user THEN 0 WHEN gm.user IS NOT NULL THEN 1 ELSE 2 END AS HIDDEN sortCondition')
             ->from(UserGroup::class, 'ug')
             ->leftJoin('ug.group', 'g')
+            ->leftJoin('g.advancedAttributes', 'a')
+            ->leftJoin('g.users', 'u')
             ->leftJoin('g.managers', 'gm', 'WITH', 'gm.user = :user')
             ->where('ug.user = :user')
             ->setParameter(':user', $user)
             ->orderBy('sortCondition', 'ASC')
             ->addOrderBy('g.officialName', 'ASC')
+            ->groupBy('ug.id')
             ->getQuery();
     }
 

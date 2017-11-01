@@ -4,7 +4,7 @@ namespace Civix\CoreBundle\Serializer\Type;
 
 use Civix\CoreBundle\Entity\Group;
 
-class JoinStatus
+class JoinedStatus
 {
     /**
      * @return Group
