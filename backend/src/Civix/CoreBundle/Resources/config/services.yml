@@ -81,6 +81,10 @@ services:
     civix_core.property_namer:
         class: Civix\CoreBundle\Service\PropertyNamer
 
+    http.client:
+        class: GuzzleHttp\Client
+        arguments: [ { allow_redirects: true } ]
+
 #    civix_core.uploader.metadata.file_locator:
 #        class: Metadata\Driver\FileLocator
 #        public: false

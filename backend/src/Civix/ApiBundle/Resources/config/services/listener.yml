@@ -1,9 +1,0 @@
-services:
-    civix_api.event_listener.petition_metadata_listener:
-        class: Civix\ApiBundle\EventListener\MetadataListener
-        arguments:
-            - "@http.client"
-            - "@civix_core.service.htmlmetadata_parser"
-            - "@civix_core.tld_extract"
-        tags:
-            - { name: doctrine.event_listener, event: postPersist }

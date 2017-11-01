@@ -5,7 +5,7 @@ namespace Civix\CoreBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
-trait MetadataTrait
+trait HasMetadataTrait
 {
     /**
      * @var Metadata
@@ -29,7 +29,7 @@ trait MetadataTrait
     /**
      * @return Metadata
      */
-    public function getMetadata()
+    public function getMetadata(): ?Metadata
     {
         return $this->metadata;
     }

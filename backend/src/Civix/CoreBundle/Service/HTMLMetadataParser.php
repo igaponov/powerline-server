@@ -10,7 +10,7 @@ class HTMLMetadataParser
      * @param string $html
      * @return Metadata
      */
-    public function parse($html)
+    public function parse($html): Metadata
     {
         $metadata = new Metadata();
         $data = [];
@@ -18,11 +18,11 @@ class HTMLMetadataParser
         $document = new \DOMDocument();
         $document->loadHTML($html);
         /** @var \DOMElement $element */
-        foreach ($document->getElementsByTagName("title") as $element) {
+        foreach ($document->getElementsByTagName('title') as $element) {
             $data['title'] = $element->nodeValue;
         }
-        foreach ($document->getElementsByTagName("meta") as $element) {
-            $data[$element->getAttribute('name')] = $element->getAttribute("content");
+        foreach ($document->getElementsByTagName('meta') as $element) {
+            $data[$element->getAttribute('name')] = $element->getAttribute('content');
         }
         $properties = ['title', 'description', 'image'];
         $accessor = new PropertyAccessor();

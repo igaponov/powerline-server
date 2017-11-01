@@ -1,13 +1,13 @@
 <?php
-namespace Civix\ApiBundle\Tests\EventListener;
+namespace Tests\Civix\CoreBundle\EventListener;
 
-use Civix\ApiBundle\EventListener\MetadataListener;
 use Civix\CoreBundle\Entity\Metadata;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\UserPetition;
+use Civix\CoreBundle\Event\PostEvent;
+use Civix\CoreBundle\Event\UserPetitionEvent;
+use Civix\CoreBundle\EventListener\MetadataSubscriber;
 use Civix\CoreBundle\Service\HTMLMetadataParser;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
@@ -17,8 +17,11 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use LayerShifter\TLDExtract\Extract;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\Event;
 
-class MetadataListenerTest extends \PHPUnit_Framework_TestCase
+class MetadataSubscriberTest extends TestCase
 {
     public function testPostPersistParsePostBodyWithWrongUrls()
     {
@@ -39,10 +42,10 @@ class MetadataListenerTest extends \PHPUnit_Framework_TestCase
             ->with('third request body')
             ->willReturn($metadata);
         $extract = new Extract(null, null, Extract::MODE_ALLOW_ICCAN);
-        $listener = new MetadataListener($client, $parser, $extract);
-        $em = $this->getManagerMock();
-        $event = new LifecycleEventArgs($entity, $em);
-        $listener->postPersist($event);
+        $logger = $this->createMock(LoggerInterface::class);
+        $listener = new MetadataSubscriber($client, $parser, $extract, $logger);
+        $event = new PostEvent($entity);
+        $listener->handlePost($event);
         $this->assertEquals('google.com', $metadata->getUrl());
         $this->assertCount(3, $history);
         foreach (['http://url.com', 'https://example.com', 'google.com'] as $key => $uri) {
@@ -53,12 +56,11 @@ class MetadataListenerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param Post|UserPetition $entity
-     * @dataProvider getEntities
+     * @param Event $event
+     * @dataProvider getUrlEntities
      */
-    public function testPostPersistParsePostBodyAndSetsMetadataUrl($entity)
+    public function testPostPersistParsePostBodyAndSetsMetadataUrl($event)
     {
-        $entity->setBody('Some text with http://url.com for parsing.');
         $response = new Response(200, [], 'body');
         $history = [];
         $client = $this->getClientMock([$response], $history);
@@ -70,34 +72,49 @@ class MetadataListenerTest extends \PHPUnit_Framework_TestCase
             ->with('body')
             ->will($this->returnValue($metadata));
         $extract = new Extract(null, null, Extract::MODE_ALLOW_ICCAN);
-        $listener = new MetadataListener($client, $parser, $extract);
-        $em = $this->getManagerMock();
-        $event = new LifecycleEventArgs($entity, $em);
-        $listener->postPersist($event);
+        $logger = $this->createMock(LoggerInterface::class);
+        $listener = new MetadataSubscriber($client, $parser, $extract, $logger);
+        $method = $event instanceof PostEvent ? 'handlePost' : 'handlePetition';
+        $listener->$method($event);
         $this->assertEquals('http://url.com', $metadata->getUrl());
         /** @var Request $request */
         $request = $history[0]['request'];
         $this->assertEquals('http://url.com', (string)$request->getUri());
     }
 
-    /**
-     * @param Post|UserPetition $entity
-     * @dataProvider getEntities
-     */
-    public function testPostPersistParsePostBodyAndSetsMetadataImage($entity)
+    public function getUrlEntities()
     {
-        $entity->setBody('Some text with http://url.com/image.jpg for parsing.');
+        $text = 'Some text with http://url.com for parsing.';
+        return [
+            'post' => [new PostEvent((new Post())->setBody($text))],
+            'petition' => [new UserPetitionEvent((new UserPetition())->setBody($text))],
+        ];
+    }
+
+    /**
+     * @param Event $event
+     * @dataProvider getImageEntities
+     */
+    public function testPostPersistParsePostBodyAndSetsMetadataImage($event)
+    {
         $history = [];
         $client = $this->getClientMock([new Response(200, ['content-type' => 'image/jpeg'], 'body')], $history);
         $parser = $this->getParserMock();
         $parser->expects($this->never())
             ->method('parse');
         $extract = new Extract(null, null, Extract::MODE_ALLOW_ICCAN);
-        $listener = new MetadataListener($client, $parser, $extract);
-        $em = $this->getManagerMock();
-        $event = new LifecycleEventArgs($entity, $em);
-        $listener->postPersist($event);
-        $metadata = $entity->getMetadata();
+        $logger = $this->createMock(LoggerInterface::class);
+        $listener = new MetadataSubscriber($client, $parser, $extract, $logger);
+        if ($event instanceof PostEvent) {
+            $listener->handlePost($event);
+            $metadata = $event->getPost()->getMetadata();
+        } elseif ($event instanceof UserPetitionEvent) {
+            $listener->handlePetition($event);
+            $metadata = $event->getPetition()->getMetadata();
+        } else {
+            $this->fail('Invalid event class.');
+            return;
+        }
         $this->assertEquals('http://url.com/image.jpg', $metadata->getUrl());
         $this->assertEquals('http://url.com/image.jpg', $metadata->getImage());
         $this->assertNull($metadata->getTitle());
@@ -106,24 +123,13 @@ class MetadataListenerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('http://url.com/image.jpg', (string)$request->getUri());
     }
 
-    public function getEntities()
+    public function getImageEntities()
     {
+        $text = 'Some text with http://url.com/image.jpg for parsing.';
         return [
-            'post' => [new Post],
-            'petition' => [new UserPetition],
+            'post' => [new PostEvent((new Post())->setBody($text))],
+            'petition' => [new UserPetitionEvent((new UserPetition())->setBody($text))],
         ];
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|EntityManager
-     */
-    private function getManagerMock()
-    {
-        $em = $this->getMockBuilder(EntityManager::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        return $em;
     }
 
     /**
@@ -141,7 +147,7 @@ class MetadataListenerTest extends \PHPUnit_Framework_TestCase
      * @param array $container
      * @return Client
      */
-    private function getClientMock(array $responses, array &$container = [])
+    private function getClientMock(array $responses, array &$container = []): Client
     {
         $history = Middleware::history($container);
         $mock = new MockHandler($responses);
