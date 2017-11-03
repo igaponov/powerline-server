@@ -86,7 +86,7 @@ class QuestionTypeSubscriber implements EventSubscriberInterface
             );
         } elseif (!is_object($formData)) {
             foreach ($form as $name => $child) {
-                if ($name !== 'type') {
+                if (!in_array($name, ['type', 'options'], true)) {
                     $form->remove($name);
                 }
             }
@@ -100,7 +100,7 @@ class QuestionTypeSubscriber implements EventSubscriberInterface
     {
         foreach ($form as $name => $child) {
             $setter = 'set'.Inflector::classify($name);
-            if ($name !== 'type' && !method_exists($data, $setter)) {
+            if (!in_array($name, ['type', 'options'], true) && !method_exists($data, $setter)) {
                 $form->remove($name);
             }
         }
