@@ -21,4 +21,9 @@ class CreateQuestionType extends AbstractType
     {
         return QuestionType::class;
     }
+
+    public function getBlockPrefix(): string
+    {
+        return '';
+    }
 }

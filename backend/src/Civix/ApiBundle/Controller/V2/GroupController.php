@@ -409,6 +409,8 @@ class GroupController extends FOSRestController
     }
 
     /**
+     * Invite users by username, post upvoters or petitions signers.
+     *
      * @Route("/{id}/invites", requirements={"id"="\d+"})
      * @Method("PUT")
      *

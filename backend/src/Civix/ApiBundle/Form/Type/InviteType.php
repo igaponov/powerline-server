@@ -37,6 +37,7 @@ class InviteType extends AbstractType
                     new Assert\Type(['type' => 'array']),
                     new Assert\Count(['min' => 1])
                 ],
+                'required' => false,
             ])
             ->add('post', EntityType::class, [
                 'class' => Post::class,
@@ -48,6 +49,7 @@ class InviteType extends AbstractType
                     }
                 },
                 'description' => "ID of a post to invite post's upvoters",
+                'required' => false,
             ])
             ->add('user_petition', EntityType::class, [
                 'class' => UserPetition::class,
@@ -59,6 +61,7 @@ class InviteType extends AbstractType
                     }
                 },
                 'description' => "ID of a user petition to invite petition's signers",
+                'required' => false,
             ]);
 
         $builder->get('users')->addModelTransformer(new JsonToArrayTransformer());
