@@ -171,15 +171,17 @@ class PollControllerTest extends PollControllerTestCase
 	public function getValidParams()
 	{
 		$faker = Factory::create();
+		$options = $this->getValidOptions();
 		return array_merge(
 		    [
                 'group' => [
                     [
                         'type' => 'group',
                         'subject' => $faker->sentence,
+                        'options' => $options,
                     ]
                 ],
-            ], []
+            ], parent::getValidParams()
         );
 	}
 

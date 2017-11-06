@@ -123,7 +123,7 @@ abstract class PollControllerTestCase extends WebTestCase
      * @param $params
      * @dataProvider getValidParams
      */
-	public function createPollIsOk(LeaderContentRootInterface $root, $params)
+	public function createPollIsOk(LeaderContentRootInterface $root, array $params)
 	{
         $client = $this->client;
         $uri = str_replace('{root}', $root->getId(), $this->getApiEndpoint());
@@ -131,11 +131,7 @@ abstract class PollControllerTestCase extends WebTestCase
 		$response = $client->getResponse();
 		$this->assertEquals(200, $response->getStatusCode(), $response->getContent());
 		$data = json_decode($response->getContent(), true);
-		foreach ($params as $param => $value) {
-			if (isset($data[$param])) {
-				$this->assertSame($value, $data[$param]);
-			}
-		}
+        $this->assertPoll($params, $data);
         /** @var Connection $conn */
         $conn = $client->getContainer()->get('doctrine')->getConnection();
         // check author subscription
@@ -224,11 +220,13 @@ abstract class PollControllerTestCase extends WebTestCase
 	public function getValidParams()
 	{
 		$faker = Factory::create();
+		$options = $this->getValidOptions();
 		return [
 			'news' => [
 				[
 					'type' => 'news',
 					'subject' => $faker->sentence,
+                    'options' => $options,
 				]
 			],
 			'event' => [
@@ -239,7 +237,8 @@ abstract class PollControllerTestCase extends WebTestCase
 					'is_allow_outsiders' => $faker->boolean(),
 					'started_at' => date('D, d M Y H:i:s', time() + 100000),
 					'finished_at' => date('D, d M Y H:i:s', time() + 300000),
-				]
+                    'options' => $options,
+                ]
 			],
 			'payment_request' => [
 				[
@@ -252,7 +251,8 @@ abstract class PollControllerTestCase extends WebTestCase
 					'crowdfunding_deadline' => date('D, d M Y H:i:s', time() + 500000),
 					'is_crowdfunding_completed' => $faker->boolean(),
 					'crowdfunding_pledged_amount' => $faker->randomDigit,
-				]
+                    'options' => $options,
+                ]
 			],
 			'crowdfunding_request' => [
 				[
@@ -265,7 +265,8 @@ abstract class PollControllerTestCase extends WebTestCase
 					'crowdfunding_deadline' => date('D, d M Y H:i:s', time() + 500000),
 					'is_crowdfunding_completed' => $faker->boolean(),
 					'crowdfunding_pledged_amount' => $faker->randomDigit,
-				]
+                    'options' => $options,
+                ]
 			],
 			'petition' => [
 				[
@@ -274,8 +275,51 @@ abstract class PollControllerTestCase extends WebTestCase
 					'is_outsiders_sign' => $faker->boolean(),
 					'petition_title' => $faker->sentence,
 					'petition_body' => $faker->text,
-				]
+                    'options' => $options,
+                ]
 			],
 		];
 	}
+
+    public function getValidOptions()
+    {
+        return [
+            ['value' => 'val1'],
+            ['value' => 'val3'],
+            ['value' => 'val8'],
+        ];
+	}
+
+    /**
+     * @param array $expected
+     * @param array $actual
+     */
+    private function assertPoll(array $expected, array $actual): void
+    {
+        foreach ($expected as $param => $value) {
+            if ($param === 'type') {
+                continue;
+            }
+            if ($param !== 'options') {
+                $this->assertSame($value, $actual[$param]);
+            } else {
+                /** @var array $options */
+                $options = $actual[$param];
+                $this->assertOptions($value, $options);
+            }
+        }
+    }
+
+    /**
+     * @param array $expected
+     * @param array $actual
+     */
+    private function assertOptions(array $expected, array $actual): void
+    {
+        $this->assertCount(count($expected), $actual);
+        foreach ($expected as $k => $option) {
+            $this->assertNotEmpty($actual[$k]['id']);
+            $this->assertSame($option['value'], $actual[$k]['value']);
+        }
+    }
 }

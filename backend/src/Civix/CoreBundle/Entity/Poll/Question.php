@@ -101,6 +101,7 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
      *      cascade={"persist"},
      *      orphanRemoval=true
      * )
+     * @Assert\Valid()
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
      */

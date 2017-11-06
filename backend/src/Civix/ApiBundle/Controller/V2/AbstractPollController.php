@@ -2,13 +2,12 @@
 
 namespace Civix\ApiBundle\Controller\V2;
 
-use Civix\ApiBundle\Form\Type\Poll\QuestionType;
+use Civix\ApiBundle\Form\Type\Poll\CreateQuestionType;
 use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Service\PollManager;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
-use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\HttpFoundation\Request;
 
 abstract class AbstractPollController extends FOSRestController
@@ -37,7 +36,7 @@ abstract class AbstractPollController extends FOSRestController
 
     protected function postPoll(Request $request, LeaderContentRootInterface $root)
     {
-        $form = $this->createForm(QuestionType::class, null, ['root_model' => $root]);
+        $form = $this->createForm(CreateQuestionType::class, null, ['root_model' => $root]);
         $form->submit($request->request->all());
 
         if ($form->isValid()) {

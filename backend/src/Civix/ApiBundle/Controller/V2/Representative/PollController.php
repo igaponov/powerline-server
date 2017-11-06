@@ -83,7 +83,7 @@ class PollController extends AbstractPollController
      *     authentication=true,
      *     section="Polls",
      *     description="Add poll",
-     *     input="Civix\ApiBundle\Form\Type\Poll\QuestionType",
+     *     input="Civix\ApiBundle\Form\Type\Poll\CreateQuestionType",
      *     output={
      *          "class" = "Civix\CoreBundle\Entity\Poll\Question",
      *          "groups" = {"api-poll"}
