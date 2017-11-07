@@ -141,6 +141,10 @@ class UserPetitionManager
 
         $this->entityManager->flush();
 
+        if ($isNew) {
+            $this->dispatcher->dispatch(UserPetitionEvents::PETITION_POST_CREATE, $event);
+        }
+
         $eventName = $isNew ? UserPetitionEvents::PETITION_CREATE : UserPetitionEvents::PETITION_UPDATE;
         $this->dispatcher->dispatch('async.'.$eventName, $event);
 
