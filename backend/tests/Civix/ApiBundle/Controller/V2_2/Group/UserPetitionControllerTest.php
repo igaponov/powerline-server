@@ -107,6 +107,9 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertFalse($data['supporters_were_invited']);
         $this->assertTrue($data['automatic_boost']);
         $this->assertRegExp('/[\w\d]\.png/', $data['facebook_thumbnail']);
+        $activity = $this->getContainer()->get('database_connection')
+            ->fetchAssoc('SELECT * FROM activities');
+        $this->assertSame($data['body'], $activity['description']);
         /** @var RabbitMQDataCollector $collector */
         $collector = $client->getProfile()->getCollector('rabbit_mq');
         $data = $collector->getData();

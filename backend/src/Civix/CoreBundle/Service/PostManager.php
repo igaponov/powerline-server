@@ -142,6 +142,10 @@ class PostManager
 
         $this->entityManager->flush();
 
+        if ($isNew) {
+            $this->dispatcher->dispatch(PostEvents::POST_POST_CREATE, $event);
+        }
+
         $eventName = $isNew ? PostEvents::POST_CREATE : PostEvents::POST_UPDATE;
         $this->dispatcher->dispatch('async.'.$eventName, $event);
 

@@ -30,7 +30,6 @@ class UserPetitionEventsTest extends EventsTestCase
             [LeaderContentSubscriber::class, 'addPetitionHashTags'],
             [LeaderContentSubscriber::class, 'subscribePetitionAuthor'],
             [SocialActivitySubscriber::class, 'noticeUserPetitionCreated'],
-            [ActivityUpdateSubscriber::class, 'publishUserPetitionToActivity'],
         ];
         $this->assertListeners(UserPetitionEvents::PETITION_CREATE, UserPetitionEvent::class, $expectedListeners);
     }

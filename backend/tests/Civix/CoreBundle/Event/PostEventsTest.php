@@ -38,7 +38,6 @@ class PostEventsTest extends EventsTestCase
             [ReportSubscriber::class, 'updateKarmaCreatePost'],
             [MentionSubscriber::class, 'onPostCreate'],
             [SocialActivitySubscriber::class, 'noticePostCreated'],
-            [ActivityUpdateSubscriber::class, 'publishPostToActivity'],
         ];
         $this->assertListeners(PostEvents::POST_CREATE, PostEvent::class, $expectedListeners);
     }
