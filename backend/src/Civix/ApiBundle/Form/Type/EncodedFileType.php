@@ -34,6 +34,7 @@ class EncodedFileType extends AbstractType
                     $data = new TempFile($data);
                     if ($options['data_class'] === \Civix\CoreBundle\Entity\File::class) {
                         $data = new \Civix\CoreBundle\Entity\File($data);
+                        $data->setName(uniqid());
                     }
                 } else {
                     $data = $event->getForm()->getData();
