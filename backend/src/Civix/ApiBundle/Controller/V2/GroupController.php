@@ -334,6 +334,8 @@ class GroupController extends FOSRestController
     }
 
     /**
+     * Set `active` status by default.
+     *
      * @Route("/{group}/users/{user}")
      * @Method("PATCH")
      *
@@ -344,7 +346,8 @@ class GroupController extends FOSRestController
      * @ApiDoc(
      *     authentication=true,
      *     section="Groups",
-     *     description="Updates a status of an user in a group to `active`",
+     *     description="Updates a status of a user in a group (active or banned)",
+     *     input="\Civix\ApiBundle\Form\Type\UserGroupType",
      *     statusCodes={
      *         204="Success",
      *         400="Bad Request",
