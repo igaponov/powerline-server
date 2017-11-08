@@ -38,6 +38,8 @@ class RepresentativeControllerTest  extends WebTestCase
             LoadUserRepresentativeData::class,
             LoadRepresentativeData::class,
         ])->getReferenceRepository();
+        $representativeBo = $repository->getReference('cicero_representative_bo');
+        $representativeJb = $repository->getReference('cicero_representative_jb');
         $representative = $repository->getReference('representative_jb');
         $this->client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"']);
         $response = $this->client->getResponse();
@@ -75,12 +77,14 @@ class RepresentativeControllerTest  extends WebTestCase
                             'first_name' => 'Barack',
                             'last_name' => 'Obama',
                             'official_title' => 'President',
+                            'id' => $representativeBo->getId(),
                         ],
                         [
                             'storage_id' => 44926,
                             'first_name' => 'Joseph',
                             'last_name' => 'Biden',
                             'official_title' => 'Vice President',
+                            'id' => $representativeJb->getId(),
                         ],
                     ],
                 ],
