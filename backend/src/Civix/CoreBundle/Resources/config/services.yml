@@ -65,6 +65,7 @@ services:
             - '@geocoder'
             - '@doctrine.orm.entity_manager'
             - '@civix_core.repository.group_repository'
+            - '@event_dispatcher'
             - '@logger'
 
     civix_core.social_activity_factory:
