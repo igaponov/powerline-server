@@ -18,7 +18,7 @@ class PostManagerTest extends TestCase
         $sharer = new User();
         $vote = (new Post\Vote())->setUser($sharer)->setOption(Post\Vote::OPTION_UPVOTE);
         $post = (new Post())->addVote($vote);
-        $this->assertNull($sharer->getLastPostSharedAt());
+        $this->assertNull($sharer->getLastContentSharedAt());
         $em = $this->createMock(EntityManagerInterface::class);
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher->expects($this->once())
@@ -26,12 +26,12 @@ class PostManagerTest extends TestCase
             ->with(PostEvents::POST_SHARE, $this->isInstanceOf(PostShareEvent::class));
         $manager = new PostManager($em, $dispatcher);
         $manager->sharePost($post, $sharer);
-        $this->assertSame(date('Y-m-d H:i'), $sharer->getLastPostSharedAt()->format('Y-m-d H:i'));
+        $this->assertSame(date('Y-m-d H:i'), $sharer->getLastContentSharedAt()->format('Y-m-d H:i'));
     }
 
     public function testSharePostAfterLessThan72HoursThrowsException()
     {
-        $sharer = (new User())->sharePost();
+        $sharer = (new User())->shareContent();
         $vote = (new Post\Vote())->setUser($sharer)->setOption(Post\Vote::OPTION_UPVOTE);
         $post = (new Post())->addVote($vote);
         $em = $this->createMock(EntityManagerInterface::class);
@@ -39,7 +39,7 @@ class PostManagerTest extends TestCase
         $dispatcher->expects($this->never())->method('dispatch');
         $manager = new PostManager($em, $dispatcher);
         $this->expectException(\DomainException::class);
-        $this->expectExceptionMessage('User can share a post only once in 72 hours.');
+        $this->expectExceptionMessage('User can share a post only once in 1 hour.');
         $manager->sharePost($post, $sharer);
     }
 

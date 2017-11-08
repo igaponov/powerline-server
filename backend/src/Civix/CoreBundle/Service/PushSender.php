@@ -28,6 +28,7 @@ class PushSender
     const TYPE_PUSH_OWN_POST_BOOSTED = 'own-post-is-boosted';
     const TYPE_PUSH_POST_BOOSTED = 'post-is-boosted';
     const TYPE_PUSH_POST_SHARED = 'post-is-shared';
+    const TYPE_PUSH_PETITION_SHARED = 'petition-is-shared';
     /*Not used in push notification but reserved and use in settings*/
     const TYPE_PUSH_PETITION = 'petition';
     const TYPE_PUSH_NEWS = 'leader_news';
@@ -189,9 +190,6 @@ class PushSender
     }
 
     /**
-     * User post is manually boosted by group leader.
-     * User post is boosted automatically by system in a group.
-     *
      * @param integer $userId
      * @param integer $postId
      */
@@ -221,6 +219,43 @@ class PushSender
                     'target' => [
                         'id' => $postId,
                         'type' => 'post-shared',
+                    ],
+                ],
+                $sharer->getAvatarFileName()
+            );
+        }
+    }
+
+    /**
+     * @param integer $userId
+     * @param integer $petitionId
+     */
+    public function sendSharedPetitionPush($userId, $petitionId): void
+    {
+        $sharer = $this->entityManager->find(User::class, $userId);
+        $post = $this->entityManager->find(UserPetition::class, $petitionId);
+        if (!$post || !$sharer || !($author = $post->getUser())) {
+            return;
+        }
+        $iterator = $this->entityManager
+                ->getRepository(User::class)
+                ->getUsersByGroupAndFollowingForPush($post->getGroup(), $sharer);
+
+        foreach ($iterator as $item) {
+            $recipient = $item[0];
+            $this->send(
+                $recipient,
+                $sharer->getFullName(),
+                sprintf(
+                    "shared %s's petition with you: %s",
+                    $author->getFirstName(),
+                    $this->preview($post->getBody())
+                ),
+                self::TYPE_PUSH_PETITION_SHARED,
+                [
+                    'target' => [
+                        'id' => $petitionId,
+                        'type' => 'petition-shared',
                     ],
                 ],
                 $sharer->getAvatarFileName()

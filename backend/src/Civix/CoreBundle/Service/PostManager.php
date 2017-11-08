@@ -160,11 +160,11 @@ class PostManager
         if ($post->getVotes()->filter($filter)->isEmpty()) {
             throw new \DomainException('User can share only a post he has upvoted.');
         }
-        if ($sharer->getLastPostSharedAt() > new \DateTime('-72 hours')) {
-            throw new \DomainException('User can share a post only once in 72 hours.');
+        if ($sharer->getLastContentSharedAt() > new \DateTime('-1 hour')) {
+            throw new \DomainException('User can share a post only once in 1 hour.');
         }
 
-        $sharer->sharePost();
+        $sharer->shareContent();
 
         $event = new PostShareEvent($post, $sharer);
         $this->dispatcher->dispatch(PostEvents::POST_SHARE, $event);

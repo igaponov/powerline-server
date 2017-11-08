@@ -8,6 +8,7 @@ use Civix\CoreBundle\Entity\Poll\Comment;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Repository\UserRepository;
 use Civix\CoreBundle\Service\Poll\QuestionUserPush;
 use Civix\CoreBundle\Service\PushSender;
@@ -109,6 +110,85 @@ class PushSenderTest extends WebTestCase
                 }, $recipients)
             );
         $pushSender->sendSharedPostPush(7, 16);
+    }
+
+    public function testSendSharedPetitionPush()
+    {
+        $user = new User();
+        $user->setFirstName('John')
+            ->setLastName('Doe')
+            ->setAvatarFileName(uniqid('', true));
+        $author = new User();
+        $author->setFirstName('Jane');
+        $post = new UserPetition();
+        $post->setBody(str_repeat('x', 500))
+            ->setGroup(new Group())
+            ->setUser($author);
+        $recipients = [new User(), new User()];
+        $userRepository = $this->getMockBuilder(UserRepository::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getUsersByGroupAndFollowingForPush'])
+            ->getMock();
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->exactly(2))
+            ->method('find')
+            ->withConsecutive([User::class, 7], [UserPetition::class, 16])
+            ->willReturnOnConsecutiveCalls($user, $post);
+        /** @var \PHPUnit_Framework_MockObject_MockObject|ObjectHydrator $hydrator */
+        $hydrator = $this->getMockBuilder(ObjectHydrator::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['hydrateRow'])
+            ->getMock();
+        $hydrator->expects($this->exactly(3))
+            ->method('hydrateRow')
+            ->with()
+            ->willReturnOnConsecutiveCalls(
+                ...array_map(function ($recipient) {
+                    return [$recipient];
+                }, $recipients)
+            );
+        $em->expects($this->once())
+            ->method('getRepository')
+            ->with(User::class)
+            ->willReturn($userRepository);
+        $userRepository->expects($this->once())
+            ->method('getUsersByGroupAndFollowingForPush')
+            ->with($post->getGroup(), $user)
+            ->willReturn(new IterableResult($hydrator));
+        $questionUserPush = new QuestionUserPush($em);
+        $sender = $this->getMockBuilder(Sender::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $logger = $this->createMock(LoggerInterface::class);
+        /** @var \PHPUnit_Framework_MockObject_MockObject|PushSender $pushSender */
+        $pushSender = $this->getMockBuilder(PushSender::class)
+            ->setConstructorArgs([
+                $em,
+                $questionUserPush,
+                $sender,
+                $logger
+            ])
+            ->setMethods(['send'])
+            ->getMock();
+        $pushSender->expects($this->exactly(2))
+            ->method('send')
+            ->withConsecutive(
+                ...array_map(function ($recipient) use ($user) {
+                    return [
+                        $recipient,
+                        $user->getFullName(),
+                        "shared Jane's petition with you: ".str_repeat('x', 300).'...',
+                        PushSender::TYPE_PUSH_PETITION_SHARED,
+                        [
+                            'target' => [
+                                'id' => 16,
+                                'type' => 'petition-shared',
+                            ]
+                        ],
+                        $user->getAvatarFileName()];
+                }, $recipients)
+            );
+        $pushSender->sendSharedPetitionPush(7, 16);
     }
 
     public function testSendPushPublishQuestionToGroupUsers()

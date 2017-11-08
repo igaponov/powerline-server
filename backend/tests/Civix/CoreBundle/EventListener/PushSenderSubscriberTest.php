@@ -4,7 +4,9 @@ namespace Tests\Civix\CoreBundle\EventListener;
 
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Event\PostShareEvent;
+use Civix\CoreBundle\Event\UserPetitionShareEvent;
 use Civix\CoreBundle\EventListener\PushSenderSubscriber;
 use Civix\CoreBundle\Service\PushTask;
 use PHPUnit\Framework\TestCase;
@@ -38,5 +40,34 @@ class PushSenderSubscriberTest extends TestCase
             ->with('sendSharedPostPush', [8, 19]);
         $subscriber = new PushSenderSubscriber($pushTask);
         $subscriber->sendSharedPostPush($event);
+    }
+
+    public function testSendSharedPetitionPush()
+    {
+        /** @var \PHPUnit_Framework_MockObject_MockObject|UserPetition $petition */
+        $petition = $this->getMockBuilder(UserPetition::class)
+            ->setMethods(['getId'])
+            ->getMock();
+        $petition->expects($this->once())
+            ->method('getId')
+            ->willReturn(8);
+        /** @var \PHPUnit_Framework_MockObject_MockObject|User $sharer */
+        $sharer = $this->getMockBuilder(User::class)
+            ->setMethods(['getId'])
+            ->getMock();
+        $sharer->expects($this->once())
+            ->method('getId')
+            ->willReturn(19);
+        $event = new UserPetitionShareEvent($petition, $sharer);
+        $pushTask = $this->getMockBuilder(PushTask::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['addToQueue'])
+            ->getMock();
+        /** @var \PHPUnit_Framework_MockObject_MockObject|PushTask $pushTask */
+        $pushTask->expects($this->once())
+            ->method('addToQueue')
+            ->with('sendSharedPetitionPush', [8, 19]);
+        $subscriber = new PushSenderSubscriber($pushTask);
+        $subscriber->sendSharedPetitionPush($event);
     }
 }

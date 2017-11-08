@@ -42,7 +42,7 @@ class PostRepositoryTest extends WebTestCase
         $this->assertCount(0, $result->getVotes());
     }
 
-    public function testFindPostReturnsNull()
+    public function testFindPostWithUserVoteReturnsNull()
     {
         $repository = self::$fixtureLoader->executor->getReferenceRepository();
         /** @var User $user */
