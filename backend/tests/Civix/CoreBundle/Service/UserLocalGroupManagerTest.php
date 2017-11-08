@@ -3,6 +3,8 @@
 namespace Tests\Civix\CoreBundle\Service;
 
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Event\AvatarEvent;
+use Civix\CoreBundle\Event\AvatarEvents;
 use Civix\CoreBundle\Service\UserLocalGroupManager;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadLocalGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
@@ -15,6 +17,7 @@ use Geocoder\Model\AdminLevelCollection;
 use Geocoder\Model\Country;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UserLocalGroupManagerTest extends WebTestCase
 {
@@ -23,7 +26,7 @@ class UserLocalGroupManagerTest extends WebTestCase
         $repository = $this->loadFixtures([LoadUserData::class])->getReferenceRepository();
         /** @var User $user */
         $user = $repository->getReference('user_1');
-        $this->join($this->getUSAddressCollection(), $user);
+        $this->join($this->getUSAddressCollection(), $user, 3);
         $groups = $user->getGroups();
         $this->assertCount(3, $groups);
         $this->assertEquals('US', $groups[0]->getAcronym());
@@ -36,7 +39,7 @@ class UserLocalGroupManagerTest extends WebTestCase
         $repository = $this->loadFixtures([LoadUserData::class])->getReferenceRepository();
         /** @var User $user */
         $user = $repository->getReference('user_1');
-        $this->join($this->getEUAddressCollection(), $user);
+        $this->join($this->getEUAddressCollection(), $user, 4);
         $groups = $user->getGroups();
         $this->assertCount(4, $groups);
         $this->assertEquals('EU', $groups[0]->getAcronym());
@@ -50,7 +53,7 @@ class UserLocalGroupManagerTest extends WebTestCase
         $repository = $this->loadFixtures([LoadUserData::class])->getReferenceRepository();
         /** @var User $user */
         $user = $repository->getReference('user_1');
-        $this->join($this->getAUAddressCollection(), $user);
+        $this->join($this->getAUAddressCollection(), $user, 4);
         $groups = $user->getGroups();
         $this->assertCount(4, $groups);
         $this->assertEquals('AFU', $groups[0]->getAcronym());
@@ -164,19 +167,25 @@ class UserLocalGroupManagerTest extends WebTestCase
     /**
      * @param AddressCollection $collection
      * @param User $user
+     * @param int $newGroupCount
      */
-    private function join(AddressCollection $collection, User $user): void
+    private function join(AddressCollection $collection, User $user, int $newGroupCount = 0): void
     {
         $geocoder = $this->createMock(Geocoder::class);
         $geocoder->expects($this->once())
             ->method('geocode')
             ->willReturn($collection);
         $container = $this->getContainer();
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects($this->exactly($newGroupCount))
+            ->method('dispatch')
+            ->with(AvatarEvents::CHANGE, $this->isInstanceOf(AvatarEvent::class));
         $logger = $this->createMock(LoggerInterface::class);
         $manager = new UserLocalGroupManager(
             $geocoder,
             $container->get('doctrine.orm.entity_manager'),
             $container->get('civix_core.repository.group_repository'),
+            $dispatcher,
             $logger
         );
         $manager->joinLocalGroups($user);

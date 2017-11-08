@@ -5,11 +5,14 @@ namespace Civix\CoreBundle\Service;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
+use Civix\CoreBundle\Event\AvatarEvent;
+use Civix\CoreBundle\Event\AvatarEvents;
 use Civix\CoreBundle\Repository\GroupRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Geocoder\Exception\Exception;
 use Geocoder\Geocoder;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UserLocalGroupManager
 {
@@ -114,6 +117,10 @@ class UserLocalGroupManager
      */
     private $groupRepository;
     /**
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
+    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -122,11 +129,13 @@ class UserLocalGroupManager
         Geocoder $geocoder,
         EntityManagerInterface $em,
         GroupRepository $groupRepository,
+        EventDispatcherInterface $dispatcher,
         LoggerInterface $logger
     ) {
         $this->geocoder = $geocoder;
         $this->em = $em;
         $this->groupRepository = $groupRepository;
+        $this->dispatcher = $dispatcher;
         $this->logger = $logger;
     }
 
@@ -200,6 +209,8 @@ class UserLocalGroupManager
             ->setLocationName($shortName)
             ->setParent($parentGroup)
         ;
+        $event = new AvatarEvent($group);
+        $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
 
         $this->em->persist($group);
 
