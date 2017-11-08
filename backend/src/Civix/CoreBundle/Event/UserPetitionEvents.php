@@ -10,4 +10,5 @@ class UserPetitionEvents
     const PETITION_SIGN = 'micropetition.petition.sign';
     const PETITION_UNSIGN = 'micropetition.petition.unsign';
     const PETITION_BOOST = 'micropetition.petition.boost';
+    const PETITION_SHARE = 'micropetition.petition.share';
 }

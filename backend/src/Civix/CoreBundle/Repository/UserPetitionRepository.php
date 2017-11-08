@@ -275,4 +275,21 @@ class UserPetitionRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @param $id
+     * @param User $user
+     * @return UserPetition|null
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function findPetitionWithUserSignature($id, User $user): ?UserPetition
+    {
+        return $this->createQueryBuilder('p')
+            ->addSelect('s')
+            ->leftJoin('p.signatures', 's', 'WITH', 's.user = :user')
+            ->setParameter(':user', $user)
+            ->where('p.id = :id')
+            ->setParameter(':id', $id)
+            ->getQuery()->getOneOrNullResult();
+    }
 }

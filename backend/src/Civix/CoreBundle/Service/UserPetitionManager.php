@@ -9,6 +9,7 @@ use Civix\CoreBundle\Entity\UserPetition\Signature;
 use Civix\CoreBundle\Event\UserPetition\SignatureEvent;
 use Civix\CoreBundle\Event\UserPetitionEvent;
 use Civix\CoreBundle\Event\UserPetitionEvents;
+use Civix\CoreBundle\Event\UserPetitionShareEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -149,5 +150,23 @@ class UserPetitionManager
         $this->dispatcher->dispatch('async.'.$eventName, $event);
 
         return $petition;
+    }
+
+    public function sharePetition(UserPetition $petition, User $sharer): void
+    {
+        $filter = function (Signature $signature) use ($sharer) {
+            return $signature->getUser()->isEqualTo($sharer);
+        };
+        if ($petition->getSignatures()->filter($filter)->isEmpty()) {
+            throw new \DomainException('User can share only a petition he has signed.');
+        }
+        if ($sharer->getLastContentSharedAt() > new \DateTime('-1 hour')) {
+            throw new \DomainException('User can share a petition only once in 1 hour.');
+        }
+
+        $sharer->shareContent();
+
+        $event = new UserPetitionShareEvent($petition, $sharer);
+        $this->dispatcher->dispatch(UserPetitionEvents::PETITION_SHARE, $event);
     }
 }

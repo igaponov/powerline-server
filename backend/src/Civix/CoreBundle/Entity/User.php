@@ -639,7 +639,7 @@ class User implements
      *
      * @ORM\Column(type="datetime", name="last_post_shared_at", nullable=true)
      */
-    private $lastPostSharedAt;
+    private $lastContentSharedAt;
 
     public function __construct()
     {
@@ -2530,17 +2530,17 @@ class User implements
     /**
      * @return DateTime
      */
-    public function getLastPostSharedAt(): ?DateTime
+    public function getLastContentSharedAt(): ?DateTime
     {
-        return $this->lastPostSharedAt;
+        return $this->lastContentSharedAt;
     }
 
     /**
      * @return User
      */
-    public function sharePost(): User
+    public function shareContent(): User
     {
-        $this->lastPostSharedAt = new DateTime();
+        $this->lastContentSharedAt = new DateTime();
 
         return $this;
     }
