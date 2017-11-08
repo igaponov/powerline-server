@@ -34,7 +34,6 @@ class Representative implements HasAvatarInterface, ChangeableAvatarInterface
      * @ORM\GeneratedValue()
      * @Serializer\Expose()
      * @Serializer\Groups({"api-representatives-list", "api-info", "api-search"})
-     * @Serializer\Since("2")
      */
     private $id;
 
@@ -1029,6 +1028,7 @@ class Representative implements HasAvatarInterface, ChangeableAvatarInterface
      * @Serializer\Groups({"api-representatives-list", "api-info", "api-search"})
      * @Serializer\Until("1")
      * @Serializer\SerializedName("storage_id")
+     * @Serializer\Type("integer")
      */
     public function getStorageId(): ?int
     {
