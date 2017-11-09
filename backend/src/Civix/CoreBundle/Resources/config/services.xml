@@ -231,10 +231,6 @@
             <argument>%sunlightapi_token%</argument>
         </service>
 
-        <service id="civix_core.congress_api" class="Civix\CoreBundle\Service\CongressApi">
-            <argument>%sunlightapi_token%</argument>
-        </service>
-
         <service id="civix_core.facebook_api" class="Civix\CoreBundle\Service\FacebookApi">
         </service>
 

@@ -7,7 +7,6 @@ use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Service\CiceroApi;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Service\CiceroRepresentativePopulator;
-use Civix\CoreBundle\Service\CongressApi;
 use Civix\CoreBundle\Service\OpenstatesApi;
 use Civix\CoreBundle\Tests\Mock\Service\CiceroCalls;
 use Doctrine\ORM\EntityManager;
@@ -297,11 +296,6 @@ class CiceroSyncCommandTest extends WebTestCase
             ->setMethods(array('updateRepresentativeProfile'))
             ->disableOriginalConstructor()
             ->getMock();
-        /** @var CongressApi|\PHPUnit_Framework_MockObject_MockObject $congressMock */
-        $congressMock = $this->getMockBuilder(CongressApi::class)
-            ->setMethods(array('updateRepresentativeProfile'))
-            ->disableOriginalConstructor()
-            ->getMock();
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $converter = $this->createMock(ConverterInterface::class);
@@ -330,7 +324,6 @@ class CiceroSyncCommandTest extends WebTestCase
 
         $container->set('civix_core.cicero_calls', $ciceroMock);
         $container->set('civix_core.openstates_api', $openStateServiceMock);
-        $container->set('civix_core.congress_api', $congressMock);
         $container->set('knp_gaufrette.filesystem_map', $fileSystem);
         $container->set('vich_uploader.storage.gaufrette', $storage);
         $container->set('civix_core.cicero_api', $mock);
