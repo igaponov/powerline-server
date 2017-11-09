@@ -56,12 +56,6 @@ services:
         tags:
             - { name: kernel.event_subscriber }
 
-    civix_core.event_listener.congress_subscriber:
-        class: Civix\CoreBundle\EventListener\CongressSubscriber
-        arguments: ['@civix_core.congress_api']
-        tags:
-            - { name: kernel.event_subscriber }
-
     civix_core.event_listener.cicero_subscriber:
         class: Civix\CoreBundle\EventListener\CiceroSubscriber
         arguments:
@@ -87,6 +81,7 @@ services:
             - '@logger'
         tags:
             - { name: kernel.event_subscriber }
+
     civix_core.event_listener.mention_subscriber:
         class: Civix\CoreBundle\EventListener\MentionSubscriber
         arguments:
