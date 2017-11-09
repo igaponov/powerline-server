@@ -10,6 +10,7 @@ use Civix\CoreBundle\Event\UserPetitionEvent;
 use Civix\CoreBundle\EventListener\ThumbnailSubscriber;
 use Intervention\Image\Image;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Vich\UploaderBundle\Handler\UploadHandler;
 
 class ThumbnailSubscriberTest extends TestCase
@@ -42,7 +43,8 @@ class ThumbnailSubscriberTest extends TestCase
 
                 return true;
             }), 'facebookThumbnail.file');
-        $subscriber = new ThumbnailSubscriber($generator, $handler);
+        $logger = $this->createMock(LoggerInterface::class);
+        $subscriber = new ThumbnailSubscriber($generator, $handler, $logger);
         $subscriber->createPostFacebookThumbnail($event);
     }
 
@@ -74,7 +76,8 @@ class ThumbnailSubscriberTest extends TestCase
 
                 return true;
             }), 'facebookThumbnail.file');
-        $subscriber = new ThumbnailSubscriber($generator, $handler);
+        $logger = $this->createMock(LoggerInterface::class);
+        $subscriber = new ThumbnailSubscriber($generator, $handler, $logger);
         $subscriber->createPetitionFacebookThumbnail($event);
     }
 
