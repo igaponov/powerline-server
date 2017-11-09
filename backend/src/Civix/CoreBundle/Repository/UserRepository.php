@@ -694,18 +694,18 @@ class UserRepository extends EntityRepository
     }
 
     /**
-     * Filter given users by a group and a following user.
+     * Filter given users by a group and a content creator.
      * Uses PARTIAL select because all users are already fully hydrated
      *
      * @param Group $group
-     * @param User $followed
+     * @param User $creator
      * @param User[] ...$users
      *
      * @return User[]
      */
-    public function filterByGroupAndFollower(Group $group, User $followed, User ...$users): array
+    public function filterByGroupAndFollower(Group $group, User $creator, User ...$users): array
     {
-        if (($key = array_search($followed, $users, true)) !== false) {
+        if (($key = array_search($creator, $users, true)) !== false) {
             unset($users[$key]);
         }
 
@@ -716,9 +716,6 @@ class UserRepository extends EntityRepository
             ->setParameter('group', $group)
             ->andWhere('ug.status = :status')
             ->setParameter(':status', UserGroup::STATUS_ACTIVE)
-            ->leftJoin('u.following', 'uf')
-            ->andWhere('uf.user = :user')
-            ->setParameter('user', $followed)
             ->andWhere('u.id IN (:users)')
             ->setParameter(':users', $users)
             ->getQuery()
