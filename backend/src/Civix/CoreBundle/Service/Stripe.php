@@ -207,7 +207,7 @@ class Stripe
     {
         $user = $subscription->getUserEntity();
         $customer = $user->getStripeCustomer();
-        if (!$customer->getId()) {
+        if (!$customer) {
             throw new \RuntimeException('User doesn\'t have an account in stripe');
         }
 
