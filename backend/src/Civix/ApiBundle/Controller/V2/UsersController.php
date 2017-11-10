@@ -29,7 +29,7 @@ class UsersController extends FOSRestController
      *     section="Users",
      *     output = {
      *          "class" = "Civix\CoreBundle\Entity\User",
-     *          "groups" = {"api-info", "api-full-info", "user-karma"},
+     *          "groups" = {"api-info", "api-full-info", "user-karma", "discount-code"},
      *          "parsers" = {
      *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
      *          }
@@ -40,19 +40,21 @@ class UsersController extends FOSRestController
      *     }
      * )
      *
-     * @View(serializerGroups={"api-info", "user-karma"})
+     * @View(serializerGroups={"api-info", "user-karma", "discount-code"})
      *
      * @param Request $request
      * @param User $user
      *
      * @return User
      */
-    public function getAction(Request $request, User $user)
+    public function getAction(Request $request, User $user): User
     {
         if ($user->getFollowers()->count() && $user->getFollowers()->first()->isActive()) {
             /** @var View $configuration */
             $configuration = $request->attributes->get('_template');
-            $configuration->setSerializerGroups(['api-full-info', 'user-karma']);
+            $groups = $configuration->getSerializerGroups();
+            $groups[] = 'api-full-info';
+            $configuration->setSerializerGroups($groups);
         }
 
         return $user;

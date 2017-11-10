@@ -641,6 +641,15 @@ class User implements
      */
     private $lastContentSharedAt;
 
+    /**
+     * @var DiscountCode[]|Collection
+     *
+     * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\DiscountCode", mappedBy="owner", cascade={"persist"}, fetch="EXTRA_LAZY")
+     * @Serializer\Expose()
+     * @Serializer\Groups({"discount-code"})
+     */
+    private $discountCodes;
+
     public function __construct()
     {
         $this->salt = base_convert(sha1(uniqid(mt_rand(), true)), 16, 36);
@@ -653,6 +662,7 @@ class User implements
         $this->groupSections = new ArrayCollection();
         $this->petitionSubscriptions = new ArrayCollection();
         $this->postSubscriptions = new ArrayCollection();
+        $this->discountCodes = new ArrayCollection();
         $this->interests = [];
 
         $this->isRegistrationComplete = true;
@@ -2543,5 +2553,29 @@ class User implements
         $this->lastContentSharedAt = new DateTime();
 
         return $this;
+    }
+
+    /**
+     * @return DiscountCode[]|Collection
+     */
+    public function getDiscountCodes(): Collection
+    {
+        return $this->discountCodes;
+    }
+
+    /**
+     * @param DiscountCode $discountCode
+     * @return User
+     */
+    public function addDiscountCode(DiscountCode $discountCode): User
+    {
+        $this->discountCodes[] = $discountCode;
+
+        return $this;
+    }
+
+    public function removeDiscountCode(DiscountCode $discountCode): void
+    {
+        $this->discountCodes->remove($discountCode);
     }
 }

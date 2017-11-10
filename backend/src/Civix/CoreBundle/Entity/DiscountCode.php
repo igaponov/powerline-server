@@ -20,6 +20,7 @@ class DiscountCode
      * @ORM\Id()
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "discount-code"})
      */
     private $id;
 
@@ -28,6 +29,7 @@ class DiscountCode
      *
      * @ORM\Column(type="string", unique=true, length=12)
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "discount-code"})
      */
     private $code;
 
@@ -59,6 +61,7 @@ class DiscountCode
      * @ORM\Column(name="created_at", type="datetime")
      * @Serializer\Expose()
      * @Serializer\Type("DateTime")
+     * @Serializer\Groups({"Default", "discount-code"})
      */
     private $createdAt;
 
@@ -69,7 +72,10 @@ class DiscountCode
         }
         $this->code = $this->getRandomCode();
         $this->originalCode = $originalCode;
-        $this->owner = $owner;
+        if ($owner) {
+            $this->owner = $owner;
+            $owner->addDiscountCode($this);
+        }
         $this->uses = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
@@ -102,7 +108,7 @@ class DiscountCode
     /**
      * @return User
      */
-    public function getOwner(): User
+    public function getOwner(): ?User
     {
         return $this->owner;
     }
