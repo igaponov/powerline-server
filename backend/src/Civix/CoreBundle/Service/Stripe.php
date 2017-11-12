@@ -326,7 +326,7 @@ class Stripe
     public function createAccount(LeaderContentRootInterface $root)
     {
         $params = [
-            'type' => 'standard',
+            'type' => 'custom',
             'metadata' => ['id' => $root->getId(), 'type' => $root->getType()],
             'email' => $root->getEmail(),
             'tos_acceptance' => [
