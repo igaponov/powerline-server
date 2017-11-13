@@ -10,7 +10,7 @@
         "files": [ "vendor/symfony/symfony/src/Symfony/Component/VarDumper/Resources/functions/dump.php" ]
     },
     "require": {
-        "php": ">=7",
+        "php": ">=7.1",
         "symfony/symfony": "~3.2",
         "doctrine/orm": "~2.5",
         "doctrine/doctrine-bundle": "~1.6",
@@ -54,7 +54,9 @@
         "aws/aws-sdk-php-symfony": "~1.2",
         "serendipity_hq/aws-ses-monitor-bundle": "~1.1",
         "aws/aws-sdk-php": "~3.27",
-        "yohang88/letter-avatar": "~1.0"
+        "yohang88/letter-avatar": "~1.0",
+        "norkunas/onesignal-php-api": "~1.0",
+        "guzzlehttp/guzzle-services": "~1.1"
     },
     "require-dev": {
         "phing/phing": "~2.16",
@@ -88,7 +90,7 @@
     },
     "config": {
         "platform": {
-            "php": "7.0"
+            "php": "7.1"
         },
         "bin-dir": "bin"
     },

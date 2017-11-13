@@ -4,8 +4,9 @@ namespace Civix\CoreBundle\Entity;
 
 use Civix\CoreBundle\Entity\Post\Comment;
 use Civix\CoreBundle\Entity\Post\Vote;
-use Civix\CoreBundle\Serializer\Type\Image;
 use Civix\CoreBundle\Service\Micropetitions\PetitionManager;
+use Civix\CoreBundle\Validator\Constraints\Property;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -26,16 +27,20 @@ use Symfony\Component\Validator\Constraints as Assert;
  * })
  * @Serializer\ExclusionPolicy("all")
  */
-class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterface, HashTaggableInterface, UserMentionableInterface
+class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterface, HashTaggableInterface, HasMetadataInterface
 {
-    use HashTaggableTrait, MetadataTrait, UserMentionableTrait, SpamMarksTrait;
+    use HashTaggableTrait,
+        HasMetadataTrait,
+        SpamMarksTrait,
+        PostSerializableTrait;
 
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Serializer\Expose()
-     * @Serializer\Groups({"Default", "api-petitions-info", "api-petitions-list", "api-leader-micropetition"})
+     * @Serializer\Groups({"Default", "api-petitions-info", "api-petitions-list", "api-leader-micropetition",
+     * "post"})
      */
     private $id;
 
@@ -43,38 +48,43 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      * @ORM\Column(type="text")
      * @Assert\NotBlank(groups={"Default", "create", "update"})
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "post"})
      */
-    private $body;
+    private $body = '';
 
     /**
      * @ORM\Column(name="html_body", type="text")
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "post"})
      */
-    private $htmlBody;
+    private $htmlBody = '';
 
     /**
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Group")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default"})
      */
     private $group;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      * @Gedmo\Timestampable()
      * @Serializer\Expose()
      * @Serializer\Type("DateTime<'D, d M Y H:i:s O'>")
+     * @Serializer\Groups({"Default", "post"})
      */
     private $createdAt;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="expired_at", type="datetime")
      * @Serializer\Expose()
      * @Serializer\Type("DateTime<'D, d M Y H:i:s O'>")
+     * @Serializer\Groups({"Default", "post"})
      */
     private $expiredAt;
 
@@ -82,21 +92,24 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      * @ORM\Column(name="user_expire_interval", type="integer")
      * @Assert\NotBlank(groups={"Default", "update"})
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "post"})
      *
      * @var int
      */
-    private $userExpireInterval;
+    private $userExpireInterval = 0;
 
     /**
      * @ORM\ManyToOne(targetEntity="\Civix\CoreBundle\Entity\User")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default"})
      */
     private $user;
 
     /**
      * @ORM\Column(type="boolean", options={"default" = false})
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "post"})
      *
      * @var bool
      */
@@ -105,12 +118,16 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
     /**
      * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\Post\Vote", mappedBy="post", cascade={"remove"}, fetch="EXTRA_LAZY")
      * @Serializer\Expose()
-     * @Serializer\Groups({"post-votes"})
+     * @Serializer\Groups({"post-votes", "activity-list"})
      */
     private $votes;
 
     /**
      * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\Post\Comment", mappedBy="post", cascade={"remove","persist"}, fetch="EXTRA_LAZY")
+     *
+     * @Serializer\Expose()
+     * @Serializer\Groups({"activity-list"})
+     * @Serializer\Since("2")
      */
     private $comments;
 
@@ -128,6 +145,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      *
      * @ORM\Column(type="boolean", options={"default" = false})
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "post"})
      * @Serializer\Type("boolean")
      */
     private $supportersWereInvited = false;
@@ -137,9 +155,26 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      *
      * @ORM\Column("automatic_boost", type="boolean", options={"default" = true}, nullable=false)
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "post"})
      * @Serializer\Type("boolean")
      */
     private $automaticBoost = true;
+
+    /**
+     * @var File
+     *
+     * @ORM\Embedded(class="Civix\CoreBundle\Entity\File", columnPrefix="facebook_thumbnail_")
+     */
+    private $facebookThumbnail;
+
+    /**
+     * @var File
+     *
+     * @ORM\Embedded(class="Civix\CoreBundle\Entity\File", columnPrefix="")
+     *
+     * @Property(propertyPath="file", constraints={@Assert\File(mimeTypes={"image/jpg", "image/jpeg", "image/png"})}, groups={"Default", "create", "update"})
+     */
+    protected $image;
 
     public function __construct()
     {
@@ -148,6 +183,8 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
         $this->comments = new ArrayCollection();
         $this->metadata = new Metadata();
         $this->subscribers = new ArrayCollection();
+        $this->facebookThumbnail = new File();
+        $this->image = new File();
     }
 
     /**
@@ -155,7 +192,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      *
      * @return int
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -167,7 +204,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      *
      * @return Post
      */
-    public function setBody($body)
+    public function setBody(string $body): Post
     {
         $this->body = $body;
 
@@ -179,7 +216,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      *
      * @return string
      */
-    public function getBody()
+    public function getBody(): string
     {
         return $this->body;
     }
@@ -187,7 +224,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
     /**
      * @return mixed
      */
-    public function getHtmlBody()
+    public function getHtmlBody(): string
     {
         return $this->htmlBody;
     }
@@ -196,7 +233,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      * @param mixed $htmlBody
      * @return Post
      */
-    public function setHtmlBody($htmlBody)
+    public function setHtmlBody(string $htmlBody): Post
     {
         $this->htmlBody = $htmlBody;
 
@@ -206,9 +243,9 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
     /**
      * Get createdAt.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getCreatedAt()
+    public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
     }
@@ -216,11 +253,11 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
     /**
      * Set expireAt.
      *
-     * @param \DateTime $expiredAt
+     * @param DateTime $expiredAt
      *
      * @return Post
      */
-    public function setExpiredAt($expiredAt)
+    public function setExpiredAt(?DateTime $expiredAt): Post
     {
         $this->expiredAt = $expiredAt;
 
@@ -230,9 +267,9 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
     /**
      * Get expireAt.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getExpiredAt()
+    public function getExpiredAt(): ?DateTime
     {
         return $this->expiredAt;
     }
@@ -244,7 +281,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      *
      * @return Post
      */
-    public function setGroup(Group $group = null)
+    public function setGroup(Group $group): Post
     {
         $this->group = $group;
 
@@ -256,7 +293,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      *
      * @return Group
      */
-    public function getGroup()
+    public function getGroup(): ?Group
     {
         return $this->group;
     }
@@ -268,7 +305,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      *
      * @return Post
      */
-    public function setUser(User $user = null)
+    public function setUser(User $user): Post
     {
         $this->user = $user;
 
@@ -280,29 +317,29 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      *
      * @return User
      */
-    public function getUser()
+    public function getUser(): ?User
     {
         return $this->user;
     }
 
-    public function boost()
+    public function boost(): Post
     {
         $this->boosted = true;
 
         return $this;
     }
 
-    public function isBoosted()
+    public function isBoosted(): bool
     {
         return $this->boosted;
     }
 
-    public function getUserExpireInterval()
+    public function getUserExpireInterval(): int
     {
         return $this->userExpireInterval;
     }
 
-    public function setUserExpireInterval($interval)
+    public function setUserExpireInterval(int $interval): Post
     {
         $this->userExpireInterval = $interval;
 
@@ -310,20 +347,20 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
     }
 
     /**
+     * @Serializer\VirtualProperty()
      * @Serializer\Groups({"api-petitions-list"})
-     * @Serializer\VirtualProperty
      * @Serializer\SerializedName("quorum_count")
+     * @Serializer\Type("float")
      */
-    public function getQuorumCount()
+    public function getQuorumCount(): float
     {
-        $currentPercent = $this->getGroup()->getPetitionPercent();
-        if (empty($currentPercent)) {
+        $group = $this->getGroup();
+        $currentPercent = $group ? $group->getPetitionPercent() : null;
+        if (!$currentPercent) {
             $currentPercent = PetitionManager::PERCENT_IN_GROUP;
         }
 
-        return round((
-                $this->getGroup()->getUsers()->count() * $currentPercent) / 100
-        );
+        return round(($group->getUserGroups()->count() * $currentPercent) / 100);
     }
 
     /**
@@ -333,7 +370,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      *
      * @return Post
      */
-    public function addVote(Vote $vote)
+    public function addVote(Vote $vote): Post
     {
         $this->votes[] = $vote;
 
@@ -345,15 +382,15 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      *
      * @param Vote $vote
      */
-    public function removeVote(Vote $vote)
+    public function removeVote(Vote $vote): void
     {
         $this->votes->removeElement($vote);
     }
 
     /**
-     * @return ArrayCollection|Vote[]
+     * @return Collection|Vote[]
      */
-    public function getVotes()
+    public function getVotes(): Collection
     {
         return $this->votes;
     }
@@ -361,24 +398,10 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
     /**
      * @return int
      */
-    public function getResponsesCount()
+    public function getResponsesCount(): int
     {
         return $this->getVotes()->count();
     }
-
-    /**
-     * @Serializer\Groups({"api-petitions-info"})
-     * @Serializer\VirtualProperty
-     * @Serializer\SerializedName("share_picture")
-     * @Serializer\Type("Image")
-     */
-    public function getSharePicture()
-    {
-        $entity = $this->isBoosted() ? $this->getGroup() : $this->getUser();
-
-        return new Image($entity, 'avatar');
-    }
-
 
     /**
      * Add comment
@@ -386,7 +409,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      * @param BaseComment|Comment $comment
      * @return $this
      */
-    public function addComment(BaseComment $comment)
+    public function addComment(BaseComment $comment): Post
     {
         $this->comments[] = $comment;
         $comment->setPost($this);
@@ -399,7 +422,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      *
      * @param BaseComment $comment
      */
-    public function removeComment(BaseComment $comment)
+    public function removeComment(BaseComment $comment): void
     {
         $this->comments->removeElement($comment);
     }
@@ -409,7 +432,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      *
      * @return Collection|Comment[]
      */
-    public function getComments()
+    public function getComments(): Collection
     {
         return $this->comments;
     }
@@ -420,7 +443,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      * @param User $subscribers
      * @return Post
      */
-    public function addSubscriber(User $subscribers)
+    public function addSubscriber(User $subscribers): Post
     {
         $this->subscribers[] = $subscribers;
 
@@ -432,7 +455,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      *
      * @param User $subscribers
      */
-    public function removeSubscriber(User $subscribers)
+    public function removeSubscriber(User $subscribers): void
     {
         $this->subscribers->removeElement($subscribers);
     }
@@ -442,18 +465,19 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      *
      * @return Collection|User[]
      */
-    public function getSubscribers()
+    public function getSubscribers(): Collection
     {
         return $this->subscribers;
     }
 
     /**
-     * @return ArrayCollection
+     * @return Collection|Vote[]
      *
      * @Serializer\VirtualProperty()
      * @Serializer\Groups({"post-votes"})
+     * @Serializer\Type("array<Civix\CoreBundle\Entity\Post\Vote>")
      */
-    public function getAnswers()
+    public function getAnswers(): Collection
     {
         return $this->votes;
     }
@@ -465,15 +489,15 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      * @Serializer\Type("boolean")
      * @Serializer\Groups({"activity-list"})
      */
-    public function isSubscribed()
+    public function isSubscribed(): bool
     {
-        return (bool)$this->subscribers->count();
+        return !$this->subscribers->isEmpty();
     }
 
     /**
      * @return bool
      */
-    public function isSupportersWereInvited()
+    public function isSupportersWereInvited(): bool
     {
         return $this->supportersWereInvited;
     }
@@ -482,7 +506,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      * @param bool $supportersWereInvited
      * @return Post
      */
-    public function setSupportersWereInvited($supportersWereInvited)
+    public function setSupportersWereInvited(bool $supportersWereInvited): Post
     {
         $this->supportersWereInvited = $supportersWereInvited;
 
@@ -492,7 +516,7 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
     /**
      * @return bool
      */
-    public function isAutomaticBoost()
+    public function isAutomaticBoost(): bool
     {
         return $this->automaticBoost;
     }
@@ -501,9 +525,49 @@ class Post implements HtmlBodyInterface, SubscriptionInterface, CommentedInterfa
      * @param bool $automaticBoost
      * @return $this
      */
-    public function setAutomaticBoost($automaticBoost)
+    public function setAutomaticBoost(bool $automaticBoost)
     {
         $this->automaticBoost = $automaticBoost;
+
+        return $this;
+    }
+
+    /**
+     * @return File
+     */
+    public function getFacebookThumbnail(): File
+    {
+        return $this->facebookThumbnail;
+    }
+
+    /**
+     * @param File $facebookThumbnail
+     * @return Post
+     */
+    public function setFacebookThumbnail(File $facebookThumbnail): Post
+    {
+        $this->facebookThumbnail = $facebookThumbnail;
+
+        return $this;
+    }
+
+    /**
+     * @return File
+     */
+    public function getImage(): File
+    {
+        return $this->image;
+    }
+
+    /**
+     * @param File $image
+     * @return Post
+     */
+    public function setImage(?File $image): Post
+    {
+        if ($image) {
+            $this->image = $image;
+        }
 
         return $this;
     }

@@ -1,0 +1,57 @@
+parameters:
+    civix_core.propublica_description:
+        baseUri: https://api.propublica.org
+        operations:
+            getMember:
+                httpMethod: GET
+                uri: /congress/v1/members/{id}.json
+                responseModel: getResponse
+                parameters:
+                    id: { $ref: MemberId }
+                    api_key: { $ref: ApiKey }
+            getNewMembers:
+                httpMethod: GET
+                uri: /congress/v1/members/new.json
+                responseModel: getResponse
+                parameters:
+                    api_key: { $ref: ApiKey }
+            getVotePositions:
+                httpMethod: GET
+                uri: /congress/v1/members/{id}/votes.json
+                responseModel: getResponse
+                parameters:
+                    id: { $ref: MemberId }
+                    api_key: { $ref: ApiKey }
+        models:
+            MemberId:
+                type: string
+                location: uri
+                description: The ID of the member to retrieve; it is assigned by the Biographical Directory of the United States Congress or can be retrieved from a member list request.
+            ApiKey:
+                type: string
+                location: header
+                default: '%propublica_api_key%'
+                sentAs: X-API-Key
+            getResponse:
+                type: object
+                additionalProperties:
+                    location: json
+
+services:
+    civix_core.propublica:
+        class:     GuzzleHttp\Command\Guzzle\GuzzleClient
+        arguments:
+            - "@civix_core.propublica_client"
+            - "@civix_core.propublica_description"
+
+    civix_core.propublica_client:
+        class: GuzzleHttp\Client
+        public: false
+
+    civix_core.propublica_description:
+        class: GuzzleHttp\Command\Guzzle\Description
+        arguments: ['%civix_core.propublica_description%']
+        public: false
+
+    civix_core.pro_publica_representative_populator:
+        class: Civix\CoreBundle\Service\ProPublicaRepresentativePopulator

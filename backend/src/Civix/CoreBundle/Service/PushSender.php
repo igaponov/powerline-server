@@ -2,20 +2,18 @@
 
 namespace Civix\CoreBundle\Service;
 
-use Civix\CoreBundle\Entity\Activity;
+use Civix\Component\Notification\PushMessage;
+use Civix\Component\Notification\Sender;
 use Civix\CoreBundle\Entity\Announcement\GroupAnnouncement;
 use Civix\CoreBundle\Entity\Announcement\RepresentativeAnnouncement;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
-use Civix\CoreBundle\Entity\Representative;
-use Civix\CoreBundle\Entity\Group;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\Notification\AbstractEndpoint;
 use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Service\Poll\QuestionUserPush;
-use Doctrine\ORM\EntityManager;
-use Imgix\UrlBuilder;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
 class PushSender
@@ -29,6 +27,8 @@ class PushSender
     const TYPE_PUSH_USER_PETITION_BOOSTED = 'user-petition-is-boosted';
     const TYPE_PUSH_OWN_POST_BOOSTED = 'own-post-is-boosted';
     const TYPE_PUSH_POST_BOOSTED = 'post-is-boosted';
+    const TYPE_PUSH_POST_SHARED = 'post-is-shared';
+    const TYPE_PUSH_PETITION_SHARED = 'petition-is-shared';
     /*Not used in push notification but reserved and use in settings*/
     const TYPE_PUSH_PETITION = 'petition';
     const TYPE_PUSH_NEWS = 'leader_news';
@@ -37,41 +37,30 @@ class PushSender
 
     const MAX_USERS_PER_QUERY = 5000;
 
-    const IMAGE_WIDTH = 320;
-    const IMAGE_HEIGHT = 400;
-    const IMAGE_LINK = '/bundles/civixfront/img/logo_320x320.jpg';
-    const IMAGE_PATH = 'avatars';
-
+    /**
+     * @var EntityManagerInterface
+     */
     protected $entityManager;
     protected $questionUsersPush;
-    protected $notification;
+    /**
+     * @var Sender
+     */
+    protected $sender;
     /**
      * @var LoggerInterface
      */
     protected $logger;
-    /**
-     * @var UrlBuilder
-     */
-    private $urlBuilder;
-    /**
-     * @var string
-     */
-    private $hostname;
 
     public function __construct(
-        EntityManager $entityManager,
+        EntityManagerInterface $entityManager,
         QuestionUserPush $questionUsersPush,
-        Notification $notification,
-        LoggerInterface $logger,
-        UrlBuilder $urlBuilder,
-        $hostname
+        Sender $sender,
+        LoggerInterface $logger
     ) {
         $this->entityManager = $entityManager;
         $this->questionUsersPush = $questionUsersPush;
-        $this->notification = $notification;
+        $this->sender = $sender;
         $this->logger = $logger;
-        $this->urlBuilder = $urlBuilder;
-        $this->hostname = $hostname;
     }
 
     /**
@@ -81,7 +70,7 @@ class PushSender
      * @param $title
      * @param $message
      */
-    public function sendPushPublishQuestion($questionId, $title, $message)
+    public function sendPushPublishQuestion($questionId, $title, $message): void
     {
         /** @var Question $question */
         $question = $this->entityManager
@@ -92,7 +81,7 @@ class PushSender
             return;
         }
 
-        $avatar = $this->getLinkByFilename($question->getGroup()->getAvatarFileName());
+        $avatar = $question->getGroup()->getAvatarFileName();
 
         $this->questionUsersPush->setQuestion($question);
         $lastId = 0;
@@ -131,7 +120,7 @@ class PushSender
      * @param $groupId
      * @param null $petitionId
      */
-    public function sendBoostedPetitionPush($groupId, $petitionId = null)
+    public function sendBoostedPetitionPush($groupId, $petitionId = null): void
     {
         $users = $this->entityManager
                 ->getRepository('CivixCoreBundle:User')
@@ -143,7 +132,7 @@ class PushSender
             $this->send(
                 $recipient,
                 sprintf(
-                    "%s in %s",
+                    '%s in %s',
                     $petition->getUser()
                         ->getFullName(),
                     $petition->getGroup()
@@ -157,7 +146,7 @@ class PushSender
                         'type' => 'user-petition-boosted',
                     ],
                 ],
-                $this->getLinkByFilename($petition->getUser()->getAvatarFileName())
+                $petition->getUser()->getAvatarFileName()
             );
         }
     }
@@ -169,7 +158,7 @@ class PushSender
      * @param $groupId
      * @param null $postId
      */
-    public function sendBoostedPostPush($groupId, $postId = null)
+    public function sendBoostedPostPush($groupId, $postId = null): void
     {
         $users = $this->entityManager
                 ->getRepository('CivixCoreBundle:User')
@@ -181,7 +170,7 @@ class PushSender
             $this->send(
                 $recipient,
                 sprintf(
-                    "%s in %s",
+                    '%s in %s',
                     $post->getUser()
                         ->getFullName(),
                     $post->getGroup()
@@ -195,16 +184,90 @@ class PushSender
                         'type' => 'post-boosted',
                     ],
                 ],
-                $this->getLinkByFilename($post->getUser()->getAvatarFileName())
+                $post->getUser()->getAvatarFileName()
             );
         }
     }
 
-    public function sendPublishedRepresentativeAnnouncementPush($representativeId, $announcementId)
+    /**
+     * @param integer $userId
+     * @param integer $postId
+     */
+    public function sendSharedPostPush($userId, $postId): void
     {
-        /** @var Representative $representative */
+        $sharer = $this->entityManager->find(User::class, $userId);
+        $post = $this->entityManager->find(Post::class, $postId);
+        if (!$post || !$sharer || !($author = $post->getUser())) {
+            return;
+        }
+        $iterator = $this->entityManager
+                ->getRepository(User::class)
+                ->getUsersByGroupAndFollowingForPush($post->getGroup(), $sharer);
+
+        foreach ($iterator as $item) {
+            $recipient = $item[0];
+            $this->send(
+                $recipient,
+                $sharer->getFullName(),
+                sprintf(
+                    "shared %s's post with you: %s",
+                    $author->getFirstName(),
+                    $this->preview($post->getBody())
+                ),
+                self::TYPE_PUSH_POST_SHARED,
+                [
+                    'target' => [
+                        'id' => $postId,
+                        'type' => 'post-shared',
+                    ],
+                ],
+                $sharer->getAvatarFileName()
+            );
+        }
+    }
+
+    /**
+     * @param integer $userId
+     * @param integer $petitionId
+     */
+    public function sendSharedPetitionPush($userId, $petitionId): void
+    {
+        $sharer = $this->entityManager->find(User::class, $userId);
+        $post = $this->entityManager->find(UserPetition::class, $petitionId);
+        if (!$post || !$sharer || !($author = $post->getUser())) {
+            return;
+        }
+        $iterator = $this->entityManager
+                ->getRepository(User::class)
+                ->getUsersByGroupAndFollowingForPush($post->getGroup(), $sharer);
+
+        foreach ($iterator as $item) {
+            $recipient = $item[0];
+            $this->send(
+                $recipient,
+                $sharer->getFullName(),
+                sprintf(
+                    "shared %s's petition with you: %s",
+                    $author->getFirstName(),
+                    $this->preview($post->getBody())
+                ),
+                self::TYPE_PUSH_PETITION_SHARED,
+                [
+                    'target' => [
+                        'id' => $petitionId,
+                        'type' => 'petition-shared',
+                    ],
+                ],
+                $sharer->getAvatarFileName()
+            );
+        }
+    }
+
+    public function sendPublishedRepresentativeAnnouncementPush($representativeId, $announcementId): void
+    {
+        /** @var UserRepresentative $representative */
         $representative = $this->entityManager
-            ->getRepository('CivixCoreBundle:Representative')
+            ->getRepository(UserRepresentative::class)
             ->find($representativeId);
 
         if (!$representative) {
@@ -212,14 +275,14 @@ class PushSender
         }
         $users = $this->entityManager
             ->getRepository('CivixCoreBundle:User')
-            ->getUsersByDistrictForPush($representative->getDistrictId(), self::TYPE_PUSH_ANNOUNCEMENT);
+            ->getUsersByDistrictForPush($representative->getDistrict()->getId(), self::TYPE_PUSH_ANNOUNCEMENT);
         $announcement = $this->entityManager
             ->getRepository(RepresentativeAnnouncement::class)
             ->find($announcementId);
         foreach ($users as $recipient) {
             $this->send(
                 $recipient,
-                $representative->getOfficialName(),
+                $representative->getOfficialTitle(),
                 $this->preview($announcement->getContent()),
                 self::TYPE_PUSH_ANNOUNCEMENT,
                 [
@@ -238,7 +301,7 @@ class PushSender
      * @param $groupId
      * @param $announcementId
      */
-    public function sendPublishedGroupAnnouncementPush($groupId, $announcementId)
+    public function sendPublishedGroupAnnouncementPush($groupId, $announcementId): void
     {
         $group = $this->entityManager
             ->getRepository('CivixCoreBundle:Group')
@@ -272,7 +335,7 @@ class PushSender
                                 'type' => 'announcement-published',
                             ],
                         ],
-                        $this->getLinkByFilename($group->getAvatarFileName())
+                        $group->getAvatarFileName()
                     );
                     $lastId = $recipient->getId();
                 }
@@ -288,7 +351,7 @@ class PushSender
      * @param $userId
      * @param $groupId
      */
-    public function sendGroupInvitePush($userId, $groupId)
+    public function sendGroupInvitePush($userId, $groupId): void
     {
         $user = $this->entityManager
             ->getRepository('CivixCoreBundle:User')
@@ -309,12 +372,12 @@ class PushSender
                         'type' => 'invite-sent',
                     ],
                 ],
-                $this->getLinkByFilename($group->getAvatarFileName())
+                $group->getAvatarFileName()
             );
         }
     }
 
-    public function sendSocialActivity($id)
+    public function sendSocialActivity($id): void
     {
         $socialActivity = $this->entityManager->getRepository(SocialActivity::class)->find($id);
         if (!$socialActivity) {
@@ -335,7 +398,7 @@ class PushSender
                     $socialActivity->getTextMessage(),
                     $socialActivity->getType(),
                     ['id' => $socialActivity->getId(), 'target' => $target],
-                    $this->getLinkByFilename($socialActivity->getImage())
+                    $socialActivity->getImage()
                 );
             }
         // send to followers
@@ -345,7 +408,7 @@ class PushSender
                 SocialActivity::TYPE_FOLLOW_POLL_COMMENTED,
                 SocialActivity::TYPE_FOLLOW_POST_COMMENTED,
                 SocialActivity::TYPE_FOLLOW_USER_PETITION_COMMENTED,
-            ])
+            ], true)
         ) {
             /** @var User[] $recipients */
             $recipients = $this->entityManager
@@ -362,7 +425,7 @@ class PushSender
                         $socialActivity->getTextMessage(),
                         $socialActivity->getType(),
                         ['id' => $socialActivity->getId(), 'target' => $target],
-                        $this->getLinkByFilename($socialActivity->getImage())
+                        $socialActivity->getImage()
                     );
                 }
             }
@@ -372,7 +435,7 @@ class PushSender
         }
     }
 
-    public function sendCommentedPush(SocialActivity $socialActivity, $handledIds = [])
+    public function sendCommentedPush(SocialActivity $socialActivity, array $handledIds = []): void
     {
         $target = $socialActivity->getTarget();
         if (!isset($target['id'])) {
@@ -400,7 +463,7 @@ class PushSender
             /** @var User $recipient */
             $recipient = $subscriber[0];
             // user is already handled or is an owner of the subscription (use OWN_*ENTITY*_COMMENTED event)
-            if (in_array($recipient->getId(), $handledIds) || $recipient->isEqualTo($subscription->getUser())) {
+            if (in_array($recipient->getId(), $handledIds, true) || $recipient->isEqualTo($subscription->getUser())) {
                 continue;
             }
             $this->send(
@@ -409,60 +472,27 @@ class PushSender
                 $socialActivity->getTextMessage(),
                 $socialActivity->getType(),
                 ['id' => $socialActivity->getId(), 'target' => $target],
-                $this->getLinkByFilename($socialActivity->getImage())
+                $socialActivity->getImage()
             );
         }
     }
 
-    public function send(User $recipient, $title, $message, $type, $entityData = null, $image = null)
+    public function send(User $recipient, $title, $message, $type, $entityData = null, $image = null): void
     {
-        /** @var AbstractEndpoint[] $endpoints */
-        $endpoints = $this->entityManager->getRepository(AbstractEndpoint::class)->findBy(['user' => $recipient]);
-        if (empty($image)) {
-            $image = 'https://'.$this->hostname.self::IMAGE_LINK;
-        }
-        $badge = $this->getBadge($recipient);
-        foreach ($endpoints as $endpoint) {
-            try {
-                $this->notification->send(
-                    $title,
-                    $message,
-                    $type,
-                    $entityData,
-                    $image,
-                    $endpoint,
-                    $badge
-                );
-            } catch (\Exception $e) {
-                $this->logger->error($e->getMessage(), $e->getTrace());
-            }
+        $message = new PushMessage($recipient, $title, $message, $type, $entityData, $image);
+        try {
+            $this->sender->send($message);
+        } catch (\Exception $e) {
+            $this->logger->error('Push error: '.$e->getMessage(), $e->getTrace());
         }
     }
 
-    private function preview($text)
+    private function preview(string $text): string
     {
         if (mb_strlen($text) > 300) {
             return mb_substr($text, 0, 300) . '...';
         }
 
         return $text;
-    }
-
-    private function getLinkByFilename($fileName)
-    {
-        if (!$fileName) {
-            return null;
-        }
-
-        return $this->urlBuilder->createURL(
-            self::IMAGE_PATH.'/'.$fileName,
-            array("dpr" => 0.75, "w" => self::IMAGE_WIDTH, "h" => self::IMAGE_HEIGHT)
-        );
-    }
-
-    private function getBadge(User $user)
-    {
-        return $this->entityManager->getRepository(Activity::class)
-            ->countPriorityActivitiesByUser($user, new \DateTime('-30 days'));
     }
 }

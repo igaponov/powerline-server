@@ -19,14 +19,14 @@ interface HashTaggableInterface
      *
      * @param HashTag $hashTags
      */
-    public function removeHashTag(HashTag $hashTags);
+    public function removeHashTag(HashTag $hashTags): void;
 
     /**
      * Get hashTags.
      *
      * @return Collection|HashTag[]
      */
-    public function getHashTags();
+    public function getHashTags(): Collection;
 
     /**
      * Set cachedHashTags.
@@ -35,12 +35,12 @@ interface HashTaggableInterface
      *
      * @return $this
      */
-    public function setCachedHashTags($cachedHashTags);
+    public function setCachedHashTags(array $cachedHashTags);
 
     /**
      * Get cachedHashTags.
      *
      * @return array
      */
-    public function getCachedHashTags();
+    public function getCachedHashTags(): array;
 }

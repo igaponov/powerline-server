@@ -2,33 +2,32 @@
 
 namespace Civix\CoreBundle\Tests\Service;
 
+use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\Component\ContentConverter\ConverterInterface;
-use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\District;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Event\AvatarEvent;
 use Civix\CoreBundle\Event\AvatarEvents;
+use Civix\CoreBundle\Event\RepresentativeEvent;
+use Civix\CoreBundle\Event\RepresentativeEvents;
 use Civix\CoreBundle\Service\CiceroApi;
-use Civix\ApiBundle\Tests\WebTestCase;
-use Civix\CoreBundle\Entity\Representative;
-use Civix\CoreBundle\Entity\District;
 use Civix\CoreBundle\Service\CiceroCalls;
-use Civix\CoreBundle\Service\CongressApi;
-use Civix\CoreBundle\Service\OpenstatesApi;
-use Civix\CoreBundle\Tests\DataFixtures\ORM as ORM;
+use Civix\CoreBundle\Service\CiceroRepresentativePopulator;
+use Civix\CoreBundle\Tests\DataFixtures\ORM;
 use Doctrine\ORM\EntityManager;
-use Faker\Factory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CiceroApiTest extends WebTestCase
 {
     /**
-     * @var Representative
+     * @var UserRepresentative
      */
     private $districtObj;
     private $responseCandidates;
     private $resultCandidatesDistricts;
     private $responseRepresentative;
 
-    public function setUp()
+    public function setUp(): void
     {
         static::$kernel = static::createKernel();
         static::$kernel->boot();
@@ -41,7 +40,7 @@ class CiceroApiTest extends WebTestCase
         $this->districtObj = new District();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->districtObj = null;
         $this->responseCandidates = null;
@@ -51,112 +50,47 @@ class CiceroApiTest extends WebTestCase
     }
 
     /**
-     * Test method getUserDistrictsFromApi.
-     *
-     * @group cicero
-     */
-    public function testUserDistrictsFromApi()
-    {
-        $this->loadFixtures(array(
-            ORM\LoadDistrictData::class,
-            ORM\LoadRepresentativeData::class,
-        ));
-        $ciceroCallsMock = $this->getMockBuilder('Civix\CoreBundle\Service\CiceroCalls')
-            ->setMethods(array('getResponse'))
-            ->disableOriginalConstructor()
-            ->getMock();
-        $ciceroCallsMock->expects($this->once())
-            ->method('getResponse')
-            ->will($this->returnValue($this->responseCandidates));
-
-        $congressMock = $this->getMockBuilder('Civix\CoreBundle\Service\CongressApi')
-            ->setMethods(array('updateRepresentativeProfile'))
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $openstatesApi = $this->getMockBuilder('Civix\CoreBundle\Service\OpenstatesApi')
-            ->setMethods(array('updateRepresentativeProfile'))
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher->expects($this->never())->method('dispatch');
-        $converter = $this->createMock(ConverterInterface::class);
-
-        /** @var \PHPUnit_Framework_MockObject_MockObject|CiceroApi $mock */
-        $mock = $this->getMockBuilder('Civix\CoreBundle\Service\CiceroApi')
-            ->setMethods(['getNonlegislaveDistricts'])
-            ->setConstructorArgs([
-                $ciceroCallsMock,
-                static::$kernel->getContainer()->get('doctrine')->getManager(),
-                $congressMock,
-                $openstatesApi,
-                $converter,
-                $dispatcher
-            ])
-            ->getMock();
-        $mock->expects($this->once())
-            ->method('getNonlegislaveDistricts')
-            ->will($this->returnValue([]));
-
-        $districts = $mock->getUserDistrictsFromApi('108 4th St', 'Hoboken', 'NJ');
-
-        $districtsIds = array_map(function (District $district) {
-            return $district->getId();
-        }, $districts);
-
-        $this->assertEmpty(
-            array_diff($districtsIds, $this->resultCandidatesDistricts),
-            'Should return empty array of differences'
-        );
-    }
-
-    /**
      * Test method UpdateByRepresentativeInfo.
      *
      * @group cicero
      */
-    public function testUpdateByRepresentativeInfo()
+    public function testUpdateByRepresentativeInfo(): void
     {
         $repository = $this->loadFixtures(array(
-            ORM\LoadRepresentativeRelationData::class,
+            ORM\LoadUserRepresentativeRelationData::class,
         ))->getReferenceRepository();
         /** @var EntityManager $em */
         $em = $this->getContainer()
             ->get('doctrine')
             ->getManager();
-        /** @var Representative $representativeObj */
+        /** @var UserRepresentative $representativeObj */
         $representativeObj = $repository->getReference('representative_jb');
         /** @var CiceroCalls|\PHPUnit_Framework_MockObject_MockObject $ciceroCallsMock */
-        $ciceroCallsMock = $this->getMockBuilder('Civix\CoreBundle\Service\CiceroCalls')
-            ->setMethods(array('getResponse'))
-            ->disableOriginalConstructor()
-            ->getMock();
-        /** @var CongressApi $congressMock */
-        $congressMock = $this->getMockBuilder('Civix\CoreBundle\Service\CongressApi')
-            ->setMethods(array('updateRepresentativeProfile'))
-            ->disableOriginalConstructor()
-            ->getMock();
-        /** @var OpenstatesApi $openstatesApi */
-        $openstatesApi = $this->getMockBuilder('Civix\CoreBundle\Service\OpenstatesApi')
-            ->setMethods(array('updateRepresentativeProfile'))
+        $ciceroCallsMock = $this->getMockBuilder(CiceroCalls::class)
+            ->setMethods(['getResponse'])
             ->disableOriginalConstructor()
             ->getMock();
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher->expects($this->once())
+        $dispatcher->expects($this->exactly(2))
             ->method('dispatch')
-            ->with(AvatarEvents::CHANGE, $this->isInstanceOf(AvatarEvent::class));
+            ->withConsecutive(
+                [AvatarEvents::CHANGE, $this->isInstanceOf(AvatarEvent::class)],
+                [RepresentativeEvents::UPDATE, $this->isInstanceOf(RepresentativeEvent::class)]
+            );
 
         $converter = $this->createMock(ConverterInterface::class);
+        $populator = new CiceroRepresentativePopulator(
+            $converter,
+            $this->getContainer()->get('civix_core.state_repository'),
+            $this->getContainer()->get('civix_core.district_repository')
+        );
 
         $ciceroApi = new CiceroApi(
             $ciceroCallsMock,
             $em,
-            $congressMock,
-            $openstatesApi,
-            $converter,
-            $dispatcher
+            $dispatcher,
+            $populator
         );
 
         $ciceroCallsMock->expects($this->any())
@@ -168,7 +102,7 @@ class CiceroApiTest extends WebTestCase
         $em->flush();
         $em->refresh($representativeObj);
         $this->assertSame(
-            $representativeObj->getCiceroRepresentative()->getId(),
+            $representativeObj->getRepresentative()->getCiceroId(),
             $this->responseRepresentative->response->results->officials[0]->id
         );
     }

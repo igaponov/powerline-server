@@ -122,7 +122,7 @@
             <arg value="-s"/> <arg value="dir"/>
             <arg value="-n"/> <arg value="${package.name}"/>
             <arg value="-a"/> <arg value="all"/>
-            <arg value="-d"/> <arg value="php5-cli >= 5.5"/>
+            <arg value="-d"/> <arg value="php7.1-cli >= 7.1"/>
             <arg value="-d"/> <arg value="sudo"/>
             <arg value="-t"/> <arg value="deb"/>
             <arg value="-v"/> <arg value="${package.version}"/>

@@ -14,7 +14,10 @@ services:
 
     civix_core.rabbit.async_event_consumer:
         class: Civix\CoreBundle\Service\RabbitMQCallback\AsyncEventConsumer
-        arguments: ['@event_dispatcher', '@logger']
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - '@event_dispatcher'
+            - '@logger'
 
     civix_core.image_manager:
         class: Intervention\Image\ImageManager
@@ -26,10 +29,15 @@ services:
         arguments:
             - '@civix_core.cicero_calls'
             - '@doctrine.orm.entity_manager'
-            - '@civix_core.congress_api'
-            - '@civix_core.openstates_api'
-            - '@civix_core.content_converter'
             - '@event_dispatcher'
+            - '@civix_core.cicero_representative_populator'
+
+    civix_core.cicero_representative_populator:
+        class: Civix\CoreBundle\Service\CiceroRepresentativePopulator
+        arguments:
+            - '@civix_core.content_converter'
+            - '@civix_core.state_repository'
+            - '@civix_core.district_repository'
 
     civix_core.converter_source.base64:
         class: Civix\Component\ContentConverter\Source\Base64
@@ -45,6 +53,38 @@ services:
             - "@civix_core.converter_source.base64"
             - "@civix_core.converter_source.url"
 
+    civix_core.data_collector.rabbit_mqdata_collector:
+        class: Civix\CoreBundle\DataCollector\RabbitMQDataCollector
+        arguments: ['@old_sound_rabbit_mq.async_event_producer']
+        tags:
+            - { name: data_collector, id: rabbit_mq }
+
+    civix_core.service.user_local_group_manager:
+        class: Civix\CoreBundle\Service\UserLocalGroupManager
+        arguments:
+            - '@geocoder'
+            - '@doctrine.orm.entity_manager'
+            - '@civix_core.repository.group_repository'
+            - '@event_dispatcher'
+            - '@logger'
+
+    civix_core.social_activity_factory:
+        class: Civix\CoreBundle\Service\SocialActivityFactory
+
+    civix_core.representative_importer:
+        class: Civix\CoreBundle\Service\RepresentativeImporter
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - '@civix_core.state_repository'
+            - '@civix_core.district_repository'
+            - '@civix_core.content_converter'
+
+    civix_core.property_namer:
+        class: Civix\CoreBundle\Service\PropertyNamer
+
+    http.client:
+        class: GuzzleHttp\Client
+        arguments: [ { allow_redirects: true } ]
 
 #    civix_core.uploader.metadata.file_locator:
 #        class: Metadata\Driver\FileLocator

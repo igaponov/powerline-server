@@ -6,6 +6,7 @@ use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Event;
 use Civix\CoreBundle\Service\SocialActivityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class SocialActivitySubscriber implements EventSubscriberInterface
@@ -14,25 +15,30 @@ class SocialActivitySubscriber implements EventSubscriberInterface
      * @var SocialActivityManager
      */
     private $manager;
+    /**
+     * @var EntityManagerInterface
+     */
+    private $em;
 
-    public function __construct(SocialActivityManager $manager)
+    public function __construct(SocialActivityManager $manager, EntityManagerInterface $em)
     {
         $this->manager = $manager;
+        $this->em = $em;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             Event\UserEvents::FOLLOW => ['sendUserFollowRequest', -100],
+            Event\UserEvents::UNFOLLOW => ['deleteUserFollowRequest', -100],
+            Event\UserEvents::FOLLOW_REQUEST_APPROVE => ['deleteUserFollowRequest', -100],
             Event\GroupEvents::PERMISSIONS_CHANGED => ['noticeGroupsPermissionsChanged', -100],
             Event\UserPetitionEvents::PETITION_CREATE => ['noticeUserPetitionCreated', -100],
             Event\PostEvents::POST_CREATE => [
                 ['noticePostCreated', -100],
-                ['noticePostMentioned', -100],
             ],
             Event\CommentEvents::CREATE => [
                 ['noticeEntityCommented', -100],
-                ['noticeCommentMentioned', -100],
             ],
             Event\PollEvents::QUESTION_ANSWER => ['noticeAnsweredToQuestion', -100],
             Event\GroupEvents::USER_JOINED => ['noticeGroupJoiningApproved', -100],
@@ -41,7 +47,7 @@ class SocialActivitySubscriber implements EventSubscriberInterface
 
     public function sendUserFollowRequest(Event\UserFollowEvent $event)
     {
-        $this->manager->sendUserFollowRequest($event->getUserFollow());
+        $this->manager->sendUserFollowRequest($event->getUser(), $event->getFollower());
     }
 
     public function noticeGroupsPermissionsChanged(Event\GroupEvent $event)
@@ -52,11 +58,13 @@ class SocialActivitySubscriber implements EventSubscriberInterface
     public function noticeUserPetitionCreated(Event\UserPetitionEvent $event)
     {
         $this->manager->noticeUserPetitionCreated($event->getPetition());
+        $this->em->flush();
     }
 
     public function noticePostCreated(Event\PostEvent $event)
     {
         $this->manager->noticePostCreated($event->getPost());
+        $this->em->flush();
     }
 
     public function noticeEntityCommented(Event\CommentEvent $event)
@@ -64,33 +72,33 @@ class SocialActivitySubscriber implements EventSubscriberInterface
         $comment = $event->getComment();
         if ($comment instanceof Poll\Comment) {
             $this->manager->noticePollCommented($comment);
+            $this->manager->noticePollCommentReplied($comment);
+            $this->manager->noticeOwnPollCommented($comment);
         } elseif ($comment instanceof UserPetition\Comment) {
             $this->manager->noticeUserPetitionCommented($comment);
+            $this->manager->noticeUserPetitionCommentReplied($comment);
+            $this->manager->noticeOwnUserPetitionCommented($comment);
         } elseif ($comment instanceof Post\Comment) {
             $this->manager->noticePostCommented($comment);
+            $this->manager->noticePostCommentReplied($comment);
+            $this->manager->noticeOwnPostCommented($comment);
         }
-    }
-
-    public function noticeCommentMentioned(Event\CommentEvent $event)
-    {
-        $comment = $event->getComment();
-        $this->manager->noticeCommentMentioned($comment);
-    }
-
-    public function noticePostMentioned(Event\PostEvent $event)
-    {
-        $post = $event->getPost();
-        $this->manager->noticePostMentioned($post);
+        $this->em->flush();
     }
 
     public function noticeAnsweredToQuestion(Event\Poll\AnswerEvent $event)
     {
-        $answer =  $event->getAnswer();
+        $answer = $event->getAnswer();
         $this->manager->noticeAnsweredToQuestion($answer);
     }
 
     public function noticeGroupJoiningApproved(Event\GroupUserEvent $event)
     {
         $this->manager->noticeGroupJoiningApproved($event->getUser(), $event->getGroup());
+    }
+
+    public function deleteUserFollowRequest(Event\UserFollowEvent $event)
+    {
+        $this->manager->deleteUserFollowActivity($event->getUser(), $event->getFollower());
     }
 }

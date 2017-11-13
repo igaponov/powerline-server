@@ -7,10 +7,6 @@ use Civix\CoreBundle\Entity\BaseCommentRate;
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Poll\Comment;
 use Civix\CoreBundle\Entity\Poll\CommentRate;
-use Civix\CoreBundle\Entity\Poll\Question;
-use Civix\CoreBundle\Entity\Post;
-use Civix\CoreBundle\Entity\UserPetition;
-use Civix\CoreBundle\Entity\UserPetition\Comment as MicropetitionComment;
 use Civix\CoreBundle\Event\CommentEvent;
 use Civix\CoreBundle\Event\CommentEvents;
 use Civix\CoreBundle\Event\RateEvent;
@@ -36,115 +32,82 @@ class CommentManager
         $this->dispatcher = $dispatcher;
     }
 
-    public function updateRateToComment(BaseComment $comment, $user, $rateValue)
+    /**
+     * @param Comment $comment
+     * @param $user
+     * @param $rateValue
+     * @return CommentRate|null|object
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Doctrine\ORM\ORMInvalidArgumentException
+     * @deprecated Delete in next version
+     */
+    public function updateRateToComment(Comment $comment, $user, $rateValue)
     {
         $rateCommentObj = $this->em
             ->getRepository('CivixCoreBundle:Poll\CommentRate')
             ->findOneBy(array('user' => $user, 'comment' => $comment));
 
         if (!$rateCommentObj) {
-            $rateComment = new CommentRate();
-            $rateComment->setRateValue($rateValue);
-            $rateCommentObj = $this->em
-                ->getRepository('CivixCoreBundle:Poll\CommentRate')
-                ->addRateToComment($comment, $user, $rateComment);
+            $rateCommentObj = new CommentRate();
+            $rateCommentObj->setRateValue($rateValue);
+            $rateCommentObj->setComment($comment);
+            $rateCommentObj->setUser($user);
+            $this->em->persist($rateCommentObj);
         } else {
             $rateCommentObj->setRateValue($rateValue);
         }
 
-        $this->em->persist($rateCommentObj);
-        $this->em->flush();
+        $rateStatistics = $this->em
+            ->getRepository('CivixCoreBundle:Poll\CommentRate')
+            ->getRateStatistics($comment);
+        $comment->setRateSum($rateStatistics['rateSum']);
+        $comment->setRatesCount($rateStatistics['rateCount']);
 
-        $comment = $this->updateRateSumForComment($comment);
-        $comment->setRateStatus($rateValue);
+        $this->em->flush();
 
         return $rateCommentObj;
     }
 
-    public function updateRateSumForComment(BaseComment $comment)
+    public function addCommentByQuestionAnswer(Answer $answer): void
     {
-        $rateSumArr = $this->em
-            ->getRepository('CivixCoreBundle:Poll\CommentRate')
-            ->calcRateCommentSum($comment);
-
-        $comment->setRateSum($rateSumArr['rateSum']);
-        $comment->setRatesCount($comment->getRates()->count());
-        $this->em->persist($comment);
-        $this->em->flush();
-
-        return $comment;
-    }
-
-    public function addCommentByQuestionAnswer(Answer $answer)
-    {
-        $parent = $this->em->getRepository('CivixCoreBundle:Poll\Comment')
-            ->findOneBy(array(
-                'question' => $answer->getQuestion(),
-                'parentComment' => null,
-            ));
-
         if ($answer->getComment()) {
-            $comment = new Comment();
-            $comment->setUser($answer->getUser())
+            $comment = new Comment($answer->getUser());
+            $comment->setQuestion($answer->getQuestion())
                 ->setCommentBody($answer->getComment())
-                ->setQuestion($answer->getQuestion())
-                ->setPrivacy($answer->getPrivacy())
-                ->setParentComment($parent)
-            ;
-
-            return $this->saveComment($comment);
+                ->setPrivacy($answer->getPrivacy());
+            $this->saveComment($comment);
         }
     }
 
-    public function addUserPetitionRootComment(UserPetition $petition)
+    public function addComment(BaseComment $comment): BaseComment
     {
-        $comment = new MicropetitionComment();
-        $comment->setPetition($petition);
-        $comment->setCommentBody($petition->getBody());
-
-        return $this->saveComment($comment);
-    }
-
-    public function addPostRootComment(Post $post)
-    {
-        $comment = new Post\Comment();
-        $comment->setPost($post);
-        $comment->setCommentBody($post->getBody());
-
-        return $this->saveComment($comment);
-    }
-
-    public function addPollRootComment(Question $question, $message = '')
-    {
-        $comment = new Comment();
-        $comment
-            ->setQuestion($question)
-            ->setCommentBody($message)
-        ;
-
-        return $this->saveComment($comment);
-    }
-
-    public function addComment(BaseComment $comment)
-    {
-        $this->em->persist($comment);
-        $this->em->flush($comment);
-
         $event = new CommentEvent($comment);
-        $this->dispatcher->dispatch(CommentEvents::CREATE, $event);
+        $this->dispatcher->dispatch(CommentEvents::PRE_CREATE, $event);
 
-        return $comment;
-    }
-
-    public function saveComment(BaseComment $comment)
-    {
         $this->em->persist($comment);
         $this->em->flush($comment);
 
+        $this->dispatcher->dispatch('async.'.CommentEvents::CREATE, $event);
+
         return $comment;
     }
 
-    public function deleteComment(BaseComment $comment)
+    public function saveComment(BaseComment $comment): BaseComment
+    {
+        $event = new CommentEvent($comment);
+        $this->dispatcher->dispatch(CommentEvents::PRE_UPDATE, $event);
+
+        $this->em->persist($comment);
+        $this->em->flush($comment);
+
+        $this->dispatcher->dispatch('async.'.CommentEvents::UPDATE, $event);
+
+        return $comment;
+    }
+
+    public function deleteComment(BaseComment $comment): BaseComment
     {
         $comment->setCommentBody(self::DELETED_COMMENT_BODY);
         $comment->setCommentBodyHtml(self::DELETED_COMMENT_BODY);
@@ -154,7 +117,7 @@ class CommentManager
         return $comment;
     }
 
-    public function rateComment(BaseComment $comment, BaseCommentRate $rate)
+    public function rateComment(BaseComment $comment, BaseCommentRate $rate): BaseComment
     {
         if (!$this->em->contains($rate)) {
             $comment->addRate($rate);

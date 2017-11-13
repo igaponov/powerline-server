@@ -3,6 +3,8 @@
 namespace Civix\CoreBundle\Entity\UserPetition;
 
 use Civix\CoreBundle\Entity\BaseComment;
+use Civix\CoreBundle\Entity\CommentedInterface;
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserPetition;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
@@ -17,26 +19,15 @@ use JMS\Serializer\Annotation as Serializer;
 class Comment extends BaseComment
 {
     /**
-     * @ORM\ManyToOne(targetEntity="Comment", inversedBy="childrenComments")
-     * @ORM\JoinColumn(name="pid", referencedColumnName="id", onDelete="CASCADE")
-     */
-    protected $parentComment;
-
-    /**
-     * @ORM\OneToMany(targetEntity="Comment", mappedBy="parentComment")
-     */
-    protected $childrenComments;
-
-    /**
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\UserPetition", inversedBy="comments")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $petition;
 
-    /**
-     * @ORM\OneToMany(targetEntity="\Civix\CoreBundle\Entity\UserPetition\CommentRate", mappedBy="comment", fetch="EXTRA_LAZY")
-     */
-    protected $rates;
+    public function __construct(User $user, Comment $parentComment = null)
+    {
+        parent::__construct($user, $parentComment);
+    }
 
     /**
      * Set a petition.
@@ -45,7 +36,7 @@ class Comment extends BaseComment
      * 
      * @return Comment
      */
-    public function setPetition(UserPetition $petition)
+    public function setPetition(UserPetition $petition): Comment
     {
         $this->petition = $petition;
 
@@ -57,12 +48,12 @@ class Comment extends BaseComment
      *
      * @return UserPetition
      */
-    public function getPetition()
+    public function getPetition(): UserPetition
     {
         return $this->petition;
     }
 
-    public function getCommentedEntity()
+    public function getCommentedEntity(): CommentedInterface
     {
         return $this->getPetition();
     }

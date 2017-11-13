@@ -4,8 +4,9 @@ namespace Civix\CoreBundle\Entity;
 
 use Civix\CoreBundle\Entity\UserPetition\Comment;
 use Civix\CoreBundle\Entity\UserPetition\Signature;
-use Civix\CoreBundle\Serializer\Type\Image;
 use Civix\CoreBundle\Service\Micropetitions\PetitionManager;
+use Civix\CoreBundle\Validator\Constraints\Property;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -29,36 +30,43 @@ use Symfony\Component\Validator\Constraints as Assert;
  * })
  * @Serializer\ExclusionPolicy("all")
  */
-class UserPetition implements HtmlBodyInterface, SubscriptionInterface, CommentedInterface, HashTaggableInterface
+class UserPetition implements HtmlBodyInterface, SubscriptionInterface, CommentedInterface, HashTaggableInterface, HasMetadataInterface
 {
-    use HashTaggableTrait, MetadataTrait, SpamMarksTrait;
+    use HashTaggableTrait,
+        HasMetadataTrait,
+        SpamMarksTrait,
+        UserPetitionSerializableTrait;
 
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "petition"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string")
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "petition"})
      */
-    private $title;
+    private $title = '';
 
     /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank(groups={"Default", "create", "update"})
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "petition"})
      */
-    private $body;
+    private $body = '';
 
     /**
      * @ORM\Column(name="html_body", type="text")
      * @Serializer\Expose()
+     * @Serializer\Groups({"Default", "petition"})
      */
-    private $htmlBody;
+    private $htmlBody = '';
 
     /**
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Group")
@@ -73,16 +81,18 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      * @Serializer\Expose()
      * @Serializer\Type("boolean")
      * @Serializer\SerializedName("is_outsiders_sign")
+     * @Serializer\Groups({"Default", "petition"})
      */
     private $outsidersSign = false;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      * @Gedmo\Timestampable()
      * @Serializer\Expose()
      * @Serializer\Type("DateTime<'D, d M Y H:i:s O'>")
+     * @Serializer\Groups({"Default", "petition"})
      */
     private $createdAt;
 
@@ -94,35 +104,41 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
     private $user;
 
     /**
+     * @var bool
+     *
      * @ORM\Column(type="boolean", options={"default" = false})
      * @Serializer\Expose()
-     *
-     * @var bool
+     * @Serializer\Groups({"Default", "petition"})
      */
     private $boosted = false;
 
     /**
+     * @var bool
+     *
      * @ORM\Column(name="organization_needed", type="boolean", options={"default" = false})
      * @Serializer\Expose()
-     *
-     * @var bool
+     * @Serializer\Groups({"Default", "petition"})
      */
     private $organizationNeeded = false;
 
     /**
      * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\UserPetition\Signature", mappedBy="petition", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-petitions-answers"})
+     * @Serializer\Groups({"api-petitions-answers", "activity-list"})
      */
     private $signatures;
 
     /**
      * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\UserPetition\Comment", mappedBy="petition", cascade={"remove","persist"}, fetch="EXTRA_LAZY")
+     *
+     * @Serializer\Expose()
+     * @Serializer\Groups({"activity-list"})
+     * @Serializer\Since("2")
      */
     private $comments;
 
     /**
-     * @var ArrayCollection|User[]
+     * @var Collection|User[]
      *
      * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\User", cascade={"persist"}, mappedBy="petitionSubscriptions", fetch="EXTRA_LAZY")
      * @ORM\JoinTable(name="petition_subscribers", joinColumns={@ORM\JoinColumn(name="petition_id", referencedColumnName="id")})
@@ -135,6 +151,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      * @ORM\Column(type="boolean", options={"default" = false})
      * @Serializer\Expose()
      * @Serializer\Type("boolean")
+     * @Serializer\Groups({"Default", "petition"})
      */
     private $supportersWereInvited = false;
 
@@ -144,8 +161,25 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      * @ORM\Column("automatic_boost", type="boolean", options={"default" = true}, nullable=false)
      * @Serializer\Expose()
      * @Serializer\Type("boolean")
+     * @Serializer\Groups({"Default", "petition"})
      */
     private $automaticBoost = true;
+
+    /**
+     * @var File
+     *
+     * @ORM\Embedded(class="Civix\CoreBundle\Entity\File", columnPrefix="facebook_thumbnail_")
+     */
+    private $facebookThumbnail;
+
+    /**
+     * @var File
+     *
+     * @ORM\Embedded(class="Civix\CoreBundle\Entity\File", columnPrefix="")
+     *
+     * @Property(propertyPath="file", constraints={@Assert\File(mimeTypes={"image/jpg", "image/jpeg", "image/png"})}, groups={"Default", "create", "update"})
+     */
+    protected $image;
 
     public function __construct()
     {
@@ -154,6 +188,8 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
         $this->comments = new ArrayCollection();
         $this->metadata = new Metadata();
         $this->subscribers = new ArrayCollection();
+        $this->facebookThumbnail = new File();
+        $this->image = new File();
     }
 
     /**
@@ -161,7 +197,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      *
      * @return int
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -173,7 +209,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      *
      * @return UserPetition
      */
-    public function setTitle($title)
+    public function setTitle(string $title): UserPetition
     {
         $this->title = $title;
 
@@ -185,7 +221,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      *
      * @return string
      */
-    public function getTitle()
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -197,7 +233,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      *
      * @return UserPetition
      */
-    public function setBody($body)
+    public function setBody(string $body): UserPetition
     {
         $this->body = $body;
 
@@ -209,7 +245,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      *
      * @return string
      */
-    public function getBody()
+    public function getBody(): string
     {
         return $this->body;
     }
@@ -217,7 +253,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
     /**
      * @return mixed
      */
-    public function getHtmlBody()
+    public function getHtmlBody(): string
     {
         return $this->htmlBody;
     }
@@ -226,7 +262,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      * @param mixed $htmlBody
      * @return UserPetition
      */
-    public function setHtmlBody($htmlBody)
+    public function setHtmlBody(string $htmlBody): UserPetition
     {
         $this->htmlBody = $htmlBody;
 
@@ -240,7 +276,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      *
      * @return UserPetition
      */
-    public function setOutsidersSign($outsidersSign)
+    public function setOutsidersSign(bool $outsidersSign): UserPetition
     {
         $this->outsidersSign = $outsidersSign;
 
@@ -252,7 +288,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      *
      * @return bool
      */
-    public function isOutsidersSign()
+    public function isOutsidersSign(): bool
     {
         return $this->outsidersSign;
     }
@@ -260,9 +296,9 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
     /**
      * Get createdAt.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getCreatedAt()
+    public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
     }
@@ -274,7 +310,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      *
      * @return UserPetition
      */
-    public function setGroup(Group $group = null)
+    public function setGroup(Group $group): UserPetition
     {
         $this->group = $group;
 
@@ -286,7 +322,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      *
      * @return Group
      */
-    public function getGroup()
+    public function getGroup(): ?Group
     {
         return $this->group;
     }
@@ -298,7 +334,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      *
      * @return UserPetition
      */
-    public function setUser(User $user)
+    public function setUser(User $user): UserPetition
     {
         $this->user = $user;
 
@@ -310,19 +346,19 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      *
      * @return User
      */
-    public function getUser()
+    public function getUser(): ?User
     {
         return $this->user;
     }
 
-    public function boost()
+    public function boost(): UserPetition
     {
         $this->boosted = true;
 
         return $this;
     }
 
-    public function isBoosted()
+    public function isBoosted(): bool
     {
         return $this->boosted;
     }
@@ -330,7 +366,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
     /**
      * @return bool
      */
-    public function isOrganizationNeeded()
+    public function isOrganizationNeeded(): bool
     {
         return $this->organizationNeeded;
     }
@@ -340,7 +376,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      *
      * @return UserPetition
      */
-    public function setOrganizationNeeded($organizationNeeded)
+    public function setOrganizationNeeded(bool $organizationNeeded): UserPetition
     {
         $this->organizationNeeded = $organizationNeeded;
 
@@ -352,16 +388,15 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("quorum_count")
      */
-    public function getQuorumCount()
+    public function getQuorumCount(): float
     {
-        $currentPercent = $this->getGroup()->getPetitionPercent();
-        if (empty($currentPercent)) {
+        $group = $this->getGroup();
+        $currentPercent = $group ? $group->getPetitionPercent() : null;
+        if (!$currentPercent) {
             $currentPercent = PetitionManager::PERCENT_IN_GROUP;
         }
 
-        return round((
-                $this->getGroup()->getUsers()->count() * $currentPercent) / 100
-        );
+        return $group ? round(($group->getUsers()->count() * $currentPercent) / 100) : 0;
     }
 
     /**
@@ -371,7 +406,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      *
      * @return UserPetition
      */
-    public function addSignature(UserPetition\Signature $signature)
+    public function addSignature(UserPetition\Signature $signature): UserPetition
     {
         $this->signatures[] = $signature;
         $signature->setPetition($this);
@@ -384,15 +419,15 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      *
      * @param \Civix\CoreBundle\Entity\UserPetition\Signature $signature
      */
-    public function removeSignature(UserPetition\Signature $signature)
+    public function removeSignature(UserPetition\Signature $signature): void
     {
         $this->signatures->removeElement($signature);
     }
 
     /**
-     * @return ArrayCollection|Signature[]
+     * @return Collection|Signature[]
      */
-    public function getSignatures()
+    public function getSignatures(): Collection
     {
         return $this->signatures;
     }
@@ -401,7 +436,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      * @param User $user
      * @return Signature
      */
-    public function sign(User $user)
+    public function sign(User $user): UserPetition\Signature
     {
         $signature = new Signature();
         $signature->setUser($user);
@@ -413,21 +448,9 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
     /**
      * @return int
      */
-    public function getResponsesCount()
+    public function getResponsesCount(): int
     {
         return $this->getSignatures()->count();
-    }
-
-    /**
-     * @Serializer\VirtualProperty
-     * @Serializer\SerializedName("share_picture")
-     * @Serializer\Type("Image")
-     */
-    public function getSharePicture()
-    {
-        $entity = $this->isBoosted() ? $this->getGroup() : $this->getUser();
-
-        return new Image($entity, 'avatar');
     }
 
     /**
@@ -436,7 +459,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      * @param BaseComment|Comment $comment
      * @return $this
      */
-    public function addComment(BaseComment $comment)
+    public function addComment(BaseComment $comment): UserPetition
     {
         $this->comments[] = $comment;
         $comment->setPetition($this);
@@ -449,7 +472,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      *
      * @param BaseComment $comment
      */
-    public function removeComment(BaseComment $comment)
+    public function removeComment(BaseComment $comment): void
     {
         $this->comments->removeElement($comment);
     }
@@ -459,7 +482,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      *
      * @return Collection|Comment[]
      */
-    public function getComments()
+    public function getComments(): Collection
     {
         return $this->comments;
     }
@@ -470,7 +493,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      * @param User $subscriber
      * @return UserPetition
      */
-    public function addSubscriber(User $subscriber)
+    public function addSubscriber(User $subscriber): UserPetition
     {
         $this->subscribers[] = $subscriber;
 
@@ -482,7 +505,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      *
      * @param User $subscriber
      */
-    public function removeSubscriber(User $subscriber)
+    public function removeSubscriber(User $subscriber): void
     {
         $this->subscribers->removeElement($subscriber);
     }
@@ -492,156 +515,15 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      *
      * @return Collection|User[]
      */
-    public function getSubscribers()
+    public function getSubscribers(): Collection
     {
         return $this->subscribers;
     }
 
     /**
-     * Virtual property for old endpoint
-     *
-     * @return mixed
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("petition_body_html")
-     * @Serializer\Type("string")
-     *
-     * @internal
-     */
-    public function getPetitionBodyHtml()
-    {
-        return $this->htmlBody;
-    }
-
-    /**
-     * Virtual property for old endpoint
-     *
-     * @return mixed
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("petition_body")
-     * @Serializer\Type("string")
-     *
-     * @internal
-     */
-    public function getPetitionBody()
-    {
-        return $this->body;
-    }
-
-    /**
-     * Virtual property for old endpoint
-     *
-     * @return mixed
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("expire_at")
-     * @Serializer\Type("DateTime")
-     *
-     * @internal
-     */
-    public function getExpireAt()
-    {
-        return new \DateTime('+1 year');
-    }
-
-    /**
-     * Virtual property for old endpoint
-     *
-     * @return mixed
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("user_expire_interval")
-     * @Serializer\Type("integer")
-     *
-     * @internal
-     */
-    public function getUserExpireInterval()
-    {
-        return 0;
-    }
-
-    /**
-     * Virtual property for old endpoint
-     *
-     * @return mixed
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("type")
-     * @Serializer\Type("string")
-     *
-     * @internal
-     */
-    public function getType()
-    {
-        return 'long petition';
-    }
-
-    /**
-     * Virtual property for old endpoint
-     *
-     * @return mixed
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("link")
-     * @Serializer\Type("string")
-     *
-     * @internal
-     */
-    public function getLink()
-    {
-        return '';
-    }
-
-    /**
-     * Virtual property for old endpoint
-     *
-     * @return mixed
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("publish_status")
-     * @Serializer\Type("integer")
-     *
-     * @internal
-     */
-    public function getPublishStatus()
-    {
-        return (int)$this->boosted;
-    }
-
-    /**
-     * @internal
-     * @return ArrayCollection
-     *
-     * @Serializer\VirtualProperty()
-     * @Serializer\Type("array<Civix\CoreBundle\Entity\UserPetition\Signature>")
-     * @Serializer\Groups({"api-petitions-answers"})
-     */
-    public function getAnswers()
-    {
-        return $this->signatures;
-    }
-
-    /**
-     * @return bool
-     *
-     * @Serializer\VirtualProperty()
-     * @Serializer\Type("boolean")
-     * @Serializer\Groups({"activity-list"})
-     */
-    public function isSubscribed()
-    {
-        return (bool)$this->subscribers->count();
-    }
-
-    /**
-     * @return int
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("group_id")
-     * @Serializer\Type("integer")
-     */
-    public function getGroupId()
-    {
-        return $this->getGroup()->getId();
-    }
-
-    /**
      * @return bool
      */
-    public function isSupportersWereInvited()
+    public function isSupportersWereInvited(): bool
     {
         return $this->supportersWereInvited;
     }
@@ -650,7 +532,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      * @param bool $supportersWereInvited
      * @return UserPetition
      */
-    public function setSupportersWereInvited($supportersWereInvited)
+    public function setSupportersWereInvited($supportersWereInvited): UserPetition
     {
         $this->supportersWereInvited = $supportersWereInvited;
 
@@ -660,7 +542,7 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
     /**
      * @return bool
      */
-    public function isAutomaticBoost()
+    public function isAutomaticBoost(): bool
     {
         return $this->automaticBoost;
     }
@@ -669,9 +551,49 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      * @param bool $automaticBoost
      * @return $this
      */
-    public function setAutomaticBoost($automaticBoost)
+    public function setAutomaticBoost($automaticBoost): UserPetition
     {
         $this->automaticBoost = $automaticBoost;
+
+        return $this;
+    }
+
+    /**
+     * @return File
+     */
+    public function getFacebookThumbnail(): File
+    {
+        return $this->facebookThumbnail;
+    }
+
+    /**
+     * @param File $facebookThumbnail
+     * @return UserPetition
+     */
+    public function setFacebookThumbnail(File $facebookThumbnail): UserPetition
+    {
+        $this->facebookThumbnail = $facebookThumbnail;
+
+        return $this;
+    }
+
+    /**
+     * @return File
+     */
+    public function getImage(): File
+    {
+        return $this->image;
+    }
+
+    /**
+     * @param File $image
+     * @return UserPetition
+     */
+    public function setImage(?File $image): UserPetition
+    {
+        if ($image) {
+            $this->image = $image;
+        }
 
         return $this;
     }

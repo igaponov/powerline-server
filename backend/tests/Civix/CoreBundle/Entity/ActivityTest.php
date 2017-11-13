@@ -8,7 +8,7 @@ use Civix\CoreBundle\Entity\Activities\Petition;
 use Civix\CoreBundle\Entity\Activities\Post;
 use Civix\CoreBundle\Entity\Activities\UserPetition;
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Entity\Superuser;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Serializer\Type\GroupOwnerData;
@@ -39,7 +39,7 @@ class ActivityTest extends TestCase
 
     public function testGetRepresentativeOwnerData()
     {
-        $representative = new Representative(new User());
+        $representative = new UserRepresentative(new User());
         $activity = new UserPetition();
         $activity->setRepresentative($representative);
         $data = $activity->getOwnerData();

@@ -70,8 +70,8 @@ class Post extends Activity
      */
     public function getCommentsCount()
     {
-        if ($this->petition) {
-            return $this->petition->getComments()->count();
+        if ($this->post) {
+            return $this->post->getComments()->count();
         }
 
         return 0;

@@ -5,7 +5,7 @@ namespace Civix\ApiBundle\Controller\V2\Representative;
 use Civix\ApiBundle\Configuration\SecureParam;
 use Civix\ApiBundle\Controller\V2\AbstractPollController;
 use Civix\CoreBundle\Entity\Poll\Question;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Service\PollManager;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -62,11 +62,11 @@ class PollController extends AbstractPollController
      * @View(serializerGroups={"paginator", "api-poll"})
      *
      * @param ParamFetcher $params
-     * @param Representative $representative
+     * @param UserRepresentative $representative
      *
      * @return \Knp\Component\Pager\Pagination\PaginationInterface
      */
-    public function getPollsAction(ParamFetcher $params, Representative $representative)
+    public function getPollsAction(ParamFetcher $params, UserRepresentative $representative)
     {
         return $this->getPolls($params, $representative);
     }
@@ -83,7 +83,7 @@ class PollController extends AbstractPollController
      *     authentication=true,
      *     section="Polls",
      *     description="Add poll",
-     *     input="Civix\ApiBundle\Form\Type\Poll\QuestionType",
+     *     input="Civix\ApiBundle\Form\Type\Poll\CreateQuestionType",
      *     output={
      *          "class" = "Civix\CoreBundle\Entity\Poll\Question",
      *          "groups" = {"api-poll"}
@@ -100,11 +100,11 @@ class PollController extends AbstractPollController
      * @View(serializerGroups={"api-poll"})
      *
      * @param Request $request
-     * @param Representative $representative
+     * @param UserRepresentative $representative
      *
      * @return Question|\Symfony\Component\Form\Form
      */
-    public function postPollAction(Request $request, Representative $representative)
+    public function postPollAction(Request $request, UserRepresentative $representative)
     {
         return $this->postPoll($request, $representative);
     }

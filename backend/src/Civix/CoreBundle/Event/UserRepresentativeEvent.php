@@ -2,26 +2,26 @@
 
 namespace Civix\CoreBundle\Event;
 
-use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Symfony\Component\EventDispatcher\Event;
 
 class UserRepresentativeEvent extends Event
 {
     /**
-     * @var User
+     * @var UserRepresentative
      */
-    private $user;
+    private $representative;
 
-    public function __construct(User $user)
+    public function __construct(UserRepresentative $representative)
     {
-        $this->user = $user;
+        $this->representative = $representative;
     }
 
     /**
-     * @return User
+     * @return UserRepresentative
      */
-    public function getUser(): User
+    public function getRepresentative(): UserRepresentative
     {
-        return $this->user;
+        return $this->representative;
     }
 }

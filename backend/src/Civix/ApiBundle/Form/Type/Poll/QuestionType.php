@@ -130,7 +130,7 @@ class QuestionType extends AbstractType
     {
         $resolver
             ->setRequired(['root_model'])
-            ->setAllowedTypes('root_model', LeaderContentRootInterface::class)
+            ->setAllowedTypes('root_model', [LeaderContentRootInterface::class, 'null'])
             ->setDefaults([
                 'data_class' => Question::class,
                 'empty_data' => function(Form $form) {
@@ -152,6 +152,7 @@ class QuestionType extends AbstractType
                     return $groups;
                 },
                 'allow_extra_fields' => true,
+                'root_model' => null,
             ]);
     }
 }

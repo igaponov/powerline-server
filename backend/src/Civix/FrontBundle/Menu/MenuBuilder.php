@@ -108,6 +108,11 @@ class MenuBuilder
                     'civix_front_superuser_report_question',
                 ],
             ]);
+            $menu->addChild('Representatives', array('route' => 'civix_front_representative_bulk'))
+                ->setExtras(array('routes' => array(
+                        'civix_front_representative_bulk',
+                    ))
+                );
             $menu->addChild('Settings', array('route' => 'civix_front_superuser_settings_states'))
                 ->setExtras(array('routes' => array(
                     'civix_front_superuser_settings_states',

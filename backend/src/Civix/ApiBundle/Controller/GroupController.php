@@ -8,6 +8,7 @@ use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Entity\UserGroupManager;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
+use Civix\CoreBundle\QueryFunction\UserGroupsQuery;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\View;
 use JMS\Serializer\Exception\RuntimeException;
@@ -363,8 +364,8 @@ class GroupController extends BaseController
      */
     public function getUserGroupsAction()
     {
-        $groups = $this->getDoctrine()->getRepository(Group::class)
-            ->getByUserQuery($this->getUser())->getResult();
+        $query = new UserGroupsQuery($this->getDoctrine()->getManager());
+        $groups = $query($this->getUser())->getResult();
 
         $response = new Response($this->jmsSerialization($groups, ['api-groups']));
         $response->headers->set('Content-Type', 'application/json');

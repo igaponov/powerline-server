@@ -77,17 +77,13 @@ class LoadQuestionCommentData extends AbstractFixture implements ContainerAwareI
      * @param null|Comment $parentComment
      * @return Comment
      */
-    private function createComment($user, $question, $parentComment = null)
+    private function createComment($user, $question, $parentComment = null): Comment
     {
         $faker = Factory::create();
-        $comment = new Comment();
-        $comment->setUser($user);
+        $comment = new Comment($user, $parentComment);
         $comment->setQuestion($question);
         $comment->setCommentBody($faker->text);
         $comment->setCommentBodyHtml($faker->text);
-        if ($parentComment) {
-            $comment->setParentComment($parentComment);
-        }
 
         $this->manager->persist($comment);
         $this->manager->flush();

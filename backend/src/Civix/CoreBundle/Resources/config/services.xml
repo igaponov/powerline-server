@@ -7,6 +7,8 @@
     <imports>
         <import resource="services/listener.yml"/>
         <import resource="services/repository.yml"/>
+        <import resource="doctrine_listener.yml"/>
+        <import resource="jms_handler.yml"/>
     </imports>
 
     <parameters>
@@ -44,7 +46,7 @@
         <service class="Civix\CoreBundle\Repository\RepresentativeRepository"
                  id="civix_core.repository.representative_repository" public="false">
             <factory service="doctrine.orm.entity_manager" method="getRepository" />
-            <argument type="string">Civix\CoreBundle\Entity\Representative</argument>
+            <argument type="string">Civix\CoreBundle\Entity\UserRepresentative</argument>
         </service>
         <service class="Mailgun\Mailgun" id="mailgun.basic_client" public="false">
             <argument>%mailgun_private%</argument>
@@ -65,12 +67,12 @@
         <service id="civix_core.activity_update" class="Civix\CoreBundle\Service\ActivityUpdate">
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="validator" />
-            <argument type="service" id="civix_core.settings" />
-            <argument type="service" id="civix_core.comment_manager" />
         </service>
 
         <service id="civix_core.social_activity_manager" class="Civix\CoreBundle\Service\SocialActivityManager">
             <argument type="service" id="doctrine.orm.entity_manager" />
+            <argument type="service" id="civix_core.repository.user_repository" />
+            <argument type="service" id="civix_core.social_activity_factory" />
         </service>
 
         <service class="Civix\CoreBundle\Service\AnnouncementManager" id="civix_core.announcement_manager">
@@ -109,12 +111,6 @@
             <tag name="jms_serializer.subscribing_handler" type="Image" direction="serialization" format="json" />
         </service>
 
-        <!-- JoinStatus Serializer Handler -->
-        <service id="civix_core.serializer.handler.join_status_handler" class="Civix\CoreBundle\Serializer\Handler\JoinStatusHandler">
-            <argument type="service" id="security.token_storage" />
-            <tag name="jms_serializer.subscribing_handler" type="JoinStatus" direction="serialization" format="json" />
-        </service>
-
         <service class="Civix\CoreBundle\Serializer\Handler\OwnerHandler" id="civix_core.serializer_handler.owner_handler">
             <argument id="security.token_storage" type="service"/>
             <tag name="jms_serializer.subscribing_handler" />
@@ -125,7 +121,6 @@
         </service>
 
         <service class="Civix\CoreBundle\Serializer\Handler\TotalMembersHandler" id="civix_core.serializer_handler.total_members_handler">
-            <argument type="service" id="civix_core.repository.user_group_repository"/>
             <tag name="jms_serializer.subscribing_handler" />
         </service>
 
@@ -153,10 +148,8 @@
         <service id="civix_core.push_sender" class="Civix\CoreBundle\Service\PushSender">
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="civix_core.question_users_push" />
-            <argument type="service" id="civix_core.notification" />
+            <argument type="service" id="civix.notification.sender" />
             <argument type="service" id="monolog.logger.push" />
-            <argument type="service" id="imgix.url_builder" />
-            <argument type="string">%hostname%</argument>
         </service>
 
         <service id="civix_core.question_users_push" class="Civix\CoreBundle\Service\Poll\QuestionUserPush">
@@ -164,11 +157,7 @@
         </service>
 
         <service id="civix_core.invite_sender" class="Civix\CoreBundle\Service\InviteSender">
-            <argument type="service" id="civix_core.email_sender"/>
             <argument type="service" id="civix_core.push_task"/>
-            <argument type="service" id="doctrine.orm.entity_manager" />
-            <argument type="service" id="civix_core.mailgun"/>
-            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="civix_core.comment_manager" class="Civix\CoreBundle\Service\CommentManager">
@@ -202,16 +191,13 @@
 
         <service id="civix_core.representative_manager" class="Civix\CoreBundle\Service\Representative\RepresentativeManager">
             <argument type="service" id="doctrine.orm.entity_manager" />
-            <argument type="service" id="civix_core.cicero_api" />
             <argument type="service" id="event_dispatcher" />
         </service>
 
         <service id="civix_core.user_manager" class="Civix\CoreBundle\Service\User\UserManager">
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="civix_core.cicero_api" />
-            <argument type="service" id="civix_core.group_manager" />
             <argument type="service" id="event_dispatcher" />
-            <argument>%kernel.root_dir%</argument>
         </service>
 
         <service id="civix_core.account_manager" class="Civix\CoreBundle\Service\AccountManager">
@@ -242,10 +228,6 @@
         </service>
 
         <service id="civix_core.openstates_api" class="Civix\CoreBundle\Service\OpenstatesApi">
-            <argument>%sunlightapi_token%</argument>
-        </service>
-
-        <service id="civix_core.congress_api" class="Civix\CoreBundle\Service\CongressApi">
             <argument>%sunlightapi_token%</argument>
         </service>
 
@@ -287,7 +269,6 @@
             <argument type="service" id="aws.sns" />
             <argument>%amazon_sns.android_arn%</argument>
             <argument>%amazon_sns.ios_arn%</argument>
-            <argument type="service" id="monolog.logger.push" />
         </service>
 
         <service id="civix_core.email_sender" class="Civix\CoreBundle\Service\EmailSender">
@@ -390,11 +371,6 @@
             <argument id="doctrine.orm.entity_manager" type="service"/>
         </service>
 
-        <service class="Civix\CoreBundle\EventListener\SocialActivitySubscriber" id="civix_core.event_listener.social_activity_subscriber">
-            <argument id="civix_core.social_activity_manager" type="service"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service class="Civix\CoreBundle\EventListener\StripeSubscriber" id="civix_core.event_listener.stripe_subscriber">
             <argument id="civix_core.stripe" type="service"/>
             <tag name="kernel.event_subscriber"/>
@@ -408,10 +384,6 @@
         <service class="Civix\CoreBundle\EventListener\ActivityUpdateSubscriber" id="civix_core.event_listener.activity_update_subscriber">
             <argument id="civix_core.activity_update" type="service"/>
             <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service class="Civix\CoreBundle\EventListener\MentionSubscriber" id="civix_core.event_listener.html_body_subscriber">
-            <tag name="doctrine.event_subscriber"/>
         </service>
 
         <service class="Civix\CoreBundle\EventListener\CommentSubscriber" id="civix_core.event_listener.comment_subscriber">

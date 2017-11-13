@@ -2,7 +2,7 @@
 
 namespace Civix\ApiBundle\Security\Authorization\Voter;
 
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Entity\UserInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -36,7 +36,7 @@ class RepresentativeVoter implements VoterInterface
      */
     public function supportsClass($class)
     {
-        $supportedClass = Representative::class;
+        $supportedClass = UserRepresentative::class;
         return $supportedClass === $class || is_subclass_of($class, $supportedClass);
     }
 
@@ -47,7 +47,7 @@ class RepresentativeVoter implements VoterInterface
      * ACCESS_GRANTED, ACCESS_DENIED, or ACCESS_ABSTAIN.
      *
      * @param TokenInterface $token A TokenInterface instance
-     * @param Representative $object
+     * @param UserRepresentative $object
      * @param array $attributes An array of attributes associated with the method being invoked
      *
      * @return int Either ACCESS_GRANTED, ACCESS_ABSTAIN, or ACCESS_DENIED

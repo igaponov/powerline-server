@@ -10,7 +10,7 @@ use Civix\CoreBundle\Entity\HashTaggableTrait;
 use Civix\CoreBundle\Entity\LeaderContentInterface;
 use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Entity\SubscriptionInterface;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Model\Group\GroupSectionInterface;
@@ -101,6 +101,7 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
      *      cascade={"persist"},
      *      orphanRemoval=true
      * )
+     * @Assert\Valid()
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
      */
@@ -113,6 +114,8 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
      *      cascade={"remove", "persist"},
      *      orphanRemoval=true
      * )
+     * @Serializer\Expose()
+     * @Serializer\Groups({"activity-list"})
      */
     protected $answers;
 
@@ -179,6 +182,10 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
 
     /**
      * @ORM\OneToMany(targetEntity="Comment", mappedBy="question", cascade={"remove","persist"})
+     *
+     * @Serializer\Expose()
+     * @Serializer\Groups({"activity-list"})
+     * @Serializer\Since("2")
      */
     protected $comments;
 
@@ -200,7 +207,7 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
     protected $group;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Representative")
+     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\UserRepresentative")
      * @ORM\JoinColumn(name="representative_id", onDelete="CASCADE")
      * @Serializer\Expose()
      * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
@@ -249,7 +256,7 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
     abstract public function getType();
 
     /**
-     * @return LeaderContentRootInterface|Group|Representative
+     * @return LeaderContentRootInterface|Group|UserRepresentative
      */
     abstract public function getOwner();
 
@@ -675,7 +682,7 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
     }
 
     /**
-     * @return Representative|LeaderContentRootInterface
+     * @return UserRepresentative|LeaderContentRootInterface
      */
     public function getRepresentative()
     {

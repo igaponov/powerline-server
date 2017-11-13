@@ -13,10 +13,12 @@ swiftmailer:
     disable_delivery: true
 
 liip_functional_test:
-    cache_sqlite_db: false
+    cache_sqlite_db: true
     authentication:
         username: "admin"
         password: "admin"
+#    query:
+#        max_query_count: 1
 
 doctrine:
     dbal:
@@ -32,6 +34,7 @@ parameters:
     cicero_password: ~
     ciceroapi_class: Civix\CoreBundle\Service\CiceroCalls
     hostname: api-test.powerli.ne
+    old_sound_rabbit_mq.fallback.class: Civix\CoreBundle\Test\FallbackProducer
 
 civix_core:
     mailgun_client: mailgun.test_client
@@ -59,3 +62,8 @@ security:
 
 bazinga_geocoder:
     default_provider: array
+
+old_sound_rabbit_mq:
+    debug: true
+    enable_collector: false
+    sandbox: true

@@ -9,11 +9,15 @@ use Doctrine\Common\Persistence\ObjectManager;
 
 class LoadUserFollowerData extends AbstractFixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
+        /** @var User $user1 */
         $user1 = $this->getReference('user_1');
+        /** @var User $user2 */
         $user2 = $this->getReference('user_2');
+        /** @var User $user3 */
         $user3 = $this->getReference('user_3');
+        /** @var User $user4 */
         $user4 = $this->getReference('user_4');
         
         $userFollow = $this->generateUserFollow($user2, $user1, UserFollow::STATUS_ACTIVE);
@@ -24,6 +28,7 @@ class LoadUserFollowerData extends AbstractFixture implements DependentFixtureIn
         $this->addReference('user_3_user_1', $userFollow);
         $userFollow = $this->generateUserFollow($user4, $user1, UserFollow::STATUS_ACTIVE);
         $manager->persist($userFollow);
+        $this->addReference('user_4_user_1', $userFollow);
         
         $manager->flush();
     }
@@ -34,13 +39,13 @@ class LoadUserFollowerData extends AbstractFixture implements DependentFixtureIn
      * @param $status
      * @return UserFollow
      */
-    private function generateUserFollow($user, $follower, $status)
+    private function generateUserFollow($user, $follower, $status): UserFollow
     {
         $userFollow = new UserFollow();
         $userFollow->setUser($user);
         $userFollow->setFollower($follower);
         $userFollow->setDateCreate(new \DateTime());
-        if ($status == UserFollow::STATUS_ACTIVE) {
+        if ($status === UserFollow::STATUS_ACTIVE) {
             $userFollow->setDateApproval(new \DateTime('-1 week'));
         }
         $userFollow->setStatus($status);
@@ -50,7 +55,7 @@ class LoadUserFollowerData extends AbstractFixture implements DependentFixtureIn
         return $userFollow;
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [LoadUserData::class];
     }

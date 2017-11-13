@@ -5,19 +5,17 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <imports>
-        <import resource="services/listener.yml"/>
         <import resource="services/security.xml"/>
         <import resource="services/form.yml"/>
+        <import resource="services/controller.yml"/>
     </imports>
 
     <services>
-        <service id="http.client" class="GuzzleHttp\Client" />
-
         <service id="api.cors" class="Civix\ApiBundle\EventListener\CORSSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service class="Civix\ApiBundle\EventListener\UserEventSubscriber" id="civix_api.event_listener.user_event_subscriber">
+        <service class="Civix\CoreBundle\EventListener\UserEventSubscriber" id="civix_core.event_listener.user_event_subscriber">
             <argument id="civix_core.email_sender" type="service"/>
             <argument id="doctrine.orm.entity_manager" type="service"/>
             <argument type="string">%auto_invite_group_name%</argument>
@@ -77,6 +75,10 @@
             <tag name="security.voter"/>
         </service>
 
+        <service class="Civix\ApiBundle\Security\Authorization\Voter\DeviceVoter" id="civix_api.security_authorization_voter.device_voter">
+            <tag name="security.voter"/>
+        </service>
+
         <service class="Civix\ApiBundle\Security\Authorization\Voter\LeaderContentVoter" id="civix_api.security_authorization_voter.leader_content_voter">
             <argument id="civix_api.security_authorization_voter.group_voter" type="service"/>
             <argument id="civix_api.security_authorization_voter.representative_voter" type="service"/>
@@ -103,18 +105,19 @@
         <service class="Civix\ApiBundle\EventListener\LeaderContentSubscriber" id="civix_api.event_listener.petition_subscriber">
             <argument id="doctrine.orm.entity_manager" type="service"/>
             <argument id="civix_core.settings" type="service"/>
-            <argument id="civix_core.poll.micropetition_manager" type="service"/>
             <argument id="civix_core.comment_manager" type="service"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service class="Civix\ApiBundle\View\ConstraintViolationListHandler" id="civix_api.constraint_violation_list_handler"/>
+        <service class="Civix\ApiBundle\View\JsonHandler" id="civix_api.json_handler">
+            <argument id="router" type="service"/>
+        </service>
 
         <service parent="fos_rest.view_handler.default" id="civix_api.view_handler">
             <call method="registerHandler">
                 <argument type="string">json</argument>
                 <argument type="collection">
-                    <argument type="service" id="civix_api.constraint_violation_list_handler"/>
+                    <argument type="service" id="civix_api.json_handler"/>
                     <argument type="string">createResponse</argument>
                 </argument>
             </call>

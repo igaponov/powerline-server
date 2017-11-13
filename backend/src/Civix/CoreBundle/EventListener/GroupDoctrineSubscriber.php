@@ -13,6 +13,7 @@ class GroupDoctrineSubscriber implements EventSubscriber
     {
         return [
             Events::prePersist,
+            Events::postPersist,
         ];
     }
 
@@ -43,5 +44,28 @@ class GroupDoctrineSubscriber implements EventSubscriber
             }
         }
         $entity->setSlug($slug);
+    }
+
+    /**
+     * Workaround for the next doctrine error:
+     * The given entity has no identity/no id values set.
+     * It cannot be added to the identity map.
+     *
+     * https://github.com/doctrine/doctrine2/issues/4584
+     *
+     * @param LifecycleEventArgs $event
+     */
+    public function postPersist(LifecycleEventArgs $event)
+    {
+        $entity = $event->getEntity();
+
+        if (!$entity instanceof Group) {
+            return;
+        }
+
+        $attributes = new Group\AdvancedAttributes($entity);
+        $em = $event->getEntityManager();
+        $em->persist($attributes);
+        $em->flush();
     }
 }

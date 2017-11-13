@@ -5,7 +5,9 @@ namespace Civix\CoreBundle\Entity;
 use Civix\CoreBundle\Serializer\Type\GroupOwnerData;
 use Civix\CoreBundle\Serializer\Type\RepresentativeOwnerData;
 use Civix\CoreBundle\Serializer\Type\UserOwnerData;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\InheritanceType;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
@@ -39,15 +41,15 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  */
 abstract class Activity implements HtmlBodyInterface
 {
-    const TYPE_QUESTION = "question";
-    const TYPE_PETITION = "petition";
-    const TYPE_USER_PETITION = "user-petition";
-    const TYPE_POST = "post";
-    const TYPE_LEADER_NEWS = "leader-news";
-    const TYPE_PAYMENT_REQUEST = "payment-request";
-    const TYPE_CROWDFUNDING_PAYMENT_REQUEST = "crowdfunding-payment-request";
-    const TYPE_LEADER_EVENT = "leader-event";
-    const TYPE_ALL = "all";
+    const TYPE_QUESTION = 'question';
+    const TYPE_PETITION = 'petition';
+    const TYPE_USER_PETITION = 'user-petition';
+    const TYPE_POST = 'post';
+    const TYPE_LEADER_NEWS = 'leader-news';
+    const TYPE_PAYMENT_REQUEST = 'payment-request';
+    const TYPE_CROWDFUNDING_PAYMENT_REQUEST = 'crowdfunding-payment-request';
+    const TYPE_LEADER_EVENT = 'leader-event';
+    const TYPE_ALL = 'all';
 
     const ZONE_PRIORITIZED = 0;
 
@@ -71,7 +73,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @var string
      */
-    protected $title;
+    protected $title = '';
 
     /**
      * @ORM\Column(name="description", type="text")
@@ -80,7 +82,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @var string
      */
-    protected $description;
+    protected $description = '';
 
     /**
      * @ORM\Column(name="description_html", type="text")
@@ -89,7 +91,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @var string
      */
-    protected $descriptionHtml;
+    protected $descriptionHtml = '';
 
     /**
      * @ORM\Column(name="sent_at", type="datetime", nullable=true)
@@ -97,7 +99,7 @@ abstract class Activity implements HtmlBodyInterface
      * @Serializer\Groups({"api-activities"})
      * @Serializer\Type("DateTime<'D, d M Y H:i:s O'>")
      *
-     * @var \DateTime()
+     * @var DateTime
      */
     protected $sentAt;
 
@@ -107,18 +109,36 @@ abstract class Activity implements HtmlBodyInterface
      * @Serializer\Groups({"api-activities"})
      * @Serializer\Type("DateTime<'D, d M Y H:i:s O'>")
      *
-     * @var \DateTime()
+     * @var DateTime
      */
     protected $expireAt;
 
     /**
-     * @ORM\Column(name="responses_count", type="integer")
+     * @ORM\Column(name="responses_count", type="integer", options={"default" = 0})
      * @Serializer\Expose()
      * @Serializer\Groups({"api-activities"})
      *
      * @var int
      */
-    protected $responsesCount;
+    protected $responsesCount = 0;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="upvotes_count", type="integer", options={"default" = 0})
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-activities"})
+     */
+    protected $upvotesCount = 0;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="downvotes_count", type="integer", options={"default" = 0})
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-activities"})
+     */
+    protected $downvotesCount = 0;
 
     /**
      * @var array
@@ -133,7 +153,7 @@ abstract class Activity implements HtmlBodyInterface
     protected $owner;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\Representative")
+     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\UserRepresentative")
      * @ORM\JoinColumn(name="representative_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $representative;
@@ -173,13 +193,6 @@ abstract class Activity implements HtmlBodyInterface
      * @Serializer\Accessor(getter="getEntity")
      */
     protected $entity;
-
-    /**
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-activities"})
-     * @Serializer\Accessor(getter="getPicture")
-     */
-    protected $picture;
 
     /**
      * @ORM\Column(name="is_outsiders", type="boolean", nullable=true)
@@ -227,7 +240,7 @@ abstract class Activity implements HtmlBodyInterface
     protected $image;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="updated_at", type="datetime")
      * @Gedmo\Timestampable(on="update")
@@ -237,7 +250,7 @@ abstract class Activity implements HtmlBodyInterface
     private $updatedAt;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="deleted_at", type="datetime", nullable=true)
      */
@@ -255,6 +268,7 @@ abstract class Activity implements HtmlBodyInterface
      * @ORM\JoinColumn(name="question_id", referencedColumnName="id", onDelete="CASCADE", unique=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"activity-list"})
+     * @Serializer\Type("Civix\CoreBundle\Entity\Poll\Question")
      * @Serializer\SerializedName("poll")
      */
     private $question;
@@ -283,7 +297,7 @@ abstract class Activity implements HtmlBodyInterface
      */
     protected $zone;
 
-    public static function getZones()
+    public static function getZones(): array
     {
         return [
             self::ZONE_PRIORITIZED => 'prioritized',
@@ -294,7 +308,6 @@ abstract class Activity implements HtmlBodyInterface
 
     public function __construct()
     {
-        $this->setResponsesCount(0);
         $this->activityConditions = new ArrayCollection();
         $this->activityRead = new ArrayCollection();
     }
@@ -304,7 +317,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
@@ -316,7 +329,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @return Activity
      */
-    public function setTitle($title)
+    public function setTitle($title): Activity
     {
         $this->title = $title;
 
@@ -328,7 +341,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @return string
      */
-    public function getTitle()
+    public function getTitle(): ?string
     {
         return $this->title;
     }
@@ -340,7 +353,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @return Activity
      */
-    public function setDescription($description)
+    public function setDescription($description): Activity
     {
         $this->description = $description;
 
@@ -352,7 +365,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @return string
      */
-    public function getDescription()
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -360,7 +373,7 @@ abstract class Activity implements HtmlBodyInterface
     /**
      * @return string
      */
-    public function getDescriptionHtml()
+    public function getDescriptionHtml(): ?string
     {
         return $this->descriptionHtml;
     }
@@ -369,7 +382,7 @@ abstract class Activity implements HtmlBodyInterface
      * @param string $descriptionHtml
      * @return Activity
      */
-    public function setDescriptionHtml($descriptionHtml)
+    public function setDescriptionHtml($descriptionHtml): Activity
     {
         $this->descriptionHtml = $descriptionHtml;
 
@@ -379,11 +392,11 @@ abstract class Activity implements HtmlBodyInterface
     /**
      * Set sentAt.
      *
-     * @param \DateTime $sentAt
+     * @param DateTime $sentAt
      *
      * @return Activity
      */
-    public function setSentAt($sentAt)
+    public function setSentAt(?DateTime $sentAt): Activity
     {
         $this->sentAt = $sentAt;
 
@@ -393,9 +406,9 @@ abstract class Activity implements HtmlBodyInterface
     /**
      * Get sentAt.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getSentAt()
+    public function getSentAt(): ?DateTime
     {
         return $this->sentAt;
     }
@@ -403,11 +416,11 @@ abstract class Activity implements HtmlBodyInterface
     /**
      * Set expireAt.
      *
-     * @param \DateTime $expireAt
+     * @param DateTime $expireAt
      *
      * @return Activity
      */
-    public function setExpireAt($expireAt)
+    public function setExpireAt(?DateTime $expireAt): Activity
     {
         $this->expireAt = $expireAt;
 
@@ -417,9 +430,9 @@ abstract class Activity implements HtmlBodyInterface
     /**
      * Get expireAt.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getExpireAt()
+    public function getExpireAt(): ?DateTime
     {
         return $this->expireAt;
     }
@@ -431,7 +444,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @return Activity
      */
-    public function setResponsesCount($responsesCount)
+    public function setResponsesCount($responsesCount): Activity
     {
         $this->responsesCount = $responsesCount;
 
@@ -443,56 +456,102 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @return int
      */
-    public function getResponsesCount()
+    public function getResponsesCount(): int
     {
         return $this->responsesCount;
     }
 
-    public function setRepresentative(Representative $representative)
+    /**
+     * @return int
+     */
+    public function getUpvotesCount(): int
+    {
+        return $this->upvotesCount;
+    }
+
+    /**
+     * @param int $upvotesCount
+     * @return Activity
+     */
+    public function setUpvotesCount(int $upvotesCount): Activity
+    {
+        $this->upvotesCount = $upvotesCount;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDownvotesCount(): int
+    {
+        return $this->downvotesCount;
+    }
+
+    /**
+     * @param int $downvotesCount
+     * @return Activity
+     */
+    public function setDownvotesCount(int $downvotesCount): Activity
+    {
+        $this->downvotesCount = $downvotesCount;
+
+        return $this;
+    }
+
+    public function setRepresentative(UserRepresentative $representative): Activity
     {
         $this->representative = $representative;
         $this->owner = self::toRepresentativeOwnerData($representative);
+
+        return $this;
     }
 
-    public function setGroup(Group $group)
+    public function setGroup(Group $group): Activity
     {
         $this->group = $group;
         $this->owner = self::toGroupOwnerData($group);
+
+        return $this;
     }
 
-    public function setSuperuser(Superuser $superuser)
+    public function setSuperuser(Superuser $superuser): Activity
     {
         $this->superuser = $superuser;
         $this->owner = [
             'type' => 'admin',
             'official_title' => 'The Global Forum',
         ];
+
+        return $this;
     }
 
-    public function setUser(User $user)
+    public function setUser(User $user): Activity
     {
         $this->user = $user;
         $this->owner = self::toUserOwnerData($user);
+
+        return $this;
     }
 
-    public static function toRepresentativeOwnerData(Representative $representative)
+    public static function toRepresentativeOwnerData(UserRepresentative $userRepresentative): array
     {
         $data = [
-            'id' => $representative->getId(),
-            'type' => $representative->getType(),
-            'official_title' => $representative->getOfficialTitle(),
-            'first_name' => $representative->getUser()->getFirstName(),
-            'last_name' => $representative->getUser()->getLastName(),
-            'avatar_file_path' => $representative->getCiceroRepresentative() ? $representative->getCiceroRepresentative()->getAvatarFileName() : $representative->getAvatarFileName(),
+            'id' => $userRepresentative->getId(),
+            'type' => $userRepresentative->getType(),
+            'official_title' => $userRepresentative->getOfficialTitle(),
+            'first_name' => $userRepresentative->getUser()->getFirstName(),
+            'last_name' => $userRepresentative->getUser()->getLastName(),
+            'avatar_file_path' => $userRepresentative->getRepresentative() ? $userRepresentative->getRepresentative()->getAvatarFileName() : $userRepresentative->getAvatarFileName(),
         ];
-        if ($representative->getCiceroRepresentative()) {
-            $data['cicero_id'] = $representative->getCiceroRepresentative();
+        if ($userRepresentative->getRepresentative()) {
+            $data['cicero_id'] = $userRepresentative->getRepresentative();
         }
 
         return $data;
     }
 
-    public static function toGroupOwnerData(Group $group)
+    public static function toGroupOwnerData(Group $group): array
     {
         return [
             'id' => $group->getId(),
@@ -503,7 +562,7 @@ abstract class Activity implements HtmlBodyInterface
         ];
     }
 
-    public static function toUserOwnerData(User $user)
+    public static function toUserOwnerData(User $user): array
     {
         return [
             'id' => $user->getId(),
@@ -515,19 +574,19 @@ abstract class Activity implements HtmlBodyInterface
         ];
     }
 
-    public function getOwner()
+    public function getOwner(): array
     {
         return $this->owner;
     }
 
-    public function setOwner($data)
+    public function setOwner(array $data): Activity
     {
         $this->owner = $data;
 
         return $this;
     }
 
-    public function getOwnerData()
+    public function getOwnerData(): OwnerData
     {
         switch ($this->owner['type'] ?? '') {
             case 'user':
@@ -541,18 +600,6 @@ abstract class Activity implements HtmlBodyInterface
         }
     }
 
-    public function getPicture()
-    {
-        return $this->picture;
-    }
-
-    public function setPicture($picture)
-    {
-        $this->picture = $picture;
-
-        return $this;
-    }
-
     /**
      * Set isOutsiders.
      *
@@ -560,7 +607,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @return Activity
      */
-    public function setIsOutsiders($isOutsiders)
+    public function setIsOutsiders(?bool $isOutsiders): Activity
     {
         $this->isOutsiders = $isOutsiders;
 
@@ -572,7 +619,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @return bool
      */
-    public function getIsOutsiders()
+    public function getIsOutsiders(): ?bool
     {
         return $this->isOutsiders;
     }
@@ -582,9 +629,9 @@ abstract class Activity implements HtmlBodyInterface
     /**
      * Get representative.
      *
-     * @return \Civix\CoreBundle\Entity\Representative
+     * @return \Civix\CoreBundle\Entity\UserRepresentative
      */
-    public function getRepresentative()
+    public function getRepresentative(): ?UserRepresentative
     {
         return $this->representative;
     }
@@ -594,7 +641,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @return \Civix\CoreBundle\Entity\Group
      */
-    public function getGroup()
+    public function getGroup(): ?Group
     {
         return $this->group;
     }
@@ -604,7 +651,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @return \Civix\CoreBundle\Entity\Superuser
      */
-    public function getSuperuser()
+    public function getSuperuser(): ?Superuser
     {
         return $this->superuser;
     }
@@ -614,7 +661,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @return \Civix\CoreBundle\Entity\User
      */
-    public function getUser()
+    public function getUser(): ?User
     {
         return $this->user;
     }
@@ -626,7 +673,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @return Activity
      */
-    public function addActivityCondition(ActivityCondition $activityConditions)
+    public function addActivityCondition(ActivityCondition $activityConditions): Activity
     {
         $this->activityConditions[] = $activityConditions;
         $activityConditions->setActivity($this);
@@ -639,7 +686,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @param ActivityCondition $activityConditions
      */
-    public function removeActivityCondition(ActivityCondition $activityConditions)
+    public function removeActivityCondition(ActivityCondition $activityConditions): void
     {
         $this->activityConditions->removeElement($activityConditions);
     }
@@ -647,9 +694,9 @@ abstract class Activity implements HtmlBodyInterface
     /**
      * Get activityConditions.
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return Collection
      */
-    public function getActivityConditions()
+    public function getActivityConditions(): Collection
     {
         return $this->activityConditions;
     }
@@ -657,7 +704,7 @@ abstract class Activity implements HtmlBodyInterface
     /**
      * @return bool
      */
-    public function isRead()
+    public function isRead(): bool
     {
         return $this->read;
     }
@@ -667,7 +714,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @return $this
      */
-    public function setRead($read)
+    public function setRead(bool $read)
     {
         $this->read = $read;
 
@@ -677,7 +724,7 @@ abstract class Activity implements HtmlBodyInterface
     /**
      * @return mixed
      */
-    public function getRateUp()
+    public function getRateUp(): int
     {
         return $this->rateUp;
     }
@@ -687,7 +734,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @return $this
      */
-    public function setRateUp($rateUp)
+    public function setRateUp(int $rateUp)
     {
         $this->rateUp = $rateUp;
 
@@ -695,9 +742,9 @@ abstract class Activity implements HtmlBodyInterface
     }
 
     /**
-     * @return int|null
+     * @return int
      */
-    public function getRateDown()
+    public function getRateDown(): int
     {
         return $this->rateDown;
     }
@@ -707,7 +754,7 @@ abstract class Activity implements HtmlBodyInterface
      *
      * @return $this
      */
-    public function setRateDown($rateDown)
+    public function setRateDown(int $rateDown)
     {
         $this->rateDown = $rateDown;
 
@@ -715,19 +762,19 @@ abstract class Activity implements HtmlBodyInterface
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getImageSrc()
+    public function getImageSrc(): ?string
     {
         return $this->imageSrc;
     }
 
     /**
-     * @param mixed $imageSrc
+     * @param string $imageSrc
      *
      * @return $this
      */
-    public function setImageSrc($imageSrc)
+    public function setImageSrc(?string $imageSrc)
     {
         $this->imageSrc = $imageSrc;
 
@@ -754,12 +801,12 @@ abstract class Activity implements HtmlBodyInterface
         return $this;
     }
 
-    public function getActivityImage()
+    public function getActivityImage(): ?Image
     {
         return $this->imageSrc ? new Image($this, 'image', $this->imageSrc) : null;
     }
 
-    public static function getActivityClassByEntity($question)
+    public static function getActivityClassByEntity($question): string
     {
         if ($question instanceof Question\LeaderNews) {
             return Activities\LeaderNews::class;
@@ -784,18 +831,18 @@ abstract class Activity implements HtmlBodyInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getUpdatedAt()
+    public function getUpdatedAt(): DateTime
     {
         return $this->updatedAt;
     }
 
     /**
-     * @param \DateTime $updatedAt
+     * @param DateTime $updatedAt
      * @return Activity
      */
-    public function setUpdatedAt($updatedAt)
+    public function setUpdatedAt(?DateTime $updatedAt): Activity
     {
         $this->updatedAt = $updatedAt;
 
@@ -803,18 +850,18 @@ abstract class Activity implements HtmlBodyInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getDeletedAt()
+    public function getDeletedAt(): ?DateTime
     {
         return $this->deletedAt;
     }
 
     /**
-     * @param \DateTime $deletedAt
+     * @param DateTime $deletedAt
      * @return Activity
      */
-    public function setDeletedAt($deletedAt)
+    public function setDeletedAt(?DateTime $deletedAt): Activity
     {
         $this->deletedAt = $deletedAt;
 
@@ -822,9 +869,9 @@ abstract class Activity implements HtmlBodyInterface
     }
 
     /**
-     * @return ArrayCollection|ActivityRead[]
+     * @return Collection|ActivityRead[]
      */
-    public function getActivityRead()
+    public function getActivityRead(): Collection
     {
         return $this->activityRead;
     }
@@ -833,7 +880,7 @@ abstract class Activity implements HtmlBodyInterface
      * @param ActivityRead $activityRead
      * @return Activity
      */
-    public function addActivityRead(ActivityRead $activityRead)
+    public function addActivityRead(ActivityRead $activityRead): Activity
     {
         $this->activityRead[] = $activityRead;
 
@@ -843,24 +890,24 @@ abstract class Activity implements HtmlBodyInterface
     /**
      * @param ActivityRead $activityRead
      */
-    public function removeActivityRead(ActivityRead $activityRead)
+    public function removeActivityRead(ActivityRead $activityRead): void
     {
         $this->activityRead->removeElement($activityRead);
     }
 
-    public function isReadByUser(User $user)
+    public function isReadByUser(User $user): bool
     {
         $filter = function (ActivityRead $activityRead) use ($user) {
-            return $activityRead->getUser()->getId() == $user->getId();
+            return $activityRead->getUser()->getId() === $user->getId();
         };
 
-        return !!$this->getActivityRead()->filter($filter)->count();
+        return $this->getActivityRead()->filter($filter)->count() > 0;
     }
 
     /**
      * @return Question
      */
-    public function getQuestion()
+    public function getQuestion(): ?Poll\Question
     {
         return $this->question;
     }
@@ -869,7 +916,7 @@ abstract class Activity implements HtmlBodyInterface
      * @param Question $question
      * @return Activity
      */
-    public function setQuestion($question)
+    public function setQuestion(?Poll\Question $question): Activity
     {
         $this->question = $question;
 
@@ -879,7 +926,7 @@ abstract class Activity implements HtmlBodyInterface
     /**
      * @return UserPetition
      */
-    public function getPetition()
+    public function getPetition(): ?UserPetition
     {
         return $this->petition;
     }
@@ -888,7 +935,7 @@ abstract class Activity implements HtmlBodyInterface
      * @param UserPetition $petition
      * @return $this
      */
-    public function setPetition(UserPetition $petition)
+    public function setPetition(?UserPetition $petition)
     {
         $this->petition = $petition;
 
@@ -898,7 +945,7 @@ abstract class Activity implements HtmlBodyInterface
     /**
      * @return int
      */
-    public function getZone()
+    public function getZone(): ?int
     {
         return $this->zone;
     }
@@ -907,7 +954,7 @@ abstract class Activity implements HtmlBodyInterface
      * @param int $zone
      * @return Activity
      */
-    public function setZone($zone)
+    public function setZone(?int $zone): Activity
     {
         $this->zone = $zone;
 
@@ -922,7 +969,7 @@ abstract class Activity implements HtmlBodyInterface
      * @Serializer\Type("string")
      * @Serializer\Groups({"api-activities"})
      */
-    public function getZoneLabel()
+    public function getZoneLabel(): ?string
     {
         if (isset(self::getZones()[$this->zone])) {
             return self::getZones()[$this->zone];
@@ -931,20 +978,22 @@ abstract class Activity implements HtmlBodyInterface
         return null;
     }
 
-    public function getBody()
+    public function getBody(): ?string
     {
         return $this->getDescription();
     }
 
-    public function setHtmlBody($html)
+    public function setHtmlBody(string $html): Activity
     {
         $this->setDescriptionHtml($html);
+
+        return $this;
     }
 
     /**
      * @return Post
      */
-    public function getPost()
+    public function getPost(): ?Post
     {
         return $this->post;
     }
@@ -953,7 +1002,7 @@ abstract class Activity implements HtmlBodyInterface
      * @param Post $post
      * @return Activity
      */
-    public function setPost($post)
+    public function setPost(?Post $post): Activity
     {
         $this->post = $post;
 

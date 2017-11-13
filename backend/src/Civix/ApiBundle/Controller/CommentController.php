@@ -3,12 +3,10 @@
 namespace Civix\ApiBundle\Controller;
 
 use Civix\CoreBundle\Entity\BaseComment;
-use Civix\CoreBundle\Entity\CommentedInterface;
 use Civix\CoreBundle\Entity\Poll;
 use Civix\CoreBundle\Entity\Poll\Question\LeaderNews;
-use Civix\CoreBundle\Entity\Post;
-use Civix\CoreBundle\Entity\UserPetition;
 use Civix\CoreBundle\Model\Comment\CommentModelInterface;
+use FOS\RestBundle\Controller\Annotations as REST;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -16,7 +14,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CommentController extends BaseController
 {
@@ -79,17 +76,13 @@ class CommentController extends BaseController
      * Add comment.
      * Deprecated, use `POST /api/v2/polls/{id}/comments`, `POST /api/v2/user-petitions/{id}/comments`, `POST /api/v2/posts/{id}/comments` instead
      *
+     * @REST\Post("POST")
      * @Route(
      *      "/{typeEntity}/{entityId}/comments/",
      *      requirements={"entityId"="\d+", "typeEntity" = "poll|micro-petitions|post"},
      *      name="api_comments_add"
      * )
-     * @Method("POST")
-     * @ParamConverter(
-     *      "commentModel",
-     *      class="Civix\CoreBundle\Model\Comment\CommentModelInterface",
-     *      options={"typeEntity":"typeEntity"}
-     * )
+     *
      * @ApiDoc(
      *     section="Polls",
      *     description="Add comment (polls or micropetitions)",
@@ -100,62 +93,28 @@ class CommentController extends BaseController
      *     },
      *     deprecated=true
      * )
-     * @param Request $request
-     * @param CommentModelInterface $commentModel
-     * @param $entityId
+     * @param string $typeEntity
+     * @param int $entityId
      * @return Response
      */
-    public function addCommentAction(Request $request, CommentModelInterface $commentModel, $entityId)
+    public function addCommentAction(string $typeEntity, int $entityId): Response
     {
-        $entityManager = $this->getDoctrine()->getManager();
-        /* @var \Civix\CoreBundle\Entity\BaseComment $comment */
-        $comment = $this->jmsDeserialization(
-            $request->getContent(),
-            $commentModel->getRepositoryName(),
-            ['api-comments-add', 'api-comments-parent']
-        );
-
-        $parentComment = $entityManager
-            ->getRepository($commentModel->getRepositoryName())
-            ->find($comment->getParentComment());
-
-        if (is_null($parentComment)) {
-            throw new BadRequestHttpException('Incorrect parent comment');
-        }
-        /** @var CommentedInterface $entityForComment */
-        $entityForComment = $commentModel->getEntityForComment($parentComment);
-        if ($entityForComment->getId() != $entityId) {
-            throw new NotFoundHttpException('Not found');
-        }
-        $errors = $this->getValidator()->validate($comment);
-        if (count($errors) > 0) {
-            throw new BadRequestHttpException(json_encode(['errors' => $this->transformErrors($errors)]));
-        }
-        $comment->setParentComment($parentComment);
-        $comment->setUser($this->getUser());
-        $commentModel->setEntityForComment($entityForComment, $comment);
-
-        $this->get('civix_core.comment_manager')->saveComment($comment);
-
-        if ($entityForComment instanceof LeaderNews) {
-            $this->get('civix_core.activity_update')->updateResponsesQuestion($entityForComment);
-        }
-        if ($comment instanceof Poll\Comment) {
-            $this->get('civix_core.social_activity_manager')->noticePollCommented($comment);
-        } elseif ($comment instanceof UserPetition\Comment) {
-            $this->get('civix_core.social_activity_manager')->noticeUserPetitionCommented($comment);
-        } elseif ($comment instanceof Post\Comment) {
-            $this->get('civix_core.social_activity_manager')->noticePostCommented($comment);
+        switch ($typeEntity) {
+            case 'poll':
+                $type = 'poll';
+                break;
+            case 'micro-petitions':
+                $type = 'userpetition';
+                break;
+            case 'post':
+                $type = 'post';
+                break;
+            default:
+                throw new \RuntimeException('Invalid comment type.');
         }
 
-        $this->get('civix_core.content_manager')->handleCommentContent($comment);
-
-        $response = new Response($this->jmsSerialization(
-            $comment,
-            ['api-comments', 'api-comments-parent']
-        ));
-
-        return $response;
+        /** @noinspection Symfony2PhpRouteMissingInspection */
+        return $this->redirectToRoute("civix_api_v2_{$type}comments_postcomments", ['id' => $entityId]);
     }
 
     /**

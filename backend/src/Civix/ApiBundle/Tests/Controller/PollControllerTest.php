@@ -4,6 +4,7 @@ namespace Civix\ApiBundle\Tests\Controller;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Poll\Question\Group as GroupQuestion;
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadPollCommentRateData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFollowerTestData;
@@ -24,7 +25,7 @@ class PollControllerTest extends WebTestCase
     /**
      * @var Client
      */
-	private $client = null;
+	private $client;
 
 	public function setUp()
 	{
@@ -52,10 +53,11 @@ class PollControllerTest extends WebTestCase
         ]);
 
         $reference = $fixtures->getReferenceRepository();
-
+        /** @var User $user */
+        $user = $reference->getReference('user_1');
         /** @var Group $group */
         $group = $reference->getReference('group');
-        $group->setOwner($reference->getReference('user_1'));
+        $group->setOwner($user);
         $container = $this->getContainer();
         $em = $container->get('doctrine')->getManager();
         $em->persist($group);
@@ -106,10 +108,6 @@ class PollControllerTest extends WebTestCase
         $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user2"']);
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals($action == 'up' ? 2 : 0, $data['rate_sum']);
-        $this->assertEquals(3, $data['rates_count']);
-        $this->assertEquals($action == 'up' ? 1 : -1, $data['rate_status']);
 	}
 
     public function getActions()
@@ -130,9 +128,5 @@ class PollControllerTest extends WebTestCase
         $client->request('POST', $uri, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals(1, $data['rate_sum']);
-        $this->assertEquals(2, $data['rates_count']);
-        $this->assertEquals(0, $data['rate_status']);
     }
 }

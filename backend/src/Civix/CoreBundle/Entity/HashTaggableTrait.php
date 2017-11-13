@@ -43,7 +43,7 @@ trait HashTaggableTrait
      *
      * @param HashTag $hashTags
      */
-    public function removeHashTag(HashTag $hashTags)
+    public function removeHashTag(HashTag $hashTags): void
     {
         $this->hashTags->removeElement($hashTags);
     }
@@ -53,7 +53,7 @@ trait HashTaggableTrait
      *
      * @return Collection|HashTag[]
      */
-    public function getHashTags()
+    public function getHashTags(): Collection
     {
         return $this->hashTags;
     }
@@ -65,7 +65,7 @@ trait HashTaggableTrait
      *
      * @return $this
      */
-    public function setCachedHashTags($cachedHashTags)
+    public function setCachedHashTags(array $cachedHashTags)
     {
         $this->cachedHashTags = $cachedHashTags;
 
@@ -77,7 +77,7 @@ trait HashTaggableTrait
      *
      * @return array
      */
-    public function getCachedHashTags()
+    public function getCachedHashTags(): array
     {
         return $this->cachedHashTags;
     }

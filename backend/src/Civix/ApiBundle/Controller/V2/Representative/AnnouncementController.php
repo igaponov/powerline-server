@@ -5,7 +5,7 @@ namespace Civix\ApiBundle\Controller\V2\Representative;
 use Civix\ApiBundle\Configuration\SecureParam;
 use Civix\ApiBundle\Form\Type\AnnouncementType;
 use Civix\CoreBundle\Entity\Announcement;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
@@ -50,11 +50,11 @@ class AnnouncementController extends FOSRestController
      * @View(serializerGroups={"api"})
      *
      * @param Request $request
-     * @param Representative $representative
+     * @param UserRepresentative $representative
      *
      * @return Announcement|\Symfony\Component\Form\Form
      */
-    public function postAction(Request $request, Representative $representative)
+    public function postAction(Request $request, UserRepresentative $representative)
     {
         /** @var Announcement $announcement */
         $announcement = new Announcement\RepresentativeAnnouncement();

@@ -47,9 +47,9 @@ class Subscription
     private $id;
 
     /**
-     * @var \Civix\CoreBundle\Entity\Representative
+     * @var \Civix\CoreBundle\Entity\UserRepresentative
      *
-     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\Representative")
+     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\UserRepresentative")
      * @JoinColumn(name="representative_id", onDelete="CASCADE")
      */
     private $representative;
@@ -236,7 +236,7 @@ class Subscription
     }
 
     /**
-     * @param \Civix\CoreBundle\Entity\Representative $representative
+     * @param \Civix\CoreBundle\Entity\UserRepresentative $representative
      *
      * @return $this
      */
@@ -248,7 +248,7 @@ class Subscription
     }
 
     /**
-     * @return \Civix\CoreBundle\Entity\Representative
+     * @return \Civix\CoreBundle\Entity\UserRepresentative
      */
     public function getRepresentative()
     {
@@ -336,7 +336,7 @@ class Subscription
     }
 
     /**
-     * @return \Civix\CoreBundle\Entity\Group|\Civix\CoreBundle\Entity\Representative
+     * @return \Civix\CoreBundle\Entity\Group|\Civix\CoreBundle\Entity\UserRepresentative
      */
     public function getUserEntity()
     {

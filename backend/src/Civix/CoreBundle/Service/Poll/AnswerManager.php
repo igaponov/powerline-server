@@ -7,7 +7,7 @@ use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Question\Petition;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\Group;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Entity\Superuser;
 use Civix\CoreBundle\Entity\UserGroup;
 use Doctrine\ORM\EntityManager;
@@ -55,7 +55,7 @@ class AnswerManager
             return false;
         }
 
-        if ($questionOwner instanceof Representative) {
+        if ($questionOwner instanceof UserRepresentative) {
             $userDistricts = $user->getDistrictsIds();
 
             if (array_search($questionOwner->getDistrictId(), $userDistricts) !== false) {

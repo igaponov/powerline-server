@@ -7,7 +7,7 @@
         convertErrorsToExceptions   = "true"
         convertNoticesToExceptions  = "true"
         convertWarningsToExceptions = "true"
-        processIsolation            = "true"
+        processIsolation            = "false"
         stopOnFailure               = "false"
         syntaxCheck                 = "false"
         bootstrap                   = "app/autoload.php" >
@@ -21,7 +21,28 @@
         <testsuite name="Project Test Suite">
             <directory>tests</directory>
             <directory>src/Civix/*Bundle/Tests</directory>
+        </testsuite>
+        <testsuite name="tests">
             <directory>tests</directory>
+        </testsuite>
+        <testsuite name="ApiBundleV1">
+            <directory>src/Civix/ApiBundle/Tests</directory>
+            <exclude>src/Civix/ApiBundle/Tests/Controller/V2</exclude>
+        </testsuite>
+        <testsuite name="ApiBundleV2">
+            <directory>src/Civix/ApiBundle/Tests/Controller/V2</directory>
+            <exclude>src/Civix/ApiBundle/Tests/Controller/V2/Group</exclude>
+            <exclude>src/Civix/ApiBundle/Tests/Controller/V2/Representative</exclude>
+        </testsuite>
+        <testsuite name="ApiBundleV3">
+            <directory>src/Civix/ApiBundle/Tests/Controller/V2/Group</directory>
+            <directory>src/Civix/ApiBundle/Tests/Controller/V2/Representative</directory>
+        </testsuite>
+        <testsuite name="CoreBundle">
+            <directory>src/Civix/CoreBundle/Tests</directory>
+        </testsuite>
+        <testsuite name="FrontBundle">
+            <directory>src/Civix/FrontBundle/Tests</directory>
         </testsuite>
     </testsuites>
 

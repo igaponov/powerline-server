@@ -3,18 +3,18 @@
 namespace Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Form\Type\EndpointType;
-use Civix\CoreBundle\Service\Notification as NotificationService;
+use Civix\Component\Notification\Model\AbstractEndpoint;
+use Civix\CoreBundle\Service\Notification;
 use Doctrine\ORM\EntityManager;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use JMS\DiExtraBundle\Annotation as DI;
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Civix\CoreBundle\Entity\Notification;
 
 /**
  * @Route("/endpoints")
@@ -22,7 +22,7 @@ use Civix\CoreBundle\Entity\Notification;
 class EndpointController extends FOSRestController
 {
     /**
-     * @var NotificationService
+     * @var Notification
      * @DI\Inject("civix_core.notification")
      */
     private $notification;
@@ -59,12 +59,12 @@ class EndpointController extends FOSRestController
      *
      * @View(serializerGroups={"owner-get", "Default"})
      *
-     * @return Notification\AbstractEndpoint[]
+     * @return AbstractEndpoint[]
      */
-    public function getAction()
+    public function getAction(): array
     {
         $endpoints = $this->em
-            ->getRepository(Notification\AbstractEndpoint::class)
+            ->getRepository(AbstractEndpoint::class)
             ->findBy(['user' => $this->getUser()]);
 
         return $endpoints;
@@ -97,7 +97,7 @@ class EndpointController extends FOSRestController
      *
      * @param Request $request
      *
-     * @return Notification\AbstractEndpoint|Form
+     * @return AbstractEndpoint|Form
      */
     public function postEndpointAction(Request $request)
     {
@@ -105,7 +105,7 @@ class EndpointController extends FOSRestController
         $form->submit($request->request->all());
 
         if ($form->isValid()) {
-            /** @var Notification\AbstractEndpoint $endpoint */
+            /** @var AbstractEndpoint $endpoint */
             $endpoint = $form->getData();
             $endpoint->setUser($this->getUser());
 

@@ -1,26 +1,39 @@
 <?php
 namespace Civix\CoreBundle\Event;
 
-use Civix\CoreBundle\Entity\UserFollow;
+use Civix\CoreBundle\Entity\User;
 use Symfony\Component\EventDispatcher\Event;
 
 class UserFollowEvent extends Event
 {
     /**
-     * @var UserFollow
+     * @var User
      */
-    private $userFollow;
+    private $user;
+    /**
+     * @var User
+     */
+    private $follower;
 
-    public function __construct(UserFollow $userFollow)
+    public function __construct(User $user, User $follower)
     {
-        $this->userFollow = $userFollow;
+        $this->user = $user;
+        $this->follower = $follower;
     }
 
     /**
-     * @return UserFollow
+     * @return User
      */
-    public function getUserFollow()
+    public function getUser(): User
     {
-        return $this->userFollow;
+        return $this->user;
+    }
+
+    /**
+     * @return User
+     */
+    public function getFollower(): User
+    {
+        return $this->follower;
     }
 }

@@ -2,13 +2,19 @@
 
 namespace Civix\CoreBundle\Repository;
 
+use Civix\CoreBundle\Entity\Karma;
 use Civix\CoreBundle\Entity\User;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityRepository;
 
 class KarmaRepository extends EntityRepository
 {
-    public function findOneByUserAndType(User $user, int $type)
+    /**
+     * @param User $user
+     * @param int $type
+     * @return Karma|object|null
+     */
+    public function findOneByUserAndType(User $user, int $type): ?Karma
     {
         return $this->findOneBy([
             'user' => $user,

@@ -7,172 +7,179 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\Poll;
 use Civix\CoreBundle\Entity\Poll\Answer;
 use Civix\CoreBundle\Entity\Post;
+use Civix\CoreBundle\Entity\SocialActivity;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\UserFollow;
-use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Entity\UserPetition;
-use Doctrine\ORM\EntityManager;
+use Civix\CoreBundle\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 
 class SocialActivityManager
 {
-    const PREVIEW_LENGTH = 20;
-
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
     private $em;
+    /**
+     * @var UserRepository
+     */
+    private $repository;
+    /**
+     * @var SocialActivityFactory
+     */
+    private $activityFactory;
 
-    public function __construct(EntityManager $em)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        UserRepository $repository,
+        SocialActivityFactory $activityFactory
+    ) {
         $this->em = $em;
+        $this->repository = $repository;
+        $this->activityFactory = $activityFactory;
     }
 
-    public function sendUserFollowRequest(UserFollow $follow)
+    public function sendUserFollowRequest(User $user, User $follower): void
     {
-        $socialActivity = SocialActivityFactory::createFollowRequestActivity($follow);
+        $socialActivity = $this->activityFactory->createFollowRequestActivity($user, $follower);
 
         $this->em->persist($socialActivity);
-        $this->em->flush($socialActivity);
+        $this->em->flush();
     }
 
-    public function noticeGroupJoiningApproved(User $user, Group $group)
+    public function noticeGroupJoiningApproved(User $user, Group $group): void
     {
-        $socialActivity = SocialActivityFactory::createJoinToGroupApproved($user, $group);
+        $socialActivity = $this->activityFactory->createJoinToGroupApprovedActivity($user, $group);
 
         $this->em->persist($socialActivity);
-        $this->em->flush($socialActivity);
+        $this->em->flush();
     }
 
-    public function noticeUserPetitionCreated(UserPetition $petition)
+    public function noticeUserPetitionCreated(UserPetition $petition): void
     {
-        $socialActivity = SocialActivityFactory::createFollowUserPetitionCreated($petition);
-
+        $socialActivity = $this->activityFactory->createFollowUserPetitionCreatedActivity($petition);
         $this->em->persist($socialActivity);
-        $this->em->flush($socialActivity);
     }
 
-    public function noticePostCreated(Post $post)
+    public function noticePostCreated(Post $post): void
     {
-        $socialActivity = SocialActivityFactory::createFollowPostCreatedActivity($post);
-
+        $socialActivity = $this->activityFactory->createFollowPostCreatedActivity($post);
         $this->em->persist($socialActivity);
-        $this->em->flush($socialActivity);
     }
 
-    public function noticeAnsweredToQuestion(Answer $answer)
+    public function noticeAnsweredToQuestion(Answer $answer): void
     {
         $question = $answer->getQuestion();
         if (!$question->getOwner() instanceof Group) {
             return;
         }
         if ($question->getSubscribers()->contains($question->getUser())) {
-            $socialActivity = SocialActivityFactory::createOwnPollAnsweredActivity($answer);
+            $socialActivity = $this->activityFactory->createOwnPollAnsweredActivity($answer);
 
             $this->em->persist($socialActivity);
-            $this->em->flush($socialActivity);
+            $this->em->flush();
         }
     }
 
-    public function noticePollCommented(Poll\Comment $comment)
+    public function noticePollCommented(Poll\Comment $comment): void
     {
         $question = $comment->getQuestion();
-        if (!$question->getOwner() instanceof Group) {
-            return;
+        if ($question && $question->getOwner() instanceof Group) {
+            $socialActivity = $this->activityFactory->createFollowPollCommentedActivity($comment);
+            $this->em->persist($socialActivity);
         }
+    }
 
-        $socialActivity1 = SocialActivityFactory::createFollowPollCommentedActivity($comment);
-
-        $this->em->persist($socialActivity1);
-
-        if ($comment->getParentComment() && $comment->getParentComment()->getUser()
-            && $comment->getUser() !== $comment->getParentComment()->getUser()) {
-            $socialActivity2 = SocialActivityFactory::createPollCommentRepliedActivity($comment);
-
-            $this->em->persist($socialActivity2);
+    public function noticePollCommentReplied(Poll\Comment $comment): void
+    {
+        $parentComment = $comment->getParentComment();
+        if ($parentComment && $parentComment->getUser()
+            && $comment->getUser() !== $parentComment->getUser()) {
+            $socialActivity = $this->activityFactory->createPollCommentRepliedActivity($comment);
+            $this->em->persist($socialActivity);
         }
+    }
 
-        if ($question->getUser()->getIsNotifOwnPostChanged()
+    public function noticeOwnPollCommented(Poll\Comment $comment): void
+    {
+        $question = $comment->getQuestion();
+        if ($question && $question->getUser()->getIsNotifOwnPostChanged()
             && $question->getSubscribers()->contains($question->getUser())
             && !$comment->getUser()->isEqualTo($question->getUser())
-            && !in_array($question->getUser(), $comment->getMentionedUsers())
         ) {
-            $socialActivity3 = SocialActivityFactory::createOwnPollCommentedActivity($comment);
-
-            $this->em->persist($socialActivity3);
+            $socialActivity = $this->activityFactory->createOwnPollCommentedActivity($comment);
+            $this->em->persist($socialActivity);
         }
-        $this->em->flush();
     }
 
-    public function noticeUserPetitionCommented(UserPetition\Comment $comment)
+    public function noticeUserPetitionCommented(UserPetition\Comment $comment): void
+    {
+        $socialActivity = $this->activityFactory->createFollowUserPetitionCommentedActivity($comment);
+        $this->em->persist($socialActivity);
+    }
+
+    public function noticeUserPetitionCommentReplied(UserPetition\Comment $comment): void
+    {
+        $parentComment = $comment->getParentComment();
+        if ($parentComment && $parentComment->getUser() && $comment->getUser() !== $parentComment->getUser()) {
+            $socialActivity2 = $this->activityFactory->createUserPetitionCommentRepliedActivity($comment);
+            $this->em->persist($socialActivity2);
+        }
+    }
+
+    public function noticeOwnUserPetitionCommented(UserPetition\Comment $comment): void
     {
         $petition = $comment->getPetition();
-
-        $socialActivity1 = SocialActivityFactory::createFollowUserPetitionCommentedActivity($comment);
-
-        $this->em->persist($socialActivity1);
-
-        if ($comment->getParentComment() && $comment->getParentComment()->getUser()
-            && $comment->getUser() !== $comment->getParentComment()->getUser()) {
-            $socialActivity2 = SocialActivityFactory::createUserPetitionCommentRepliedActivity($comment);
-
-            $this->em->persist($socialActivity2);
-        }
-
-        if ($petition->getUser()->getIsNotifOwnPostChanged()
-            && $petition->getSubscribers()->contains($petition->getUser())
-            && !$comment->getUser()->isEqualTo($petition->getUser())
-            && !in_array($petition->getUser(), $comment->getMentionedUsers())
+        $user = $petition->getUser();
+        if ($user && $user->getIsNotifOwnPostChanged()
+            && $petition->getSubscribers()->contains($user)
+            && !$comment->getUser()->isEqualTo($user)
         ) {
-            $socialActivity3 = SocialActivityFactory::createOwnUserPetitionCommentedActivity($comment);
-
-            $this->em->persist($socialActivity3);
+            $socialActivity = $this->activityFactory->createOwnUserPetitionCommentedActivity($comment);
+            $this->em->persist($socialActivity);
         }
-        $this->em->flush();
     }
 
-    public function noticePostCommented(Post\Comment $comment)
+    public function noticePostCommented(Post\Comment $comment): void
+    {
+        $socialActivity = $this->activityFactory->createFollowPostCommentedActivity($comment);
+        $this->em->persist($socialActivity);
+    }
+
+    public function noticePostCommentReplied(Post\Comment $comment): void
+    {
+        $parentComment = $comment->getParentComment();
+        if ($parentComment && $parentComment->getUser()
+            && $comment->getUser() !== $parentComment->getUser()) {
+            $socialActivity2 = $this->activityFactory->createPostCommentRepliedActivity($comment);
+            $this->em->persist($socialActivity2);
+        }
+    }
+
+    public function noticeOwnPostCommented(Post\Comment $comment): void
     {
         $post = $comment->getPost();
-
-        $socialActivity = SocialActivityFactory::createFollowPostCommentedActivity($comment);
-
-        $this->em->persist($socialActivity);
-
-        if ($comment->getParentComment() && $comment->getParentComment()->getUser()
-            && $comment->getUser() !== $comment->getParentComment()->getUser()) {
-            $socialActivity2 = SocialActivityFactory::createPostCommentRepliedActivity($comment);
-
-            $this->em->persist($socialActivity2);
-        }
-
-        if ($post->getUser()->getIsNotifOwnPostChanged()
-            && $post->getSubscribers()->contains($post->getUser())
-            && !$comment->getUser()->isEqualTo($post->getUser())
-            && !in_array($post->getUser(), $comment->getMentionedUsers())
+        $user = $post->getUser();
+        if ($user && $user->getIsNotifOwnPostChanged()
+            && $post->getSubscribers()->contains($user)
+            && !$comment->getUser()->isEqualTo($user)
         ) {
-            $socialActivity3 = SocialActivityFactory::createOwnPostCommentedActivity($comment);
-
-            $this->em->persist($socialActivity3);
+            $socialActivity = $this->activityFactory->createOwnPostCommentedActivity($comment);
+            $this->em->persist($socialActivity);
         }
-        $this->em->flush();
     }
 
-    public function noticeGroupsPermissionsChanged(Group $group)
+    public function noticeGroupsPermissionsChanged(Group $group): void
     {
         /** @var User $user */
         foreach ($group->getUsers() as $user) {
-            $socialActivity = SocialActivityFactory::createGroupPermissionsChangedActivity($group, $user);
+            $socialActivity = $this->activityFactory->createGroupPermissionsChangedActivity($group, $user);
             $this->em->persist($socialActivity);
-            $this->em->flush($socialActivity);
         }
+        $this->em->flush();
     }
 
-    public function noticeCommentMentioned(BaseComment $comment)
+    public function noticeCommentMentioned(BaseComment $comment, User ...$users): void
     {
-        $recipients = $comment->getMentionedUsers();
-        if (empty($recipients)) {
-            return;
-        }
         $group = null;
         if ($comment instanceof UserPetition\Comment) {
             $group = $comment->getPetition()->getGroup();
@@ -181,43 +188,45 @@ class SocialActivityManager
         } elseif ($comment instanceof Poll\Comment) {
             $group = $comment->getQuestion()->getOwner();
         }
-
         $user = $comment->getUser();
+        $recipients = $this->repository->filterByGroupAndFollower($group, $user, ...$users);
 
         foreach ($recipients as $recipient) {
-            if ($comment->getUser()->getId() !== $recipient->getId()
-                && (($group instanceof Group &&
-                $this->em->getRepository(UserGroup::class)
-                    ->isJoinedUser($group, $recipient))
-            || $this->em->getRepository(UserFollow::class)
-                    ->findActiveFollower($user, $recipient))
-            ) {
-                $socialActivity = SocialActivityFactory::createCommentMentionedActivity($comment, $group, $recipient);
-                $this->em->persist($socialActivity);
-                $this->em->flush($socialActivity);
-            }
+            $socialActivity = $this->activityFactory->createCommentMentionedActivity($comment, $group, $recipient);
+            $this->em->persist($socialActivity);
         }
+        $this->em->flush();
     }
 
-    public function noticePostMentioned(Post $post)
+    public function noticePostMentioned(Post $post, User ...$users): void
     {
-        $recipients = $post->getMentionedUsers();
-        if (empty($recipients)) {
+        $group = $post->getGroup();
+        $user = $post->getUser();
+        if (!$group || !$user) {
             return;
         }
 
-        $group = $post->getGroup();
-        $user = $post->getUser();
+        $recipients = $this->repository->filterByGroupAndFollower($group, $user, ...$users);
 
         foreach ($recipients as $recipient) {
-            if (($group instanceof Group &&
-                    $this->em->getRepository(UserGroup::class)
-                        ->isJoinedUser($group, $recipient))
-                || $this->em->getRepository(UserFollow::class)->findActiveFollower($user, $recipient)
-            ) {
-                $socialActivity = SocialActivityFactory::createPostMentionedActivity($post, $group, $recipient);
-                $this->em->persist($socialActivity);
-                $this->em->flush($socialActivity);
+            $socialActivity = $this->activityFactory->createPostMentionedActivity($post, $group, $recipient);
+            $this->em->persist($socialActivity);
+        }
+        $this->em->flush();
+    }
+
+    public function deleteUserFollowActivity(User $user, User $follower): void
+    {
+        $iterator = $this->em->getRepository(SocialActivity::class)
+            ->findByRecipientAndType($user, SocialActivity::TYPE_FOLLOW_REQUEST);
+        foreach ($iterator as $item) {
+            /** @var SocialActivity $activity */
+            $activity = $item[0];
+            $target = $activity->getTarget();
+            if (!empty($target['id']) && $target['id'] === $follower->getId()) {
+                $this->em->remove($activity);
+                $this->em->flush();
+                return;
             }
         }
     }

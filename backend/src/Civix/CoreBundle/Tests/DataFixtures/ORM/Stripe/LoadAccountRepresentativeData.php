@@ -1,9 +1,9 @@
 <?php
 namespace Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe;
 
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Entity\Stripe\Account;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadRepresentativeData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserRepresentativeData;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -12,7 +12,7 @@ class LoadAccountRepresentativeData extends AbstractFixture implements Dependent
 {
     public function load(ObjectManager $manager)
     {
-        /** @var Representative $representative */
+        /** @var UserRepresentative $representative */
         $representative = $this->getReference('representative_jb');
 
         $account = new Account();
@@ -37,6 +37,6 @@ class LoadAccountRepresentativeData extends AbstractFixture implements Dependent
 
     public function getDependencies()
     {
-        return [LoadRepresentativeData::class];
+        return [LoadUserRepresentativeData::class];
     }
 }

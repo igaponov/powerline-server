@@ -25,20 +25,6 @@ class PackageHandler
         $this->sm = $sm;
     }
 
-    public function getPackageStateForInvites(Group $user)
-    {
-        $package = $this->sm->getPackage($user);
-
-        $invitesCount = $this->em->getRepository('CivixCoreBundle:DeferredInvites')
-            ->getInvitesCount($user);
-
-        $limitObj = new PackageLimitState();
-        $limitObj->setLimitValue($package->getInviteByEmailLimitation());
-        $limitObj->setCurrentValue($invitesCount);
-
-        return $limitObj;
-    }
-
     public function getPackageStateForGroupDivisions(Group $user)
     {
         $package = $this->sm->getPackage($user);

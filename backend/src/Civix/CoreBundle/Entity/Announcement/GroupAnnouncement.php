@@ -18,7 +18,7 @@ class GroupAnnouncement extends Announcement implements GroupSectionInterface
     /**
      * @return Group
      */
-    public function getGroup()
+    public function getGroup(): Group
     {
         return $this->group;
     }
@@ -27,7 +27,7 @@ class GroupAnnouncement extends Announcement implements GroupSectionInterface
      * @param Group|LeaderContentRootInterface $group
      * @return GroupAnnouncement
      */
-    public function setGroup(Group $group)
+    public function setGroup(Group $group): GroupAnnouncement
     {
         $this->group = $group;
 
@@ -40,9 +40,8 @@ class GroupAnnouncement extends Announcement implements GroupSectionInterface
      * @param LeaderContentRootInterface $root
      * @return GroupAnnouncement
      * @internal param Group $group
-     *
      */
-    public function setRoot(LeaderContentRootInterface $root)
+    public function setRoot(LeaderContentRootInterface $root): GroupAnnouncement
     {
         return $this->setGroup($root);
     }
@@ -50,9 +49,9 @@ class GroupAnnouncement extends Announcement implements GroupSectionInterface
     /**
      * Get group.
      *
-     * @return \Civix\CoreBundle\Entity\Group
+     * @return LeaderContentRootInterface|Group
      */
-    public function getRoot()
+    public function getRoot(): LeaderContentRootInterface
     {
         return $this->getGroup();
     }

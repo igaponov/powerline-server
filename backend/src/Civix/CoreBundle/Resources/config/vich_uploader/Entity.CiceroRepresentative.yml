@@ -1,4 +1,0 @@
-Civix\CoreBundle\Entity\CiceroRepresentative:
-    avatar:
-        mapping: avatar_representative
-        filename_property: avatarFileName

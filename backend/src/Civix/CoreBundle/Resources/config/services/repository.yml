@@ -5,6 +5,21 @@ services:
         arguments: [Civix\CoreBundle\Entity\Group]
 
     civix_core.karma_repository:
-        class: Doctrine\ORM\EntityRepository
+        class: Civix\CoreBundle\Repository\KarmaRepository
         factory: ["@doctrine", "getRepository"]
         arguments: [Civix\CoreBundle\Entity\Karma]
+
+    civix_core.state_repository:
+        class: Civix\CoreBundle\Repository\StateRepository
+        factory: ["@doctrine", "getRepository"]
+        arguments: [Civix\CoreBundle\Entity\State]
+
+    civix_core.district_repository:
+        class: Civix\CoreBundle\Repository\DistrictRepository
+        factory: ["@doctrine", "getRepository"]
+        arguments: [Civix\CoreBundle\Entity\District]
+
+    civix_core.social_activity_repository:
+        class: Civix\CoreBundle\Repository\SocialActivityRepository
+        factory: ["@doctrine", "getRepository"]
+        arguments: [Civix\CoreBundle\Entity\SocialActivity]

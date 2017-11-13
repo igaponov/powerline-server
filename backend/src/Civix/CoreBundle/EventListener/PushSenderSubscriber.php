@@ -28,6 +28,8 @@ class PushSenderSubscriber implements EventSubscriberInterface
             Event\UserPetitionEvents::PETITION_BOOST => ['sendBoostedPetitionPush', -200],
             Event\PostEvents::POST_BOOST => ['sendBoostedPostPush', -200],
             Event\InviteEvents::CREATE => ['sendUserToGroupInvites', -200],
+            Event\PostEvents::POST_SHARE => ['sendSharedPostPush', -200],
+            Event\UserPetitionEvents::PETITION_SHARE => ['sendSharedPetitionPush', -200],
         ];
     }
 
@@ -108,6 +110,26 @@ class PushSenderSubscriber implements EventSubscriberInterface
         $this->pushTask->addToQueue(
             'sendGroupInvitePush',
             [$invite->getUser()->getId(), $invite->getGroup()->getId()]
+        );
+    }
+
+    public function sendSharedPostPush(Event\PostShareEvent $event)
+    {
+        $post = $event->getPost();
+        $sharer = $event->getSharer();
+        $this->pushTask->addToQueue(
+            'sendSharedPostPush',
+            [$post->getId(), $sharer->getId()]
+        );
+    }
+
+    public function sendSharedPetitionPush(Event\UserPetitionShareEvent $event)
+    {
+        $petition = $event->getPetition();
+        $sharer = $event->getSharer();
+        $this->pushTask->addToQueue(
+            'sendSharedPetitionPush',
+            [$petition->getId(), $sharer->getId()]
         );
     }
 

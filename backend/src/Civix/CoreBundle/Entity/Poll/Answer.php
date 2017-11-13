@@ -27,7 +27,7 @@ class Answer
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll", "api-answer", "api-answers-list", "api-leader-answers"})
+     * @Serializer\Groups({"api-poll", "api-answer", "api-answers-list", "api-leader-answers", "activity-list"})
      */
     private $id;
 
@@ -43,7 +43,7 @@ class Answer
      * @ORM\ManyToOne(targetEntity="Option", inversedBy="answers")
      * @ORM\JoinColumn(name="option_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll"})
+     * @Serializer\Groups({"api-poll", "activity-list"})
      */
     private $option;
 
@@ -58,7 +58,7 @@ class Answer
     /**
      * @ORM\Column(name="comment", type="text", nullable=true)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll", "api-answer"})
+     * @Serializer\Groups({"api-poll", "api-answer", "activity-list"})
      * @Assert\Length(max=500, groups={"api-poll"})
      */
     private $comment;

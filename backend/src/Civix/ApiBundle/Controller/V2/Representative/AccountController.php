@@ -2,7 +2,7 @@
 namespace Civix\ApiBundle\Controller\V2\Representative;
 
 use Civix\ApiBundle\Configuration\SecureParam;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Service\PaymentManager;
 use FOS\RestBundle\Controller\FOSRestController;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -41,9 +41,9 @@ class AccountController extends FOSRestController
      *         405="Method Not Allowed"
      *     }
      * )
-     * @param Representative $representative
+     * @param UserRepresentative $representative
      */
-    public function deleteAction(Representative $representative)
+    public function deleteAction(UserRepresentative $representative)
     {
         if ($account = $representative->getStripeAccount()) {
             $this->manager->deleteAccount($account);

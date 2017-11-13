@@ -2,10 +2,12 @@
 
 namespace Civix\CoreBundle\Repository;
 
+use Civix\Component\Doctrine\ORM\Cursor;
 use Civix\CoreBundle\Entity\BaseComment;
+use Civix\CoreBundle\Entity\User;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\Expr\Join;
-use Doctrine\Common\Collections\ArrayCollection;
 
 abstract class CommentRepository extends EntityRepository
 {
@@ -30,7 +32,6 @@ abstract class CommentRepository extends EntityRepository
 
         foreach ($commentsObjects as $comment) {
             /** @var BaseComment[] $comment */
-            $comment[0]->setRateStatus($comment['rateValue']);
             $comment[0]->setIsOwner($comment[0]->getUser() === $user);
             $comments->add($comment[0]);
         }
@@ -85,5 +86,31 @@ abstract class CommentRepository extends EntityRepository
             ->andWhere('c.user IS NOT NULL')
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    public function findOneWithCommentedEntityAndGroup($id)
+    {
+        return $this->createQueryBuilder('c')
+            ->addSelect('e', 'g')
+            ->leftJoin('c.'.$this->getCommentEntityField(), 'e')
+            ->leftJoin('e.group', 'g')
+            ->where('c.id = :id')
+            ->setParameter(':id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function getChildCommentsCursor(BaseComment $comment, User $user, int $lastId, int $limit)
+    {
+        $query = $this->createQueryBuilder('c')
+            ->addSelect('u', 'r')
+            ->leftJoin('c.user', 'u')
+            ->leftJoin('c.rates', 'r', Join::WITH, 'r.user = :user')
+            ->setParameter(':user', $user)
+            ->where('c.parentComment = :comment')
+            ->setParameter(':comment', $comment)
+            ->getQuery();
+
+        return new Cursor($query, $lastId, $limit);
     }
 }

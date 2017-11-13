@@ -2,7 +2,6 @@
 
 namespace Civix\CoreBundle\Service\User;
 
-use Civix\CoreBundle\Entity\DeferredInvites;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\Report\UserReport;
@@ -13,7 +12,6 @@ use Civix\CoreBundle\Event\AvatarEvents;
 use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Service\CiceroApi;
-use Civix\CoreBundle\Service\Group\GroupManager;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -23,8 +21,6 @@ class UserManager
 
     private $entityManager;
     private $ciceroApi;
-    private $groupManager;
-    private $kernelRootDir;
     /**
      * @var EventDispatcherInterface
      */
@@ -33,18 +29,14 @@ class UserManager
     public function __construct(
         EntityManager $entityManager,
         CiceroApi $ciceroApi,
-        GroupManager $groupManager,
-        EventDispatcherInterface $dispatcher,
-        $kernelRootDir
+        EventDispatcherInterface $dispatcher
     ) {
         $this->entityManager = $entityManager;
         $this->ciceroApi = $ciceroApi;
-        $this->groupManager = $groupManager;
         $this->dispatcher = $dispatcher;
-        $this->kernelRootDir = $kernelRootDir;
     }
 
-    public function updateDistrictsIds(User $user)
+    public function updateDistrictsIds(User $user): User
     {
         $representatives = $this->ciceroApi->getRepresentativesByLocation(
             $user->getLineAddress(),
@@ -70,12 +62,12 @@ class UserManager
         return $user;
     }
 
-    public function updateSettings(User $user, User $userWithSettings)
+    public function updateSettings(User $user, User $userWithSettings): User
     {
         $settings = array(
-            'DoNotDisturb', 'IsNotifQuestions', 'IsNotifDiscussions',
+            'DoNotDisturb', 'IsNotifQuestions', 'IsNotifDiscussions', 'FollowedDoNotDisturbTill',
             'IsNotifMessages', 'IsNotifMicroFollowing', 'IsNotifMicroGroup',
-            'IsNotifScheduled', 'IsNotifOwnPostChanged', 'ScheduledFrom', 'ScheduledTo'
+            'IsNotifScheduled', 'IsNotifOwnPostChanged', 'ScheduledFrom', 'ScheduledTo',
         );
 
         foreach ($settings as $setting) {
@@ -87,24 +79,20 @@ class UserManager
         return $user;
     }
 
-    public function checkResetInterval(User $user)
+    public function checkResetInterval(User $user): bool
     {
         $lastResetDate = $user->getResetPasswordAt();
-        if (is_null($lastResetDate)) {
+        if (null === $lastResetDate) {
             return true;
         }
 
         $currentDate = new \DateTime();
         $resetIntervalHours = ($currentDate->getTimestamp() - $lastResetDate->getTimestamp()) / 3600;
 
-        if ($resetIntervalHours >= 24) {
-            return true;
-        }
-
-        return false;
+        return $resetIntervalHours >= 24;
     }
 
-    public function subscribeToPetition(User $user, UserPetition $petition)
+    public function subscribeToPetition(User $user, UserPetition $petition): void
     {
         if (!$user->getPetitionSubscriptions()->contains($petition)) {
             $user->addPetitionSubscription($petition);
@@ -113,7 +101,7 @@ class UserManager
         }
     }
 
-    public function unsubscribeFromPetition(User $user, UserPetition $petition)
+    public function unsubscribeFromPetition(User $user, UserPetition $petition): void
     {
         if ($user->getPetitionSubscriptions()->contains($petition)) {
             $user->removePetitionSubscription($petition);
@@ -122,7 +110,7 @@ class UserManager
         }
     }
 
-    public function subscribeToPost(User $user, Post $post)
+    public function subscribeToPost(User $user, Post $post): void
     {
         if (!$user->getPostSubscriptions()->contains($post)) {
             $user->addPostSubscription($post);
@@ -131,7 +119,7 @@ class UserManager
         }
     }
 
-    public function unsubscribeFromPost(User $user, Post $post)
+    public function unsubscribeFromPost(User $user, Post $post): void
     {
         if ($user->getPostSubscriptions()->contains($post)) {
             $user->removePostSubscription($post);
@@ -140,7 +128,7 @@ class UserManager
         }
     }
 
-    public function subscribeToPoll(User $user, Question $poll)
+    public function subscribeToPoll(User $user, Question $poll): void
     {
         if (!$user->getPollSubscriptions()->contains($poll)) {
             $user->addPollSubscription($poll);
@@ -149,7 +137,7 @@ class UserManager
         }
     }
 
-    public function unsubscribeFromPoll(User $user, Question $poll)
+    public function unsubscribeFromPoll(User $user, Question $poll): void
     {
         if ($user->getPollSubscriptions()->contains($poll)) {
             $user->removePollSubscription($poll);
@@ -158,38 +146,22 @@ class UserManager
         }
     }
 
-    public function register(User $user)
+    public function register(User $user): User
     {
         $user->generateToken();
         $event = new AvatarEvent($user);
         $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
 
-        /** @var DeferredInvites[] $deferredInvites */
-        $deferredInvites = $this->entityManager
-            ->getRepository('CivixCoreBundle:DeferredInvites')
-            ->checkEmail($user->getEmail());
-
-        if (!empty($deferredInvites)) {
-            foreach ($deferredInvites as $invite) {
-                $user->addInvite($invite->getGroup());
-                $invite->setStatus(DeferredInvites::STATUS_INACTIVE);
-                $this->entityManager->persist($user);
-                $this->entityManager->persist($invite);
-            }
-        }
-
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        $this->updateDistrictsIds($user);
-
         $event = new UserEvent($user);
-        $this->dispatcher->dispatch(UserEvents::REGISTRATION, $event);
+        $this->dispatcher->dispatch('async.'.UserEvents::REGISTRATION, $event);
 
         return $user;
     }
 
-    public function save(User $user)
+    public function save(User $user): User
     {
         $event = new AvatarEvent($user);
         $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);

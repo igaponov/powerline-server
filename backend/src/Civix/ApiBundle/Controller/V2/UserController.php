@@ -3,7 +3,9 @@
 namespace Civix\ApiBundle\Controller\V2;
 
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\QueryFunction\CountPriorityActivities;
 use Civix\CoreBundle\Service\AvatarManager;
+use FOS\RestBundle\Controller\Annotations as REST;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -50,7 +52,7 @@ class UserController extends FOSRestController
      *
      * @return User
      */
-    public function getAction()
+    public function getAction(): User
     {
         return $this->getUser();
     }
@@ -71,8 +73,37 @@ class UserController extends FOSRestController
      *     }
      * )
      */
-    public function deleteAvatarAction()
+    public function deleteAvatarAction(): void
     {
         $this->avatarManager->deleteAvatar($this->getUser());
+    }
+
+    /**
+     * Return user's statistics
+     *
+     * **Output format**
+     *
+     *     {
+     *         priority_item_count: 1
+     *     }
+     *
+     * @REST\Get("/statistics")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Users",
+     *     description="Return user's statistics",
+     *     statusCodes={
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     */
+    public function getStatisticAction()
+    {
+        $query = new CountPriorityActivities($this->get('doctrine.orm.entity_manager'));
+
+        return [
+            'priority_item_count' => $query($this->getUser(), new \DateTime('-30 days'))
+        ];
     }
 }

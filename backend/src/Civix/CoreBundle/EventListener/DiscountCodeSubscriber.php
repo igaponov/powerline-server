@@ -10,7 +10,7 @@ use Civix\CoreBundle\Event\SubscriptionEvents;
 use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Service\Stripe;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -20,7 +20,7 @@ class DiscountCodeSubscriber implements EventSubscriberInterface
     const REFERRAL_COUNT = 3;
 
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
     private $em;
     /**
@@ -36,7 +36,7 @@ class DiscountCodeSubscriber implements EventSubscriberInterface
      */
     private $referralCode;
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             SubscriptionEvents::SUBSCRIBE => 'addRewardCode',
@@ -45,7 +45,7 @@ class DiscountCodeSubscriber implements EventSubscriberInterface
     }
 
     public function __construct(
-        EntityManager $em,
+        EntityManagerInterface $em,
         TokenStorageInterface $tokenStorage,
         Stripe $stripe,
         string $referralCode
@@ -56,7 +56,7 @@ class DiscountCodeSubscriber implements EventSubscriberInterface
         $this->referralCode = $referralCode;
     }
 
-    public function addDiscountCode(UserEvent $event)
+    public function addDiscountCode(UserEvent $event): void
     {
         $user = $event->getUser();
         $discountCode = new DiscountCode($this->referralCode, $user);
@@ -64,7 +64,7 @@ class DiscountCodeSubscriber implements EventSubscriberInterface
         $this->em->flush();
     }
 
-    public function addRewardCode(SubscriptionEvent $event, $eventName, EventDispatcherInterface $dispatcher)
+    public function addRewardCode(SubscriptionEvent $event, $eventName, EventDispatcherInterface $dispatcher): void
     {
         $coupon = $event->getSubscription()->getCoupon();
         $user = $this->tokenStorage->getToken()->getUser();

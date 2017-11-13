@@ -7,23 +7,41 @@ use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\ActivityRead;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserFollow;
+use Civix\CoreBundle\QueryFunction\ActivitiesQuery;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
+use JMS\DiExtraBundle\Annotation as DI;
 use Knp\Component\Pager\Event\AfterEvent;
+use Knp\Component\Pager\Pagination\AbstractPagination;
+use Knp\Component\Pager\Pagination\PaginationInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
  * @Route("/activities")
  */
 class ActivityController extends FOSRestController
 {
+    /**
+     * @var EntityManagerInterface
+     * @DI\Inject("doctrine.orm.entity_manager")
+     */
+    private $em;
+
+    /**
+     * @var TokenStorageInterface
+     * @DI\Inject("security.token_storage")
+     */
+    private $tokenStorage;
+
     /**
      * Return a user's list of activities
      *
@@ -34,6 +52,12 @@ class ActivityController extends FOSRestController
      * @QueryParam(name="user", requirements="\d+", description="Another user's id")
      * @QueryParam(name="type", requirements="poll|post|petition", description="Activity types (array)", map=true)
      * @QueryParam(name="group", requirements="\d+", description="Filter by group ID")
+     * @QueryParam(name="followed", requirements="0|1", description="Filter by followed users")
+     * @QueryParam(name="non_followed", requirements="0|1", description="Filter by non-followed users")
+     * @QueryParam(name="post_id", requirements="\d+", description="Filter by post id")
+     * @QueryParam(name="poll_id", requirements="\d+", description="Filter by poll id")
+     * @QueryParam(name="petition_id", requirements="\d+", description="Filter by petition id")
+     * @QueryParam(name="hash_tag", requirements=".+", description="Filter by hash tag")
      * @QueryParam(name="page", requirements="\d+", default="1")
      * @QueryParam(name="per_page", requirements="(10|15|20)", default="20")
      *
@@ -55,20 +79,22 @@ class ActivityController extends FOSRestController
      *     }
      * )
      *
-     * @View(serializerGroups={"paginator", "api-activities", "activity-list"})
+     * @View(serializerGroups={"paginator", "api-activities", "activity-list", "api-comments", "api-comments-add"})
      *
      * @param ParamFetcher $params
-     * @return Response
+     *
+     * @return PaginationInterface
      */
-    public function getActivitiesAction(ParamFetcher $params)
+    public function getActivitiesAction(ParamFetcher $params): PaginationInterface
     {
         $start = new \DateTime('-30 days');
         $activityTypes = $params->get('type') ? (array)$params->get('type') : null;
 
-        $user = $this->getUser();
+        $user = $this->tokenStorage->getToken()->getUser();
+        $queryBuilder = new ActivitiesQuery($this->em);
         if ($followingId = $params->get('following')) {
             // get user follow status
-            $userFollow = $this->getDoctrine()
+            $userFollow = $this->em
                 ->getRepository('CivixCoreBundle:UserFollow')->findOneBy([
                     'user' => $followingId,
                     'follower' => $user,
@@ -77,32 +103,110 @@ class ActivityController extends FOSRestController
             if (!$userFollow) {
                 $query = [];
             } else {
-                $query = $this->getDoctrine()
-                    ->getRepository('CivixCoreBundle:Activity')
-                    ->getActivitiesByFollowingQuery($userFollow->getFollower(), $userFollow->getUser(), $start, $activityTypes, $params->get('group'));
+                $query = $queryBuilder(
+                    $userFollow->getFollower(),
+                    $activityTypes,
+                    [
+                        $queryBuilder::getFilterByFollowing($userFollow->getUser()),
+                        $queryBuilder::getFilterByGroup($params->get('group')),
+                        $queryBuilder::getFilterByStartAt($start),
+                        $queryBuilder::getFilterByHashTag($params->get('hash_tag')),
+                    ]
+                );
             }
         } elseif ($params->get('user')) {
-            $following = $this->getDoctrine()
+            $following = $this->em
                 ->getRepository(User::class)->find($params->get('user'));
             if (!$following) {
                 $query = [];
             } else {
-                $query = $this->getDoctrine()
-                    ->getRepository('CivixCoreBundle:Activity')
-                    ->getActivitiesByFollowingQuery($user, $following, $start, $activityTypes, $params->get('group'));
+                $query = $queryBuilder(
+                    $user,
+                    $activityTypes,
+                    [
+                        $queryBuilder::getFilterByFollowing($following),
+                        $queryBuilder::getFilterByGroup($params->get('group')),
+                        $queryBuilder::getFilterByStartAt($start),
+                        $queryBuilder::getFilterByHashTag($params->get('hash_tag')),
+                    ]
+                );
             }
+        } elseif ($params->get('followed')) {
+            $query = $queryBuilder(
+                $user,
+                $activityTypes,
+                [
+                    $queryBuilder::getFilterByFollowed($user),
+                    $queryBuilder::getFilterByGroup($params->get('group')),
+                    $queryBuilder::getFilterByStartAt($start),
+                    $queryBuilder::getFilterByHashTag($params->get('hash_tag')),
+                ],
+                true
+            );
+        } elseif ($params->get('non_followed')) {
+            $query = $queryBuilder(
+                $user,
+                $activityTypes,
+                [
+                    $queryBuilder::getFilterByNonFollowed($user),
+                    $queryBuilder::getFilterByGroup($params->get('group')),
+                    $queryBuilder::getFilterByStartAt($start),
+                    $queryBuilder::getFilterByHashTag($params->get('hash_tag')),
+                ]
+            );
+        } elseif ($params->get('post_id')) {
+            $query = $queryBuilder(
+                $user,
+                $activityTypes,
+                [
+                    $queryBuilder::getFilterByStartAt($start),
+                    $queryBuilder::getFilterByPostId($params->get('post_id')),
+                    $queryBuilder::getFilterByHashTag($params->get('hash_tag')),
+                ]
+            );
+        } elseif ($params->get('poll_id')) {
+            $query = $queryBuilder(
+                $user,
+                $activityTypes,
+                [
+                    $queryBuilder::getFilterByStartAt($start),
+                    $queryBuilder::getFilterByPollId($params->get('poll_id')),
+                    $queryBuilder::getFilterByHashTag($params->get('hash_tag')),
+                ]
+            );
+        } elseif ($params->get('petition_id')) {
+            $query = $queryBuilder(
+                $user,
+                $activityTypes,
+                [
+                    $queryBuilder::getFilterByStartAt($start),
+                    $queryBuilder::getFilterByPetitionId($params->get('petition_id')),
+                    $queryBuilder::getFilterByHashTag($params->get('hash_tag')),
+                ]
+            );
         } else {
-            $query = $this->getDoctrine()->getRepository('CivixCoreBundle:Activity')
-                ->getActivitiesByUserQuery($user, $start, $activityTypes, $params->get('group'));
+            $query = $queryBuilder(
+                $user,
+                $activityTypes,
+                [
+                    $queryBuilder::getFilterByGroup($params->get('group')),
+                    $queryBuilder::getFilterByStartAt($start),
+                    $queryBuilder::getFilterByHashTag($params->get('hash_tag')),
+                ]
+            );
         }
 
         $paginator = $this->get('knp_paginator');
-        $paginator->connect('knp_pager.after', function (AfterEvent $event) use ($user) {
+        $paginator->connect('knp_pager.after', function (AfterEvent $event) use ($user, $queryBuilder) {
             $filter = function (ActivityRead $activityRead) use ($user) {
-                return $activityRead->getUser()->getId() == $user->getId();
+                return $activityRead->getUser()->getId() === $user->getId();
             };
             $activities = [];
-            foreach ($event->getPaginationView() as $activity) {
+            $pagination = $event->getPaginationView();
+            if (!$pagination instanceof AbstractPagination) {
+                return;
+            }
+            foreach ($pagination as $activity) {
                 $zone = $activity['zone'];
                 $activity = reset($activity);
                 /** @var Activity $activity */
@@ -112,7 +216,8 @@ class ActivityController extends FOSRestController
                 }
                 $activities[] = $activity;
             }
-            $event->getPaginationView()->setItems($activities);
+            $queryBuilder->runPostQueries($activities);
+            $pagination->setItems($activities);
         });
 
         return $paginator->paginate(
@@ -149,6 +254,8 @@ class ActivityController extends FOSRestController
      *
      * @param Request $request
      * @return \Symfony\Component\Form\Form|Response
+     *
+     * @throws \Symfony\Component\Form\Exception\AlreadySubmittedException
      */
     public function patchAction(Request $request)
     {
@@ -156,8 +263,10 @@ class ActivityController extends FOSRestController
         $form->submit($request->request->all());
         
         if ($form->isValid()) {
+            $user = $this->tokenStorage->getToken()->getUser();
+
             return $this->get('civix_core.service.activity_manager')
-                ->bulkUpdate(new ArrayCollection($form->getData()['activities']), $this->getUser());
+                ->bulkUpdate(new ArrayCollection($form->getData()['activities']), $user);
         }
 
         return $form;

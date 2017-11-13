@@ -10,6 +10,7 @@ use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\DiExtraBundle\Annotation as DI;
+use Knp\Component\Pager\Pagination\PaginationInterface;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -28,7 +29,7 @@ class UserPetitionCommentsController extends AbstractCommentsController
      */
     private $manager;
 
-    protected function getManager()
+    protected function getManager(): CommentManager
     {
         return $this->manager;
     }
@@ -66,9 +67,9 @@ class UserPetitionCommentsController extends AbstractCommentsController
      * @param ParamFetcher $params
      * @param CommentedInterface $entity
      *
-     * @return \Knp\Component\Pager\Pagination\PaginationInterface
+     * @return PaginationInterface
      */
-    public function getCommentsAction(ParamFetcher $params, CommentedInterface $entity)
+    public function getCommentsAction(ParamFetcher $params, CommentedInterface $entity): PaginationInterface
     {
         return $this->getComments($params, $entity, Comment::class);
     }

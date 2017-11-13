@@ -5,7 +5,7 @@ namespace Civix\CoreBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\DistrictRepository")
  * @ORM\Table(
  *      name="districts",
  *      indexes={@ORM\Index(name="distr_type", columns={"district_type"})}

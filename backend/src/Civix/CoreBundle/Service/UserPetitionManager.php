@@ -9,13 +9,14 @@ use Civix\CoreBundle\Entity\UserPetition\Signature;
 use Civix\CoreBundle\Event\UserPetition\SignatureEvent;
 use Civix\CoreBundle\Event\UserPetitionEvent;
 use Civix\CoreBundle\Event\UserPetitionEvents;
-use Doctrine\ORM\EntityManager;
+use Civix\CoreBundle\Event\UserPetitionShareEvent;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UserPetitionManager
 {
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
     private $entityManager;
 
@@ -25,7 +26,7 @@ class UserPetitionManager
     private $dispatcher;
 
     public function __construct(
-        EntityManager $entityManager, 
+        EntityManagerInterface $entityManager,
         EventDispatcherInterface $dispatcher
     )
     {
@@ -41,7 +42,7 @@ class UserPetitionManager
      *
      * @return Signature
      */
-    public function signPetition(UserPetition $petition, User $user)
+    public function signPetition(UserPetition $petition, User $user): Signature
     {
         $signature = $petition->sign($user);
         $this->entityManager->persist($petition);
@@ -66,7 +67,7 @@ class UserPetitionManager
      * @param Signature $signature
      * @return Signature
      */
-    public function unsignPetition(Signature $signature)
+    public function unsignPetition(Signature $signature): Signature
     {
         $this->entityManager->remove($signature);
         $this->entityManager->flush();
@@ -80,7 +81,7 @@ class UserPetitionManager
     /**
      * @param UserPetition $petition
      */
-    public function boostPetition(UserPetition $petition)
+    public function boostPetition(UserPetition $petition): void
     {
         $petition->boost();
         $this->entityManager->persist($petition);
@@ -98,7 +99,7 @@ class UserPetitionManager
      *
      * @return bool
      */
-    public function checkPetitionLimitPerMonth(User $user, Group $petitionGroup)
+    public function checkPetitionLimitPerMonth(User $user, Group $petitionGroup): bool
     {
         $currentPetitionCount = $this->entityManager
             ->getRepository(UserPetition::class)
@@ -111,11 +112,11 @@ class UserPetitionManager
      * Check count answers from group of petition. If it greater than 10% group's followers
      * than need to publish to activity.
      *  
-     * @param \Civix\CoreBundle\Entity\UserPetition $petition
+     * @param UserPetition $petition
      * 
      * @return bool
      */
-    public function checkIfNeedBoost(UserPetition $petition)
+    public function checkIfNeedBoost(UserPetition $petition): bool
     {
         if ($petition->isOrganizationNeeded()) {
             return false;
@@ -130,17 +131,42 @@ class UserPetitionManager
      * @param UserPetition $petition
      * @return UserPetition
      */
-    public function savePetition(UserPetition $petition)
+    public function savePetition(UserPetition $petition): UserPetition
     {
         $isNew = !$petition->getId();
+        $event = new UserPetitionEvent($petition);
+        if ($isNew) {
+            $this->dispatcher->dispatch(UserPetitionEvents::PETITION_PRE_CREATE, $event);
+            $this->entityManager->persist($petition);
+        }
 
-        $this->entityManager->persist($petition);
         $this->entityManager->flush();
 
-        $event = new UserPetitionEvent($petition);
+        if ($isNew) {
+            $this->dispatcher->dispatch(UserPetitionEvents::PETITION_POST_CREATE, $event);
+        }
+
         $eventName = $isNew ? UserPetitionEvents::PETITION_CREATE : UserPetitionEvents::PETITION_UPDATE;
-        $this->dispatcher->dispatch($eventName, $event);
+        $this->dispatcher->dispatch('async.'.$eventName, $event);
 
         return $petition;
+    }
+
+    public function sharePetition(UserPetition $petition, User $sharer): void
+    {
+        $filter = function (Signature $signature) use ($sharer) {
+            return $signature->getUser()->isEqualTo($sharer);
+        };
+        if ($petition->getSignatures()->filter($filter)->isEmpty()) {
+            throw new \DomainException('User can share only a petition he has signed.');
+        }
+        if ($sharer->getLastContentSharedAt() > new \DateTime('-1 hour')) {
+            throw new \DomainException('User can share a petition only once in 1 hour.');
+        }
+
+        $sharer->shareContent();
+
+        $event = new UserPetitionShareEvent($petition, $sharer);
+        $this->dispatcher->dispatch(UserPetitionEvents::PETITION_SHARE, $event);
     }
 }

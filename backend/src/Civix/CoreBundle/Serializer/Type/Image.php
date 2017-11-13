@@ -12,12 +12,17 @@ class Image
     protected $field;
 
     protected $src;
+    /**
+     * @var bool
+     */
+    private $availability;
 
-    public function __construct($entity, $field, $src = null)
+    public function __construct($entity, $field, $src = null, $availability = true)
     {
         $this->entity = $entity;
         $this->field = $field;
         $this->src = $src;
+        $this->availability = $availability;
     }
 
     public function getEntity()
@@ -43,6 +48,10 @@ class Image
 
     public function isAvailable()
     {
+        if (!$this->availability) {
+            return true;
+        }
+
         if (method_exists($this->entity, 'get'.$this->field)) {
             return $this->entity->{'get'.$this->field}() !== null;
         }

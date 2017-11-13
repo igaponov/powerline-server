@@ -42,9 +42,9 @@
   tags: configure
   service: name=nginx state=restarted
 
-- name: restart php5-fpm
+- name: restart php7.1-fpm
   tags: configure
-  service: name=php5-fpm state=restarted
+  service: name=php7.1-fpm state=restarted
 
 - name: configure rabbitmq vhost
   tags: configure

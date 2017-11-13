@@ -16,6 +16,8 @@ class PetitionVoter implements VoterInterface
     const DELETE = 'delete';
     const SUBSCRIBE = 'subscribe';
     const SIGN = 'sign';
+    const SHARE = 'share';
+
     /**
      * @var GroupVoter
      */
@@ -41,7 +43,8 @@ class PetitionVoter implements VoterInterface
             self::DELETE,
             self::SUBSCRIBE,
             self::SIGN,
-        ));
+            self::SHARE,
+        ), true);
     }
 
     /**
@@ -130,8 +133,13 @@ class PetitionVoter implements VoterInterface
             }
         }
 
-        // post creator can do anything except subscribing
-        if ($attribute !== self::SUBSCRIBE) {
+        if ($attribute === self::SHARE) {
+            $group = $object->getGroup();
+            if ($group instanceof Group && !$group->isOwner($user)) {
+                return $this->groupVoter->vote($token, $group, [GroupVoter::MEMBER]);
+            }
+        } elseif ($attribute !== self::SUBSCRIBE) {
+            // petition creator can do anything except subscribing
             if ($object->getUser()->isEqualTo($user)) {
                 return VoterInterface::ACCESS_GRANTED;
             }

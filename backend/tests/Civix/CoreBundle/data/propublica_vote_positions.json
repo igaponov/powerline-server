@@ -1,0 +1,2703 @@
+{
+    "status":"OK",
+    "copyright":"Copyright (c) 2017 Pro Publica Inc. All Rights Reserved.",
+    "results":[
+        {
+            "member_id": "K000388",
+            "total_votes": "100",
+            "offset": "0",
+            "votes": [
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "438",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/438.json",
+                    "bill": {
+                        "bill_id": "s114-115",
+                        "number": "S 114",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/s114.json",
+                        "title": "To authorize appropriations and to appropriate amounts for the Veterans Choice Program of the Department of Veterans Affairs, to improve hiring authorities of the Department, to authorize major medical facility leases, and for other purposes.",
+                        "latest_action": "Became Public Law No: 115-46."
+                    },
+                    "description": "Department of Veterans Affairs Bonus Transparency Act",
+                    "question": "On Passage",
+                    "result": "Passed",
+                    "date": "2017-07-28",
+                    "time": "12:52:00",
+                    "total": {
+                        "yes": 414,
+                        "no": 0,
+                        "present": 0,
+                        "not_voting": 19
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "437",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/437.json",
+                    "bill": {
+                        "bill_id": "hr3180-115",
+                        "number": "H R 3180",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3180.json",
+                        "title": "Intelligence Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Select Committee on Intelligence."
+                    },
+                    "description": "Intelligence Authorization Act for Fiscal Year 2018",
+                    "question": "On Passage",
+                    "result": "Passed",
+                    "date": "2017-07-28",
+                    "time": "12:45:00",
+                    "total": {
+                        "yes": 380,
+                        "no": 35,
+                        "present": 0,
+                        "not_voting": 18
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "436",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/436.json",
+                    "bill": {
+                        "bill_id": "hres481-115",
+                        "number": "H RES 481",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hres481.json",
+                        "title": "Providing for consideration of the bill (H.R. 3180) to authorize appropriations for fiscal year 2018 for intelligence and intelligence-related activities of the United States Government, the Community Management Account, and the Central Intelligence Agency Retirement and Disability System, and for other purposes; waiving a requirement of clause 6(a) of rule XIII with respect to consideration of certain resolutions reported from the Committee on Rules; and providing for proceedings during the period from July 31, 2017, through September 4, 2017.",
+                        "latest_action": "Motion to reconsider laid on the table Agreed to without objection."
+                    },
+                    "description": "Providing for consideration of the bill (H.R. 3180) Intelligence Authorization Act for FY 2018; and providing for proceedings during the period from July 31, 2017, through September 4, 2017",
+                    "question": "On Agreeing to the Resolution",
+                    "result": "Passed",
+                    "date": "2017-07-28",
+                    "time": "10:27:00",
+                    "total": {
+                        "yes": 224,
+                        "no": 186,
+                        "present": 0,
+                        "not_voting": 23
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "435",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/435.json",
+                    "bill": {
+                        "bill_id": "hr3219-115",
+                        "number": "H R 3219",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3219.json",
+                        "title": "Make America Secure Appropriations Act, 2018",
+                        "latest_action": "Read the second time. Placed on Senate Legislative Calendar under General Orders. Calendar No. 187."
+                    },
+                    "description": "Make America Secure Appropriations Act, 2018",
+                    "question": "On Passage",
+                    "result": "Passed",
+                    "date": "2017-07-27",
+                    "time": "17:19:00",
+                    "total": {
+                        "yes": 235,
+                        "no": 192,
+                        "present": 0,
+                        "not_voting": 6
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "434",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/434.json",
+                    "bill": {
+                        "bill_id": "hr3219-115",
+                        "number": "H R 3219",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3219.json",
+                        "title": "Make America Secure Appropriations Act, 2018",
+                        "latest_action": "Read the second time. Placed on Senate Legislative Calendar under General Orders. Calendar No. 187."
+                    },
+                    "description": "Make America Secure Appropriations Act, 2018",
+                    "question": "On Motion to Recommit with Instructions",
+                    "result": "Failed",
+                    "date": "2017-07-27",
+                    "time": "17:13:00",
+                    "total": {
+                        "yes": 193,
+                        "no": 234,
+                        "present": 0,
+                        "not_voting": 6
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "433",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/433.json",
+                    "bill": {
+                        "bill_id": "hr3219-115",
+                        "number": "H R 3219",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3219.json",
+                        "title": "Make America Secure Appropriations Act, 2018",
+                        "latest_action": "Read the second time. Placed on Senate Legislative Calendar under General Orders. Calendar No. 187."
+                    },
+                    "description": "Make America Secure Appropriations Act, 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Agreed to",
+                    "date": "2017-07-27",
+                    "time": "16:56:00",
+                    "total": {
+                        "yes": 253,
+                        "no": 172,
+                        "present": 0,
+                        "not_voting": 8
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "432",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/432.json",
+                    "bill": {
+                        "bill_id": "hr3219-115",
+                        "number": "H R 3219",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3219.json",
+                        "title": "Make America Secure Appropriations Act, 2018",
+                        "latest_action": "Read the second time. Placed on Senate Legislative Calendar under General Orders. Calendar No. 187."
+                    },
+                    "description": "Make America Secure Appropriations Act, 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-27",
+                    "time": "16:51:00",
+                    "total": {
+                        "yes": 172,
+                        "no": 252,
+                        "present": 0,
+                        "not_voting": 9
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "431",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/431.json",
+                    "bill": {
+                        "bill_id": "hr3219-115",
+                        "number": "H R 3219",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3219.json",
+                        "title": "Make America Secure Appropriations Act, 2018",
+                        "latest_action": "Read the second time. Placed on Senate Legislative Calendar under General Orders. Calendar No. 187."
+                    },
+                    "description": "Make America Secure Appropriations Act, 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Agreed to",
+                    "date": "2017-07-27",
+                    "time": "16:46:00",
+                    "total": {
+                        "yes": 256,
+                        "no": 169,
+                        "present": 0,
+                        "not_voting": 8
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "430",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/430.json",
+                    "bill": {
+                        "bill_id": "hr3219-115",
+                        "number": "H R 3219",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3219.json",
+                        "title": "Make America Secure Appropriations Act, 2018",
+                        "latest_action": "Read the second time. Placed on Senate Legislative Calendar under General Orders. Calendar No. 187."
+                    },
+                    "description": "Make America Secure Appropriations Act, 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Agreed to",
+                    "date": "2017-07-27",
+                    "time": "16:41:00",
+                    "total": {
+                        "yes": 214,
+                        "no": 211,
+                        "present": 0,
+                        "not_voting": 8
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "429",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/429.json",
+                    "bill": {
+                        "bill_id": "hr3219-115",
+                        "number": "H R 3219",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3219.json",
+                        "title": "Make America Secure Appropriations Act, 2018",
+                        "latest_action": "Read the second time. Placed on Senate Legislative Calendar under General Orders. Calendar No. 187."
+                    },
+                    "description": "Make America Secure Appropriations Act, 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-27",
+                    "time": "14:24:00",
+                    "total": {
+                        "yes": 177,
+                        "no": 248,
+                        "present": 0,
+                        "not_voting": 8
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "428",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/428.json",
+                    "bill": {
+                        "bill_id": "hr3219-115",
+                        "number": "H R 3219",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3219.json",
+                        "title": "Make America Secure Appropriations Act, 2018",
+                        "latest_action": "Read the second time. Placed on Senate Legislative Calendar under General Orders. Calendar No. 187."
+                    },
+                    "description": "Make America Secure Appropriations Act, 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-27",
+                    "time": "14:20:00",
+                    "total": {
+                        "yes": 140,
+                        "no": 285,
+                        "present": 1,
+                        "not_voting": 7
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "427",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/427.json",
+                    "bill": {
+                        "bill_id": "hres478-115",
+                        "number": "H RES 478",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hres478.json",
+                        "title": "Providing for further consideration of the bill (H.R. 3219) making appropriations for the Department of Defense for the fiscal year ending September 30, 2018, and for other purposes, and providing for consideration of motions to suspend the rules.",
+                        "latest_action": "Motion to reconsider laid on the table Agreed to without objection."
+                    },
+                    "description": "Providing for further consideration of the bill (H.R. 3219) making appropriations for the Department of Defense for the fiscal year ending Sept. 30, 2018, and for other purposes, and providing ...",
+                    "question": "On Agreeing to the Resolution",
+                    "result": "Passed",
+                    "date": "2017-07-27",
+                    "time": "14:15:00",
+                    "total": {
+                        "yes": 230,
+                        "no": 196,
+                        "present": 0,
+                        "not_voting": 7
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "426",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/426.json",
+                    "bill": {
+                        "bill_id": "hres478-115",
+                        "number": "H RES 478",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hres478.json",
+                        "title": "Providing for further consideration of the bill (H.R. 3219) making appropriations for the Department of Defense for the fiscal year ending September 30, 2018, and for other purposes, and providing for consideration of motions to suspend the rules.",
+                        "latest_action": "Motion to reconsider laid on the table Agreed to without objection."
+                    },
+                    "description": "Providing for further consideration of the bill (H.R. 3219) making appropriations for the Department of Defense for the fiscal year ending Sept. 30, 2018, and for other purposes, and providing ...",
+                    "question": "On Ordering the Previous Question",
+                    "result": "Passed",
+                    "date": "2017-07-27",
+                    "time": "14:08:00",
+                    "total": {
+                        "yes": 233,
+                        "no": 185,
+                        "present": 0,
+                        "not_voting": 15
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "425",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/425.json",
+                    "bill": {
+                        "bill_id": "hr3219-115",
+                        "number": "H R 3219",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3219.json",
+                        "title": "Make America Secure Appropriations Act, 2018",
+                        "latest_action": "Read the second time. Placed on Senate Legislative Calendar under General Orders. Calendar No. 187."
+                    },
+                    "description": "Make America Secure Appropriations Act, 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Agreed to",
+                    "date": "2017-07-26",
+                    "time": "23:20:00",
+                    "total": {
+                        "yes": 234,
+                        "no": 192,
+                        "present": 0,
+                        "not_voting": 7
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "424",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/424.json",
+                    "bill": {
+                        "bill_id": "hr3219-115",
+                        "number": "H R 3219",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3219.json",
+                        "title": "Make America Secure Appropriations Act, 2018",
+                        "latest_action": "Read the second time. Placed on Senate Legislative Calendar under General Orders. Calendar No. 187."
+                    },
+                    "description": "Make America Secure Appropriations Act, 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-26",
+                    "time": "23:15:00",
+                    "total": {
+                        "yes": 192,
+                        "no": 235,
+                        "present": 0,
+                        "not_voting": 6
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "423",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/423.json",
+                    "bill": {
+                        "bill_id": "hr3219-115",
+                        "number": "H R 3219",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3219.json",
+                        "title": "Make America Secure Appropriations Act, 2018",
+                        "latest_action": "Read the second time. Placed on Senate Legislative Calendar under General Orders. Calendar No. 187."
+                    },
+                    "description": "Make America Secure Appropriations Act, 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-26",
+                    "time": "23:12:00",
+                    "total": {
+                        "yes": 180,
+                        "no": 247,
+                        "present": 0,
+                        "not_voting": 6
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "422",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/422.json",
+                    "bill": {
+                        "bill_id": "hr3219-115",
+                        "number": "H R 3219",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3219.json",
+                        "title": "Make America Secure Appropriations Act, 2018",
+                        "latest_action": "Read the second time. Placed on Senate Legislative Calendar under General Orders. Calendar No. 187."
+                    },
+                    "description": "Make America Secure Appropriations Act, 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-26",
+                    "time": "23:09:00",
+                    "total": {
+                        "yes": 203,
+                        "no": 224,
+                        "present": 0,
+                        "not_voting": 6
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "421",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/421.json",
+                    "bill": {
+                        "bill_id": "hr3219-115",
+                        "number": "H R 3219",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3219.json",
+                        "title": "Make America Secure Appropriations Act, 2018",
+                        "latest_action": "Read the second time. Placed on Senate Legislative Calendar under General Orders. Calendar No. 187."
+                    },
+                    "description": "Make America Secure Appropriations Act, 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-26",
+                    "time": "23:06:00",
+                    "total": {
+                        "yes": 186,
+                        "no": 241,
+                        "present": 0,
+                        "not_voting": 6
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "420",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/420.json",
+                    "bill": {
+                        "bill_id": "hr3219-115",
+                        "number": "H R 3219",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3219.json",
+                        "title": "Make America Secure Appropriations Act, 2018",
+                        "latest_action": "Read the second time. Placed on Senate Legislative Calendar under General Orders. Calendar No. 187."
+                    },
+                    "description": "Make America Secure Appropriations Act, 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-26",
+                    "time": "23:03:00",
+                    "total": {
+                        "yes": 181,
+                        "no": 246,
+                        "present": 0,
+                        "not_voting": 6
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "419",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/419.json",
+                    "bill": {
+                        "bill_id": "hr3219-115",
+                        "number": "H R 3219",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3219.json",
+                        "title": "Make America Secure Appropriations Act, 2018",
+                        "latest_action": "Read the second time. Placed on Senate Legislative Calendar under General Orders. Calendar No. 187."
+                    },
+                    "description": "Make America Secure Appropriations Act, 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-26",
+                    "time": "23:00:00",
+                    "total": {
+                        "yes": 178,
+                        "no": 249,
+                        "present": 0,
+                        "not_voting": 6
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "418",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/418.json",
+                    "bill": {
+                        "bill_id": "hr3219-115",
+                        "number": "H R 3219",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3219.json",
+                        "title": "Make America Secure Appropriations Act, 2018",
+                        "latest_action": "Read the second time. Placed on Senate Legislative Calendar under General Orders. Calendar No. 187."
+                    },
+                    "description": "Make America Secure Appropriations Act, 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-26",
+                    "time": "22:57:00",
+                    "total": {
+                        "yes": 191,
+                        "no": 236,
+                        "present": 0,
+                        "not_voting": 6
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "417",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/417.json",
+                    "bill": {
+                        "bill_id": "hr3219-115",
+                        "number": "H R 3219",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3219.json",
+                        "title": "Make America Secure Appropriations Act, 2018",
+                        "latest_action": "Read the second time. Placed on Senate Legislative Calendar under General Orders. Calendar No. 187."
+                    },
+                    "description": "Make America Secure Appropriations Act, 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-26",
+                    "time": "22:53:00",
+                    "total": {
+                        "yes": 116,
+                        "no": 309,
+                        "present": 0,
+                        "not_voting": 8
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "416",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/416.json",
+                    "bill": {
+                        "bill_id": "hr3219-115",
+                        "number": "H R 3219",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3219.json",
+                        "title": "Make America Secure Appropriations Act, 2018",
+                        "latest_action": "Read the second time. Placed on Senate Legislative Calendar under General Orders. Calendar No. 187."
+                    },
+                    "description": "Make America Secure Appropriations Act, 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-26",
+                    "time": "22:48:00",
+                    "total": {
+                        "yes": 107,
+                        "no": 314,
+                        "present": 0,
+                        "not_voting": 12
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "415",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/415.json",
+                    "bill": {
+                        "bill_id": "hres473-115",
+                        "number": "H RES 473",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hres473.json",
+                        "title": "Providing for consideration of the bill (H.R. 3219) making appropriations for the Department of Defense for the fiscal year ending September 30, 2018, and for other purposes.",
+                        "latest_action": "Motion to reconsider laid on the table Agreed to without objection."
+                    },
+                    "description": "Providing for consideration of the bill (H.R. 3219) making appropriations for the Department of Defense for the fiscal year ending September 30, 2018, and for other purposes",
+                    "question": "On Agreeing to the Resolution",
+                    "result": "Passed",
+                    "date": "2017-07-26",
+                    "time": "14:02:00",
+                    "total": {
+                        "yes": 232,
+                        "no": 192,
+                        "present": 0,
+                        "not_voting": 9
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "414",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/414.json",
+                    "bill": {
+                        "bill_id": "hres473-115",
+                        "number": "H RES 473",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hres473.json",
+                        "title": "Providing for consideration of the bill (H.R. 3219) making appropriations for the Department of Defense for the fiscal year ending September 30, 2018, and for other purposes.",
+                        "latest_action": "Motion to reconsider laid on the table Agreed to without objection."
+                    },
+                    "description": "Providing for consideration of the bill (H.R. 3219) making appropriations for the Department of Defense for the fiscal year ending September 30, 2018, and for other purposes",
+                    "question": "On Ordering the Previous Question",
+                    "result": "Passed",
+                    "date": "2017-07-26",
+                    "time": "13:55:00",
+                    "total": {
+                        "yes": 230,
+                        "no": 193,
+                        "present": 0,
+                        "not_voting": 10
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "413",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/413.json",
+                    "bill": {
+                        "bill_id": "hr3364-115",
+                        "number": "H R 3364",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3364.json",
+                        "title": "Countering America&#39;s Adversaries Through Sanctions Act",
+                        "latest_action": "Became Public Law No: 115-44."
+                    },
+                    "description": "Countering America&#39;s Adversaries Through Sanctions Act",
+                    "question": "On Motion to Suspend the Rules and Pass",
+                    "result": "Passed",
+                    "date": "2017-07-25",
+                    "time": "17:13:00",
+                    "total": {
+                        "yes": 419,
+                        "no": 3,
+                        "present": 0,
+                        "not_voting": 11
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "412",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/412.json",
+                    "bill": {
+                        "bill_id": "hjres111-115",
+                        "number": "H J RES 111",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hjres111.json",
+                        "title": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by Bureau of Consumer Financial Protection relating to &quot;Arbitration Agreements&quot;.",
+                        "latest_action": "Received in the Senate."
+                    },
+                    "description": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by Bureau of Consumer Financial Protection relating to “Arbitration Agreements”",
+                    "question": "On Passage",
+                    "result": "Passed",
+                    "date": "2017-07-25",
+                    "time": "17:06:00",
+                    "total": {
+                        "yes": 231,
+                        "no": 190,
+                        "present": 0,
+                        "not_voting": 12
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "411",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/411.json",
+                    "bill": {
+                        "bill_id": "hres468-115",
+                        "number": "H RES 468",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hres468.json",
+                        "title": "Providing for consideration of the joint resolution (H.J. Res. 111) providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by Bureau of Consumer Financial Protection relating to &quot;Arbitration Agreements&quot;.",
+                        "latest_action": "Motion to reconsider laid on the table Agreed to without objection."
+                    },
+                    "description": "Providing for consideration of the joint resolution (H.J.Res. 111) providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by Bureau of Consumer ...",
+                    "question": "On Agreeing to the Resolution",
+                    "result": "Passed",
+                    "date": "2017-07-25",
+                    "time": "13:37:00",
+                    "total": {
+                        "yes": 233,
+                        "no": 188,
+                        "present": 0,
+                        "not_voting": 12
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "410",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/410.json",
+                    "bill": {
+                        "bill_id": "hres468-115",
+                        "number": "H RES 468",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hres468.json",
+                        "title": "Providing for consideration of the joint resolution (H.J. Res. 111) providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by Bureau of Consumer Financial Protection relating to &quot;Arbitration Agreements&quot;.",
+                        "latest_action": "Motion to reconsider laid on the table Agreed to without objection."
+                    },
+                    "description": "Providing for consideration of the joint resolution (H.J.Res. 111) providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by Bureau of Consumer ...",
+                    "question": "On Ordering the Previous Question",
+                    "result": "Passed",
+                    "date": "2017-07-25",
+                    "time": "13:30:00",
+                    "total": {
+                        "yes": 229,
+                        "no": 184,
+                        "present": 0,
+                        "not_voting": 20
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "409",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/409.json",
+                    "bill": {
+                        "bill_id": "hr3218-115",
+                        "number": "H R 3218",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3218.json",
+                        "title": "Harry W. Colmery Veterans Educational Assistance Act of 2017",
+                        "latest_action": "Presented to President."
+                    },
+                    "description": "Harry W. Colmery Veterans Educational Assistance Act of 2017",
+                    "question": "On Motion to Suspend the Rules and Pass, as Amended",
+                    "result": "Passed",
+                    "date": "2017-07-24",
+                    "time": "19:11:00",
+                    "total": {
+                        "yes": 405,
+                        "no": 0,
+                        "present": 0,
+                        "not_voting": 28
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "408",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/408.json",
+                    "bill": {
+                        "bill_id": "s114-115",
+                        "number": "S 114",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/s114.json",
+                        "title": "To authorize appropriations and to appropriate amounts for the Veterans Choice Program of the Department of Veterans Affairs, to improve hiring authorities of the Department, to authorize major medical facility leases, and for other purposes.",
+                        "latest_action": "Became Public Law No: 115-46."
+                    },
+                    "description": "To amend title 38, United States Code, to require the Secretary of Veterans Affairs to submit an annual report regarding performance awards and bonuses awarded to certain high-level employees of ...",
+                    "question": "On Motion to Suspend the Rules and Pass, as Amended",
+                    "result": "Failed",
+                    "date": "2017-07-24",
+                    "time": "19:03:00",
+                    "total": {
+                        "yes": 219,
+                        "no": 186,
+                        "present": 0,
+                        "not_voting": 28
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "407",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/407.json",
+                    "bill": {
+                        "bill_id": "hr3180-115",
+                        "number": "H R 3180",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3180.json",
+                        "title": "Intelligence Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Select Committee on Intelligence."
+                    },
+                    "description": "Intelligence Authorization Act for Fiscal Year 2018",
+                    "question": "On Motion to Suspend the Rules and Pass, as Amended",
+                    "result": "Failed",
+                    "date": "2017-07-24",
+                    "time": "18:54:00",
+                    "total": {
+                        "yes": 241,
+                        "no": 163,
+                        "present": 0,
+                        "not_voting": 29
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "406",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/406.json",
+                    "bill": {
+                        "bill_id": "hr218-115",
+                        "number": "H R 218",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr218.json",
+                        "title": "King Cove Road Land Exchange Act",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Energy and Natural Resources."
+                    },
+                    "description": "King Cove Road Land Exchange Act",
+                    "question": "On Passage",
+                    "result": "Passed",
+                    "date": "2017-07-20",
+                    "time": "12:09:00",
+                    "total": {
+                        "yes": 248,
+                        "no": 179,
+                        "present": 0,
+                        "not_voting": 6
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "405",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/405.json",
+                    "bill": {
+                        "bill_id": "hr218-115",
+                        "number": "H R 218",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr218.json",
+                        "title": "King Cove Road Land Exchange Act",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Energy and Natural Resources."
+                    },
+                    "description": "King Cove Road Land Exchange Act",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-20",
+                    "time": "11:44:00",
+                    "total": {
+                        "yes": 167,
+                        "no": 260,
+                        "present": 0,
+                        "not_voting": 6
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "404",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/404.json",
+                    "bill": {
+                        "bill_id": "hr218-115",
+                        "number": "H R 218",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr218.json",
+                        "title": "King Cove Road Land Exchange Act",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Energy and Natural Resources."
+                    },
+                    "description": "King Cove Road Land Exchange Act",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-20",
+                    "time": "11:39:00",
+                    "total": {
+                        "yes": 190,
+                        "no": 234,
+                        "present": 0,
+                        "not_voting": 9
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "403",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/403.json",
+                    "bill": {
+                        "bill_id": "hr2825-115",
+                        "number": "H R 2825",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2825.json",
+                        "title": "Department of Homeland Security Authorization Act",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Homeland Security and Governmental Affairs."
+                    },
+                    "description": "Department of Homeland Security Authorization Act",
+                    "question": "On Motion to Suspend the Rules and Pass, as Amended",
+                    "result": "Passed",
+                    "date": "2017-07-20",
+                    "time": "11:33:00",
+                    "total": {
+                        "yes": 386,
+                        "no": 41,
+                        "present": 0,
+                        "not_voting": 6
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "402",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/402.json",
+                    "bill": {
+                        "bill_id": "hr2910-115",
+                        "number": "H R 2910",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2910.json",
+                        "title": "Promoting Interagency Coordination for Review of Natural Gas Pipelines Act",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Commerce, Science, and Transportation."
+                    },
+                    "description": "Promoting Interagency Coordination for Review of Natural Gas Pipelines Act",
+                    "question": "On Passage",
+                    "result": "Passed",
+                    "date": "2017-07-19",
+                    "time": "17:56:00",
+                    "total": {
+                        "yes": 248,
+                        "no": 179,
+                        "present": 0,
+                        "not_voting": 6
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "401",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/401.json",
+                    "bill": {
+                        "bill_id": "hr2910-115",
+                        "number": "H R 2910",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2910.json",
+                        "title": "Promoting Interagency Coordination for Review of Natural Gas Pipelines Act",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Commerce, Science, and Transportation."
+                    },
+                    "description": "Promoting Interagency Coordination for Review of Natural Gas Pipelines Act",
+                    "question": "On Motion to Recommit with Instructions",
+                    "result": "Failed",
+                    "date": "2017-07-19",
+                    "time": "17:49:00",
+                    "total": {
+                        "yes": 189,
+                        "no": 239,
+                        "present": 0,
+                        "not_voting": 5
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "400",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/400.json",
+                    "bill": {
+                        "bill_id": "hr2910-115",
+                        "number": "H R 2910",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2910.json",
+                        "title": "Promoting Interagency Coordination for Review of Natural Gas Pipelines Act",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Commerce, Science, and Transportation."
+                    },
+                    "description": "Promoting Interagency Coordination for Review of Natural Gas Pipelines Act",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-19",
+                    "time": "17:35:00",
+                    "total": {
+                        "yes": 192,
+                        "no": 236,
+                        "present": 0,
+                        "not_voting": 5
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "399",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/399.json",
+                    "bill": {
+                        "bill_id": "hr2910-115",
+                        "number": "H R 2910",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2910.json",
+                        "title": "Promoting Interagency Coordination for Review of Natural Gas Pipelines Act",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Commerce, Science, and Transportation."
+                    },
+                    "description": "Promoting Interagency Coordination for Review of Natural Gas Pipelines Act",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-19",
+                    "time": "17:30:00",
+                    "total": {
+                        "yes": 180,
+                        "no": 249,
+                        "present": 0,
+                        "not_voting": 4
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "398",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/398.json",
+                    "bill": {
+                        "bill_id": "hr2883-115",
+                        "number": "H R 2883",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2883.json",
+                        "title": "Promoting Cross-Border Energy Infrastructure Act",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Energy and Natural Resources."
+                    },
+                    "description": "Promoting Cross-Border Energy Infrastructure Act",
+                    "question": "On Passage",
+                    "result": "Passed",
+                    "date": "2017-07-19",
+                    "time": "17:24:00",
+                    "total": {
+                        "yes": 254,
+                        "no": 175,
+                        "present": 0,
+                        "not_voting": 4
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "397",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/397.json",
+                    "bill": {
+                        "bill_id": "hr2883-115",
+                        "number": "H R 2883",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2883.json",
+                        "title": "Promoting Cross-Border Energy Infrastructure Act",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Energy and Natural Resources."
+                    },
+                    "description": "Promoting Cross-Border Energy Infrastructure Act",
+                    "question": "On Motion to Recommit with Instructions",
+                    "result": "Failed",
+                    "date": "2017-07-19",
+                    "time": "17:18:00",
+                    "total": {
+                        "yes": 193,
+                        "no": 232,
+                        "present": 0,
+                        "not_voting": 8
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "396",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/396.json",
+                    "bill": {
+                        "bill_id": "hr2883-115",
+                        "number": "H R 2883",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2883.json",
+                        "title": "Promoting Cross-Border Energy Infrastructure Act",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Energy and Natural Resources."
+                    },
+                    "description": "Promoting Cross-Border Energy Infrastructure Act",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-19",
+                    "time": "17:03:00",
+                    "total": {
+                        "yes": 179,
+                        "no": 247,
+                        "present": 0,
+                        "not_voting": 7
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "395",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/395.json",
+                    "bill": {
+                        "bill_id": "hr2883-115",
+                        "number": "H R 2883",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2883.json",
+                        "title": "Promoting Cross-Border Energy Infrastructure Act",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Energy and Natural Resources."
+                    },
+                    "description": "Promoting Cross-Border Energy Infrastructure Act",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-19",
+                    "time": "16:58:00",
+                    "total": {
+                        "yes": 182,
+                        "no": 246,
+                        "present": 0,
+                        "not_voting": 5
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "394",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/394.json",
+                    "bill": {
+                        "bill_id": "hres454-115",
+                        "number": "H RES 454",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hres454.json",
+                        "title": "Providing for consideration of the bill (H.R. 2910) to provide for Federal and State agency coordination in the approval of certain authorizations under the Natural Gas Act, and for other purposes; providing for consideration of the bill (H.R. 2883) to establish a more uniform, transparent, and modern process to authorize the construction, connection, operation, and maintenance of international border-crossing facilities for the import and export of oil and natural gas and the transmission of electricity; providing for consideration of the bill (H.R. 218) to provide for the exchange of Federal land and non-Federal land in the State of Alaska for the construction of a road between King Cove and Cold Bay; and for other purposes.",
+                        "latest_action": "Motion to reconsider laid on the table Agreed to without objection."
+                    },
+                    "description": "Providing for consideration of the bills (H.R. 2910) Promoting Interagency Coordination for Review of Natural Gas Pipelines Act; (H.R. 2883) Promoting Cross-Border Energy Infrastructure Act; and (H.R. 218) King Cove ...",
+                    "question": "On Agreeing to the Resolution",
+                    "result": "Passed",
+                    "date": "2017-07-19",
+                    "time": "14:22:00",
+                    "total": {
+                        "yes": 234,
+                        "no": 194,
+                        "present": 0,
+                        "not_voting": 5
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "393",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/393.json",
+                    "bill": {
+                        "bill_id": "hres454-115",
+                        "number": "H RES 454",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hres454.json",
+                        "title": "Providing for consideration of the bill (H.R. 2910) to provide for Federal and State agency coordination in the approval of certain authorizations under the Natural Gas Act, and for other purposes; providing for consideration of the bill (H.R. 2883) to establish a more uniform, transparent, and modern process to authorize the construction, connection, operation, and maintenance of international border-crossing facilities for the import and export of oil and natural gas and the transmission of electricity; providing for consideration of the bill (H.R. 218) to provide for the exchange of Federal land and non-Federal land in the State of Alaska for the construction of a road between King Cove and Cold Bay; and for other purposes.",
+                        "latest_action": "Motion to reconsider laid on the table Agreed to without objection."
+                    },
+                    "description": "Providing for consideration of the bills (H.R. 2910) Promoting Interagency Coordination for Review of Natural Gas Pipelines Act; (H.R. 2883) Promoting Cross-Border Energy Infrastructure Act; and (H.R. 218) King Cove ...",
+                    "question": "On Ordering the Previous Question",
+                    "result": "Passed",
+                    "date": "2017-07-19",
+                    "time": "14:10:00",
+                    "total": {
+                        "yes": 236,
+                        "no": 192,
+                        "present": 0,
+                        "not_voting": 5
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "392",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/392.json",
+                    "bill": {
+                    },
+                    "description": "",
+                    "question": "Table Appeal of the Ruling of the Chair",
+                    "result": "Passed",
+                    "date": "2017-07-19",
+                    "time": "14:01:00",
+                    "total": {
+                        "yes": 235,
+                        "no": 190,
+                        "present": 1,
+                        "not_voting": 7
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "391",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/391.json",
+                    "bill": {
+                        "bill_id": "hr806-115",
+                        "number": "H R 806",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr806.json",
+                        "title": "Ozone Standards Implementation Act of 2017",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Environment and Public Works."
+                    },
+                    "description": "Ozone Standards Implementation Act of 2017",
+                    "question": "On Passage",
+                    "result": "Passed",
+                    "date": "2017-07-18",
+                    "time": "17:43:00",
+                    "total": {
+                        "yes": 229,
+                        "no": 199,
+                        "present": 0,
+                        "not_voting": 5
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "390",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/390.json",
+                    "bill": {
+                        "bill_id": "hr806-115",
+                        "number": "H R 806",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr806.json",
+                        "title": "Ozone Standards Implementation Act of 2017",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Environment and Public Works."
+                    },
+                    "description": "Ozone Standards Implementation Act of 2017",
+                    "question": "On Motion to Recommit with Instructions",
+                    "result": "Failed",
+                    "date": "2017-07-18",
+                    "time": "17:36:00",
+                    "total": {
+                        "yes": 191,
+                        "no": 235,
+                        "present": 0,
+                        "not_voting": 7
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "389",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/389.json",
+                    "bill": {
+                        "bill_id": "hr806-115",
+                        "number": "H R 806",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr806.json",
+                        "title": "Ozone Standards Implementation Act of 2017",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Environment and Public Works."
+                    },
+                    "description": "Ozone Standards Implementation Act of 2017",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-18",
+                    "time": "17:20:00",
+                    "total": {
+                        "yes": 190,
+                        "no": 236,
+                        "present": 0,
+                        "not_voting": 7
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "388",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/388.json",
+                    "bill": {
+                        "bill_id": "hr806-115",
+                        "number": "H R 806",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr806.json",
+                        "title": "Ozone Standards Implementation Act of 2017",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Environment and Public Works."
+                    },
+                    "description": "Ozone Standards Implementation Act of 2017",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-18",
+                    "time": "17:16:00",
+                    "total": {
+                        "yes": 186,
+                        "no": 242,
+                        "present": 0,
+                        "not_voting": 5
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "387",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/387.json",
+                    "bill": {
+                        "bill_id": "hr806-115",
+                        "number": "H R 806",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr806.json",
+                        "title": "Ozone Standards Implementation Act of 2017",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Environment and Public Works."
+                    },
+                    "description": "Ozone Standards Implementation Act of 2017",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-18",
+                    "time": "17:12:00",
+                    "total": {
+                        "yes": 191,
+                        "no": 235,
+                        "present": 0,
+                        "not_voting": 7
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "386",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/386.json",
+                    "bill": {
+                        "bill_id": "hr806-115",
+                        "number": "H R 806",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr806.json",
+                        "title": "Ozone Standards Implementation Act of 2017",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Environment and Public Works."
+                    },
+                    "description": "Ozone Standards Implementation Act of 2017",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-18",
+                    "time": "17:08:00",
+                    "total": {
+                        "yes": 182,
+                        "no": 241,
+                        "present": 0,
+                        "not_voting": 10
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "385",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/385.json",
+                    "bill": {
+                        "bill_id": "hr806-115",
+                        "number": "H R 806",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr806.json",
+                        "title": "Ozone Standards Implementation Act of 2017",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Environment and Public Works."
+                    },
+                    "description": "Ozone Standards Implementation Act of 2017",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-18",
+                    "time": "17:04:00",
+                    "total": {
+                        "yes": 194,
+                        "no": 232,
+                        "present": 0,
+                        "not_voting": 7
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "384",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/384.json",
+                    "bill": {
+                        "bill_id": "hr2786-115",
+                        "number": "H R 2786",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2786.json",
+                        "title": "To amend the Federal Power Act with respect to the criteria and process to qualify as a qualifying conduit hydropower facility.",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Energy and Natural Resources."
+                    },
+                    "description": "To amend the Federal Power Act with respect to the criteria and process to qualify as a qualifying conduit hydropower facility",
+                    "question": "On Motion to Suspend the Rules and Pass, as Amended",
+                    "result": "Passed",
+                    "date": "2017-07-18",
+                    "time": "14:36:00",
+                    "total": {
+                        "yes": 420,
+                        "no": 2,
+                        "present": 0,
+                        "not_voting": 11
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "383",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/383.json",
+                    "bill": {
+                        "bill_id": "hres451-115",
+                        "number": "H RES 451",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hres451.json",
+                        "title": "Providing for consideration of the bill (H.R. 806) to facilitate efficient State implementation of ground-level ozone standards, and for other purposes.",
+                        "latest_action": "Motion to reconsider laid on the table Agreed to without objection."
+                    },
+                    "description": "Providing for consideration of H.R. 806, the Ozone Standards Implementation Act of 2017",
+                    "question": "On Agreeing to the Resolution",
+                    "result": "Passed",
+                    "date": "2017-07-18",
+                    "time": "14:17:00",
+                    "total": {
+                        "yes": 235,
+                        "no": 188,
+                        "present": 0,
+                        "not_voting": 10
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "382",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/382.json",
+                    "bill": {
+                        "bill_id": "hres451-115",
+                        "number": "H RES 451",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hres451.json",
+                        "title": "Providing for consideration of the bill (H.R. 806) to facilitate efficient State implementation of ground-level ozone standards, and for other purposes.",
+                        "latest_action": "Motion to reconsider laid on the table Agreed to without objection."
+                    },
+                    "description": "Providing for consideration of H.R. 806, the Ozone Standards Implementation Act of 2017",
+                    "question": "On Ordering the Previous Question",
+                    "result": "Passed",
+                    "date": "2017-07-18",
+                    "time": "14:06:00",
+                    "total": {
+                        "yes": 231,
+                        "no": 188,
+                        "present": 0,
+                        "not_voting": 14
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "381",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/381.json",
+                    "bill": {
+                        "bill_id": "hjres76-115",
+                        "number": "H J RES 76",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hjres76.json",
+                        "title": "Granting the consent and approval of Congress for the Commonwealth of Virginia, the State of Maryland, and the District of Columbia to enter into a compact relating to the establishment of the Washington Metrorail Safety Commission.",
+                        "latest_action": "Presented to President."
+                    },
+                    "description": "Granting the consent and approval of Congress for the Commonwealth of Virginia, the State of Maryland, and the District of Columbia to a enter into a compact relating to the ...",
+                    "question": "On Motion to Suspend the Rules and Pass, as Amended",
+                    "result": "Passed",
+                    "date": "2017-07-17",
+                    "time": "19:09:00",
+                    "total": {
+                        "yes": 399,
+                        "no": 5,
+                        "present": 0,
+                        "not_voting": 29
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "380",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/380.json",
+                    "bill": {
+                        "bill_id": "hjres92-115",
+                        "number": "H J RES 92",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hjres92.json",
+                        "title": "Granting the consent and approval of Congress for the Commonwealth of Virginia, the State of Maryland, and the District of Columbia to amend the Washington Area Transit Regulation Compact.",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on the Judiciary."
+                    },
+                    "description": "Granting the consent and approval of Congress for the Commonwealth of Virginia, the State of Maryland, and the District of Columbia to amend the Washington Area Transit Regulation Compact",
+                    "question": "On Motion to Suspend the Rules and Pass",
+                    "result": "Passed",
+                    "date": "2017-07-17",
+                    "time": "19:02:00",
+                    "total": {
+                        "yes": 402,
+                        "no": 0,
+                        "present": 0,
+                        "not_voting": 31
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "379",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/379.json",
+                    "bill": {
+                        "bill_id": "hr2210-115",
+                        "number": "H R 2210",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2210.json",
+                        "title": "To designate the community living center of the Department of Veterans Affairs in Butler Township, Butler County, Pennsylvania, as the &quot;Sergeant Joseph George Kusick VA Community Living Center&quot;.",
+                        "latest_action": "Presented to President."
+                    },
+                    "description": "Sergeant Joseph George Kusick VA Community Living Center",
+                    "question": "On Motion to Suspend the Rules and Pass",
+                    "result": "Passed",
+                    "date": "2017-07-17",
+                    "time": "18:54:00",
+                    "total": {
+                        "yes": 401,
+                        "no": 0,
+                        "present": 0,
+                        "not_voting": 32
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "378",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/378.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Passage",
+                    "result": "Passed",
+                    "date": "2017-07-14",
+                    "time": "11:39:00",
+                    "total": {
+                        "yes": 344,
+                        "no": 81,
+                        "present": 0,
+                        "not_voting": 8
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "377",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/377.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Motion to Recommit with Instructions",
+                    "result": "Failed",
+                    "date": "2017-07-14",
+                    "time": "11:32:00",
+                    "total": {
+                        "yes": 190,
+                        "no": 235,
+                        "present": 0,
+                        "not_voting": 8
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "376",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/376.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Agreed to",
+                    "date": "2017-07-14",
+                    "time": "11:12:00",
+                    "total": {
+                        "yes": 424,
+                        "no": 0,
+                        "present": 0,
+                        "not_voting": 9
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "375",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/375.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Agreed to",
+                    "date": "2017-07-14",
+                    "time": "11:08:00",
+                    "total": {
+                        "yes": 234,
+                        "no": 190,
+                        "present": 0,
+                        "not_voting": 9
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "374",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/374.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Agreed to",
+                    "date": "2017-07-14",
+                    "time": "11:05:00",
+                    "total": {
+                        "yes": 244,
+                        "no": 181,
+                        "present": 0,
+                        "not_voting": 8
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "373",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/373.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Agreed to",
+                    "date": "2017-07-14",
+                    "time": "11:01:00",
+                    "total": {
+                        "yes": 235,
+                        "no": 189,
+                        "present": 0,
+                        "not_voting": 9
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "372",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/372.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-14",
+                    "time": "10:57:00",
+                    "total": {
+                        "yes": 208,
+                        "no": 217,
+                        "present": 0,
+                        "not_voting": 8
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "371",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/371.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-13",
+                    "time": "17:50:00",
+                    "total": {
+                        "yes": 107,
+                        "no": 318,
+                        "present": 0,
+                        "not_voting": 8
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "370",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/370.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-13",
+                    "time": "17:45:00",
+                    "total": {
+                        "yes": 183,
+                        "no": 242,
+                        "present": 0,
+                        "not_voting": 8
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "369",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/369.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-13",
+                    "time": "17:41:00",
+                    "total": {
+                        "yes": 209,
+                        "no": 214,
+                        "present": 0,
+                        "not_voting": 10
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "368",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/368.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-13",
+                    "time": "17:38:00",
+                    "total": {
+                        "yes": 185,
+                        "no": 234,
+                        "present": 0,
+                        "not_voting": 14
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "367",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/367.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-13",
+                    "time": "17:34:00",
+                    "total": {
+                        "yes": 203,
+                        "no": 218,
+                        "present": 0,
+                        "not_voting": 12
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "366",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/366.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-13",
+                    "time": "17:29:00",
+                    "total": {
+                        "yes": 198,
+                        "no": 220,
+                        "present": 0,
+                        "not_voting": 15
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "365",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/365.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-13",
+                    "time": "15:22:00",
+                    "total": {
+                        "yes": 175,
+                        "no": 248,
+                        "present": 0,
+                        "not_voting": 10
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "364",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/364.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-13",
+                    "time": "15:17:00",
+                    "total": {
+                        "yes": 169,
+                        "no": 254,
+                        "present": 0,
+                        "not_voting": 10
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "363",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/363.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-13",
+                    "time": "15:13:00",
+                    "total": {
+                        "yes": 192,
+                        "no": 232,
+                        "present": 0,
+                        "not_voting": 9
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "362",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/362.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Agreed to",
+                    "date": "2017-07-13",
+                    "time": "15:09:00",
+                    "total": {
+                        "yes": 253,
+                        "no": 172,
+                        "present": 0,
+                        "not_voting": 8
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "361",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/361.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-13",
+                    "time": "15:04:00",
+                    "total": {
+                        "yes": 188,
+                        "no": 235,
+                        "present": 0,
+                        "not_voting": 10
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "360",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/360.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-13",
+                    "time": "14:59:00",
+                    "total": {
+                        "yes": 173,
+                        "no": 249,
+                        "present": 0,
+                        "not_voting": 11
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "359",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/359.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-13",
+                    "time": "14:56:00",
+                    "total": {
+                        "yes": 167,
+                        "no": 257,
+                        "present": 0,
+                        "not_voting": 9
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "358",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/358.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-13",
+                    "time": "14:52:00",
+                    "total": {
+                        "yes": 179,
+                        "no": 245,
+                        "present": 0,
+                        "not_voting": 9
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "357",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/357.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-13",
+                    "time": "14:47:00",
+                    "total": {
+                        "yes": 73,
+                        "no": 351,
+                        "present": 0,
+                        "not_voting": 9
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "356",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/356.json",
+                    "bill": {
+                        "bill_id": "hr2810-115",
+                        "number": "H R 2810",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr2810.json",
+                        "title": "National Defense Authorization Act for Fiscal Year 2018",
+                        "latest_action": "Motion to proceed to consideration of measure made in Senate. (CR S4165)"
+                    },
+                    "description": "National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-13",
+                    "time": "14:41:00",
+                    "total": {
+                        "yes": 198,
+                        "no": 225,
+                        "present": 0,
+                        "not_voting": 10
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "355",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/355.json",
+                    "bill": {
+                        "bill_id": "hres440-115",
+                        "number": "H RES 440",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hres440.json",
+                        "title": "Providing for further consideration of the bill (H.R. 2810) to authorize appropriations for fiscal year 2018 for military activities of the Department of Defense and for military construction, to prescribe military personnel strengths for such fiscal year, and for other purposes.",
+                        "latest_action": "Motion to reconsider laid on the table Agreed to without objection."
+                    },
+                    "description": "Providing for further consideration of H.R. 2810, the National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Agreeing to the Resolution",
+                    "result": "Passed",
+                    "date": "2017-07-13",
+                    "time": "14:35:00",
+                    "total": {
+                        "yes": 230,
+                        "no": 190,
+                        "present": 0,
+                        "not_voting": 13
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "354",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/354.json",
+                    "bill": {
+                        "bill_id": "hres440-115",
+                        "number": "H RES 440",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hres440.json",
+                        "title": "Providing for further consideration of the bill (H.R. 2810) to authorize appropriations for fiscal year 2018 for military activities of the Department of Defense and for military construction, to prescribe military personnel strengths for such fiscal year, and for other purposes.",
+                        "latest_action": "Motion to reconsider laid on the table Agreed to without objection."
+                    },
+                    "description": "Providing for further consideration of H.R. 2810, the National Defense Authorization Act for Fiscal Year 2018",
+                    "question": "On Ordering the Previous Question",
+                    "result": "Passed",
+                    "date": "2017-07-13",
+                    "time": "14:25:00",
+                    "total": {
+                        "yes": 234,
+                        "no": 187,
+                        "present": 0,
+                        "not_voting": 12
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "353",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/353.json",
+                    "bill": {
+                    },
+                    "description": "",
+                    "question": "On Motion to Adjourn",
+                    "result": "Failed",
+                    "date": "2017-07-13",
+                    "time": "13:19:00",
+                    "total": {
+                        "yes": 77,
+                        "no": 326,
+                        "present": 0,
+                        "not_voting": 30
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "352",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/352.json",
+                    "bill": {
+                        "bill_id": "hr23-115",
+                        "number": "H R 23",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr23.json",
+                        "title": "Gaining Responsibility on Water Act of 2017",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Energy and Natural Resources."
+                    },
+                    "description": "Gaining Responsibility on Water Act of 2017",
+                    "question": "On Passage",
+                    "result": "Passed",
+                    "date": "2017-07-12",
+                    "time": "19:16:00",
+                    "total": {
+                        "yes": 230,
+                        "no": 190,
+                        "present": 0,
+                        "not_voting": 13
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "351",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/351.json",
+                    "bill": {
+                        "bill_id": "hr23-115",
+                        "number": "H R 23",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr23.json",
+                        "title": "Gaining Responsibility on Water Act of 2017",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Energy and Natural Resources."
+                    },
+                    "description": "Gaining Responsibility on Water Act of 2017",
+                    "question": "On Motion to Recommit with Instructions",
+                    "result": "Failed",
+                    "date": "2017-07-12",
+                    "time": "19:09:00",
+                    "total": {
+                        "yes": 189,
+                        "no": 230,
+                        "present": 0,
+                        "not_voting": 14
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "350",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/350.json",
+                    "bill": {
+                        "bill_id": "hr23-115",
+                        "number": "H R 23",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr23.json",
+                        "title": "Gaining Responsibility on Water Act of 2017",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Energy and Natural Resources."
+                    },
+                    "description": "Gaining Responsibility on Water Act of 2017",
+                    "question": "On Agreeing to the Amendment",
+                    "result": "Failed",
+                    "date": "2017-07-12",
+                    "time": "18:52:00",
+                    "total": {
+                        "yes": 201,
+                        "no": 221,
+                        "present": 0,
+                        "not_voting": 11
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "349",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/349.json",
+                    "bill": {
+                        "bill_id": "hr1492-115",
+                        "number": "H R 1492",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr1492.json",
+                        "title": "Medical Controlled Substances Transportation Act of 2017",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on the Judiciary."
+                    },
+                    "description": "Medical Controlled Substances Transportation Act of 2017",
+                    "question": "On Motion to Suspend the Rules and Pass",
+                    "result": "Passed",
+                    "date": "2017-07-12",
+                    "time": "15:06:00",
+                    "total": {
+                        "yes": 416,
+                        "no": 2,
+                        "present": 0,
+                        "not_voting": 15
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "348",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/348.json",
+                    "bill": {
+                        "bill_id": "hres431-115",
+                        "number": "H RES 431",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hres431.json",
+                        "title": "Providing for consideration of the bill (H.R. 2810) to authorize appropriations for fiscal year 2018 for military activities of the Department of Defense and for military construction, to prescribe military personnel strengths for such fiscal year, and for other purposes, and providing for consideration of the bill (H.R. 23) to provide drought relief in the State of California, and for other purposes.",
+                        "latest_action": "Motion to reconsider laid on the table Agreed to without objection."
+                    },
+                    "description": "Providing for consideration of H.R. 2810, the National Defense Authorization Act for Fiscal Year 2018; and H.R. 23, Gaining Responsibility on Water Act of 2017",
+                    "question": "On Agreeing to the Resolution",
+                    "result": "Passed",
+                    "date": "2017-07-12",
+                    "time": "14:52:00",
+                    "total": {
+                        "yes": 232,
+                        "no": 187,
+                        "present": 0,
+                        "not_voting": 14
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "347",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/347.json",
+                    "bill": {
+                        "bill_id": "hres431-115",
+                        "number": "H RES 431",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hres431.json",
+                        "title": "Providing for consideration of the bill (H.R. 2810) to authorize appropriations for fiscal year 2018 for military activities of the Department of Defense and for military construction, to prescribe military personnel strengths for such fiscal year, and for other purposes, and providing for consideration of the bill (H.R. 23) to provide drought relief in the State of California, and for other purposes.",
+                        "latest_action": "Motion to reconsider laid on the table Agreed to without objection."
+                    },
+                    "description": "Providing for consideration of H.R. 2810, the National Defense Authorization Act for Fiscal Year 2018; and H.R. 23, Gaining Responsibility on Water Act of 2017",
+                    "question": "On Ordering the Previous Question",
+                    "result": "Passed",
+                    "date": "2017-07-12",
+                    "time": "14:44:00",
+                    "total": {
+                        "yes": 234,
+                        "no": 183,
+                        "present": 0,
+                        "not_voting": 16
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "346",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/346.json",
+                    "bill": {
+                        "bill_id": "hr1719-115",
+                        "number": "H R 1719",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr1719.json",
+                        "title": "John Muir National Historic Site Expansion Act",
+                        "latest_action": "Received in the Senate. Read twice. Placed on Senate Legislative Calendar under General Orders. Calendar No. 172."
+                    },
+                    "description": "John Muir National Historic Site Expansion Act",
+                    "question": "On Motion to Suspend the Rules and Pass, as Amended",
+                    "result": "Passed",
+                    "date": "2017-07-11",
+                    "time": "19:10:00",
+                    "total": {
+                        "yes": 401,
+                        "no": 15,
+                        "present": 0,
+                        "not_voting": 17
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "345",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/345.json",
+                    "bill": {
+                        "bill_id": "hr1397-115",
+                        "number": "H R 1397",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr1397.json",
+                        "title": "To authorize, direct, facilitate, and expedite the transfer of administrative jurisdiction of certain Federal land, and for other purposes.",
+                        "latest_action": "Received in the Senate and Read twice and referred to the Committee on Energy and Natural Resources."
+                    },
+                    "description": "To authorize, direct, facilitate, and expedite the transfer of administrative jurisdiction of certain Federal land, and for other purposes",
+                    "question": "On Motion to Suspend the Rules and Pass",
+                    "result": "Passed",
+                    "date": "2017-07-11",
+                    "time": "18:53:00",
+                    "total": {
+                        "yes": 406,
+                        "no": 0,
+                        "present": 0,
+                        "not_voting": 26
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "344",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/344.json",
+                    "bill": {
+                        "bill_id": "hr3004-115",
+                        "number": "H R 3004",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3004.json",
+                        "title": "Kate&#39;s Law",
+                        "latest_action": "Received in the Senate."
+                    },
+                    "description": "Kate&#39;s Law",
+                    "question": "On Passage",
+                    "result": "Passed",
+                    "date": "2017-06-29",
+                    "time": "17:26:00",
+                    "total": {
+                        "yes": 257,
+                        "no": 167,
+                        "present": 0,
+                        "not_voting": 9
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "343",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/343.json",
+                    "bill": {
+                        "bill_id": "hr3004-115",
+                        "number": "H R 3004",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3004.json",
+                        "title": "Kate&#39;s Law",
+                        "latest_action": "Received in the Senate."
+                    },
+                    "description": "Kate&#39;s Law",
+                    "question": "On Motion to Recommit with Instructions",
+                    "result": "Failed",
+                    "date": "2017-06-29",
+                    "time": "17:20:00",
+                    "total": {
+                        "yes": 193,
+                        "no": 232,
+                        "present": 0,
+                        "not_voting": 8
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "342",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/342.json",
+                    "bill": {
+                        "bill_id": "hr3003-115",
+                        "number": "H R 3003",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3003.json",
+                        "title": "No Sanctuary for Criminals Act",
+                        "latest_action": "Received in the Senate."
+                    },
+                    "description": "No Sanctuary for Criminals Act",
+                    "question": "On Passage",
+                    "result": "Passed",
+                    "date": "2017-06-29",
+                    "time": "17:14:00",
+                    "total": {
+                        "yes": 228,
+                        "no": 195,
+                        "present": 0,
+                        "not_voting": 10
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "341",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/341.json",
+                    "bill": {
+                        "bill_id": "hr3003-115",
+                        "number": "H R 3003",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hr3003.json",
+                        "title": "No Sanctuary for Criminals Act",
+                        "latest_action": "Received in the Senate."
+                    },
+                    "description": "No Sanctuary for Criminals Act",
+                    "question": "On Motion to Recommit with Instructions",
+                    "result": "Failed",
+                    "date": "2017-06-29",
+                    "time": "17:07:00",
+                    "total": {
+                        "yes": 181,
+                        "no": 230,
+                        "present": 0,
+                        "not_voting": 22
+                    },
+                    "position": "No"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "340",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/340.json",
+                    "bill": {
+                        "bill_id": "hres415-115",
+                        "number": "H RES 415",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hres415.json",
+                        "title": "Providing for consideration of the bill (H.R. 3004) to amend section 276 of the Immigration and Nationality Act relating to reentry of removed aliens, and providing for proceedings during the period from July 3, 2017, through July 10, 2017.",
+                        "latest_action": "Motion to reconsider laid on the table Agreed to without objection."
+                    },
+                    "description": "Providing for consideration of the bill (H.R. 3004) to amend section 276 of the Immigration and Nationality Act relating to reentry of removed aliens, and providing for proceedings during the ...",
+                    "question": "On Agreeing to the Resolution",
+                    "result": "Passed",
+                    "date": "2017-06-29",
+                    "time": "14:04:00",
+                    "total": {
+                        "yes": 236,
+                        "no": 191,
+                        "present": 0,
+                        "not_voting": 6
+                    },
+                    "position": "Yes"
+                },
+                {
+                    "member_id": "K000388",
+                    "chamber": "House",
+                    "congress": "115",
+                    "session": "1",
+                    "roll_call": "339",
+                    "vote_uri": "https://api.propublica.org/congress/v1/115/house/sessions/1/votes/339.json",
+                    "bill": {
+                        "bill_id": "hres415-115",
+                        "number": "H RES 415",
+                        "bill_uri": "https://api.propublica.org/congress/v1/115/bills/hres415.json",
+                        "title": "Providing for consideration of the bill (H.R. 3004) to amend section 276 of the Immigration and Nationality Act relating to reentry of removed aliens, and providing for proceedings during the period from July 3, 2017, through July 10, 2017.",
+                        "latest_action": "Motion to reconsider laid on the table Agreed to without objection."
+                    },
+                    "description": "Providing for consideration of the bill (H.R. 3004) to amend section 276 of the Immigration and Nationality Act relating to reentry of removed aliens, and providing for proceedings during the ...",
+                    "question": "On Ordering the Previous Question",
+                    "result": "Passed",
+                    "date": "2017-06-29",
+                    "time": "13:57:00",
+                    "total": {
+                        "yes": 235,
+                        "no": 190,
+                        "present": 0,
+                        "not_voting": 8
+                    },
+                    "position": "Yes"
+                }
+            ]
+        }
+    ]
+}

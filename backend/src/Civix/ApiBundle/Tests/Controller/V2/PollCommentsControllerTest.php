@@ -1,17 +1,13 @@
 <?php
 namespace Civix\ApiBundle\Tests\Controller\V2;
 
-use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\BaseComment;
 use Civix\CoreBundle\Entity\CommentedInterface;
-use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadPollCommentRateData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Group\LoadQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityRelationsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPollSubscriberData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
 
 class PollCommentsControllerTest extends CommentsControllerTest
 {
@@ -87,10 +83,12 @@ class PollCommentsControllerTest extends CommentsControllerTest
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertCount(3, $data['payload']);
+        /** @var array $payload */
+        $payload = $data['payload'];
+        $this->assertCount(3, $payload);
         $asserted = false;
-        foreach ($data['payload'] as $item) {
-            if ($item['id'] == $comment->getId()) {
+        foreach ($payload as $item) {
+            if ($item['id'] === $comment->getId()) {
                 $this->assertEquals('up', $item['rate_value']);
                 $this->assertTrue($item['is_owner']);
                 $asserted = true;
@@ -111,7 +109,7 @@ class PollCommentsControllerTest extends CommentsControllerTest
         $entity = $repository->getReference('group_question_1');
         /** @var BaseComment $comment */
         $comment = $repository->getReference('question_comment_1');
-        $this->createComment($entity, $comment, 4);
+        $this->createComment($entity, $comment);
     }
 
     public function testCreateRootComment()
@@ -124,62 +122,6 @@ class PollCommentsControllerTest extends CommentsControllerTest
         ])->getReferenceRepository();
         /** @var CommentedInterface $entity */
         $entity = $repository->getReference('group_question_1');
-        /** @var User $user */
-        $user = $repository->getReference('user_2');
-        /** @var Activity $activity */
-        $activity = $repository->getReference('activity_leader_news');
-        $this->createRootComment($entity, $user, $activity);
-    }
-
-    public function testCreateCommentMentionedContentOwner()
-    {
-        $repository = $this->loadFixtures([
-            LoadQuestionCommentData::class,
-            LoadGroupManagerData::class,
-            LoadPollSubscriberData::class,
-            LoadUserGroupOwnerData::class,
-        ])->getReferenceRepository();
-        /** @var CommentedInterface $entity */
-        $entity = $repository->getReference('group_question_1');
-        /** @var BaseComment $comment */
-        $comment = $repository->getReference('question_comment_1');
-        $this->createCommentMentionedContentOwner($entity, $comment);
-    }
-
-    public function testCreateCommentNotifyEveryone()
-    {
-        $repository = $this->loadFixtures([
-            LoadUserGroupData::class,
-            LoadGroupManagerData::class,
-            LoadUserGroupOwnerData::class,
-            LoadQuestionCommentData::class,
-            LoadPollSubscriberData::class,
-        ])->getReferenceRepository();
-        /** @var CommentedInterface $entity */
-        $entity = $repository->getReference('group_question_1');
-        /** @var BaseComment $comment */
-        $comment = $repository->getReference('question_comment_1');
-        $users = [
-            $repository->getReference('user_1'),
-            $repository->getReference('user_2'),
-            $repository->getReference('user_4'),
-        ];
-        $this->createCommentNotifyEveryone($entity, $comment, $users);
-    }
-
-    public function testCreateCommentWithEveryoneByMemberNotifyNobody()
-    {
-        $repository = $this->loadFixtures([
-            LoadUserGroupData::class,
-            LoadGroupManagerData::class,
-            LoadUserGroupOwnerData::class,
-            LoadQuestionCommentData::class,
-            LoadPollSubscriberData::class,
-        ])->getReferenceRepository();
-        /** @var CommentedInterface $entity */
-        $entity = $repository->getReference('group_question_1');
-        /** @var BaseComment $comment */
-        $comment = $repository->getReference('question_comment_1');
-        $this->createCommentWithEveryoneByMemberNotifyNobody($entity, $comment);
+        $this->createRootComment($entity);
     }
 }

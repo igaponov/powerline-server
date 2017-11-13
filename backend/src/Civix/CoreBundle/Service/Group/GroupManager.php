@@ -17,23 +17,14 @@ use Civix\CoreBundle\Event\GroupUserEvent;
 use Civix\CoreBundle\Event\InquiryEvent;
 use Civix\CoreBundle\Event\InviteEvent;
 use Civix\CoreBundle\Event\InviteEvents;
+use Civix\CoreBundle\Exception\LogicException;
 use Civix\CoreBundle\Model\Group\Worksheet;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class GroupManager
 {
-    /**
-     * @var EntityManager
-     */
-    private $em;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $dispatcher;
-    
-    private $permissionPriority = [
+    private const PERMISSION_PRIORITY = [
         'permissions_name',
         'permissions_address',
         'permissions_city',
@@ -45,6 +36,16 @@ class GroupManager
         'permissions_responses'
     ];
 
+    /**
+     * @var EntityManager
+     */
+    private $em;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
+
     public function __construct(
         EntityManager $em,
         EventDispatcherInterface $dispatcher
@@ -54,7 +55,7 @@ class GroupManager
         $this->dispatcher = $dispatcher;
     }
 
-    public function create(Group $group)
+    public function create(Group $group): void
     {
         $event = new AvatarEvent($group);
         $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
@@ -66,7 +67,7 @@ class GroupManager
         $this->dispatcher->dispatch(GroupEvents::CREATED, $event);
     }
 
-    public function save(Group $group)
+    public function save(Group $group): Group
     {
         $event = new AvatarEvent($group);
         $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
@@ -77,7 +78,7 @@ class GroupManager
         return $group;
     }
 
-    public function delete(Group $group)
+    public function delete(Group $group): void
     {
         $event = new GroupEvent($group);
         $this->dispatcher->dispatch(GroupEvents::BEFORE_DELETE, $event);
@@ -89,8 +90,10 @@ class GroupManager
     /**
      * @param Worksheet $worksheet
      * @return UserGroup
+     * @throws \Doctrine\ORM\ORMInvalidArgumentException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function inquire(Worksheet $worksheet)
+    public function inquire(Worksheet $worksheet): UserGroup
     {
         $user = $worksheet->getUser();
         $group = $worksheet->getGroup();
@@ -116,14 +119,17 @@ class GroupManager
         return $userGroup;
     }
 
-    public function joinToGroup(User $user, Group $group)
+    public function joinToGroup(User $user, Group $group): ?UserGroup
     {
+        if ($group->isLocal()) {
+            throw new \DomainException("User can't join a local group.");
+        }
+
+        $userGroup = null;
         if ($group->getId()) {
             //current status Group
             $userGroup = $this->em->getRepository('CivixCoreBundle:UserGroup')
                 ->isJoinedUser($group, $user);
-        } else {
-            $userGroup = null;
         }
 
         //check if user is joined yet and want to join
@@ -147,7 +153,7 @@ class GroupManager
         return $userGroup;
     }
 
-    public function unjoinGroup(User $user, Group $group)
+    public function unjoinGroup(User $user, Group $group): void
     {
         $event = new GroupUserEvent($group, $user);
         $this->dispatcher->dispatch(GroupEvents::USER_BEFORE_UNJOIN, $event);
@@ -165,11 +171,11 @@ class GroupManager
     /**
      * Check if $group not fixed (may to join and unjoin without limiations).
      * 
-     * @param \Civix\CoreBundle\Entity\Group $group
+     * @param Group $group
      * 
      * @return bool
      */
-    public function isCommonGroup(Group $group)
+    public function isCommonGroup(Group $group): bool
     {
         return $group->getGroupType() === Group::GROUP_TYPE_COMMON;
     }
@@ -177,26 +183,26 @@ class GroupManager
     /**
      * Check if $group private (need passcode) and not invited user.
      *
-     * @param \Civix\CoreBundle\Entity\Group $group
+     * @param Group $group
      * @param User $user
      *
      * @return bool
      *
      * @deprecated to be removed in 2.0
      */
-    public function isNeedCheckPasscode(Group $group, User $user)
+    public function isNeedCheckPasscode(Group $group, User $user): bool
     {
         return $group->getMembershipControl() === Group::GROUP_MEMBERSHIP_PASSCODE &&
             !$user->getInvites()->contains($group)
         ;
     }
 
-    public function isMorePermissions($previousPermissions, $newPermissions)
+    public function isMorePermissions($previousPermissions, $newPermissions): bool
     {
         $oldSumPriorityValue = 0;
         $newSumPriorityValue = 0;
 
-        foreach ($this->permissionPriority as $priority => $key) {
+        foreach (self::PERMISSION_PRIORITY as $priority => $key) {
             $oldSumPriorityValue += $this->calcPriorityValue(
                 $previousPermissions, $key, $priority
             );
@@ -208,12 +214,12 @@ class GroupManager
         return $oldSumPriorityValue < $newSumPriorityValue;
     }
 
-    private function calcPriorityValue($permissions, $key, $priority)
+    private function calcPriorityValue($permissions, $key, $priority): int
     {
-        return (array_search($key, $permissions) !== false ? 1 : 0) * pow(10, $priority);
+        return (in_array($key, $permissions, true) ? 1 : 0) * (10 ** $priority);
     }
 
-    public function changeMembershipControl(Group $group)
+    public function changeMembershipControl(Group $group): Group
     {
         $this->em->persist($group);
         $this->em->flush();
@@ -224,7 +230,7 @@ class GroupManager
         return $group;
     }
 
-    public function changePermissionSettings(Group $group)
+    public function changePermissionSettings(Group $group): Group
     {
         $uow = $this->em->getUnitOfWork();
         $changeSet = $uow->getOriginalEntityData($group);
@@ -250,15 +256,17 @@ class GroupManager
      * @param Group $group
      * @param User $inviter
      * @param string|array $userNames
+     * @throws \Doctrine\ORM\ORMInvalidArgumentException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function joinUsersByUsernameOrEmail(Group $group, User $inviter, $userNames)
+    public function joinUsersByUsernameOrEmail(Group $group, User $inviter, $userNames): void
     {
         $iterator = $this->em->getRepository(User::class)
             ->findForInviteByGroupWithUsernameOrEmail($group, $userNames);
         $this->inviteUsersToGroup($group, $inviter, $iterator);
     }
 
-    public function joinUsersByPostUpvotes(Group $group, User $inviter, Post $post)
+    public function joinUsersByPostUpvotes(Group $group, User $inviter, Post $post): void
     {
         if ($post->isSupportersWereInvited()) {
             throw new \RuntimeException('Supporters were already invited for this post.');
@@ -270,7 +278,7 @@ class GroupManager
         $this->inviteUsersToGroup($group, $inviter, $iterator);
     }
 
-    public function joinUsersByUserPetitionSignatures(Group $group, User $inviter, UserPetition $petition)
+    public function joinUsersByUserPetitionSignatures(Group $group, User $inviter, UserPetition $petition): void
     {
         if ($petition->isSupportersWereInvited()) {
             throw new \RuntimeException('Supporters were already invited for this petition.');
@@ -282,7 +290,7 @@ class GroupManager
         $this->inviteUsersToGroup($group, $inviter, $iterator);
     }
 
-    public function changeUserStatus(UserGroup $userGroup, $status)
+    public function changeUserStatus(UserGroup $userGroup, $status): void
     {
         switch ($status) {
             case UserGroup::STATUS_ACTIVE:
@@ -294,7 +302,7 @@ class GroupManager
         }
     }
 
-    public function approveUser(UserGroup $userGroup)
+    public function approveUser(UserGroup $userGroup): void
     {
         $userGroup->setStatus(UserGroup::STATUS_ACTIVE);
         $this->em->persist($userGroup);
@@ -304,14 +312,14 @@ class GroupManager
         $this->dispatcher->dispatch(GroupEvents::USER_JOINED, $event);
     }
 
-    public function banUser(UserGroup $userGroup)
+    public function banUser(UserGroup $userGroup): void
     {
         $userGroup->setStatus(UserGroup::STATUS_BANNED);
         $this->em->persist($userGroup);
         $this->em->flush();
     }
 
-    public function removeInvite(Group $group, User $user)
+    public function removeInvite(Group $group, User $user): void
     {
         if ($user->getInvites()->contains($group)) {
             $user->removeInvite($group);
@@ -320,7 +328,7 @@ class GroupManager
         }
     }
 
-    public function addGroupManager(Group $group, User $user)
+    public function addGroupManager(Group $group, User $user): UserGroupManager
     {
         if(!$group->isMember($user))
         {
@@ -341,7 +349,7 @@ class GroupManager
         return $userGroupManager;
     }
 
-    public function deleteGroupManager(Group $group, User $user)
+    public function deleteGroupManager(Group $group, User $user): void
     {
         if(!$group->isManager($user))
         {
@@ -355,7 +363,24 @@ class GroupManager
         $this->em->flush();
     }
 
-    private function inviteUserToGroup(User $user, Group $group, User $inviter)
+    public function addTag(Group $group, Group\Tag $tag): void
+    {
+        if ($group->getTags()->count() === 5) {
+            throw new LogicException('Group should contain 5 tags or less.');
+        }
+        if (!$group->getTags()->contains($tag)) {
+            $group->addTag($tag);
+            $this->em->flush();
+        }
+    }
+
+    public function removeTag(Group $group, Group\Tag $tag): void
+    {
+        $group->removeTag($tag);
+        $this->em->flush();
+    }
+
+    private function inviteUserToGroup(User $user, Group $group, User $inviter): UserToGroup
     {
         $invite = new UserToGroup();
         $invite->setInviter($inviter);
@@ -372,8 +397,10 @@ class GroupManager
      * @param Group $group
      * @param User $inviter
      * @param $iterator
+     * @throws \Doctrine\ORM\ORMInvalidArgumentException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
-    private function inviteUsersToGroup(Group $group, User $inviter, $iterator)
+    private function inviteUsersToGroup(Group $group, User $inviter, iterable $iterator): void
     {
         $count = 0;
         $max = 50;
@@ -384,8 +411,9 @@ class GroupManager
             $invites[] = $this->inviteUserToGroup($user, $group, $inviter);
             $count++;
             if ($count === $max) {
+                $count = 0;
+                $this->em->flush();
                 foreach ($invites as $invite) {
-                    $this->em->flush();
                     $this->em->detach($invite->getUser());
                     $this->em->detach($invite);
                 }

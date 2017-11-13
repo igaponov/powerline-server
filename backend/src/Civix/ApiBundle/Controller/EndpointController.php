@@ -2,14 +2,14 @@
 
 namespace Civix\ApiBundle\Controller;
 
-use Civix\CoreBundle\Service\Notification as NotificationService;
+use Civix\Component\Notification\Model\AbstractEndpoint;
+use Civix\CoreBundle\Service\Notification;
 use JMS\DiExtraBundle\Annotation as DI;
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use Civix\CoreBundle\Entity\Notification;
 
 /**
  * @Route("/endpoints")
@@ -17,7 +17,7 @@ use Civix\CoreBundle\Entity\Notification;
 class EndpointController extends BaseController
 {
     /**
-     * @var NotificationService
+     * @var Notification
      * @DI\Inject("civix_core.notification")
      */
     private $notification;
@@ -49,7 +49,7 @@ class EndpointController extends BaseController
     public function getAction()
     {
         $endpoints = $this->getDoctrine()->getManager()
-            ->getRepository(Notification\AbstractEndpoint::class)
+            ->getRepository(AbstractEndpoint::class)
             ->findBy(['user' => $this->getUser()]);
         $response = new Response($this->jmsSerialization($endpoints, array('owner-get', 'Default')));
         $response->headers->set('Content-Type', 'application/json');
@@ -92,10 +92,10 @@ class EndpointController extends BaseController
      * @param Request $request
      * @return Response
      */
-    public function createAction(Request $request)
+    public function createAction(Request $request): Response
     {
-        /* @var Notification\AbstractEndpoint $endpoint */
-        $endpoint = $this->jmsDeserialization($request->getContent(), Notification\AbstractEndpoint::class,
+        /* @var AbstractEndpoint $endpoint */
+        $endpoint = $this->jmsDeserialization($request->getContent(), AbstractEndpoint::class,
             array('owner-create'));
         $endpoint->setUser($this->getUser());
         $this->notification->handleEndpoint($endpoint);

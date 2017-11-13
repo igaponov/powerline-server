@@ -8,6 +8,7 @@ use Civix\ApiBundle\Form\Type\VoteType;
 use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\Post\Vote;
 use Civix\CoreBundle\QueryFunction\PostResponsesQuery;
+use Civix\CoreBundle\QueryFunction\PostVoteAnalyticsQuery;
 use Civix\CoreBundle\Service\PostManager;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
@@ -153,7 +154,7 @@ class PostController extends FOSRestController
      */
     public function putAction(Request $request, Post $post)
     {
-        $form = $this->createForm(PostType::class, $post, ['validation_groups' => 'create']);
+        $form = $this->createForm(PostType::class, $post);
         $form->submit($request->request->all(), false);
 
         if ($form->isValid()) {
@@ -393,5 +394,69 @@ class PostController extends FOSRestController
         $query = new PostResponsesQuery($this->em);
 
         return $query($post);
+    }
+
+    /**
+     * List analytics data for a given post.
+     *
+     * **Output format**
+     *
+     *     {
+     *         total: {
+     *             upvotes: 20,
+     *             downvotes: 10
+     *         },
+     *         representatives: [
+     *             {
+     *                 id: 1,
+     *                 first_name: 'John',
+     *                 last_name: 'Dow',
+     *                 official_title: 'Vice President',
+     *                 upvotes: 10,
+     *                 downvotes: 7,
+     *                 user: true,
+     *                 author: false
+     *             },
+     *             //...
+     *         ],
+     *         most_popular: [
+     *             {
+     *                 id: 1,
+     *                 first_name: 'John',
+     *                 last_name: 'Dow',
+     *                 official_title: 'Vice President',
+     *                 upvotes: 10,
+     *                 downvotes: 7
+     *             },
+     *             //...
+     *         ]
+     *     }
+     *
+     * @Route("/{id}/analytics")
+     * @Method("GET")
+     *
+     * @SecureParam("post", permission="view")
+     *
+     * @ApiDoc(
+     *     authentication=true,
+     *     section="Posts",
+     *     description="List the analytics for a given post.",
+     *     output="array",
+     *     statusCodes={
+     *         403="Access Denied",
+     *         404="Question Not Found",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     *
+     * @param Post $post
+     *
+     * @return array
+     */
+    public function getVotesAnalyticsAction(Post $post)
+    {
+        $query = new PostVoteAnalyticsQuery($this->em->getConnection());
+
+        return $query($post, $this->getUser());
     }
 }

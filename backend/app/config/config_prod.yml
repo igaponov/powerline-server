@@ -30,6 +30,8 @@ monolog:
             token: '%slack_logger_token%'
             channel: "#errors"
             bot_name: 'Monolog [%kernel.environment% - %domain%]'
+            use_attachment: true
+            use_short_attachment: true
             include_extra: true
             level: critical
             excluded_404s:

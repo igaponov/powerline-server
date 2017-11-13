@@ -75,9 +75,17 @@ doctrine:
                         dir: '%kernel.root_dir%/../app/Resources/config/AwsSesMonitorBundle/doctrine/mappings'
                         alias: 'AwsSesMonitorBundle'
                         prefix: 'SerendipityHQ\Bundle\AwsSesMonitorBundle\Model'
+                    Notification:
+                        mapping: true
+                        type: annotation
+                        dir: '%kernel.root_dir%/../src/Civix/Component/Notification/Model'
+                        alias: 'Notification'
+                        prefix: 'Civix\Component\Notification\Model'
+                        is_bundle: false
         resolve_target_entities:
             Civix\CoreBundle\Entity\Stripe\AccountInterface: \Civix\CoreBundle\Entity\Stripe\Account
             Civix\CoreBundle\Entity\Stripe\CustomerInterface: \Civix\CoreBundle\Entity\Stripe\Customer
+            Civix\Component\Notification\Model\RecipientInterface: \Civix\CoreBundle\Entity\User
 
 # Swiftmailer Configuration
 swiftmailer:
@@ -97,8 +105,8 @@ knp_paginator:
     page_range: 5                      # default page range used in pagination control
     default_options:
         page_name: page                # page query parameter name
-        sort_field_name: sort          # sort field query parameter name
-        sort_direction_name: direction # sort direction query parameter name
+        sort_field_name: x-sort          # sort field query parameter name
+        sort_direction_name: x-direction # sort direction query parameter name
         distinct: true                 # ensure distinct results, useful when ORM queries are using GROUP BY statements
     template:
         pagination: MopaBootstrapBundle:Pagination:sliding.html.twig     # sliding pagination controls template
@@ -125,6 +133,12 @@ knp_gaufrette:
                 bucket_name: '%amazon_s3.bucket%'
                 options:
                     directory: 'avatars/src'
+        banner_group_adapter:
+            aws_s3:
+                service_id: 'aws.s3'
+                bucket_name: '%amazon_s3.bucket%'
+                options:
+                    directory: 'group/banner'
         avatar_representative_adapter:
             aws_s3:
                 service_id: 'aws.s3'
@@ -143,17 +157,59 @@ knp_gaufrette:
                 bucket_name: '%amazon_s3.bucket%'
                 options:
                     directory: 'posts'
+        image_announcement_adapter:
+            aws_s3:
+                service_id: 'aws.s3'
+                bucket_name: '%amazon_s3.bucket%'
+                options:
+                    directory: 'announcement'
+        image_post_adapter:
+            aws_s3:
+                service_id: 'aws.s3'
+                bucket_name: '%amazon_s3.bucket%'
+                options:
+                    directory: 'post'
+        image_petition_adapter:
+            aws_s3:
+                service_id: 'aws.s3'
+                bucket_name: '%amazon_s3.bucket%'
+                options:
+                    directory: 'petition'
+        thumbnail_post_adapter:
+            aws_s3:
+                service_id: 'aws.s3'
+                bucket_name: '%amazon_s3.bucket%'
+                options:
+                    directory: 'thumbnail/post'
+        thumbnail_petition_adapter:
+            aws_s3:
+                service_id: 'aws.s3'
+                bucket_name: '%amazon_s3.bucket%'
+                options:
+                    directory: 'thumbnail/petition'
     filesystems:
         avatar_image_fs:
             adapter: avatar_image_adapter
         avatar_group_fs:
             adapter: avatar_group_adapter
+        banner_group_fs:
+            adapter: banner_group_adapter
         avatar_representative_fs:
             adapter: avatar_representative_adapter
         educational_image_fs:
             adapter: educational_image_adapter
         blog_post_fs:
             adapter: blog_post_adapter
+        image_announcement_fs:
+            adapter: image_announcement_adapter
+        image_post_fs:
+            adapter: image_post_adapter
+        image_petition_fs:
+            adapter: image_petition_adapter
+        thumbnail_post_fs:
+            adapter: thumbnail_post_adapter
+        thumbnail_petition_fs:
+            adapter: thumbnail_petition_adapter
 
 vich_uploader:
     db_driver: orm
@@ -169,6 +225,10 @@ vich_uploader:
             upload_destination: avatar_group_fs
             namer: vich_uploader.namer_uniqid
             inject_on_load: true
+        banner_group:
+            uri_prefix: /group/banner
+            upload_destination: banner_group_fs
+            namer: vich_uploader.namer_uniqid
         avatar_representative:
             uri_prefix: /avatars/representatives
             upload_destination: avatar_representative_fs
@@ -188,6 +248,33 @@ vich_uploader:
             upload_destination: blog_post_fs
             namer: vich_uploader.namer_uniqid
             inject_on_load: true
+        image_announcement:
+            uri_prefix: /announcement
+            upload_destination: image_announcement_fs
+            namer: vich_uploader.namer_uniqid
+        image_post:
+            uri_prefix: /post
+            upload_destination: image_post_fs
+            namer: vich_uploader.namer_uniqid
+        image_petition:
+            uri_prefix: /petition
+            upload_destination: image_petition_fs
+            namer: vich_uploader.namer_uniqid
+        thumbnail_post:
+            uri_prefix: /thumbnail/post
+            upload_destination: thumbnail_post_fs
+            namer:
+                service: civix_core.property_namer
+                options:
+                    property: facebookThumbnail.name
+                    transliterate: false
+        thumbnail_petition:
+            uri_prefix: /thumbnail/petition
+            upload_destination: thumbnail_petition_fs
+            namer:
+                service: civix_core.property_namer
+                options:
+                    property: facebookThumbnail.name
 
 old_sound_rabbit_mq:
     connections: '%rabbitmq_connections%'
@@ -203,6 +290,7 @@ old_sound_rabbit_mq:
         async_event:
             connection:         default
             exchange_options:   {name: 'async-event', type: direct}
+            enable_logger:      '%kernel.debug%'
 
     # define consumers
     consumers:
@@ -211,11 +299,16 @@ old_sound_rabbit_mq:
             exchange_options:   {name: 'push-queue', type: direct }
             queue_options:      {name: 'push-queue'}
             callback:           civix_core.rabbit.push_queue
+            idle_timeout:           60
+            idle_timeout_exit_code: 0
         async_event:
             connection:         default
             exchange_options:   {name: 'async-event', type: direct}
             queue_options:      {name: 'async-event'}
             callback:           civix_core.rabbit.async_event_consumer
+            idle_timeout:           60
+            idle_timeout_exit_code: 0
+            enable_logger:      '%kernel.debug%'
 
 stof_doctrine_extensions:
     default_locale: en_US
@@ -266,6 +359,9 @@ fos_rest:
 jms_serializer:
     metadata:
         directories:
+            CivixComponent:
+                namespace_prefix: Civix\Component
+                path: '%kernel.root_dir%/config/serializer/CivixComponent'
             KnpPaginatorBundle:
                 namespace_prefix: Knp\Bundle\PaginatorBundle
                 path: '%kernel.root_dir%/config/serializer/KnpPaginatorBundle'
@@ -291,10 +387,15 @@ nelmio_api_doc:
     name: Civix API documentation
     motd:
         template: CivixApiBundle::motd.html.twig
+    sandbox:
+        request_format:
+            method: accept_header
 
 bazinga_geocoder:
     providers:
-        google_maps: ~
+        google_maps:
+            api_key: '%google_api_key%'
+            use_ssl: true
 
 aws:
     version: latest
@@ -308,3 +409,6 @@ aws:
         version: "2012-11-05"
     Sns:
         version: "2010-03-31"
+
+jms_di_extra:
+    doctrine_integration: false

@@ -4,7 +4,7 @@ namespace Civix\ApiBundle\Tests\Controller\V2;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadEducationalContextData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupRepresentativesData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupUserRepresentativesData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -88,7 +88,7 @@ class EducationalContextControllerTest extends WebTestCase
         return [
             'owner' => [[], 'user1', 'educational_context_3'],
             'manager' => [[LoadGroupManagerData::class], 'user2', 'educational_context_3'],
-            'representative' => [[LoadGroupRepresentativesData::class], 'user3', 'educational_context_3'],
+            'representative' => [[LoadGroupUserRepresentativesData::class], 'user3', 'educational_context_3'],
         ];
     }
 }

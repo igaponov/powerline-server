@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle\Controller;
 
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -47,7 +48,7 @@ class SearchController extends BaseController
         }
         $groups = $entityManager->getRepository('CivixCoreBundle:Group')
             ->findByQuery($query, $this->getUser());
-        $representatives = $entityManager->getRepository('CivixCoreBundle:Representative')
+        $representatives = $entityManager->getRepository(UserRepresentative::class)
             ->findByQuery($query, $this->getUser());
         $users = $entityManager->getRepository('CivixCoreBundle:User')
             ->findByQueryForFollow($query, $this->getUser());

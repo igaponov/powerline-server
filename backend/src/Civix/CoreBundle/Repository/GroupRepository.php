@@ -11,27 +11,6 @@ class GroupRepository extends EntityRepository
 {
     /**
      * @param User $user
-     * @return \Doctrine\ORM\Query
-     */
-    public function getByUserQuery(User $user)
-    {
-        $qb = $this->getEntityManager()->createQueryBuilder();
-
-        return $qb
-            ->select('ug, g, gm, CASE WHEN g.owner = :user THEN 0 WHEN gm.user IS NOT NULL THEN 1 ELSE 2 AS HIDDEN sortCondition')
-            ->from(UserGroup::class, 'ug')
-            ->leftJoin('ug.group', 'g')
-            ->leftJoin('g.managers', 'gm', 'WITH', 'gm.user = :user')
-            ->where('ug.user = :user')
-            ->setParameter(':user', $user)
-            ->orderBy('sortCondition', 'ASC')
-            ->addOrderBy('g.officialName', 'ASC')
-            ->getQuery()
-        ;
-    }
-
-    /**
-     * @param User $user
      * @return Group[]
      */
     public function getPopularGroupsByUser(User $user)
@@ -242,15 +221,26 @@ class GroupRepository extends EntityRepository
     public function findWithUser($criteria)
     {
         $qb = $this->createQueryBuilder('g')
-            ->select('g', 'ug')
+            ->addSelect('u', 'COUNT(ug) AS totalMembers')
+            ->leftJoin('g.users', 'ug')
             ->where('g.id = :id')
-            ->setParameter(':id', $criteria['id']);
+            ->setParameter(':id', $criteria['id'])
+            ->groupBy('g.id');
         if (!empty($criteria['owner'])) {
-            $qb->leftJoin('g.users', 'ug', 'WITH', 'ug.user = :user')
+            $qb->leftJoin('g.users', 'u', 'WITH', 'u.user = :user')
                 ->setParameter(':user', $criteria['owner']);
         }
 
-        return $qb->getQuery()->getOneOrNullResult();
+        $result = $qb->getQuery()->getOneOrNullResult();
+        if ($result) {
+            /** @var Group $group */
+            $group = $result[0];
+            $group->setTotalMembers((int)$result['totalMembers']);
+
+            return $group;
+        }
+
+        return null;
     }
 
     /**

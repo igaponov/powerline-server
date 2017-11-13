@@ -18,7 +18,7 @@ class UserGroupRepository extends EntityRepository
             ->where('gu.group = :group')
             ->setParameter('group', $group);
 
-        if (!is_null($status)) {
+        if (null !== $status) {
             $query
                 ->andWhere('gu.status = :status')
                 ->setParameter('status', $status);
@@ -50,13 +50,15 @@ class UserGroupRepository extends EntityRepository
      *
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function isJoinedUser(Group $group, User $user)
+    public function isJoinedUser(Group $group, User $user): ?UserGroup
     {
         return $this->createQueryBuilder('gu')
                 ->where('gu.user = :user')
                 ->andWhere('gu.group = :group')
+                ->andWhere('gu.status = :status')
                 ->setParameter('user', $user)
                 ->setParameter('group', $group)
+                ->setParameter(':status', UserGroup::STATUS_ACTIVE)
                 ->getQuery()
                 ->getOneOrNullResult();
     }
@@ -93,7 +95,7 @@ class UserGroupRepository extends EntityRepository
             ->where('gu.group = :group')
             ->setParameter('group', $group);
 
-        if (!is_null($status)) {
+        if (null !== $status) {
             $queryBuilder
                 ->andWhere('gu.status = :status')
                 ->setParameter('status', $status);
@@ -104,7 +106,7 @@ class UserGroupRepository extends EntityRepository
         return $queryBuilder->getQuery();
     }
 
-    public function getFindByGroupQuery(Group $group, $params = [])
+    public function getFindByGroupQuery(Group $group, array $params = [])
     {
         $qb = $this->createQueryBuilder('ug')
             ->select('ug', 'u', 'g', 'gm')
@@ -115,9 +117,19 @@ class UserGroupRepository extends EntityRepository
             ->setParameter('group', $group)
             ->orderBy('u.id', 'ASC');
         $labels = UserGroup::getStatusLabels();
-        if (!empty($params['status']) && $status = array_search($params['status'], $labels) !== false) {
+        if (!empty($params['status']) && ($status = array_search($params['status'], $labels, true)) !== false) {
             $qb->andWhere('ug.status = :status')
                 ->setParameter(':status', $status);
+        }
+        if (!empty($params['query'])) {
+            $qb->andWhere(
+                $qb->expr()->orX(
+                    'u.username LIKE :query',
+                    'u.firstName LIKE :query',
+                    'u.lastName LIKE :query'
+                )
+            )
+                ->setParameter(':query', "{$params['query']}%");
         }
 
         return $qb->getQuery();

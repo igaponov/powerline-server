@@ -21,6 +21,7 @@ class LoadGroupAnnouncementData extends AbstractFixture implements FixtureInterf
         $announcement = new GroupAnnouncement();
         $announcement->setRoot($group);
         $announcement->setContent($faker->sentence);
+        $announcement->getImage()->setName('73175a78c56031.png');
         $this->addReference('announcement_group_1', $announcement);
         $manager->persist($announcement);
 

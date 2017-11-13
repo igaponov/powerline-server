@@ -6,17 +6,17 @@ use Civix\CoreBundle\Entity\Group;
 
 class JoinStatus
 {
+    /**
+     * @return Group
+     */
     protected $entity;
 
-    public function __construct($entity)
+    public function __construct(Group $entity)
     {
         $this->entity = $entity;
     }
 
-    /**
-     * @return Group
-     */
-    public function getEntity()
+    public function getEntity(): Group
     {
         return $this->entity;
     }

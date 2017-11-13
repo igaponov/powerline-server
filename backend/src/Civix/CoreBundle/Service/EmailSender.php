@@ -3,7 +3,7 @@
 namespace Civix\CoreBundle\Service;
 
 use Civix\CoreBundle\Entity\DiscountCode;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Symfony\Component\Templating\EngineInterface;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
@@ -76,7 +76,7 @@ class EmailSender
         $this->mailer->send($message);
     }
 
-    public function sendToApprovedRepresentative(Representative $representative)
+    public function sendToApprovedRepresentative(UserRepresentative $representative)
     {
         $message = $this->createMessage(
             'Representative Registration approved',

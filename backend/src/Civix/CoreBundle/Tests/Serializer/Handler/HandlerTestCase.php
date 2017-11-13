@@ -5,6 +5,7 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use JMS\Serializer\EventDispatcher\EventDispatcherInterface;
 use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\SerializationContext;
+use Metadata\MetadataFactory;
 
 abstract class HandlerTestCase extends WebTestCase
 {
@@ -17,13 +18,14 @@ abstract class HandlerTestCase extends WebTestCase
     {
         $handler = $this->getHandler();
         $this->assertInternalType('callable', $handler);
-        $visitor = $this->getContainer()->get('jms_serializer.json_serialization_visitor');
-        $factory = $this->getContainer()
-            ->get('jms_serializer.metadata_factory');
+        $container = $this->getContainer();
+        $visitor = $container->get('jms_serializer.json_serialization_visitor');
+        $driver = $container->get('jms_serializer.metadata_driver');
+        $factory = new MetadataFactory($driver);
         $navigator = new GraphNavigator(
             $factory,
-            $this->getContainer()->get('jms_serializer.handler_registry'),
-            $this->getContainer()->get('jms_serializer.object_constructor'),
+            $container->get('jms_serializer.handler_registry'),
+            $container->get('jms_serializer.object_constructor'),
             $this->getMockBuilder(EventDispatcherInterface::class)->getMock()
         );
         $visitor->setNavigator($navigator);

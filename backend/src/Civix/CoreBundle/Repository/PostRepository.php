@@ -254,4 +254,21 @@ class PostRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @param $id
+     * @param User $user
+     * @return Post|null
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function findPostWithUserVote($id, User $user): ?Post
+    {
+        return $this->createQueryBuilder('p')
+            ->addSelect('v')
+            ->leftJoin('p.votes', 'v', 'WITH', 'v.user = :user')
+            ->setParameter(':user', $user)
+            ->where('p.id = :id')
+            ->setParameter(':id', $id)
+            ->getQuery()->getOneOrNullResult();
+    }
 }

@@ -10,6 +10,7 @@ use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\TempFile;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserGroup;
+use Civix\CoreBundle\Entity\UserGroupManager;
 use Civix\CoreBundle\QueryFunction\GroupResponsesQuery;
 use Civix\CoreBundle\QueryFunction\MembershipRosterQuery;
 use Civix\CoreBundle\Service\AvatarManager;
@@ -20,12 +21,13 @@ use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\DiExtraBundle\Annotation as DI;
+use Knp\Component\Pager\Pagination\PaginationInterface;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @Route("/groups")
@@ -78,9 +80,9 @@ class GroupController extends FOSRestController
      *
      * @param ParamFetcher $params
      *
-     * @return \Knp\Component\Pager\Pagination\PaginationInterface
+     * @return PaginationInterface
      */
-    public function getcAction(ParamFetcher $params)
+    public function getGroupsAction(ParamFetcher $params): PaginationInterface
     {
         $query = $this->em->getRepository(Group::class)
             ->getFindByQuery([
@@ -128,7 +130,7 @@ class GroupController extends FOSRestController
      *
      * @return Group
      */
-    public function getAction(Group $group)
+    public function getGroupAction(Group $group): Group
     {
         return $group;
     }
@@ -165,9 +167,9 @@ class GroupController extends FOSRestController
      * @param Request $request
      * @param Group $group
      *
-     * @return Group|\Symfony\Component\Form\Form
+     * @return Group|Form
      */
-    public function putAction(Request $request, Group $group)
+    public function putGroupAction(Request $request, Group $group)
     {
         $form = $this->createForm(GroupType::class, $group, [
             'validation_groups' => 'user-registration',
@@ -216,7 +218,7 @@ class GroupController extends FOSRestController
      * @param Request $request
      * @param Group $group
      *
-     * @return Group|\Symfony\Component\Form\Form
+     * @return Group|Form
      */
     public function putAvatarAction(Request $request, Group $group)
     {
@@ -253,7 +255,7 @@ class GroupController extends FOSRestController
      *
      * @param Group $group
      */
-    public function deleteAvatarAction(Group $group)
+    public function deleteAvatarAction(Group $group): void
     {
         $this->avatarManager->deleteAvatar($group);
     }
@@ -263,11 +265,10 @@ class GroupController extends FOSRestController
      * @Method("GET")
      *
      * @QueryParam(name="status", requirements="pending|active|banned", nullable=true, description="Filter by user's status in the group.")
+     * @QueryParam(name="query", requirements="\w{2,}", nullable=true, description="Filter by user's name.")
      * @QueryParam(name="page", requirements="\d+", default="1")
      * @QueryParam(name="per_page", requirements="(10|20)", default="20")
      * 
-     * @ParamConverter("group")
-     *
      * @ApiDoc(
      *     authentication=true,
      *     section="Groups",
@@ -292,9 +293,9 @@ class GroupController extends FOSRestController
      * @param ParamFetcher $params
      * @param $group
      *
-     * @return Response
+     * @return PaginationInterface
      */
-    public function getUsersAction(ParamFetcher $params, Group $group)
+    public function getUsersAction(ParamFetcher $params, Group $group): PaginationInterface
     {
         $query = $this->getDoctrine()->getRepository(UserGroup::class)
             ->getFindByGroupQuery($group, $params->all());
@@ -327,12 +328,14 @@ class GroupController extends FOSRestController
      * @param Group $group
      * @param User $user
      */
-    public function deleteUsersAction(Group $group, User $user)
+    public function deleteUsersAction(Group $group, User $user): void
     {
         $this->manager->unjoinGroup($user, $group);
     }
 
     /**
+     * Set `active` status by default.
+     *
      * @Route("/{group}/users/{user}")
      * @Method("PATCH")
      *
@@ -343,7 +346,8 @@ class GroupController extends FOSRestController
      * @ApiDoc(
      *     authentication=true,
      *     section="Groups",
-     *     description="Updates a status of an user in a group to `active`",
+     *     description="Updates a status of a user in a group (active or banned)",
+     *     input="\Civix\ApiBundle\Form\Type\UserGroupType",
      *     statusCodes={
      *         204="Success",
      *         400="Bad Request",
@@ -357,7 +361,7 @@ class GroupController extends FOSRestController
      * @param Request $request
      * @param UserGroup $userGroup
      *
-     * @return null|\Symfony\Component\Form\Form
+     * @return UserGroup|Form
      */
     public function patchUserAction(Request $request, UserGroup $userGroup)
     {
@@ -368,7 +372,7 @@ class GroupController extends FOSRestController
             $status = $form->get('status')->getData();
             $this->manager->changeUserStatus($userGroup, $status);
 
-            return null;
+            return $userGroup;
         }
 
         return $form;
@@ -400,14 +404,16 @@ class GroupController extends FOSRestController
      * @param Request $request
      * @param Group $group
      *
-     * @return null|\Symfony\Component\Form\Form
+     * @return null|Form
      */
-    public function putUsersAction(Request $request, Group $group)
+    public function putUsersAction(Request $request, Group $group): ?Form
     {
         return $this->putInvitesAction($request, $group);
     }
 
     /**
+     * Invite users by username, post upvoters or petitions signers.
+     *
      * @Route("/{id}/invites", requirements={"id"="\d+"})
      * @Method("PUT")
      *
@@ -430,9 +436,9 @@ class GroupController extends FOSRestController
      * @param Request $request
      * @param Group $group
      *
-     * @return null|\Symfony\Component\Form\Form
+     * @return null|Form
      */
-    public function putInvitesAction(Request $request, Group $group)
+    public function putInvitesAction(Request $request, Group $group): ?Form
     {
         $user = $this->getUser();
         $form = $this->createForm(InviteType::class, null, ['user_model' => $user]);
@@ -498,7 +504,7 @@ class GroupController extends FOSRestController
      *
      * @return null|UserGroup
      */
-    public function patchGroupInvitesAction(Group $group, User $user)
+    public function patchGroupInvitesAction(Group $group, User $user): ?UserGroup
     {
         if (!$user->getGroups()->contains($group) && $user->getInvites()->contains($group)) {
             return $this->manager->joinToGroup($user, $group);
@@ -531,7 +537,7 @@ class GroupController extends FOSRestController
      * @param Group $group
      * @param User $user
      */
-    public function deleteGroupInviteAction(Group $group, User $user)
+    public function deleteGroupInviteAction(Group $group, User $user): void
     {
         $this->manager->removeInvite($group, $user);
     }
@@ -567,9 +573,9 @@ class GroupController extends FOSRestController
      * @param Group $group
      * @param User $user
      *
-     * @return \Civix\CoreBundle\Entity\UserGroupManager
+     * @return UserGroupManager
      */
-    public function putGroupManagerAction(Group $group, User $user)
+    public function putGroupManagerAction(Group $group, User $user): UserGroupManager
     {
         return $this->manager->addGroupManager($group, $user);
     }
@@ -597,7 +603,7 @@ class GroupController extends FOSRestController
      * @param Group $group
      * @param User $user
      */
-    public function deleteGroupManagerAction(Group $group, User $user)
+    public function deleteGroupManagerAction(Group $group, User $user): void
     {
         $this->manager->deleteGroupManager($group, $user);
     }
@@ -624,7 +630,7 @@ class GroupController extends FOSRestController
      *
      * @return array
      */
-    public function getMembersAction(Group $group)
+    public function getMembersAction(Group $group): array
     {
         $query = new MembershipRosterQuery($this->em);
 
@@ -653,7 +659,7 @@ class GroupController extends FOSRestController
      *
      * @return TempFile
      */
-    public function getMembersLinkAction(Group $group)
+    public function getMembersLinkAction(Group $group): TempFile
     {
         $result = $this->getMembersAction($group);
         $file = new TempFile(
@@ -693,7 +699,7 @@ class GroupController extends FOSRestController
      *
      * @return array
      */
-    public function getResponsesAction(Group $group)
+    public function getResponsesAction(Group $group): array
     {
         $query = new GroupResponsesQuery($this->em);
 
@@ -722,7 +728,7 @@ class GroupController extends FOSRestController
      *
      * @return TempFile
      */
-    public function getResponsesLinkAction(Group $group)
+    public function getResponsesLinkAction(Group $group): TempFile
     {
         $result = $this->getResponsesAction($group);
         $file = new TempFile(

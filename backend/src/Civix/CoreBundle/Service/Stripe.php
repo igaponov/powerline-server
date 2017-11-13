@@ -86,7 +86,9 @@ class Stripe
         if ($bankAccount->getCountry() === 'US') {
             $sa->legal_entity->ssn_last_4 = $bankAccount->getSsnLast4();
         }
-        $sa->legal_entity->business_name = $bankAccount->getBusinessName();
+        if ($bankAccount->getBusinessName()) {
+            $sa->legal_entity->business_name = $bankAccount->getBusinessName();
+        }
         $sa->legal_entity->business_tax_id = $bankAccount->getTaxId();
 
         $sa->legal_entity->address = [
@@ -207,7 +209,7 @@ class Stripe
     {
         $user = $subscription->getUserEntity();
         $customer = $user->getStripeCustomer();
-        if (!$customer->getId()) {
+        if (!$customer) {
             throw new \RuntimeException('User doesn\'t have an account in stripe');
         }
 
@@ -324,7 +326,7 @@ class Stripe
     public function createAccount(LeaderContentRootInterface $root)
     {
         $params = [
-            'managed' => true,
+            'type' => 'custom',
             'metadata' => ['id' => $root->getId(), 'type' => $root->getType()],
             'email' => $root->getEmail(),
             'tos_acceptance' => [

@@ -4,20 +4,31 @@ namespace Civix\CoreBundle\Tests\Service\RabbitMQCallback;
 
 use Civix\CoreBundle\Service\RabbitMQCallback\AsyncEventConsumer;
 use Civix\CoreBundle\Service\RabbitMQCallback\EventMessage;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Proxy\Proxy;
 use PhpAmqpLib\Message\AMQPMessage;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\GenericEvent;
 
 class AsyncEventConsumerTest extends TestCase
 {
     public function testExecuteIsOk()
     {
         $eventName = 'event.name';
-        $event = new Event();
+        $subject = $this->createMock(Proxy::class);
+        $event = new GenericEvent($subject);
         $message = new EventMessage($eventName, $event);
         $msg = new AMQPMessage(serialize($message));
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->once())
+            ->method('merge')
+            ->with($subject)
+            ->willReturnArgument(0);
+        $em->expects($this->once())->method('flush');
+        $em->expects($this->once())->method('clear');
         $dispatcher = $this->getDispatcherMock();
         $dispatcher->expects($this->once())
             ->method('dispatch')
@@ -25,31 +36,37 @@ class AsyncEventConsumerTest extends TestCase
         $logger = $this->getLoggerMock();
         $logger->expects($this->never())
             ->method('critical');
-        $consumer = new AsyncEventConsumer($dispatcher, $logger);
+        $consumer = new AsyncEventConsumer($em, $dispatcher, $logger);
         $this->assertTrue($consumer->execute($msg));
     }
 
     public function testInvalidMessageBody()
     {
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->never())->method('flush');
+        $em->expects($this->never())->method('clear');
         $dispatcher = $this->getDispatcherMock();
         $dispatcher->expects($this->never())
             ->method('dispatch');
         $logger = $this->getLoggerMock();
         $logger->expects($this->once())
             ->method('critical');
-        $consumer = new AsyncEventConsumer($dispatcher, $logger);
+        $consumer = new AsyncEventConsumer($em, $dispatcher, $logger);
         $this->assertTrue($consumer->execute(new AMQPMessage()));
     }
 
     public function testInvalidMessage()
     {
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->never())->method('flush');
+        $em->expects($this->never())->method('clear');
         $dispatcher = $this->getDispatcherMock();
         $dispatcher->expects($this->never())
             ->method('dispatch');
         $logger = $this->getLoggerMock();
         $logger->expects($this->once())
             ->method('critical');
-        $consumer = new AsyncEventConsumer($dispatcher, $logger);
+        $consumer = new AsyncEventConsumer($em, $dispatcher, $logger);
         $this->assertTrue($consumer->execute(new AMQPMessage('invalid body')));
     }
 
@@ -59,6 +76,9 @@ class AsyncEventConsumerTest extends TestCase
         $event = new Event();
         $message = new EventMessage($eventName, $event);
         $msg = new AMQPMessage(serialize($message));
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->never())->method('flush');
+        $em->expects($this->once())->method('clear');
         $dispatcher = $this->getDispatcherMock();
         $dispatcher->expects($this->once())
             ->method('dispatch')
@@ -67,7 +87,7 @@ class AsyncEventConsumerTest extends TestCase
         $logger = $this->getLoggerMock();
         $logger->expects($this->once())
             ->method('critical');
-        $consumer = new AsyncEventConsumer($dispatcher, $logger);
+        $consumer = new AsyncEventConsumer($em, $dispatcher, $logger);
         $this->assertTrue($consumer->execute($msg));
     }
 
@@ -77,6 +97,9 @@ class AsyncEventConsumerTest extends TestCase
         $event = new Event();
         $message = new EventMessage($eventName, $event);
         $msg = new AMQPMessage(serialize($message));
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->never())->method('flush');
+        $em->expects($this->once())->method('clear');
         $dispatcher = $this->getDispatcherMock();
         $dispatcher->expects($this->once())
             ->method('dispatch')
@@ -87,7 +110,7 @@ class AsyncEventConsumerTest extends TestCase
         $logger = $this->getLoggerMock();
         $logger->expects($this->once())
             ->method('critical');
-        $consumer = new AsyncEventConsumer($dispatcher, $logger);
+        $consumer = new AsyncEventConsumer($em, $dispatcher, $logger);
         $this->assertTrue($consumer->execute($msg));
     }
 

@@ -4,125 +4,70 @@ namespace Civix\CoreBundle\Entity;
 
 use Civix\CoreBundle\Model\Avatar\DefaultAvatarInterface;
 use Civix\CoreBundle\Model\Avatar\FirstLetterDefaultAvatar;
-use Civix\CoreBundle\Serializer\Type\Avatar;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
-use Symfony\Component\Validator\Constraints as Assert;
+use Civix\CoreBundle\Serializer\Type\Avatar;
 
 /**
- * Representative.
+ * RepresentativeStorage.
  *
- * @ORM\Table(
- *     name="representatives",
- *     indexes={
- *         @ORM\Index(name="is_nonlegislative", columns={"is_nonlegislative"}),
- *         @ORM\Index(name="rep_officialTitle_ind", columns={"officialTitle"})
- *     },
- *     uniqueConstraints={@ORM\UniqueConstraint(columns={"user_id", "local_group"})}
- * )
+ * @ORM\Table(name="representatives", indexes={
+ *      @ORM\Index(name="repst_firstName_ind", columns={"firstName"}),
+ *      @ORM\Index(name="repst_lastName_ind", columns={"lastName"}),
+ *      @ORM\Index(name="repst_officialTitle_ind", columns={"officialTitle"})
+ * })
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\RepresentativeRepository")
+ * @ORM\HasLifecycleCallbacks
  * @Serializer\ExclusionPolicy("all")
  */
-class Representative implements CheckingLimits, LeaderContentRootInterface, HasAvatarInterface, ChangeableAvatarInterface
+class Representative implements HasAvatarInterface, ChangeableAvatarInterface
 {
-    use HasStripeAccountTrait,
-        HasAvatarTrait;
+    use HasAvatarTrait;
 
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_representative.png';
-
-    const STATUS_PENDING = 0;
-    const STATUS_ACTIVE = 1;
 
     /**
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-activities", "api-poll", "api-representatives-list", "api-info",
-     *      "api-search", "api-poll-public"})
+     * @Serializer\Groups({"api-representatives-list", "api-info", "api-search"})
      */
     private $id;
 
     /**
-     * @var User
+     * @var string
      *
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\User", inversedBy="representatives")
-     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
+     * @ORM\Column(name="firstName", type="string", length=255)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-representatives-list", "api-info", "api-search"})
      */
-    private $user;
+    private $firstName;
 
     /**
-     * @var Group
+     * @var string
      *
-     * @ORM\ManyToOne(targetEntity="Group", inversedBy="localRepresentatives", cascade="persist")
-     * @ORM\JoinColumn(name="local_group", referencedColumnName="id", nullable=true, onDelete="CASCADE")
-     * @Assert\NotBlank(groups={"approve"})
+     * @ORM\Column(name="lastName", type="string", length=255)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-representatives-list", "api-info", "api-search"})
      */
-    private $localGroup;
+    private $lastName;
 
     /**
      * @var string
      *
      * @ORM\Column(name="officialTitle", type="string", length=255)
-     * @Assert\NotBlank(groups={"registration"})
      * @Serializer\Expose()
-     * @Serializer\Accessor(getter="getOfficialTitle")
-     * @Serializer\Groups({"api-activities", "api-representatives-list", "api-poll", "api-info",
-     *      "api-search", "api-poll-public"})
+     * @Serializer\Groups({"api-representatives-list", "api-info", "api-search"})
      */
     private $officialTitle;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="address", type="string", length=255, nullable=true)
-     */
-    private $address;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="city", type="string", length=255)
-     * @Assert\NotBlank(groups={"registration"})
-     * @Serializer\Expose()
-     * @Serializer\Accessor(getter="getCity")
-     * @Serializer\Groups({"api-info"})
-     */
-    private $city;
-
-    /**
-     * @var State
-     *
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\State", cascade="persist")
-     * @ORM\JoinColumn(name="state", referencedColumnName="code", nullable=true, onDelete="SET NULL")
-     * @Assert\NotBlank(groups={"registration"})
-     */
-    private $state;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="country", type="string", length=2)
-     * @Assert\NotBlank(groups={"registration"})
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-info"})
-     */
-    private $country;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="status", type="smallint")
-     */
-    private $status;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="phone", type="string", length=15)
-     * @Assert\NotBlank(groups={"registration"})
+     * @ORM\Column(name="phone", type="string", length=15, nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-info"})
      */
@@ -131,176 +76,286 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
     /**
      * @var string
      *
-     * @ORM\Column(type="string")
-     * @Assert\NotBlank(groups={"registration"})
+     * @ORM\Column(name="fax", type="string", length=15, nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
      */
-    private $privatePhone;
+    private $fax;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="email", type="string")
-     * @Assert\NotBlank(groups={"registration"})
-     * @Assert\Email(groups={"registration"})
+     * @ORM\Column(name="email", type="string", length=80, nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-info"})
+     * @Serializer\SerializedName("email")
      */
     private $email;
 
     /**
      * @var string
      *
-     * @ORM\Column(type="string")
-     * @Assert\NotBlank(groups={"registration"})
-     * @Assert\Email(groups={"registration"})
+     * @ORM\Column(name="website", type="string", length=255, nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
      */
-    private $privateEmail;
+    private $website;
 
     /**
-     * @var District
-     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\District", cascade={"persist"})
-     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     * @var string
+     *
+     * @ORM\Column(name="country", type="string", length=2, nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     */
+    private $country;
+
+    /**
+     * @var State
+     *
+     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\State", inversedBy="stRepresentatives", cascade="persist")
+     * @ORM\JoinColumn(name="state", referencedColumnName="code", nullable=true, onDelete="SET NULL")
+     * @Serializer\Expose()
+     * @Serializer\Type("string")
+     * @Serializer\Accessor(getter="getStateCode")
+     * @Serializer\Groups({"api-info"})
+     */
+    private $state;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="city", type="string", length=255, nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     */
+    private $city;
+
+    /**
+     * @var string
+     * @ORM\Column(name="address1", type="string", length=255, nullable=true)
+     */
+    private $addressLine1;
+
+    /**
+     * @var string
+     * @ORM\Column(name="address2", type="string", length=255, nullable=true)
+     */
+    private $addressLine2;
+
+    /**
+     * @var string
+     * @ORM\Column(name="address3", type="string", length=255, nullable=true)
+     */
+    private $addressLine3;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\District", cascade="persist")
+     * @ORM\JoinColumn(name="district_id", referencedColumnName="id", onDelete="cascade")
      */
     private $district;
 
     /**
-     * @var CiceroRepresentative
+     * @var string
      *
-     * @ORM\OneToOne(targetEntity="Civix\CoreBundle\Entity\CiceroRepresentative")
+     * @ORM\Column(name="party", type="string", length=255, nullable=true)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-activities", "api-poll", "api-search", "api-info", "api-poll-public"})
+     * @Serializer\Groups({"api-info"})
      */
-    private $ciceroRepresentative;
-
-    /**
-     * @var int
-     *
-     * @Assert\Regex(
-     *      pattern="/^\d+$/",
-     *      message="The value cannot contain a non-numerical symbols"
-     * )
-     * @ORM\Column(name="questions_limit", type="integer", nullable=true)
-     */
-    private $questionLimit;
-
-    /**
-     * @var boolean
-     *
-     * @ORM\Column(name="is_nonlegislative", type="boolean")
-     */
-    private $isNonLegislative = false;
+    private $party;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(name="birthday", type="date", nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     * @Serializer\Type("DateTime<'m/d/Y'>")
+     */
+    private $birthday;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="start_term", type="date", nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     * @Serializer\Type("DateTime<'m/d/Y'>")
+     */
+    private $startTerm;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="end_term", type="date", nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     * @Serializer\Type("DateTime<'m/d/Y'>")
+     */
+    private $endTerm;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="contact_form", type="string", nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     */
+    private $contactForm;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="missed_votes", type="float", options={"default" = 0})
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     * @Serializer\Type("float")
+     */
+    private $missedVotes = .0;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="votes_with_party", type="float", options={"default" = 0})
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     * @Serializer\Type("float")
+     */
+    private $votesWithParty = .0;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="facebook", type="string", length=255, nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     */
+    private $facebook;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="youtube", type="string", length=255, nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     */
+    private $youtube;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="twitter", type="string", length=255, nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     */
+    private $twitter;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="bioguide", type="string", nullable=true)
+     */
+    private $bioguide;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="openstate_id", type="string", length=255, nullable=true)
+     */
+    private $openstateId;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="cicero_id", type="integer", nullable=true)
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-info"})
+     */
+    private $ciceroId;
+
+    /**
+     * @ORM\Column(name="updated_at", type="datetime")
+     *
+     * @var \DateTime
      */
     private $updatedAt;
 
-    public function __construct(User $user)
-    {
-        $this->user = $user;
-        $this->setCountry('US');
-        $this->setStatus(self::STATUS_PENDING);
-        $this->setUpdatedAt(new \DateTime());
-    }
-
-    public function getType()
-    {
-        return 'representative';
-    }
-
     /**
+     * Get id.
+     *
      * @return int
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return User
-     */
-    public function getUser()
+    public function getAddress(): string
     {
-        return $this->user;
+        $address = '';
+        $address .= $this->addressLine1 ? : '';
+        $address .= $this->addressLine2 ? ' '.$this->addressLine2 : '';
+        $address .= $this->addressLine3 ? ' '.$this->addressLine3 : '';
+
+        return $address;
     }
 
     /**
-     * @param User $user
+     * Set firstName.
+     *
+     * @param string $firstName
+     *
      * @return Representative
      */
-    public function setUser($user)
+    public function setFirstName(string $firstName): Representative
     {
-        $this->user = $user;
+        $this->firstName = $firstName;
 
         return $this;
     }
 
     /**
-     * Get avatarSrc
-     *
-     * @Serializer\VirtualProperty()
-     * @Serializer\Groups({"api-activities", "api-poll", "api-representatives-list", "api-info",
-     *      "api-search", "api-poll-public"})
-     * @Serializer\Type("Avatar")
-     * @Serializer\SerializedName("avatar_file_path")
-     * @return Avatar
-     */
-    public function getAvatarFilePath()
-    {
-        if ($this->getCiceroRepresentative() && !$this->getAvatarFileName()) {
-            return new Avatar($this->getCiceroRepresentative());
-        }
-        return new Avatar($this);
-    }
-
-    /**
-     * Get default avatar
-     *
-     * @return DefaultAvatarInterface
-     */
-    public function getDefaultAvatar(): DefaultAvatarInterface
-    {
-        return new FirstLetterDefaultAvatar($this->getFirstName());
-    }
-
-    /**
-     * Get address1.
+     * Get firstName.
      *
      * @return string
      */
-    public function getAddress()
+    public function getFirstName(): ?string
     {
-        return $this->address;
+        return $this->firstName;
     }
 
     /**
-     * Set address1.
+     * Set lastName.
      *
-     * @param string $address1
+     * @param string $lastName
      *
-     * @return \Civix\CoreBundle\Entity\Representative
+     * @return Representative
      */
-    public function setAddress($address1)
+    public function setLastName(string $lastName): Representative
     {
-        $this->address = $address1;
+        $this->lastName = $lastName;
 
         return $this;
     }
 
     /**
-     * Get username.
+     * Get lastName.
      *
      * @return string
      */
-    public function getOfficialTitle()
+    public function getLastName(): ?string
     {
-        if ($this->getCiceroRepresentative() && $this->getCiceroRepresentative()->getOfficialTitle()) {
-            return $this->getCiceroRepresentative()->getOfficialTitle();
-        }
+        return $this->lastName;
+    }
 
-        return $this->officialTitle;
+    /**
+     * Get full name
+     *
+     * @return string
+     */
+    public function getFullName(): string
+    {
+        return $this->getFirstName() . ' ' . $this->getLastName();
     }
 
     /**
@@ -310,7 +365,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return Representative
      */
-    public function setOfficialTitle($officialTitle)
+    public function setOfficialTitle($officialTitle): Representative
     {
         $this->officialTitle = $officialTitle;
 
@@ -318,102 +373,33 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
     }
 
     /**
-     * Set country of address.
-     *
-     * @param string $country
-     *
-     * @return \Civix\CoreBundle\Entity\Representative
-     */
-    public function setCountry($country)
-    {
-        $this->country = $country;
-
-        return $this;
-    }
-
-    /**
-     * Get country of address.
+     * Get officialTitle.
      *
      * @return string
      */
-    public function getCountry()
+    public function getOfficialTitle(): ?string
     {
-        return $this->country;
+        return $this->officialTitle;
     }
 
     /**
-     * Set state of country.
-     *
-     * @param State $state
-     *
-     * @return \Civix\CoreBundle\Entity\Representative
-     */
-    public function setState(State $state)
-    {
-        $this->state = $state;
-
-        return $this;
-    }
-
-    /**
-     * Get state of country.
-     *
-     * @return State
-     */
-    public function getState()
-    {
-        return $this->state;
-    }
-
-    /**
-     * @return null|string
-     *
-     * @Serializer\VirtualProperty()
-     * @Serializer\Type("string")
-     * @Serializer\Groups({"api-info"})
-     * @Serializer\SerializedName("state")
-     */
-    public function getStateCode()
-    {
-        if ($this->state instanceof State) {
-            return $this->state->getCode();
-        }
-
-        return null;
-    }
-
-    /**
-     * Set city.
-     *
-     * @param string $city
-     *
-     * @return \Civix\CoreBundle\Entity\Representative
-     */
-    public function setCity($city)
-    {
-        $this->city = $city;
-
-        return $this;
-    }
-
-    /**
-     * Get city.
+     * Get phone number.
      *
      * @return string
      */
-    public function getCity()
+    public function getPhone(): ?string
     {
-        return $this->city;
+        return $this->phone;
     }
 
     /**
-     * Set officialPhone.
+     * Set phone number.
      *
      * @param string $phone
      *
-     * @return Representative
+     * @return \Civix\CoreBundle\Entity\Representative
      */
-    public function setPhone($phone)
+    public function setPhone(string $phone): Representative
     {
         $this->phone = $phone;
 
@@ -421,56 +407,27 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
     }
 
     /**
-     * Get officialPhone.
+     * Get fax number.
      *
      * @return string
      */
-    public function getPhone()
+    public function getFax(): ?string
     {
-        return $this->phone;
+        return $this->fax;
     }
 
     /**
-     * @return string
+     * Set fax number.
+     *
+     * @param string $fax
+     *
+     * @return \Civix\CoreBundle\Entity\Representative
      */
-    public function getPrivatePhone()
+    public function setFax(string $fax): Representative
     {
-        return $this->privatePhone;
-    }
-
-    /**
-     * @param string $privatePhone
-     * @return Representative
-     */
-    public function setPrivatePhone($privatePhone)
-    {
-        $this->privatePhone = $privatePhone;
+        $this->fax = $fax;
 
         return $this;
-    }
-
-    /**
-     * Set status.
-     *
-     * @param int $status
-     *
-     * @return Representative
-     */
-    public function setStatus($status)
-    {
-        $this->status = $status;
-
-        return $this;
-    }
-
-    /**
-     * Get status.
-     *
-     * @return int
-     */
-    public function getStatus()
-    {
-        return $this->status;
     }
 
     /**
@@ -478,7 +435,7 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @return string
      */
-    public function getEmail()
+    public function getEmail(): ?string
     {
         return $this->email;
     }
@@ -488,9 +445,9 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
      *
      * @param string $email
      *
-     * @return Representative
+     * @return \Civix\CoreBundle\Entity\Representative
      */
-    public function setEmail($email)
+    public function setEmail(string $email): Representative
     {
         $this->email = $email;
 
@@ -498,37 +455,236 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
     }
 
     /**
-     * @return mixed
+     * Get website url.
+     *
+     * @return string
      */
-    public function getPrivateEmail()
+    public function getWebsite(): ?string
     {
-        return $this->privateEmail;
+        return $this->website;
     }
 
     /**
-     * @param mixed $privateEmail
-     * @return Representative
+     * Set website url.
+     *
+     * @param string $url
+     *
+     * @return \Civix\CoreBundle\Entity\Representative
      */
-    public function setPrivateEmail($privateEmail)
+    public function setWebsite(string $url): Representative
     {
-        $this->privateEmail = $privateEmail;
+        $this->website = $url;
 
         return $this;
     }
 
     /**
-     * @return District
+     * Get country.
+     *
+     * @return string
      */
-    public function getDistrict()
+    public function getCountry(): ?string
     {
-        return $this->district;
+        return $this->country;
     }
 
     /**
-     * @param District $district
+     * Set country.
+     *
+     * @param string $country
+     *
+     * @return \Civix\CoreBundle\Entity\Representative
+     */
+    public function setCountry(string $country): Representative
+    {
+        $this->country = $country;
+
+        return $this;
+    }
+
+    /**
+     * Get state.
+     *
+     * @return State|null
+     */
+    public function getState(): ?State
+    {
+        return $this->state;
+    }
+
+    /**
+     * Get city.
+     *
+     * @return string
+     */
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    /**
+     * Set state.
+     *
+     * @param State $state
+     *
      * @return Representative
      */
-    public function setDistrict($district)
+    public function setState(State $state = null): Representative
+    {
+        $this->state = $state;
+
+        return $this;
+    }
+
+    /**
+     * Set city.
+     *
+     * @param string $city
+     *
+     * @return \Civix\CoreBundle\Entity\Representative
+     */
+    public function setCity(string $city): Representative
+    {
+        $this->city = $city;
+
+        return $this;
+    }
+
+    /**
+     * Get address1.
+     *
+     * @return string
+     */
+    public function getAddressLine1(): ?string
+    {
+        return $this->addressLine1;
+    }
+
+    /**
+     * Set address1.
+     *
+     * @param string $address1
+     *
+     * @return \Civix\CoreBundle\Entity\Representative
+     */
+    public function setAddressLine1(string $address1): Representative
+    {
+        $this->addressLine1 = $address1;
+
+        return $this;
+    }
+
+    /**
+     * Get address2.
+     *
+     * @return string
+     */
+    public function getAddressLine2(): ?string
+    {
+        return $this->addressLine2;
+    }
+
+    /**
+     * Set address1.
+     *
+     * @param string $address2
+     *
+     * @return \Civix\CoreBundle\Entity\Representative
+     */
+    public function setAddressLine2(string $address2): Representative
+    {
+        $this->addressLine2 = $address2;
+
+        return $this;
+    }
+
+    /**
+     * Get address3.
+     *
+     * @return string
+     */
+    public function getAddressLine3(): ?string
+    {
+        return $this->addressLine3;
+    }
+
+    /**
+     * Set address1.
+     *
+     * @param string $address3
+     *
+     * @return \Civix\CoreBundle\Entity\Representative
+     */
+    public function setAddressLine3(string $address3): Representative
+    {
+        $this->addressLine3 = $address3;
+
+        return $this;
+    }
+
+    /**
+     * Get districtId.
+     *
+     * @return int
+     */
+    public function getDistrictId(): ?int
+    {
+        $district = $this->getDistrict();
+
+        return $district ? $district->getId() : null;
+    }
+
+    /**
+     * Get district type name by district type id.
+     *
+     * @return string
+     */
+    public function getDistrictTypeName(): ?string
+    {
+        $district = $this->getDistrict();
+
+        return $district ? $district->getDistrictTypeName() : '';
+    }
+
+    /**
+     * Get default avatar.
+     *
+     * @return DefaultAvatarInterface
+     */
+    public function getDefaultAvatar(): DefaultAvatarInterface
+    {
+        return new FirstLetterDefaultAvatar($this->firstName);
+    }
+
+    /**
+     * Get avatarPath.
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"api-representatives-list", "api-info", "api-search"})
+     * @Serializer\Type("Avatar")
+     * @Serializer\SerializedName("avatar_file_path")
+     * @return Avatar
+     */
+    public function getAvatarFilePath(): Avatar
+    {
+        return new Avatar($this);
+    }
+
+    public function isLocalLeader(): bool
+    {
+        $district = $this->getDistrict();
+
+        return in_array($district ? $district->getDistrictType() : -1, array(District::LOCAL, District::LOCAL_EXEC), true);
+    }
+
+    /**
+     * Set district.
+     *
+     * @param District $district
+     *
+     * @return Representative
+     */
+    public function setDistrict(District $district = null): Representative
     {
         $this->district = $district;
 
@@ -536,139 +692,301 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
     }
 
     /**
-     * Get Cicero representative.
+     * Get district.
      *
-     * @return CiceroRepresentative
+     * @return District
      */
-    public function getCiceroRepresentative()
+    public function getDistrict(): ?District
     {
-        return $this->ciceroRepresentative;
+        return $this->district;
     }
 
     /**
-     * Set CiceroId.
-     *
-     * @param CiceroRepresentative $ciceroRepresentative
-     *
-     * @return \Civix\CoreBundle\Entity\Representative
+     * @Serializer\VirtualProperty
+     * @Serializer\SerializedName("type")
+     * @Serializer\Groups({"api-search"})
      */
-    public function setCiceroRepresentative(CiceroRepresentative $ciceroRepresentative = null)
+    public function getType(): string
     {
-        $this->ciceroRepresentative = $ciceroRepresentative;
-
-        return $this;
+        return 'representative';
     }
 
     /**
-     * Get limit of question.
+     * Set party.
      *
-     * @return int
-     */
-    public function getQuestionLimit()
-    {
-        return $this->questionLimit;
-    }
-
-    /**
-     * Set limit of question.
-     *
-     * @param $limit
-     * @return Representative
-     */
-    public function setQuestionLimit($limit)
-    {
-        $this->questionLimit = $limit;
-
-        return $this;
-    }
-
-    /**
-     * Get Non-Legislative District relation.
-     *
-     * @return int
-     */
-    public function getIsNonLegislative()
-    {
-        return $this->isNonLegislative;
-    }
-
-    /**
-     * Set Non-Legislative District relation.
-     *
-     * @param bool $isNonLegislative
-     * @return Representative
-     */
-    public function setIsNonLegislative($isNonLegislative)
-    {
-        $this->isNonLegislative = $isNonLegislative;
-
-        return $this;
-    }
-
-    public function __toString()
-    {
-        return (string)$this->officialTitle;
-    }
-
-    /**
-     * Set localGroup.
-     *
-     * @param \Civix\CoreBundle\Entity\Group $localGroup
+     * @param string $party
      *
      * @return Representative
      */
-    public function setLocalGroup(Group $localGroup = null)
+    public function setParty(string $party): Representative
     {
-        $this->localGroup = $localGroup;
+        $this->party = $party;
 
         return $this;
     }
 
     /**
-     * Get localGroup.
+     * Get party.
      *
-     * @return \Civix\CoreBundle\Entity\Group
+     * @return string
      */
-    public function getLocalGroup()
+    public function getParty(): ?string
     {
-        return $this->localGroup;
+        return $this->party;
     }
 
     /**
-     * Check if representative can to admin local group.
-     * 
-     * @return bool
+     * Set birthday.
+     *
+     * @param \DateTime $birthday
+     *
+     * @return Representative
      */
-    public function isLocalAdmin()
+    public function setBirthday(\DateTime $birthday): Representative
     {
-        return $this->getLocalGroup() instanceof Group;
-    }
+        $this->birthday = $birthday;
 
-    public function getAddressArray()
-    {
-        return [
-            'city' => $this->getCity(),
-            'line1' => $this->getAddress(),
-            'line2' => '',
-            'state' => $this->getState(),
-            'postal_code' => '',
-            'country_code' => $this->getCountry(),
-        ];
+        return $this;
     }
 
     /**
+     * Get birthday.
+     *
      * @return \DateTime
      */
-    public function getUpdatedAt()
+    public function getBirthday(): ?\DateTime
     {
-        return $this->updatedAt;
+        return $this->birthday;
     }
 
     /**
-     * @param \DateTime $updatedAt
+     * Set startTerm.
+     *
+     * @param \DateTime $startTerm
+     *
      * @return Representative
      */
-    public function setUpdatedAt($updatedAt)
+    public function setStartTerm(\DateTime $startTerm): Representative
+    {
+        $this->startTerm = $startTerm;
+
+        return $this;
+    }
+
+    /**
+     * Get startTerm.
+     *
+     * @return \DateTime
+     */
+    public function getStartTerm(): ?\DateTime
+    {
+        return $this->startTerm;
+    }
+
+    /**
+     * Set endTerm.
+     *
+     * @param \DateTime $endTerm
+     *
+     * @return Representative
+     */
+    public function setEndTerm(\DateTime $endTerm): Representative
+    {
+        $this->endTerm = $endTerm;
+
+        return $this;
+    }
+
+    /**
+     * Get endTerm.
+     *
+     * @return \DateTime
+     */
+    public function getEndTerm(): ?\DateTime
+    {
+        return $this->endTerm;
+    }
+
+    /**
+     * @return string
+     */
+    public function getContactForm(): ?string
+    {
+        return $this->contactForm;
+    }
+
+    /**
+     * @param string $contactForm
+     * @return Representative
+     */
+    public function setContactForm(?string $contactForm): Representative
+    {
+        $this->contactForm = $contactForm;
+
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getMissedVotes(): float
+    {
+        return $this->missedVotes;
+    }
+
+    /**
+     * @param float $missedVotes
+     * @return Representative
+     */
+    public function setMissedVotes(float $missedVotes): Representative
+    {
+        $this->missedVotes = $missedVotes;
+
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getVotesWithParty(): float
+    {
+        return $this->votesWithParty;
+    }
+
+    /**
+     * @param float $votesWithParty
+     * @return Representative
+     */
+    public function setVotesWithParty(float $votesWithParty): Representative
+    {
+        $this->votesWithParty = $votesWithParty;
+
+        return $this;
+    }
+
+    /**
+     * Set facebook.
+     *
+     * @param string $facebook
+     *
+     * @return Representative
+     */
+    public function setFacebook(string $facebook): Representative
+    {
+        $this->facebook = $facebook;
+
+        return $this;
+    }
+
+    /**
+     * Get facebook.
+     *
+     * @return string
+     */
+    public function getFacebook(): ?string
+    {
+        return $this->facebook;
+    }
+
+    /**
+     * Set youtube.
+     *
+     * @param string $youtube
+     *
+     * @return Representative
+     */
+    public function setYoutube(string $youtube): Representative
+    {
+        $this->youtube = $youtube;
+
+        return $this;
+    }
+
+    /**
+     * Get youtube.
+     *
+     * @return string
+     */
+    public function getYoutube(): ?string
+    {
+        return $this->youtube;
+    }
+
+    /**
+     * Set twitter.
+     *
+     * @param string $twitter
+     *
+     * @return Representative
+     */
+    public function setTwitter(string $twitter): Representative
+    {
+        $this->twitter = $twitter;
+
+        return $this;
+    }
+
+    /**
+     * Get twitter.
+     *
+     * @return string
+     */
+    public function getTwitter(): ?string
+    {
+        return $this->twitter;
+    }
+
+    /**
+     * Set openstateId.
+     *
+     * @param string $openstateId
+     *
+     * @return Representative
+     */
+    public function setOpenstateId(string $openstateId): Representative
+    {
+        $this->openstateId = $openstateId;
+
+        return $this;
+    }
+
+    /**
+     * Get openstateId.
+     *
+     * @return string
+     */
+    public function getOpenstateId(): ?string
+    {
+        return $this->openstateId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBioguide(): ?string
+    {
+        return $this->bioguide;
+    }
+
+    /**
+     * @param string $bioguide
+     * @return Representative
+     */
+    public function setBioguide(string $bioguide): Representative
+    {
+        $this->bioguide = $bioguide;
+
+        return $this;
+    }
+
+    /**
+     * Set updatedAt.
+     *
+     * @param \DateTime $updatedAt
+     *
+     * @return Representative
+     */
+    public function setUpdatedAt(\DateTime $updatedAt): Representative
     {
         $this->updatedAt = $updatedAt;
 
@@ -676,24 +994,63 @@ class Representative implements CheckingLimits, LeaderContentRootInterface, HasA
     }
 
     /**
-     * @return string
-     * @internal
-     * @Serializer\VirtualProperty()
-     * @Serializer\Groups({"api-representatives-list", "api-info"})
+     * Get updatedAt.
+     *
+     * @return \DateTime
      */
-    public function getFirstName()
+    public function getUpdatedAt(): ?\DateTime
     {
-        return $this->user->getFirstName();
+        return $this->updatedAt;
     }
 
     /**
-     * @return string
-     * @internal
-     * @Serializer\VirtualProperty()
-     * @Serializer\Groups({"api-representatives-list", "api-info"})
+     * @ORM\PrePersist()
+     * @ORM\PreUpdate()
      */
-    public function getLastName()
+    public function setCurrentTimeAsUpdatedAt(): void
     {
-        return $this->user->getLastName();
+        $this->setUpdatedAt(new \DateTime('now'));
+    }
+
+    public function getStateCode(): ?string
+    {
+        if ($this->state instanceof State) {
+            return $this->state->getCode();
+        }
+
+        return null;
+    }
+
+    /**
+     * @return int
+     * @deprecated For compatibility with v.1
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"api-representatives-list", "api-info", "api-search"})
+     * @Serializer\Until("1")
+     * @Serializer\SerializedName("storage_id")
+     * @Serializer\Type("integer")
+     */
+    public function getStorageId(): ?int
+    {
+        return $this->ciceroId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCiceroId(): ?int
+    {
+        return $this->ciceroId;
+    }
+
+    /**
+     * @param int $ciceroId
+     * @return Representative
+     */
+    public function setCiceroId(int $ciceroId): Representative
+    {
+        $this->ciceroId = $ciceroId;
+
+        return $this;
     }
 }

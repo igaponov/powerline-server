@@ -23,12 +23,12 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
         $this->activityUpdate = $activityUpdate;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             Event\UserEvents::PROFILE_UPDATE => 'updateOwnerData',
 
-            Event\UserPetitionEvents::PETITION_CREATE => ['publishUserPetitionToActivity', -100],
+            Event\UserPetitionEvents::PETITION_POST_CREATE => ['publishUserPetitionToActivity', -100],
             Event\UserPetitionEvents::PETITION_UPDATE => ['publishUserPetitionToActivity', -100],
             Event\UserPetitionEvents::PETITION_SIGN => [
                 ['updateResponsesPetition', -110],
@@ -37,7 +37,7 @@ class ActivityUpdateSubscriber implements EventSubscriberInterface
             Event\UserPetitionEvents::PETITION_UNSIGN => ['updatePetitionAuthorActivity', -100],
             Event\UserPetitionEvents::PETITION_BOOST => ['publishUserPetitionToActivity', -100],
 
-            Event\PostEvents::POST_CREATE => ['publishPostToActivity', -100],
+            Event\PostEvents::POST_POST_CREATE => ['publishPostToActivity', -100],
             Event\PostEvents::POST_UPDATE => ['publishPostToActivity', -100],
             Event\PostEvents::POST_VOTE => [
                 ['updateResponsesPost', -110],

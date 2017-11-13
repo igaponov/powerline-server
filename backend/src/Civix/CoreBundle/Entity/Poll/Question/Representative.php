@@ -22,11 +22,11 @@ class Representative extends Question
     /**
      * Set user.
      *
-     * @param \Civix\CoreBundle\Entity\Representative $representative
+     * @param \Civix\CoreBundle\Entity\UserRepresentative $representative
      *
      * @return Representative
      */
-    public function setOwner(\Civix\CoreBundle\Entity\Representative $representative)
+    public function setOwner(\Civix\CoreBundle\Entity\UserRepresentative $representative)
     {
         $this->representative = $representative;
 
@@ -36,7 +36,7 @@ class Representative extends Question
     /**
      * Get user.
      *
-     * @return \Civix\CoreBundle\Entity\Representative
+     * @return \Civix\CoreBundle\Entity\UserRepresentative
      */
     public function getOwner()
     {

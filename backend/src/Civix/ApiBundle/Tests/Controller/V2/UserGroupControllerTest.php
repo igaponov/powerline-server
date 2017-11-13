@@ -10,13 +10,17 @@ use Civix\CoreBundle\Entity\UserGroup;
 use Civix\CoreBundle\Model\Subscription\PackageLimitState;
 use Civix\CoreBundle\Service\Stripe;
 use Civix\CoreBundle\Service\Subscription\PackageHandler;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadActivityRelationsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupFieldsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadKarmaData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadLocalGroupData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadPostVoteData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadMembershipReportData;
 use Doctrine\DBAL\Connection;
 use Faker\Factory;
@@ -35,7 +39,7 @@ class UserGroupControllerTest extends WebTestCase
     /**
      * @var Client
      */
-    private $client = null;
+    private $client;
 
     public function setUp()
     {
@@ -54,10 +58,12 @@ class UserGroupControllerTest extends WebTestCase
     public function testGetGroups()
     {
         $repository = $this->loadFixtures([
-            LoadGroupData::class,
             LoadUserGroupData::class,
             LoadGroupManagerData::class,
             LoadUserGroupOwnerData::class,
+            LoadActivityRelationsData::class,
+            LoadPostVoteData::class,
+            LoadUserPetitionSignatureData::class,
         ])->getReferenceRepository();
         /** @var Group $group1 */
         $group1 = $repository->getReference('group_1');
@@ -74,15 +80,24 @@ class UserGroupControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertSame(4, $data['totalItems']);
         $this->assertCount(4, $data['payload']);
+        /** @var array $payload */
         $payload = $data['payload'];
         $this->assertEquals($group3->getOfficialName(), $payload[0]['official_name']);
+        $this->assertCount($payload[0]['total_members'], $group3->getUserGroups());
         $this->assertSame('owner', $payload[0]['user_role']);
         $this->assertEquals($group1->getOfficialName(), $payload[1]['official_name']);
+        $this->assertCount($payload[1]['total_members'], $group1->getUserGroups());
         $this->assertSame('manager', $payload[1]['user_role']);
         $this->assertEquals($group2->getOfficialName(), $payload[2]['official_name']);
+        $this->assertCount($payload[2]['total_members'], $group2->getUserGroups());
         $this->assertSame('manager', $payload[2]['user_role']);
         $this->assertEquals($group4->getOfficialName(), $payload[3]['official_name']);
+        $this->assertCount($payload[3]['total_members'], $group4->getUserGroups());
         $this->assertSame('member', $payload[3]['user_role']);
+        $this->assertSame(6, $payload[1]['priority_item_count']);
+        foreach ($payload as $item) {
+            $this->assertNotEmpty($item['conversation_view_limit']);
+        }
     }
 
     public function testGetGroupsIsEmpty()
@@ -99,26 +114,6 @@ class UserGroupControllerTest extends WebTestCase
         $this->assertSame(50, $data['items']);
         $this->assertSame(0, $data['totalItems']);
         $this->assertCount(0, $data['payload']);
-    }
-
-    public function testCreateGroupWithErrors()
-    {
-        $this->loadFixtures([
-            LoadUserData::class,
-        ]);
-        $errors = [
-            'official_name' => 'This value should not be blank.',
-            'official_type' => 'This value should not be blank.',
-            'transparency' => 'This value should not be blank.',
-        ];
-        $client = $this->client;
-        $client->request('POST', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="followertest"'], json_encode([
-            'official_name' => '',
-            'official_type' => '',
-            'transparency' => '',
-        ]));
-        $response = $client->getResponse();
-        $this->assertResponseHasErrors($response, $errors);
     }
 
     public function testCreateGroupIsOk()
@@ -140,6 +135,7 @@ class UserGroupControllerTest extends WebTestCase
             'official_address' => $faker->address,
             'official_city' => $faker->city,
             'official_state' => strtoupper($faker->randomLetter.$faker->randomLetter),
+            'conversation_view_limit' => 111,
         ];
         $client = $this->client;
         $service = $this->getMockBuilder(Stripe::class)
@@ -308,6 +304,21 @@ class UserGroupControllerTest extends WebTestCase
             ->getMembershipReport($group);
         $this->assertEquals($group->getId(), $result[0]['group']);
         $this->assertEquals([$field->getId() => $fieldValue], $result[0]['fields']);
+    }
+
+    public function testJoinLocalGroupReturnsError()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+            LoadLocalGroupData::class,
+        ])->getReferenceRepository();
+        $group = $repository->getReference('local_group_us');
+        $client = $this->client;
+        $client->request('PUT', self::API_ENDPOINT.'/'.$group->getId(), [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user4"']);
+        $response = $client->getResponse();
+        $this->assertSame(400, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertSame("User can't join a local group.", $data['message']);
     }
 
     public function testJoinGroupWithErrors()

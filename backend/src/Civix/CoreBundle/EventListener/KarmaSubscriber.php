@@ -21,7 +21,7 @@ class KarmaSubscriber implements EventSubscriberInterface
      */
     private $repository;
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             Event\UserEvents::VIEW_REPRESENTATIVES => 'representativeScreen',
@@ -43,7 +43,7 @@ class KarmaSubscriber implements EventSubscriberInterface
         $this->repository = $repository;
     }
 
-    public function representativeScreen(Event\UserRepresentativeEvent $event)
+    public function representativeScreen(Event\UserEvent $event)
     {
         $user = $event->getUser();
         $karma = $this->repository
@@ -57,11 +57,10 @@ class KarmaSubscriber implements EventSubscriberInterface
 
     public function follow(Event\UserFollowEvent $event)
     {
-        $userFollow = $event->getUserFollow();
-        $user = $userFollow->getFollower();
+        $user = $event->getFollower();
         $karma = $this->repository->findOneByUserAndType($user, Karma::TYPE_FOLLOW);
         if (!$karma) {
-            $karma = new Karma($user, Karma::TYPE_FOLLOW, 10, ['following_id' => $userFollow->getUser()->getId()]);
+            $karma = new Karma($user, Karma::TYPE_FOLLOW, 10, ['following_id' => $event->getUser()->getId()]);
             $this->em->persist($karma);
             $this->em->flush();
         }
@@ -69,12 +68,11 @@ class KarmaSubscriber implements EventSubscriberInterface
 
     public function approveFollowRequest(Event\UserFollowEvent $event)
     {
-        $userFollow = $event->getUserFollow();
-        $user = $userFollow->getUser();
+        $user = $event->getUser();
         $karma = $this->repository
             ->findOneByUserAndType($user, Karma::TYPE_APPROVE_FOLLOW_REQUEST);
         if (!$karma) {
-            $karma = new Karma($user, Karma::TYPE_APPROVE_FOLLOW_REQUEST, 10, ['follower_id' => $userFollow->getFollower()->getId()]);
+            $karma = new Karma($user, Karma::TYPE_APPROVE_FOLLOW_REQUEST, 10, ['follower_id' => $event->getFollower()->getId()]);
             $this->em->persist($karma);
             $this->em->flush();
         }
@@ -159,7 +157,7 @@ class KarmaSubscriber implements EventSubscriberInterface
             'rate_id' => $rate->getId(),
         ];
         $type = Karma::TYPE_RECEIVE_UPVOTE_ON_COMMENT;
-        if ($rate->getRateValue() == BaseCommentRate::RATE_UP) {
+        if ($rate->getRateValue() === BaseCommentRate::RATE_UP) {
             $karma = new Karma($user, $type, 2, $metadata);
             $this->em->persist($karma);
             $this->em->flush();

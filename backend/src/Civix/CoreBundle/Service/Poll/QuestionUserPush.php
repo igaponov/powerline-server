@@ -6,9 +6,13 @@ use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Entity\Poll\Question\RepresentativeNews;
 use Civix\CoreBundle\Model\Group\GroupSectionInterface;
 use Civix\CoreBundle\Service\PushSender;
+use Doctrine\ORM\EntityManagerInterface;
 
 class QuestionUserPush
 {
+    /**
+     * @var EntityManagerInterface
+     */
     protected $entityManager;
     /**
      * @var Question
@@ -16,7 +20,7 @@ class QuestionUserPush
     private $question;
     private $questionOwner;
 
-    public function __construct(\Doctrine\ORM\EntityManager $entityManager)
+    public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
     }

@@ -6,7 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Doctrine\ORM\EntityManager;
 
 class CiceroSyncCommand extends ContainerAwareCommand
@@ -37,20 +37,20 @@ class CiceroSyncCommand extends ContainerAwareCommand
         $entityManager = $this->getContainer()->get('doctrine')->getManager();
 
         if ($input->getOption('state')) {
-            $representatives = $entityManager->getRepository(Representative::class)
+            $representatives = $entityManager->getRepository(UserRepresentative::class)
                 ->findByState($input->getOption('state'));
         } else {
-            $representatives = $entityManager->getRepository(Representative::class)
+            $representatives = $entityManager->getRepository(UserRepresentative::class)
                 ->findByUpdatedAt(new \DateTime(), $input->getOption('records'));
         }
 
-        /** @var $representative \Civix\CoreBundle\Entity\Representative */
+        /** @var $representative \Civix\CoreBundle\Entity\UserRepresentative */
         foreach ($representatives as $representative) {
             $output->writeln(
                 'Checking '.$representative->getUser()->getFirstName().' '.$representative->getUser()->getLastName()
             );
 
-            $isUpdated = $this->getContainer()->get('civix_core.representative_manager')
+            $isUpdated = $this->getContainer()->get('civix_core.cicero_api')
                 ->synchronizeRepresentative($representative);
 
             if (!$isUpdated) {

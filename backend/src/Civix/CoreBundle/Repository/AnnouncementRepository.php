@@ -5,7 +5,7 @@ namespace Civix\CoreBundle\Repository;
 use Civix\CoreBundle\Entity\LeaderContentRootInterface;
 use Doctrine\ORM\EntityRepository;
 use Civix\CoreBundle\Entity\User;
-use Civix\CoreBundle\Entity\Representative;
+use Civix\CoreBundle\Entity\UserRepresentative;
 use Civix\CoreBundle\Entity\Group;
 
 /**
@@ -68,7 +68,7 @@ class AnnouncementRepository extends EntityRepository
         if (!empty($districtsIds)) {
             $qb = $this->getEntityManager()->createQueryBuilder();
             $representativeIds = $qb->select('r.id')
-                ->from('CivixCoreBundle:Representative', 'r')
+                ->from(UserRepresentative::class, 'r')
                 ->where($qb->expr()->in('r.district', $districtsIds))
                 ->getQuery()
                 ->getArrayResult()
@@ -89,7 +89,7 @@ class AnnouncementRepository extends EntityRepository
         return $qb->addSelect('r, gr, cr')
             ->leftJoin('a.group', 'gr')
             ->leftJoin('a.representative', 'r')
-            ->leftJoin('r.ciceroRepresentative', 'cr')
+            ->leftJoin('r.representative', 'cr')
             ->leftJoin('a.announcementRead', 'ar', 'WITH', 'ar.user = :user')
             ->setParameter(':user', $user)
             ->where(
@@ -132,7 +132,7 @@ class AnnouncementRepository extends EntityRepository
      */
     private function getAnnouncementRepositoryName(LeaderContentRootInterface $user)
     {
-        if ($user instanceof Representative) {
+        if ($user instanceof UserRepresentative) {
             return 'CivixCoreBundle:Announcement\RepresentativeAnnouncement';
         } elseif ($user instanceof Group) {
             return 'CivixCoreBundle:Announcement\GroupAnnouncement';

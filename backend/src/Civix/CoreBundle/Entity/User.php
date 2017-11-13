@@ -2,11 +2,14 @@
 
 namespace Civix\CoreBundle\Entity;
 
+use Civix\Component\Notification\Model\RecipientInterface;
 use Civix\CoreBundle\Entity\Poll\Question;
 use Civix\CoreBundle\Model\Avatar\DefaultAvatarInterface;
 use Civix\CoreBundle\Model\Avatar\FirstLetterDefaultAvatar;
 use Civix\CoreBundle\Serializer\Type\Avatar;
+use Civix\CoreBundle\Serializer\Type\Karma;
 use Civix\CoreBundle\Validator\Constraints\FacebookToken;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -19,20 +22,16 @@ use Symfony\Component\Validator\Constraints as Assert;
  * User.
  *
  * @ORM\Table(name="user", indexes={
- *      @ORM\Index(name="ios_token", columns={"ios_token"}),
- *      @ORM\Index(name="android_token", columns={"android_token"}),
  *      @ORM\Index(name="user_token", columns={"token"}),
  *      @ORM\Index(name="user_firstName_ind", columns={"firstName"}),
  *      @ORM\Index(name="user_lastName_ind", columns={"lastName"})
  * })
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\UserRepository")
  * @UniqueEntity(
- *      fields={"username"},
- *      groups={"registration", "profile"}
- * )
- * @UniqueEntity(
- *      fields={"email"},
- *      groups={"registration", "profile-email"}
+ *      fields={"username", "email"},
+ *      groups={"registration", "profile-email"},
+ *      repositoryMethod="findByUsernameOrEmail",
+ *      errorPath="email"
  * )
  * @UniqueEntity(
  *      fields={"facebookId"},
@@ -44,14 +43,16 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class User implements
     UserInterface,
-    \Serializable,
     OfficialInterface,
     HasAvatarInterface,
     ChangeableAvatarInterface,
     PasswordEncodeInterface,
-    AdvancedUserInterface
+    AdvancedUserInterface,
+    RecipientInterface
 {
-    use HasStripeCustomerTrait, HasAvatarTrait;
+    use HasStripeCustomerTrait,
+        HasAvatarTrait,
+        UserSerializableTrait;
 
     const DEFAULT_AVATAR = '/bundles/civixfront/img/default_user.png';
     const SOMEONE_AVATAR = '/bundles/civixfront/img/default_someone.png';
@@ -68,14 +69,7 @@ class User implements
      *      "api-invites-create", "api-follow-create", "api-leader-answers", "api-short-info", "user-list"}
      * )
      */
-    private $id;
-
-    /**
-     * @Serializer\Expose()
-     * @Serializer\ReadOnly()
-     * @Serializer\Groups({"api-activities", "api-poll", "api-search", "api-comments", "api-full-info", "api-invites"})
-     */
-    private $type = 'user';
+    protected $id;
 
     /**
      * @var string
@@ -125,7 +119,7 @@ class User implements
      * @ORM\Column(name="lastName", type="string", length=255, nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({
-     *  "api-profile", "api-comments", "api-info", "api-petitions-list", 
+     *  "api-profile", "api-comments", "api-info", "api-petitions-list",
      *  "api-petitions-info", "api-search", "api-full-info", "api-invites", "api-leader-answers", "api-short-info", "user-list"
      * })
      * @Serializer\SerializedName("last_name")
@@ -163,7 +157,7 @@ class User implements
     private $zip;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="birth", type="date", nullable=true)
      * @Serializer\Expose()
@@ -214,6 +208,7 @@ class User implements
      * @ORM\Column(name="country", type="string", length=255, nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-profile", "api-info", "api-full-info", "api-leader-answers"})
+     * @Assert\Country(groups={"registration", "profile"})
      */
     private $country;
 
@@ -414,33 +409,11 @@ class User implements
     private $facebookToken;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="upd_profile_at", type="date", nullable=true)
      */
     private $updateProfileAt;
-
-    /**
-     * @deprecated Use Notification\IOSEndpoint instead (Amazon SNS integration)
-     *
-     * @var string
-     *
-     * @ORM\Column(name="ios_token", type="string", length=64, nullable=true)
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-device"})
-     */
-    private $iosDevice;
-
-    /**
-     * @deprecated Use Notification\AndroidEndpoint instead (Amazon SNS integration)
-     *
-     * @var string
-     *              
-     * @ORM\Column(name="android_token", type="string", length=255, nullable=true)
-     * @Serializer\Expose()
-     * @Serializer\Groups({"api-device"})
-     */
-    private $androidDevice;
 
     /**
      * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\UserGroup", mappedBy="user", cascade={"persist"})
@@ -488,6 +461,15 @@ class User implements
      * @ORM\Column(type="boolean", options={"default" = false})
      */
     private $doNotDisturb;
+
+    /**
+     * @var DateTime
+     *
+     * @ORM\Column(type="datetime", options={"default" = "CURRENT_TIMESTAMP"})
+     * @Serializer\Expose()
+     * @Serializer\Groups({"api-profile", "api-settings"})
+     */
+    private $followedDoNotDisturbTill;
 
     /**
      * @Serializer\Expose()
@@ -626,8 +608,8 @@ class User implements
     private $ownedGroups;
 
     /**
-     * @var Collection|Representative[]
-     * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\Representative", mappedBy="user", orphanRemoval=true)
+     * @var Collection|UserRepresentative[]
+     * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\UserRepresentative", mappedBy="user", orphanRemoval=true)
      */
     private $representatives;
 
@@ -652,6 +634,22 @@ class User implements
      */
     private $longitude;
 
+    /**
+     * @var DateTime
+     *
+     * @ORM\Column(type="datetime", name="last_post_shared_at", nullable=true)
+     */
+    private $lastContentSharedAt;
+
+    /**
+     * @var DiscountCode[]|Collection
+     *
+     * @ORM\OneToMany(targetEntity="Civix\CoreBundle\Entity\DiscountCode", mappedBy="owner", cascade={"persist"}, fetch="EXTRA_LAZY")
+     * @Serializer\Expose()
+     * @Serializer\Groups({"discount-code"})
+     */
+    private $discountCodes;
+
     public function __construct()
     {
         $this->salt = base_convert(sha1(uniqid(mt_rand(), true)), 16, 36);
@@ -664,6 +662,7 @@ class User implements
         $this->groupSections = new ArrayCollection();
         $this->petitionSubscriptions = new ArrayCollection();
         $this->postSubscriptions = new ArrayCollection();
+        $this->discountCodes = new ArrayCollection();
         $this->interests = [];
 
         $this->isRegistrationComplete = true;
@@ -677,6 +676,12 @@ class User implements
         $this->isNotifQuestions = true;
         $this->isNotifScheduled = false;
         $this->isNotifOwnPostChanged = true;
+        $this->followedDoNotDisturbTill = new DateTime();
+    }
+
+    public function __sleep()
+    {
+        return ['id'];
     }
 
     /**
@@ -684,7 +689,7 @@ class User implements
      *
      * @return int
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -696,7 +701,7 @@ class User implements
      *
      * @return User
      */
-    public function addInvite(Group $group)
+    public function addInvite(Group $group): User
     {
         $this->invites[] = $group;
 
@@ -708,7 +713,7 @@ class User implements
      *
      * @param Group $group
      */
-    public function removeInvite(Group $group)
+    public function removeInvite(Group $group): void
     {
         $this->invites->removeElement($group);
     }
@@ -716,9 +721,9 @@ class User implements
     /**
      * Get invites.
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return Collection
      */
-    public function getInvites()
+    public function getInvites(): Collection
     {
         return $this->invites;
     }
@@ -730,7 +735,7 @@ class User implements
      *
      * @return User
      */
-    public function addFollowing(UserFollow $following)
+    public function addFollowing(UserFollow $following): User
     {
         $this->following[] = $following;
 
@@ -742,7 +747,7 @@ class User implements
      *
      * @param UserFollow $following
      */
-    public function removeFollowing(UserFollow $following)
+    public function removeFollowing(UserFollow $following): void
     {
         $this->following->removeElement($following);
     }
@@ -750,9 +755,9 @@ class User implements
     /**
      * Get following.
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return Collection
      */
-    public function getFollowing()
+    public function getFollowing(): Collection
     {
         return $this->following;
     }
@@ -764,7 +769,7 @@ class User implements
      *
      * @return User
      */
-    public function addFollower(UserFollow $follower)
+    public function addFollower(UserFollow $follower): User
     {
         $this->followers[] = $follower;
 
@@ -776,7 +781,7 @@ class User implements
      *
      * @param UserFollow $follower
      */
-    public function removeFollower(UserFollow $follower)
+    public function removeFollower(UserFollow $follower): void
     {
         $this->followers->removeElement($follower);
     }
@@ -784,9 +789,9 @@ class User implements
     /**
      * Get followers.
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return Collection
      */
-    public function getFollowers()
+    public function getFollowers(): Collection
     {
         return $this->followers;
     }
@@ -798,7 +803,7 @@ class User implements
      *
      * @return User
      */
-    public function setUsername($username)
+    public function setUsername(?string $username): User
     {
         $this->username = $username;
 
@@ -810,7 +815,7 @@ class User implements
      *
      * @return string
      */
-    public function getUsername()
+    public function getUsername(): ?string
     {
         return $this->username;
     }
@@ -822,7 +827,7 @@ class User implements
      *
      * @return User
      */
-    public function setPassword($password)
+    public function setPassword($password): User
     {
         $this->password = $password;
 
@@ -834,23 +839,9 @@ class User implements
      *
      * @return string
      */
-    public function getPassword()
+    public function getPassword(): ?string
     {
         return $this->password;
-    }
-
-    /**
-     * Set salt.
-     *
-     * @param string $salt
-     *
-     * @return User
-     */
-    public function setSalt($salt)
-    {
-        $this->salt = $salt;
-
-        return $this;
     }
 
     /**
@@ -858,7 +849,7 @@ class User implements
      *
      * @return string
      */
-    public function getSalt()
+    public function getSalt(): string
     {
         return $this->salt;
     }
@@ -870,7 +861,7 @@ class User implements
      *
      * @return User
      */
-    public function setFirstName($firstName)
+    public function setFirstName(?string $firstName): User
     {
         $this->firstName = $firstName;
 
@@ -882,7 +873,7 @@ class User implements
      *
      * @return string
      */
-    public function getFirstName()
+    public function getFirstName(): ?string
     {
         return $this->firstName;
     }
@@ -894,7 +885,7 @@ class User implements
      *
      * @return User
      */
-    public function setLastName($lastName)
+    public function setLastName(?string $lastName): User
     {
         $this->lastName = $lastName;
 
@@ -906,7 +897,7 @@ class User implements
      *
      * @return string
      */
-    public function getLastName()
+    public function getLastName(): ?string
     {
         return $this->lastName;
     }
@@ -918,7 +909,7 @@ class User implements
      *
      * @return User
      */
-    public function setEmail($email)
+    public function setEmail(?string $email): User
     {
         $email = $this->normalizeEmail($email);
         $this->email = $email;
@@ -932,7 +923,7 @@ class User implements
      *
      * @return string
      */
-    public function getEmail()
+    public function getEmail(): ?string
     {
         return $this->email;
     }
@@ -940,7 +931,7 @@ class User implements
     /**
      * @return string
      */
-    public function getEmailHash()
+    public function getEmailHash(): ?string
     {
         return $this->emailHash;
     }
@@ -950,13 +941,13 @@ class User implements
      *
      * @return string
      */
-    private function normalizeEmail($email)
+    private function normalizeEmail(?string $email): string
     {
         if (strpos($email, '@') === false) {
             return $email;
         }
         $email = strtolower($email);
-        list($local, $domain) = explode('@', $email);
+        [$local, $domain] = explode('@', $email);
         $local = strstr($local, '+', true) ?: $local;
         $local = str_replace('.', '', $local);
 
@@ -970,7 +961,7 @@ class User implements
      *
      * @return User
      */
-    public function setZip($zip)
+    public function setZip(?string $zip): User
     {
         $this->zip = $zip;
 
@@ -982,7 +973,7 @@ class User implements
      *
      * @return string
      */
-    public function getZip()
+    public function getZip(): ?string
     {
         return $this->zip;
     }
@@ -1005,7 +996,7 @@ class User implements
      *      "api-activities", "api-search", "api-comments", "api-invites", "user-list"})
      * @Serializer\SerializedName("avatar_file_name")
      */
-    public function getAvatarWithPath($privacy = false)
+    public function getAvatarWithPath(bool $privacy = false): Avatar
     {
         return new Avatar($this, $privacy);
     }
@@ -1013,11 +1004,11 @@ class User implements
     /**
      * Set birth.
      *
-     * @param \DateTime $birth
+     * @param DateTime $birth
      *
      * @return User
      */
-    public function setBirth($birth)
+    public function setBirth(?DateTime $birth): User
     {
         $this->birth = $birth;
 
@@ -1027,9 +1018,9 @@ class User implements
     /**
      * Get birth.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getBirth()
+    public function getBirth(): ?DateTime
     {
         return $this->birth;
     }
@@ -1041,7 +1032,7 @@ class User implements
      *
      * @return User
      */
-    public function setAddress1($address1)
+    public function setAddress1(?string $address1): User
     {
         $this->address1 = $address1;
 
@@ -1053,7 +1044,7 @@ class User implements
      *
      * @return string
      */
-    public function getAddress1()
+    public function getAddress1(): ?string
     {
         return $this->address1;
     }
@@ -1065,7 +1056,7 @@ class User implements
      *
      * @return User
      */
-    public function setAddress2($address2)
+    public function setAddress2(?string $address2): User
     {
         $this->address2 = $address2;
 
@@ -1077,7 +1068,7 @@ class User implements
      *
      * @return string
      */
-    public function getAddress2()
+    public function getAddress2(): ?string
     {
         return $this->address2;
     }
@@ -1087,7 +1078,7 @@ class User implements
      *
      * @return string
      */
-    public function getAddress()
+    public function getAddress(): string
     {
         return implode(', ', array_filter([$this->getAddress1(), $this->getAddress2()]));
     }
@@ -1099,7 +1090,7 @@ class User implements
      *
      * @return User
      */
-    public function setCity($city)
+    public function setCity(?string $city): User
     {
         $this->city = $city;
 
@@ -1111,7 +1102,7 @@ class User implements
      *
      * @return string
      */
-    public function getCity()
+    public function getCity(): ?string
     {
         return $this->city;
     }
@@ -1123,7 +1114,7 @@ class User implements
      *
      * @return User
      */
-    public function setState($state)
+    public function setState(?string $state): User
     {
         $this->state = $state;
 
@@ -1135,7 +1126,7 @@ class User implements
      *
      * @return string
      */
-    public function getState()
+    public function getState(): ?string
     {
         return $this->state;
     }
@@ -1145,7 +1136,7 @@ class User implements
      *
      * @return string
      */
-    public function getCountry()
+    public function getCountry(): ?string
     {
         return $this->country;
     }
@@ -1157,7 +1148,7 @@ class User implements
      *
      * @return \Civix\CoreBundle\Entity\User
      */
-    public function setCountry($country)
+    public function setCountry(?string $country): User
     {
         $this->country = $country;
 
@@ -1171,7 +1162,7 @@ class User implements
      *
      * @return User
      */
-    public function setPhone($phone)
+    public function setPhone(?string $phone): User
     {
         $this->phone = $phone;
         $this->phoneHash = sha1($phone);
@@ -1184,7 +1175,7 @@ class User implements
      *
      * @return string
      */
-    public function getPhone()
+    public function getPhone(): ?string
     {
         return $this->phone;
     }
@@ -1192,7 +1183,7 @@ class User implements
     /**
      * @return string
      */
-    public function getPhoneHash()
+    public function getPhoneHash(): ?string
     {
         return $this->phoneHash;
     }
@@ -1204,7 +1195,7 @@ class User implements
      *
      * @return User
      */
-    public function setFacebookLink($facebookLink)
+    public function setFacebookLink(?string $facebookLink): User
     {
         $this->facebookLink = $facebookLink;
 
@@ -1216,7 +1207,7 @@ class User implements
      *
      * @return string
      */
-    public function getFacebookLink()
+    public function getFacebookLink(): ?string
     {
         return $this->facebookLink;
     }
@@ -1228,7 +1219,7 @@ class User implements
      *
      * @return User
      */
-    public function setTwitterLink($twitterLink)
+    public function setTwitterLink(?string $twitterLink): User
     {
         $this->twitterLink = $twitterLink;
 
@@ -1240,7 +1231,7 @@ class User implements
      *
      * @return string
      */
-    public function getTwitterLink()
+    public function getTwitterLink(): ?string
     {
         return $this->twitterLink;
     }
@@ -1252,7 +1243,7 @@ class User implements
      *
      * @return User
      */
-    public function setRace($race)
+    public function setRace(?string $race): User
     {
         $this->race = $race;
 
@@ -1264,7 +1255,7 @@ class User implements
      *
      * @return string
      */
-    public function getRace()
+    public function getRace(): ?string
     {
         return $this->race;
     }
@@ -1276,7 +1267,7 @@ class User implements
      *
      * @return User
      */
-    public function setSex($sex)
+    public function setSex(?string $sex): User
     {
         $this->sex = $sex;
 
@@ -1288,7 +1279,7 @@ class User implements
      *
      * @return string
      */
-    public function getSex()
+    public function getSex(): ?string
     {
         return $this->sex;
     }
@@ -1300,7 +1291,7 @@ class User implements
      *
      * @return User
      */
-    public function setMaritalStatus($maritalStatus)
+    public function setMaritalStatus(?string $maritalStatus): User
     {
         $this->maritalStatus = $maritalStatus;
 
@@ -1312,7 +1303,7 @@ class User implements
      *
      * @return string
      */
-    public function getMaritalStatus()
+    public function getMaritalStatus(): ?string
     {
         return $this->maritalStatus;
     }
@@ -1324,7 +1315,7 @@ class User implements
      *
      * @return User
      */
-    public function setReligion($religion)
+    public function setReligion(?string $religion): User
     {
         $this->religion = $religion;
 
@@ -1336,7 +1327,7 @@ class User implements
      *
      * @return string
      */
-    public function getReligion()
+    public function getReligion(): ?string
     {
         return $this->religion;
     }
@@ -1348,7 +1339,7 @@ class User implements
      *
      * @return User
      */
-    public function setEmploymentStatus($employmentStatus)
+    public function setEmploymentStatus(?string $employmentStatus): User
     {
         $this->employmentStatus = $employmentStatus;
 
@@ -1360,7 +1351,7 @@ class User implements
      *
      * @return string
      */
-    public function getEmploymentStatus()
+    public function getEmploymentStatus(): ?string
     {
         return $this->employmentStatus;
     }
@@ -1372,7 +1363,7 @@ class User implements
      *
      * @return User
      */
-    public function setIncomeLevel($incomeLevel)
+    public function setIncomeLevel(?string $incomeLevel): User
     {
         $this->incomeLevel = $incomeLevel;
 
@@ -1384,7 +1375,7 @@ class User implements
      *
      * @return string
      */
-    public function getIncomeLevel()
+    public function getIncomeLevel(): ?string
     {
         return $this->incomeLevel;
     }
@@ -1396,7 +1387,7 @@ class User implements
      *
      * @return User
      */
-    public function setEducationLevel($educationLevel)
+    public function setEducationLevel(?string $educationLevel): User
     {
         $this->educationLevel = $educationLevel;
 
@@ -1408,7 +1399,7 @@ class User implements
      *
      * @return string
      */
-    public function getEducationLevel()
+    public function getEducationLevel(): ?string
     {
         return $this->educationLevel;
     }
@@ -1420,7 +1411,7 @@ class User implements
      *
      * @return User
      */
-    public function setToken($token)
+    public function setToken(?string $token): User
     {
         $this->token = $token;
 
@@ -1432,7 +1423,7 @@ class User implements
      *
      * @return string
      */
-    public function getToken()
+    public function getToken(): ?string
     {
         return $this->token;
     }
@@ -1442,7 +1433,7 @@ class User implements
      *
      * @return array
      */
-    public function getRoles()
+    public function getRoles(): array
     {
         return array('ROLE_USER');
     }
@@ -1450,7 +1441,7 @@ class User implements
     /**
      * Erase credentials.
      */
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
     }
 
@@ -1459,27 +1450,14 @@ class User implements
      *
      * @return bool
      */
-    public function isEqualTo(UserInterface $user)
+    public function isEqualTo(UserInterface $user): bool
     {
         return $this->getUsername() === $user->getUsername();
     }
 
-    public function generateToken()
+    public function generateToken(): void
     {
-        $bytes = false;
-        if (function_exists('openssl_random_pseudo_bytes') && 0 !== stripos(PHP_OS, 'win')) {
-            $bytes = openssl_random_pseudo_bytes(32, $strong);
-
-            if (true !== $strong) {
-                $bytes = false;
-            }
-        }
-
-        if (false === $bytes) {
-            $bytes = hash('sha256', uniqid(mt_rand(), true), true);
-        }
-
-        $this->setToken(base_convert(bin2hex($bytes), 16, 36).$this->getId());
+        $this->setToken(base_convert(bin2hex(random_bytes(32)), 16, 36).$this->getId());
     }
 
     /**
@@ -1487,7 +1465,7 @@ class User implements
      *
      * @return array
      */
-    public function getDistrictsIds()
+    public function getDistrictsIds(): array
     {
         $districtsIds = $this->districts->map(function (District $district) {
                 return $district->getId();
@@ -1499,11 +1477,11 @@ class User implements
     /**
      * Set profile update date.
      *
-     * @param \DateTime $updateDate
+     * @param DateTime $updateDate
      *
      * @return User
      */
-    public function setUpdateProfileAt($updateDate)
+    public function setUpdateProfileAt(?DateTime $updateDate): User
     {
         $this->updateProfileAt = $updateDate;
 
@@ -1513,9 +1491,9 @@ class User implements
     /**
      * Get profile update date.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getUpdateProfileAt()
+    public function getUpdateProfileAt(): ?DateTime
     {
         return $this->updateProfileAt;
     }
@@ -1525,23 +1503,9 @@ class User implements
      * 
      * @return string
      */
-    public function getIosDevice()
+    public function getIosDevice(): string
     {
-        return $this->iosDevice;
-    }
-
-    /**
-     * Set android token device of user.
-     * 
-     * @param string $token
-     * 
-     * @return \Civix\CoreBundle\Entity\User
-     */
-    public function setIosToken($token)
-    {
-        $this->iosDevice = $token;
-
-        return $this;
+        return '';
     }
 
     /**
@@ -1549,26 +1513,14 @@ class User implements
      * 
      * @return string
      */
-    public function getAndroidDevice()
+    public function getAndroidDevice(): string
     {
-        return $this->androidDevice;
+        return '';
     }
 
-    /**
-     * Set android token device of user.
-     * 
-     * @param string $token
-     * 
-     * @return \Civix\CoreBundle\Entity\User
-     */
-    public function setAndroidToken($token)
-    {
-        $this->androidDevice = $token;
 
-        return $this;
-    }
 
-    public function getUserGroups()
+    public function getUserGroups(): Collection
     {
         return $this->groups;
     }
@@ -1576,9 +1528,9 @@ class User implements
     /**
      * Return joined to user groups.
      *
-     * @return ArrayCollection
+     * @return Group[]|Collection
      */
-    public function getGroups()
+    public function getGroups(): Collection
     {
         $groups = array_reduce($this->groups->toArray(), function ($result, UserGroup $userGroup) {
             if ($userGroup->getStatus() === UserGroup::STATUS_ACTIVE) {
@@ -1596,51 +1548,28 @@ class User implements
      *
      * @param \Civix\CoreBundle\Entity\UserGroup $group
      */
-    public function removeGroup(UserGroup $group)
+    public function removeGroup(UserGroup $group): void
     {
         $this->groups->removeElement($group);
     }
 
-    public function getLineAddress()
+    public function getLineAddress(): string
     {
         return $this->address1.' '.$this->address2;
     }
 
-    public function getGroupsIds()
+    public function getGroupsIds(): array
     {
         return $this->groups->map(function (UserGroup $userGroup) {
                 return $userGroup->getGroup()->getId();
         })->toArray();
     }
 
-    public function getFollowingIds()
+    public function getFollowingIds(): array
     {
         return $this->following->map(function (UserFollow $userFollow) {
                     return $userFollow->getUser()->getId();
         })->toArray();
-    }
-
-    /**
-     * Serializes the user.
-     *
-     * @return string
-     */
-    public function serialize()
-    {
-        return serialize(array(
-                $this->id,
-            ));
-    }
-
-    /**
-     * Unserializes the user.
-     *
-     * @param string $serialized
-     */
-    public function unserialize($serialized)
-    {
-        list(
-            $this->id) = unserialize($serialized);
     }
 
     /**
@@ -1651,7 +1580,7 @@ class User implements
      * @Serializer\Groups({"api-activities"})
      * @Serializer\SerializedName("official_title")
      */
-    public function getOfficialName()
+    public function getOfficialName(): string
     {
         return $this->firstName.' '.$this->lastName;
     }
@@ -1663,7 +1592,7 @@ class User implements
      *
      * @return User
      */
-    public function addDistrict(District $district)
+    public function addDistrict(District $district): User
     {
         if (!$this->districts->contains($district)) {
             $this->districts[] = $district;
@@ -1677,7 +1606,7 @@ class User implements
      *
      * @param District $districts
      */
-    public function removeDistrict(District $districts)
+    public function removeDistrict(District $districts): void
     {
         $this->districts->removeElement($districts);
     }
@@ -1685,9 +1614,9 @@ class User implements
     /**
      * Get districts.
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return Collection
      */
-    public function getDistricts()
+    public function getDistricts(): Collection
     {
         return $this->districts;
     }
@@ -1699,7 +1628,7 @@ class User implements
      *
      * @return User
      */
-    public function addGroupSection(GroupSection $section)
+    public function addGroupSection(GroupSection $section): User
     {
         if (!$this->groupSections->contains($section)) {
             $this->groupSections[] = $section;
@@ -1713,7 +1642,7 @@ class User implements
      *
      * @param GroupSection $section
      */
-    public function removeGroupSection(GroupSection $section)
+    public function removeGroupSection(GroupSection $section): void
     {
         $this->groupSections->removeElement($section);
     }
@@ -1721,9 +1650,9 @@ class User implements
     /**
      * Get section.
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return Collection
      */
-    public function getGroupSections()
+    public function getGroupSections(): Collection
     {
         return $this->groupSections;
     }
@@ -1733,7 +1662,7 @@ class User implements
      *
      * @return array
      */
-    public function getGroupSectionsIds()
+    public function getGroupSectionsIds(): array
     {
         $sectionsIds = $this->groupSections->map(function (GroupSection $section) {
                 return $section->getId();
@@ -1749,7 +1678,7 @@ class User implements
      *
      * @return User
      */
-    public function setDoNotDisturb($doNotDisturb)
+    public function setDoNotDisturb(bool $doNotDisturb): User
     {
         $this->doNotDisturb = $doNotDisturb;
 
@@ -1761,7 +1690,7 @@ class User implements
      *
      * @return bool
      */
-    public function getDoNotDisturb()
+    public function getDoNotDisturb(): bool
     {
         return $this->doNotDisturb;
     }
@@ -1773,7 +1702,7 @@ class User implements
      *
      * @return User
      */
-    public function setIsNotifQuestions($isNotifQuestions)
+    public function setIsNotifQuestions(bool $isNotifQuestions): User
     {
         $this->isNotifQuestions = $isNotifQuestions;
 
@@ -1785,7 +1714,7 @@ class User implements
      *
      * @return bool
      */
-    public function getIsNotifQuestions()
+    public function getIsNotifQuestions(): bool
     {
         return $this->isNotifQuestions;
     }
@@ -1797,7 +1726,7 @@ class User implements
      *
      * @return User
      */
-    public function setIsNotifDiscussions($isNotifDiscussions)
+    public function setIsNotifDiscussions(bool $isNotifDiscussions): User
     {
         $this->isNotifDiscussions = $isNotifDiscussions;
 
@@ -1809,7 +1738,7 @@ class User implements
      *
      * @return bool
      */
-    public function getIsNotifDiscussions()
+    public function getIsNotifDiscussions(): bool
     {
         return $this->isNotifDiscussions;
     }
@@ -1821,7 +1750,7 @@ class User implements
      *
      * @return User
      */
-    public function setIsNotifMessages($isNotifMessages)
+    public function setIsNotifMessages(bool $isNotifMessages): User
     {
         $this->isNotifMessages = $isNotifMessages;
 
@@ -1833,7 +1762,7 @@ class User implements
      *
      * @return bool
      */
-    public function getIsNotifMessages()
+    public function getIsNotifMessages(): bool
     {
         return $this->isNotifMessages;
     }
@@ -1845,7 +1774,7 @@ class User implements
      *
      * @return User
      */
-    public function setIsNotifMicroFollowing($isNotifMicroFollowing)
+    public function setIsNotifMicroFollowing(bool $isNotifMicroFollowing): User
     {
         $this->isNotifMicroFollowing = $isNotifMicroFollowing;
 
@@ -1857,7 +1786,7 @@ class User implements
      *
      * @return bool
      */
-    public function getIsNotifMicroFollowing()
+    public function getIsNotifMicroFollowing(): bool
     {
         return $this->isNotifMicroFollowing;
     }
@@ -1869,7 +1798,7 @@ class User implements
      *
      * @return User
      */
-    public function setIsNotifMicroGroup($isNotifMicroGroup)
+    public function setIsNotifMicroGroup(bool $isNotifMicroGroup): User
     {
         $this->isNotifMicroGroup = $isNotifMicroGroup;
 
@@ -1881,7 +1810,7 @@ class User implements
      *
      * @return bool
      */
-    public function getIsNotifMicroGroup()
+    public function getIsNotifMicroGroup(): bool
     {
         return $this->isNotifMicroGroup;
     }
@@ -1889,13 +1818,13 @@ class User implements
     /**
      * Add groups.
      *
-     * @param \Civix\CoreBundle\Entity\UserGroup $usergroup
+     * @param \Civix\CoreBundle\Entity\UserGroup $userGroup
      *
      * @return User
      */
-    public function addGroup(UserGroup $usergroup)
+    public function addGroup(UserGroup $userGroup): User
     {
-        $this->groups[] = $usergroup;
+        $this->groups[] = $userGroup;
 
         return $this;
     }
@@ -1907,7 +1836,7 @@ class User implements
      *
      * @return User
      */
-    public function setIsNotifScheduled($isNotifSchedule)
+    public function setIsNotifScheduled(bool $isNotifSchedule): User
     {
         $this->isNotifScheduled = $isNotifSchedule;
 
@@ -1919,7 +1848,7 @@ class User implements
      *
      * @return bool
      */
-    public function getIsNotifScheduled()
+    public function getIsNotifScheduled(): bool
     {
         return $this->isNotifScheduled;
     }
@@ -1927,9 +1856,9 @@ class User implements
     /**
      * Set isNotifOwnPostChanged
      *
-     * @return mixed
+     * @return bool
      */
-    public function getIsNotifOwnPostChanged()
+    public function getIsNotifOwnPostChanged(): bool
     {
         return $this->isNotifOwnPostChanged;
     }
@@ -1940,7 +1869,7 @@ class User implements
      * @param mixed $isNotifOwnPostChanged
      * @return User
      */
-    public function setIsNotifOwnPostChanged($isNotifOwnPostChanged)
+    public function setIsNotifOwnPostChanged(bool $isNotifOwnPostChanged): User
     {
         $this->isNotifOwnPostChanged = $isNotifOwnPostChanged;
 
@@ -1950,11 +1879,11 @@ class User implements
     /**
      * Set scheduleFrom
      *
-     * @param \DateTime $scheduleFrom
+     * @param DateTime $scheduleFrom
      *
      * @return User
      */
-    public function setScheduledFrom($scheduleFrom)
+    public function setScheduledFrom(?DateTime $scheduleFrom): User
     {
         $this->scheduledFrom = $scheduleFrom;
 
@@ -1964,9 +1893,9 @@ class User implements
     /**
      * Get scheduleFrom.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getScheduledFrom()
+    public function getScheduledFrom(): ?DateTime
     {
         return $this->scheduledFrom;
     }
@@ -1974,11 +1903,11 @@ class User implements
     /**
      * Set scheduleTo.
      *
-     * @param \DateTime $scheduleTo
+     * @param DateTime $scheduleTo
      *
      * @return User
      */
-    public function setScheduledTo($scheduleTo)
+    public function setScheduledTo(?DateTime $scheduleTo): User
     {
         $this->scheduledTo = $scheduleTo;
 
@@ -1988,9 +1917,9 @@ class User implements
     /**
      * Get scheduleTo.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getScheduledTo()
+    public function getScheduledTo(): ?DateTime
     {
         return $this->scheduledTo;
     }
@@ -2002,7 +1931,7 @@ class User implements
      *
      * @return User
      */
-    public function setOrientation($orientation)
+    public function setOrientation(?string $orientation): User
     {
         $this->orientation = $orientation;
 
@@ -2014,7 +1943,7 @@ class User implements
      *
      * @return string
      */
-    public function getOrientation()
+    public function getOrientation(): ?string
     {
         return $this->orientation;
     }
@@ -2026,7 +1955,7 @@ class User implements
      *
      * @return User
      */
-    public function setParty($party)
+    public function setParty(?string $party): User
     {
         $this->party = $party;
 
@@ -2038,7 +1967,7 @@ class User implements
      *
      * @return string
      */
-    public function getParty()
+    public function getParty(): ?string
     {
         return $this->party;
     }
@@ -2050,7 +1979,7 @@ class User implements
      *
      * @return User
      */
-    public function setPhilosophy($philosophy)
+    public function setPhilosophy(?string $philosophy): User
     {
         $this->philosophy = $philosophy;
 
@@ -2062,7 +1991,7 @@ class User implements
      *
      * @return string
      */
-    public function getPhilosophy()
+    public function getPhilosophy(): ?string
     {
         return $this->philosophy;
     }
@@ -2074,7 +2003,7 @@ class User implements
      *
      * @return User
      */
-    public function setDonor($donor)
+    public function setDonor(?string $donor): User
     {
         $this->donor = $donor;
 
@@ -2086,7 +2015,7 @@ class User implements
      *
      * @return string
      */
-    public function getDonor()
+    public function getDonor(): ?string
     {
         return $this->donor;
     }
@@ -2098,7 +2027,7 @@ class User implements
      *
      * @return User
      */
-    public function setRegistration($registration)
+    public function setRegistration(?string $registration): User
     {
         $this->registration = $registration;
 
@@ -2110,7 +2039,7 @@ class User implements
      *
      * @return string
      */
-    public function getRegistration()
+    public function getRegistration(): ?string
     {
         return $this->registration;
     }
@@ -2118,7 +2047,7 @@ class User implements
     /**
      * @return string
      */
-    public function getSlogan()
+    public function getSlogan(): ?string
     {
         return $this->slogan;
     }
@@ -2128,7 +2057,7 @@ class User implements
      *
      * @return $this
      */
-    public function setSlogan($slogan)
+    public function setSlogan(?string $slogan): User
     {
         $this->slogan = $slogan;
 
@@ -2138,7 +2067,7 @@ class User implements
     /**
      * @return string
      */
-    public function getBio()
+    public function getBio(): ?string
     {
         return $this->bio;
     }
@@ -2148,7 +2077,7 @@ class User implements
      *
      * @return $this
      */
-    public function setBio($bio)
+    public function setBio(?string $bio): User
     {
         $this->bio = $bio;
 
@@ -2158,7 +2087,7 @@ class User implements
     /**
      * @return array
      */
-    public function getInterests()
+    public function getInterests(): array
     {
         return $this->interests;
     }
@@ -2168,7 +2097,7 @@ class User implements
      *
      * @return $this
      */
-    public function setInterests($interests)
+    public function setInterests(array $interests): User
     {
         $this->interests = $interests;
 
@@ -2182,7 +2111,7 @@ class User implements
      *
      * @return User
      */
-    public function setFacebookId($facebookId)
+    public function setFacebookId(?string $facebookId): User
     {
         $this->facebookId = $facebookId;
 
@@ -2194,7 +2123,7 @@ class User implements
      *
      * @return string
      */
-    public function getFacebookId()
+    public function getFacebookId(): ?string
     {
         return $this->facebookId;
     }
@@ -2206,7 +2135,7 @@ class User implements
      *
      * @return User
      */
-    public function setFacebookToken($facebookToken)
+    public function setFacebookToken(?string $facebookToken): User
     {
         $this->facebookToken = $facebookToken;
 
@@ -2218,7 +2147,7 @@ class User implements
      *
      * @return string
      */
-    public function getFacebookToken()
+    public function getFacebookToken(): ?string
     {
         return $this->facebookToken;
     }
@@ -2230,7 +2159,7 @@ class User implements
      *
      * @return User
      */
-    public function setIsRegistrationComplete($isRegistrationComplete)
+    public function setIsRegistrationComplete(bool $isRegistrationComplete): User
     {
         $this->isRegistrationComplete = $isRegistrationComplete;
 
@@ -2242,7 +2171,7 @@ class User implements
      *
      * @return bool
      */
-    public function getIsRegistrationComplete()
+    public function getIsRegistrationComplete(): bool
     {
         return $this->isRegistrationComplete;
     }
@@ -2250,7 +2179,7 @@ class User implements
     /**
      * @return string
      */
-    public function getPlainPassword()
+    public function getPlainPassword(): ?string
     {
         return $this->plainPassword;
     }
@@ -2260,7 +2189,7 @@ class User implements
      *
      * @return $this
      */
-    public function setPlainPassword($plainPassword)
+    public function setPlainPassword($plainPassword): User
     {
         $this->plainPassword = $plainPassword;
 
@@ -2270,11 +2199,11 @@ class User implements
     /**
      * Set resetPasswordAt.
      *
-     * @param \DateTime $resetPasswordAt
+     * @param DateTime $resetPasswordAt
      *
      * @return User
      */
-    public function setResetPasswordAt($resetPasswordAt)
+    public function setResetPasswordAt(?DateTime $resetPasswordAt): User
     {
         $this->resetPasswordAt = $resetPasswordAt;
 
@@ -2284,9 +2213,9 @@ class User implements
     /**
      * Get resetPasswordAt.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getResetPasswordAt()
+    public function getResetPasswordAt(): ?DateTime
     {
         return $this->resetPasswordAt;
     }
@@ -2298,7 +2227,7 @@ class User implements
      *
      * @return User
      */
-    public function setResetPasswordToken($resetPasswordToken)
+    public function setResetPasswordToken(?string $resetPasswordToken): User
     {
         $this->resetPasswordToken = $resetPasswordToken;
 
@@ -2310,17 +2239,20 @@ class User implements
      *
      * @return string
      */
-    public function getResetPasswordToken()
+    public function getResetPasswordToken(): ?string
     {
         return $this->resetPasswordToken;
     }
 
     /**
-     * @return mixed
+     * @return string
+     *
+     * @Serializer\VirtualProperty()
+     * @Serializer\Groups({"api-activities", "api-poll", "api-search", "api-comments", "api-full-info", "api-invites"})
      */
-    public function getType()
+    public function getType(): string
     {
-        return $this->type;
+        return 'user';
     }
 
     /**
@@ -2329,12 +2261,12 @@ class User implements
      * @Serializer\VirtualProperty
      * @Serializer\SerializedName("full_name")
      */
-    public function getFullName()
+    public function getFullName(): string
     {
         return $this->getFirstName().' '.$this->getLastName();
     }
 
-    public function getAddressArray()
+    public function getAddressArray(): array
     {
         return [
             'city' => $this->getCity(),
@@ -2346,7 +2278,7 @@ class User implements
         ];
     }
 
-    public function getAddressQuery()
+    public function getAddressQuery(): string
     {
         return $this->getAddress1().','.$this->getCity().','.$this->getState().','.$this->getCountry();
     }
@@ -2357,7 +2289,7 @@ class User implements
      * @param UserPetition $subscription
      * @return User
      */
-    public function addPetitionSubscription(UserPetition $subscription)
+    public function addPetitionSubscription(UserPetition $subscription): User
     {
         $this->petitionSubscriptions[] = $subscription;
         $subscription->addSubscriber($this);
@@ -2370,7 +2302,7 @@ class User implements
      *
      * @param UserPetition $subscriptions
      */
-    public function removePetitionSubscription(UserPetition $subscriptions)
+    public function removePetitionSubscription(UserPetition $subscriptions): void
     {
         $this->petitionSubscriptions->removeElement($subscriptions);
         $subscriptions->removeSubscriber($this);
@@ -2379,9 +2311,9 @@ class User implements
     /**
      * Get subscriptions
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return Collection
      */
-    public function getPetitionSubscriptions()
+    public function getPetitionSubscriptions(): Collection
     {
         return $this->petitionSubscriptions;
     }
@@ -2392,7 +2324,7 @@ class User implements
      * @param Post $subscription
      * @return User
      */
-    public function addPostSubscription(Post $subscription)
+    public function addPostSubscription(Post $subscription): User
     {
         $this->postSubscriptions[] = $subscription;
         $subscription->addSubscriber($this);
@@ -2405,7 +2337,7 @@ class User implements
      *
      * @param Post $subscriptions
      */
-    public function removePostSubscription(Post $subscriptions)
+    public function removePostSubscription(Post $subscriptions): void
     {
         $this->postSubscriptions->removeElement($subscriptions);
         $subscriptions->removeSubscriber($this);
@@ -2414,9 +2346,9 @@ class User implements
     /**
      * Get subscriptions
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return Collection
      */
-    public function getPostSubscriptions()
+    public function getPostSubscriptions(): Collection
     {
         return $this->postSubscriptions;
     }
@@ -2427,7 +2359,7 @@ class User implements
      * @param Question $subscription
      * @return User
      */
-    public function addPollSubscription(Question $subscription)
+    public function addPollSubscription(Question $subscription): User
     {
         $this->pollSubscriptions[] = $subscription;
         $subscription->addSubscriber($this);
@@ -2440,7 +2372,7 @@ class User implements
      *
      * @param Question $subscription
      */
-    public function removePollSubscription(Question $subscription)
+    public function removePollSubscription(Question $subscription): void
     {
         $this->pollSubscriptions->removeElement($subscription);
         $subscription->removeSubscriber($this);
@@ -2449,9 +2381,9 @@ class User implements
     /**
      * Get subscriptions
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return Collection
      */
-    public function getPollSubscriptions()
+    public function getPollSubscriptions(): Collection
     {
         return $this->pollSubscriptions;
     }
@@ -2459,7 +2391,7 @@ class User implements
     /**
      * @return UserGroupManager[]
      */
-    public function getManagedGroups()
+    public function getManagedGroups(): array
     {
         return $this->managedGroups;
     }
@@ -2467,7 +2399,7 @@ class User implements
     /**
      * @return Group[]
      */
-    public function getOwnedGroups()
+    public function getOwnedGroups(): array
     {
         return $this->ownedGroups;
     }
@@ -2475,11 +2407,11 @@ class User implements
     /**
      * Add representative.
      *
-     * @param Representative $representative
+     * @param UserRepresentative $representative
      *
      * @return User
      */
-    public function addRepresentative(Representative $representative)
+    public function addRepresentative(UserRepresentative $representative): User
     {
         $this->representatives[] = $representative;
 
@@ -2489,9 +2421,9 @@ class User implements
     /**
      * Remove representative.
      *
-     * @param Representative $representative
+     * @param UserRepresentative $representative
      */
-    public function removeRepresentative(Representative $representative)
+    public function removeRepresentative(UserRepresentative $representative): void
     {
         $this->representatives->removeElement($representative);
     }
@@ -2499,39 +2431,39 @@ class User implements
     /**
      * Get representatives.
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return Collection
      */
-    public function getRepresentatives()
+    public function getRepresentatives(): Collection
     {
         return $this->representatives;
     }
 
-    public function isEnabled()
+    public function isEnabled(): bool
     {
         return $this->enabled;
     }
 
-    public function disable()
+    public function disable(): void
     {
         $this->enabled = false;
     }
 
-    public function enable()
+    public function enable(): void
     {
         $this->enabled = true;
     }
 
-    public function isAccountNonExpired()
+    public function isAccountNonExpired(): bool
     {
         return true;
     }
 
-    public function isAccountNonLocked()
+    public function isAccountNonLocked(): bool
     {
         return true;
     }
 
-    public function isCredentialsNonExpired()
+    public function isCredentialsNonExpired(): bool
     {
         return true;
     }
@@ -2539,7 +2471,7 @@ class User implements
     /**
      * @return float
      */
-    public function getLatitude()
+    public function getLatitude(): ?float
     {
         return $this->latitude;
     }
@@ -2548,7 +2480,7 @@ class User implements
      * @param float $latitude
      * @return User
      */
-    public function setLatitude(float $latitude): User
+    public function setLatitude(?float $latitude): User
     {
         $this->latitude = $latitude;
 
@@ -2558,7 +2490,7 @@ class User implements
     /**
      * @return float
      */
-    public function getLongitude()
+    public function getLongitude(): ?float
     {
         return $this->longitude;
     }
@@ -2567,7 +2499,7 @@ class User implements
      * @param float $longitude
      * @return User
      */
-    public function setLongitude(float $longitude): User
+    public function setLongitude(?float $longitude): User
     {
         $this->longitude = $longitude;
 
@@ -2575,14 +2507,75 @@ class User implements
     }
 
     /**
-     * @return \Civix\CoreBundle\Serializer\Type\Karma
+     * @return Karma
      *
      * @Serializer\VirtualProperty()
      * @Serializer\Type("Karma")
      * @Serializer\Groups({"user-karma"})
      */
-    public function getKarma()
+    public function getKarma(): Karma
     {
-        return new \Civix\CoreBundle\Serializer\Type\Karma($this);
+        return new Karma($this);
+    }
+
+    /**
+     * @return DateTime
+     */
+    public function getFollowedDoNotDisturbTill(): DateTime
+    {
+        return $this->followedDoNotDisturbTill;
+    }
+
+    /**
+     * @param DateTime $followedDoNotDisturbTill
+     * @return User
+     */
+    public function setFollowedDoNotDisturbTill(DateTime $followedDoNotDisturbTill): User
+    {
+        $this->followedDoNotDisturbTill = $followedDoNotDisturbTill;
+
+        return $this;
+    }
+
+    /**
+     * @return DateTime
+     */
+    public function getLastContentSharedAt(): ?DateTime
+    {
+        return $this->lastContentSharedAt;
+    }
+
+    /**
+     * @return User
+     */
+    public function shareContent(): User
+    {
+        $this->lastContentSharedAt = new DateTime();
+
+        return $this;
+    }
+
+    /**
+     * @return DiscountCode[]|Collection
+     */
+    public function getDiscountCodes(): Collection
+    {
+        return $this->discountCodes;
+    }
+
+    /**
+     * @param DiscountCode $discountCode
+     * @return User
+     */
+    public function addDiscountCode(DiscountCode $discountCode): User
+    {
+        $this->discountCodes[] = $discountCode;
+
+        return $this;
+    }
+
+    public function removeDiscountCode(DiscountCode $discountCode): void
+    {
+        $this->discountCodes->remove($discountCode);
     }
 }

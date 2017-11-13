@@ -1,0 +1,7 @@
+Civix\CoreBundle\Entity\UserPetition:
+    image.file:
+        mapping: image_petition
+        filename_property: image.name
+    facebookThumbnail.file:
+        mapping: thumbnail_petition
+        filename_property: facebookThumbnail.name

@@ -1,0 +1,4 @@
+Civix\CoreBundle\Entity\Announcement:
+    image.file:
+        mapping: image_announcement
+        filename_property: image.name

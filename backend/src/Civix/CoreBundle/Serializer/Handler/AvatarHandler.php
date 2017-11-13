@@ -36,6 +36,12 @@ class AvatarHandler implements SubscribingHandlerInterface
                 'method' => 'serialize',
             ],
             [
+                'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
+                'format' => 'json',
+                'type' => Avatar::class,
+                'method' => 'serialize',
+            ],
+            [
                 'direction' => GraphNavigator::DIRECTION_DESERIALIZATION,
                 'format' => 'json',
                 'type' => 'Avatar',
