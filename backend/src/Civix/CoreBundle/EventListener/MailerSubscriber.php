@@ -23,6 +23,7 @@ class MailerSubscriber implements EventSubscriberInterface
             GroupEvents::REGISTERED => 'sendRegistrationSuccessGroup',
             DiscountCodeEvents::CREATE => 'sendRewardCode',
             UserEvents::REGISTRATION => 'sendRegistrationEmail',
+            UserEvents::LEGACY_REGISTRATION => 'sendRegistrationEmail',
         ];
     }
 

@@ -80,3 +80,7 @@ services:
             - '@civix_core.user_petition_manager'
             - '@security.token_storage'
             - '@doctrine.orm.entity_manager'
+
+    Civix\ApiBundle\Controller\V2\SecurityController:
+        class: Civix\ApiBundle\Controller\V2\SecurityController
+        arguments: ['@civix_core.user_manager', '@form.factory']

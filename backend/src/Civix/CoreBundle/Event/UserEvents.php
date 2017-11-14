@@ -3,6 +3,7 @@ namespace Civix\CoreBundle\Event;
 
 class UserEvents
 {
+    const LEGACY_REGISTRATION = 'user.legacy_registration';
     const REGISTRATION = 'user.registration';
     const ADDRESS_CHANGE = 'user.address.change';
     const FOLLOW = 'user.follow';

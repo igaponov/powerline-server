@@ -2,6 +2,7 @@
 
 namespace Tests\Civix\CoreBundle\Event;
 
+use Civix\ApiBundle\EventListener\AuthySubscriber;
 use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Event\UserFollowEvent;
@@ -17,16 +18,31 @@ use Civix\CoreBundle\EventListener\UserLocalGroupSubscriber;
 
 class UserEventsTest extends EventsTestCase
 {
-    public function testRegistrationEvent(): void
+    public function testLegacyRegistrationEvent(): void
     {
         $expectedListeners = [
+            [UserLocalGroupSubscriber::class, 'joinLocalGroups'],
             [DiscountCodeSubscriber::class, 'addDiscountCode'],
             [ReportSubscriber::class, 'createUserReport'],
             [GeocoderSubscriber::class, 'setCoordinates'],
-            [UserLocalGroupSubscriber::class, 'joinLocalGroups'],
             [CiceroSubscriber::class, 'updateDistrictsIds'],
             [MailerSubscriber::class, 'sendRegistrationEmail'],
             [UserEventSubscriber::class, 'sendInviteFromGroup'],
+        ];
+        $this->assertListeners(UserEvents::LEGACY_REGISTRATION, UserEvent::class, $expectedListeners);
+    }
+
+    public function testRegistrationEvent(): void
+    {
+        $expectedListeners = [
+            [UserLocalGroupSubscriber::class, 'joinLocalGroups'],
+            [DiscountCodeSubscriber::class, 'addDiscountCode'],
+            [ReportSubscriber::class, 'createUserReport'],
+            [GeocoderSubscriber::class, 'setCoordinates'],
+            [CiceroSubscriber::class, 'updateDistrictsIds'],
+            [MailerSubscriber::class, 'sendRegistrationEmail'],
+            [UserEventSubscriber::class, 'sendInviteFromGroup'],
+            [AuthySubscriber::class, 'startVerification'],
         ];
         $this->assertListeners(UserEvents::REGISTRATION, UserEvent::class, $expectedListeners);
     }

@@ -5,6 +5,7 @@ namespace Civix\CoreBundle\Tests\DataFixtures\ORM\Issue;
 use Civix\CoreBundle\Entity\User;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\Persistence\ObjectManager;
+use libphonenumber\PhoneNumber;
 
 /**
  * https://github.com/PowerlineApp/powerline-mobile/issues/533
@@ -25,7 +26,7 @@ class PM533 extends AbstractFixture
             ->setIsNotifDiscussions(true)
             ->setIsNotifMessages(true)
             ->setIsRegistrationComplete(true)
-            ->setPhone('+1234567890')
+            ->setPhone((new PhoneNumber())->setCountryCode(1)->setNationalNumber('234567890'))
             ->setIsNotifOwnPostChanged(true)
             ->setToken('user1_dup')
             ->setResetPasswordToken('x-reset-token')

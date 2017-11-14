@@ -80,3 +80,5 @@ parameters:
     propublica_api_key: xxx
 
     google_api_key: xxx
+
+    authy_api_key: xxx

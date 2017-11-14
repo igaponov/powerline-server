@@ -38,6 +38,7 @@ class UserEventSubscriber implements EventSubscriberInterface
     {
         return [
             UserEvents::REGISTRATION => 'sendInviteFromGroup',
+            UserEvents::LEGACY_REGISTRATION => 'sendInviteFromGroup',
         ];
     }
 

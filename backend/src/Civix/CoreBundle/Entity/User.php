@@ -14,6 +14,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use libphonenumber\PhoneNumber;
+use Misd\PhoneNumberBundle\Validator\Constraints\PhoneNumber as AssertPhoneNumber;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -80,7 +82,7 @@ class User implements
      *      {"api-profile", "api-info", "api-comments", "api-session", "api-full-info", "api-public",
      *      "api-petitions-list", "api-petitions-info", "api-search", "api-invites", "api-leader-answers", "api-short-info", "user-list"}
      * )
-     * @Assert\NotBlank(groups={"registration", "profile"})
+     * @Assert\NotBlank(groups={"registration", "profile", "registration2.2"})
      * @Assert\Regex(pattern="/^[a-zA-Z0-9._-]+[a-zA-Z0-9]$/", match="true", groups={"registration", "profile"})
      */
     private $username;
@@ -109,7 +111,7 @@ class User implements
      *  "api-petitions-info", "api-search", "api-full-info", "api-invites", "api-leader-answers", "api-short-info", "user-list"
      * })
      * @Serializer\SerializedName("first_name")
-     * @Assert\NotBlank(groups={"registration", "profile"})
+     * @Assert\NotBlank(groups={"registration", "profile", "registration2.2"})
      */
     private $firstName;
 
@@ -123,7 +125,7 @@ class User implements
      *  "api-petitions-info", "api-search", "api-full-info", "api-invites", "api-leader-answers", "api-short-info", "user-list"
      * })
      * @Serializer\SerializedName("last_name")
-     * @Assert\NotBlank(groups={"registration", "profile"})
+     * @Assert\NotBlank(groups={"registration", "profile", "registration2.2"})
      */
     private $lastName;
 
@@ -133,8 +135,8 @@ class User implements
      * @ORM\Column(name="email", type="string", length=255)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-profile", "user-list"})
-     * @Assert\NotBlank(groups={"registration", "profile"})
-     * @Assert\Email(groups={"registration", "profile"})
+     * @Assert\NotBlank(groups={"registration", "profile", "registration2.2"})
+     * @Assert\Email(groups={"registration", "profile", "registration2.2"})
      */
     private $email;
 
@@ -152,7 +154,7 @@ class User implements
      * @ORM\Column(name="zip", type="string", length=255, nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-profile", "api-leader-answers"})
-     * @Assert\NotBlank(groups={"registration", "profile"})
+     * @Assert\NotBlank(groups={"registration", "profile", "registration2.2"})
      */
     private $zip;
 
@@ -208,16 +210,20 @@ class User implements
      * @ORM\Column(name="country", type="string", length=255, nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-profile", "api-info", "api-full-info", "api-leader-answers"})
-     * @Assert\Country(groups={"registration", "profile"})
+     * @Assert\NotBlank(groups={"registration2.2"})
+     * @Assert\Country(groups={"registration", "profile", "registration2.2"})
      */
     private $country;
 
     /**
-     * @var string
+     * @var PhoneNumber
      *
-     * @ORM\Column(name="phone", type="string", length=255, nullable=true)
+     * @ORM\Column(name="phone", type="phone_number", nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-profile"})
+     * @Serializer\Type("libphonenumber\PhoneNumber")
+     * @Assert\NotBlank(groups={"registration2.2"})
+     * @AssertPhoneNumber(groups={"registration2.2"})
      */
     private $phone;
 
@@ -225,7 +231,6 @@ class User implements
      * @var string
      *
      * @ORM\Column(name="phone_hash", type="string", length=40, nullable=true)
-     * @Assert\NotBlank(groups={"registration", "profile"})
      */
     private $phoneHash;
 
@@ -1158,14 +1163,16 @@ class User implements
     /**
      * Set phone.
      *
-     * @param string $phone
+     * @param PhoneNumber $phone
      *
      * @return User
      */
-    public function setPhone(?string $phone): User
+    public function setPhone(?PhoneNumber $phone): User
     {
         $this->phone = $phone;
-        $this->phoneHash = sha1($phone);
+        if ($phone) {
+            $this->phoneHash = sha1('+'.$phone->getCountryCode().$phone->getNationalNumber());
+        }
 
         return $this;
     }
@@ -1173,9 +1180,9 @@ class User implements
     /**
      * Get phone.
      *
-     * @return string
+     * @return PhoneNumber
      */
-    public function getPhone(): ?string
+    public function getPhone(): ?PhoneNumber
     {
         return $this->phone;
     }
@@ -2269,9 +2276,9 @@ class User implements
     public function getAddressArray(): array
     {
         return [
-            'city' => $this->getCity(),
             'line1' => $this->getAddress1(),
             'line2' => $this->getAddress2(),
+            'city' => $this->getCity(),
             'state' => $this->getState(),
             'postal_code' => $this->getZip(),
             'country_code' => $this->getCountry(),
@@ -2280,7 +2287,7 @@ class User implements
 
     public function getAddressQuery(): string
     {
-        return $this->getAddress1().','.$this->getCity().','.$this->getState().','.$this->getCountry();
+        return implode(',', array_filter($this->getAddressArray()));
     }
 
     /**

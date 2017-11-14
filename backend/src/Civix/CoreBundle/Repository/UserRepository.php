@@ -19,6 +19,7 @@ use Doctrine\ORM\QueryBuilder;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\Service\PushSender;
+use libphonenumber\PhoneNumber;
 
 /**
  * UserRepository.
@@ -720,5 +721,10 @@ class UserRepository extends EntityRepository
             ->setParameter(':users', $users)
             ->getQuery()
             ->getResult();
+    }
+
+    public function findOneByPhone(PhoneNumber $phone)
+    {
+        return $this->findOneBy(['phone' => $phone]);
     }
 }

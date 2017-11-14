@@ -32,5 +32,6 @@ class CivixApiExtension extends Extension
             ])
         );
         $loader->load('services.xml');
+        $loader->load('services.yml');
     }
 }

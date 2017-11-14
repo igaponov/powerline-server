@@ -8,7 +8,7 @@
         <service id="api.security.user_provider"
                  public="false"
                  class="Civix\ApiBundle\Security\Core\ApiUserProvider" >
-            <argument type="service" id="doctrine.orm.entity_manager" />
+            <argument type="service" id="civix_core.repository.user_repository" />
             <argument type="service" id="civix_core.user_manager" />
             <argument type="service" id="civix_core.content_converter" />
             <argument type="collection">

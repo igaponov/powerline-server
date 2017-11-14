@@ -41,6 +41,7 @@ class DiscountCodeSubscriber implements EventSubscriberInterface
         return [
             SubscriptionEvents::SUBSCRIBE => 'addRewardCode',
             UserEvents::REGISTRATION => 'addDiscountCode',
+            UserEvents::LEGACY_REGISTRATION => 'addDiscountCode',
         ];
     }
 

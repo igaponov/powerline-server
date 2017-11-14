@@ -5,22 +5,21 @@ namespace Civix\ApiBundle\Security\Core;
 use Civix\Component\ContentConverter\ConverterInterface;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Model\TempFile;
+use Civix\CoreBundle\Repository\UserRepository;
 use Civix\CoreBundle\Service\User\UserManager;
 use HWI\Bundle\OAuthBundle\OAuth\Response\UserResponseInterface;
-use HWI\Bundle\OAuthBundle\Security\Core\User\OAuthAwareUserProviderInterface;
+use libphonenumber\PhoneNumber;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Doctrine\ORM\EntityManager;
 
-class ApiUserProvider implements UserProviderInterface, OAuthAwareUserProviderInterface
+class ApiUserProvider implements UserProviderInterface
 {
     /**
-     * @var EntityManager
+     * @var UserRepository
      */
-    private $em;
+    private $repository;
     /**
      * @var UserManager
      */
@@ -37,18 +36,18 @@ class ApiUserProvider implements UserProviderInterface, OAuthAwareUserProviderIn
     private $converter;
 
     /**
-     * @param EntityManager $em
+     * @param UserRepository $repository
      * @param UserManager $userManager
      * @param ConverterInterface $converter
      * @param array $properties
      */
     public function __construct(
-        EntityManager $em,
+        UserRepository $repository,
         UserManager $userManager,
         ConverterInterface $converter,
         array $properties
     ) {
-        $this->em = $em;
+        $this->repository = $repository;
         $this->userManager = $userManager;
         $this->converter = $converter;
         $this->properties = array_merge($this->properties, $properties);
@@ -76,8 +75,7 @@ class ApiUserProvider implements UserProviderInterface, OAuthAwareUserProviderIn
 
     public function loadUserByToken(TokenInterface $token)
     {
-        $user = $this->em->getRepository('CivixCoreBundle:User')
-                ->findOneBy(['token' => $token->getCredentials()]);
+        $user = $this->repository->findOneBy(['token' => $token->getCredentials()]);
         if (!$user) {
             throw new UsernameNotFoundException(sprintf("User not found."));
         }
@@ -100,13 +98,12 @@ class ApiUserProvider implements UserProviderInterface, OAuthAwareUserProviderIn
         $resourceOwnerName = $response->getResourceOwner()->getName();
         $property = $this->getProperty($resourceOwnerName);
         $propertySecret = $this->getProperty($resourceOwnerName.'_secret');
-        $repository = $this->em->getRepository(User::class);
-        $user = $repository->findOneBy(['email' => $email]);
+        $user = $this->repository->findOneBy(['email' => $email]);
         if (null !== $user) {
             $user->{'set'.ucfirst($property)}($username);
             $user->{'set'.ucfirst($propertySecret)}($response->getTokenSecret());
         } else {
-            $user = $repository->findOneBy([$property => $username]);
+            $user = $this->repository->findOneBy([$property => $username]);
         }
         if (null === $user || null === $username) {
             if (!$response->getEmail()) {
@@ -135,9 +132,14 @@ class ApiUserProvider implements UserProviderInterface, OAuthAwareUserProviderIn
             }
         }
 
-        $this->userManager->register($user);
+        $this->userManager->legacyRegister($user);
 
         return $user;
+    }
+
+    public function loadUserByPhone(PhoneNumber $phone)
+    {
+        return $this->repository->findOneByPhone($phone);
     }
 
     /**

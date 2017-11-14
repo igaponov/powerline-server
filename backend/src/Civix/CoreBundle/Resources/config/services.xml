@@ -324,11 +324,6 @@
             <factory class="Symfony\Component\Intl\Intl" method="getRegionBundle" />
         </service>
 
-        <service class="Civix\CoreBundle\Service\PhoneNumberNormalizer" id="civix_core.service.phone_number_normalizer">
-            <argument id="libphonenumber.phone_number_util" type="service"/>
-            <argument id="symfony.component.intl.resource.region" type="service"/>
-        </service>
-
         <service class="Civix\CoreBundle\EventListener\PushSenderSubscriber" id="civix_core.event_listener.push_sender_subscriber">
             <argument id="civix_core.push_task" type="service"/>
             <tag name="kernel.event_subscriber"/>

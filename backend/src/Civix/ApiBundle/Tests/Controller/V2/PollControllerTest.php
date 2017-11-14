@@ -38,6 +38,8 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe\LoadAccountRepresentativeData
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Faker\Factory;
+use libphonenumber\PhoneNumberFormat;
+use libphonenumber\PhoneNumberUtil;
 use Liip\FunctionalTestBundle\Annotations\QueryCount;
 use Symfony\Bundle\FrameworkBundle\Client;
 
@@ -1381,11 +1383,12 @@ class PollControllerTest extends WebTestCase
         $this->assertSame([], $data[0]['fields']);
         $this->assertSame(["test-group-field" => "Test Answer"], $data[1]['fields']);
         $this->assertSame(["test-group-field" => "Second Answer"], $data[2]['fields']);
+        $phoneUtil = PhoneNumberUtil::getInstance();
         foreach ([$user2, $user3, $user4] as $k => $user) {
             /** @var User $user */
             $this->assertEquals($user->getAddress(), $data[$k]['address']);
             $this->assertSame($user->getEmail(), $data[$k]['email']);
-            $this->assertSame($user->getPhone(), $data[$k]['phone']);
+            $this->assertSame($phoneUtil->format($user->getPhone(), PhoneNumberFormat::E164), $data[$k]['phone']);
             $this->assertSame($user->getCity(), $data[$k]['city']);
             $this->assertSame($user->getState(), $data[$k]['state']);
             $this->assertSame($user->getCountry(), $data[$k]['country']);
@@ -1433,6 +1436,7 @@ class PollControllerTest extends WebTestCase
         $bo = $repository->getReference('cicero_representative_bo');
         $jb = $repository->getReference('cicero_representative_jb');
         $rm = $repository->getReference('cicero_representative_rm');
+        $phoneUtil = PhoneNumberUtil::getInstance();
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT.'/'.$question->getId().'/responses', [], [], [
             'HTTP_ACCEPT' => 'text/csv',
@@ -1442,9 +1446,9 @@ class PollControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $this->assertSame(
             "name,address,city,state,country,zip_code,email,phone,bio,slogan,facebook,followers,karma,fields,representatives,text,answer,comment\n" .
-            "\"user 2\",,,,US,,{$user2->getEmail()},{$user2->getPhone()},,,1,,,,,\"{$question->getSubject()}\",\"{$answer1->getOption()->getValue()}\",\"{$answer1->getComment()}\"\n" .
-            ",,,,US,,{$user3->getEmail()},{$user3->getPhone()},,,1,,20,\"test-group-field: Test Answer\",\"{$rm->getFullName()}\",\"{$question->getSubject()}\",\"{$answer2->getOption()->getValue()}\",\"{$answer2->getComment()}\"\n" .
-            "\"user 4\",,,,US,,{$user4->getEmail()},{$user4->getPhone()},,,1,1,,\"test-group-field: Second Answer\",\"{$bo->getFullName()}, {$jb->getFullName()}\",\"{$question->getSubject()}\",\"{$answer3->getOption()->getValue()}\",\"{$answer3->getComment()}\"\n",
+            "\"user 2\",,,,US,,{$user2->getEmail()},{$phoneUtil->format($user2->getPhone(), PhoneNumberFormat::E164)},,,1,,,,,\"{$question->getSubject()}\",\"{$answer1->getOption()->getValue()}\",\"{$answer1->getComment()}\"\n" .
+            ",,,,US,,{$user3->getEmail()},{$phoneUtil->format($user3->getPhone(), PhoneNumberFormat::E164)},,,1,,20,\"test-group-field: Test Answer\",\"{$rm->getFullName()}\",\"{$question->getSubject()}\",\"{$answer2->getOption()->getValue()}\",\"{$answer2->getComment()}\"\n" .
+            "\"user 4\",,,,US,,{$user4->getEmail()},{$phoneUtil->format($user4->getPhone(), PhoneNumberFormat::E164)},,,1,1,,\"test-group-field: Second Answer\",\"{$bo->getFullName()}, {$jb->getFullName()}\",\"{$question->getSubject()}\",\"{$answer3->getOption()->getValue()}\",\"{$answer3->getComment()}\"\n",
             $response->getContent()
         );
     }

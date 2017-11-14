@@ -2,6 +2,7 @@
 namespace Civix\ApiBundle\Tests\Controller;
 
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserRepresentativeData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
@@ -65,18 +66,22 @@ class SearchControllerTest  extends WebTestCase
         $repository = $this->loadFixtures([
             LoadUserData::class,
         ])->getReferenceRepository();
+        /** @var User $user1 */
         $user1 = $repository->getReference('user_1');
+        /** @var User $user2 */
         $user2 = $repository->getReference('user_2');
+        /** @var User $user3 */
         $user3 = $repository->getReference('user_3');
+        /** @var User $user4 */
         $user4 = $repository->getReference('user_4');
         $params = ['emails' => [
-            sha1($user1->getEmail()),
-            sha1($user2->getEmail()),
-            sha1($user4->getEmail()),
+            $user1->getEmailHash(),
+            $user2->getEmailHash(),
+            $user4->getEmailHash(),
         ], 'phones' => [
-            sha1($user1->getPhone()),
-            sha1($user3->getPhone()),
-            sha1($user4->getPhone()),
+            $user1->getPhoneHash(),
+            $user3->getPhoneHash(),
+            $user4->getPhoneHash(),
         ]];
         $this->client->request('GET', self::API_ENDPOINT.'/friends', $params, [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"']);
         $response = $this->client->getResponse();

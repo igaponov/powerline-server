@@ -176,7 +176,7 @@ class SecureController extends BaseController
         $form->submit($request->request->all());
 
         if ($form->isValid()) {
-            return $this->manager->register($form->getData());
+            return $this->manager->legacyRegister($form->getData());
         }
 
         return $this->getBadRequestResponse($form);
@@ -221,7 +221,7 @@ class SecureController extends BaseController
             /** @var User $user */
             $user = $form->getData();
             $user->setIsRegistrationComplete(false);
-            return $this->manager->register($user);
+            return $this->manager->legacyRegister($user);
         }
 
         return $this->getBadRequestResponse($form);

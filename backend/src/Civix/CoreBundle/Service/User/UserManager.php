@@ -13,6 +13,7 @@ use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Service\CiceroApi;
 use Doctrine\ORM\EntityManager;
+use libphonenumber\PhoneNumber;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UserManager
@@ -146,7 +147,7 @@ class UserManager
         }
     }
 
-    public function register(User $user): User
+    public function legacyRegister(User $user): User
     {
         $user->generateToken();
         $event = new AvatarEvent($user);
@@ -155,6 +156,28 @@ class UserManager
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
+        $event = new UserEvent($user);
+        $this->dispatcher->dispatch('async.'.UserEvents::LEGACY_REGISTRATION, $event);
+
+        return $user;
+    }
+
+    public function register(User $user): User
+    {
+        $event = new AvatarEvent($user);
+        $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        $event = new UserEvent($user);
+        $this->dispatcher->dispatch('async.'.UserEvents::REGISTRATION, $event);
+
+        return $user;
+    }
+
+    public function loginByPhoneNumber(PhoneNumber $number)
+    {
         $event = new UserEvent($user);
         $this->dispatcher->dispatch('async.'.UserEvents::REGISTRATION, $event);
 

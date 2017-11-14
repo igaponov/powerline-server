@@ -199,7 +199,7 @@ class SecureControllerTest extends WebTestCase
         $data = $collector->getData();
         $this->assertCount(1, $data);
         $msg = unserialize($data[0]['msg']);
-        $this->assertSame(UserEvents::REGISTRATION, $msg->getEventName());
+        $this->assertSame(UserEvents::LEGACY_REGISTRATION, $msg->getEventName());
         $this->assertInstanceOf(UserEvent::class, $msg->getEvent());
         $storage = $container->get('civix_core.storage.array');
         $this->assertCount(1, $storage->getFiles('avatar_image_fs'));
@@ -305,7 +305,7 @@ class SecureControllerTest extends WebTestCase
         $messages = $collector->getData();
         $this->assertCount(1, $messages);
         $msg = unserialize($messages[0]['msg']);
-        $this->assertSame(UserEvents::REGISTRATION, $msg->getEventName());
+        $this->assertSame(UserEvents::LEGACY_REGISTRATION, $msg->getEventName());
         $this->assertInstanceOf(UserEvent::class, $msg->getEvent());
 
         $client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);

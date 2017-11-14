@@ -1,0 +1,94 @@
+services:
+    civix_core.authy:
+        class: GuzzleHttp\Command\Guzzle\GuzzleClient
+        arguments:
+            - '@http.client'
+            - '@civix_core.authy_description'
+
+    civix_core.authy_description:
+        class: GuzzleHttp\Command\Guzzle\Description
+        arguments:
+            -
+                baseUri: https://api.authy.com
+                operations:
+                    startVerification:
+                        httpMethod: POST
+                        uri: /protected/{format}/phones/verification/start
+                        responseModel: getResponse
+                        parameters:
+                            api_key: { $ref: ApiKey }
+                            format: { $ref: Format }
+                            country_code: { $ref: CountryCode }
+                            phone_number: { $ref: PhoneNumber }
+                            via:
+                                type: string
+                                location: query
+                                enum: [sms, call]
+                                required: true
+                                description: Either "sms" or "call".
+                            code_length:
+                                type: integer
+                                location: query
+                                required: true
+                                default: 4
+                                description: >
+                                    Optional value to change the number of verification digits sent.
+                                    Default is 4. Allowed values are 4-10.
+                            locale:
+                                type: string
+                                location: query
+                                required: false
+                                description: >
+                                    The language of the message received by user.
+                                    If no locale is given, Authy will try to autodetect it based on the country code.
+                                    In case that no locale is autodetected, English will be used.
+                            custom_message:
+                                type: string
+                                location: query
+                                required: false
+                                description: >
+                                    Not enabled by default.
+                                    Overwrites the default message sent sms or phone call.
+                    checkVerification:
+                        httpMethod: POST
+                        uri: /protected/{format}/phones/verification/check
+                        responseModel: getResponse
+                        parameters:
+                            api_key: { $ref: ApiKey }
+                            format: { $ref: Format }
+                            country_code: { $ref: CountryCode }
+                            phone_number: { $ref: PhoneNumber }
+                            verification_code:
+                                type: string
+                                location: query
+                                required: true
+                                description: The verification code that is being validated.
+                models:
+                    ApiKey:
+                        type: string
+                        location: header
+                        required: true
+                        default: '%authy_api_key%'
+                        sentAs: X-Authy-API-Key
+                        description: The Authy application API key.
+                    Format:
+                        type: string
+                        location: uri
+                        enum: [json, xml]
+                        required: true
+                        default: json
+                        description: Either "json" or "xml".
+                    CountryCode:
+                        type: integer
+                        location: query
+                        required: true
+                        description: The phone's country code.
+                    PhoneNumber:
+                        type: string
+                        location: query
+                        required: true
+                        description: The phone number to send the verification code.
+                    getResponse:
+                        type: object
+                        additionalProperties:
+                            location: json

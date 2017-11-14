@@ -1,0 +1,18 @@
+imports:
+    - { resource: authy.yml }
+    - { resource: listener.yml }
+
+services:
+    civix_api.security.authentication.provider.phone:
+        class: Civix\ApiBundle\Security\Authentication\Provider\PhoneAuthenticationProvider
+        arguments:
+            - '@api.security.user_provider'
+            -
+            -
+            - '@civix_core.authy'
+            - '@libphonenumber.phone_number_util'
+
+    civix_api.security.authentication.listener.phone:
+        class: Civix\ApiBundle\Security\Firewall\PhoneAuthenticationListener
+        parent: security.authentication.listener.abstract
+        abstract: true
