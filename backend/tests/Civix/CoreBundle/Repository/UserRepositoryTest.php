@@ -6,6 +6,7 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Group;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadGroupManagerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
@@ -99,5 +100,17 @@ class UserRepositoryTest extends WebTestCase
             $this->assertInstanceOf(User::class, $user);
             $this->assertSame($user1->getId(), $user->getId());
         }
+    }
+
+    public function testFindOneByPhone()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class
+        ])->getReferenceRepository();
+        /** @var User $user1 */
+        $user1 = $repository->getReference('user_1');
+        $service = $this->getContainer()->get('civix_core.repository.user_repository');
+        $user = $service->findOneByPhone($user1->getPhone());
+        $this->assertSame($user1, $user);
     }
 }

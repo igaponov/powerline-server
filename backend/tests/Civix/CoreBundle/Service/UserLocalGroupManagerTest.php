@@ -32,6 +32,9 @@ class UserLocalGroupManagerTest extends WebTestCase
         $this->assertEquals('US', $groups[0]->getAcronym());
         $this->assertEquals('KS', $groups[1]->getAcronym());
         $this->assertEquals('Bucklin', $groups[2]->getOfficialName());
+        $this->assertEquals('US', $user->getCountry());
+        $this->assertEquals('KS', $user->getState());
+        $this->assertEquals('Bucklin', $user->getCity());
     }
 
     public function testCreateAllNewGroupsWithEU(): void
@@ -46,6 +49,9 @@ class UserLocalGroupManagerTest extends WebTestCase
         $this->assertEquals('ES', $groups[1]->getAcronym());
         $this->assertEquals('Comunidad de Madrid', $groups[2]->getAcronym());
         $this->assertEquals('Madrid', $groups[3]->getOfficialName());
+        $this->assertEquals('ES', $user->getCountry());
+        $this->assertEquals('Comunidad de Madrid', $user->getState());
+        $this->assertEquals('Madrid', $user->getCity());
     }
 
     public function testCreateAllNewGroupsWithAU(): void
@@ -60,6 +66,9 @@ class UserLocalGroupManagerTest extends WebTestCase
         $this->assertEquals('EG', $groups[1]->getAcronym());
         $this->assertEquals('Cairo Governorate', $groups[2]->getAcronym());
         $this->assertEquals('Cairo', $groups[3]->getOfficialName());
+        $this->assertEquals('EG', $user->getCountry());
+        $this->assertEquals('Cairo Governorate', $user->getState());
+        $this->assertEquals('Cairo', $user->getCity());
     }
 
     public function testCreateExistentGroups(): void
@@ -79,6 +88,9 @@ class UserLocalGroupManagerTest extends WebTestCase
         $this->assertEquals($us->getId(), $groups[0]->getId());
         $this->assertEquals($ks->getId(), $groups[1]->getId());
         $this->assertEquals($bu->getId(), $groups[2]->getId());
+        $this->assertEquals('US', $user->getCountry());
+        $this->assertEquals('KS', $user->getState());
+        $this->assertEquals('Bucklin', $user->getCity());
     }
 
     public function testUpdateExistentGroups(): void
@@ -98,6 +110,9 @@ class UserLocalGroupManagerTest extends WebTestCase
         $this->assertEquals($us->getId(), $groups[0]->getId());
         $this->assertEquals($ks->getId(), $groups[1]->getId());
         $this->assertEquals($bu->getId(), $groups[2]->getId());
+        $this->assertEquals('US', $user->getCountry());
+        $this->assertEquals('KS', $user->getState());
+        $this->assertEquals('Bucklin', $user->getCity());
     }
 
     public function testUpdateExistentGroupsWithEUEmptyLocality(): void
@@ -129,6 +144,9 @@ class UserLocalGroupManagerTest extends WebTestCase
         $this->assertEquals($eu->getId(), $groups[0]->getId());
         $this->assertEquals($es->getId(), $groups[1]->getId());
         $this->assertEquals($cm->getId(), $groups[2]->getId());
+        $this->assertEquals('ES', $user->getCountry());
+        $this->assertEquals('Comunidad de Madrid', $user->getState());
+        $this->assertNull($user->getCity());
     }
 
     public function testUpdateExistentGroupsWithAUChangedLocality(): void
@@ -162,6 +180,9 @@ class UserLocalGroupManagerTest extends WebTestCase
         $this->assertEquals($eg->getId(), $groups[1]->getId());
         $this->assertEquals($cg->getId(), $groups[2]->getId());
         $this->assertEquals($sh->getId(), $groups[3]->getId());
+        $this->assertEquals('EG', $user->getCountry());
+        $this->assertEquals('Cairo Governorate', $user->getState());
+        $this->assertEquals('El Shorouk City', $user->getCity());
     }
 
     /**

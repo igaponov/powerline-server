@@ -22,12 +22,6 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service class="Civix\ApiBundle\EventListener\UserPrePersistListener" id="civix_api.event_listener.user_pre_persist_listener">
-            <argument id="civix_core.service.phone_number_normalizer" type="service"/>
-            <argument id="logger" type="service"/>
-            <tag name="doctrine.event_listener" event="prePersist" />
-        </service>
-
         <service class="Civix\ApiBundle\Security\Authorization\Voter\PollContentVoter" id="civix_api.security_authorization_voter.poll_content_voter">
             <argument id="civix_api.security_authorization_voter.group_voter" type="service"/>
             <tag name="security.voter"/>

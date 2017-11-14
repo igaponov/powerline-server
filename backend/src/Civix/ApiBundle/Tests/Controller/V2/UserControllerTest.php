@@ -16,6 +16,8 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserGroupOwnerData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSignatureData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserPetitionSubscriberData;
+use libphonenumber\PhoneNumberFormat;
+use libphonenumber\PhoneNumberUtil;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -46,6 +48,7 @@ class UserControllerTest extends WebTestCase
         ])->getReferenceRepository();
         /** @var User $user */
         $user = $repository->getReference('user_1');
+        $phoneUtil = PhoneNumberUtil::getInstance();
         $client = $this->client;
         $client->request('GET', self::API_ENDPOINT, [], [], ['HTTP_Authorization'=>'Bearer type="user" token="user1"']);
         $response = $client->getResponse();
@@ -56,7 +59,7 @@ class UserControllerTest extends WebTestCase
         $this->assertEquals($user->getEmail(), $data['email']);
         $this->assertEquals($user->getBirth()->format('m/d/Y'), $data['birth']);
         $this->assertEquals($user->getCountry(), $data['country']);
-        $this->assertEquals($user->getPhone(), $data['phone']);
+        $this->assertEquals($phoneUtil->format($user->getPhone(), PhoneNumberFormat::E164), $data['phone']);
         $this->assertEquals($user->getSlogan(), $data['slogan']);
         $this->assertEquals($user->getBio(), $data['bio']);
         $this->assertEquals($user->getInterests(), $data['interests']);

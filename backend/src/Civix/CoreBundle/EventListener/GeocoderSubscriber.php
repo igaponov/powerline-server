@@ -24,6 +24,7 @@ class GeocoderSubscriber implements EventSubscriberInterface
     {
         return [
             UserEvents::REGISTRATION => 'setCoordinates',
+            UserEvents::LEGACY_REGISTRATION => 'setCoordinates',
         ];
     }
 

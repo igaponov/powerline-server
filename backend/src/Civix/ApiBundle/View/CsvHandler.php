@@ -4,6 +4,9 @@ namespace Civix\ApiBundle\View;
 
 use FOS\RestBundle\View\View;
 use FOS\RestBundle\View\ViewHandler;
+use libphonenumber\PhoneNumber;
+use libphonenumber\PhoneNumberFormat;
+use libphonenumber\PhoneNumberUtil;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -39,8 +42,9 @@ class CsvHandler
         if (count($data)) {
             fputcsv($output, array_keys(reset($data)));
         }
+        $phoneUtil = PhoneNumberUtil::getInstance();
         foreach ($data as $row) {
-            array_walk($row, function (&$cell) {
+            array_walk($row, function (&$cell) use($phoneUtil) {
                 if (!$cell) {
                     $cell = '';
                 } elseif (is_array($cell)) {
@@ -52,6 +56,8 @@ class CsvHandler
                     } else {
                         $cell = implode(', ', $cell);
                     }
+                } elseif ($cell instanceof PhoneNumber) {
+                    $cell = $phoneUtil->format($cell, PhoneNumberFormat::E164);
                 }
             });
             fputcsv($output, $row);

@@ -45,6 +45,7 @@ class ReportSubscriber implements EventSubscriberInterface
                 ['updateKarmaApproveFollowRequest', -100],
             ],
             Event\UserEvents::REGISTRATION => 'createUserReport',
+            Event\UserEvents::LEGACY_REGISTRATION => 'createUserReport',
             Event\UserEvents::UNFOLLOW => 'updateUserReport',
             Event\UserPetitionEvents::PETITION_SIGN => 'createPetitionReport',
             Event\UserPetitionEvents::PETITION_UNSIGN => 'deletePetitionReport',

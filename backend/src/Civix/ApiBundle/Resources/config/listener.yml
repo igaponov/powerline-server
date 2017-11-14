@@ -1,0 +1,12 @@
+services:
+    civix_api.event_listener.authy_subscriber:
+        class: Civix\ApiBundle\EventListener\AuthySubscriber
+        arguments: ['@civix_core.authy', '@logger']
+        tags:
+            - { name: kernel.event_subscriber }
+
+    civix_api.event_listener.token_listener:
+        class: Civix\ApiBundle\EventListener\TokenListener
+        arguments: ['@doctrine.orm.default_entity_manager']
+        tags:
+            - { name: kernel.event_listener, event: security.authentication.success, method: generateToken }

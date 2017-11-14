@@ -37,6 +37,7 @@ class AppKernel extends Kernel
             new Nelmio\ApiDocBundle\NelmioApiDocBundle(),
             new Bazinga\Bundle\GeocoderBundle\BazingaGeocoderBundle(),
             new Aws\Symfony\AwsBundle(),
+            new Misd\PhoneNumberBundle\MisdPhoneNumberBundle(),
 
             new Civix\FrontBundle\CivixFrontBundle(),
             new Civix\CoreBundle\CivixCoreBundle(),

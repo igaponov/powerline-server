@@ -6,6 +6,8 @@ use Civix\CoreBundle\Entity\District;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
+use Faker\Factory;
+use libphonenumber\PhoneNumber;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Civix\CoreBundle\Entity\User;
@@ -44,7 +46,7 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
             ->setIsNotifDiscussions(true)
             ->setIsNotifMessages(true)
             ->setIsRegistrationComplete(true)
-            ->setPhone('+1234567890')
+            ->setPhone((new PhoneNumber())->setCountryCode('1')->setNationalNumber('234567890'))
             ->setIsNotifOwnPostChanged(true)
             ->setToken('user1')
             ->setResetPasswordToken('x-reset-token')
@@ -97,6 +99,7 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
      */
     private function generateUser($username, $birthDate = null, $district = null): User
     {
+        $factory = Factory::create();
         $birthDate = $birthDate ?: new \DateTime();
 
         $names = preg_split('/(\d+)/', $username, 2, PREG_SPLIT_DELIM_CAPTURE|PREG_SPLIT_NO_EMPTY);
@@ -112,7 +115,7 @@ class LoadUserData extends AbstractFixture implements ContainerAwareInterface, D
             ->setIsNotifMessages(false)
             ->setIsRegistrationComplete(true)
             ->setIsNotifOwnPostChanged(false)
-            ->setPhone('+'.mt_rand())
+            ->setPhone((new PhoneNumber())->setCountryCode('1')->setNationalNumber($factory->numerify('#########')))
             ->setToken($username)
             ->setFacebookId('fb_'.$username)
             ->setAvatarFileName(uniqid('', true).'.jpg');

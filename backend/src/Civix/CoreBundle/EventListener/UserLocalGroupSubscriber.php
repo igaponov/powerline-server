@@ -17,7 +17,8 @@ class UserLocalGroupSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            UserEvents::REGISTRATION => 'joinLocalGroups',
+            UserEvents::REGISTRATION => [['joinLocalGroups', 1000]],
+            UserEvents::LEGACY_REGISTRATION => [['joinLocalGroups', 1000]],
             UserEvents::ADDRESS_CHANGE => 'joinLocalGroups',
         ];
     }

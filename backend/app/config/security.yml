@@ -3,6 +3,7 @@ jms_security_extra:
     expressions: true
 
 security:
+    erase_credentials: false
     encoders:
         Civix\CoreBundle\Entity\Superuser:
             algorithm: sha512
@@ -40,8 +41,14 @@ security:
             anonymous: ~
 
         mobileuser_login:
-            pattern: ^/api/secure/login$
+            pattern: ^(/api/secure/login|/api/v2/security/login)$
             provider: mobileuser
+            phone-login:
+                login_path: /api/v2/security/login
+                check_path: /api/v2/security/login
+                require_previous_session: false
+                success_handler: civix_api.security.authentication_success_handler
+                failure_handler: civix_api.security.authentication_failure_handler
             form-login:
                 login_path: /api/secure/login
                 check_path: /api/secure/login

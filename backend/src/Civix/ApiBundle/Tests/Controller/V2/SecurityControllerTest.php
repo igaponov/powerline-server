@@ -8,17 +8,18 @@ use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Faker\Factory;
+use GuzzleHttp\Command\Guzzle\GuzzleClient;
 use HWI\Bundle\OAuthBundle\OAuth\ResourceOwnerInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class SecurityControllerTest extends WebTestCase
 {
-    const API_ENDPOINT = '/api/v2/security/facebook';
+    private const API_ENDPOINT = '/api/v2/security/';
 
     /**
      * @var Client
      */
-    private $client = null;
+    private $client;
 
     public function setUp()
     {
@@ -34,7 +35,7 @@ class SecurityControllerTest extends WebTestCase
     public function testOAuthWithWrongCredentials()
     {
         $client = $this->client;
-        $client->request('GET', self::API_ENDPOINT);
+        $client->request('GET', self::API_ENDPOINT.'facebook');
         $response = $client->getResponse();
         $this->assertEquals(401, $response->getStatusCode(), $response->getContent());
     }
@@ -64,7 +65,7 @@ class SecurityControllerTest extends WebTestCase
             $this->getUserInformationCallback($resourceOwner, $userProviderId)
         ));
 
-        $client->request('GET', self::API_ENDPOINT, $params);
+        $client->request('GET', self::API_ENDPOINT.'facebook', $params);
         $response = $client->getResponse();
 
         $this->assertEquals(
@@ -98,7 +99,7 @@ class SecurityControllerTest extends WebTestCase
             $this->getUserInformationCallback($resourceOwner, $userProviderId)
         ));
 
-        $client->request('GET', self::API_ENDPOINT, $params);
+        $client->request('GET', self::API_ENDPOINT.'facebook', $params);
         $response = $client->getResponse();
 
         $this->assertEquals(
@@ -135,7 +136,7 @@ class SecurityControllerTest extends WebTestCase
             $this->getUserInformationCallback($resourceOwner, $userProviderId, null)
         ));
 
-        $client->request('GET', self::API_ENDPOINT, $params);
+        $client->request('GET', self::API_ENDPOINT.'facebook', $params);
         $response = $client->getResponse();
         $this->assertEquals(
             \Symfony\Component\HttpFoundation\Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -179,7 +180,7 @@ class SecurityControllerTest extends WebTestCase
             )
         ));
 
-        $client->request('GET', self::API_ENDPOINT, $params);
+        $client->request('GET', self::API_ENDPOINT.'facebook', $params);
         $response = $client->getResponse();
 
         $this->assertEquals(
@@ -191,6 +192,81 @@ class SecurityControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertNotEmpty($data['token']);
         $this->assertEquals($user->getId(), $data['id']);
+    }
+
+    public function testLoginByPhone()
+    {
+        $this->loadFixtures([
+            LoadUserData::class,
+        ])->getReferenceRepository();
+        /** @var User $user */
+        $client = $this->client;
+        $container = $client->getContainer();
+        $service = $this->getMockBuilder(GuzzleClient::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['__call'])
+            ->getMock();
+        $service->expects($this->once())
+            ->method('__call')
+            ->with('startVerification', [[
+                'country_code' => 1,
+                'phone_number' => '234567890',
+                'via' => 'call',
+            ]])
+            ->willReturn(['success' => true]);
+        $container->set('civix_core.authy', $service);
+        $client->request('POST', self::API_ENDPOINT.'login', [], [], [], json_encode(['phone' => '+1234567890']));
+        $response = $client->getResponse();
+
+        $this->assertEquals(
+            \Symfony\Component\HttpFoundation\Response::HTTP_OK,
+            $response->getStatusCode(),
+            $response->getContent()
+        );
+
+        $this->assertSame('ok', $response->getContent());
+    }
+
+    public function testConfirmLoginByPhone()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+        ])->getReferenceRepository();
+        /** @var User $user */
+        $user = $repository->getReference('user_1');
+        $token = $user->getToken();
+        /** @var User $user */
+        $client = $this->client;
+        $container = $client->getContainer();
+        $service = $this->getMockBuilder(GuzzleClient::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['__call'])
+            ->getMock();
+        $code = 'ZxC123';
+        $service->expects($this->once())
+            ->method('__call')
+            ->with('checkVerification', [[
+                'country_code' => 1,
+                'phone_number' => '234567890',
+                'verification_code' => $code,
+            ]])
+            ->willReturn(['success' => true]);
+        $container->set('civix_core.authy', $service);
+        $client->request('POST', self::API_ENDPOINT.'login', [], [], [], json_encode(['phone' => '+1234567890', 'code' => $code]));
+        $response = $client->getResponse();
+
+        $this->assertEquals(
+            \Symfony\Component\HttpFoundation\Response::HTTP_OK,
+            $response->getStatusCode(),
+            $response->getContent()
+        );
+
+        $data = json_decode($response->getContent(), true);
+        $this->assertNotEmpty($data['token']);
+        $this->assertNotSame($token, $data['token']);
+        $this->client->request('GET', '/api/v2/user', [], [], ['HTTP_TOKEN' => $data['token']]);
+        $response = $this->client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
     }
 
     private function getOAuth2Token()

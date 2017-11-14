@@ -28,6 +28,7 @@ class CiceroSubscriber implements EventSubscriberInterface
     {
         return [
             UserEvents::REGISTRATION => 'updateDistrictsIds',
+            UserEvents::LEGACY_REGISTRATION => 'updateDistrictsIds',
             UserRepresentativeEvents::APPROVE => 'synchronizeRepresentative',
             UserRepresentativeEvents::SYNCHRONIZE => 'synchronizeByStateCode',
         ];

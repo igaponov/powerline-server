@@ -161,19 +161,51 @@ class UserLocalGroupManager
         $groupConfig = [];
         if (($country && in_array($country->getCode(), self::EU_CODES, true))
             || in_array($user->getCountry(), self::EU_CODES, true)) {
-            $groupConfig[] = [null, Group::GROUP_TYPE_COUNTRY, Group::GROUP_LOCATION_NAME_EUROPEAN_UNION, 'European Union'];
+            $groupConfig[] = [
+                null,
+                Group::GROUP_TYPE_COUNTRY,
+                Group::GROUP_LOCATION_NAME_EUROPEAN_UNION,
+                'European Union',
+            ];
         } elseif (($country && in_array($country->getCode(), self::AU_CODES, true))
             || in_array($user->getCountry(), self::AU_CODES, true)) {
-            $groupConfig[] = [null, Group::GROUP_TYPE_COUNTRY, Group::GROUP_LOCATION_NAME_AFRICAN_UNION, 'African Union'];
+            $groupConfig[] = [
+                null,
+                Group::GROUP_TYPE_COUNTRY,
+                Group::GROUP_LOCATION_NAME_AFRICAN_UNION,
+                'African Union',
+            ];
         }
         if ($country) {
-            $groupConfig[] = [$user->getCountry(), Group::GROUP_TYPE_COUNTRY, $country ? $country->getCode() : null, $country ? $country->getName() : null];
+            $groupConfig[] = [
+                $user->getCountry(),
+                Group::GROUP_TYPE_COUNTRY,
+                $country ? $country->getCode() : null,
+                $country ? $country->getName() : null,
+            ];
+            if ($country->getCode()) {
+                $user->setCountry($country->getCode());
+            }
         }
         if ($adminLevel) {
-            $groupConfig[] = [$user->getState(), Group::GROUP_TYPE_STATE, $adminLevel ? $adminLevel->getCode() : null, $adminLevel ? $adminLevel->getName() : null];
+            $groupConfig[] = [
+                $user->getState(),
+                Group::GROUP_TYPE_STATE,
+                $adminLevel ? $adminLevel->getCode() : null,
+                $adminLevel ? $adminLevel->getName() : null,
+            ];
+            if ($adminLevel->getCode()) {
+                $user->setState($adminLevel->getCode());
+            }
         }
         if ($locality) {
-            $groupConfig[] = [$user->getCity(), Group::GROUP_TYPE_LOCAL, $locality, $locality];
+            $groupConfig[] = [
+                $user->getCity(),
+                Group::GROUP_TYPE_LOCAL,
+                $locality,
+                $locality,
+            ];
+            $user->setCity($locality);
         }
 
         $newGroups = $this->getNewGroups($groupConfig);

@@ -3,6 +3,7 @@
 namespace Civix\ApiBundle\Form\Type;
 
 use Civix\CoreBundle\Entity\User;
+use Misd\PhoneNumberBundle\Form\Type\PhoneNumberType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -46,8 +47,7 @@ class BaseUserType extends AbstractType
             ->add('country', Type\TextType::class, [
                 'description' => 'Country',
             ])
-            ->add('phone', Type\TextType::class, [
-                'empty_data' => '',
+            ->add('phone', PhoneNumberType::class, [
                 'description' => 'Phone number',
             ])
             ->add('avatar_file_name', EncodedFileType::class, [
