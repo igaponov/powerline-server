@@ -23,7 +23,7 @@ class Option implements ContentInterface
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll", "api-answer", "api-poll-public", "api-leader-poll"})
+     * @Serializer\Groups({"api-poll", "api-answer", "api-poll-public", "api-leader-poll", "activity-list"})
      */
     private $id;
 
@@ -33,7 +33,7 @@ class Option implements ContentInterface
      * @ORM\Column(name="value", type="string", length=150)
      * @Assert\NotBlank()
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
+     * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll", "activity-list"})
      */
     private $value;
 
@@ -42,14 +42,14 @@ class Option implements ContentInterface
      *
      * @ORM\Column(name="payment_amount", type="integer", nullable=true)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll", "api-leader-poll"})
+     * @Serializer\Groups({"api-poll", "api-leader-poll", "activity-list"})
      */
     private $paymentAmount;
 
     /**
      * @ORM\Column(name="is_user_amount", type="boolean", nullable=true)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
+     * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll", "activity-list"})
      */
     private $isUserAmount;
 

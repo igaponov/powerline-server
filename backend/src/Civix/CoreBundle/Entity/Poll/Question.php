@@ -103,7 +103,7 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
      * )
      * @Assert\Valid()
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
+     * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll", "activity-list"})
      */
     protected $options;
 
@@ -493,7 +493,7 @@ abstract class Question implements LeaderContentInterface, SubscriptionInterface
     /**
      * Get options.
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return \Doctrine\Common\Collections\Collection|Option[]
      */
     public function getOptions()
     {

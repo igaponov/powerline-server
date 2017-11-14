@@ -125,7 +125,7 @@ class ActivityControllerTest extends WebTestCase
                     'activity_question',
                     'activity_leader_event',
                 ],
-                11
+                12
             ],
             'followed' => [
                 ['followed' => true],
@@ -136,7 +136,7 @@ class ActivityControllerTest extends WebTestCase
                     'activity_question',
                     'activity_leader_event',
                 ],
-                11
+                12
             ],
             'non-followed' => [
                 ['non_followed' => true],
@@ -146,7 +146,7 @@ class ActivityControllerTest extends WebTestCase
                     'activity_post',
                     'activity_crowdfunding_payment_request',
                 ],
-                12
+                13
             ]
         ];
 	}
@@ -404,6 +404,13 @@ class ActivityControllerTest extends WebTestCase
                     $poll->getComments()->last()->getId(),
                     $pollData['comments'][0]['id']
                 );
+            }
+            $this->assertCount($poll->getOptions()->count(), $pollData['options']);
+            foreach ($poll->getOptions() as $key => $option) {
+                $this->assertSame($option->getId(), $pollData['options'][$key]['id']);
+                $this->assertSame($option->getValue(), $pollData['options'][$key]['value']);
+                $this->assertSame($option->getPaymentAmount(), $pollData['options'][$key]['payment_amount']);
+                $this->assertSame($option->getIsUserAmount(), $pollData['options'][$key]['is_user_amount']);
             }
         }
         if ($item['entity']['type'] === 'micro-petition') {
