@@ -92,7 +92,7 @@ class UserRepresentativeController extends FOSRestController
      *     authentication=true,
      *     section="Representatives",
      *     description="Create a representative",
-     *     input="Civix\ApiBundle\Form\Type\RepresentativeType",
+     *     input="Civix\ApiBundle\Form\Type\UserRepresentativeType",
      *     statusCodes={
      *         400="Bad Request",
      *         405="Method Not Allowed"
