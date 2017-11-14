@@ -183,6 +183,7 @@ final class ActivitiesQuery
         if ($pollIds) {
             $this->selectComments(Question::class, $pollIds);
             $this->selectEducationalContexts($pollIds);
+            $this->selectOptions($pollIds);
         }
     }
 
@@ -234,6 +235,22 @@ final class ActivitiesQuery
             ->select('PARTIAL p.{id}', 'c')
             ->from(Question::class, 'p')
             ->leftJoin('p.educationalContext', 'c')
+            ->where('p.id IN (:ids)')
+            ->setParameter(':ids', $ids)
+            ->getQuery()->execute();
+    }
+
+    /**
+     * Select entity's options by multi-step hydration
+     *
+     * @param array $ids
+     */
+    private function selectOptions(array $ids)
+    {
+        $this->em->createQueryBuilder()
+            ->select('PARTIAL p.{id}', 'o')
+            ->from(Question::class, 'p')
+            ->leftJoin('p.options', 'o')
             ->where('p.id IN (:ids)')
             ->setParameter(':ids', $ids)
             ->getQuery()->execute();
