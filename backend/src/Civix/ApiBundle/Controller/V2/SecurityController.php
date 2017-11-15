@@ -5,7 +5,6 @@ use Civix\ApiBundle\Form\Type\RegistrationType;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Service\User\UserManager;
 use FOS\RestBundle\Controller\Annotations as REST;
-use FOS\RestBundle\Controller\Annotations\QueryParam;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -38,7 +37,7 @@ class SecurityController
      *
      * @REST\Get("/facebook")
      *
-     * @QueryParam(name="code", nullable=false, allowBlank=false, strict=true)
+     * @REST\QueryParam(name="code", nullable=false, allowBlank=false, strict=true)
      *
      * @ApiDoc(
      *     resource=true,
@@ -102,7 +101,7 @@ class SecurityController
     }
 
     /**
-     * Login a User
+     * Login a User.
      * Send only a `phone` parameter to start a verification,
      * the server will return response "200 ok" on successful.
      * Send both `phone` and `code` parameters to check the verification,
@@ -110,8 +109,8 @@ class SecurityController
      *
      * @REST\Post("/login")
      *
-     * @QueryParam(name="phone", nullable=false, allowBlank=false, strict=true)
-     * @QueryParam(name="code", nullable=true, allowBlank=true, strict=true)
+     * @REST\RequestParam(name="phone", allowBlank=false, requirements="\w+", description="Phone in E.164 format.")
+     * @REST\RequestParam(name="code", allowBlank=true, requirements="\w+", description="Verification code.")
      *
      * @ApiDoc(
      *     resource=true,
