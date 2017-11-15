@@ -34,7 +34,7 @@ abstract class PaymentRequest extends Question
      *
      * @ORM\Column(name="crowdfunding_goal_amount", type="integer", nullable=true)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
+     * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll", "activity-list"})
      */
     protected $crowdfundingGoalAmount;
 
@@ -44,14 +44,14 @@ abstract class PaymentRequest extends Question
      * @ORM\Column(name="crowdfunding_deadline", type="datetime", nullable=true)
      * @Serializer\Expose()
      * @Serializer\Type("DateTime<'D, d M Y H:i:s'>")
-     * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
+     * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll", "activity-list"})
      */
     protected $crowdfundingDeadline;
 
     /**
      * @ORM\Column(name="is_crowdfunding_completed", type="boolean", nullable=true)
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll"})
+     * @Serializer\Groups({"api-poll", "api-poll-public", "api-leader-poll", "activity-list"})
      */
     protected $isCrowdfundingCompleted;
 

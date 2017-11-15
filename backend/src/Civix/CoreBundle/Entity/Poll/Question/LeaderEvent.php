@@ -34,7 +34,7 @@ abstract class LeaderEvent extends Question
      * @ORM\Column(name="started_at", type="datetime", nullable=false)
      * @Assert\NotBlank()
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll", "api-leader-poll"})
+     * @Serializer\Groups({"api-poll", "api-leader-poll", "activity-list"})
      * @Serializer\Type("DateTime<'D, d M Y H:i:s'>")
      */
     protected $startedAt;
@@ -45,7 +45,7 @@ abstract class LeaderEvent extends Question
      * @ORM\Column(name="finished_at", type="datetime", nullable=false)
      * @Assert\NotBlank()
      * @Serializer\Expose()
-     * @Serializer\Groups({"api-poll", "api-leader-poll"})
+     * @Serializer\Groups({"api-poll", "api-leader-poll", "activity-list"})
      * @Serializer\Type("DateTime<'D, d M Y H:i:s'>")
      */
     protected $finishedAt;
