@@ -35,4 +35,21 @@ class PollResponseRepository extends EntityRepository
                 'privacy' => (int)$answer->getPrivacy(),
             ]);
     }
+
+    public function updatePollResponseReport(Answer $answer)
+    {
+        $poll = $answer->getQuestion();
+
+        return $this->getEntityManager()->getConnection()
+            ->update('poll_response_report', [
+                'group_id' => $poll->getGroup()->getId(),
+                'text' => (string)($poll instanceof Question\PaymentRequest || $poll instanceof Question\LeaderEvent ? $poll->getTitle() : $poll->getSubject()),
+                'answer' => (string)$answer->getOption()->getValue(),
+                'comment' => (string)$answer->getComment(),
+                'privacy' => (int)$answer->getPrivacy(),
+            ], [
+                'user_id' => $answer->getUser()->getId(),
+                'poll_id' => $poll->getId(),
+            ]);
+    }
 }

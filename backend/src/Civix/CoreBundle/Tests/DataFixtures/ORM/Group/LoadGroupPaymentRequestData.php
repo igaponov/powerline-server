@@ -63,6 +63,29 @@ class LoadGroupPaymentRequestData extends AbstractFixture implements DependentFi
         $manager->persist($question);
         $this->addReference('group_payment_request_2', $question);
 
+        $question = new GroupPaymentRequest();
+        $question->setOwner($group1);
+        $question->setUser($group1->getOwner());
+        $question->setTitle('subj with #test-tag '.$faker->sentence);
+        $question->setIsAllowOutsiders(true);
+        $question->setIsCrowdfunding(true);
+        $question->setCrowdfundingDeadline(new \DateTime('-1 day'));
+
+        $option = new Option();
+        $option->setValue('val '.$faker->word)
+            ->setIsUserAmount(false)
+            ->setPaymentAmount(400);
+        $question->addOption($option);
+
+        $option = new Option();
+        $option->setValue('val '.$faker->word)
+            ->setIsUserAmount(true);
+        $question->addOption($option);
+
+        $group1->getOwner()->addPollSubscription($question);
+        $manager->persist($question);
+        $this->addReference('group_payment_request_3', $question);
+
         $manager->flush();
     }
 

@@ -32,6 +32,9 @@ class ReportSubscriber implements EventSubscriberInterface
                 ['createPollReport'],
                 ['updateKarmaAnswerPoll', -100],
             ],
+            Event\PollEvents::QUESTION_CHANGE_ANSWER => [
+                ['createPollReport'],
+            ],
             Event\PostEvents::POST_VOTE => [
                 ['createPostReport'],
                 ['updateKarmaReceiveUpvoteOnPost', -100],
@@ -100,6 +103,12 @@ class ReportSubscriber implements EventSubscriberInterface
     {
         $this->em->getRepository(PollResponseReport::class)
             ->insertPollResponseReport($event->getAnswer());
+    }
+
+    public function updatePollReport(Event\Poll\AnswerEvent $event): void
+    {
+        $this->em->getRepository(PollResponseReport::class)
+            ->updatePollResponseReport($event->getAnswer());
     }
 
     public function updateUserGroupReport(Event\GroupUserEvent $event): void

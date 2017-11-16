@@ -24,7 +24,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -361,6 +361,7 @@ class PollController extends FOSRestController
      *          }
      *     },
      *     statusCodes={
+     *         400="Bad Request",
      *         403="Access Denied",
      *         404="Question or Option Not Found",
      *         405="Method Not Allowed"
@@ -375,22 +376,24 @@ class PollController extends FOSRestController
      * @param Answer $answer
      *
      * @return Answer|Form
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function putAnswersAction(Request $request, Question $question, Option $option, Answer $answer = null)
     {
-        if (!is_null($answer)) {
-            throw new AccessDeniedException();
-        } else {
+        if ($answer === null) {
             $answer = new Answer();
-            $answer->setUser($this->getUser())
-                ->setOption($option);
+            $answer->setUser($this->getUser());
+            $question->addAnswer($answer);
+        } elseif ($question instanceof Question\PaymentRequest && $question->isCrowdfundingDeadline()) {
+            throw new BadRequestHttpException("Payment can't be changed for a crowdfunding after the deadline.");
         }
+        $answer->setOption($option);
 
         $form = $this->createForm(AnswerType::class, $answer, ['validation_groups' => 'api-poll']);
         $form->submit($request->request->all());
 
         if ($form->isValid()) {
-            return $this->manager->addAnswer($question, $answer);
+            return $this->manager->saveAnswer($question, $answer);
         }
 
         return $form;
