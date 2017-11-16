@@ -31,8 +31,9 @@ class PollManager
     /**
      * @param Question $question
      * @return Question
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function publish(Question $question)
+    public function publish(Question $question): Question
     {
         $question->setPublishedAt(new \DateTime());
         $this->em->persist($question);
@@ -44,7 +45,7 @@ class PollManager
         return $question;
     }
 
-    public function savePoll(Question $poll)
+    public function savePoll(Question $poll): Question
     {
         $isNew = !$poll->getId();
         $event = new QuestionEvent($poll);
@@ -67,7 +68,7 @@ class PollManager
      * @return Answer
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function saveAnswer(Question $question, Answer $answer)
+    public function saveAnswer(Question $question, Answer $answer): Answer
     {
         $isNew = !$this->em->contains($answer);
         if ($isNew) {
@@ -92,7 +93,7 @@ class PollManager
         return $answer;
     }
 
-    public function chargeToPaymentRequest(Question $question, Answer $answer)
+    public function chargeToPaymentRequest(Question $question, Answer $answer): void
     {
         $user = $answer->getUser();
         $customer = $user->getStripeCustomer();

@@ -36,7 +36,7 @@ class LoadRepresentativePaymentRequestData extends AbstractFixture implements De
             ->setIsUserAmount(false)
             ->setPaymentAmount(400);
         $question->addOption($option);
-
+        /** @noinspection NullPointerExceptionInspection */
         $representative->getUser()->addPollSubscription($question);
         $manager->persist($question);
         $this->addReference('representative_payment_request_1', $question);
@@ -58,7 +58,7 @@ class LoadRepresentativePaymentRequestData extends AbstractFixture implements De
             ->setIsUserAmount(false)
             ->setPaymentAmount(500);
         $question->addOption($option);
-
+        /** @noinspection NullPointerExceptionInspection */
         $representative->getUser()->addPollSubscription($question);
         $manager->persist($question);
         $this->addReference('representative_payment_request_2', $question);
@@ -81,7 +81,7 @@ class LoadRepresentativePaymentRequestData extends AbstractFixture implements De
         $option->setValue('val '.$faker->word)
             ->setIsUserAmount(true);
         $question->addOption($option);
-
+        /** @noinspection NullPointerExceptionInspection */
         $representative->getUser()->addPollSubscription($question);
         $manager->persist($question);
         $this->addReference('representative_payment_request_3', $question);

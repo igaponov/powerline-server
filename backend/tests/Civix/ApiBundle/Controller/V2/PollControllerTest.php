@@ -1,5 +1,5 @@
 <?php
-namespace Civix\ApiBundle\Tests\Controller\V2;
+namespace Tests\Civix\ApiBundle\Controller\V2;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\Karma;
@@ -29,11 +29,11 @@ use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadMembershipReportData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadPollResponseReportData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Report\LoadUserReportData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Representative\LoadPaymentRequestAnswerData as LoadRepresentativePaymentRequestAnswerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Representative\LoadQuestionAnswerData as LoadRepresentativeQuestionAnswerData;
+use Civix\CoreBundle\Tests\DataFixtures\ORM\Representative\LoadQuestionCommentData as LoadRepresentativeQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Representative\LoadRepresentativeNewsData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Representative\LoadRepresentativePaymentRequestData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Representative\LoadRepresentativeQuestionData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\Representative\LoadQuestionAnswerData as LoadRepresentativeQuestionAnswerData;
-use Civix\CoreBundle\Tests\DataFixtures\ORM\Representative\LoadQuestionCommentData as LoadRepresentativeQuestionCommentData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe\LoadAccountGroupData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Stripe\LoadAccountRepresentativeData;
 use Doctrine\DBAL\Connection;
@@ -46,7 +46,7 @@ use Symfony\Bundle\FrameworkBundle\Client;
 
 class PollControllerTest extends WebTestCase
 {
-	const API_ENDPOINT = '/api/v2/polls';
+	private const API_ENDPOINT = '/api/v2/polls';
 	
 	/**
 	 * @var \Doctrine\ORM\EntityManager
@@ -56,7 +56,7 @@ class PollControllerTest extends WebTestCase
 	/**
 	 * @var Client
 	 */
-	private $client = null;
+	private $client;
 
 	public function setUp()
 	{
@@ -1646,8 +1646,8 @@ class PollControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertCount(3, $data);
         $this->assertSame([], $data[0]['fields']);
-        $this->assertSame(["test-group-field" => "Test Answer"], $data[1]['fields']);
-        $this->assertSame(["test-group-field" => "Second Answer"], $data[2]['fields']);
+        $this->assertSame(['test-group-field' => 'Test Answer'], $data[1]['fields']);
+        $this->assertSame(['test-group-field' => 'Second Answer'], $data[2]['fields']);
         $phoneUtil = PhoneNumberUtil::getInstance();
         foreach ([$user2, $user3, $user4] as $k => $user) {
             /** @var User $user */

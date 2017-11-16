@@ -95,7 +95,7 @@ class Charge
      */
     private $toAccount;
 
-    public function __construct(Customer $customer, Account $account = null, Question $question = null)
+    public function __construct(CustomerInterface $customer, Account $account = null, Question $question = null)
     {
         $this->fromCustomer = $customer;
         $this->toAccount = $account;

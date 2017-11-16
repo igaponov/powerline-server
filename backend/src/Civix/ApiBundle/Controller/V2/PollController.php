@@ -18,6 +18,7 @@ use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\DiExtraBundle\Annotation as DI;
+use Knp\Component\Pager\Pagination\PaginationInterface;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -85,7 +86,7 @@ class PollController extends FOSRestController
      *
      * @return Question
      */
-    public function getAction(Question $question)
+    public function getAction(Question $question): Question
     {
         return $question;
     }
@@ -125,6 +126,7 @@ class PollController extends FOSRestController
      * @param Question $question
      *
      * @return Question|\Symfony\Component\Form\Form
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function putAction(Request $request, Question $question)
     {
@@ -218,9 +220,8 @@ class PollController extends FOSRestController
             $this->em->flush();
 
             return null;
-        } else {
-            return $violations;
         }
+        return $violations;
     }
 
     /**
@@ -318,9 +319,9 @@ class PollController extends FOSRestController
      * @param ParamFetcher $params
      * @param Question $question
      *
-     * @return \Knp\Component\Pager\Pagination\PaginationInterface
+     * @return PaginationInterface
      */
-    public function getAnswersAction(ParamFetcher $params, Question $question)
+    public function getAnswersAction(ParamFetcher $params, Question $question): PaginationInterface
     {
         $query = $this->em->getRepository('CivixCoreBundle:Poll\Answer')
             ->getAnswersByQuestion(
@@ -425,7 +426,7 @@ class PollController extends FOSRestController
      *
      * @return array
      */
-    public function getResponsesAction(Question $question)
+    public function getResponsesAction(Question $question): array
     {
         $query = new PollResponsesQuery($this->em);
 
@@ -455,7 +456,7 @@ class PollController extends FOSRestController
      *
      * @return TempFile
      */
-    public function getResponsesLinkAction(Question $question)
+    public function getResponsesLinkAction(Question $question): TempFile
     {
         $result = $this->getResponsesAction($question);
         $file = new TempFile(

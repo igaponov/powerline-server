@@ -36,7 +36,7 @@ class LoadGroupPaymentRequestData extends AbstractFixture implements DependentFi
             ->setIsUserAmount(false)
             ->setPaymentAmount(400);
         $question->addOption($option);
-
+        /** @noinspection NullPointerExceptionInspection */
         $group1->getOwner()->addPollSubscription($question);
         $manager->persist($question);
         $this->addReference('group_payment_request_1', $question);
@@ -58,7 +58,7 @@ class LoadGroupPaymentRequestData extends AbstractFixture implements DependentFi
             ->setIsUserAmount(false)
             ->setPaymentAmount(500);
         $question->addOption($option);
-
+        /** @noinspection NullPointerExceptionInspection */
         $group1->getOwner()->addPollSubscription($question);
         $manager->persist($question);
         $this->addReference('group_payment_request_2', $question);
@@ -81,7 +81,7 @@ class LoadGroupPaymentRequestData extends AbstractFixture implements DependentFi
         $option->setValue('val '.$faker->word)
             ->setIsUserAmount(true);
         $question->addOption($option);
-
+        /** @noinspection NullPointerExceptionInspection */
         $group1->getOwner()->addPollSubscription($question);
         $manager->persist($question);
         $this->addReference('group_payment_request_3', $question);
