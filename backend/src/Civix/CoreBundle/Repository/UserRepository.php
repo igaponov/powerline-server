@@ -727,4 +727,15 @@ class UserRepository extends EntityRepository
     {
         return $this->findOneBy(['phone' => $phone]);
     }
+
+    public function existsByUsernameOrEmail($username, $email)
+    {
+        return $this->createQueryBuilder('u')
+            ->select('COUNT(u)')
+            ->where('u.username = :username')
+            ->setParameter(':username', $username)
+            ->orWhere('u.email = :email')
+            ->setParameter(':email', $email)
+            ->getQuery()->getSingleScalarResult() > 0;
+    }
 }
