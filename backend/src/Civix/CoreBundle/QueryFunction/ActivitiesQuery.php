@@ -8,9 +8,7 @@ use Civix\CoreBundle\Entity\Post;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserPetition;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
-use Knp\Component\Pager\Event\Subscriber\Paginate\Doctrine\ORM\QuerySubscriber;
 
 final class ActivitiesQuery
 {
@@ -109,7 +107,7 @@ final class ActivitiesQuery
         };
     }
 
-    public function __invoke(User $user, ?array $types, array $filters, bool $addPublicGroups = false): Query
+    public function __invoke(User $user, ?array $types, array $filters, bool $addPublicGroups = false): QueryBuilder
     {
         $builder = new ActivitiesQueryBuilder($this->em);
         $cases = $builder->getTypeCases();
@@ -152,11 +150,7 @@ final class ActivitiesQuery
             $filter($qb);
         });
 
-        $query = $qb->getQuery();
-        /** @noinspection PhpDeprecationInspection */
-        $query->setHint(QuerySubscriber::HINT_COUNT, $this->getCount($qb));
-
-        return $query;
+        return $qb;
     }
 
     public function runPostQueries(array $activities): void
@@ -193,7 +187,7 @@ final class ActivitiesQuery
      * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    private function getCount(QueryBuilder $originalQueryBuilder): int
+    public function getCount(QueryBuilder $originalQueryBuilder): int
     {
         $qb = clone $originalQueryBuilder;
         $qb->distinct(false)

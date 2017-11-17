@@ -42,7 +42,7 @@ class RootCommentsByEntityQuery
             ->getAssociationMapping('comments');
         $class = $mapping['targetEntity'];
         $commentEntityField = 'c.'.$mapping['mappedBy'];
-        $query = $this->em->createQueryBuilder()
+        $qb = $this->em->createQueryBuilder()
             ->from($class, 'c')
             ->select('c', 'u', 'r', 'COUNT(ch) AS childrenCount')
             ->leftJoin('c.user', 'u')
@@ -52,10 +52,9 @@ class RootCommentsByEntityQuery
             ->where($commentEntityField.' = :entity')
             ->setParameter('entity', $entity)
             ->andWhere('c.parentComment IS NULL')
-            ->groupBy('c')
-            ->getQuery();
+            ->groupBy('c');
 
-        $cursor = new Cursor($query, $lastId, $limit);
+        $cursor = new Cursor($qb, $lastId, $limit);
         $cursor->connect(CursorEvents::ITEMS, function (ItemsEvent $event) use ($class, $user) {
             $items = $event->getItems();
             if (empty($items)) {

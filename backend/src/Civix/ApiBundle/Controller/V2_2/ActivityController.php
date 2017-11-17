@@ -1,35 +1,30 @@
 <?php
 
-namespace Civix\ApiBundle\Controller\V2;
+namespace Civix\ApiBundle\Controller\V2_2;
 
-use Civix\ApiBundle\Form\Type\ActivitiesType;
+use Civix\Component\Cursor\Event\CursorEvents;
+use Civix\Component\Cursor\Event\ItemsEvent;
+use Civix\Component\Doctrine\ORM\Cursor;
 use Civix\CoreBundle\Entity\Activity;
 use Civix\CoreBundle\Entity\ActivityRead;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Entity\UserFollow;
 use Civix\CoreBundle\QueryFunction\ActivitiesQuery;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
-use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
 use JMS\DiExtraBundle\Annotation as DI;
-use Knp\Component\Pager\Event\AfterEvent;
-use Knp\Component\Pager\Event\Subscriber\Paginate\Doctrine\ORM\QuerySubscriber;
-use Knp\Component\Pager\Pagination\AbstractPagination;
-use Knp\Component\Pager\Pagination\PaginationInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Route("/activities")
  */
-class ActivityController extends FOSRestController
+class ActivityController
 {
     /**
      * @var EntityManagerInterface
@@ -42,6 +37,14 @@ class ActivityController extends FOSRestController
      * @DI\Inject("security.token_storage")
      */
     private $tokenStorage;
+
+    public function __construct(
+        EntityManagerInterface $em,
+        TokenStorageInterface $tokenStorage
+    ) {
+        $this->em = $em;
+        $this->tokenStorage = $tokenStorage;
+    }
 
     /**
      * Return a user's list of activities
@@ -59,8 +62,8 @@ class ActivityController extends FOSRestController
      * @QueryParam(name="poll_id", requirements="\d+", description="Filter by poll id")
      * @QueryParam(name="petition_id", requirements="\d+", description="Filter by petition id")
      * @QueryParam(name="hash_tag", requirements=".+", description="Filter by hash tag")
-     * @QueryParam(name="page", requirements="\d+", default="1")
-     * @QueryParam(name="per_page", requirements="(10|15|20)", default="20")
+     * @QueryParam(name="cursor", requirements="\d+", default="0")
+     * @QueryParam(name="limit", requirements=@Assert\Range(min="1", max="20"), default="20")
      *
      * @ApiDoc(
      *     authentication = true,
@@ -80,19 +83,16 @@ class ActivityController extends FOSRestController
      *     }
      * )
      *
-     * @View(serializerGroups={"paginator", "api-activities", "activity-list", "api-comments", "api-comments-add"})
+     * @View(serializerGroups={"paginator", "api-activities", "activity-list"})
      *
      * @param ParamFetcher $params
      *
-     * @return PaginationInterface
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @return array|Cursor
      */
-    public function getActivitiesAction(ParamFetcher $params): PaginationInterface
+    public function getActivitiesAction(ParamFetcher $params): Cursor
     {
         $start = new \DateTime('-30 days');
         $activityTypes = $params->get('type') ? (array)$params->get('type') : null;
-        $target = [];
         $user = $this->tokenStorage->getToken()->getUser();
         $activitiesQuery = new ActivitiesQuery($this->em);
         if ($followingId = $params->get('following')) {
@@ -195,17 +195,18 @@ class ActivityController extends FOSRestController
             );
         }
 
-        $paginator = $this->get('knp_paginator');
-        $paginator->connect('knp_pager.after', function (AfterEvent $event) use ($user, $activitiesQuery) {
+        if (!isset($qb)) {
+            return [];
+        }
+
+        $cursor = new Cursor($qb, $params->get('cursor'), $params->get('limit'));
+        $cursor->connect(CursorEvents::ITEMS, function (ItemsEvent $event) use ($user, $activitiesQuery) {
             $filter = function (ActivityRead $activityRead) use ($user) {
                 return $activityRead->getUser()->getId() === $user->getId();
             };
             $activities = [];
-            $pagination = $event->getPaginationView();
-            if (!$pagination instanceof AbstractPagination) {
-                return;
-            }
-            foreach ($pagination as $activity) {
+            $items = $event->getItems();
+            foreach ($items as $activity) {
                 $zone = $activity['zone'];
                 $activity = reset($activity);
                 /** @var Activity $activity */
@@ -216,61 +217,9 @@ class ActivityController extends FOSRestController
                 $activities[] = $activity;
             }
             $activitiesQuery->runPostQueries($activities);
-            $pagination->setItems($activities);
+            $event->setItems($activities);
         });
-        if (isset($qb)) {
-            /** @noinspection PhpDeprecationInspection */
-            $target = $qb->getQuery()->setHint(QuerySubscriber::HINT_COUNT, $activitiesQuery->getCount($qb));
-        }
-        return $paginator->paginate(
-            $target,
-            $params->get('page'),
-            $params->get('per_page'),
-            ['distinct' => false]
-        );
-    }
 
-    /**
-     * Bulk update activities
-     *
-     * @Route("")
-     * @Method("PATCH")
-     *
-     * @ApiDoc(
-     *     authentication = true,
-     *     resource=true,
-     *     section="Activity",
-     *     description="Bulk update activities",
-     *     input = "Civix\ApiBundle\Form\Type\ActivitiesType",
-     *     output = {
-     *          "class" = "array<Civix\CoreBundle\Entity\Activity>",
-     *          "groups" = {"api-activities"}
-     *     },
-     *     statusCodes={
-     *          200="Returned when successful",
-     *          405="Method Not Allowed"
-     *     }
-     * )
-     *
-     * @View(serializerGroups={"api-activities"})
-     *
-     * @param Request $request
-     * @return \Symfony\Component\Form\Form|Response
-     *
-     * @throws \Symfony\Component\Form\Exception\AlreadySubmittedException
-     */
-    public function patchAction(Request $request)
-    {
-        $form = $this->createForm(ActivitiesType::class);
-        $form->submit($request->request->all());
-        
-        if ($form->isValid()) {
-            $user = $this->tokenStorage->getToken()->getUser();
-
-            return $this->get('civix_core.service.activity_manager')
-                ->bulkUpdate(new ArrayCollection($form->getData()['activities']), $user);
-        }
-
-        return $form;
+        return $cursor;
     }
 }

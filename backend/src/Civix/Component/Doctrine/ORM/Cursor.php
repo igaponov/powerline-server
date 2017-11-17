@@ -16,7 +16,7 @@ class Cursor implements CursorInterface
     /**
      * @var QueryBuilder
      */
-    private $query;
+    private $qb;
     /**
      * @var int
      */
@@ -38,9 +38,9 @@ class Cursor implements CursorInterface
      */
     private $dispatcher;
 
-    public function __construct(Query $query, int $cursor, int $limit, ?EventDispatcherInterface $dispatcher = null)
+    public function __construct(QueryBuilder $qb, int $cursor, int $limit, ?EventDispatcherInterface $dispatcher = null)
     {
-        $this->query = $query;
+        $this->qb = $qb;
         $this->cursor = $cursor;
         $this->limit = $limit;
         if ($dispatcher) {
@@ -53,10 +53,11 @@ class Cursor implements CursorInterface
     public function getIterator(): \ArrayIterator
     {
         if (!$this->iterator) {
-            $query = $this->query;
+            $aliases = $this->qb->getRootAliases();
+            $query = $this->qb->getQuery();
             $this->addCustomTreeWalker($query, WhereWalker::class);
             $query->setMaxResults($this->limit + 1)
-                ->setHint(WhereWalker::HINT_CURSOR_FILTER_COLUMNS, ['c.id'])
+                ->setHint(WhereWalker::HINT_CURSOR_FILTER_COLUMNS, [$aliases[0].'.id'])
                 ->setHint(WhereWalker::HINT_CURSOR_FILTER_VALUE, $this->cursor);
             $event = new ItemsEvent($query, $query->getResult());
             $this->dispatcher->dispatch(CursorEvents::ITEMS, $event);
