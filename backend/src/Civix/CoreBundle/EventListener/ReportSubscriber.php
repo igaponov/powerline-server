@@ -33,7 +33,7 @@ class ReportSubscriber implements EventSubscriberInterface
                 ['updateKarmaAnswerPoll', -100],
             ],
             Event\PollEvents::QUESTION_CHANGE_ANSWER => [
-                ['createPollReport'],
+                ['updatePollReport'],
             ],
             Event\PostEvents::POST_VOTE => [
                 ['createPostReport'],
