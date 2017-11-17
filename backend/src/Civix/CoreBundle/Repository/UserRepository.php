@@ -353,7 +353,7 @@ class UserRepository extends EntityRepository
             $this->addQueryFilter($qb, $params['query']);
         }
 
-        if ($user && isset($params['unfollowing']) && $params['unfollowing']) {
+        if ($user && !empty($params['unfollowing'])) {
             $this->addUnfollowingFilter($qb, $user);
         }
 
@@ -586,7 +586,7 @@ class UserRepository extends EntityRepository
             $qb->leftJoin('u.pollSubscriptions', 's');
         } else {
             throw new \RuntimeException(
-                sprintf('Wrong subscription type: %s', get_class($subscription))
+                sprintf('Wrong subscription type: %s', \get_class($subscription))
             );
         }
         return $qb->where('s = :subscription')
@@ -613,6 +613,7 @@ class UserRepository extends EntityRepository
      */
     public function getUsersByGroupForLeaderContentPush(LeaderContentInterface $content, $type, $startId = 0, $limit = null): array
     {
+        /** @noinspection NotOptimalIfConditionsInspection */
         if (($content instanceof GroupSectionInterface) && $content->getGroupSections()->count() > 0) {
             return $this->getUsersBySectionsForPush($content->getGroupSectionIds(), $type, $startId, $limit);
         }
@@ -626,7 +627,6 @@ class UserRepository extends EntityRepository
      * @param User[] $exclude Exclude users from result
      * @return array
      * @throws \Doctrine\DBAL\DBALException
-     * @throws \Doctrine\ORM\ORMException
      */
     public function findAllMembersByGroup(Group $group, User ...$exclude): array
     {
@@ -646,7 +646,7 @@ class UserRepository extends EntityRepository
         );
         $ids = $stmt->fetchAll(\PDO::FETCH_COLUMN);
         $owner = $group->getOwner();
-        if ($owner && !in_array($owner->getId(), $ids, false)) {
+        if ($owner && !\in_array($owner->getId(), $ids, false)) {
             $ids[] = $owner->getId();
         }
         foreach ($exclude as $item) {
