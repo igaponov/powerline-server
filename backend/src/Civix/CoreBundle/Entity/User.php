@@ -56,8 +56,8 @@ class User implements
         HasAvatarTrait,
         UserSerializableTrait;
 
-    const DEFAULT_AVATAR = '/bundles/civixfront/img/default_user.png';
-    const SOMEONE_AVATAR = '/bundles/civixfront/img/default_someone.png';
+    public const DEFAULT_AVATAR = '/bundles/civixfront/img/default_user.png';
+    public const SOMEONE_AVATAR = '/bundles/civixfront/img/default_someone.png';
 
     /**
      * @var int
