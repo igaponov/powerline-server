@@ -738,4 +738,23 @@ class UserRepository extends EntityRepository
             ->setParameter(':email', $email)
             ->getQuery()->getSingleScalarResult() > 0;
     }
+
+    public function getBlockedByUserQueryBuilder(User $user)
+    {
+        return $this->createQueryBuilder('u')
+            ->leftJoin('u.blockedBy', 'b')
+            ->where('b = :user')
+            ->setParameter(':user', $user);
+    }
+
+    public function findUserWithBlockedBy($id, User $user)
+    {
+        return $this->createQueryBuilder('u')
+            ->addSelect('PARTIAL b.{id}')
+            ->where('u.id = :id')
+            ->setParameter(':id', $id)
+            ->leftJoin('u.blockedBy', 'b', 'WITH', 'b = :user')
+            ->setParameter(':user', $user)
+            ->getQuery()->getOneOrNullResult();
+    }
 }

@@ -90,3 +90,9 @@ services:
         arguments:
             - '@doctrine.orm.entity_manager'
             - '@security.token_storage'
+
+    Civix\ApiBundle\Controller\V2_2\User\BlockedUsersController:
+        class: Civix\ApiBundle\Controller\V2_2\User\BlockedUsersController
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - '@security.token_storage'
