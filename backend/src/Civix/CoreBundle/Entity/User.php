@@ -655,6 +655,18 @@ class User implements
      */
     private $discountCodes;
 
+    /**
+     * @var User[]|Collection
+     *
+     * @ORM\ManyToMany(targetEntity="Civix\CoreBundle\Entity\User", fetch="EXTRA_LAZY")
+     * @ORM\JoinTable(name="blocked_users", joinColumns={
+     *     @ORM\JoinColumn(name="blocked_user_id", onDelete="CASCADE")
+     * }, inverseJoinColumns={
+     *     @ORM\JoinColumn(name="user_id", onDelete="CASCADE")
+     * })
+     */
+    private $blockedBy;
+
     public function __construct()
     {
         $this->salt = base_convert(sha1(uniqid(mt_rand(), true)), 16, 36);
@@ -668,6 +680,7 @@ class User implements
         $this->petitionSubscriptions = new ArrayCollection();
         $this->postSubscriptions = new ArrayCollection();
         $this->discountCodes = new ArrayCollection();
+        $this->blockedBy = new ArrayCollection();
         $this->interests = [];
 
         $this->isRegistrationComplete = true;
@@ -2584,5 +2597,31 @@ class User implements
     public function removeDiscountCode(DiscountCode $discountCode): void
     {
         $this->discountCodes->remove($discountCode);
+    }
+
+    /**
+     * @return User[]|Collection
+     */
+    public function getBlockedBy(): Collection
+    {
+        return $this->blockedBy;
+    }
+
+    /**
+     * @param User $user
+     * @return User
+     */
+    public function blockBy(User $user): User
+    {
+        $this->blockedBy[] = $user;
+        return $this;
+    }
+
+    /**
+     * @param User $user
+     */
+    public function unblockBy(User $user): void
+    {
+        $this->blockedBy->removeElement($user);
     }
 }
