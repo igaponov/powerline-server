@@ -277,9 +277,7 @@ class ProfileController extends BaseController
      *     resource=true,
      *     section="Users",
      *     description="Update Profile",
-     *     filters={
-     *         {"name"="step", "dataType"="integer"}
-     *     },
+     *     input="Civix\ApiBundle\Form\Type\UserUpdateType",
      *     statusCodes={
      *         200="Returns profile info",
      *         400="Incorrect data",
