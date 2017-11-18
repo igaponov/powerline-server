@@ -1466,15 +1466,6 @@ class PollControllerTest extends WebTestCase
         $this->assertEquals(0, $count);
         $tester = new SocialActivityTester($em);
         $tester->assertActivitiesCount(0);
-        $result = $this->em->getRepository(PollResponseReport::class)
-            ->getPollResponseReport($user, $question);
-        $this->assertEquals($user->getId(), $result[0]['user']);
-        $this->assertEquals($question->getId(), $result[0]['poll']);
-        $this->assertEquals($question->getGroup()->getId(), $result[0]['group']);
-        $this->assertEquals($question->getTitle(), $result[0]['text']);
-        $this->assertEquals($option->getValue(), $result[0]['answer']);
-        $this->assertEquals($params['comment'], $result[0]['comment']);
-        $this->assertEquals(Answer::PRIVACY_PRIVATE, $result[0]['privacy']);
     }
 
     public function testAddRepresentativePaymentAnswerToNotCrowdfundingRequestIsOk()
@@ -1582,15 +1573,6 @@ class PollControllerTest extends WebTestCase
         $this->assertEquals(0, $count);
         $count = $conn->fetchColumn('SELECT answers_count FROM poll_questions WHERE id = ?', [$question->getId()]);
         $this->assertEquals(0, $count);
-        $result = $this->em->getRepository(PollResponseReport::class)
-            ->getPollResponseReport($user, $question);
-        $this->assertEquals($user->getId(), $result[0]['user']);
-        $this->assertEquals($question->getId(), $result[0]['poll']);
-        $this->assertEquals($question->getGroup()->getId(), $result[0]['group']);
-        $this->assertEquals($question->getTitle(), $result[0]['text']);
-        $this->assertEquals($option->getValue(), $result[0]['answer']);
-        $this->assertEquals($params['comment'], $result[0]['comment']);
-        $this->assertEquals(Answer::PRIVACY_PRIVATE, $result[0]['privacy']);
     }
 
     /**
