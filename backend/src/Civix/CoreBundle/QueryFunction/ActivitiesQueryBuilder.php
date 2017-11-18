@@ -54,6 +54,12 @@ final class ActivitiesQueryBuilder
         if ($types) {
             $cases = array_intersect_key($cases, array_flip($types));
         }
+        $blockedIds = [];
+        if (isset($cases['post']) || isset($cases['petition'])) {
+            if ($blockedIds = $this->em->getRepository(User::class)->getBlockedUserIds($user)) {
+                $qb->setParameter(':blockedIds', $blockedIds);
+            }
+        }
         if (isset($cases['poll'])) {
             $qb->leftJoin('act.question', 'q')
                 ->leftJoin('q.answers', 'qa', Query\Expr\Join::WITH, 'qa.user = :user')
@@ -74,6 +80,9 @@ final class ActivitiesQueryBuilder
             $qb->leftJoin('act.post', 'p')
                 ->leftJoin('p.votes', 'pv', Query\Expr\Join::WITH, 'pv.user = :user')
                 ->leftJoin('p.subscribers', 'pos', Query\Expr\Join::WITH, 'pos = :user');
+            if ($blockedIds) {
+                $qb->andWhere('act.post IS NULL OR p.user NOT IN (:blockedIds)');
+            }
         } else {
             $qb->andWhere('
                 act NOT INSTANCE OF (
@@ -85,6 +94,9 @@ final class ActivitiesQueryBuilder
             $qb->leftJoin('act.petition', 'up')
                 ->leftJoin('up.signatures', 'ups', Query\Expr\Join::WITH, 'ups.user = :user')
                 ->leftJoin('up.subscribers', 'ps', Query\Expr\Join::WITH, 'ps = :user');
+            if ($blockedIds) {
+                $qb->andWhere('act.petition IS NULL OR up.user NOT IN (:blockedIds)');
+            }
         } else {
             $qb->andWhere('
                 act NOT INSTANCE OF (

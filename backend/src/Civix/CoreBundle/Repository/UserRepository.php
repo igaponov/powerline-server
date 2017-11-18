@@ -757,4 +757,13 @@ class UserRepository extends EntityRepository
             ->setParameter(':user', $user)
             ->getQuery()->getOneOrNullResult();
     }
+
+    public function getBlockedUserIds(User $user)
+    {
+        $result = $this->getBlockedByUserQueryBuilder($user)
+            ->select('u.id')
+            ->getQuery()->getScalarResult();
+
+        return array_column($result, 'id');
+    }
 }

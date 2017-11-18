@@ -10,7 +10,7 @@ use Tests\Civix\ApiBundle\Controller\ActivityControllerTestCase;
 
 class ActivityControllerTest extends ActivityControllerTestCase
 {
-	const API_ENDPOINT = '/api/v2/activities';
+	private const API_ENDPOINT = '/api/v2/activities';
 
     /**
      * @todo cache user's newsfeed
@@ -19,7 +19,6 @@ class ActivityControllerTest extends ActivityControllerTestCase
      * @param array $references
      * @param int $queryCount
      * @dataProvider getSets
-     * @throws \Doctrine\Common\DataFixtures\OutOfBoundsException
      */
 	public function testGetActivitiesIsOk(array $params, array $references, int $queryCount): void
     {
@@ -76,7 +75,7 @@ class ActivityControllerTest extends ActivityControllerTestCase
                     'activity_question',
                     'activity_leader_event',
                 ],
-                12
+                13
             ],
             'followed' => [
                 ['followed' => true],
@@ -87,7 +86,7 @@ class ActivityControllerTest extends ActivityControllerTestCase
                     'activity_question',
                     'activity_leader_event',
                 ],
-                12
+                13
             ],
             'non-followed' => [
                 ['non_followed' => true],
@@ -97,7 +96,7 @@ class ActivityControllerTest extends ActivityControllerTestCase
                     'activity_post',
                     'activity_crowdfunding_payment_request',
                 ],
-                13
+                14
             ]
         ];
 	}

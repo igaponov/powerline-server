@@ -8,6 +8,7 @@ use Civix\CoreBundle\Entity\Poll\EducationalContext;
 use Civix\CoreBundle\Entity\Post\Vote;
 use Civix\CoreBundle\Tests\DataFixtures\ORM;
 use Symfony\Bundle\FrameworkBundle\Client;
+use Tests\Civix\CoreBundle\DataFixtures\ORM\LoadBlockedUserData;
 
 class ActivityControllerTestCase extends WebTestCase
 {
@@ -50,6 +51,7 @@ class ActivityControllerTestCase extends WebTestCase
             ORM\LoadUserGroupData::class,
             ORM\LoadUserGroupOwnerData::class,
             ORM\LoadGroupManagerData::class,
+            LoadBlockedUserData::class,
         ]);
     }
 

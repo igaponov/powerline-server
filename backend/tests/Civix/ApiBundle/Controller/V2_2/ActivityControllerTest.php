@@ -8,7 +8,7 @@ use Tests\Civix\ApiBundle\Controller\ActivityControllerTestCase;
 
 class ActivityControllerTest extends ActivityControllerTestCase
 {
-    const API_ENDPOINT = '/api/v2.2/activities';
+    private const API_ENDPOINT = '/api/v2.2/activities';
 
     /**
      * @todo cache user's newsfeed
@@ -73,7 +73,7 @@ class ActivityControllerTest extends ActivityControllerTestCase
                     'activity_question',
                     'activity_leader_event',
                 ],
-                11
+                12
             ],
             'followed' => [
                 ['followed' => true],
@@ -84,7 +84,7 @@ class ActivityControllerTest extends ActivityControllerTestCase
                     'activity_question',
                     'activity_leader_event',
                 ],
-                11
+                12
             ],
             'non-followed' => [
                 ['non_followed' => true],
@@ -94,7 +94,7 @@ class ActivityControllerTest extends ActivityControllerTestCase
                     'activity_post',
                     'activity_crowdfunding_payment_request',
                 ],
-                12
+                13
             ]
         ];
     }
