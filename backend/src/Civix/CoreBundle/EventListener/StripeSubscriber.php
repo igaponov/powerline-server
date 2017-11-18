@@ -45,10 +45,10 @@ class StripeSubscriber implements EventSubscriberInterface
     {
         $charge->setStripeId($sc->id);
         $charge->setStatus($sc->status);
-        $charge->setAmount($sc->amount);
+        $charge->setAmount((int)$sc->amount);
         $charge->setCurrency($sc->currency);
-        $charge->setApplicationFee($sc->application_fee);
+        $charge->setApplicationFee((int)$sc->application_fee);
         $charge->setReceiptNumber($sc->receipt_number);
-        $charge->setCreated($sc->created);
+        $charge->setCreated((int)$sc->created);
     }
 }
