@@ -91,7 +91,7 @@ class SecurityController
     public function registrationAction(Request $request)
     {
         $form = $this->formFactory->create(RegistrationType::class);
-        $form->handleRequest($request->request->all());
+        $form->submit($request->request->all());
 
         if ($form->isValid()) {
             return $this->manager->register($form->getData());
