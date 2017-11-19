@@ -5,7 +5,10 @@ use Buzz\Client\ClientInterface;
 use Buzz\Message\Request;
 use Buzz\Message\Response;
 use Civix\ApiBundle\Tests\WebTestCase;
+use Civix\CoreBundle\DataCollector\RabbitMQDataCollector;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Event\UserEvent;
+use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Faker\Factory;
 use GuzzleHttp\Command\Guzzle\GuzzleClient;
@@ -192,6 +195,38 @@ class SecurityControllerTest extends WebTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertNotEmpty($data['token']);
         $this->assertEquals($user->getId(), $data['id']);
+    }
+
+    public function testRegistration()
+    {
+        $this->loadFixtures([]);
+        /** @var User $user */
+        $client = $this->client;
+        $client->enableProfiler();
+        $params = [
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'username' => 'johndoe',
+            'email' => 'john@doe.com',
+            'country' => 'US',
+            'zip' => '123456',
+            'phone' => '+1-800-555-1111',
+        ];
+        $client->request('POST', self::API_ENDPOINT.'registration', [], [], [], json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertNotEmpty($data['id']);
+        $this->assertNotEmpty($data['username']);
+        $this->assertEmpty($data['token']);
+        $this->assertTrue($data['is_registration_complete']);
+        /** @var RabbitMQDataCollector $collector */
+        $collector = $client->getProfile()->getCollector('rabbit_mq');
+        $data = $collector->getData();
+        $this->assertCount(1, $data);
+        $msg = unserialize($data[0]['msg']);
+        $this->assertSame(UserEvents::REGISTRATION, $msg->getEventName());
+        $this->assertInstanceOf(UserEvent::class, $msg->getEvent());
     }
 
     public function testLoginByPhone()

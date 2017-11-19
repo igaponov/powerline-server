@@ -59,7 +59,7 @@ security:
                 failure_handler: civix_api.security.authentication_failure_handler
 
         mobileuser_anonymous:
-            pattern: ^/api/secure/
+            pattern: ^/api/(secure/|v2/security/)
             anonymous: ~
 
         mobileuser_security_area:
