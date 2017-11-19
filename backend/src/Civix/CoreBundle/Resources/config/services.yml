@@ -86,6 +86,14 @@ services:
         class: GuzzleHttp\Client
         arguments: [ { allow_redirects: true } ]
 
+    civix_core.service.twilio:
+        class: Civix\CoreBundle\Service\Twilio
+        arguments:
+            - '%twilio_service_sid%'
+            - '%twilio_account_sid%'
+            - '%twilio_signing_key_sid%'
+            - '%twilio_secret%'
+
 #    civix_core.uploader.metadata.file_locator:
 #        class: Metadata\Driver\FileLocator
 #        public: false
