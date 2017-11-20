@@ -50,7 +50,7 @@ services:
                                     Not enabled by default.
                                     Overwrites the default message sent sms or phone call.
                     checkVerification:
-                        httpMethod: POST
+                        httpMethod: GET
                         uri: /protected/{format}/phones/verification/check
                         responseModel: getResponse
                         parameters:
