@@ -13,13 +13,10 @@ use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Service\CiceroApi;
 use Doctrine\ORM\EntityManager;
-use libphonenumber\PhoneNumber;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UserManager
 {
-    const USER_RESET_PASSWORD_INTERVAL_HOURS = 24;
-
     private $entityManager;
     private $ciceroApi;
     /**
@@ -164,20 +161,13 @@ class UserManager
 
     public function register(User $user): User
     {
+        $user->setPlainPassword(random_bytes(20));
         $event = new AvatarEvent($user);
         $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        $event = new UserEvent($user);
-        $this->dispatcher->dispatch('async.'.UserEvents::REGISTRATION, $event);
-
-        return $user;
-    }
-
-    public function loginByPhoneNumber(PhoneNumber $number)
-    {
         $event = new UserEvent($user);
         $this->dispatcher->dispatch('async.'.UserEvents::REGISTRATION, $event);
 
