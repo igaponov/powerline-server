@@ -33,6 +33,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *      repositoryMethod="findByUsernameOrEmail",
  *      errorPath="email"
  * )
+ * @UniqueEntity(fields={"phone"}, groups={"registration", "registration2.2"})
  * @UniqueEntity(
  *      fields={"facebookId"},
  *      groups={"facebook"},
@@ -215,7 +216,7 @@ class User implements
     /**
      * @var string
      *
-     * @ORM\Column(name="phone", type="string", length=255, nullable=true)
+     * @ORM\Column(name="phone", type="string", length=255, nullable=true, unique=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-profile"})
      */
