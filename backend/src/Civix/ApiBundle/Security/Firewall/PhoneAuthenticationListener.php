@@ -56,7 +56,7 @@ class PhoneAuthenticationListener extends AbstractAuthenticationListener
     protected function attemptAuthentication(Request $request)
     {
         if (!$phone = $request->get('phone')) {
-            return [];
+            return null;
         }
         try {
             $phoneNumber = $this->phoneUtil->parse($phone, PhoneNumberUtil::UNKNOWN_REGION);
