@@ -90,3 +90,7 @@ services:
         arguments:
             - '@doctrine.orm.entity_manager'
             - '@security.token_storage'
+
+    Civix\ApiBundle\Controller\V2_2\TwilioController:
+        class: Civix\ApiBundle\Controller\V2_2\TwilioController
+        arguments: ['@civix_core.service.twilio']
