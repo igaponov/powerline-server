@@ -133,7 +133,6 @@
         <service class="Civix\ApiBundle\View\CsvHandler" id="civix_api.csv_handler" />
 
         <service class="Civix\ApiBundle\Security\Http\EntryPoint\BearerTokenAuthenticationEntryPoint" id="civix_api.bearer_token_authentication_entry_point">
-            <argument id="router" type="service" />
         </service>
 
         <service class="Civix\ApiBundle\Form\Type\AnnouncementsType" id="civix_api.form_type.announcements_type">
