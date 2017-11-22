@@ -43,6 +43,7 @@ security:
         mobileuser_login:
             pattern: ^(/api/secure/login|/api/v2/security/login)$
             provider: mobileuser
+            entry_point: civix_api.bearer_token_authentication_entry_point
             phone-login:
                 login_path: /api/v2/security/login
                 check_path: /api/v2/security/login

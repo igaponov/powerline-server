@@ -14,7 +14,8 @@ class BearerTokenAuthenticationEntryPoint implements AuthenticationEntryPointInt
     {
         return new JsonResponse(
             ['message' => 'Authentication failed.'],
-            JsonResponse::HTTP_UNAUTHORIZED
+            JsonResponse::HTTP_UNAUTHORIZED,
+            ['WWW-Authenticate' => 'Bearer']
         );
     }
 }
