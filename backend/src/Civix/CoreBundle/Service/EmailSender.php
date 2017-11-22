@@ -3,6 +3,7 @@
 namespace Civix\CoreBundle\Service;
 
 use Civix\CoreBundle\Entity\DiscountCode;
+use Civix\CoreBundle\Entity\RecoveryToken;
 use Civix\CoreBundle\Entity\UserRepresentative;
 use Symfony\Component\Templating\EngineInterface;
 use Civix\CoreBundle\Entity\Group;
@@ -108,6 +109,17 @@ class EmailSender
             $user->getEmail(),
             '@CivixCore/Email/reward_code.html.twig',
             compact('discountCode')
+        );
+        $this->mailer->send($message);
+    }
+
+    public function sendRecoveryEmail(RecoveryToken $token)
+    {
+        $message = $this->createMessage(
+            'Powerline Account Verification (Action Required)',
+            $token->getUser()->getEmail(),
+            '@CivixCore/Email/recovery.html.twig',
+            ['token' => $token]
         );
         $this->mailer->send($message);
     }

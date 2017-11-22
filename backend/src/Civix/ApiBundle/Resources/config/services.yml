@@ -16,3 +16,18 @@ services:
         class: Civix\ApiBundle\Security\Firewall\PhoneAuthenticationListener
         parent: security.authentication.listener.abstract
         abstract: true
+
+    civix_api.security.authentication.provider.email:
+        class: Civix\ApiBundle\Security\Authentication\Provider\EmailAuthenticationProvider
+        arguments:
+            - '@api.security.user_provider'
+            -
+            -
+            - '@doctrine.orm.entity_manager'
+            - '@event_dispatcher'
+            - '@libphonenumber.phone_number_util'
+
+    civix_api.security.authentication.listener.email:
+        class: Civix\ApiBundle\Security\Firewall\EmailAuthenticationListener
+        parent: security.authentication.listener.abstract
+        abstract: true

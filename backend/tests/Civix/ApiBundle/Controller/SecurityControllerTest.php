@@ -1,11 +1,12 @@
 <?php
-namespace ToughDomains\Bundle\SecurityBundle\Tests\Controller;
+namespace Tests\Civix\ApiBundle\Controller;
 
 use Buzz\Client\ClientInterface;
 use Buzz\Message\Request;
 use Buzz\Message\Response;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\DataCollector\RabbitMQDataCollector;
+use Civix\CoreBundle\Entity\RecoveryToken;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
@@ -14,6 +15,7 @@ use Faker\Factory;
 use GuzzleHttp\Command\Guzzle\GuzzleClient;
 use HWI\Bundle\OAuthBundle\OAuth\ResourceOwnerInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
+use Tests\Civix\CoreBundle\DataFixtures\ORM\LoadRecoveryTokenData;
 
 class SecurityControllerTest extends WebTestCase
 {
@@ -304,6 +306,58 @@ class SecurityControllerTest extends WebTestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
     }
 
+    public function testRequestRecoverByEmail()
+    {
+        $repository = $this->loadFixtures([
+            LoadUserData::class,
+        ])->getReferenceRepository();
+        /** @var User $user */
+        $user = $repository->getReference('user_1');
+        /** @var User $user */
+        $client = $this->client;
+        $client->enableProfiler();
+        $phone = $user->getPhone();
+        $params = [
+            'username' => $user->getUsername(),
+            'phone' => '+'.$phone->getCountryCode().$phone->getNationalNumber(),
+            'zip' => $user->getZip(),
+            'token' => uniqid(),
+        ];
+        $client->request('POST', self::API_ENDPOINT.'recovery', [], [], [], json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $this->assertSame('ok', $response->getContent());
+        /** @var \Swift_Message[] $messages */
+        /** @noinspection PhpUndefinedMethodInspection */
+        $messages = $client->getProfile()->getCollector('swiftmailer')->getMessages();
+        $this->assertCount(1, $messages);
+        $this->assertArrayHasKey($user->getEmail(), $messages[0]->getTo());
+        $this->assertSame('Powerline Account Verification (Action Required)', $messages[0]->getSubject());
+        $this->assertRegExp('{http://localhost/security/recovery/[\w\+\=\/]+}', $messages[0]->getBody());
+    }
+
+    public function testRecoverByEmail()
+    {
+        $repository = $this->loadFixtures([
+            LoadRecoveryTokenData::class,
+        ])->getReferenceRepository();
+        /** @var RecoveryToken $token */
+        $token = $repository->getReference('recovery_token_2');
+        $user = $token->getUser();
+        /** @var User $user */
+        $client = $this->client;
+        $params = [
+            'username' => $user->getUsername(),
+            'token' => 'device2',
+        ];
+        $client->request('POST', self::API_ENDPOINT.'recovery', [], [], [], json_encode($params));
+        $response = $client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        $this->assertNotEmpty($data['token']);
+        $this->assertNotSame($user->getToken(), $data['token']);
+    }
+
     private function getOAuth2Token()
     {
         return [
@@ -336,7 +390,7 @@ class SecurityControllerTest extends WebTestCase
         if (isset($paths['realname'])) {
             $data[$paths['realname']] = $faker->name;
         }
-        if (isset($paths['email']) && $email) {
+        if ($email && isset($paths['email'])) {
             $data[$paths['email']] = $email;
         }
         if (isset($paths['nickname'])) {

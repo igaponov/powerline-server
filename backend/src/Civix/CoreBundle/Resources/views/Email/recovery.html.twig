@@ -1,0 +1,8 @@
+<p>Powerline Account Verification (Action Required)</p>
+<p>
+    Hey there! Someone is trying to log into your Powerline account. If just requested this (e.g. by setting up Powerline on a new device), please click on the link below or copy it into your web browser. This verifies your e-mail address and helps prevent unauthorized users from accessing your account. This link will expire in 10 minutes. If you have any questions, please reach out to our Support team at support@powerli.ne. Thank you!
+    <br>
+    <br>
+    {% set uri = url('civix_front_security_recovery', {token: token.token}, false) %}
+    <a href="{{ uri }}">{{ uri }}</a>
+</p>

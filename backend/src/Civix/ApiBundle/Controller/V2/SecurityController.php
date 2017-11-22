@@ -135,4 +135,43 @@ class SecurityController
             'You must configure the check path to be handled by the firewall using phone-form in your security firewall configuration.'
         );
     }
+
+    /**
+     * Recover a token by email.
+     * Client should choose a unique `token` to identify requests on the server.
+     * Send `username`, `phone`, `zip` and `token` parameters to start a verification,
+     * the server will return response "200 ok" on successful.
+     * Send `username` and the same `token` to check the verification,
+     * the server will return an authorization `token`.
+     *
+     * @REST\Post("/recovery")
+     *
+     * @REST\RequestParam(name="username", allowBlank=false, requirements="\w+", description="Username.")
+     * @REST\RequestParam(name="phone", allowBlank=true, requirements="\+\d+", description="Phone in E.164 format.")
+     * @REST\RequestParam(name="zip", allowBlank=true, requirements="\w+", description="Zip code.")
+     * @REST\RequestParam(name="token", allowBlank=false, requirements="\w+", description="Unique token.")
+     *
+     * @ApiDoc(
+     *     resource=true,
+     *     section="Security",
+     *     description="Recovery",
+     *     output = {
+     *          "class" = "Civix\CoreBundle\Entity\User",
+     *          "groups" = {"api-session"},
+     *          "parsers" = {
+     *              "Nelmio\ApiDocBundle\Parser\JmsMetadataParser"
+     *          }
+     *     },
+     *     statusCodes={
+     *         400="Bad Request",
+     *         405="Method Not Allowed"
+     *     }
+     * )
+     */
+    public function recoveryAction(): void
+    {
+        throw new \RuntimeException(
+            'You must configure the check path to be handled by the firewall using phone-form in your security firewall configuration.'
+        );
+    }
 }

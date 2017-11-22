@@ -14,3 +14,7 @@ services:
         factory: [ '@civix_front.navbar_menu_builder', createManageMenu ]
         tags:
             - { name: knp_menu.menu, alias: manageMenu }
+
+    Civix\FrontBundle\Controller\SecurityController:
+        class: Civix\FrontBundle\Controller\SecurityController
+        arguments: ['@doctrine.orm.entity_manager']
