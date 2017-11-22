@@ -26,7 +26,7 @@ class PM533 extends AbstractFixture
             ->setIsNotifDiscussions(true)
             ->setIsNotifMessages(true)
             ->setIsRegistrationComplete(true)
-            ->setPhone((new PhoneNumber())->setCountryCode(1)->setNationalNumber('234567890'))
+            ->setPhone((new PhoneNumber())->setCountryCode(1)->setNationalNumber('234567891'))
             ->setIsNotifOwnPostChanged(true)
             ->setToken('user1_dup')
             ->setResetPasswordToken('x-reset-token')
