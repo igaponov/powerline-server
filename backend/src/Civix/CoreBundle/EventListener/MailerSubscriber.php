@@ -5,6 +5,8 @@ use Civix\CoreBundle\Event\DiscountCodeEvent;
 use Civix\CoreBundle\Event\DiscountCodeEvents;
 use Civix\CoreBundle\Event\GroupEvent;
 use Civix\CoreBundle\Event\GroupEvents;
+use Civix\CoreBundle\Event\RecoveryTokenEvent;
+use Civix\CoreBundle\Event\RecoveryTokenEvents;
 use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Service\EmailSender;
@@ -24,6 +26,7 @@ class MailerSubscriber implements EventSubscriberInterface
             DiscountCodeEvents::CREATE => 'sendRewardCode',
             UserEvents::REGISTRATION => 'sendRegistrationEmail',
             UserEvents::LEGACY_REGISTRATION => 'sendRegistrationEmail',
+            RecoveryTokenEvents::CREATE => 'sendRecoveryEmail',
         ];
     }
 
@@ -45,5 +48,10 @@ class MailerSubscriber implements EventSubscriberInterface
     public function sendRegistrationEmail(UserEvent $event)
     {
         $this->sender->sendRegistrationEmail($event->getUser());
+    }
+
+    public function sendRecoveryEmail(RecoveryTokenEvent $event)
+    {
+        $this->sender->sendRecoveryEmail($event->getRecoveryToken());
     }
 }

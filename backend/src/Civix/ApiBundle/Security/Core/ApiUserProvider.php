@@ -58,7 +58,7 @@ class ApiUserProvider implements UserProviderInterface
      */
     public function loadUserByUsername($username)
     {
-        throw new \LogicException('This provider cannot load user by username.');
+        return $this->repository->findOneBy(['username' => $username]);
     }
 
     /**

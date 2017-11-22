@@ -2,6 +2,7 @@
 
 namespace Civix\ApiBundle;
 
+use Civix\ApiBundle\DependencyInjection\Security\Factory\EmailFactory;
 use Civix\ApiBundle\DependencyInjection\Security\Factory\PhoneLoginFactory;
 use Symfony\Bundle\SecurityBundle\DependencyInjection\SecurityExtension;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
@@ -17,5 +18,6 @@ class CivixApiBundle extends Bundle
         $extension = $container->getExtension('security');
         $extension->addSecurityListenerFactory(new BearerTokenFactory());
         $extension->addSecurityListenerFactory(new PhoneLoginFactory());
+        $extension->addSecurityListenerFactory(new EmailFactory());
     }
 }
