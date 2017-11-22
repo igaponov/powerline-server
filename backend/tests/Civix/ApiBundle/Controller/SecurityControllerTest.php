@@ -1,5 +1,5 @@
 <?php
-namespace ToughDomains\Bundle\SecurityBundle\Tests\Controller;
+namespace Tests\Civix\ApiBundle\Controller;
 
 use Buzz\Client\ClientInterface;
 use Buzz\Message\Request;
@@ -336,7 +336,7 @@ class SecurityControllerTest extends WebTestCase
         if (isset($paths['realname'])) {
             $data[$paths['realname']] = $faker->name;
         }
-        if (isset($paths['email']) && $email) {
+        if ($email && isset($paths['email'])) {
             $data[$paths['email']] = $email;
         }
         if (isset($paths['nickname'])) {
