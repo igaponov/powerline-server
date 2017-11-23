@@ -94,3 +94,9 @@ services:
     Civix\ApiBundle\Controller\V2_2\TwilioController:
         class: Civix\ApiBundle\Controller\V2_2\TwilioController
         arguments: ['@civix_core.service.twilio']
+
+    Civix\ApiBundle\Controller\PublicApi\PhoneController:
+        class: Civix\ApiBundle\Controller\PublicApi\PhoneController
+        arguments:
+            - '@civix_core.service.authy'
+            - '@libphonenumber.phone_number_util'
