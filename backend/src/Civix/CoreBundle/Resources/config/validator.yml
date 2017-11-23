@@ -4,3 +4,9 @@ services:
         arguments: ['@civix_core.service.authy']
         tags:
             - { name: validator.constraint_validator, alias: civix_core.validator.authy_code }
+
+    civix_core.validator.authy_code_property:
+        class: Civix\CoreBundle\Validator\Constraints\AuthyCodePropertyValidator
+        arguments: ['@civix_core.service.authy']
+        tags:
+            - { name: validator.constraint_validator, alias: civix_core.validator.authy_code_property }
