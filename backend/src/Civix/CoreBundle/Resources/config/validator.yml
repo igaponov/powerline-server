@@ -1,0 +1,6 @@
+services:
+    civix_core.validator.authy_code:
+        class: Civix\CoreBundle\Validator\Constraints\AuthyCodeValidator
+        arguments: ['@civix_core.service.authy']
+        tags:
+            - { name: validator.constraint_validator, alias: civix_core.validator.authy_code }

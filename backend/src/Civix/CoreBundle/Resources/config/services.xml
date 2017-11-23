@@ -9,6 +9,7 @@
         <import resource="services/repository.yml"/>
         <import resource="doctrine_listener.yml"/>
         <import resource="jms_handler.yml"/>
+        <import resource="validator.yml"/>
     </imports>
 
     <parameters>
