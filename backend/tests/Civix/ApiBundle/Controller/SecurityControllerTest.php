@@ -10,10 +10,13 @@ use Civix\CoreBundle\Entity\RecoveryToken;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
+use Civix\CoreBundle\Service\Authy;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Faker\Factory;
 use GuzzleHttp\Command\Guzzle\GuzzleClient;
+use GuzzleHttp\Command\Result;
 use HWI\Bundle\OAuthBundle\OAuth\ResourceOwnerInterface;
+use libphonenumber\PhoneNumber;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Tests\Civix\CoreBundle\DataFixtures\ORM\LoadRecoveryTokenData;
 
@@ -202,8 +205,16 @@ class SecurityControllerTest extends WebTestCase
     public function testRegistration()
     {
         $this->loadFixtures([]);
-        /** @var User $user */
         $client = $this->client;
+        $service = $this->getMockBuilder(Authy::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['checkVerification'])
+            ->getMock();
+        $service->expects($this->once())
+            ->method('checkVerification')
+            ->with($this->isInstanceOf(PhoneNumber::class), '246135')
+            ->willReturn(new Result(['success' => true]));
+        $client->getContainer()->set('civix_core.service.authy', $service);
         $client->enableProfiler();
         $params = [
             'first_name' => 'John',
@@ -213,6 +224,7 @@ class SecurityControllerTest extends WebTestCase
             'country' => 'US',
             'zip' => '123456',
             'phone' => '+1-800-555-1111',
+            'code' => '246135',
         ];
         $client->request('POST', self::API_ENDPOINT.'registration', [], [], [], json_encode($params));
         $response = $client->getResponse();

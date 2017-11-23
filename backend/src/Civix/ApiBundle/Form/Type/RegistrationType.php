@@ -2,7 +2,7 @@
 
 namespace Civix\ApiBundle\Form\Type;
 
-use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Model\RegistrationData;
 use Misd\PhoneNumberBundle\Form\Type\PhoneNumberType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CountryType;
@@ -26,14 +26,14 @@ class RegistrationType extends AbstractType
             ->add('country', CountryType::class)
             ->add('zip', TextType::class)
             ->add('phone', PhoneNumberType::class)
+            ->add('code', TextType::class)
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => User::class,
-            'validation_groups' => 'registration2.2',
+            'data_class' => RegistrationData::class,
         ]);
     }
 
