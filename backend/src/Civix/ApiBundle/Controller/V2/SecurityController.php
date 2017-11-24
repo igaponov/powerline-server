@@ -146,10 +146,10 @@ class SecurityController
      *
      * @REST\Post("/recovery")
      *
-     * @REST\RequestParam(name="username", allowBlank=false, requirements="\w+", description="Username.")
-     * @REST\RequestParam(name="phone", allowBlank=true, requirements="\+\d+", description="Phone in E.164 format.")
-     * @REST\RequestParam(name="zip", allowBlank=true, requirements="\w+", description="Zip code.")
-     * @REST\RequestParam(name="token", allowBlank=false, requirements="\w+", description="Unique token.")
+     * @REST\RequestParam(name="username", allowBlank=false, requirements="\w+", description="Username.", strict=true)
+     * @REST\RequestParam(name="phone", nullable=true, requirements="\+\d+", description="Phone in E.164 format.")
+     * @REST\RequestParam(name="zip", nullable=true, requirements="\w+", description="Zip code.")
+     * @REST\RequestParam(name="token", allowBlank=false, requirements="\w+", description="Unique token.", strict=true)
      *
      * @ApiDoc(
      *     resource=true,
