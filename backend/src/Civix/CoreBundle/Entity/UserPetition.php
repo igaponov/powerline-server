@@ -181,6 +181,16 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
      */
     protected $image;
 
+    /**
+     * @var DateTime
+     *
+     * @ORM\Column(name="expired_at", type="datetime")
+     * @Serializer\Expose()
+     * @Serializer\Type("DateTime")
+     * @Serializer\Groups({"Default", "petition"})
+     */
+    private $expiredAt;
+
     public function __construct()
     {
         $this->signatures = new ArrayCollection();
@@ -595,6 +605,24 @@ class UserPetition implements HtmlBodyInterface, SubscriptionInterface, Commente
             $this->image = $image;
         }
 
+        return $this;
+    }
+
+    /**
+     * @return DateTime
+     */
+    public function getExpiredAt(): ?DateTime
+    {
+        return $this->expiredAt;
+    }
+
+    /**
+     * @param DateTime $expiredAt
+     * @return UserPetition
+     */
+    public function setExpiredAt(DateTime $expiredAt): UserPetition
+    {
+        $this->expiredAt = $expiredAt;
         return $this;
     }
 }

@@ -95,7 +95,7 @@ class UserPetitionControllerTest extends WebTestCase
         $response = $client->getResponse();
         $this->assertEquals(201, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        $this->assertCount(12, $data);
+        $this->assertCount(13, $data);
         $this->assertNotEmpty($data['id']);
         foreach ($params as $key => $param) {
             $this->assertSame($param, $data[$key]);
@@ -103,6 +103,7 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertSame($params['body'], $data['html_body']);
         $this->assertFalse($data['boosted']);
         $this->assertNotEmpty($data['created_at']);
+        $this->assertNotEmpty($data['expired_at']);
         $this->assertNotEmpty($data['image']);
         $this->assertFalse($data['supporters_were_invited']);
         $this->assertTrue($data['automatic_boost']);

@@ -35,6 +35,7 @@ class LeaderContentSubscriber implements EventSubscriberInterface
         return [
             // petition
             UserPetitionEvents::PETITION_PRE_CREATE => [
+                ['setPetitionExpire'],
                 ['setPetitionFacebookThumbnailImageName'],
             ],
             UserPetitionEvents::PETITION_CREATE => [
@@ -87,6 +88,17 @@ class LeaderContentSubscriber implements EventSubscriberInterface
             $interval = (int)$this->settings->get($key)->getValue();
             $post->setExpiredAt(new \DateTime("+$interval days"));
             $post->setUserExpireInterval($interval);
+        }
+    }
+
+    public function setPetitionExpire(UserPetitionEvent $event)
+    {
+        $petition = $event->getPetition();
+        $group = $petition->getGroup();
+        if ($group) {
+            $key = 'micropetition_expire_interval_'.$group->getGroupType();
+            $interval = (int)$this->settings->get($key)->getValue();
+            $petition->setExpiredAt(new \DateTime("+$interval days"));
         }
     }
 
