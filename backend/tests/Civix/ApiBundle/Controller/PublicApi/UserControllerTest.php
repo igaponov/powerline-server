@@ -5,6 +5,7 @@ namespace Test\Civix\ApiBundle\Controller\PublicApi;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\User;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
+use libphonenumber\PhoneNumber;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
@@ -47,6 +48,9 @@ class UserControllerTest extends WebTestCase
         $user = $repository->getReference($reference);
         $accessor = PropertyAccess::createPropertyAccessor();
         $params = [$attribute => $accessor->getValue($user, $attribute)];
+        if ($params[$attribute] instanceof PhoneNumber) {
+            $params[$attribute] = '+'.$params[$attribute]->getCountryCode().$params[$attribute]->getNationalNumber();
+        }
         $this->client->request('GET', '/api-public/users', $params, []);
         $response = $this->client->getResponse();
         $this->assertEquals(204, $response->getStatusCode(), $response->getContent());
@@ -58,6 +62,7 @@ class UserControllerTest extends WebTestCase
         return [
             'username' => ['user_1', 'username'],
             'email' => ['user_2', 'email'],
+            'phone' => ['user_3', 'phone'],
         ];
     }
 

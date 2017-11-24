@@ -16,7 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Client;
 
 class SecureControllerTest extends WebTestCase
 {
-	const API_LOGIN_ENDPOINT = '/api/secure/login';
+	private const API_LOGIN_ENDPOINT = '/api/secure/login';
 
 	/**
 	 * @var null|Client
@@ -87,14 +87,14 @@ class SecureControllerTest extends WebTestCase
         $this->loadFixtures([LoadUserData::class]);
         $parameters = $this->getParameters();
         $client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
-        foreach ($parameters as [$params, $expectedErrors]) {
+        foreach ($parameters as $set => [$params, $expectedErrors]) {
             $client->request('POST', '/api/secure/registration', [], [], [], json_encode($params));
             $response = $client->getResponse();
-            $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
+            $this->assertEquals(400, $response->getStatusCode(), $set.': '.$response->getContent());
             $data = json_decode($response->getContent(), true);
             /** @var array $errors */
             $errors = $data['errors'];
-            $this->assertCount(count($expectedErrors), $errors, json_encode($errors));
+            $this->assertCount(\count($expectedErrors), $errors, $set.': '.json_encode($errors));
             foreach ($errors as $error) {
                 $this->assertEquals($expectedErrors[$error['property']], $error['message']);
             }
@@ -112,23 +112,29 @@ class SecureControllerTest extends WebTestCase
             'first_name' => 'First',
             'last_name' => 'Last',
             'zip' => '12345',
+            'phone' => '+1-800-555-1111',
         ];
         return [
-            [
+            'duplicate_username' => [
                 array_replace($defaultParams, ['username' => 'user1']),
                 ['email' => 'This value is already used.'],
             ],
-            [
+            'duplicate_email' => [
                 array_replace($defaultParams, [
                     'email' => 'user1@example.com',
                     'email_confirm' => 'user1@example.com',
                 ]),
                 ['email' => 'This value is already used.'],
             ],
-            [
+            'duplicate_phone' => [
+                array_replace($defaultParams, ['phone' => '+61491570156']),
+                ['email' => 'This value is already used.'],
+            ],
+            'invalid' => [
                 [
                     'email' => 'qwerty',
                     'country' => 'United States',
+                    'phone' => '123',
                 ],
                 [
                     'username' => 'This value should not be blank.',
@@ -139,6 +145,7 @@ class SecureControllerTest extends WebTestCase
                     'email' => 'This value is not a valid email address.',
                     'email_confirm' => 'The email fields must match.',
                     'country' => 'This value is not a valid country.',
+                    'phone' => 'This value is not a valid phone number.',
                 ],
             ]
         ];
@@ -170,6 +177,7 @@ class SecureControllerTest extends WebTestCase
 			'country' => 'US',
 			'birth' => $faker->date(),
             'avatar_file_name' => $path,
+            'phone' => '+61491570156',
 		];
 		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
 		$client->enableProfiler();
@@ -237,8 +245,9 @@ class SecureControllerTest extends WebTestCase
             'last_name' => 'This value should not be blank.',
             'email' => 'This value is not a valid email address.',
             'email_confirm' => 'The email fields must match.',
+            'phone' => 'This value should not be blank.',
         ];
-        $this->assertCount(count($expectedErrors), $errors);
+        $this->assertCount(\count($expectedErrors), $errors);
         foreach ($errors as $error) {
             $this->assertEquals($expectedErrors[$error['property']], $error['message']);
         }
@@ -267,6 +276,7 @@ class SecureControllerTest extends WebTestCase
 			'state' => 'KS',
 			'country' => 'US',
 			'birth' => $faker->date(),
+            'phone' => '+61491570156',
 		];
 		$client = $this->makeClient(false, ['CONTENT_TYPE' => 'application/json']);
         $client->enableProfiler();

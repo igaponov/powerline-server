@@ -3,16 +3,19 @@ namespace Civix\ApiBundle\Tests\Controller;
 
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Entity\User;
+use Civix\CoreBundle\Service\Authy;
 use Civix\CoreBundle\Service\FacebookApi;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\Issue\PM533;
 use Civix\CoreBundle\Service\CiceroApi;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserData;
 use Civix\CoreBundle\Tests\DataFixtures\ORM\LoadUserFollowerData;
+use GuzzleHttp\Command\Result;
+use libphonenumber\PhoneNumber;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class ProfileControllerTest extends WebTestCase
 {
-	const API_ENDPOINT = '/api/profile/';
+	private const API_ENDPOINT = '/api/profile/';
 
     /**
      * @var Client
@@ -74,7 +77,16 @@ class ProfileControllerTest extends WebTestCase
         $service->expects($this->once())
             ->method('getRepresentativesByLocation');
         $client->getContainer()->set('civix_core.cicero_api', $service);
-        $client->request('POST', self::API_ENDPOINT.'update', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode(array_merge($params, ['avatar_file_name' => $avatar])));
+        $service = $this->getMockBuilder(Authy::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['checkVerification'])
+            ->getMock();
+        $service->expects($this->once())
+            ->method('checkVerification')
+            ->with($this->isInstanceOf(PhoneNumber::class), '135246')
+            ->willReturn(new Result(['success' => true]));
+        $client->getContainer()->set('civix_core.service.authy', $service);
+        $client->request('POST', self::API_ENDPOINT.'update', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode(array_merge($params, ['avatar_file_name' => $avatar, 'code' => '135246'])));
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
@@ -107,7 +119,6 @@ class ProfileControllerTest extends WebTestCase
             'city' => 'new-city',
             'state' => 'new-state',
             'country' => 'AO',
-            'phone' => '+1111111111',
             'facebook_link' => 'new-facebookLink',
             'twitter_link' => 'new-twitterLink',
             'race' => 'new-race',
@@ -134,10 +145,17 @@ class ProfileControllerTest extends WebTestCase
         $service->expects($this->once())
             ->method('getRepresentativesByLocation');
         $client->getContainer()->set('civix_core.cicero_api', $service);
+        $service = $this->getMockBuilder(Authy::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['checkVerification'])
+            ->getMock();
+        $service->expects($this->never())
+            ->method('checkVerification');
+        $client->getContainer()->set('civix_core.service.authy', $service);
         $client->request('POST', self::API_ENDPOINT.'update', [], [], [
             'HTTP_Authorization' => 'Bearer type="user" token="user1"',
             'CONTENT_TYPE' => 'text/plain;charset=UTF-8',
-            ], json_encode(array_merge($params, ['avatar_file_name' => $avatar])));
+            ], json_encode(array_merge($params, ['avatar_file_name' => $avatar, 'code' => '135246'])));
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
@@ -164,15 +182,26 @@ class ProfileControllerTest extends WebTestCase
             'email' => 'user2@example.com',
             'zip' => '',
             'country' => 'United States',
+            'phone' => '+1111111111',
+            'code' => '135246',
         ];
         $client = $this->client;
+        $service = $this->getMockBuilder(Authy::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['checkVerification'])
+            ->getMock();
+        $service->expects($this->once())
+            ->method('checkVerification')
+            ->with($this->isInstanceOf(PhoneNumber::class), '135246')
+            ->willReturn(new Result(['success' => false, 'message' => 'Invalid code.']));
+        $client->getContainer()->set('civix_core.service.authy', $service);
 		$client->request('POST', self::API_ENDPOINT.'update', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode($params));
 		$response = $client->getResponse();
         $this->assertEquals(400, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
         /** @var array $errors */
         $errors = $data['errors'];
-        $this->assertCount(5, $errors);
+        $this->assertCount(6, $errors);
         foreach ($errors as $error) {
             switch ($error['property']) {
                 case 'first_name':
@@ -184,11 +213,14 @@ class ProfileControllerTest extends WebTestCase
                 case 'zip':
                     $message = 'This value should not be blank.';
                     break;
-                case 'email':
-                    $message = 'This value is already used.';
-                    break;
                 case 'country':
                     $message = 'This value is not a valid country.';
+                    break;
+                case 'code':
+                    $message = 'Invalid code.';
+                    break;
+                case 'email':
+                    $message = 'This value is already used.';
                     break;
                 default:
                     $this->fail("Property {$error['property']} should not have an error");
@@ -198,7 +230,7 @@ class ProfileControllerTest extends WebTestCase
         }
     }
 
-	public function testUpdateWithSameEmailAndAvatar(): void
+	public function testUpdateWithSameEmailAndPhoneAndAvatar(): void
     {
         $repository = $this->loadFixtures([
             LoadUserData::class,
@@ -214,6 +246,13 @@ class ProfileControllerTest extends WebTestCase
             'avatar_file_name' => 'https://powerline-dev.imgix.net/avatars/1.jpg?ixlib=php-1.1.0',
         ];
         $client = $this->client;
+        $service = $this->getMockBuilder(Authy::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['checkVerification'])
+            ->getMock();
+        $service->expects($this->never())
+            ->method('checkVerification');
+        $client->getContainer()->set('civix_core.service.authy', $service);
         $client->request('POST', self::API_ENDPOINT.'update', [], [], ['HTTP_Authorization' => 'Bearer type="user" token="user1"'], json_encode($params));
         $response = $client->getResponse();
         $this->assertEquals(200, $response->getStatusCode(), $response->getContent());

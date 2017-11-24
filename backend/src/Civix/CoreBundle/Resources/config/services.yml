@@ -94,6 +94,12 @@ services:
             - '%twilio_signing_key_sid%'
             - '%twilio_secret%'
 
+    civix_core.service.authy:
+        class: Civix\CoreBundle\Service\Authy
+        arguments:
+            - '@civix_core.authy'
+            - '@libphonenumber.phone_number_util'
+
 #    civix_core.uploader.metadata.file_locator:
 #        class: Metadata\Driver\FileLocator
 #        public: false

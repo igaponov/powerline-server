@@ -30,18 +30,18 @@ use Symfony\Component\Validator\Constraints as Assert;
  * })
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\UserRepository")
  * @UniqueEntity(
- *      fields={"username", "email"},
- *      groups={"registration", "profile-email"},
- *      repositoryMethod="findByUsernameOrEmail",
+ *      fields={"username", "email", "phone"},
+ *      groups={"registration", "profile-email", "registration2.2"},
+ *      repositoryMethod="findByUsernameOrEmailOrPhone",
  *      errorPath="email"
  * )
- * @UniqueEntity(fields={"phone"}, groups={"registration", "registration2.2"})
  * @UniqueEntity(
  *      fields={"facebookId"},
  *      groups={"facebook"},
  *      message="This Facebook account is already linked to other Civix account."
  * )
  * @FacebookToken(groups={"facebook"})
+ * @Assert\GroupSequence({"User", "registration2.2", "authy"})
  * @Serializer\ExclusionPolicy("all")
  */
 class User implements
@@ -57,8 +57,8 @@ class User implements
         HasAvatarTrait,
         UserSerializableTrait;
 
-    const DEFAULT_AVATAR = '/bundles/civixfront/img/default_user.png';
-    const SOMEONE_AVATAR = '/bundles/civixfront/img/default_someone.png';
+    public const DEFAULT_AVATAR = '/bundles/civixfront/img/default_user.png';
+    public const SOMEONE_AVATAR = '/bundles/civixfront/img/default_someone.png';
 
     /**
      * @var int
@@ -206,12 +206,12 @@ class User implements
     private $state;
 
     /**
-     * @var string
+     * @var string [ISO 3166-1 alpha-2 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)
      *
      * @ORM\Column(name="country", type="string", length=255, nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-profile", "api-info", "api-full-info", "api-leader-answers"})
-     * @Assert\NotBlank(groups={"registration2.2"})
+     * @Assert\NotBlank(groups={"profile", "registration2.2"})
      * @Assert\Country(groups={"registration", "profile", "registration2.2"})
      */
     private $country;
@@ -223,8 +223,8 @@ class User implements
      * @Serializer\Expose()
      * @Serializer\Groups({"api-profile"})
      * @Serializer\Type("libphonenumber\PhoneNumber")
-     * @Assert\NotBlank(groups={"registration2.2"})
-     * @AssertPhoneNumber(groups={"registration2.2"})
+     * @Assert\NotBlank(groups={"registration", "registration2.2"})
+     * @AssertPhoneNumber(groups={"registration", "registration2.2"})
      */
     private $phone;
 

@@ -681,14 +681,14 @@ class UserRepository extends EntityRepository
             ->getQuery()->getOneOrNullResult();
     }
 
-    public function findByUsernameOrEmail(array $criteria): array
+    public function findByUsernameOrEmailOrPhone(array $criteria): array
     {
         $qb = $this->createQueryBuilder('u');
         $expr = $this->getEntityManager()->getExpressionBuilder();
         foreach ($criteria as $property => $value) {
             $key = ':'.$property;
             $qb->orWhere($expr->eq('u.'.$property, $key))
-                ->setParameter($key, $value);
+                ->setParameter($key, $value, $value instanceof PhoneNumber ? 'phone_number' : null);
         }
 
         return $qb->getQuery()->getResult();
@@ -728,7 +728,7 @@ class UserRepository extends EntityRepository
         return $this->findOneBy(['phone' => $phone]);
     }
 
-    public function existsByUsernameOrEmail($username, $email)
+    public function existsByUsernameOrEmailOrPhone($username, $email, $phone)
     {
         return $this->createQueryBuilder('u')
             ->select('COUNT(u)')
@@ -736,6 +736,8 @@ class UserRepository extends EntityRepository
             ->setParameter(':username', $username)
             ->orWhere('u.email = :email')
             ->setParameter(':email', $email)
+            ->orWhere('u.phone = :phone')
+            ->setParameter(':phone', $phone)
             ->getQuery()->getSingleScalarResult() > 0;
     }
 }

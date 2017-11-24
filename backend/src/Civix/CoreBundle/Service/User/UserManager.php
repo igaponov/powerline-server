@@ -48,7 +48,9 @@ class UserManager
             $representativeList = $districtList = [];
             foreach ($representatives as $representative) {
                 $representativeList[] = $representative->getOfficialTitle().' '.$representative->getFullName();
-                $districtList[] = $representative->getDistrict()->getLabel();
+                if ($district = $representative->getDistrict()) {
+                    $districtList[] = $district->getLabel();
+                }
                 $user->addDistrict($representative->getDistrict());
             }
             $this->entityManager->getRepository(UserReport::class)
