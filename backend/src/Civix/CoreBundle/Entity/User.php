@@ -32,7 +32,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @UniqueEntity(
  *      fields={"username", "email", "phone"},
  *      groups={"registration", "profile-email", "registration2.2"},
- *      repositoryMethod="findByUsernameOrEmailOrPhone"
+ *      repositoryMethod="findByUsernameOrEmailOrPhone",
+ *      errorPath="email"
  * )
  * @UniqueEntity(
  *      fields={"facebookId"},
@@ -210,7 +211,7 @@ class User implements
      * @ORM\Column(name="country", type="string", length=255, nullable=true)
      * @Serializer\Expose()
      * @Serializer\Groups({"api-profile", "api-info", "api-full-info", "api-leader-answers"})
-     * @Assert\NotBlank(groups={"registration2.2"})
+     * @Assert\NotBlank(groups={"profile", "registration2.2"})
      * @Assert\Country(groups={"registration", "profile", "registration2.2"})
      */
     private $country;
@@ -222,8 +223,8 @@ class User implements
      * @Serializer\Expose()
      * @Serializer\Groups({"api-profile"})
      * @Serializer\Type("libphonenumber\PhoneNumber")
-     * @Assert\NotBlank(groups={"registration2.2"})
-     * @AssertPhoneNumber(groups={"registration2.2"})
+     * @Assert\NotBlank(groups={"registration", "registration2.2"})
+     * @AssertPhoneNumber(groups={"registration", "registration2.2"})
      */
     private $phone;
 

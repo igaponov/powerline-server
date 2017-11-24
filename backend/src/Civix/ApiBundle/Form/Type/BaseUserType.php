@@ -84,7 +84,7 @@ class BaseUserType extends AbstractType
                 $form = $event->getForm();
                 $data = $event->getData();
                 $phoneUtil = PhoneNumberUtil::getInstance();
-                if (!empty($data['phone'])) {
+                if (!empty($data['phone']) && $form->getData()) {
                     $phoneNumber = $phoneUtil->parse($data['phone'], null);
                     $phone = $form->getData()->getPhone();
                     if (!$phone instanceof PhoneNumber || !$phone->equals($phoneNumber)) {

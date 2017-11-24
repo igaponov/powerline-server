@@ -11,7 +11,6 @@ use Civix\CoreBundle\Event\AvatarEvent;
 use Civix\CoreBundle\Event\AvatarEvents;
 use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
-use Civix\CoreBundle\Model\RegistrationData;
 use Civix\CoreBundle\Service\CiceroApi;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -162,17 +161,9 @@ class UserManager
         return $user;
     }
 
-    public function register(RegistrationData $data): User
+    public function register(User $user): User
     {
-        $user = (new User())
-            ->setFirstName($data->firstName)
-            ->setLastName($data->lastName)
-            ->setUsername($data->username)
-            ->setEmail($data->email)
-            ->setCountry($data->country)
-            ->setZip($data->zip)
-            ->setPhone($data->phone)
-            ->setPlainPassword(random_bytes(20));
+        $user->setPlainPassword(random_bytes(20));
         $event = new AvatarEvent($user);
         $this->dispatcher->dispatch(AvatarEvents::CHANGE, $event);
 

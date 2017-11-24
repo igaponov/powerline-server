@@ -219,7 +219,7 @@ class ProfileControllerTest extends WebTestCase
                 case 'code':
                     $message = 'Invalid code.';
                     break;
-                case null:
+                case 'email':
                     $message = 'This value is already used.';
                     break;
                 default:

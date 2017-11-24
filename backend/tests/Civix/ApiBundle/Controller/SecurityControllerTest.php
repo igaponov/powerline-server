@@ -258,13 +258,13 @@ class SecurityControllerTest extends WebTestCase
         $service->expects($this->once())
             ->method('__call')
             ->with('startVerification', [[
-                'country_code' => 1,
-                'phone_number' => '234567890',
-                'via' => 'call',
+                'country_code' => 61,
+                'phone_number' => '491570156',
+                'via' => 'sms',
             ]])
             ->willReturn(['success' => true]);
         $container->set('civix_core.authy', $service);
-        $client->request('POST', self::API_ENDPOINT.'login', [], [], [], json_encode(['phone' => '+1234567890']));
+        $client->request('POST', self::API_ENDPOINT.'login', [], [], [], json_encode(['phone' => '+61491570156']));
         $response = $client->getResponse();
 
         $this->assertEquals(
@@ -295,13 +295,13 @@ class SecurityControllerTest extends WebTestCase
         $service->expects($this->once())
             ->method('__call')
             ->with('checkVerification', [[
-                'country_code' => 1,
-                'phone_number' => '234567890',
+                'country_code' => 61,
+                'phone_number' => '491570156',
                 'verification_code' => $code,
             ]])
             ->willReturn(['success' => true]);
         $container->set('civix_core.authy', $service);
-        $client->request('POST', self::API_ENDPOINT.'login', [], [], [], json_encode(['phone' => '+1234567890', 'code' => $code]));
+        $client->request('POST', self::API_ENDPOINT.'login', [], [], [], json_encode(['phone' => '+61491570156', 'code' => $code]));
         $response = $client->getResponse();
 
         $this->assertEquals(

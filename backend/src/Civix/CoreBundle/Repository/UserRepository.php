@@ -688,7 +688,7 @@ class UserRepository extends EntityRepository
         foreach ($criteria as $property => $value) {
             $key = ':'.$property;
             $qb->orWhere($expr->eq('u.'.$property, $key))
-                ->setParameter($key, $value);
+                ->setParameter($key, $value, $value instanceof PhoneNumber ? 'phone_number' : null);
         }
 
         return $qb->getQuery()->getResult();
