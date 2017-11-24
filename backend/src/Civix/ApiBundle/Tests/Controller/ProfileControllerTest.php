@@ -213,14 +213,14 @@ class ProfileControllerTest extends WebTestCase
                 case 'zip':
                     $message = 'This value should not be blank.';
                     break;
-                case 'email':
-                    $message = 'This value is already used.';
-                    break;
                 case 'country':
                     $message = 'This value is not a valid country.';
                     break;
                 case 'code':
                     $message = 'Invalid code.';
+                    break;
+                case null:
+                    $message = 'This value is already used.';
                     break;
                 default:
                     $this->fail("Property {$error['property']} should not have an error");

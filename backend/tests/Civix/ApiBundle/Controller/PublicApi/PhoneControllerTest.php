@@ -2,11 +2,10 @@
 
 namespace Tests\Civix\ApiBundle\Controller\PublicApi;
 
-use Civix\ApiBundle\Controller\PublicApi\PhoneController;
 use Civix\ApiBundle\Tests\WebTestCase;
 use Civix\CoreBundle\Service\Authy;
+use GuzzleHttp\Command\Result;
 use libphonenumber\PhoneNumber;
-use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 
 class PhoneControllerTest extends WebTestCase
@@ -40,7 +39,8 @@ class PhoneControllerTest extends WebTestCase
                 $this->assertSame('8005551111', $phoneNumber->getNationalNumber());
 
                 return true;
-            }));
+            }))
+            ->willReturn(new Result(['success' => true]));
         $this->client->getContainer()->set('civix_core.service.authy', $service);
         $params = ['phone' => '+18005551111'];
         $this->client->request('POST', '/api-public/phone/verification', [], [], [], json_encode($params));

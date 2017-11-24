@@ -63,6 +63,7 @@ class BaseUserType extends AbstractType
             ])
             ->add('code', Type\TextType::class, [
                 'mapped' => false,
+                'required' => false,
                 'description' => 'Code for a phone verification. Submit only if the phone was changed. Use /api-public/phone/verification endpoint to start a verification.'
             ])
             ->add('avatar_file_name', EncodedFileType::class, [

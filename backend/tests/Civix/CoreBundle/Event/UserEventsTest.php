@@ -2,7 +2,6 @@
 
 namespace Tests\Civix\CoreBundle\Event;
 
-use Civix\ApiBundle\EventListener\AuthySubscriber;
 use Civix\CoreBundle\Event\UserEvent;
 use Civix\CoreBundle\Event\UserEvents;
 use Civix\CoreBundle\Event\UserFollowEvent;
@@ -42,7 +41,6 @@ class UserEventsTest extends EventsTestCase
             [CiceroSubscriber::class, 'updateDistrictsIds'],
             [MailerSubscriber::class, 'sendRegistrationEmail'],
             [UserEventSubscriber::class, 'sendInviteFromGroup'],
-            [AuthySubscriber::class, 'startVerification'],
         ];
         $this->assertListeners(UserEvents::REGISTRATION, UserEvent::class, $expectedListeners);
     }

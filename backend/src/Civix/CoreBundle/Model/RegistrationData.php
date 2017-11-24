@@ -2,14 +2,20 @@
 
 namespace Civix\CoreBundle\Model;
 
-use Civix\CoreBundle\Validator\Constraints\AuthyCode;
 use libphonenumber\PhoneNumber;
 use Misd\PhoneNumberBundle\Validator\Constraints\PhoneNumber as AssertPhoneNumber;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @AuthyCode(phoneAttribute="phone", codeAttribute="code", groups={"authy"})
- * @Assert\GroupSequence({"RegistrationData", "authy"})
+ * @Assert\GroupSequence({"RegistrationData", "unique", "authy"})
+ * @UniqueEntity(
+ *     fields={"username", "email", "phone"},
+ *     entityClass="Civix\CoreBundle\Entity\User",
+ *     em="default",
+ *     repositoryMethod="findByUsernameOrEmailOrPhone",
+ *     groups={"unique"}
+ * )
  */
 class RegistrationData
 {

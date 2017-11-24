@@ -681,7 +681,7 @@ class UserRepository extends EntityRepository
             ->getQuery()->getOneOrNullResult();
     }
 
-    public function findByUsernameOrEmail(array $criteria): array
+    public function findByUsernameOrEmailOrPhone(array $criteria): array
     {
         $qb = $this->createQueryBuilder('u');
         $expr = $this->getEntityManager()->getExpressionBuilder();
