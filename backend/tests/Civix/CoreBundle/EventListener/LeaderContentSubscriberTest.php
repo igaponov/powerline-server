@@ -40,6 +40,25 @@ class LeaderContentSubscriberTest extends TestCase
         $this->assertLessThan(new \DateTime('+13579 days + 1 second'), $post->getExpiredAt());
         $this->assertGreaterThan(new \DateTime('+13579 days - 1 second'), $post->getExpiredAt());
     }
+    public function testSetPetitionExpire()
+    {
+        $key = 'micropetition_expire_interval_0';
+        $setting = new Setting($key, '7191');
+        $group = (new Group())->setGroupType(Group::GROUP_TYPE_COMMON);
+        $petition = (new UserPetition())->setGroup($group);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $settings = $this->getSettingsMock(['get']);
+        $settings->expects($this->once())
+            ->method('get')
+            ->with($key)
+            ->willReturn($setting);
+        $commentManager = $this->getCommentManagerMock();
+        $subscriber = new LeaderContentSubscriber($em, $settings, $commentManager);
+        $event = new UserPetitionEvent($petition);
+        $subscriber->setPetitionExpire($event);
+        $this->assertLessThan(new \DateTime('+7191 days + 1 second'), $petition->getExpiredAt());
+        $this->assertGreaterThan(new \DateTime('+7191 days - 1 second'), $petition->getExpiredAt());
+    }
 
     public function testSetPostFacebookThumbnailImageName()
     {

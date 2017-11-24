@@ -111,6 +111,7 @@ class ActivityUpdate
         $activity->setDescriptionHtml($petition->getHtmlBody());
         $activity->setIsOutsiders($petition->isOutsidersSign());
         $activity->setQuorum($petition->getQuorumCount());
+        $activity->setExpireAt($petition->getExpiredAt());
 
         $isNew = !$this->entityManager->contains($activity);
         $this->entityManager->persist($activity);

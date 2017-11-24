@@ -34,6 +34,7 @@ class LoadUserPetitionData extends AbstractFixture implements DependentFixtureIn
             ->setBody($body)
             ->setHtmlBody($body)
             ->boost()
+            ->setExpiredAt(new \DateTime('+1 month'))
             ->setOrganizationNeeded(true)
             ->setGroup($group1)
             ->getImage()->setName(uniqid().'.png');
@@ -47,6 +48,7 @@ class LoadUserPetitionData extends AbstractFixture implements DependentFixtureIn
             ->setTitle('Whole Foods takes major step on food waste')
             ->setBody($body)
             ->setHtmlBody($body)
+            ->setExpiredAt(new \DateTime('+2 months'))
             ->setGroup($group2);
         $user1->addPetitionSubscription($petition);
         $manager->persist($petition);
@@ -60,6 +62,7 @@ Women WWII pilots get burial rights at Arlington National Cemetery')
             ->setBody($body)
             ->setHtmlBody($body)
             ->boost()
+            ->setExpiredAt(new \DateTime('+1 day'))
             ->setOrganizationNeeded(true)
             ->setGroup($group1);
         $user2->addPetitionSubscription($petition);
@@ -72,6 +75,7 @@ Women WWII pilots get burial rights at Arlington National Cemetery')
             ->setTitle('')
             ->setBody($body)
             ->setHtmlBody($body)
+            ->setExpiredAt(new \DateTime('+1 week'))
             ->setGroup($group2)
             ->setAutomaticBoost(false);
         $user3->addPetitionSubscription($petition);
@@ -85,6 +89,7 @@ Women WWII pilots get burial rights at Arlington National Cemetery')
             ->setBody($body)
             ->setHtmlBody($body)
             ->boost()
+            ->setExpiredAt(new \DateTime('-1 month'))
             ->setGroup($group1);
         $manager->persist($petition);
         $this->addReference('user_petition_5', $petition);
@@ -96,6 +101,7 @@ Women WWII pilots get burial rights at Arlington National Cemetery')
             ->setBody($body)
             ->setHtmlBody($body)
             ->boost()
+            ->setExpiredAt(new \DateTime('-1 week'))
             ->setOrganizationNeeded(true)
             ->setGroup($group1)
             ->setSupportersWereInvited(true);
@@ -109,6 +115,7 @@ Women WWII pilots get burial rights at Arlington National Cemetery')
             ->setBody('-- deleted --')
             ->setHtmlBody('-- deleted --')
             ->boost()
+            ->setExpiredAt(new \DateTime('+1 hour'))
             ->setGroup($group1);
         $manager->persist($deleted);
         $this->addReference('user_petition_7', $deleted);

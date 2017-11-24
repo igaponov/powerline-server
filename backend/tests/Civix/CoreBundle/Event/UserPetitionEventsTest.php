@@ -18,6 +18,7 @@ class UserPetitionEventsTest extends EventsTestCase
     {
         $expectedListeners = [
             [MentionSubscriber::class, 'onPetitionPreCreate'],
+            [LeaderContentSubscriber::class, 'setPetitionExpire'],
             [LeaderContentSubscriber::class, 'setPetitionFacebookThumbnailImageName'],
         ];
         $this->assertListeners(UserPetitionEvents::PETITION_PRE_CREATE, UserPetitionEvent::class, $expectedListeners);
