@@ -14,7 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Client;
 
 class UserPetitionControllerTest extends WebTestCase
 {
-    const API_ENDPOINT = '/api/v2.2/groups/{group}/user-petitions';
+    private const API_ENDPOINT = '/api/v2.2/groups/{group}/user-petitions';
 
     /**
      * @var null|Client
