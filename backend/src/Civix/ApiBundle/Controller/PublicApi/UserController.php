@@ -3,6 +3,7 @@
 namespace Civix\ApiBundle\Controller\PublicApi;
 
 use FOS\RestBundle\Controller\Annotations as REST;
+use Misd\PhoneNumberBundle\Validator\Constraints\PhoneNumber;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -21,14 +22,15 @@ class UserController extends BaseController
      *
      * @REST\QueryParam(name="username", requirements="\w+", description="Username")
      * @REST\QueryParam(name="email", requirements="\w+", description="Email")
+     * @REST\QueryParam(name="phone", requirements=@PhoneNumber(), description="Phone number")
      *
      * @ApiDoc(
      *     section="Public",
      *     resource=true,
-     *     description="Check if a user with given username OR email exists",
+     *     description="Check if a user with given username, email OR phone exists",
      *     statusCodes={
      *         204="User exists",
-     *         400="Username and email are empty",
+     *         400="Username, email or phone are empty",
      *         404="User doesn't exist"
      *     }
      * )
@@ -38,12 +40,12 @@ class UserController extends BaseController
     public function getUserAction(Request $request): void
     {
         $query = $request->query;
-        if (!$query->has('username') && !$query->has('email')) {
-            throw new BadRequestHttpException('Username or email value should not be blank.');
+        if (!$query->has('username') && !$query->has('email') && !$query->has('phone')) {
+            throw new BadRequestHttpException('Username, email or phone value should not be blank.');
         }
         $exists = $this->getDoctrine()
             ->getRepository(User::class)
-            ->existsByUsernameOrEmail($query->get('username'), $query->get('email'));
+            ->existsByUsernameOrEmailOrPhone($query->get('username'), $query->get('email'), $query->get('phone'));
 
         if (!$exists) {
             throw $this->createNotFoundException();
