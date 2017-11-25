@@ -46,6 +46,7 @@ class RegistrationType extends AbstractType
                 $form->add('code', TextType::class, [
                     'mapped' => false,
                     'validation_groups' => ['registration2.2', 'authy'],
+                    'empty_data' => '',
                     'constraints' => [
                         new NotBlank(['groups' => ['registration2.2']]),
                         new AuthyCodeProperty([
