@@ -22,7 +22,7 @@ use Symfony\Bundle\FrameworkBundle\Client;
 
 class UserPetitionControllerTest extends WebTestCase
 {
-    const API_ENDPOINT = '/api/v2/user-petitions';
+    private const API_ENDPOINT = '/api/v2/user-petitions';
 
     /**
      * @var null|Client
@@ -169,7 +169,7 @@ class UserPetitionControllerTest extends WebTestCase
         $this->assertSame('Validation Failed', $data['message']);
         $errors = $data['errors'];
         foreach ($expectedErrors as $child => $error) {
-            if (is_int($child)) {
+            if (\is_int($child)) {
                 $this->assertContains($error, $errors['errors']);
             } elseif ($error) {
                 $this->assertContains($error, $errors['children'][$child]['errors']);
@@ -524,7 +524,7 @@ class UserPetitionControllerTest extends WebTestCase
         foreach ($users as $k => $user) {
             $this->assertEquals($user->getLatitude(), $data[$k]['latitude']);
             $this->assertEquals($user->getLongitude(), $data[$k]['longitude']);
-            if (in_array($user->getUsername(), ['user1', 'user3'], true)) {
+            if (\in_array($user->getUsername(), ['user1', 'user3'], true)) {
                 $this->assertSame('US', $data[$k]['country']);
                 $this->assertSame('NY', $data[$k]['state']);
                 $this->assertSame('New York', $data[$k]['locality']);

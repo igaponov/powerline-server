@@ -8,11 +8,13 @@ use Civix\CoreBundle\Entity\UserPetition;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * @ORM\Table(name="user_petition_signatures")
  * @ORM\Entity(repositoryClass="Civix\CoreBundle\Repository\UserPetition\SignatureRepository")
  * @Serializer\ExclusionPolicy("all")
+ * @Assert\Callback(callback="isPetitionExpired")
  */
 class Signature
 {
@@ -43,6 +45,8 @@ class Signature
     protected $createdAt;
 
     /**
+     * @var UserPetition
+     *
      * @ORM\ManyToOne(targetEntity="Civix\CoreBundle\Entity\UserPetition", inversedBy="signatures")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
@@ -133,5 +137,13 @@ class Signature
     public function getOptionId()
     {
         return Vote::OPTION_UPVOTE;
+    }
+
+    public function isPetitionExpired(ExecutionContextInterface $context): void
+    {
+        $petition = $this->petition;
+        if ($petition && $petition->getExpiredAt() < new \DateTime()) {
+            $context->addViolation('You could not sign expired petition.');
+        }
     }
 }
