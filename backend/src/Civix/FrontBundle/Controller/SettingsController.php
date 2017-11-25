@@ -49,7 +49,8 @@ class SettingsController extends Controller
         );
 
         if ('POST' === $request->getMethod()) {
-            if ($settingsForm->submit($request->request->all())->isValid()) {
+            $settingsForm->handleRequest($request);
+            if ($settingsForm->isValid()) {
                 $settingsForm->getData()->save();
                 $this->addFlash('notice', 'The settings have been updated.');
 
