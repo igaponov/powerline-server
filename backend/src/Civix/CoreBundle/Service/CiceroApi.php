@@ -46,17 +46,21 @@ class CiceroApi extends ServiceApi
     /**
      * Get all representatives by address from api, save them, get districs ids.
      *
-     * @param string $address   Address
-     * @param string $city      City
-     * @param string $state     State
-     * @param string $country   Country
+     * @param string $address Address
+     * @param string $city City
+     * @param string $state State
+     * @param string $country Country
+     * @param null $zip
      *
      * @return Representative[]
      */
-    public function getRepresentativesByLocation($address, $city, $state, $country = 'US'): array
+    public function getRepresentativesByLocation($address, $city, $state, $country = 'US', $zip = null): array
     {
+        if ($country !== 'US') {
+            return [];
+        }
         $representatives = $this->ciceroService
-            ->findRepresentativeByLocation($address, $city, $state, $country);
+            ->findRepresentativeByLocation($address, $city, $state, $country, $zip);
 
         return $this->handleOfficialResponse($representatives);
     }

@@ -47,7 +47,8 @@ class CiceroSubscriber implements EventSubscriberInterface
             $user->getLineAddress(),
             $user->getCity(),
             $user->getState(),
-            $user->getCountry()
+            $user->getCountry(),
+            $user->getZip()
         );
         if (!empty($representatives)) {
             $user->getDistricts()->clear();

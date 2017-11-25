@@ -37,9 +37,10 @@ class CiceroCalls extends ServiceApi
      * @param $city
      * @param $state
      * @param string $country
+     * @param string $zip
      * @return array
      */
-    public function findRepresentativeByLocation($address, $city, $state, $country = 'US')
+    public function findRepresentativeByLocation($address, $city, $state, $country = 'US', $zip = null)
     {
         $response = $this->getResponse(self::API_URL.self::OFFICIAL,
             array(
@@ -47,6 +48,7 @@ class CiceroCalls extends ServiceApi
                 'search_city' => $city,
                 'search_state' => $state,
                 'search_country' => empty($country) ? 'US' : $country,
+                'search_postal' => $zip,
                 'user' => $this->user,
                 'token' => $this->token,
             ),
